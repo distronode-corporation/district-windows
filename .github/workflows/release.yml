@@ -189,6 +189,24 @@ jobs:
       - name: Install the stable toolchain
         run: rustup toolchain install stable --profile minimal
 
+      # The audio-only libwebrtc the LiveKit call engine links, so a release
+      # has calls: the archive scripts/fetch-libwebrtc.ps1 pins, checked against
+      # its SHA-256, downloaded fresh (no cache here, as above). It sets
+      # LK_CUSTOM_WEBRTC, so the SDK's build never downloads LiveKit's own
+      # prebuilt. As District AI for Linux's release.yml does, a release is
+      # refused unless the repository variable LIBWEBRTC_LICENCE_CLEARED says
+      # this library's licensing has been cleared.
+      - name: Fetch and verify libwebrtc
+        shell: pwsh
+        env:
+          CLEARED: ${{ vars.LIBWEBRTC_LICENCE_CLEARED }}
+        run: |
+          if ($env:CLEARED -ne 'true') {
+            Write-Output "::error::Refusing to build a release: the repository variable LIBWEBRTC_LICENCE_CLEARED is '$env:CLEARED', not 'true'."
+            exit 1
+          }
+          ./scripts/fetch-libwebrtc.ps1 (Join-Path $env:RUNNER_TEMP 'libwebrtc') -GitHubEnv
+
       - name: Build district_ffi.dll
         run: cargo build -p district-ffi --locked --release
 
