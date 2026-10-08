@@ -1,20 +1,20 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
 
 namespace DistrictAI.ViewModels.Calls;
 
 /// <summary>
 /// The dialler's state, copied from the core's <see cref="DialerView"/>: the
-/// number box, Call, and what the core says about the dial. The box holds the
-/// number exactly as typed, which is what the core keeps; every edit is sent as
-/// it happens. Call works only when the core says a call can be placed.
+/// number as it reads, the box, Call, and what the core says about the dial.
+/// The box holds the number exactly as typed, which is what the core keeps,
+/// and is never rewritten to match how it reads; every edit is sent as it
+/// happens. Call works only when the core says a call can be placed.
 /// </summary>
 public sealed partial class DialerViewModel : ObservableObject
 {
     private readonly TextEcho _echo = new();
-    private CoreHost? _core;
+    private PageContext? _context;
     private bool _writing;
 
     /// <summary>The number in the box, as typed.</summary>
@@ -38,7 +38,22 @@ public sealed partial class DialerViewModel : ObservableObject
     [ObservableProperty]
     public partial bool HasFailure { get; set; }
 
-    /// <summary>The core's note under the box (why Call is off, what calling uses), or empty.</summary>
+    /// <summary>
+    /// The number as it reads, its digits grouped, over the box; a no-break
+    /// space when there is none, so the line keeps its height.
+    /// </summary>
+    [ObservableProperty]
+    public partial string Formatted { get; set; } = "\u00A0";
+
+    /// <summary>The line that says what to type.</summary>
+    [ObservableProperty]
+    public partial string Hint { get; set; } = string.Empty;
+
+    /// <summary>"Placing a call turns on your microphone."</summary>
+    [ObservableProperty]
+    public partial string MicrophoneNote { get; set; } = string.Empty;
+
+    /// <summary>Why Call is off while a call or meeting is in the way, or empty.</summary>
     [ObservableProperty]
     public partial string Note { get; set; } = string.Empty;
 
@@ -46,7 +61,7 @@ public sealed partial class DialerViewModel : ObservableObject
     [ObservableProperty]
     public partial bool HasNote { get; set; }
 
-    internal void Attach(CoreHost core) => _core = core;
+    internal void Attach(PageContext context) => _context = context;
 
     internal void Show(DialerView view)
     {
@@ -62,9 +77,12 @@ public sealed partial class DialerViewModel : ObservableObject
                 _writing = false;
             }
         }
+        Formatted = view.Formatted.Length > 0 ? view.Formatted : "\u00A0";
+        Hint = view.Hint;
+        MicrophoneNote = view.MicrophoneNote;
         CanDial = view.CanDial;
         Dialing = view.Dialing;
-        Failure = FailureText.Of(view.Failure);
+        Failure = Display.Failure(view.Failure);
         HasFailure = view.Failure is not null;
         Note = view.Note ?? string.Empty;
         HasNote = !string.IsNullOrEmpty(view.Note);
@@ -77,9 +95,9 @@ public sealed partial class DialerViewModel : ObservableObject
             return;
         }
         _echo.Typed(value);
-        _core?.Send(new UiEvent.DialerEdit(value));
+        _context?.Send(new UiEvent.DialerEdit(value));
     }
 
     [RelayCommand(CanExecute = nameof(CanDial))]
-    private void Dial() => _core?.Send(new UiEvent.Dial());
+    private void Dial() => _context?.Send(new UiEvent.Dial());
 }

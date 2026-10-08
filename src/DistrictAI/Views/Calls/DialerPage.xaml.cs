@@ -1,5 +1,5 @@
-using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Calls;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -23,7 +23,7 @@ public sealed partial class DialerPage : UserControl
     /// <summary>What the page shows, and Call's command.</summary>
     public DialerViewModel ViewModel { get; } = new();
 
-    internal void Attach(CoreHost core) => ViewModel.Attach(core);
+    internal void Attach(PageContext context) => ViewModel.Attach(context);
 
     internal void Show(DialerView view) => ViewModel.Show(view);
 

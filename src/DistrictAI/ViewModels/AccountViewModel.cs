@@ -14,6 +14,7 @@ public sealed partial class AccountViewModel : ObservableObject
     private PageContext? _context;
     private bool _startupCanChange;
     private bool _startupBusy;
+    private bool _writingRing;
 
     /// <summary>The user's name, or empty.</summary>
     [ObservableProperty]
@@ -71,6 +72,36 @@ public sealed partial class AccountViewModel : ObservableObject
     [ObservableProperty]
     public partial bool HasStartupMessage { get; set; }
 
+    /// <summary>
+    /// Whether "Ring on this computer" is shown: once the core has read the
+    /// setting, which a build without calls never does.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool RingVisible { get; set; }
+
+    /// <summary>
+    /// Whether calls ring on this computer. The switch writes it, which sends
+    /// the change to the core; the core's answer writes it back.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool RingOn { get; set; }
+
+    /// <summary>The setting's label, "Ring on this computer".</summary>
+    [ObservableProperty]
+    public partial string RingLabel { get; set; } = string.Empty;
+
+    /// <summary>What the setting does.</summary>
+    [ObservableProperty]
+    public partial string RingBody { get; set; } = string.Empty;
+
+    /// <summary>Why calls cannot ring here right now, or empty.</summary>
+    [ObservableProperty]
+    public partial string RingMessage { get; set; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="RingMessage"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasRingMessage { get; set; }
+
     internal void Attach(PageContext context) => _context = context;
 
     internal void Show(AccountView view)
@@ -85,6 +116,28 @@ public sealed partial class AccountViewModel : ObservableObject
         DevicesCaption = view.DevicesCaption;
         SignOutCaption = view.SignOutCaption;
         DeleteAccountCaption = view.DeleteAccountCaption;
+        RingVisible = view.RingOnThisComputer is not null;
+        _writingRing = true;
+        try
+        {
+            RingOn = view.RingOnThisComputer ?? false;
+        }
+        finally
+        {
+            _writingRing = false;
+        }
+        RingLabel = view.RingSettingLabel;
+        RingBody = view.RingSettingBody;
+        RingMessage = view.RingSettingMessage ?? string.Empty;
+        HasRingMessage = RingMessage.Length > 0;
+    }
+
+    partial void OnRingOnChanged(bool value)
+    {
+        if (!_writingRing)
+        {
+            _context?.Send(new UiEvent.SetRingOnThisComputer(value));
+        }
     }
 
     /// <summary>Reads the start-at-sign-in setting, each time the page opens.</summary>

@@ -45,7 +45,7 @@ internal static class ToastNotifier
             .AddArgument(IdArgument, notification.Id)
             .AddText(notification.Title)
             .AddText(notification.Body);
-        if (notification.Urgent && notification.Actions.Count > 0)
+        if (notification.Urgent && notification.Actions.Length > 0)
         {
             builder.SetScenario(AppNotificationScenario.IncomingCall).MuteAudio();
         }

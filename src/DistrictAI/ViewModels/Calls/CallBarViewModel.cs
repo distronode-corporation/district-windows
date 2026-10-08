@@ -1,7 +1,6 @@
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
 using Microsoft.UI.Xaml;
 
@@ -10,21 +9,23 @@ namespace DistrictAI.ViewModels.Calls;
 /// <summary>
 /// The strip under every signed-in screen while a call is under way, copied
 /// from the core's <see cref="ActiveCallView"/>: who the call is with, where it
-/// stands, how long it has been answered, mute and hang up; once over, how it
+/// stands or how long it has been answered, mute and hang up; once over, how it
 /// ended, until it is put away.
 /// </summary>
 /// <remarks>
-/// The core says when the call was answered (<see cref="ActiveCallView.ConnectedAt"/>)
-/// and the strip counts from it, once a second, on a <see cref="DispatcherTimer"/>
-/// that runs only while the call is answered and not over. The length shown is
-/// this app's own; the call log is the record.
+/// While the call is answered the core's <see cref="ActiveCallView.StateLabel"/>
+/// is its length, which the core moves on only when its model changes. So the
+/// strip counts from <see cref="ActiveCallView.ConnectedAt"/> itself, once a
+/// second, on a <see cref="DispatcherTimer"/> that runs only while the core
+/// gives that instant (answered, and not over). The length shown is this app's
+/// own; the call log is the record.
 /// </remarks>
 public sealed partial class CallBarViewModel : ObservableObject
 {
-    private static readonly TimeSpan Tick = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan _tickEvery = TimeSpan.FromSeconds(1);
 
     private readonly Func<DateTimeOffset> _now;
-    private CoreHost? _core;
+    private PageContext? _context;
     private DispatcherTimer? _timer;
     private DateTimeOffset? _connectedAt;
     private bool _writing;
@@ -46,35 +47,27 @@ public sealed partial class CallBarViewModel : ObservableObject
     [ObservableProperty]
     public partial string Peer { get; set; } = string.Empty;
 
-    /// <summary>Where the call stands, as the core puts it.</summary>
+    /// <summary>Where the call stands, how long it has been answered, or how it ended.</summary>
     [ObservableProperty]
-    public partial string StateLabel { get; set; } = string.Empty;
-
-    /// <summary>How long the call has been answered, as <c>m:ss</c> or <c>h:mm:ss</c>; empty before it is.</summary>
-    [ObservableProperty]
-    public partial string Duration { get; set; } = string.Empty;
-
-    /// <summary>Whether there is a <see cref="Duration"/>.</summary>
-    [ObservableProperty]
-    public partial bool HasDuration { get; set; }
+    public partial string Status { get; set; } = string.Empty;
 
     /// <summary>
-    /// Whether the microphone is muted. The mute button writes it, which sends
-    /// the change to the core; the core's answer writes it back.
+    /// Whether the microphone is off. The mute button writes it, which asks the
+    /// core for the other state; the core's answer writes it back.
     /// </summary>
     [ObservableProperty]
     public partial bool Muted { get; set; }
 
-    /// <summary>Whether the call is still on, so mute is offered.</summary>
+    /// <summary>Whether the mute button works: the call's audio is up and the call is not over.</summary>
     [ObservableProperty]
-    public partial bool IsLive { get; set; }
+    public partial bool CanMute { get; set; }
 
-    /// <summary>Whether Hang up works.</summary>
+    /// <summary>Whether the call is not over, so mute and Hang up are shown.</summary>
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(HangUpCommand))]
     public partial bool CanHangUp { get; set; }
 
-    /// <summary>How the call ended, or empty while it is on.</summary>
+    /// <summary>How the call ended, when that is not already the <see cref="Status"/>; or empty.</summary>
     [ObservableProperty]
     public partial string Ended { get; set; } = string.Empty;
 
@@ -82,7 +75,15 @@ public sealed partial class CallBarViewModel : ObservableObject
     [ObservableProperty]
     public partial bool HasEnded { get; set; }
 
-    /// <summary>Why the call failed, or empty.</summary>
+    /// <summary>The note under an ended call that was answered, or empty.</summary>
+    [ObservableProperty]
+    public partial string EndedNote { get; set; } = string.Empty;
+
+    /// <summary>Whether there is an <see cref="EndedNote"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasEndedNote { get; set; }
+
+    /// <summary>Why the call was never placed or could not be connected, or empty.</summary>
     [ObservableProperty]
     public partial string Failure { get; set; } = string.Empty;
 
@@ -90,15 +91,23 @@ public sealed partial class CallBarViewModel : ObservableObject
     [ObservableProperty]
     public partial bool HasFailure { get; set; }
 
-    /// <summary>Whether the call is over (ended or failed), so it can be put away.</summary>
+    /// <summary>Whether the call is over, so Dismiss puts it away.</summary>
     [ObservableProperty]
     public partial bool CanDismiss { get; set; }
 
-    /// <summary>Whether Windows refused the app the microphone.</summary>
+    /// <summary>The call's connection notice (reconnecting, for one), or empty.</summary>
+    [ObservableProperty]
+    public partial string MediaNotice { get; set; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="MediaNotice"/> to show.</summary>
+    [ObservableProperty]
+    public partial bool HasMediaNotice { get; set; }
+
+    /// <summary>Whether the microphone could not be used, so nobody hears the member.</summary>
     [ObservableProperty]
     public partial bool MicrophoneDenied { get; set; }
 
-    internal void Attach(CoreHost core) => _core = core;
+    internal void Attach(PageContext context) => _context = context;
 
     /// <summary>Draws <paramref name="call"/>, or hides the strip when there is none.</summary>
     internal void Show(ActiveCallView? call)
@@ -108,14 +117,11 @@ public sealed partial class CallBarViewModel : ObservableObject
         {
             StopTimer();
             _connectedAt = null;
-            Duration = string.Empty;
-            HasDuration = false;
             MicrophoneDenied = false;
+            HasMediaNotice = false;
             return;
         }
-        var over = call.Ended is not null || call.Failure is not null;
         Peer = call.Peer;
-        StateLabel = call.StateLabel;
         _writing = true;
         try
         {
@@ -125,50 +131,50 @@ public sealed partial class CallBarViewModel : ObservableObject
         {
             _writing = false;
         }
-        IsLive = !over;
+        CanMute = call.CanMute;
         CanHangUp = call.CanHangUp;
-        Ended = call.Ended ?? string.Empty;
-        HasEnded = call.Ended is not null;
-        Failure = FailureText.Of(call.Failure);
+        Ended = call.Ended is { } ended && ended != call.StateLabel ? ended : string.Empty;
+        HasEnded = Ended.Length > 0;
+        EndedNote = call.EndedNote ?? string.Empty;
+        HasEndedNote = EndedNote.Length > 0;
+        Failure = Display.Failure(call.Failure);
         HasFailure = call.Failure is not null;
-        CanDismiss = over;
+        CanDismiss = !call.CanHangUp;
         MicrophoneDenied = call.MicrophoneDenied;
+        // The microphone's own bar says what to do about it; any other notice
+        // shows on its own.
+        MediaNotice = call.MediaNotice ?? string.Empty;
+        HasMediaNotice = MediaNotice.Length > 0 && !call.MicrophoneDenied;
 
         _connectedAt = ParseInstant(call.ConnectedAt);
-        HasDuration = _connectedAt is not null;
         if (_connectedAt is null)
         {
             StopTimer();
-            Duration = string.Empty;
+            Status = call.StateLabel;
             return;
         }
-        // Once over, the length stays as it was last counted.
         UpdateDuration();
-        if (over)
-        {
-            StopTimer();
-        }
-        else
-        {
-            StartTimer();
-        }
+        StartTimer();
     }
 
     partial void OnMutedChanged(bool value)
     {
         if (!_writing)
         {
-            _core?.Send(new UiEvent.Microphone(!value));
+            _context?.Send(new UiEvent.Microphone(!value));
         }
     }
 
     [RelayCommand(CanExecute = nameof(CanHangUp))]
-    private void HangUp() => _core?.Send(new UiEvent.HangUp());
+    private void HangUp() => _context?.Send(new UiEvent.HangUp());
 
     [RelayCommand]
-    private void Dismiss() => _core?.Send(new UiEvent.DismissCall());
+    private void Dismiss() => _context?.Send(new UiEvent.DismissCall());
 
-    /// <summary>How long a call answered <paramref name="elapsed"/> ago has lasted: <c>m:ss</c>, or <c>h:mm:ss</c> from an hour.</summary>
+    /// <summary>
+    /// How long a call answered <paramref name="elapsed"/> ago has lasted, as
+    /// the core writes it: <c>mm:ss</c>, the minutes running past 59.
+    /// </summary>
     internal static string FormatDuration(TimeSpan elapsed)
     {
         // A clock that disagrees with the service's by a little reads as zero,
@@ -177,9 +183,7 @@ public sealed partial class CallBarViewModel : ObservableObject
         {
             elapsed = TimeSpan.Zero;
         }
-        return elapsed.TotalHours >= 1
-            ? string.Create(CultureInfo.InvariantCulture, $"{(int)elapsed.TotalHours}:{elapsed.Minutes:00}:{elapsed.Seconds:00}")
-            : string.Create(CultureInfo.InvariantCulture, $"{elapsed.Minutes}:{elapsed.Seconds:00}");
+        return string.Create(CultureInfo.InvariantCulture, $"{(long)elapsed.TotalMinutes:00}:{elapsed.Seconds:00}");
     }
 
     /// <summary>An ISO 8601 instant from the core, or null for none or one that does not parse.</summary>
@@ -196,7 +200,7 @@ public sealed partial class CallBarViewModel : ObservableObject
     {
         if (_connectedAt is { } connectedAt)
         {
-            Duration = FormatDuration(_now() - connectedAt);
+            Status = FormatDuration(_now() - connectedAt);
         }
     }
 
@@ -204,7 +208,7 @@ public sealed partial class CallBarViewModel : ObservableObject
     {
         if (_timer is null)
         {
-            _timer = new DispatcherTimer { Interval = Tick };
+            _timer = new DispatcherTimer { Interval = _tickEvery };
             _timer.Tick += OnTick;
         }
         if (!_timer.IsEnabled)

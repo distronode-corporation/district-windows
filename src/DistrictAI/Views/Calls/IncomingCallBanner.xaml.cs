@@ -1,5 +1,5 @@
-using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Calls;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
@@ -23,7 +23,7 @@ public sealed partial class IncomingCallBanner : UserControl
     /// <summary>What the banner shows, and its buttons' commands.</summary>
     public IncomingCallViewModel ViewModel { get; } = new();
 
-    internal void Attach(CoreHost core) => ViewModel.Attach(core);
+    internal void Attach(PageContext context) => ViewModel.Attach(context);
 
     internal void Show(ShellView shell)
     {
