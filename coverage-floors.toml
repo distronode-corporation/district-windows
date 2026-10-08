@@ -1,0 +1,16 @@
+# Line coverage floors, one entry per workspace crate.
+#
+# CI's `rust` job measures line coverage while it runs the tests on Linux, and
+# scripts/check-coverage.py fails the job when a crate is under its floor, when a
+# crate is missing from the report, or when an entry here is incomplete.
+#
+#   floor   The whole-number percentage of the crate's lines under src/ that the
+#           tests must execute. 100 means every line.
+#   reason  One line saying why the floor is where it is.
+#
+# Floors only ratchet up. A change that raises a crate's coverage raises its floor
+# in the same change, and lowering a floor needs a reason stated in review.
+
+[crates.district-ffi]
+floor = 99
+reason = "Measured on Linux, where the Credential Manager vault (cfg(windows), tested on the Windows job) is not compiled; left out are the API client's configuration error, which a constant base URL never produces, and UniFFI's generated foreign-trait glue."

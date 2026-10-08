@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The OS-neutral half of the app: the C# bindings uniffi-bindgen-cs writes
+    for crates/district-ffi (Generated/, committed, regenerated and diffed in
+    CI) and CoreHost, which feeds the core's snapshots to a UI thread. Builds
+    and tests on Linux against libdistrict_ffi.so, and on Windows against
+    district_ffi.dll.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>DistrictAI.Core</RootNamespace>
+    <!-- The generated bindings use pointers and source-generated P/Invoke. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <!--
+    The native library, copied next to whatever references this project, when
+    it has been built. The app checks for it separately and fails without it.
+  -->
+  <ItemGroup>
+    <None Include="$(DistrictFfiDir)libdistrict_ffi.so" Link="libdistrict_ffi.so" Condition="Exists('$(DistrictFfiDir)libdistrict_ffi.so')" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(DistrictFfiDir)district_ffi.dll" Link="district_ffi.dll" Condition="Exists('$(DistrictFfiDir)district_ffi.dll')" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>

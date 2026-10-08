@@ -1,0 +1,22 @@
+{
+  "screen": {
+    "Session": {
+      "view": {
+        "body": "Resuming your session.",
+        "busy": true,
+        "cancel": false,
+        "error": null,
+        "retry": false,
+        "retry_sign_out": false,
+        "sign_in": false,
+        "title": "District AI"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "notice": null,
+    "phase": "Restoring",
+    "tab": null
+  }
+}

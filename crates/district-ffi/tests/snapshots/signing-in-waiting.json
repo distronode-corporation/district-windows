@@ -1,0 +1,22 @@
+{
+  "screen": {
+    "Session": {
+      "view": {
+        "body": "Waiting for sign-in to finish in your browser.",
+        "busy": true,
+        "cancel": true,
+        "error": null,
+        "retry": false,
+        "retry_sign_out": false,
+        "sign_in": false,
+        "title": "Signing in"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "notice": null,
+    "phase": "SigningIn",
+    "tab": null
+  }
+}

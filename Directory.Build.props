@@ -1,0 +1,48 @@
+<Project>
+  <!--
+    Every C# project in the repository. Warnings are errors, nullable reference
+    types are on, the analyzers run at the latest recommended level, and code
+    style is checked in the build as well as by `dotnet format`.
+  -->
+  <PropertyGroup>
+    <LangVersion>14</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <Company>Distronode Corporation</Company>
+    <Copyright>Copyright Distronode Corporation</Copyright>
+    <Authors>Distronode Corporation</Authors>
+  </PropertyGroup>
+
+  <!--
+    Restore. Each project has a packages.lock.json, and restore refuses to
+    change it: a package that resolves differently fails here instead of
+    building with something nobody reviewed. After a deliberate change to
+    Directory.Packages.props, write the lock files again with
+    `dotnet restore -p:RestoreLockedMode=false` and commit them with it.
+    NuGetAudit fails the restore (warnings are errors) on a known vulnerability
+    in any package, transitive ones included.
+  -->
+  <PropertyGroup>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(RestoreLockedMode)' == ''">true</RestoreLockedMode>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <NuGetAuditLevel>low</NuGetAuditLevel>
+  </PropertyGroup>
+
+  <!--
+    Where district-ffi's native library is: the Cargo target directory, release
+    or debug. CI builds it first; a local build of the C# side needs
+    `cargo build -p district-ffi` (add `release` for the app).
+  -->
+  <PropertyGroup>
+    <DistrictFfiProfile Condition="'$(DistrictFfiProfile)' == ''">debug</DistrictFfiProfile>
+    <DistrictFfiDir Condition="'$(DistrictFfiDir)' == ''">$(MSBuildThisFileDirectory)target/$(DistrictFfiProfile)/</DistrictFfiDir>
+  </PropertyGroup>
+</Project>

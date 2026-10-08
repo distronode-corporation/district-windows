@@ -1,0 +1,9 @@
+# uniffi-bindgen-cs settings for the C# bindings in src/DistrictAI.Core/Generated.
+# scripts/generate-bindings.sh passes this file; CI regenerates and diffs.
+[bindings.csharp]
+namespace = "DistrictAI.Core.Ffi"
+global_methods_class_name = "DistrictFfi"
+# The app reads the generated records (ShellView, ScreenView) directly, so they
+# are public; the FFI plumbing the generator writes stays internal.
+access_modifier = "public"
+

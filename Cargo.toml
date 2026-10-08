@@ -1,0 +1,60 @@
+[workspace]
+resolver = "3"
+members = ["crates/district-ffi"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+# The floor District AI for Linux declares and district-core-rust builds at. The
+# `msrv` job in .github/workflows/ci.yml compiles the workspace at exactly this
+# version, so a dependency that needs a newer Rust fails there, not on a
+# contributor's machine.
+rust-version = "1.92"
+license = "Apache-2.0"
+repository = "https://github.com/distronode-corporation/district-windows"
+authors = ["Distronode Corporation"]
+publish = false
+
+[workspace.dependencies]
+# The shared core, pinned by tag with its exact version. Every crate names the
+# same tag, so Cargo resolves one copy of the core, and Cargo.lock records the
+# commit the tag pointed at (533b020 for v1.0.0); a tag moved later does not
+# change a locked build. Moving the core is one edit per line here and a
+# Cargo.lock update in the same pull request.
+district-api = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v1.0.0", version = "=1.0.0" }
+district-auth = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v1.0.0", version = "=1.0.0" }
+district-call = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v1.0.0", version = "=1.0.0" }
+district-core = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v1.0.0", version = "=1.0.0" }
+district-host = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v1.0.0", version = "=1.0.0" }
+district-live = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v1.0.0", version = "=1.0.0" }
+district-model = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v1.0.0", version = "=1.0.0" }
+
+# Exactly the UniFFI that uniffi-bindgen-cs v0.11.0+v0.31.0 is built on. The
+# generator and the scaffolding must agree on every checksum, so this moves only
+# together with the generator's version in .github/actions/install-uniffi-bindgen-cs
+# and in scripts/generate-bindings.sh.
+uniffi = { version = "=0.31.0", default-features = false }
+# Foreign traits with async methods need it (UniFFI's own requirement: a trait
+# with an `async fn` cannot be a `dyn` trait object without boxing its futures).
+async-trait = "0.1.89"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+thiserror = "2.0.21"
+tokio = { version = "1.53.1", default-features = false }
+# Credential Manager, through its own Win32 API (CredWriteW and friends), with
+# nothing else compiled in: no Secret Service, no keyutils, no macOS keychain.
+keyring = { version = "3.6.3", default-features = false, features = ["windows-native"] }
+# NOT for logging: see the comment on `log` in crates/district-ffi/Cargo.toml.
+log = { version = "0.4.34", features = ["max_level_warn"] }
+tempfile = "3.27.0"
+url = "2.5.8"
+
+[workspace.lints.rust]
+# district-ffi included: see the note on its [lints] table.
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+dbg_macro = "warn"
+todo = "warn"
+unimplemented = "warn"

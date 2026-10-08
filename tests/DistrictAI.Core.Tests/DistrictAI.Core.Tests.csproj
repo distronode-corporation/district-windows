@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    DistrictAI.Core against the real district-ffi library: libdistrict_ffi.so
+    on Linux, district_ffi.dll on Windows. Build the crate first
+    (`cargo build -p district-ffi`).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>DistrictAI.Core.Tests</RootNamespace>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/DistrictAI.Core/DistrictAI.Core.csproj" />
+  </ItemGroup>
+  <Target Name="RequireDistrictFfi" BeforeTargets="Build">
+    <Error Condition="!Exists('$(DistrictFfiDir)libdistrict_ffi.so') And !Exists('$(DistrictFfiDir)district_ffi.dll')" Text="district-ffi is not built in $(DistrictFfiDir). Run `cargo build -p district-ffi` first." />
+  </Target>
+</Project>

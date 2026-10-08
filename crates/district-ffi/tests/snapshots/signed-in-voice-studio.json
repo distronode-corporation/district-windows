@@ -1,0 +1,13 @@
+{
+  "screen": {
+    "Route": {
+      "route": "VoiceStudio"
+    }
+  },
+  "shell": {
+    "can_go_back": true,
+    "notice": null,
+    "phase": "SignedIn",
+    "tab": "Overview"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "screen": {
+    "Session": {
+      "view": {
+        "body": "Sign in with your District AI account. Signing in happens in your browser, so this app never sees your password.",
+        "busy": false,
+        "cancel": false,
+        "error": "No browser is available, and signing in needs one.",
+        "retry": false,
+        "retry_sign_out": false,
+        "sign_in": true,
+        "title": "Welcome to District AI"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "notice": null,
+    "phase": "SignedOut",
+    "tab": null
+  }
+}

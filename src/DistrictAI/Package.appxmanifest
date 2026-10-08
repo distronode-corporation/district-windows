@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The MSIX manifest. The placeholder below is deliberate:
+
+  STORE IDENTITY PLACEHOLDER. Identity/@Name is not the Store's: the app name
+  "District AI" is not reserved in Partner Center yet. When it is, Partner
+  Center gives the package identity name, the Publisher (a CN=... string) and
+  the publisher display name, and all three replace the values here.
+  Until then the Publisher is "CN=Distronode", which is also the subject of the
+  throwaway test certificate CI signs its test packages with (it must match).
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  IgnorableNamespaces="uap uap5 rescap com desktop">
+
+  <Identity
+    Name="Distronode.DistrictAI.Placeholder"
+    Publisher="CN=Distronode"
+    Version="0.1.0.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>District AI</DisplayName>
+    <PublisherDisplayName>Distronode</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <!-- Windows 10 2004 or later. -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
+      <uap:VisualElements
+        DisplayName="District AI"
+        Description="The District AI receptionist on your desktop."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+
+      <Extensions>
+        <!-- districtai://auth (the browser handing a sign-in back) and districtai://handoff. -->
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="districtai">
+            <uap:DisplayName>District AI</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+
+        <!--
+          Toast activation. A notification's button (an incoming call's Answer
+          or Decline) reaches the app through this COM class: Windows App SDK's
+          AppNotificationManager serves it while the app runs, and Windows
+          starts DistrictAI.exe with the argument below when it does not.
+        -->
+        <desktop:Extension Category="windows.toastNotificationActivation">
+          <desktop:ToastNotificationActivation ToastActivatorCLSID="272deb07-99f2-400d-af85-7a5077894f34" />
+        </desktop:Extension>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="DistrictAI.exe" Arguments="----AppNotificationActivated:" DisplayName="District AI notifications">
+              <com:Class Id="272deb07-99f2-400d-af85-7a5077894f34" DisplayName="District AI notifications" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+
+        <!-- Start at sign-in to Windows: off until the person turns it on. -->
+        <uap5:Extension Category="windows.startupTask">
+          <uap5:StartupTask TaskId="DistrictAIStartup" Enabled="false" DisplayName="District AI" />
+        </uap5:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <!-- Calls (W7). Asked for once, when the first call needs it. -->
+    <DeviceCapability Name="microphone" />
+  </Capabilities>
+</Package>

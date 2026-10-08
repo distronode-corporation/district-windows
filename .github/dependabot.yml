@@ -8,9 +8,14 @@ version: 2
 # compromised publish that is yanked within days never reaches a pull request here.
 # It does not delay security updates.
 #
-# The `cargo` and `nuget` ecosystems join this file in the same pull request as the
-# first Cargo.toml and the first project file: Dependabot reports an error for an
-# ecosystem whose manifest does not exist yet.
+# `cargo` opens pull requests against Cargo.lock, which CI enforces with
+# `--locked`. The UniFFI pin is exact and moves only together with
+# uniffi-bindgen-cs, so Dependabot leaves it alone; so does the core, which is a
+# git dependency pinned by tag and moved by hand.
+#
+# `nuget` bumps Directory.Packages.props; each pull request needs the lock files
+# written again (`dotnet restore -p:RestoreLockedMode=false`), or restore fails
+# in CI, which is the point.
 updates:
   - package-ecosystem: github-actions
     directory: /
@@ -20,4 +25,26 @@ updates:
       default-days: 7
     groups:
       actions-minor:
+        update-types: [minor, patch]
+
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      cargo-minor:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: uniffi
+
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      nuget-minor:
         update-types: [minor, patch]

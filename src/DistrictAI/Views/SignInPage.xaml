@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.SignInPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel
+        MaxWidth="440"
+        Padding="24"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        Spacing="16">
+        <TextBlock
+            AutomationProperties.HeadingLevel="Level1"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+            TextWrapping="Wrap" />
+        <TextBlock Text="{x:Bind ViewModel.Body, Mode=OneWay}" TextWrapping="Wrap" />
+        <ProgressRing
+            AutomationProperties.Name="Working"
+            IsActive="{x:Bind ViewModel.Busy, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Busy, Mode=OneWay}" />
+        <InfoBar
+            AutomationProperties.Name="Sign-in problem"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Error, Mode=OneWay}"
+            Severity="Error" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button
+                AutomationProperties.Name="Sign in with your browser"
+                Command="{x:Bind ViewModel.SignInCommand}"
+                Content="Sign in with your browser"
+                Style="{StaticResource AccentButtonStyle}"
+                Visibility="{x:Bind ViewModel.CanSignIn, Mode=OneWay}" />
+            <Button
+                AutomationProperties.Name="Try again"
+                Command="{x:Bind ViewModel.RetryCommand}"
+                Content="Try again"
+                Visibility="{x:Bind ViewModel.CanRetry, Mode=OneWay}" />
+            <Button
+                AutomationProperties.Name="Sign out again"
+                Command="{x:Bind ViewModel.RetrySignOutCommand}"
+                Content="Sign out again"
+                Visibility="{x:Bind ViewModel.CanRetrySignOut, Mode=OneWay}" />
+            <Button
+                AutomationProperties.Name="Cancel"
+                Command="{x:Bind ViewModel.CancelCommand}"
+                Content="Cancel"
+                Visibility="{x:Bind ViewModel.CanCancel, Mode=OneWay}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>
