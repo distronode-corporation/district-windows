@@ -11,7 +11,7 @@ using Package = Windows.ApplicationModel.Package;
 namespace DistrictAI;
 
 /// <summary>The application: the core, the window, and every way Windows activates the app.</summary>
-public partial class App : Application
+public sealed partial class App : Application, IDisposable
 {
     private readonly AppActivationArguments _launch;
     private CoreHost? _core;
@@ -81,8 +81,17 @@ public partial class App : Application
     private void OnClosed(object sender, WindowEventArgs args)
     {
         AppNotificationManager.Default.Unregister();
-        // The core saves the session if a refresh left it unsaved, within its
-        // own two-second budget, before the process ends.
+        Dispose();
+    }
+
+    /// <summary>
+    /// Stops the core. It saves the session if a refresh left it unsaved,
+    /// within its own two-second budget, before the process ends.
+    /// </summary>
+    public void Dispose()
+    {
         _core?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        _core = null;
+        GC.SuppressFinalize(this);
     }
 }
