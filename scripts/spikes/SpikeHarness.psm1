@@ -86,7 +86,8 @@ function Get-AppProcesses {
 }
 
 function Stop-App {
-    foreach ($process in Get-AppProcesses) { Stop-Process -InputObject $process -Force -ErrorAction SilentlyContinue }
+    $running = Get-AppProcesses
+    foreach ($process in $running) { Stop-Process -InputObject $process -Force -ErrorAction SilentlyContinue }
     $deadline = (Get-Date).AddSeconds(15)
     while ((Get-AppProcesses).Count -gt 0 -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 100 }
 }
@@ -125,8 +126,13 @@ function Start-Summary([string] $Title) {
 function Complete-Summary([string] $Family) {
     if ($Family) {
         Write-Host "--- spikes.log"
-        Get-SpikeLog $Family | ForEach-Object { Write-Host $_ }
+        $lines = Get-SpikeLog $Family
+        foreach ($line in $lines) { Write-Host $line }
     }
+    # Why the app stopped, if it crashed: Windows Error Reporting's record.
+    $crashes = Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'Application Error'; StartTime = (Get-Date).AddHours(-1) } -ErrorAction SilentlyContinue |
+        Where-Object { $_.Message -match 'DistrictAI' }
+    foreach ($crash in $crashes) { Write-Host "--- crash $($crash.TimeCreated)`n$($crash.Message)" }
     if ($script:Failed) { throw 'one or more checks failed' }
 }
 

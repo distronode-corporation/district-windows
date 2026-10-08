@@ -15,6 +15,17 @@ try {
 
     $mark = (Get-SpikeLog $family).Count
     Start-Process 'districtai://spike-toast'
+    $registered = Wait-SpikeLine -Family $family -Pattern 'notifications-registered' -Seconds 5
+    if ($registered -match 'supported=False') {
+        # Windows App SDK's notifications are not supported on this OS edition
+        # (the hosted runner is Windows Server): nothing here can be shown or
+        # pressed. The spike then runs by hand on Windows 10 or 11.
+        Write-Host "::warning title=Spike 5 not runnable here::AppNotificationManager.IsSupported() is false on this runner: $registered"
+        Add-Result 'notifications are supported on this runner' $true "NOT RUNNABLE HERE, manual: $registered. Run spike 5 by hand on Windows 10 or 11."
+        Stop-App
+        Complete-Summary $family
+        return
+    }
     $shown = Wait-SpikeLine -Family $family -Pattern 'toast-shown' -After $mark -Seconds 20
     Add-Result 'the IncomingCall toast is shown' ($shown -match 'listed=True') "$shown"
 
