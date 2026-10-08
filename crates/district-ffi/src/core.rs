@@ -136,7 +136,12 @@ impl SnapshotCell {
         });
         Self(Mutex::new(Snapshot {
             revision: 0,
-            shell: shell_for(&session, false),
+            shell: shell_for(
+                &session,
+                false,
+                district_call::CALLS_AVAILABLE,
+                std::time::SystemTime::now(),
+            ),
             screen: session_view(&session, |_| ScreenView::unavailable()),
         }))
     }

@@ -78,6 +78,8 @@
     }
   },
   "shell": {
+    "call": null,
+    "calls_available": false,
     "can_go_back": false,
     "live": {
       "can_refresh": true,
@@ -86,6 +88,7 @@
     "notice": null,
     "phase": "SignedIn",
     "report": null,
+    "ring": null,
     "tab": "Overview",
     "unread": 3,
     "workspaces": {

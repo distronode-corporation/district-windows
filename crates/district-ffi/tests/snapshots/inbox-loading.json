@@ -24,11 +24,14 @@
     }
   },
   "shell": {
+    "call": null,
+    "calls_available": false,
     "can_go_back": false,
     "live": null,
     "notice": null,
     "phase": "SignedIn",
     "report": null,
+    "ring": null,
     "tab": "Inbox",
     "unread": 0,
     "workspaces": {

@@ -8,7 +8,7 @@
         "devices_caption": "See where you are signed in, and sign out a device you no longer have.",
         "email": null,
         "name": null,
-        "ring_on_this_computer": null,
+        "ring_on_this_computer": true,
         "ring_setting_body": "Calls handed to you ring here while District AI is running and you are signed in. Your availability for calls is set in Call handling.",
         "ring_setting_label": "Ring on this computer",
         "ring_setting_message": null,
@@ -19,7 +19,7 @@
   },
   "shell": {
     "call": null,
-    "calls_available": false,
+    "calls_available": true,
     "can_go_back": false,
     "live": null,
     "notice": null,

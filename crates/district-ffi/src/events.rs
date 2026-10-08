@@ -1,7 +1,8 @@
 //! What the window forwards: the user's actions, and the machine's.
 
 use district_core::{
-    CallsEvent, ContactsEvent, DevicesEvent, Event, InboxEvent, Route, Tab, ThreadEvent,
+    CallEvent, CallsEvent, ContactsEvent, DevicesEvent, DialerEvent, Event, InboxEvent, RingEvent,
+    Route, Tab, ThreadEvent,
 };
 
 use crate::report;
@@ -102,6 +103,47 @@ pub enum UiEvent {
     },
     /// Put away a report's outcome.
     DismissReport,
+    /// Open the dialler.
+    OpenDialer,
+    /// The dialler's number changed: what the box holds now, exactly as typed.
+    DialerEdit {
+        /// The number.
+        number: String,
+    },
+    /// The dialler's "Call" (or Enter in its box).
+    Dial,
+    /// Call `number` from anywhere (a call's or a contact's "Call back"): the
+    /// dialler is given the number, then dialled. Two core events.
+    CallNumber {
+        /// The number, as the service wrote it.
+        number: String,
+    },
+    /// Hang up the call under way, or abandon a dial on its way.
+    HangUp,
+    /// Put an ended call's summary away.
+    DismissCall,
+    /// Answer the call ringing.
+    Answer {
+        /// The call, as the ring names it.
+        call_id: String,
+    },
+    /// Decline it. Nothing is sent to the service.
+    Decline {
+        /// The call.
+        call_id: String,
+    },
+    /// Put an ended ring's line away.
+    DismissRing,
+    /// Turn the microphone on or off, during a call.
+    Microphone {
+        /// On, or off.
+        on: bool,
+    },
+    /// The account screen's "Ring on this computer".
+    SetRingOnThisComputer {
+        /// On, or off.
+        on: bool,
+    },
 }
 
 impl UiEvent {
@@ -141,6 +183,22 @@ impl UiEvent {
             UiEvent::DeleteAccount => Event::DeleteAccount,
             UiEvent::Report { target, note } => return report::events(&target, &note),
             UiEvent::DismissReport => return report::dismiss(),
+            UiEvent::OpenDialer => Event::Navigate(Route::Dialer),
+            UiEvent::DialerEdit { number } => Event::Dialer(DialerEvent::Edit(number)),
+            UiEvent::Dial => Event::Dialer(DialerEvent::Dial),
+            UiEvent::CallNumber { number } => {
+                return vec![
+                    Event::Dialer(DialerEvent::Edit(number)),
+                    Event::Dialer(DialerEvent::Dial),
+                ];
+            }
+            UiEvent::HangUp => Event::Call(CallEvent::HangUp),
+            UiEvent::DismissCall => Event::Call(CallEvent::Dismiss),
+            UiEvent::Answer { call_id } => Event::Ring(RingEvent::Answer { call_id }),
+            UiEvent::Decline { call_id } => Event::Ring(RingEvent::Decline { call_id }),
+            UiEvent::DismissRing => Event::Ring(RingEvent::Dismiss),
+            UiEvent::Microphone { on } => Event::Microphone(on),
+            UiEvent::SetRingOnThisComputer { on } => Event::SetRingOnThisComputer(on),
         };
         vec![one]
     }
@@ -260,10 +318,53 @@ mod tests {
                 UiEvent::WindowVisible { visible: false },
                 Event::WindowVisible(false),
             ),
+            (UiEvent::OpenDialer, Event::Navigate(Route::Dialer)),
+            (
+                UiEvent::DialerEdit {
+                    number: "+1 212".to_owned(),
+                },
+                Event::Dialer(DialerEvent::Edit("+1 212".to_owned())),
+            ),
+            (UiEvent::Dial, Event::Dialer(DialerEvent::Dial)),
+            (UiEvent::HangUp, Event::Call(CallEvent::HangUp)),
+            (UiEvent::DismissCall, Event::Call(CallEvent::Dismiss)),
+            (
+                UiEvent::Answer {
+                    call_id: "call-1".to_owned(),
+                },
+                Event::Ring(RingEvent::Answer {
+                    call_id: "call-1".to_owned(),
+                }),
+            ),
+            (
+                UiEvent::Decline {
+                    call_id: "call-1".to_owned(),
+                },
+                Event::Ring(RingEvent::Decline {
+                    call_id: "call-1".to_owned(),
+                }),
+            ),
+            (UiEvent::DismissRing, Event::Ring(RingEvent::Dismiss)),
+            (UiEvent::Microphone { on: false }, Event::Microphone(false)),
+            (
+                UiEvent::SetRingOnThisComputer { on: true },
+                Event::SetRingOnThisComputer(true),
+            ),
         ];
         for (action, event) in pairs {
             assert_eq!(action.events(), [event]);
         }
+        // Call back: the number into the dialler, then Call, in that order.
+        assert_eq!(
+            UiEvent::CallNumber {
+                number: "+12125550142".to_owned(),
+            }
+            .events(),
+            [
+                Event::Dialer(DialerEvent::Edit("+12125550142".to_owned())),
+                Event::Dialer(DialerEvent::Dial),
+            ]
+        );
         assert_eq!(Event::from(PowerChange::Suspending), Event::Suspending);
         assert_eq!(Event::from(PowerChange::Resumed), Event::Resumed);
     }

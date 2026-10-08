@@ -1,16 +1,27 @@
 {
   "screen": {
-    "Unavailable": {
-      "body": "Use the web dashboard or the District AI phone apps for this.",
-      "title": "Not in this version yet"
+    "Dialer": {
+      "view": {
+        "can_dial": true,
+        "dialing": false,
+        "failure": null,
+        "formatted": "+1 212 555 0142",
+        "hint": "Enter a number with its country code, for example +1 212 555 0142.",
+        "microphone_note": "Placing a call turns on your microphone.",
+        "note": null,
+        "number": "+12125550142"
+      }
     }
   },
   "shell": {
+    "call": null,
+    "calls_available": true,
     "can_go_back": true,
     "live": null,
     "notice": null,
     "phase": "SignedIn",
     "report": null,
+    "ring": null,
     "tab": "Calls",
     "unread": 0,
     "workspaces": {
