@@ -20,7 +20,7 @@ use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
 use tokio::sync::oneshot;
 
 use crate::events::{PowerChange, UiEvent};
-use crate::host::{HostOpener, NoNotifier, NoRing, UiHost};
+use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
 use crate::link::{LinkKind, link_kind};
 use crate::screen::{ScreenView, screen_view};
@@ -85,6 +85,8 @@ fn setup(what: &str) -> impl FnOnce(String) -> StartError + '_ {
 pub struct Core {
     lifecycle: Mutex<Lifecycle>,
     snapshot: Arc<SnapshotCell>,
+    /// The notifications shown, for [`activate_notification`](Self::activate_notification).
+    notifications: Arc<NotificationTable>,
 }
 
 enum Lifecycle {
@@ -193,6 +195,7 @@ impl Core {
         Arc::new(Self {
             lifecycle: Mutex::new(Lifecycle::Idle),
             snapshot: Arc::new(SnapshotCell::new()),
+            notifications: Arc::new(NotificationTable::default()),
         })
     }
 
@@ -210,7 +213,13 @@ impl Core {
             .thread_name("district-core")
             .build()
             .map_err(|error| setup("the runtime could not start")(error.to_string()))?;
-        let sender = match start_real(&runtime, config, host, &self.snapshot) {
+        let sender = match start_real(
+            &runtime,
+            config,
+            host,
+            &self.snapshot,
+            Arc::clone(&self.notifications),
+        ) {
             Ok(sender) => sender,
             Err(error) => {
                 // Not a plain drop, which blocks on the runtime's threads.
@@ -243,6 +252,18 @@ impl Core {
             LinkKind::Unknown => {}
         }
         kind
+    }
+
+    /// A notification the host showed was activated: its toast clicked
+    /// (`action_id` `None`), or one of its buttons, named by its
+    /// `NotificationActionView::action_id`. The model then opens what the
+    /// notification is about, or answers or declines the call it names. A
+    /// notification this core did not show, or no longer remembers, does
+    /// nothing.
+    pub fn activate_notification(&self, id: String, action_id: Option<String>) {
+        if let Some(event) = self.notifications.activate(&id, action_id.as_deref()) {
+            self.deliver(Message::event(event));
+        }
     }
 
     /// The machine is about to sleep, or has woken.
@@ -351,6 +372,7 @@ fn start_real(
     config: StartConfig,
     host: Arc<dyn UiHost>,
     snapshot: &Arc<SnapshotCell>,
+    notifications: Arc<NotificationTable>,
 ) -> Result<UnboundedSender<Message>, StartError> {
     let data_dir = PathBuf::from(&config.data_dir);
     std::fs::create_dir_all(&data_dir)
@@ -400,10 +422,13 @@ fn start_real(
         HostOpener(Arc::clone(&host)),
         TokioClock,
         live,
-        NoNotifier,
+        HostNotifier {
+            host: Arc::clone(&host),
+            table: notifications,
+        },
         presence,
         engine,
-        NoRing,
+        HostRing(Arc::clone(&host)),
     );
     let core_config = CoreConfig {
         web_base_url: api_config.base_url.to_string(),
@@ -771,6 +796,40 @@ mod tests {
             Arc::new(RecordingHost::default()),
         );
         drop(core);
+    }
+
+    /// A toast clicked, or one of its buttons, reaches the model as the event
+    /// the core's notification names; one this core never showed does not.
+    #[test]
+    fn activating_a_notification_sends_its_event() {
+        let core = Core::new();
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap();
+        let (sender, mut inbox) = unbounded_channel();
+        *core.lifecycle() = Lifecycle::Running { runtime, sender };
+        core.notifications
+            .shown(&crate::host::tests::ringing("call-1"));
+
+        core.activate_notification("call:call-1".to_owned(), Some("answer".to_owned()));
+        core.activate_notification("call:unknown".to_owned(), None);
+        core.activate_notification("call:call-1".to_owned(), None);
+        let mut events = Vec::new();
+        while let Ok(Message::Event(event)) = inbox.try_recv() {
+            events.push(*event);
+        }
+        assert_eq!(
+            events,
+            [
+                Event::Ring(district_core::RingEvent::Answer {
+                    call_id: "call-1".to_owned(),
+                }),
+                Event::OpenNotification(district_core::NotificationTarget::IncomingCall {
+                    workspace_id: "ws-1".to_owned(),
+                    call_id: "call-1".to_owned(),
+                }),
+            ]
+        );
     }
 
     /// The real runner, offline: with nothing in the store, the start-up check

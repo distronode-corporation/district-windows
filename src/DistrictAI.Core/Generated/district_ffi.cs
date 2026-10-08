@@ -698,6 +698,26 @@ static class _UniFFILib {
     public delegate void UniffiCallbackInterfaceUiHostMethod1(
         ulong @uniffiHandle,RustBuffer @url,IntPtr @uniffiFutureCallback,ulong @uniffiCallbackData,IntPtr /*_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*/ @uniffiOutDroppedCallback
     );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceUiHostMethod2(
+        ulong @uniffiHandle,RustBuffer @notification,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceUiHostMethod3(
+        ulong @uniffiHandle,RustBuffer @id,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceUiHostMethod4(
+        ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceUiHostMethod5(
+        ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceUiHostMethod6(
+        ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiVTableCallbackInterfaceUiHost
     {
@@ -705,7 +725,24 @@ static class _UniFFILib {
         public IntPtr @uniffiClone;
         public IntPtr @stateChanged;
         public IntPtr @openUrl;
+        public IntPtr @notify;
+        public IntPtr @withdraw;
+        public IntPtr @startRingtone;
+        public IntPtr @stopRingtone;
+        public IntPtr @presentWindow;
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -827,6 +864,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_district_ffi_fn_constructor_core_new(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_district_ffi_fn_method_core_activate_notification(ulong @ptr,RustBuffer @id,RustBuffer @actionId,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -970,6 +1018,61 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_district_ffi_fn_method_uihost_open_url(ulong @ptr,RustBuffer @url
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_district_ffi_fn_method_uihost_notify(ulong @ptr,RustBuffer @notification,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_district_ffi_fn_method_uihost_withdraw(ulong @ptr,RustBuffer @id,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_district_ffi_fn_method_uihost_start_ringtone(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_district_ffi_fn_method_uihost_stop_ringtone(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_district_ffi_fn_method_uihost_present_window(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -1574,6 +1677,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_method_core_activate_notification(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_method_core_open_link(
     );
 
@@ -1684,6 +1798,61 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_method_uihost_notify(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_method_uihost_withdraw(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_method_uihost_start_ringtone(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_method_uihost_stop_ringtone(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_method_uihost_present_window(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_constructor_core_new(
     );
 
@@ -1711,6 +1880,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_link_kind();
             if (checksum != 17727) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_link_kind` checksum `17727`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_activate_notification();
+            if (checksum != 18889) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_activate_notification` checksum `18889`, library returned `{checksum}`");
             }
         }
         {
@@ -1771,6 +1946,36 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_open_url();
             if (checksum != 23742) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_open_url` checksum `23742`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_notify();
+            if (checksum != 52980) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_notify` checksum `52980`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_withdraw();
+            if (checksum != 37350) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_withdraw` checksum `37350`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_start_ringtone();
+            if (checksum != 19017) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_start_ringtone` checksum `19017`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_stop_ringtone();
+            if (checksum != 18874) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_stop_ringtone` checksum `18874`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_present_window();
+            if (checksum != 48954) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_present_window` checksum `48954`, library returned `{checksum}`");
             }
         }
         {
@@ -1899,6 +2104,15 @@ class FfiConverterString: FfiConverter<string, RustBuffer> {
 /// runtime.
 /// </summary>
 public interface ICore {
+    /// <summary>
+    /// A notification the host showed was activated: its toast clicked
+    /// (`action_id` `None`), or one of its buttons, named by its
+    /// `NotificationActionView::action_id`. The model then opens what the
+    /// notification is about, or answers or declines the call it names. A
+    /// notification this core did not show, or no longer remembers, does
+    /// nothing.
+    /// </summary>
+    void ActivateNotification(string @id, string? @actionId);
     /// <summary>
     /// Hands the model a `districtai:` link Windows activated the app with,
     /// and says what kind it was. A sign-in's answer goes to the sign-in, a
@@ -2048,6 +2262,23 @@ public class Core : ICore, IDisposable {
         }
     }
 
+    
+    /// <summary>
+    /// A notification the host showed was activated: its toast clicked
+    /// (`action_id` `None`), or one of its buttons, named by its
+    /// `NotificationActionView::action_id`. The model then opens what the
+    /// notification is about, or answers or declines the call it names. A
+    /// notification this core did not show, or no longer remembers, does
+    /// nothing.
+    /// </summary>
+    public void ActivateNotification(string @id, string? @actionId) {
+        CallWithPointer(thisPtr =>
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_method_core_activate_notification(thisPtr, FfiConverterString.INSTANCE.Lower(@id), FfiConverterOptionalString.INSTANCE.Lower(@actionId), ref _status)
+));
+    }
+    
+    
     
     /// <summary>
     /// Hands the model a `districtai:` link Windows activated the app with,
@@ -2208,6 +2439,30 @@ public interface UiHost {
     /// and answers whether a browser took it.
     /// </summary>
     Task<bool> OpenUrl(string @url);
+    /// <summary>
+    /// Shows `notification` as a toast, replacing any shown with the same id.
+    /// An [`urgent`](NotificationView::urgent) one (a call ringing now) stays
+    /// on screen until it is dealt with. Clicking it, or one of its actions,
+    /// calls [`Core::activate_notification`](crate::Core::activate_notification)
+    /// with its id and the action's id.
+    /// </summary>
+    void Notify(NotificationView @notification);
+    /// <summary>
+    /// Takes away the notification `id`, if it is showing.
+    /// </summary>
+    void Withdraw(string @id);
+    /// <summary>
+    /// Starts the ringtone, looping, until [`stop_ringtone`](Self::stop_ringtone).
+    /// </summary>
+    void StartRingtone();
+    /// <summary>
+    /// Stops the ringtone, if it is sounding.
+    /// </summary>
+    void StopRingtone();
+    /// <summary>
+    /// Brings the main window forward: shown, restored, raised and focused.
+    /// </summary>
+    void PresentWindow();
 }
 /// <summary>
 /// The C# side of the boundary, implemented by `CoreHost`.
@@ -2345,6 +2600,70 @@ public class UiHostImpl : UiHost, IDisposable {
     );
     }
     
+    /// <summary>
+    /// Shows `notification` as a toast, replacing any shown with the same id.
+    /// An [`urgent`](NotificationView::urgent) one (a call ringing now) stays
+    /// on screen until it is dealt with. Clicking it, or one of its actions,
+    /// calls [`Core::activate_notification`](crate::Core::activate_notification)
+    /// with its id and the action's id.
+    /// </summary>
+    public void Notify(NotificationView @notification) {
+        CallWithPointer(thisPtr =>
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_method_uihost_notify(thisPtr, FfiConverterTypeNotificationView.INSTANCE.Lower(@notification), ref _status)
+));
+    }
+    
+    
+    
+    /// <summary>
+    /// Takes away the notification `id`, if it is showing.
+    /// </summary>
+    public void Withdraw(string @id) {
+        CallWithPointer(thisPtr =>
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_method_uihost_withdraw(thisPtr, FfiConverterString.INSTANCE.Lower(@id), ref _status)
+));
+    }
+    
+    
+    
+    /// <summary>
+    /// Starts the ringtone, looping, until [`stop_ringtone`](Self::stop_ringtone).
+    /// </summary>
+    public void StartRingtone() {
+        CallWithPointer(thisPtr =>
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_method_uihost_start_ringtone(thisPtr,  ref _status)
+));
+    }
+    
+    
+    
+    /// <summary>
+    /// Stops the ringtone, if it is sounding.
+    /// </summary>
+    public void StopRingtone() {
+        CallWithPointer(thisPtr =>
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_method_uihost_stop_ringtone(thisPtr,  ref _status)
+));
+    }
+    
+    
+    
+    /// <summary>
+    /// Brings the main window forward: shown, restored, raised and focused.
+    /// </summary>
+    public void PresentWindow() {
+        CallWithPointer(thisPtr =>
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_method_uihost_present_window(thisPtr,  ref _status)
+));
+    }
+    
+    
+    
 
     
 }
@@ -2433,6 +2752,103 @@ class UniffiCallbackInterfaceUiHost {
             }
         }, futureHandle.Cts.Token);
     }
+    static void Notify(ulong @uniffiHandle,RustBuffer @notification,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        try {
+            if (!FfiConverterTypeUiHost.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+                throw new InternalException($"No callback in handlemap '{handle}'");
+            }
+            uniffiObject.Notify(
+                FfiConverterTypeNotificationView.INSTANCE.Lift(@notification));
+
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (System.Exception e){
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+            }
+            catch {
+            }
+        }
+    }
+    static void Withdraw(ulong @uniffiHandle,RustBuffer @id,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        try {
+            if (!FfiConverterTypeUiHost.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+                throw new InternalException($"No callback in handlemap '{handle}'");
+            }
+            uniffiObject.Withdraw(
+                FfiConverterString.INSTANCE.Lift(@id));
+
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (System.Exception e){
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+            }
+            catch {
+            }
+        }
+    }
+    static void StartRingtone(ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        try {
+            if (!FfiConverterTypeUiHost.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+                throw new InternalException($"No callback in handlemap '{handle}'");
+            }
+            uniffiObject.StartRingtone();
+
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (System.Exception e){
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+            }
+            catch {
+            }
+        }
+    }
+    static void StopRingtone(ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        try {
+            if (!FfiConverterTypeUiHost.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+                throw new InternalException($"No callback in handlemap '{handle}'");
+            }
+            uniffiObject.StopRingtone();
+
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (System.Exception e){
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+            }
+            catch {
+            }
+        }
+    }
+    static void PresentWindow(ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        try {
+            if (!FfiConverterTypeUiHost.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+                throw new InternalException($"No callback in handlemap '{handle}'");
+            }
+            uniffiObject.PresentWindow();
+
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (System.Exception e){
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+            }
+            catch {
+            }
+        }
+    }
 
     static void UniffiFree(ulong @handle) {
         FfiConverterTypeUiHost.INSTANCE.handleMap.Remove(@handle);
@@ -2450,6 +2866,11 @@ class UniffiCallbackInterfaceUiHost {
     }
     static _UniFFILib.UniffiCallbackInterfaceUiHostMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod0(StateChanged);
     static _UniFFILib.UniffiCallbackInterfaceUiHostMethod1 _m1 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod1(OpenUrl);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod2 _m2 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod2(Notify);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod3 _m3 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod3(Withdraw);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod4 _m4 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod4(StartRingtone);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod5 _m5 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod5(StopRingtone);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod6 _m6 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod6(PresentWindow);
     static _UniFFILib.UniffiCallbackInterfaceFree _callback_interface_free = new _UniFFILib.UniffiCallbackInterfaceFree(UniffiFree);
     static _UniFFILib.UniffiCallbackInterfaceClone _callback_interface_clone = new _UniFFILib.UniffiCallbackInterfaceClone(UniffiClone);
 
@@ -2460,6 +2881,11 @@ class UniffiCallbackInterfaceUiHost {
         _UniFFILib.UniffiVTableCallbackInterfaceUiHost _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceUiHost {
             @stateChanged = Marshal.GetFunctionPointerForDelegate(_m0),
             @openUrl = Marshal.GetFunctionPointerForDelegate(_m1),
+            @notify = Marshal.GetFunctionPointerForDelegate(_m2),
+            @withdraw = Marshal.GetFunctionPointerForDelegate(_m3),
+            @startRingtone = Marshal.GetFunctionPointerForDelegate(_m4),
+            @stopRingtone = Marshal.GetFunctionPointerForDelegate(_m5),
+            @presentWindow = Marshal.GetFunctionPointerForDelegate(_m6),
             @uniffiFree = Marshal.GetFunctionPointerForDelegate(_callback_interface_free),
             @uniffiClone = Marshal.GetFunctionPointerForDelegate(_callback_interface_clone),
         };
@@ -2560,6 +2986,619 @@ class FfiConverterTypeUiHost: FfiConverter<UiHost, ulong> {
 
     public override void Write(UiHost value, BigEndianStream stream) {
         stream.WriteULong(Lower(value));
+    }
+}
+
+
+
+/// <summary>
+/// The phone call on this desktop, placed or answered, until its summary is
+/// put away.
+/// </summary>
+/// <param name="CallId">
+/// The call's id. Always `None` in this version: core 1.2.0 keeps it
+/// private to the call, and nothing on screen needs it (hanging up and
+/// putting the summary away name no call).
+/// </param>
+/// <param name="Peer">
+/// Who the call is with: the number dialled, grouped, or "Caller" for an
+/// answered call, whose caller nothing names.
+/// </param>
+/// <param name="StateLabel">
+/// Where it stands ("Placing the call.", "Connecting.", "Calling."), how
+/// long it has been answered (`mm:ss`), or how it ended.
+/// </param>
+/// <param name="ConnectedAt">
+/// When it was answered, ISO 8601 UTC, while it is answered and not over,
+/// so C# can tick the duration between the core's own ticks.
+/// </param>
+/// <param name="Muted">
+/// The microphone is off: pressing the button turns it on.
+/// </param>
+/// <param name="CanHangUp">
+/// Whether Hang up is offered: while it is not over.
+/// </param>
+/// <param name="Ended">
+/// How it ended, once it is over: the line to show, then Dismiss.
+/// </param>
+/// <param name="Failure">
+/// Why it was never placed or could not be connected, in the service's
+/// words.
+/// </param>
+/// <param name="MicrophoneDenied">
+/// The microphone could not be used (no device, or Windows refused it), so
+/// nobody hears the member. C# shows "Allow microphone access in Windows
+/// Settings" with a link to `ms-settings:privacy-microphone`.
+/// </param>
+/// <param name="Outbound">
+/// Placed from the dialler, rather than rung here and answered.
+/// </param>
+/// <param name="CanMute">
+/// Whether the microphone button works: the call's media is up and the
+/// call is not over.
+/// </param>
+/// <param name="EndedNote">
+/// The note under an ended call that was answered: the call log is the
+/// record, and the length here is this app's own count.
+/// </param>
+/// <param name="MediaNotice">
+/// The call's connection notice: reconnecting, audio that could not be
+/// decrypted, or a microphone that could not be used.
+/// </param>
+public record ActiveCallView (
+    /// <summary>
+    /// The call's id. Always `None` in this version: core 1.2.0 keeps it
+    /// private to the call, and nothing on screen needs it (hanging up and
+    /// putting the summary away name no call).
+    /// </summary>
+    string? CallId, 
+    /// <summary>
+    /// Who the call is with: the number dialled, grouped, or "Caller" for an
+    /// answered call, whose caller nothing names.
+    /// </summary>
+    string Peer, 
+    /// <summary>
+    /// Where it stands ("Placing the call.", "Connecting.", "Calling."), how
+    /// long it has been answered (`mm:ss`), or how it ended.
+    /// </summary>
+    string StateLabel, 
+    /// <summary>
+    /// When it was answered, ISO 8601 UTC, while it is answered and not over,
+    /// so C# can tick the duration between the core's own ticks.
+    /// </summary>
+    string? ConnectedAt, 
+    /// <summary>
+    /// The microphone is off: pressing the button turns it on.
+    /// </summary>
+    bool Muted, 
+    /// <summary>
+    /// Whether Hang up is offered: while it is not over.
+    /// </summary>
+    bool CanHangUp, 
+    /// <summary>
+    /// How it ended, once it is over: the line to show, then Dismiss.
+    /// </summary>
+    string? Ended, 
+    /// <summary>
+    /// Why it was never placed or could not be connected, in the service's
+    /// words.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// The microphone could not be used (no device, or Windows refused it), so
+    /// nobody hears the member. C# shows "Allow microphone access in Windows
+    /// Settings" with a link to `ms-settings:privacy-microphone`.
+    /// </summary>
+    bool MicrophoneDenied, 
+    /// <summary>
+    /// Placed from the dialler, rather than rung here and answered.
+    /// </summary>
+    bool Outbound, 
+    /// <summary>
+    /// Whether the microphone button works: the call's media is up and the
+    /// call is not over.
+    /// </summary>
+    bool CanMute, 
+    /// <summary>
+    /// The note under an ended call that was answered: the call log is the
+    /// record, and the length here is this app's own count.
+    /// </summary>
+    string? EndedNote, 
+    /// <summary>
+    /// The call's connection notice: reconnecting, audio that could not be
+    /// decrypted, or a microphone that could not be used.
+    /// </summary>
+    string? MediaNotice
+) {
+}
+
+class FfiConverterTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView> {
+    public static FfiConverterTypeActiveCallView INSTANCE = new FfiConverterTypeActiveCallView();
+
+    public override ActiveCallView Read(BigEndianStream stream) {
+        return new ActiveCallView(
+            CallId: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Peer: FfiConverterString.INSTANCE.Read(stream),
+            StateLabel: FfiConverterString.INSTANCE.Read(stream),
+            ConnectedAt: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Muted: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanHangUp: FfiConverterBoolean.INSTANCE.Read(stream),
+            Ended: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            MicrophoneDenied: FfiConverterBoolean.INSTANCE.Read(stream),
+            Outbound: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanMute: FfiConverterBoolean.INSTANCE.Read(stream),
+            EndedNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            MediaNotice: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ActiveCallView value) {
+        return 0
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.CallId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Peer)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StateLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ConnectedAt)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Muted)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanHangUp)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Ended)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.MicrophoneDenied)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Outbound)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanMute)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.EndedNote)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.MediaNotice);
+    }
+
+    public override void Write(ActiveCallView value, BigEndianStream stream) {
+            FfiConverterOptionalString.INSTANCE.Write(value.CallId, stream);
+            FfiConverterString.INSTANCE.Write(value.Peer, stream);
+            FfiConverterString.INSTANCE.Write(value.StateLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ConnectedAt, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Muted, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanHangUp, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Ended, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.MicrophoneDenied, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Outbound, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanMute, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.EndedNote, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.MediaNotice, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The dialler: the number typed, how it reads, and whether Call works.
+/// </summary>
+/// <param name="Number">
+/// What the member typed, exactly as typed. The box shows this and is
+/// never rewritten to match [`formatted`](Self::formatted).
+/// </param>
+/// <param name="CanDial">
+/// Whether Call works: a role that may place calls, enough digits, and no
+/// call, meeting or ring in the way.
+/// </param>
+/// <param name="Dialing">
+/// The dial is on its way.
+/// </param>
+/// <param name="Failure">
+/// Why the last call could not be placed, in the service's words, while
+/// its summary is on screen.
+/// </param>
+/// <param name="Note">
+/// "Finish the call or meeting you are in first." while one is in the way.
+/// </param>
+/// <param name="Formatted">
+/// The number as it reads: its digits grouped, nothing removed.
+/// </param>
+/// <param name="Hint">
+/// The line above the keypad.
+/// </param>
+/// <param name="MicrophoneNote">
+/// "Placing a call turns on your microphone."
+/// </param>
+public record DialerView (
+    /// <summary>
+    /// What the member typed, exactly as typed. The box shows this and is
+    /// never rewritten to match [`formatted`](Self::formatted).
+    /// </summary>
+    string Number, 
+    /// <summary>
+    /// Whether Call works: a role that may place calls, enough digits, and no
+    /// call, meeting or ring in the way.
+    /// </summary>
+    bool CanDial, 
+    /// <summary>
+    /// The dial is on its way.
+    /// </summary>
+    bool Dialing, 
+    /// <summary>
+    /// Why the last call could not be placed, in the service's words, while
+    /// its summary is on screen.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// "Finish the call or meeting you are in first." while one is in the way.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// The number as it reads: its digits grouped, nothing removed.
+    /// </summary>
+    string Formatted, 
+    /// <summary>
+    /// The line above the keypad.
+    /// </summary>
+    string Hint, 
+    /// <summary>
+    /// "Placing a call turns on your microphone."
+    /// </summary>
+    string MicrophoneNote
+) {
+}
+
+class FfiConverterTypeDialerView: FfiConverterRustBuffer<DialerView> {
+    public static FfiConverterTypeDialerView INSTANCE = new FfiConverterTypeDialerView();
+
+    public override DialerView Read(BigEndianStream stream) {
+        return new DialerView(
+            Number: FfiConverterString.INSTANCE.Read(stream),
+            CanDial: FfiConverterBoolean.INSTANCE.Read(stream),
+            Dialing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Formatted: FfiConverterString.INSTANCE.Read(stream),
+            Hint: FfiConverterString.INSTANCE.Read(stream),
+            MicrophoneNote: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DialerView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Number)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDial)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Dialing)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Formatted)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Hint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MicrophoneNote);
+    }
+
+    public override void Write(DialerView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Number, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDial, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Dialing, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterString.INSTANCE.Write(value.Formatted, stream);
+            FfiConverterString.INSTANCE.Write(value.Hint, stream);
+            FfiConverterString.INSTANCE.Write(value.MicrophoneNote, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Something that failed, as the screen says it. The contract's shared record;
+/// it moves to the shared views module when the screens' projections land.
+/// </summary>
+/// <param name="Message">
+/// What went wrong, and what to do about it.
+/// </param>
+/// <param name="RegionsLine">
+/// "Affected regions: ..." when regions did not answer.
+/// </param>
+/// <param name="Retryable">
+/// Whether trying again could help.
+/// </param>
+public record FailureView (
+    /// <summary>
+    /// What went wrong, and what to do about it.
+    /// </summary>
+    string Message, 
+    /// <summary>
+    /// "Affected regions: ..." when regions did not answer.
+    /// </summary>
+    string? RegionsLine, 
+    /// <summary>
+    /// Whether trying again could help.
+    /// </summary>
+    bool Retryable
+) {
+}
+
+class FfiConverterTypeFailureView: FfiConverterRustBuffer<FailureView> {
+    public static FfiConverterTypeFailureView INSTANCE = new FfiConverterTypeFailureView();
+
+    public override FailureView Read(BigEndianStream stream) {
+        return new FailureView(
+            Message: FfiConverterString.INSTANCE.Read(stream),
+            RegionsLine: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Retryable: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(FailureView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Message)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RegionsLine)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Retryable);
+    }
+
+    public override void Write(FailureView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Message, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.RegionsLine, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Retryable, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A call ringing here, or the last ring's ending until it is put away.
+/// </summary>
+/// <param name="CallId">
+/// The call: what Answer and Decline name.
+/// </param>
+/// <param name="Caller">
+/// The heading: "Incoming call", "Another call is ringing" or "Missed
+/// call", naming the workspace when it is not the one open ("Incoming call
+/// in Bravo Client"). Nothing names the caller: the ring carries ids only.
+/// </param>
+/// <param name="Detail">
+/// The line under it: where the call came from, or how the ring ended.
+/// </param>
+/// <param name="Note">
+/// "Answering puts your microphone on this call." while it can be answered.
+/// </param>
+/// <param name="ShowAnswer">
+/// Whether Answer is shown.
+/// </param>
+/// <param name="CanAnswer">
+/// Whether Answer works.
+/// </param>
+/// <param name="CanDecline">
+/// Whether Decline works (it is shown while the ring is live).
+/// </param>
+/// <param name="Answering">
+/// The answer is on its way.
+/// </param>
+/// <param name="Live">
+/// Ringing, waiting or being answered; false once it ended.
+/// </param>
+/// <param name="Sounding">
+/// The ringtone is sounding: the strip shows it in the accent colour.
+/// </param>
+/// <param name="WorkspaceName">
+/// The name of the call's workspace, when it is not the one open.
+/// </param>
+public record IncomingRingView (
+    /// <summary>
+    /// The call: what Answer and Decline name.
+    /// </summary>
+    string CallId, 
+    /// <summary>
+    /// The heading: "Incoming call", "Another call is ringing" or "Missed
+    /// call", naming the workspace when it is not the one open ("Incoming call
+    /// in Bravo Client"). Nothing names the caller: the ring carries ids only.
+    /// </summary>
+    string Caller, 
+    /// <summary>
+    /// The line under it: where the call came from, or how the ring ended.
+    /// </summary>
+    string? Detail, 
+    /// <summary>
+    /// "Answering puts your microphone on this call." while it can be answered.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// Whether Answer is shown.
+    /// </summary>
+    bool ShowAnswer, 
+    /// <summary>
+    /// Whether Answer works.
+    /// </summary>
+    bool CanAnswer, 
+    /// <summary>
+    /// Whether Decline works (it is shown while the ring is live).
+    /// </summary>
+    bool CanDecline, 
+    /// <summary>
+    /// The answer is on its way.
+    /// </summary>
+    bool Answering, 
+    /// <summary>
+    /// Ringing, waiting or being answered; false once it ended.
+    /// </summary>
+    bool Live, 
+    /// <summary>
+    /// The ringtone is sounding: the strip shows it in the accent colour.
+    /// </summary>
+    bool Sounding, 
+    /// <summary>
+    /// The name of the call's workspace, when it is not the one open.
+    /// </summary>
+    string? WorkspaceName
+) {
+}
+
+class FfiConverterTypeIncomingRingView: FfiConverterRustBuffer<IncomingRingView> {
+    public static FfiConverterTypeIncomingRingView INSTANCE = new FfiConverterTypeIncomingRingView();
+
+    public override IncomingRingView Read(BigEndianStream stream) {
+        return new IncomingRingView(
+            CallId: FfiConverterString.INSTANCE.Read(stream),
+            Caller: FfiConverterString.INSTANCE.Read(stream),
+            Detail: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ShowAnswer: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanAnswer: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanDecline: FfiConverterBoolean.INSTANCE.Read(stream),
+            Answering: FfiConverterBoolean.INSTANCE.Read(stream),
+            Live: FfiConverterBoolean.INSTANCE.Read(stream),
+            Sounding: FfiConverterBoolean.INSTANCE.Read(stream),
+            WorkspaceName: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(IncomingRingView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.CallId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Caller)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Detail)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowAnswer)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAnswer)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDecline)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Answering)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Live)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Sounding)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.WorkspaceName);
+    }
+
+    public override void Write(IncomingRingView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.CallId, stream);
+            FfiConverterString.INSTANCE.Write(value.Caller, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Detail, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowAnswer, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanAnswer, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDecline, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Answering, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Live, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Sounding, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.WorkspaceName, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A button on a notification.
+/// </summary>
+/// <param name="Label">
+/// What the button says ("Answer", "Decline").
+/// </param>
+/// <param name="ActionId">
+/// What the host hands back to
+/// [`Core::activate_notification`](crate::Core::activate_notification)
+/// when it is pressed.
+/// </param>
+public record NotificationActionView (
+    /// <summary>
+    /// What the button says ("Answer", "Decline").
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// What the host hands back to
+    /// [`Core::activate_notification`](crate::Core::activate_notification)
+    /// when it is pressed.
+    /// </summary>
+    string ActionId
+) {
+}
+
+class FfiConverterTypeNotificationActionView: FfiConverterRustBuffer<NotificationActionView> {
+    public static FfiConverterTypeNotificationActionView INSTANCE = new FfiConverterTypeNotificationActionView();
+
+    public override NotificationActionView Read(BigEndianStream stream) {
+        return new NotificationActionView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            ActionId: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NotificationActionView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ActionId);
+    }
+
+    public override void Write(NotificationActionView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.ActionId, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A notification, as the host shows it: the core's `Notification` with its
+/// target left in Rust (see [`NotificationTable`]).
+/// </summary>
+/// <param name="Id">
+/// The same for every notification about the same message or call, so a
+/// later one replaces the earlier.
+/// </param>
+/// <param name="Title">
+/// The heading.
+/// </param>
+/// <param name="Body">
+/// The body.
+/// </param>
+/// <param name="Urgent">
+/// A call ringing now: over everything, with its sound and its buttons,
+/// and kept until it is dealt with.
+/// </param>
+/// <param name="Actions">
+/// Its buttons, in order.
+/// </param>
+public record NotificationView (
+    /// <summary>
+    /// The same for every notification about the same message or call, so a
+    /// later one replaces the earlier.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// The heading.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The body.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// A call ringing now: over everything, with its sound and its buttons,
+    /// and kept until it is dealt with.
+    /// </summary>
+    bool Urgent, 
+    /// <summary>
+    /// Its buttons, in order.
+    /// </summary>
+    NotificationActionView[] Actions
+) {
+}
+
+class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView> {
+    public static FfiConverterTypeNotificationView INSTANCE = new FfiConverterTypeNotificationView();
+
+    public override NotificationView Read(BigEndianStream stream) {
+        return new NotificationView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Urgent: FfiConverterBoolean.INSTANCE.Read(stream),
+            Actions: FfiConverterSequenceTypeNotificationActionView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NotificationView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Urgent)
+            + FfiConverterSequenceTypeNotificationActionView.INSTANCE.AllocationSize(value.Actions);
+    }
+
+    public override void Write(NotificationView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Urgent, stream);
+            FfiConverterSequenceTypeNotificationActionView.INSTANCE.Write(value.Actions, stream);
     }
 }
 
@@ -3578,6 +4617,37 @@ class FfiConverterOptionalString: FfiConverterRustBuffer<string?> {
 
 
 
+class FfiConverterOptionalTypeFailureView: FfiConverterRustBuffer<FailureView?> {
+    public static FfiConverterOptionalTypeFailureView INSTANCE = new FfiConverterOptionalTypeFailureView();
+
+    public override FailureView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeFailureView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(FailureView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeFailureView.INSTANCE.AllocationSize((FailureView)value);
+        }
+    }
+
+    public override void Write(FailureView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeFailureView.INSTANCE.Write((FailureView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeTabView: FfiConverterRustBuffer<TabView?> {
     public static FfiConverterOptionalTypeTabView INSTANCE = new FfiConverterOptionalTypeTabView();
 
@@ -3603,6 +4673,52 @@ class FfiConverterOptionalTypeTabView: FfiConverterRustBuffer<TabView?> {
             stream.WriteByte(1);
             FfiConverterTypeTabView.INSTANCE.Write((TabView)value, stream);
         }
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeNotificationActionView: FfiConverterRustBuffer<NotificationActionView[]> {
+    public static FfiConverterSequenceTypeNotificationActionView INSTANCE = new FfiConverterSequenceTypeNotificationActionView();
+
+    public override NotificationActionView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new NotificationActionView[length];
+        var readFn = FfiConverterTypeNotificationActionView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(NotificationActionView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeNotificationActionView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(NotificationActionView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeNotificationActionView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
     }
 }
 
