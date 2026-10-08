@@ -825,6 +825,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -896,7 +898,7 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     void uniffi_district_ffi_fn_method_core_power(ulong @ptr,RustBuffer @change,ref UniffiRustCallStatus _uniffi_out_err
+     void uniffi_district_ffi_fn_method_core_resume(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -963,6 +965,17 @@ static class _UniFFILib {
     public static extern
 #endif
      void uniffi_district_ffi_fn_method_core_start(ulong @ptr,RustBuffer @config,ulong @host,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_district_ffi_fn_method_core_suspend(ulong @ptr
     );
 
     #if NET8_0_OR_GREATER
@@ -1699,7 +1712,7 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ushort uniffi_district_ffi_checksum_method_core_power(
+     ushort uniffi_district_ffi_checksum_method_core_resume(
     );
 
     #if NET8_0_OR_GREATER
@@ -1766,6 +1779,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_district_ffi_checksum_method_core_start(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_method_core_suspend(
     );
 
     #if NET8_0_OR_GREATER
@@ -1895,9 +1919,9 @@ static class _UniFFILib {
             }
         }
         {
-            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_power();
-            if (checksum != 51224) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_power` checksum `51224`, library returned `{checksum}`");
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_resume();
+            if (checksum != 13257) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_resume` checksum `13257`, library returned `{checksum}`");
             }
         }
         {
@@ -1934,6 +1958,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_start();
             if (checksum != 64847) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_start` checksum `64847`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_suspend();
+            if (checksum != 64842) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_suspend` checksum `64842`, library returned `{checksum}`");
             }
         }
         {
@@ -2123,8 +2153,9 @@ class FfiConverterString: FfiConverter<string, RustBuffer> {
 /// The District AI core, as the Windows app holds it: one per process.
 ///
 /// [`start`](Self::start) builds everything and starts the actor;
-/// [`send`](Self::send), [`open_link`](Self::open_link) and
-/// [`power`](Self::power) hand it events; [`shell`](Self::shell) and
+/// [`send`](Self::send), [`open_link`](Self::open_link),
+/// [`suspend`](Self::suspend) and [`resume`](Self::resume) hand it events;
+/// [`shell`](Self::shell) and
 /// [`screen`](Self::screen) read the latest snapshot; and
 /// [`shutdown`](Self::shutdown) gives the model its last word and stops the
 /// runtime.
@@ -2147,9 +2178,11 @@ public interface ICore {
     /// </summary>
     LinkKind OpenLink(string @uri);
     /// <summary>
-    /// The machine is about to sleep, or has woken.
+    /// The machine has woken: the model registers this desktop's presence
+    /// again when it should ring. Nothing waits for that. Ignored before
+    /// [`start`](Self::start) and after [`shutdown`](Self::shutdown).
     /// </summary>
-    void Power(PowerChange @change);
+    void Resume();
     /// <summary>
     /// The snapshot's revision: 0 until the model first changes what the
     /// window shows, then one more for each change.
@@ -2181,13 +2214,23 @@ public interface ICore {
     /// </summary>
     /// <exception cref="StartException"></exception>
     void Start(StartConfig @config, UiHost @host);
+    /// <summary>
+    /// The machine is about to sleep. Tells the model, which unregisters this
+    /// desktop's presence and ends any call or ring, and returns once the work
+    /// that asks for has run, or after [`SUSPEND_BUDGET`], whichever is first.
+    /// The caller holds the sleep for that long and no longer. Returns at
+    /// once before [`start`](Self::start) and after
+    /// [`shutdown`](Self::shutdown).
+    /// </summary>
+    Task Suspend();
 }
 /// <summary>
 /// The District AI core, as the Windows app holds it: one per process.
 ///
 /// [`start`](Self::start) builds everything and starts the actor;
-/// [`send`](Self::send), [`open_link`](Self::open_link) and
-/// [`power`](Self::power) hand it events; [`shell`](Self::shell) and
+/// [`send`](Self::send), [`open_link`](Self::open_link),
+/// [`suspend`](Self::suspend) and [`resume`](Self::resume) hand it events;
+/// [`shell`](Self::shell) and
 /// [`screen`](Self::screen) read the latest snapshot; and
 /// [`shutdown`](Self::shutdown) gives the model its last word and stops the
 /// runtime.
@@ -2322,12 +2365,14 @@ public class Core : ICore, IDisposable {
     
     
     /// <summary>
-    /// The machine is about to sleep, or has woken.
+    /// The machine has woken: the model registers this desktop's presence
+    /// again when it should ring. Nothing waits for that. Ignored before
+    /// [`start`](Self::start) and after [`shutdown`](Self::shutdown).
     /// </summary>
-    public void Power(PowerChange @change) {
+    public void Resume() {
         CallWithPointer(thisPtr =>
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_district_ffi_fn_method_core_power(thisPtr, FfiConverterTypePowerChange.INSTANCE.Lower(@change), ref _status)
+    _UniFFILib.uniffi_district_ffi_fn_method_core_resume(thisPtr,  ref _status)
 ));
     }
     
@@ -2417,6 +2462,32 @@ public class Core : ICore, IDisposable {
     }
     
     
+    
+    /// <summary>
+    /// The machine is about to sleep. Tells the model, which unregisters this
+    /// desktop's presence and ends any call or ring, and returns once the work
+    /// that asks for has run, or after [`SUSPEND_BUDGET`], whichever is first.
+    /// The caller holds the sleep for that long and no longer. Returns at
+    /// once before [`start`](Self::start) and after
+    /// [`shutdown`](Self::shutdown).
+    /// </summary>
+    public async Task Suspend() {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_district_ffi_fn_method_core_suspend(thisPtr);
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_district_ffi_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_district_ffi_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_district_ffi_rust_future_free_void(future),
+        // Error
+        NullCallStatusErrorHandler.INSTANCE
+        
+    );
+    }
     
 
     
@@ -6265,52 +6336,6 @@ class FfiConverterTypeLoadStatus : FfiConverterRustBuffer<LoadStatus>{
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeLoadStatus.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
-/// The machine going to sleep or waking, as C# hears it from
-/// `PowerRegisterSuspendResumeNotification`.
-/// </summary>
-public enum PowerChange: int {
-    /// <summary>
-    /// About to sleep.
-    /// </summary>
-    Suspending,
-    /// <summary>
-    /// Awake again.
-    /// </summary>
-    Resumed
-}
-
-class FfiConverterTypePowerChange: FfiConverterRustBuffer<PowerChange> {
-    public static FfiConverterTypePowerChange INSTANCE = new FfiConverterTypePowerChange();
-
-    public override PowerChange Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return PowerChange.Suspending;
-            case 2: return PowerChange.Resumed;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePowerChange.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(PowerChange value) {
-        return 4;
-    }
-
-    public override void Write(PowerChange value, BigEndianStream stream) {
-        switch (value) {
-            case PowerChange.Suspending: stream.WriteInt(1); break;
-            case PowerChange.Resumed: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePowerChange.Write()", value));
         }
     }
 }

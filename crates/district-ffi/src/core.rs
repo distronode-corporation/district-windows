@@ -18,8 +18,9 @@ use district_live::LiveConfig;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
 use tokio::sync::oneshot;
+use tokio::task::JoinHandle;
 
-use crate::events::{PowerChange, UiEvent};
+use crate::events::UiEvent;
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
 use crate::link::{LinkKind, link_kind};
@@ -31,6 +32,13 @@ use crate::shell::{ShellView, shell_for, shell_view};
 /// anyway. The window is already gone by then, so this is time the user waits
 /// for the process to end.
 pub const QUIT_BUDGET: Duration = Duration::from_secs(2);
+
+/// How long [`Core::suspend`] waits for the work the model asks for before
+/// the machine sleeps (unregistering this desktop's presence, ending a call
+/// under way). Windows allows an app about two seconds to handle the
+/// notification that the machine is about to sleep, and the app's own
+/// handling has to fit inside that too.
+pub const SUSPEND_BUDGET: Duration = Duration::from_millis(1500);
 
 /// What the core needs from the app to start.
 #[derive(Clone, Debug, PartialEq, Eq, uniffi::Record)]
@@ -76,8 +84,9 @@ fn setup(what: &str) -> impl FnOnce(String) -> StartError + '_ {
 /// The District AI core, as the Windows app holds it: one per process.
 ///
 /// [`start`](Self::start) builds everything and starts the actor;
-/// [`send`](Self::send), [`open_link`](Self::open_link) and
-/// [`power`](Self::power) hand it events; [`shell`](Self::shell) and
+/// [`send`](Self::send), [`open_link`](Self::open_link),
+/// [`suspend`](Self::suspend) and [`resume`](Self::resume) hand it events;
+/// [`shell`](Self::shell) and
 /// [`screen`](Self::screen) read the latest snapshot; and
 /// [`shutdown`](Self::shutdown) gives the model its last word and stops the
 /// runtime.
@@ -105,6 +114,10 @@ pub(crate) enum Message {
     /// Something the user did: one or more events for the model, delivered in
     /// order before the window is told.
     Ui(UiEvent),
+    /// The machine is about to sleep: tell the model, run what it asks for,
+    /// and answer once that has settled or [`SUSPEND_BUDGET`] has passed. The
+    /// actor keeps running.
+    Suspend(oneshot::Sender<()>),
     /// Run the model's last effects and stop, then answer.
     Shutdown(oneshot::Sender<()>),
 }
@@ -276,9 +289,25 @@ impl Core {
         }
     }
 
-    /// The machine is about to sleep, or has woken.
-    pub fn power(&self, change: PowerChange) {
-        self.deliver(Message::event(change));
+    /// The machine is about to sleep. Tells the model, which unregisters this
+    /// desktop's presence and ends any call or ring, and returns once the work
+    /// that asks for has run, or after [`SUSPEND_BUDGET`], whichever is first.
+    /// The caller holds the sleep for that long and no longer. Returns at
+    /// once before [`start`](Self::start) and after
+    /// [`shutdown`](Self::shutdown).
+    pub async fn suspend(&self) {
+        let (done, settled) = oneshot::channel();
+        // Not running, or the actor gone: the message is dropped with `done`,
+        // and the wait ends at once.
+        self.deliver(Message::Suspend(done));
+        settled.await.ok();
+    }
+
+    /// The machine has woken: the model registers this desktop's presence
+    /// again when it should ring. Nothing waits for that. Ignored before
+    /// [`start`](Self::start) and after [`shutdown`](Self::shutdown).
+    pub fn resume(&self) {
+        self.deliver(Message::event(Event::Resumed));
     }
 
     /// The window's frame, as of [`revision`](Self::revision).
@@ -548,6 +577,24 @@ impl<X: Effects> Actor<X> {
                     self.publish();
                     self.dispatch(next);
                 }
+                Message::Suspend(done) => {
+                    let next = self.model.update(Event::Suspending);
+                    self.publish();
+                    // Run as any other effects are, their events fed back, and
+                    // watched apart from the actor, which goes on handling
+                    // those events (the unregistration's answer among them).
+                    let running = self.dispatch(next);
+                    tokio::spawn(async move {
+                        let all = async {
+                            for task in running {
+                                task.await.ok();
+                            }
+                        };
+                        tokio::time::timeout(SUSPEND_BUDGET, all).await.ok();
+                        // Nobody waiting any more is the sleep gone ahead.
+                        done.send(()).ok();
+                    });
+                }
                 Message::Shutdown(done) => {
                     let last = self.model.update(Event::Quitting);
                     self.publish();
@@ -571,20 +618,24 @@ impl<X: Effects> Actor<X> {
         }
     }
 
-    /// Runs each effect on its own task and feeds its event back. Effects are
-    /// independent of each other; the model's tickets sort out an answer that
-    /// arrives after it stopped mattering.
-    fn dispatch(&self, effects: Vec<Effect>) {
-        for effect in effects {
-            let runner = Arc::clone(&self.effects);
-            let sender = self.sender.clone();
-            tokio::spawn(async move {
-                if let Some(event) = runner.run(effect).await {
-                    // Closed only once the actor has stopped.
-                    sender.send(Message::event(event)).ok();
-                }
-            });
-        }
+    /// Runs each effect on its own task and feeds its event back, and returns
+    /// the tasks, for a caller that waits on them. Effects are independent of
+    /// each other; the model's tickets sort out an answer that arrives after
+    /// it stopped mattering.
+    fn dispatch(&self, effects: Vec<Effect>) -> Vec<JoinHandle<()>> {
+        effects
+            .into_iter()
+            .map(|effect| {
+                let runner = Arc::clone(&self.effects);
+                let sender = self.sender.clone();
+                tokio::spawn(async move {
+                    if let Some(event) = runner.run(effect).await {
+                        // Closed only once the actor has stopped.
+                        sender.send(Message::event(event)).ok();
+                    }
+                })
+            })
+            .collect()
     }
 }
 
@@ -607,7 +658,8 @@ fn forward<T: Send + 'static>(
 
 #[cfg(test)]
 mod tests {
-    use std::sync::atomic::Ordering;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::time::Instant;
 
     use district_api::{ReauthReason, TokenError};
     use district_auth::AccessClaims;
@@ -627,12 +679,24 @@ mod tests {
         ran: Mutex<Vec<Effect>>,
         /// Whether the start-up check finds a session.
         stored: bool,
+        /// The "ring on this computer" setting, as read at sign-in.
+        ring_here: bool,
+        /// How long unregistering this desktop's presence takes.
+        unregister_takes: Duration,
+        /// Set once an unregistration has finished.
+        unregistered: AtomicBool,
     }
 
     impl Effects for Arc<FakeEffects> {
         fn run(&self, effect: Effect) -> impl Future<Output = Option<Event>> + Send {
             self.ran.lock().unwrap().push(effect.clone());
-            let event = match effect {
+            async move { self.answer(effect).await }
+        }
+    }
+
+    impl FakeEffects {
+        async fn answer(&self, effect: Effect) -> Option<Event> {
+            match effect {
                 Effect::RestoreSession { ticket } => Some(Event::SessionRestored {
                     ticket,
                     result: if self.stored {
@@ -651,13 +715,42 @@ mod tests {
                     ticket,
                     opened: true,
                 }),
+                Effect::ReadRingSetting { ticket } => Some(Event::RingSettingRead {
+                    ticket,
+                    ring_here: self.ring_here,
+                }),
+                Effect::SetPresence { ticket, registered } => {
+                    if !registered {
+                        tokio::time::sleep(self.unregister_takes).await;
+                        self.unregistered.store(true, Ordering::SeqCst);
+                    }
+                    Some(Event::PresenceSet {
+                        ticket,
+                        result: Ok(()),
+                    })
+                }
                 _ => None,
-            };
-            std::future::ready(event)
+            }
         }
-    }
 
-    impl FakeEffects {
+        /// How many times the presence was registered.
+        fn registrations(&self) -> usize {
+            self.ran
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|effect| {
+                    matches!(
+                        effect,
+                        Effect::SetPresence {
+                            registered: true,
+                            ..
+                        }
+                    )
+                })
+                .count()
+        }
+
         fn ran(&self, matches: impl Fn(&Effect) -> bool) -> bool {
             self.ran.lock().unwrap().iter().any(matches)
         }
@@ -669,6 +762,41 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: false,
         }
+    }
+
+    /// A build that can take calls: the only kind that registers a presence.
+    fn calls_config() -> CoreConfig {
+        CoreConfig {
+            calls_available: true,
+            ..config()
+        }
+    }
+
+    /// Fails the test if `suspend` waits for anything: nothing is running for
+    /// it to wait on.
+    async fn suspends_at_once(core: &Core) {
+        tokio::time::timeout(Duration::from_millis(250), core.suspend())
+            .await
+            .expect("suspend returns at once when nothing runs");
+    }
+
+    /// Signed in, with "ring on this computer" on, a build with calls, and an
+    /// unregistration that takes `unregister_takes`: started, and registered.
+    async fn registered(unregister_takes: Duration) -> (Arc<Core>, Arc<FakeEffects>) {
+        let core = Core::new();
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            ring_here: true,
+            unregister_takes,
+            ..FakeEffects::default()
+        });
+        core.start_with(
+            calls_config(),
+            Arc::clone(&effects),
+            Arc::new(RecordingHost::default()),
+        );
+        eventually("registered", || effects.registrations() == 1).await;
+        (core, effects)
     }
 
     /// Waits, for real, until `done` holds; the actor runs on its own runtime.
@@ -704,7 +832,8 @@ mod tests {
         assert!(view.busy);
         // Nothing to deliver to, and nothing breaks.
         core.send(UiEvent::SignIn);
-        core.power(PowerChange::Suspending);
+        suspends_at_once(&core).await;
+        core.resume();
         assert_eq!(
             core.open_link("districtai://auth?code=c".to_owned()),
             LinkKind::Auth
@@ -767,15 +896,65 @@ mod tests {
 
         // An event that changes nothing on screen is not a new revision.
         let before = core.revision();
-        core.power(PowerChange::Resumed);
+        core.resume();
         core.send(UiEvent::Refresh);
         tokio::time::sleep(Duration::from_millis(50)).await;
         assert_eq!(core.revision(), before);
 
+        // Signed out, the model asks for nothing before the machine sleeps.
+        suspends_at_once(&core).await;
+
         core.shutdown().await;
         core.shutdown().await;
         core.send(UiEvent::SignIn);
+        suspends_at_once(&core).await;
+        core.resume();
         assert_eq!(core.revision(), before);
+    }
+
+    /// Before the machine sleeps, the presence is unregistered, and `suspend`
+    /// returns only once that has run. Awake again, it is registered again.
+    #[tokio::test]
+    async fn suspending_waits_for_the_unregistration_and_resuming_registers_again() {
+        let takes = Duration::from_millis(300);
+        let (core, effects) = registered(takes).await;
+
+        let started = Instant::now();
+        core.suspend().await;
+        assert!(effects.unregistered.load(Ordering::SeqCst));
+        assert!(started.elapsed() >= takes);
+        assert!(started.elapsed() < SUSPEND_BUDGET);
+
+        core.resume();
+        eventually("registered again", || effects.registrations() == 2).await;
+        core.shutdown().await;
+    }
+
+    /// An unregistration that never finishes holds the sleep for
+    /// [`SUSPEND_BUDGET`] and no longer.
+    #[tokio::test]
+    async fn a_suspend_that_hangs_returns_at_the_budget() {
+        let (core, effects) = registered(Duration::from_secs(3600)).await;
+
+        let started = Instant::now();
+        core.suspend().await;
+        let waited = started.elapsed();
+        assert!(waited >= SUSPEND_BUDGET, "{waited:?}");
+        assert!(
+            waited < SUSPEND_BUDGET + Duration::from_secs(1),
+            "{waited:?}"
+        );
+        assert!(!effects.unregistered.load(Ordering::SeqCst));
+        assert!(effects.ran(|effect| matches!(
+            effect,
+            Effect::SetPresence {
+                registered: false,
+                ..
+            }
+        )));
+        // Asleep, nothing is left to unregister at quitting, so this does not
+        // wait on the hung one.
+        core.shutdown().await;
     }
 
     /// Signed in, quitting saves the session (should a refresh have left it

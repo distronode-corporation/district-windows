@@ -1,4 +1,4 @@
-//! What the window forwards: the user's actions, and the machine's.
+//! What the window forwards: the user's actions.
 
 use district_core::{
     CallEvent, CallsEvent, ContactsEvent, DevicesEvent, DialerEvent, Event, InboxEvent, RingEvent,
@@ -204,25 +204,6 @@ impl UiEvent {
     }
 }
 
-/// The machine going to sleep or waking, as C# hears it from
-/// `PowerRegisterSuspendResumeNotification`.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, uniffi::Enum)]
-pub enum PowerChange {
-    /// About to sleep.
-    Suspending,
-    /// Awake again.
-    Resumed,
-}
-
-impl From<PowerChange> for Event {
-    fn from(change: PowerChange) -> Self {
-        match change {
-            PowerChange::Suspending => Event::Suspending,
-            PowerChange::Resumed => Event::Resumed,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use district_core::{SupportEvent, SupportForm};
@@ -365,8 +346,6 @@ mod tests {
                 Event::Dialer(DialerEvent::Dial),
             ]
         );
-        assert_eq!(Event::from(PowerChange::Suspending), Event::Suspending);
-        assert_eq!(Event::from(PowerChange::Resumed), Event::Resumed);
     }
 
     /// Report is four events, in order: drop a leftover draft, open the form,

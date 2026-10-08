@@ -63,7 +63,7 @@ pub use crate::calls_live::{
 };
 pub use crate::contacts::{CONTACT_FAILED_TITLE, ContactDetailView, ContactRowView, ContactsView};
 pub use crate::core::{Core, StartConfig, StartError};
-pub use crate::events::{PowerChange, UiEvent};
+pub use crate::events::UiEvent;
 pub use crate::host::{NotificationActionView, NotificationView, UiHost};
 pub use crate::identity::{PRODUCT, client_identity};
 pub use crate::inbox::{

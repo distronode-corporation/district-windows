@@ -27,6 +27,7 @@ public sealed partial class App : Application, IDisposable
     private CoreHost? _core;
     private MainWindow? _window;
     private TrayIcon? _tray;
+    private PowerWatch? _power;
     private RingtonePlayer? _ringtone;
     private WindowAttention? _attention;
     // Set by Quit, so the window's Closing is no longer turned into a hide.
@@ -68,6 +69,9 @@ public sealed partial class App : Application, IDisposable
             AppVersion(),
             Environment.MachineName,
             Package.Current.Id.FamilyName);
+        // After Start: a sleep holds the machine until the core has stopped
+        // this computer ringing, and a wake has it ring again.
+        _power = PowerWatch.Start(_core);
         // After Start: the icon reports the window's visibility to the core
         // from the moment it exists, hidden until the window is shown.
         _tray = new TrayIcon(
@@ -195,8 +199,9 @@ public sealed partial class App : Application, IDisposable
     }
 
     /// <summary>
-    /// Ends the app: the core first (it saves the session within its own
-    /// two-second budget), then the icon, then the window.
+    /// Ends the app: the sleep and wake notifications first, so none reaches a
+    /// core that is stopping, then the core (it saves the session within its
+    /// own two-second budget), then the icon, then the window.
     /// </summary>
     private async void Quit()
     {
@@ -207,6 +212,8 @@ public sealed partial class App : Application, IDisposable
         _quitting = true;
         try
         {
+            _power?.Dispose();
+            _power = null;
             if (_core is not null)
             {
                 await _core.DisposeAsync();
@@ -229,11 +236,14 @@ public sealed partial class App : Application, IDisposable
     }
 
     /// <summary>
-    /// Stops the core. It saves the session if a refresh left it unsaved,
-    /// within its own two-second budget, before the process ends.
+    /// Stops the sleep and wake notifications, then the core. It saves the
+    /// session if a refresh left it unsaved, within its own two-second budget,
+    /// before the process ends.
     /// </summary>
     public void Dispose()
     {
+        _power?.Dispose();
+        _power = null;
         _core?.DisposeAsync().AsTask().GetAwaiter().GetResult();
         _core = null;
         _ringtone?.Dispose();

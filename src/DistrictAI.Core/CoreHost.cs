@@ -97,8 +97,49 @@ public sealed class CoreHost : UiHost, IAsyncDisposable
     /// <summary>Forwards a <c>districtai:</c> link the app was activated with.</summary>
     public LinkKind OpenLink(string uri) => _core.OpenLink(uri);
 
-    /// <summary>Forwards the machine going to sleep or waking.</summary>
-    public void Power(PowerChange change) => _core.Power(change);
+    /// <summary>
+    /// Tells the core the machine is about to sleep. The task completes once
+    /// the core has unregistered this computer from ringing and ended any call
+    /// or ring, or once the core's own budget (1.5 seconds) has passed,
+    /// whichever is first; at once when the core is not running. Safe from any
+    /// thread, and after <see cref="DisposeAsync"/>.
+    /// </summary>
+    public async Task SuspendAsync()
+    {
+        if (Volatile.Read(ref _disposed) == 1)
+        {
+            return;
+        }
+        try
+        {
+            await _core.Suspend().ConfigureAwait(false);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Disposed between the check and the call: nothing is left to tell.
+        }
+    }
+
+    /// <summary>
+    /// Tells the core the machine has woken, so it registers this computer to
+    /// ring again. Nothing waits for that. Safe from any thread, and after
+    /// <see cref="DisposeAsync"/>.
+    /// </summary>
+    public void Resume()
+    {
+        if (Volatile.Read(ref _disposed) == 1)
+        {
+            return;
+        }
+        try
+        {
+            _core.Resume();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Disposed between the check and the call: nothing is left to tell.
+        }
+    }
 
     /// <summary>
     /// Forwards a toast's activation: the toast itself clicked
