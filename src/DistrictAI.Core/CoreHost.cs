@@ -65,11 +65,12 @@ public sealed class CoreHost : UiHost, IAsyncDisposable
 
     /// <summary>
     /// Starts the core, with its files in <paramref name="dataDir"/> (the
-    /// package's LocalState).
+    /// package's LocalState) and its credentials under
+    /// <paramref name="credentialNamespace"/> (the package family name).
     /// </summary>
     /// <exception cref="StartException">The core could not start.</exception>
-    public void Start(string dataDir, string appVersion, string? deviceName) =>
-        _core.Start(new StartConfig(dataDir, appVersion, deviceName), this);
+    public void Start(string dataDir, string appVersion, string? deviceName, string credentialNamespace) =>
+        _core.Start(new StartConfig(dataDir, appVersion, deviceName, credentialNamespace), this);
 
     /// <summary>Forwards something the user did.</summary>
     public void Send(UiEvent uiEvent) => _core.Send(uiEvent);

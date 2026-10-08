@@ -38,7 +38,11 @@ public partial class App : Application
         _core = new CoreHost(new QueueDispatcher(queue), new LauncherBrowser(queue));
         _window = new MainWindow(_core);
         _window.Closed += OnClosed;
-        _core.Start(ApplicationData.Current.LocalFolder.Path, AppVersion(), Environment.MachineName);
+        _core.Start(
+            ApplicationData.Current.LocalFolder.Path,
+            AppVersion(),
+            Environment.MachineName,
+            Package.Current.Id.FamilyName);
         Handle(_launch);
         _window.Activate();
     }

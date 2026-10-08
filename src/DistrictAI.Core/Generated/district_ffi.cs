@@ -2754,6 +2754,12 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
 /// <param name="DeviceName">
 /// This computer's name, for the devices list.
 /// </param>
+/// <param name="CredentialNamespace">
+/// What keeps this copy's credentials apart from another copy's: the
+/// package family name. Credential Manager is per user, not per package,
+/// so the Store copy and the GitHub copy installed side by side would
+/// otherwise read each other's session.
+/// </param>
 public record StartConfig (
     /// <summary>
     /// Where the app's own files go: the device id, the settings and the
@@ -2768,7 +2774,14 @@ public record StartConfig (
     /// <summary>
     /// This computer's name, for the devices list.
     /// </summary>
-    string? DeviceName
+    string? DeviceName, 
+    /// <summary>
+    /// What keeps this copy's credentials apart from another copy's: the
+    /// package family name. Credential Manager is per user, not per package,
+    /// so the Store copy and the GitHub copy installed side by side would
+    /// otherwise read each other's session.
+    /// </summary>
+    string CredentialNamespace
 ) {
 }
 
@@ -2779,7 +2792,8 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
         return new StartConfig(
             DataDir: FfiConverterString.INSTANCE.Read(stream),
             AppVersion: FfiConverterString.INSTANCE.Read(stream),
-            DeviceName: FfiConverterOptionalString.INSTANCE.Read(stream)
+            DeviceName: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CredentialNamespace: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
@@ -2787,13 +2801,15 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
         return 0
             + FfiConverterString.INSTANCE.AllocationSize(value.DataDir)
             + FfiConverterString.INSTANCE.AllocationSize(value.AppVersion)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.DeviceName);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.DeviceName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CredentialNamespace);
     }
 
     public override void Write(StartConfig value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.DataDir, stream);
             FfiConverterString.INSTANCE.Write(value.AppVersion, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.DeviceName, stream);
+            FfiConverterString.INSTANCE.Write(value.CredentialNamespace, stream);
     }
 }
 

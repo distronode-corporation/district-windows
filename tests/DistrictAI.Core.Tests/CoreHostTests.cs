@@ -81,6 +81,9 @@ internal sealed class RecordingBrowser : IBrowser
 
 public sealed class CoreHostTests : IDisposable
 {
+    /// <summary>Credentials of their own, apart from any installed copy of the app.</summary>
+    private const string Namespace = "DistrictAI.Core.Tests_0";
+
     private readonly string _dataDir = Path.Combine(Path.GetTempPath(), "district-tests-" + Guid.NewGuid().ToString("N"));
 
     public void Dispose()
@@ -120,7 +123,7 @@ public sealed class CoreHostTests : IDisposable
         var rendered = new List<CoreSnapshot>();
         host.Changed += (_, snapshot) => rendered.Add(snapshot);
 
-        host.Start(_dataDir, "0.1.0", "Test PC");
+        host.Start(_dataDir, "0.1.0", "Test PC", Namespace);
         // Nothing in the store: the start-up check signs out without a request.
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
         await Eventually("a render queued", () => dispatcher.Pending > 0);
@@ -156,7 +159,7 @@ public sealed class CoreHostTests : IDisposable
         await using var host = new CoreHost(dispatcher, new RecordingBrowser());
         var rendered = 0;
         host.Changed += (_, _) => rendered++;
-        host.Start(_dataDir, "0.1.0", null);
+        host.Start(_dataDir, "0.1.0", null, Namespace);
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
         Assert.Equal(0, dispatcher.Pending);
 
@@ -175,8 +178,8 @@ public sealed class CoreHostTests : IDisposable
     public async Task StartingTwiceIsRefusedAndShuttingDownTwiceIsNot()
     {
         var host = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
-        host.Start(_dataDir, "0.1.0", null);
-        Assert.Throws<StartException.AlreadyStarted>(() => host.Start(_dataDir, "0.1.0", null));
+        host.Start(_dataDir, "0.1.0", null, Namespace);
+        Assert.Throws<StartException.AlreadyStarted>(() => host.Start(_dataDir, "0.1.0", null, Namespace));
         await host.DisposeAsync();
         await host.DisposeAsync();
     }

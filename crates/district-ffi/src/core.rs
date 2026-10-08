@@ -43,6 +43,11 @@ pub struct StartConfig {
     pub app_version: String,
     /// This computer's name, for the devices list.
     pub device_name: Option<String>,
+    /// What keeps this copy's credentials apart from another copy's: the
+    /// package family name. Credential Manager is per user, not per package,
+    /// so the Store copy and the GitHub copy installed side by side would
+    /// otherwise read each other's session.
+    pub credential_namespace: String,
 }
 
 /// Why the core could not start.
@@ -361,7 +366,10 @@ fn start_real(
     let sign_in = NativeAuthApi::new(&api_config).map_err(config_error)?;
     // One coordinator: every client and the sign-in share its refresh lock,
     // which is what keeps a refresh token from being sent twice.
-    let coordinator = TokenRefreshCoordinator::new(platform_store(&data_dir), sign_in.clone());
+    let coordinator = TokenRefreshCoordinator::new(
+        platform_store(&data_dir, &config.credential_namespace),
+        sign_in.clone(),
+    );
     let client = || ApiClient::new(api_config.clone(), coordinator.clone());
     let api = client().map_err(config_error)?;
     let presence = DesktopPresence::new(Arc::new(client().map_err(config_error)?), platform);
@@ -414,9 +422,12 @@ fn start_real(
 
 /// The session store: Credential Manager on Windows.
 #[cfg(windows)]
-fn platform_store(data_dir: &Path) -> crate::store::CredentialStore<crate::store::WindowsVault> {
+fn platform_store(
+    data_dir: &Path,
+    namespace: &str,
+) -> crate::store::CredentialStore<crate::store::WindowsVault> {
     crate::store::CredentialStore::new(
-        crate::store::WindowsVault::new(),
+        crate::store::WindowsVault::for_package(namespace),
         RefreshMarkerFile::new(data_dir),
     )
 }
@@ -425,7 +436,10 @@ fn platform_store(data_dir: &Path) -> crate::store::CredentialStore<crate::store
 /// exists for DistrictAI.Core.Tests, never as an app, so nothing is written
 /// to a plain file.
 #[cfg(not(windows))]
-fn platform_store(data_dir: &Path) -> crate::store::CredentialStore<crate::store::MemoryVault> {
+fn platform_store(
+    data_dir: &Path,
+    _namespace: &str,
+) -> crate::store::CredentialStore<crate::store::MemoryVault> {
     crate::store::CredentialStore::new(
         crate::store::MemoryVault::new(),
         RefreshMarkerFile::new(data_dir),
@@ -640,6 +654,7 @@ mod tests {
                 data_dir: String::new(),
                 app_version: "0.1.0".to_owned(),
                 device_name: None,
+                credential_namespace: "DistrictAI.Tests_0".to_owned(),
             },
             Arc::new(RecordingHost::default()),
         );
@@ -766,6 +781,7 @@ mod tests {
             data_dir: data.to_string_lossy().into_owned(),
             app_version: "0.1.0".to_owned(),
             device_name: Some("Test PC".to_owned()),
+            credential_namespace: "DistrictAI.Tests_0".to_owned(),
         };
         core.start(config.clone(), host.clone()).unwrap();
         assert_eq!(
@@ -788,6 +804,7 @@ mod tests {
                     data_dir: file.join("below").to_string_lossy().into_owned(),
                     app_version: "0.1.0".to_owned(),
                     device_name: None,
+                    credential_namespace: "DistrictAI.Tests_0".to_owned(),
                 },
                 Arc::new(RecordingHost::default()),
             )

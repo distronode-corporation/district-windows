@@ -5,8 +5,9 @@ use keyring::Entry;
 
 use super::Vault;
 
-/// The prefix of every credential the app keeps. Credential Manager shows the
-/// whole target name (for example `DistrictAI/session`) in its list.
+/// The start of every credential the app keeps. Credential Manager shows the
+/// whole target name (for example
+/// `DistrictAI/Distronode.DistrictAI_8wekyb3d8bbwe/session`) in its list.
 pub const APP_TARGET: &str = "DistrictAI";
 
 /// A [`Vault`] in Windows Credential Manager: one generic credential per name,
@@ -18,9 +19,11 @@ pub struct WindowsVault {
 }
 
 impl WindowsVault {
-    /// The app's own credentials.
-    pub fn new() -> Self {
-        Self::with_prefix(APP_TARGET)
+    /// The credentials of the copy installed as `package_family`. Credential
+    /// Manager is per user, not per package, so two copies of the app (the
+    /// Store's and the GitHub one) never read each other's session.
+    pub fn for_package(package_family: &str) -> Self {
+        Self::with_prefix(format!("{APP_TARGET}/{package_family}"))
     }
 
     /// Credentials under another prefix, so a test never touches the app's.
@@ -33,12 +36,6 @@ impl WindowsVault {
     fn entry(&self, name: &str) -> Result<Entry, StoreError> {
         let target = format!("{}/{name}", self.prefix);
         Entry::new_with_target(&target, &self.prefix, name).map_err(store_error)
-    }
-}
-
-impl Default for WindowsVault {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
@@ -93,7 +90,10 @@ mod tests {
         vault.delete("item").unwrap();
         vault.delete("item").unwrap();
         assert_eq!(vault.read("item").unwrap(), None);
-        assert!(WindowsVault::default().prefix == APP_TARGET);
+        assert_eq!(
+            WindowsVault::for_package("Family_1").prefix,
+            "DistrictAI/Family_1"
+        );
     }
 
     #[test]
