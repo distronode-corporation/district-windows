@@ -793,6 +793,37 @@ mod tests {
         assert!(effects.ran(|effect| matches!(effect, Effect::SaveSession)));
     }
 
+    /// A report's three events reach the model, and a dismissal its two; with
+    /// no workspace open the core refuses both, so nothing is under way.
+    #[tokio::test]
+    async fn a_report_and_its_dismissal_reach_the_model() {
+        let core = Core::new();
+        let host = Arc::new(RecordingHost::default());
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            ..FakeEffects::default()
+        });
+        core.start_with(config(), Arc::clone(&effects), host);
+        eventually("signed in", || phase(&core) == SessionPhase::SignedIn).await;
+        core.send(UiEvent::Report {
+            target: crate::views::ReportTarget::Call {
+                call_id: "call-1".to_owned(),
+            },
+            note: String::new(),
+        });
+        core.send(UiEvent::DismissReport);
+        core.send(UiEvent::OpenTab {
+            tab: crate::shell::TabView::Account,
+        });
+        eventually("the account screen", || {
+            matches!(core.screen(), ScreenView::Account { .. })
+        })
+        .await;
+        assert_eq!(core.shell().report, None);
+        assert!(!effects.ran(|effect| matches!(effect, Effect::CreateSupportRequest { .. })));
+        core.shutdown().await;
+    }
+
     #[tokio::test]
     async fn forwarding_stops_when_the_actor_has() {
         let runtime = tokio::runtime::Builder::new_multi_thread()

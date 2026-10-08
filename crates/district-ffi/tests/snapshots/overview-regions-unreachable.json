@@ -1,0 +1,43 @@
+{
+  "screen": {
+    "Overview": {
+      "view": {
+        "finish_setup": null,
+        "metrics": [],
+        "read_only_badge": null,
+        "recent_calls": [],
+        "recent_calls_empty": null,
+        "refresh_failure": null,
+        "refreshing": false,
+        "status": {
+          "Failed": {
+            "failure": {
+              "message": "Your workspaces could not be listed because a region is unreachable. Your account has not changed.",
+              "regions_line": "Affected regions: EU, APAC",
+              "retryable": true
+            },
+            "title": "Could not load your workspace"
+          }
+        },
+        "workspace_name": ""
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Overview",
+    "unread": 0,
+    "workspaces": {
+      "active_id": null,
+      "can_switch": false,
+      "entries": [],
+      "message": "Your workspaces could not be listed because a region is unreachable. Your account has not changed.",
+      "partial_warning": null,
+      "title": "Could not load your workspace"
+    }
+  }
+}

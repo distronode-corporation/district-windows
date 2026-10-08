@@ -1,0 +1,45 @@
+{
+  "screen": {
+    "Overview": {
+      "view": {
+        "finish_setup": null,
+        "metrics": [],
+        "read_only_badge": null,
+        "recent_calls": [],
+        "recent_calls_empty": null,
+        "refresh_failure": null,
+        "refreshing": false,
+        "status": "Loading",
+        "workspace_name": ""
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Overview",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-active",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": "Some workspaces could not be listed (EU unreachable). This list may be incomplete.",
+      "title": null
+    }
+  }
+}

@@ -10,7 +10,7 @@ use serde::Serialize;
 use crate::account::{AccountView, DevicesView, devices_view};
 use crate::calls::{CallDetailView, CallsView, call_detail_view, calls_view};
 use crate::contacts::{ContactDetailView, ContactsView, contact_detail_view, contacts_view};
-use crate::inbox::{InboxView, ThreadView, inbox_view, loading_thread, thread_view};
+use crate::inbox::{InboxView, ThreadView, inbox_view, thread_view};
 use crate::overview::{OverviewView, overview_view};
 
 /// The heading of the signed-out screen on a first run.
@@ -133,10 +133,7 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
             view: inbox_view(&signed_in.inbox),
         },
         Route::Thread { thread_key } => ScreenView::Thread {
-            view: signed_in.thread.as_ref().map_or_else(
-                || loading_thread(thread_key),
-                |screen| thread_view(screen, &capabilities),
-            ),
+            view: thread_view(thread_key, signed_in.thread.as_ref(), &capabilities),
         },
         Route::Calls => ScreenView::Calls {
             view: calls_view(&signed_in.calls),
@@ -310,11 +307,23 @@ mod tests {
     use super::*;
 
     fn session_screen(view: ScreenView) -> Option<SessionScreen> {
-        if let ScreenView::Session { view } = view {
-            Some(view)
-        } else {
-            None
+        match view {
+            ScreenView::Session { view } => Some(view),
+            _ => None,
         }
+    }
+
+    #[test]
+    fn a_screen_with_no_page_says_so() {
+        let view = ScreenView::unavailable();
+        assert_eq!(session_screen(view.clone()), None);
+        assert_eq!(
+            view,
+            ScreenView::Unavailable {
+                title: UNAVAILABLE_TITLE.to_owned(),
+                body: UNAVAILABLE_BODY.to_owned(),
+            }
+        );
     }
 
     fn signed_out(outcome: SignOutOutcome) -> SessionScreen {

@@ -1,0 +1,71 @@
+{
+  "screen": {
+    "Inbox": {
+      "view": {
+        "empty": null,
+        "partial_note": null,
+        "read_only_note": "Replies are sent from the web dashboard or the District AI phone apps.",
+        "refresh_failure": null,
+        "refreshing": false,
+        "search": {
+          "active": true,
+          "empty": {
+            "body": "Search looks inside every message in this workspace, including older threads.",
+            "title": "No matches"
+          },
+          "failure": null,
+          "hits": [],
+          "min_query_length": 2,
+          "query": "gutter",
+          "running": false,
+          "truncated": false,
+          "truncated_note": null
+        },
+        "status": "Ready",
+        "threads": [
+          {
+            "can_open": true,
+            "channel_label": "Email, Text message",
+            "last_at": "2026-08-15T14:20:00.000Z",
+            "preview": "Following up by email - could we move Thursday to Friday?",
+            "thread_key": "contact:contact_contract_1",
+            "title": "Contract Test Caller",
+            "unread": true
+          },
+          {
+            "can_open": true,
+            "channel_label": "Text message",
+            "last_at": "2026-08-15T13:10:00.000Z",
+            "preview": "Is this the roofing company?",
+            "thread_key": "addr:14165550181",
+            "title": "+1 416 555 0181",
+            "unread": false
+          }
+        ]
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Inbox",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "screen": {
+    "Thread": {
+      "view": {
+        "has_more": false,
+        "items": [],
+        "loading_older": false,
+        "older_failure": null,
+        "read_only_note": "Replies are sent from the web dashboard or the District AI phone apps.",
+        "refresh_failure": null,
+        "refreshing": false,
+        "status": {
+          "Failed": {
+            "failure": {
+              "message": "Something went wrong on our side. Please try again shortly.",
+              "regions_line": null,
+              "retryable": true
+            },
+            "title": "Could not load this conversation"
+          }
+        },
+        "thread_key": "contact:contact_contract_1",
+        "title": "Contract Test Caller"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": true,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Inbox",
+    "unread": 1,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

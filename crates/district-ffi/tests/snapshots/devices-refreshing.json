@@ -1,0 +1,57 @@
+{
+  "screen": {
+    "Devices": {
+      "view": {
+        "busy": false,
+        "confirming": null,
+        "empty": null,
+        "failure": null,
+        "nothing_revoked": false,
+        "nothing_revoked_note": null,
+        "refreshing": true,
+        "rows": [
+          {
+            "device_id": "device-contract-android-1",
+            "is_this_device": false,
+            "last_active_at": "2026-08-15T14:30:00.000Z",
+            "last_active_label": "Last active 2026-08-15T14:30:00.000Z",
+            "name": "Google Pixel 9",
+            "platform": "Android"
+          },
+          {
+            "device_id": "device-contract-ios-2",
+            "is_this_device": false,
+            "last_active_at": null,
+            "last_active_label": "Signed in recently",
+            "name": "Unnamed device",
+            "platform": "iOS"
+          }
+        ],
+        "status": "Ready"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": true,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Account",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "screen": {
+    "CallDetail": {
+      "view": {
+        "analysis": [
+          {
+            "label": "Key points",
+            "value": "• wants thursday"
+          },
+          {
+            "label": "Action items",
+            "value": "• confirm the slot"
+          },
+          {
+            "label": "Topics",
+            "value": "• booking"
+          }
+        ],
+        "call_id": "call_contract_answered",
+        "callback_number": "+14165550142",
+        "duration_label": "1m 5s",
+        "facts": [
+          {
+            "label": "Status",
+            "value": "Completed"
+          },
+          {
+            "label": "Direction",
+            "value": "Inbound"
+          },
+          {
+            "label": "Caller's number",
+            "value": "+1 416 555 0142"
+          },
+          {
+            "label": "Location",
+            "value": "Ontario, Canada"
+          },
+          {
+            "label": "Line type",
+            "value": "Mobile"
+          },
+          {
+            "label": "Carrier",
+            "value": "Rogers"
+          },
+          {
+            "label": "Sentiment",
+            "value": "Positive"
+          },
+          {
+            "label": "Outcome",
+            "value": "Booked"
+          }
+        ],
+        "follow_up": [
+          {
+            "label": "Email sent to",
+            "value": "followup@example.com"
+          },
+          {
+            "label": "Text message",
+            "value": "Thanks for calling. Your appointment is confirmed."
+          }
+        ],
+        "refresh_failure": null,
+        "report": "OnWeb",
+        "started_at": "2026-08-15T14:30:00.000Z",
+        "status": "Ready",
+        "summary": {
+          "label": "AI summary",
+          "text": "Caller booked an appointment for Thursday."
+        },
+        "title": "Contract Test Caller",
+        "transcript": "Loading"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": true,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Calls",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
