@@ -107,6 +107,31 @@ Every NuGet version is in `Directory.Packages.props`, and each project has a
 `packages.lock.json` that restore refuses to change. After changing a version, run
 `dotnet restore -p:RestoreLockedMode=false` and commit the lock files with it.
 
+### UI smoke tests
+
+`tests/DistrictAI.UiTests` drives the installed app through UI Automation, with
+[FlaUI](https://github.com/FlaUI/FlaUI): it starts the package by its application user
+model ID and checks that it reaches the sign-in page, that a `districtai://` link opened
+while it runs goes to the one instance, that closing the window hides it to the tray, and
+that the tray menu's Quit ends it. Nothing signs in or reaches the service. The project
+builds on any OS, but only Windows runs it; elsewhere `dotnet test` passes over it.
+
+CI's `windows-app` job runs it on every push and pull request, against the test MSIX it
+has just built, through `scripts/run-ui-tests.ps1`: the script trusts the package's
+throwaway certificate for the run, installs the package and its framework dependencies,
+runs the tests and always removes the package again. To run them on Windows, download the
+`district-ai-test-msix` artifact of a CI run (or package the app yourself, as the job
+does), then, in PowerShell 7 as administrator:
+
+```
+./scripts/run-ui-tests.ps1 -Packages <the unpacked artifact>
+```
+
+It refuses to run while the Store copy of District AI is installed, since both have the
+same identity. With a package already installed by hand, `dotnet test
+tests/DistrictAI.UiTests` runs the tests against it directly; they skip when it is not
+installed.
+
 ## Public hygiene
 
 This repository is public, and `scripts/check-public-hygiene.py` keeps it that way. CI runs
