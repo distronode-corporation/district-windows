@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Tab = DistrictAI.Core.Ffi.TabView;
 
 namespace DistrictAI;
 
@@ -24,7 +25,7 @@ public sealed partial class MainWindow : Window
     private readonly CoreHost _core;
     private readonly PageContext _context;
     private readonly ObservableCollection<WorkspaceItem> _workspaces = [];
-    private readonly Dictionary<TabView, NavigationViewItem> _tabs;
+    private readonly Dictionary<Tab, NavigationViewItem> _tabs;
     private CoreSnapshot? _shown;
     private bool _rendering;
 
@@ -52,11 +53,11 @@ public sealed partial class MainWindow : Window
         _context = new PageContext(core, new LauncherBrowser(DispatcherQueue));
         _tabs = new()
         {
-            [TabView.Overview] = OverviewTab,
-            [TabView.Inbox] = InboxTab,
-            [TabView.Calls] = CallsTab,
-            [TabView.Contacts] = ContactsTab,
-            [TabView.Account] = AccountTab,
+            [Tab.Overview] = OverviewTab,
+            [Tab.Inbox] = InboxTab,
+            [Tab.Calls] = CallsTab,
+            [Tab.Contacts] = ContactsTab,
+            [Tab.Account] = AccountTab,
         };
         WorkspacePicker.ItemsSource = _workspaces;
         // The mouse's back button, wherever the pointer is, even over a
