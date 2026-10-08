@@ -1,0 +1,52 @@
+# cargo-deny policy, run by the `cargo-deny` job in .github/workflows/ci.yml
+# (`cargo deny --locked check`). Four checks: RustSec advisories, licences,
+# banned crates, allowed sources.
+
+[graph]
+# The target the app ships (x64 Windows, MSVC) and the one CI tests the C#
+# library against (Linux). Crates that only build elsewhere are not judged.
+targets = ["x86_64-pc-windows-msvc", "x86_64-unknown-linux-gnu"]
+all-features = true
+
+[advisories]
+# Unmaintained and unsound notices for the WHOLE tree, so a new one anywhere is
+# a decision rather than noise. Every entry below says why it is tolerated and
+# what would retire it.
+unmaintained = "all"
+unsound = "all"
+ignore = []
+
+[licenses]
+# The project is Apache-2.0: permissive licences only. The same list as
+# district-core-rust and District AI for Linux.
+allow = [
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "MIT",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Zlib",
+  "Unicode-3.0",
+  "Unlicense",
+  "CC0-1.0",
+  "MPL-2.0",
+  "0BSD",
+]
+confidence-threshold = 0.9
+
+[licenses.private]
+# The workspace's own crates and the core's are not published to crates.io.
+ignore = true
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+# The shared core, and nothing else, by git.
+allow-git = ["https://github.com/distronode-corporation/district-core-rust"]

@@ -1,0 +1,13 @@
+{
+  "screen": {
+    "Route": {
+      "route": "Overview"
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "notice": null,
+    "phase": "SignedIn",
+    "tab": "Overview"
+  }
+}

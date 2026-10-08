@@ -1,0 +1,22 @@
+{
+  "screen": {
+    "Session": {
+      "view": {
+        "body": "Could not reach District AI. Check your connection. District AI will try again by itself.",
+        "busy": false,
+        "cancel": false,
+        "error": null,
+        "retry": true,
+        "retry_sign_out": false,
+        "sign_in": false,
+        "title": "District AI"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "notice": null,
+    "phase": "Restoring",
+    "tab": null
+  }
+}

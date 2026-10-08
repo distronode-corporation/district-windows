@@ -1,0 +1,13 @@
+{
+  "screen": {
+    "Route": {
+      "route": "Calls"
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "notice": null,
+    "phase": "SignedIn",
+    "tab": "Calls"
+  }
+}

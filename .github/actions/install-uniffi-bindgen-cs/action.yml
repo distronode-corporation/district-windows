@@ -1,0 +1,35 @@
+name: Install uniffi-bindgen-cs
+description: >-
+  NordSecurity's uniffi-bindgen-cs at the pinned commit of its
+  v0.11.0+v0.31.0 tag, built with its own Cargo.lock, onto PATH. It has no
+  release binaries, so it is built from source and the build is cached by
+  version, then copied into ~/.cargo/bin (already on PATH). The version must
+  match the `uniffi` pin in Cargo.toml and
+  UNIFFI_BINDGEN_CS_TAG in scripts/generate-bindings.sh.
+
+runs:
+  using: composite
+  steps:
+    # Keyed on the commit and the OS: the cache holds nothing else.
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      id: cache
+      with:
+        path: ~/.uniffi-bindgen-cs
+        key: uniffi-bindgen-cs-${{ runner.os }}-e10ce410eb3a10cc19c7928b93ea8d84e038c034
+
+    # The commit the tag names, not the tag, so a moved tag cannot change what
+    # is built.
+    - name: Build uniffi-bindgen-cs v0.11.0+v0.31.0
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        cargo install --locked --root "$HOME/.uniffi-bindgen-cs" uniffi-bindgen-cs \
+          --git https://github.com/NordSecurity/uniffi-bindgen-cs \
+          --rev e10ce410eb3a10cc19c7928b93ea8d84e038c034
+
+    - name: Put it next to cargo
+      shell: bash
+      run: |
+        install -m 0755 "$HOME/.uniffi-bindgen-cs/bin/uniffi-bindgen-cs" "$HOME/.cargo/bin/uniffi-bindgen-cs"
+        uniffi-bindgen-cs --version

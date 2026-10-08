@@ -67,9 +67,12 @@ ALLOWED_HOSTS = {
 }
 
 # The top-level domain must be letters, so `crate@0.6.0` (a version) and
-# `action@<sha>` (a pinned action) are not addresses.
+# `action@<sha>` (a pinned action) are not addresses. The local part may not end
+# in a dot (RFC 5322 does not allow it unquoted), so C#'s member access on a
+# verbatim identifier (`ret.@callStatus.code`, which the generated bindings
+# write) is not an address either.
 EMAIL = re.compile(
-    r"(?<![\w.%+\-])[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}(?![\w\-])"
+    r"(?<![\w.%+\-])[A-Za-z0-9_%+\-](?:[A-Za-z0-9._%+\-]*[A-Za-z0-9_%+\-])?@[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}(?![\w\-])"
 )
 ALLOWED_EMAILS = {
     "opensource@distronode.com",
@@ -190,6 +193,7 @@ def self_test() -> int:
             "Co-Authored-By: someone <noreply@anthropic.com>",
             "12345+someone@users.noreply.github.com and noreply@github.com",
             "Fixture addresses: ada@example.com, Caller@Example.com.",
+            "C# member access: ret.@callStatus.code = 0;",
         ]
     )
 

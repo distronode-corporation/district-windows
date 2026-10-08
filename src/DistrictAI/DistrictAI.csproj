@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    District AI for Windows: a WinUI 3 app, packaged as a single-project MSIX.
+    Builds on Windows only (the XAML compiler runs only there); CI builds it on
+    windows-2025. It needs district_ffi.dll, a release build of
+    crates/district-ffi made first, which it finds through DistrictFfiDir
+    (Directory.Build.props) with the property DistrictFfiProfile set to release.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <RootNamespace>DistrictAI</RootNamespace>
+    <AssemblyName>DistrictAI</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- x64 only for 1.0: Windows 11 on ARM runs it emulated. -->
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <!-- Program.cs is Main: it redirects a second instance before any XAML loads. -->
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <!-- CsWin32's generated P/Invoke. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!--
+      ReadyToRun, not Native AOT, until the AOT spike proves the generated
+      bindings under AOT.
+    -->
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <!-- Lets `dotnet restore` (and the lock file) run on Linux too. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- The package is signed by the Store, or in CI by a throwaway test certificate passed on the command line. -->
+    <AppxPackageSigningEnabled Condition="'$(AppxPackageSigningEnabled)' == ''">false</AppxPackageSigningEnabled>
+    <AppxBundle>Never</AppxBundle>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../DistrictAI.Core/DistrictAI.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\*.png" />
+    <Manifest Include="$(ApplicationManifest)" />
+    <!-- The Rust core, inside the package next to DistrictAI.exe. -->
+    <Content Include="$(DistrictFfiDir)district_ffi.dll" Link="district_ffi.dll" CopyToOutputDirectory="PreserveNewest" Condition="Exists('$(DistrictFfiDir)district_ffi.dll')" />
+  </ItemGroup>
+
+  <Target Name="RequireDistrictFfi" BeforeTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <Error Condition="!Exists('$(DistrictFfiDir)district_ffi.dll')" Text="district_ffi.dll is not in $(DistrictFfiDir). Run `cargo build -p district-ffi --release` and build with -p:DistrictFfiProfile=release." />
+  </Target>
+</Project>

@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/DistrictAI/DistrictAI.csproj" />
+    <Project Path="src/DistrictAI.Core/DistrictAI.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DistrictAI.Core.Tests/DistrictAI.Core.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,22 @@
+{
+  "screen": {
+    "Session": {
+      "view": {
+        "body": "Your session ended. Signing in again will restore it.",
+        "busy": false,
+        "cancel": false,
+        "error": null,
+        "retry": false,
+        "retry_sign_out": false,
+        "sign_in": true,
+        "title": "Please sign in again"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "notice": null,
+    "phase": "SignedOut",
+    "tab": null
+  }
+}

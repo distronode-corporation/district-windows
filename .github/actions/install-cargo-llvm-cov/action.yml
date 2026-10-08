@@ -1,0 +1,25 @@
+name: Install cargo-llvm-cov
+description: >-
+  The upstream release of cargo-llvm-cov, checked against a pinned SHA-256,
+  into ~/.cargo/bin. A bump changes the version and the digest here, once.
+
+# The version and digest are step env, not job env, because rust-cache hashes
+# every CARGO* variable in the job into its cache key, and a tool bump should
+# not throw the cache away.
+runs:
+  using: composite
+  steps:
+    - name: Install cargo-llvm-cov
+      shell: bash
+      env:
+        CARGO_LLVM_COV_VERSION: 0.9.1
+        CARGO_LLVM_COV_SHA256: 3fca950394a3c49457657c158b1619cec8dfd2647ae5b48746734c0ab969a522
+      run: |
+        set -euo pipefail
+        name="cargo-llvm-cov-x86_64-unknown-linux-musl"
+        curl -fsSL -o "$RUNNER_TEMP/llvm-cov.tgz" \
+          "https://github.com/taiki-e/cargo-llvm-cov/releases/download/v${CARGO_LLVM_COV_VERSION}/${name}.tar.gz"
+        echo "${CARGO_LLVM_COV_SHA256}  $RUNNER_TEMP/llvm-cov.tgz" | sha256sum -c -
+        tar xzf "$RUNNER_TEMP/llvm-cov.tgz" -C "$RUNNER_TEMP"
+        install -m 0755 "$RUNNER_TEMP/cargo-llvm-cov" "$HOME/.cargo/bin/cargo-llvm-cov"
+        cargo llvm-cov --version
