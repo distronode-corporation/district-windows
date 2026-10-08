@@ -20,6 +20,17 @@
                     Style="{StaticResource QuietTextStyle}"
                     Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.HasSubtitle, Mode=OneWay}" />
+                <!-- A call back, in a build that can carry calls. -->
+                <Button
+                    HorizontalAlignment="Left"
+                    AutomationProperties.Name="Call"
+                    Command="{x:Bind ViewModel.CallCommand}"
+                    Visibility="{x:Bind ViewModel.CanCall, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Phone" />
+                        <TextBlock Text="Call" />
+                    </StackPanel>
+                </Button>
                 <views:RefreshStrip x:Name="Refresh" />
 
                 <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">

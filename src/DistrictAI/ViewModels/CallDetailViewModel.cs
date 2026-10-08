@@ -28,6 +28,13 @@ public sealed partial class CallDetailViewModel : ObservableObject
     /// <summary>What a report is about.</summary>
     public ReportAvailability Report { get; private set; }
 
+    /// <summary>The number "Call" dials back, E.164, or empty for none.</summary>
+    public string CallbackNumber { get; private set; } = string.Empty;
+
+    /// <summary>Whether "Call" is offered: there is a number to call back, in a build that can carry calls.</summary>
+    [ObservableProperty]
+    public partial bool CanCall { get; set; }
+
     /// <summary>Who called or was called.</summary>
     [ObservableProperty]
     public partial string Title { get; set; } = string.Empty;
@@ -122,6 +129,8 @@ public sealed partial class CallDetailViewModel : ObservableObject
         ReportLabel = Display.ReportLabel(view.Report);
         ReportVisible = ReportLabel.Length > 0;
         ReportEnabled = !reportSending;
+        CallbackNumber = view.CallbackNumber ?? string.Empty;
+        CanCall = CallbackNumber.Length > 0 && (_context?.CallsAvailable ?? false);
     }
 
     private void ShowTranscript(TranscriptState transcript)
@@ -141,6 +150,9 @@ public sealed partial class CallDetailViewModel : ObservableObject
 
     /// <summary>What a report about this call is about.</summary>
     internal ReportTarget Target() => new ReportTarget.Call(CallId);
+
+    [RelayCommand]
+    private void Call() => _context?.Send(new UiEvent.CallNumber(CallbackNumber));
 
     [RelayCommand]
     private void RetryTranscript() => _context?.Send(new UiEvent.Refresh());

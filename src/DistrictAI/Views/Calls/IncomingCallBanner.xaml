@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Calls.IncomingCallBanner"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    AutomationProperties.LandmarkType="Custom"
+    AutomationProperties.LocalizedLandmarkType="Incoming call"
+    AutomationProperties.Name="Incoming call"
+    Visibility="{x:Bind ViewModel.IsShown, Mode=OneWay}">
+    <Grid
+        Background="{ThemeResource LayerFillColorDefaultBrush}"
+        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        BorderThickness="0,1,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!-- The accent stripe, while the ringtone sounds. -->
+        <Border
+            Width="4"
+            AutomationProperties.AccessibilityView="Raw"
+            Background="{ThemeResource AccentFillColorDefaultBrush}"
+            Visibility="{x:Bind ViewModel.Sounding, Mode=OneWay}" />
+        <Grid
+            Grid.Column="1"
+            Padding="20,8,24,8"
+            ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <SymbolIcon
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                AutomationProperties.AccessibilityView="Raw"
+                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                Symbol="Phone" />
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <!--
+                    The live region a screen reader announces as soon as a call
+                    starts ringing (Assertive: it interrupts). Its name is the
+                    heading and the line under it, so it reads as one sentence;
+                    the code-behind raises LiveRegionChanged once per ring.
+                -->
+                <TextBlock
+                    x:Name="Announcer"
+                    AutomationProperties.LiveSetting="Assertive"
+                    AutomationProperties.Name="{x:Bind ViewModel.Announcement, Mode=OneWay}"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Heading, Mode=OneWay}"
+                    TextTrimming="CharacterEllipsis" />
+                <TextBlock
+                    Text="{x:Bind ViewModel.Detail, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasDetail, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Note, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasNote, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8">
+                <ProgressRing
+                    Width="20"
+                    Height="20"
+                    AutomationProperties.Name="Answering"
+                    IsActive="{x:Bind ViewModel.Answering, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.Answering, Mode=OneWay}" />
+                <Button
+                    AutomationProperties.Name="Decline"
+                    Command="{x:Bind ViewModel.DeclineCommand}"
+                    Visibility="{x:Bind ViewModel.Live, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="HangUp" />
+                        <TextBlock Text="Decline" />
+                    </StackPanel>
+                </Button>
+                <Button
+                    AutomationProperties.Name="Answer"
+                    Command="{x:Bind ViewModel.AnswerCommand}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Visibility="{x:Bind ViewModel.ShowAnswer, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Phone" />
+                        <TextBlock Text="Answer" />
+                    </StackPanel>
+                </Button>
+                <Button
+                    AutomationProperties.Name="Dismiss"
+                    Command="{x:Bind ViewModel.DismissCommand}"
+                    Content="Dismiss"
+                    Visibility="{x:Bind ViewModel.CanDismiss, Mode=OneWay}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

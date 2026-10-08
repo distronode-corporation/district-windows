@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
 
 namespace DistrictAI.ViewModels;
@@ -7,8 +8,17 @@ namespace DistrictAI.ViewModels;
 /// <summary>One contact: their details and the AI dossier. Read-only in this build.</summary>
 public sealed partial class ContactDetailViewModel : ObservableObject
 {
+    private PageContext? _context;
+
     /// <summary>Loading and failure.</summary>
     public LoadStateViewModel Load { get; } = new();
+
+    /// <summary>The number "Call" dials, E.164, or empty for none.</summary>
+    public string PhoneNumber { get; private set; } = string.Empty;
+
+    /// <summary>Whether "Call" is offered: the contact has a number, in a build that can carry calls.</summary>
+    [ObservableProperty]
+    public partial bool CanCall { get; set; }
 
     /// <summary>Phone number, email address, company and the rest, then when the contact was added and last changed.</summary>
     public ObservableCollection<FactItem> Facts { get; } = [];
@@ -78,7 +88,11 @@ public sealed partial class ContactDetailViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ReportEnabled { get; set; }
 
-    internal void Attach(PageContext context) => Load.Attach(context);
+    internal void Attach(PageContext context)
+    {
+        _context = context;
+        Load.Attach(context);
+    }
 
     internal void Show(ContactDetailView view, bool reportSending)
     {
@@ -104,6 +118,8 @@ public sealed partial class ContactDetailViewModel : ObservableObject
         ReportLabel = Display.ReportLabel(view.Report);
         ReportVisible = ReportLabel.Length > 0;
         ReportEnabled = !reportSending;
+        PhoneNumber = view.PhoneNumber ?? string.Empty;
+        CanCall = PhoneNumber.Length > 0 && (_context?.CallsAvailable ?? false);
     }
 
     private static void AddWhen(List<FactItem> facts, string label, string? iso)
@@ -117,4 +133,7 @@ public sealed partial class ContactDetailViewModel : ObservableObject
 
     /// <summary>What a report about this contact is about.</summary>
     internal ReportTarget Target() => new ReportTarget.Contact(ContactId);
+
+    [RelayCommand]
+    private void Call() => _context?.Send(new UiEvent.CallNumber(PhoneNumber));
 }

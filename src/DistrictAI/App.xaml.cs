@@ -1,6 +1,7 @@
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
 using DistrictAI.Platform;
+using DistrictAI.Platform.Calls;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -26,6 +27,8 @@ public sealed partial class App : Application, IDisposable
     private CoreHost? _core;
     private MainWindow? _window;
     private TrayIcon? _tray;
+    private RingtonePlayer? _ringtone;
+    private WindowAttention? _attention;
     // Set by Quit, so the window's Closing is no longer turned into a hide.
     private bool _quitting;
 
@@ -51,6 +54,15 @@ public sealed partial class App : Application, IDisposable
         _window = new MainWindow(_core);
         _window.Closed += OnClosed;
         _window.AppWindow.Closing += OnClosing;
+        // Before Start: the core may ring, notify or ask for the window as soon
+        // as it runs. Each event arrives on the UI thread.
+        _ringtone = new RingtonePlayer();
+        _attention = new WindowAttention(_window);
+        _core.NotificationRequested += (_, notification) => ToastNotifier.Show(notification);
+        _core.NotificationWithdrawn += (_, id) => _ = ToastNotifier.WithdrawAsync(id);
+        _core.RingtoneStarted += (_, _) => _ringtone?.Start();
+        _core.RingtoneStopped += (_, _) => _ringtone?.Stop();
+        _core.PresentWindowRequested += (_, _) => _attention?.Present();
         _core.Start(
             ApplicationData.Current.LocalFolder.Path,
             AppVersion(),
@@ -105,14 +117,35 @@ public sealed partial class App : Application, IDisposable
         {
             _core?.OpenLink(protocol.Uri.AbsoluteUri);
         }
-        // Launch: nothing more to do. AppNotification: this build shows no
-        // notifications yet, so there is no button to act on.
+        // A toast pressed while the app was not running.
+        if (args.Kind == ExtendedActivationKind.AppNotification && args.Data is AppNotificationActivatedEventArgs notification)
+        {
+            ActivateNotification(notification);
+        }
+        // Launch: nothing more to do.
     }
 
-    private void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)
+    /// <summary>A toast pressed while the app runs. Arrives on a background thread.</summary>
+    private void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args) =>
+        _window?.DispatcherQueue.TryEnqueue(() => ActivateNotification(args));
+
+    /// <summary>
+    /// Hands a toast's press to the core, which knows what the notification was
+    /// for. The toast's body opens the window as well; a button (Answer,
+    /// Decline) leaves that to the core, which asks for the window when the
+    /// press needs it.
+    /// </summary>
+    private void ActivateNotification(AppNotificationActivatedEventArgs args)
     {
-        // This build shows no notifications yet (W4 adds message toasts, W7
-        // the incoming call's), so no button can be pressed.
+        if (!ToastNotifier.TryReadActivation(args.Arguments, out var id, out var actionId))
+        {
+            return;
+        }
+        _core?.ActivateNotification(id, actionId);
+        if (actionId is null)
+        {
+            ShowWindow();
+        }
     }
 
     /// <summary>Shows the window, restored if it was minimised, and brings it forward.</summary>
@@ -181,6 +214,8 @@ public sealed partial class App : Application, IDisposable
         }
         finally
         {
+            _ringtone?.Dispose();
+            _ringtone = null;
             _tray?.Dispose();
             _tray = null;
             Exit();
@@ -201,6 +236,8 @@ public sealed partial class App : Application, IDisposable
     {
         _core?.DisposeAsync().AsTask().GetAwaiter().GetResult();
         _core = null;
+        _ringtone?.Dispose();
+        _ringtone = null;
         _tray?.Dispose();
         _tray = null;
         GC.SuppressFinalize(this);

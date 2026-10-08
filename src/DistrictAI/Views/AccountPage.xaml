@@ -53,6 +53,22 @@
                 Style="{StaticResource QuietTextStyle}"
                 Text="{x:Bind ViewModel.StartupMessage, Mode=OneWay}"
                 Visibility="{x:Bind ViewModel.HasStartupMessage, Mode=OneWay}" />
+            <StackPanel Visibility="{x:Bind ViewModel.RingVisible, Mode=OneWay}">
+                <ToggleSwitch
+                    AutomationProperties.FullDescription="{x:Bind ViewModel.RingBody, Mode=OneWay}"
+                    AutomationProperties.Name="{x:Bind ViewModel.RingLabel, Mode=OneWay}"
+                    Header="{x:Bind ViewModel.RingLabel, Mode=OneWay}"
+                    IsOn="{x:Bind ViewModel.RingOn, Mode=TwoWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.RingBody, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.RingMessage, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasRingMessage, Mode=OneWay}" />
+            </StackPanel>
 
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"

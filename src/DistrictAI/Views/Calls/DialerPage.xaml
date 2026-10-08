@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Calls.DialerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="440"
+            Padding="{StaticResource PagePadding}"
+            HorizontalAlignment="Center"
+            Spacing="12">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="Dialler" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.Hint, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <!-- How the number reads; the box below keeps it as typed. -->
+            <TextBlock
+                AutomationProperties.AccessibilityView="Raw"
+                IsTextSelectionEnabled="True"
+                Style="{StaticResource SubtitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Formatted, Mode=OneWay}" />
+            <TextBox
+                x:Name="NumberBox"
+                AutomationProperties.Name="Number to call"
+                Header="Number to call"
+                InputScope="TelephoneNumber"
+                IsSpellCheckEnabled="False"
+                IsTextPredictionEnabled="False"
+                KeyDown="OnNumberKeyDown"
+                Text="{x:Bind ViewModel.Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button
+                    AutomationProperties.Name="Call"
+                    Command="{x:Bind ViewModel.DialCommand}"
+                    Style="{StaticResource AccentButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Phone" />
+                        <TextBlock Text="Call" />
+                    </StackPanel>
+                </Button>
+                <ProgressRing
+                    Width="20"
+                    Height="20"
+                    AutomationProperties.Name="Placing the call"
+                    IsActive="{x:Bind ViewModel.Dialing, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.Dialing, Mode=OneWay}" />
+            </StackPanel>
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.MicrophoneNote, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBlock
+                Text="{x:Bind ViewModel.Note, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind ViewModel.HasNote, Mode=OneWay}" />
+            <InfoBar
+                AutomationProperties.Name="Call problem"
+                IsClosable="False"
+                IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
+                Message="{x:Bind ViewModel.Failure, Mode=OneWay}"
+                Severity="Error" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

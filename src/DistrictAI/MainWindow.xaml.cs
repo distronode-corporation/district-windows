@@ -102,6 +102,7 @@ public sealed partial class MainWindow : Window
     {
         // Before the page: the pages read it to enable their Report buttons.
         _context.ReportSending = shell.Report is ReportStatus.Sending;
+        RenderCalls(shell);
 
         Nav.SelectedItem = shell.Tab is { } tab && _tabs.TryGetValue(tab, out var item) ? item : null;
         Nav.IsBackButtonVisible = shell.CanGoBack ? NavigationViewBackButtonVisible.Visible : NavigationViewBackButtonVisible.Collapsed;

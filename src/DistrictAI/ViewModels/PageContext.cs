@@ -31,6 +31,12 @@ public sealed class PageContext
     /// </summary>
     internal bool DialogOpen { get; set; }
 
+    /// <summary>
+    /// Whether this build can carry calls (<see cref="ShellView.CallsAvailable"/>),
+    /// so the pages offer "Place a call" and "Call".
+    /// </summary>
+    internal bool CallsAvailable { get; set; }
+
     /// <summary>Forwards something the user did.</summary>
     internal void Send(UiEvent uiEvent) => _core.Send(uiEvent);
 
