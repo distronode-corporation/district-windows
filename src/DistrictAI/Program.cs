@@ -29,10 +29,11 @@ public static class Program
             RedirectTo(main, activation);
             return 0;
         }
-        Application.Start(_ =>
+        Application.Start(started =>
         {
             var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
             SynchronizationContext.SetSynchronizationContext(context);
+            // The application object lives as long as Application.Start runs.
             _ = new App(activation);
         });
         return 0;
