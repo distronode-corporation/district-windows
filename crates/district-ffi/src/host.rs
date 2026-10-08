@@ -5,7 +5,8 @@ use std::future::Future;
 use std::sync::{Arc, Mutex, PoisonError};
 
 use district_core::{
-    Event, Notification, NotificationAction, Notifier, RingSurface, Urgency, UrlOpener,
+    Event, Notification, NotificationAction, NotificationTarget, Notifier, RingSurface, Urgency,
+    UrlOpener,
 };
 
 /// The C# side of the boundary, implemented by `CoreHost`.
@@ -169,9 +170,13 @@ impl UrlOpener for HostOpener {
     }
 }
 
-/// [`Notifier`] over the host: each notification goes to C# as a
+/// [`Notifier`] over the host: each call notification (a call ringing here,
+/// one waiting behind another, a missed call) goes to C# as a
 /// [`NotificationView`], and is remembered in the table that
 /// [`Core::activate_notification`](crate::Core::activate_notification) reads.
+///
+/// A new message's notification is dropped here, neither shown nor
+/// remembered: message notifications come with a later version.
 #[derive(Clone)]
 pub(crate) struct HostNotifier {
     pub(crate) host: Arc<dyn UiHost>,
@@ -180,6 +185,10 @@ pub(crate) struct HostNotifier {
 
 impl Notifier for HostNotifier {
     fn notify(&self, notification: &Notification) {
+        match notification.target {
+            NotificationTarget::IncomingCall { .. } | NotificationTarget::Call { .. } => {}
+            NotificationTarget::Message { .. } => return,
+        }
         // Remembered first, so a click that comes back at once finds it.
         self.table.shown(notification);
         self.host.notify(NotificationView::from(notification));
@@ -213,7 +222,7 @@ impl RingSurface for HostRing {
 pub(crate) mod tests {
     use std::sync::atomic::{AtomicU64, Ordering};
 
-    use district_core::{NotificationTarget, RingEvent};
+    use district_core::RingEvent;
 
     use super::*;
 
@@ -372,6 +381,30 @@ pub(crate) mod tests {
         );
         // Withdrawn, so a late click on it does nothing.
         assert_eq!(table.activate("call:call-1", None), None);
+    }
+
+    #[test]
+    fn a_message_notification_reaches_neither_the_host_nor_the_table() {
+        let host = Arc::new(RecordingHost::default());
+        let table = Arc::new(NotificationTable::default());
+        let notifier = HostNotifier {
+            host: host.clone(),
+            table: Arc::clone(&table),
+        };
+        notifier.notify(&message("m-1"));
+        assert!(host.told.lock().unwrap().is_empty());
+        assert!(table.lock().is_empty());
+        assert_eq!(table.activate("message:m-1", None), None);
+        // A missed call's still does.
+        let mut missed = ringing("call-1");
+        missed.actions.clear();
+        missed.target = NotificationTarget::Call {
+            workspace_id: "ws-1".to_owned(),
+            call_id: "call-1".to_owned(),
+        };
+        notifier.notify(&missed);
+        assert_eq!(host.told.lock().unwrap().len(), 1);
+        assert!(table.activate("call:call-1", None).is_some());
     }
 
     #[test]
