@@ -185,6 +185,78 @@ public sealed class CoreHostTests : IDisposable
     }
 
     [Fact]
+    public async Task WhatTheCoreAsksOfTheWindowIsRaisedOnTheUiThreadInOrder()
+    {
+        var dispatcher = new ManualDispatcher();
+        await using var host = new CoreHost(dispatcher, new RecordingBrowser());
+        var raised = new List<string>();
+        host.NotificationRequested += (_, n) => raised.Add($"notify {n.Id} {n.Title} {n.Urgent} {string.Join(",", n.Actions.Select(a => a.Label + "=" + a.ActionId))}");
+        host.NotificationWithdrawn += (_, id) => raised.Add($"withdraw {id}");
+        host.RingtoneStarted += (_, _) => raised.Add("ring");
+        host.RingtoneStopped += (_, _) => raised.Add("quiet");
+        host.PresentWindowRequested += (_, _) => raised.Add("present");
+
+        // As the core calls them, from its own threads.
+        var ringing = new NotificationView(
+            "call:call-1", "Incoming call", "Transferred from your AI receptionist.", true,
+            [new NotificationActionView("Answer", "answer"), new NotificationActionView("Decline", "decline")]);
+        await Task.Run(() =>
+        {
+            host.Notify(ringing);
+            host.StartRingtone();
+            host.PresentWindow();
+            host.StopRingtone();
+            host.Withdraw("call:call-1");
+        }, TestContext.Current.CancellationToken);
+        Assert.Empty(raised);
+        Assert.Equal(5, dispatcher.Pending);
+
+        dispatcher.Drain();
+        Assert.Equal(
+            [
+                "notify call:call-1 Incoming call True Answer=answer,Decline=decline",
+                "ring",
+                "present",
+                "quiet",
+                "withdraw call:call-1",
+            ],
+            raised);
+    }
+
+    [Fact]
+    public async Task WithNobodyListeningOrNoUiThreadNothingBreaks()
+    {
+        var dispatcher = new ManualDispatcher();
+        await using var host = new CoreHost(dispatcher, new RecordingBrowser());
+        host.Notify(new NotificationView("message:m-1", "New message", "Open District AI to read it.", false, []));
+        host.Withdraw("message:m-1");
+        host.StartRingtone();
+        host.StopRingtone();
+        host.PresentWindow();
+        dispatcher.Drain();
+
+        var raised = 0;
+        host.RingtoneStarted += (_, _) => raised++;
+        dispatcher.Accepting = false;
+        host.StartRingtone();
+        dispatcher.Drain();
+        Assert.Equal(0, raised);
+    }
+
+    [Fact]
+    public async Task ActivatingANotificationTheCoreNeverShowedDoesNothing()
+    {
+        await using var host = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
+        // Before the core starts, and for an id it never showed.
+        host.ActivateNotification("call:call-1", "answer");
+        host.Start(_dataDir, "0.1.0", null, Namespace);
+        await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
+        host.ActivateNotification("call:call-1", null);
+        host.ActivateNotification("message:m-1", "decline");
+        Assert.Equal(SessionPhase.SignedOut, host.Current.Shell.Phase);
+    }
+
+    [Fact]
     public void TheHostNeedsADispatcherAndABrowser()
     {
         Assert.Throws<ArgumentNullException>(() => new CoreHost(null!, new RecordingBrowser()));

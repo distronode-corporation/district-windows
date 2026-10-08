@@ -28,7 +28,7 @@
 //! | SessionStore | Credential Manager on Windows ([`CredentialStore`]), memory elsewhere |
 //! | Settings, device id, refresh marker | `district-host` files in the data directory the app names (the MSIX `LocalState`) |
 //! | UrlOpener | [`UiHost::open_url`], in C# |
-//! | Notifier, RingSurface | Not yet: nothing is shown, and this build has no calls to ring |
+//! | Notifier, RingSurface | [`UiHost::notify`], [`UiHost::start_ringtone`] and the rest, in C#; a toast's activation comes back through [`Core::activate_notification`] |
 //!
 //! # Logging
 //!
@@ -37,6 +37,7 @@
 
 uniffi::setup_scaffolding!();
 
+mod calls_live;
 mod core;
 mod events;
 mod host;
@@ -46,9 +47,13 @@ mod screen;
 mod shell;
 mod store;
 
+pub use crate::calls_live::{
+    ActiveCallView, DialerView, FailureView, IncomingRingView, active_call_view, dialer_view,
+    incoming_ring_view,
+};
 pub use crate::core::{Core, StartConfig, StartError};
 pub use crate::events::{PowerChange, UiEvent};
-pub use crate::host::UiHost;
+pub use crate::host::{NotificationActionView, NotificationView, UiHost};
 pub use crate::identity::{PRODUCT, client_identity};
 pub use crate::link::{LinkKind, link_kind};
 pub use crate::screen::{RouteView, ScreenView, SessionScreen, screen_view};

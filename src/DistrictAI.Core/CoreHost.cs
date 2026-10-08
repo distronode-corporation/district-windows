@@ -60,6 +60,25 @@ public sealed class CoreHost : UiHost, IAsyncDisposable
     /// <summary>Raised on the UI thread with each new snapshot.</summary>
     public event EventHandler<CoreSnapshot>? Changed;
 
+    /// <summary>
+    /// Raised on the UI thread when the core shows a notification: show it as a
+    /// toast, replacing any with the same <see cref="NotificationView.Id"/>, and
+    /// hand its activation back through <see cref="ActivateNotification"/>.
+    /// </summary>
+    public event EventHandler<NotificationView>? NotificationRequested;
+
+    /// <summary>Raised on the UI thread with the id of a notification to take away.</summary>
+    public event EventHandler<string>? NotificationWithdrawn;
+
+    /// <summary>Raised on the UI thread when a call starts ringing here: loop the ringtone.</summary>
+    public event EventHandler? RingtoneStarted;
+
+    /// <summary>Raised on the UI thread when the ringtone should stop.</summary>
+    public event EventHandler? RingtoneStopped;
+
+    /// <summary>Raised on the UI thread when the window should come forward: shown, restored, raised and focused.</summary>
+    public event EventHandler? PresentWindowRequested;
+
     /// <summary>The latest snapshot, read now.</summary>
     public CoreSnapshot Current => new(_core.Revision(), _core.Shell(), _core.Screen());
 
@@ -81,6 +100,13 @@ public sealed class CoreHost : UiHost, IAsyncDisposable
     /// <summary>Forwards the machine going to sleep or waking.</summary>
     public void Power(PowerChange change) => _core.Power(change);
 
+    /// <summary>
+    /// Forwards a toast's activation: the toast itself clicked
+    /// (<paramref name="actionId"/> null), or the button whose
+    /// <see cref="NotificationActionView.ActionId"/> it is.
+    /// </summary>
+    public void ActivateNotification(string id, string? actionId) => _core.ActivateNotification(id, actionId);
+
     /// <inheritdoc/>
     public void StateChanged(ulong revision)
     {
@@ -97,6 +123,29 @@ public sealed class CoreHost : UiHost, IAsyncDisposable
 
     /// <inheritdoc/>
     public Task<bool> OpenUrl(string url) => _browser.OpenAsync(url);
+
+    /// <inheritdoc/>
+    public void Notify(NotificationView notification) =>
+        OnUiThread(() => NotificationRequested?.Invoke(this, notification));
+
+    /// <inheritdoc/>
+    public void Withdraw(string id) => OnUiThread(() => NotificationWithdrawn?.Invoke(this, id));
+
+    /// <inheritdoc/>
+    public void StartRingtone() => OnUiThread(() => RingtoneStarted?.Invoke(this, EventArgs.Empty));
+
+    /// <inheritdoc/>
+    public void StopRingtone() => OnUiThread(() => RingtoneStopped?.Invoke(this, EventArgs.Empty));
+
+    /// <inheritdoc/>
+    public void PresentWindow() => OnUiThread(() => PresentWindowRequested?.Invoke(this, EventArgs.Empty));
+
+    /// <summary>
+    /// Runs <paramref name="raise"/> on the UI thread, in the order the core
+    /// asked. A UI thread that has shut down takes nothing: the window those
+    /// requests were for is gone.
+    /// </summary>
+    private void OnUiThread(Action raise) => _dispatcher.TryEnqueue(raise);
 
     private void Render()
     {
