@@ -42,6 +42,24 @@ cargo build -p district-ffi --release
 dotnet build src/DistrictAI -c Release -p:Platform=x64 -p:DistrictFfiProfile=release
 ```
 
+### Building with calls
+
+On Windows, `district-ffi` links the LiveKit call engine (district-call's `livekit`
+feature), and with it libwebrtc: this project's own audio-only build, without the H.264
+and H.265 codecs or FFmpeg. `scripts/fetch-libwebrtc.ps1` downloads the release it pins,
+checks its SHA-256 and unpacks it; point `LK_CUSTOM_WEBRTC` at the directory it prints
+before building, or the SDK downloads LiveKit's own prebuilt, which carries those codecs.
+
+```
+$env:LK_CUSTOM_WEBRTC = ./scripts/fetch-libwebrtc.ps1 $env:LOCALAPPDATA\district-libwebrtc
+```
+
+libwebrtc is built with the static C runtime, so `.cargo/config.toml` builds Rust with
+`+crt-static` on Windows. The library itself is built by
+`.github/workflows/libwebrtc-windows.yml` (`scripts/build-libwebrtc.ps1`), by hand, and
+published as a release with a build provenance attestation; moving the pin is a pull
+request that changes `scripts/fetch-libwebrtc.ps1`.
+
 ### Bindings
 
 `src/DistrictAI.Core/Generated/district_ffi.cs` is written by

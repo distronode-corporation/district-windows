@@ -100,4 +100,13 @@ mod tests {
     fn log_ceiling() {
         assert_eq!(log::STATIC_MAX_LEVEL, log::LevelFilter::Warn);
     }
+
+    /// The Windows build links the LiveKit call engine, so the core rings,
+    /// dials and answers; the Linux build, which only DistrictAI.Core.Tests
+    /// load, has the engine that joins nothing. If this fails on Windows,
+    /// district-call's `livekit` feature has gone from Cargo.toml.
+    #[test]
+    fn calls_are_available_exactly_on_windows() {
+        assert_eq!(district_call::CALLS_AVAILABLE, cfg!(windows));
+    }
 }

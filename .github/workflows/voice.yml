@@ -1,0 +1,197 @@
+name: Voice
+
+# The LiveKit call engine on Windows: district-call's `livekit` feature, which
+# district_ffi.dll links, run end to end on windows-2025 against the audio-only
+# libwebrtc scripts/fetch-libwebrtc.ps1 pins.
+#
+# The tests are District AI core for Rust's own engine tests
+# (crates/district-call/tests/engine), from the very commit of the core that
+# Cargo.lock locks, so what they prove is the engine this app links. Each test
+# starts a real `livekit-server` on the runner's loopback, and two engines join
+# one room with frame audio (a tone for a microphone, a meter for a speaker):
+# the tone one sends and the other hears, end-to-end encryption with the same
+# passphrase and with different ones, the people in the room, the microphone
+# off and on, leaving, a server that goes and one that comes back, and the check
+# that no room key, in any form, reaches stderr or a logger. It is a port of the
+# core's voice.yml (Linux) and District AI for Linux's.
+#
+# Left out: the core's `devices` tests, which drive a private PulseAudio server
+# and have no Windows equivalent on a runner with no sound devices.
+#
+# Started by hand with the id of a libwebrtc-windows.yml run, it tests that
+# run's libwebrtc instead of the pinned archive, which is how a new build is
+# shown to carry calls before its pin moves.
+#
+# Run by hand, weekly (a new runner image or livekit-server behaviour shows up
+# without a change here), and on changes to what a build with calls is made of.
+# The list is written once, under `pull_request`, and `push` reuses it with a
+# YAML anchor.
+on:
+  workflow_dispatch:
+    inputs:
+      libwebrtc_run:
+        description: "The id of a libwebrtc-windows.yml run whose build to test; empty for the archive scripts/fetch-libwebrtc.ps1 pins"
+        required: false
+        default: ""
+        type: string
+  schedule:
+    - cron: "41 6 * * 1"
+  pull_request:
+    paths: &engine-paths
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".cargo/config.toml"
+      - "crates/district-ffi/Cargo.toml"
+      - "scripts/fetch-libwebrtc.ps1"
+      - ".github/workflows/voice.yml"
+  push:
+    branches: [main]
+    paths: *engine-paths
+
+permissions:
+  contents: read
+
+concurrency:
+  group: voice-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  voice:
+    if: ${{ !github.event.repository.private }}
+    runs-on: windows-2025
+    timeout-minutes: 60
+    # actions: read, to download another run's artifact (libwebrtc_run).
+    permissions:
+      contents: read
+      actions: read
+    env:
+      # aws-lc-sys assembles with NASM on Windows, which the runner lacks: use
+      # its prebuilt objects, as ci.yml does.
+      AWS_LC_SYS_PREBUILT_NASM: "1"
+      # The core's workspace has no .cargo/config.toml, so this repository's
+      # +crt-static (libwebrtc is built /MT) is given here.
+      CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS: "-C target-feature=+crt-static"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The commit of the core Cargo.lock locks district-call to.
+      - name: Read the locked core commit
+        id: core
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit="$(python -I -c '
+          import re, sys, tomllib
+          lock = tomllib.load(open("Cargo.lock", "rb"))
+          [source] = {p["source"] for p in lock["package"] if p["name"] == "district-call"}
+          m = re.fullmatch(r"git\+https://github\.com/distronode-corporation/district-core-rust\?tag=[^#]+#([0-9a-f]{40})", source)
+          sys.exit(f"unexpected source {source}") if not m else print(m.group(1))
+          ')"
+          echo "district-call is locked to $commit"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: distronode-corporation/district-core-rust
+          ref: ${{ steps.core.outputs.commit }}
+          path: core
+          persist-credentials: false
+
+      - name: Install the stable toolchain
+        working-directory: core
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustc --version --verbose
+
+      # The archive is checked against its pinned SHA-256 on every run, cached or
+      # not, so the cache saves the download and vouches for nothing.
+      - if: inputs.libwebrtc_run == ''
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/libwebrtc/webrtc-win-x64-release.zip
+          key: libwebrtc-win-${{ hashFiles('scripts/fetch-libwebrtc.ps1') }}
+
+      - name: Fetch and verify libwebrtc
+        if: inputs.libwebrtc_run == ''
+        shell: pwsh
+        run: ./scripts/fetch-libwebrtc.ps1 (Join-Path $env:RUNNER_TEMP 'libwebrtc') -GitHubEnv
+
+      # Or a libwebrtc-windows.yml run's build, not yet pinned. A run id is a
+      # number, and anything else is refused before it reaches the download.
+      - name: Check the libwebrtc run id
+        if: inputs.libwebrtc_run != ''
+        shell: bash
+        env:
+          RUN: ${{ inputs.libwebrtc_run }}
+        run: |
+          case "$RUN" in
+            *[!0-9]*)
+              echo "::error::libwebrtc_run must be a workflow run id (digits only), not '$RUN'"
+              exit 1
+              ;;
+          esac
+
+      - if: inputs.libwebrtc_run != ''
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: libwebrtc-win-x64-release
+          run-id: ${{ inputs.libwebrtc_run }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/libwebrtc-run
+
+      # The digest travelled in the same artifact, so it catches a damaged
+      # download and nothing more; what vouches for the build is that it is
+      # this repository's own run.
+      - name: Verify and unpack that libwebrtc
+        if: inputs.libwebrtc_run != ''
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $run = Join-Path $env:RUNNER_TEMP 'libwebrtc-run'
+          $want = ((Get-Content (Join-Path $run 'webrtc-win-x64-release.zip.sha256')) -split '\s+')[0]
+          $have = (Get-FileHash -Algorithm SHA256 (Join-Path $run 'webrtc-win-x64-release.zip')).Hash.ToLowerInvariant()
+          if ($have -ne $want) { throw "the zip is $have, not $want" }
+          # A path of its own, not the pinned archive's.
+          $built = Join-Path $env:RUNNER_TEMP 'libwebrtc-built'
+          Expand-Archive -Path (Join-Path $run 'webrtc-win-x64-release.zip') -DestinationPath $built
+          "LK_CUSTOM_WEBRTC=$built\win-x64-release" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
+
+      # The media server the tests start their own copies of. The upstream
+      # release, checked against a pinned SHA-256 (the same version as the
+      # core's voice.yml).
+      - name: Install livekit-server
+        shell: pwsh
+        env:
+          LIVEKIT_SERVER_VERSION: 1.13.7
+          LIVEKIT_SERVER_SHA256: e539e7d2f75807b9c9202cd2a0bf2cb3d52fc4c52978a6953e0f47bc339fe77f
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $zip = Join-Path $env:RUNNER_TEMP 'livekit-server.zip'
+          Invoke-WebRequest -Uri "https://github.com/livekit/livekit/releases/download/v$env:LIVEKIT_SERVER_VERSION/livekit_$($env:LIVEKIT_SERVER_VERSION)_windows_amd64.zip" -OutFile $zip
+          $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
+          if ($hash -ne $env:LIVEKIT_SERVER_SHA256) { throw "livekit-server is $hash, not the pinned digest" }
+          $dir = Join-Path $env:RUNNER_TEMP 'livekit'
+          Expand-Archive -Path $zip -DestinationPath $dir
+          $server = Join-Path $dir 'livekit-server.exe'
+          "LIVEKIT_SERVER=$server" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
+          & $server --version
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          key: voice
+          workspaces: core
+          save-if: ${{ github.ref == 'refs/heads/main' && inputs.libwebrtc_run == '' }}
+
+      # One test at a time: each starts its own media server and measures real
+      # time audio. The core's own lock, so the engine is built exactly as the
+      # core tested it (this repository's Cargo.lock holds the same LiveKit
+      # crates, and fetch-libwebrtc.ps1 refuses another webrtc-sys-build).
+      - name: The engine end to end, encryption and the room key's absence from the logs included
+        working-directory: core
+        run: |
+          cargo test -p district-call --features livekit --locked --test engine -- --test-threads=1 --nocapture --skip devices::
