@@ -60,7 +60,11 @@ jobs:
       - name: Spike 2
         run: |
           printf '### Spike 2 on Linux\n\n| Check | Result | Detail |\n|---|---|---|\n' >> "$GITHUB_STEP_SUMMARY"
-          SPIKE_RESULTS="$GITHUB_STEP_SUMMARY" dotnet test tests/DistrictAI.Spikes.Tests --nologo
+          status=0
+          SPIKE_RESULTS="$RUNNER_TEMP/results.md" dotnet test tests/DistrictAI.Spikes.Tests --nologo || status=$?
+          cat "$RUNNER_TEMP/results.md" >> "$GITHUB_STEP_SUMMARY" || true
+          cat "$RUNNER_TEMP/results.md" || true
+          exit "$status"
 
   spike-2-async-callbacks-windows:
     if: ${{ !github.event.repository.private }}
@@ -84,7 +88,11 @@ jobs:
         shell: bash
         run: |
           printf '### Spike 2 on Windows\n\n| Check | Result | Detail |\n|---|---|---|\n' >> "$GITHUB_STEP_SUMMARY"
-          SPIKE_RESULTS="$GITHUB_STEP_SUMMARY" dotnet test tests/DistrictAI.Spikes.Tests --nologo -p:DistrictFfiProfile=release
+          status=0
+          SPIKE_RESULTS="$RUNNER_TEMP/results.md" dotnet test tests/DistrictAI.Spikes.Tests --nologo -p:DistrictFfiProfile=release || status=$?
+          cat "$RUNNER_TEMP/results.md" >> "$GITHUB_STEP_SUMMARY" || true
+          cat "$RUNNER_TEMP/results.md" || true
+          exit "$status"
 
   spike-4-credential-manager-kill:
     if: ${{ !github.event.repository.private }}
@@ -103,7 +111,11 @@ jobs:
         shell: bash
         run: |
           printf '### Spike 4: taskkill mid-refresh\n\n| Check | Result | Detail |\n|---|---|---|\n' >> "$GITHUB_STEP_SUMMARY"
-          SPIKE_RESULTS="$GITHUB_STEP_SUMMARY" cargo test -p district-ffi --locked --test spike_kill_mid_refresh -- --nocapture
+          status=0
+          SPIKE_RESULTS="$RUNNER_TEMP/results.md" cargo test -p district-ffi --locked --test spike_kill_mid_refresh -- --nocapture || status=$?
+          cat "$RUNNER_TEMP/results.md" >> "$GITHUB_STEP_SUMMARY" || true
+          cat "$RUNNER_TEMP/results.md" || true
+          exit "$status"
 
   spike-6-native-aot:
     if: ${{ !github.event.repository.private }}
@@ -132,7 +144,11 @@ jobs:
         run: |
           printf '### Spike 6: Native AOT\n\n| Check | Result | Detail |\n|---|---|---|\n' >> "$GITHUB_STEP_SUMMARY"
           ls -la "$RUNNER_TEMP/aot"
-          SPIKE_RESULTS="$GITHUB_STEP_SUMMARY" "$RUNNER_TEMP/aot/AotProbe.exe"
+          status=0
+          SPIKE_RESULTS="$RUNNER_TEMP/results.md" "$RUNNER_TEMP/aot/AotProbe.exe" || status=$?
+          cat "$RUNNER_TEMP/results.md" >> "$GITHUB_STEP_SUMMARY" || true
+          cat "$RUNNER_TEMP/results.md" || true
+          exit "$status"
 
   spike-packages:
     if: ${{ !github.event.repository.private }}

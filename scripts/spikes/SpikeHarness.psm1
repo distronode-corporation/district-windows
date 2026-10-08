@@ -86,7 +86,7 @@ function Get-AppProcesses {
 }
 
 function Stop-App {
-    Get-AppProcesses | Stop-Process -Force
+    foreach ($process in Get-AppProcesses) { Stop-Process -InputObject $process -Force -ErrorAction SilentlyContinue }
     $deadline = (Get-Date).AddSeconds(15)
     while ((Get-AppProcesses).Count -gt 0 -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 100 }
 }
@@ -96,7 +96,13 @@ function Get-ActivatorClsid([string] $Manifest) {
 }
 
 function Invoke-ToastActivator([string] $Clsid, [string] $Family, [string] $Arguments) {
-    [ToastActivator]::Activate([Guid]$Clsid, "$Family!App", $Arguments)
+    <# Calls the activator; returns $null, or the error it raised. #>
+    try {
+        [ToastActivator]::Activate([Guid]$Clsid, "$Family!App", $Arguments)
+        $null
+    } catch {
+        $_.Exception.InnerException?.Message ?? $_.Exception.Message
+    }
 }
 
 function Add-Result {

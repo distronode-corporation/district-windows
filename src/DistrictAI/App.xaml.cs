@@ -24,6 +24,12 @@ public sealed partial class App : Application, IDisposable
     {
         _launch = launch;
         InitializeComponent();
+#if DISTRICT_SPIKES
+        UnhandledException += (_, args) =>
+            Spikes.SpikeLog.Write($"unhandled {args.Exception.GetType().Name} 0x{args.Exception.HResult:X8} {args.Message.ReplaceLineEndings(" ")}");
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+            Spikes.SpikeLog.Write($"unhandled-domain {args.ExceptionObject}".ReplaceLineEndings(" "));
+#endif
     }
 
     /// <inheritdoc/>
@@ -33,7 +39,19 @@ public sealed partial class App : Application, IDisposable
         // app was not running, is delivered through this registration.
         var notifications = AppNotificationManager.Default;
         notifications.NotificationInvoked += OnNotificationInvoked;
+#if DISTRICT_SPIKES
+        try
+        {
+            notifications.Register();
+            Spikes.SpikeLog.Write($"notifications-registered supported={AppNotificationManager.IsSupported()} setting={notifications.Setting}");
+        }
+        catch (Exception error)
+        {
+            Spikes.SpikeLog.Write($"notifications-register-failed {error.GetType().Name} 0x{error.HResult:X8} {error.Message.ReplaceLineEndings(" ")}");
+        }
+#else
         notifications.Register();
+#endif
         AppInstance.GetCurrent().Activated += OnRedirected;
 
         var queue = DispatcherQueue.GetForCurrentThread();
@@ -121,6 +139,18 @@ public sealed partial class App : Application, IDisposable
 
 #if DISTRICT_SPIKES
     private async Task SpikeLinkAsync(string uri, LinkKind kind)
+    {
+        try
+        {
+            await SpikeLinkCoreAsync(uri, kind);
+        }
+        catch (Exception error)
+        {
+            Spikes.SpikeLog.Write($"spike-failed link={new Uri(uri).Host} {error.GetType().Name} 0x{error.HResult:X8} {error.Message.ReplaceLineEndings(" ")}");
+        }
+    }
+
+    private async Task SpikeLinkCoreAsync(string uri, LinkKind kind)
     {
         var host = new Uri(uri).Host;
         if (kind == LinkKind.Unknown && host == "spike-toast")
