@@ -52,7 +52,21 @@ internal static class CheckoutSpike
         // Its own user data folder in LocalState, named rather than left to
         // the default, so a failure to make one is reported here.
         var data = System.IO.Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "WebView2");
-        var environment = await CoreWebView2Environment.CreateWithOptionsAsync(null, data, new CoreWebView2EnvironmentOptions());
+        // Extra browser flags, when the harness asks for them in
+        // LocalState\webview2-args.txt: on the hosted runner the default run
+        // failed fast with RPC_S_SERVER_UNAVAILABLE (0x800706BA), and a second
+        // run rules out the GPU process and the sandbox. None by default.
+        var argsFile = System.IO.Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "webview2-args.txt");
+        var options = new CoreWebView2EnvironmentOptions
+        {
+            AdditionalBrowserArguments = File.Exists(argsFile) ? File.ReadAllText(argsFile).Trim() : string.Empty,
+        };
+        SpikeLog.Write($"checkout-step browser-args='{options.AdditionalBrowserArguments}'");
+        var environment = await CoreWebView2Environment.CreateWithOptionsAsync(null, data, options);
+        environment.BrowserProcessExited += (_, args) =>
+            SpikeLog.Write($"checkout-step browser-exited kind={args.BrowserProcessExitKind} pid={args.BrowserProcessId}");
+        environment.ProcessInfosChanged += (_, _) =>
+            SpikeLog.Write($"checkout-step processes={string.Join(",", environment.GetProcessInfos().Select(p => $"{p.Kind}:{p.ProcessId}"))}");
         SpikeLog.Write($"checkout-step environment version={environment.BrowserVersionString}");
         await view.EnsureCoreWebView2Async(environment);
         SpikeLog.Write("checkout-step webview2-ready");
