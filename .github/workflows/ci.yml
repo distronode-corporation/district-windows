@@ -296,8 +296,10 @@ jobs:
       - name: dotnet restore (locked)
         run: dotnet restore DistrictAI.slnx -p:Platform=x64
 
-      # No symbols package (.appxsym): it needs mspdbcmf.exe from Visual
-      # Studio's C++ tools, and a test package has no use for one.
+      # No PDBs (DebugType=none): with any in the payload the packaging step
+      # looks for mspdbcmf.exe, from Visual Studio's C++ tools, to build a
+      # symbols package, and warns (an error here) when it is missing. A test
+      # package has no use for symbols.
       #
       # A certificate made here, for this run's package only: its subject is the
       # manifest's placeholder Publisher, it expires tomorrow, and it is
@@ -317,7 +319,7 @@ jobs:
             dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
               -p:DistrictFfiProfile=release -warnaserror `
               -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=true `
-              -p:AppxSymbolPackageEnabled=false `
+              -p:DebugType=none `
               "-p:PackageCertificateThumbprint=$($cert.Thumbprint)" "-p:AppxPackageDir=$out\"
             if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
             Export-Certificate -Cert $cert -FilePath (Join-Path $out 'District-AI-CI-test.cer') | Out-Null
