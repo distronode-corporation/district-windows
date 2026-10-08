@@ -293,6 +293,7 @@ jobs:
               if ($identity.ProcessorArchitecture -ne 'x64') { throw "$label is $($identity.ProcessorArchitecture), not x64" }
               $dll = @($zip.Entries | Where-Object FullName -eq 'DistrictAI.dll')
               if ($dll.Count -ne 1) { throw "$label has no DistrictAI.dll at its root" }
+              if (-not $zip.GetEntry('ThirdPartyNotices/libwebrtc-LICENSE.md')) { throw "$label has no ThirdPartyNotices/libwebrtc-LICENSE.md" }
               $file = Join-Path $work "$label-DistrictAI.dll"
               [IO.Compression.ZipFileExtensions]::ExtractToFile($dll[0], $file, $true)
               $stream = [IO.File]::OpenRead($file)

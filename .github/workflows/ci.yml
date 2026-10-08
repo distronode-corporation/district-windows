@@ -384,6 +384,24 @@ jobs:
           ./scripts/run-wack.ps1 -Package $msix.FullName -Certificate (Join-Path $out 'District-AI-CI-test.cer') `
             -Report (Join-Path $out 'wack-report.xml') -Dependencies $(if (Test-Path $deps) { $deps } else { '' })
 
+      # The package carries libwebrtc's licence texts, which DistrictAI.csproj
+      # takes from the archive the fetch step unpacked.
+      - name: The test MSIX carries libwebrtc's licences
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $msix = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'AppPackages') -Filter 'DistrictAI_*.msix')
+          if ($msix.Count -ne 1) { throw "expected one DistrictAI MSIX, found $($msix.Count)" }
+          $zip = [IO.Compression.ZipFile]::OpenRead($msix[0].FullName)
+          try {
+            $entry = $zip.GetEntry('ThirdPartyNotices/libwebrtc-LICENSE.md')
+            if (-not $entry -or $entry.Length -eq 0) { throw 'the MSIX has no ThirdPartyNotices/libwebrtc-LICENSE.md' }
+            $want = (Get-Item (Join-Path $env:LK_CUSTOM_WEBRTC 'LICENSE.md')).Length
+            if ($entry.Length -ne $want) { throw "ThirdPartyNotices/libwebrtc-LICENSE.md is $($entry.Length) bytes, the archive's is $want" }
+            Write-Host "ThirdPartyNotices/libwebrtc-LICENSE.md: $($entry.Length) bytes"
+          } finally { $zip.Dispose() }
+
       - name: dotnet format, the whole solution
         run: dotnet format DistrictAI.slnx --verify-no-changes --no-restore
 
