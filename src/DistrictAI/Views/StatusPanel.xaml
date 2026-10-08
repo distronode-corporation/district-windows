@@ -18,7 +18,12 @@
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"
                 HorizontalAlignment="Center"
-                Style="{StaticResource BodyStrongTextBlockStyle}"
+                Style="{StaticResource SubtitleTextBlockStyle}"
+                Text="{x:Bind State.FailureTitle, Mode=OneWay}"
+                TextAlignment="Center"
+                TextWrapping="Wrap" />
+            <TextBlock
+                HorizontalAlignment="Center"
                 Text="{x:Bind State.FailureMessage, Mode=OneWay}"
                 TextAlignment="Center"
                 TextWrapping="Wrap" />

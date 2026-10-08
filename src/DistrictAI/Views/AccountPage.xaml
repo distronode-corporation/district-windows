@@ -58,7 +58,7 @@
                 AutomationProperties.HeadingLevel="Level2"
                 Style="{StaticResource SectionHeaderStyle}"
                 Text="Devices" />
-            <TextBlock Style="{StaticResource QuietTextStyle}" Text="See where you are signed in, and sign out a device you no longer have." />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.DevicesCaption, Mode=OneWay}" />
             <Button
                 AutomationProperties.Name="Devices"
                 Command="{x:Bind ViewModel.OpenDevicesCommand}"
@@ -68,7 +68,7 @@
                 AutomationProperties.HeadingLevel="Level2"
                 Style="{StaticResource SectionHeaderStyle}"
                 Text="Sign out" />
-            <TextBlock Style="{StaticResource QuietTextStyle}" Text="Sign out of District AI on this device." />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.SignOutCaption, Mode=OneWay}" />
             <Button
                 AutomationProperties.Name="Sign out"
                 Command="{x:Bind ViewModel.SignOutCommand}"
@@ -78,7 +78,7 @@
                 AutomationProperties.HeadingLevel="Level2"
                 Style="{StaticResource SectionHeaderStyle}"
                 Text="Delete your account" />
-            <TextBlock Style="{StaticResource QuietTextStyle}" Text="Request deletion of your account and its data. Opens in your browser." />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.DeleteAccountCaption, Mode=OneWay}" />
             <Button
                 AutomationProperties.Name="Delete account"
                 Command="{x:Bind ViewModel.DeleteAccountCommand}"

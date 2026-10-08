@@ -21,6 +21,10 @@ public sealed partial class LoadStateViewModel : ObservableObject
     [ObservableProperty]
     public partial bool Failed { get; set; }
 
+    /// <summary>What failed: "Could not load this call".</summary>
+    [ObservableProperty]
+    public partial string FailureTitle { get; set; } = string.Empty;
+
     /// <summary>Why it failed.</summary>
     [ObservableProperty]
     public partial string FailureMessage { get; set; } = string.Empty;
@@ -78,7 +82,9 @@ public sealed partial class LoadStateViewModel : ObservableObject
     /// </summary>
     internal void Show(LoadStatus status, bool hasRows, EmptyView? empty, bool refreshing, FailureView? refreshFailure)
     {
-        var failure = status is LoadStatus.Failed failed ? failed.Failure : null;
+        var failed = status as LoadStatus.Failed;
+        var failure = failed?.Failure;
+        FailureTitle = failed?.Title ?? string.Empty;
         Loading = status is LoadStatus.Loading;
         Failed = failure is not null;
         FailureMessage = failure?.Message ?? string.Empty;

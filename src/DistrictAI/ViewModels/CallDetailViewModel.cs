@@ -16,6 +16,9 @@ public sealed partial class CallDetailViewModel : ObservableObject
     /// <summary>Number, direction, start, duration and outcome.</summary>
     public ObservableCollection<FactItem> Facts { get; } = [];
 
+    /// <summary>The follow-up sent after the call.</summary>
+    public ObservableCollection<FactItem> FollowUp { get; } = [];
+
     /// <summary>Sentiment, intent and the rest of the AI analysis.</summary>
     public ObservableCollection<FactItem> Analysis { get; } = [];
 
@@ -28,6 +31,18 @@ public sealed partial class CallDetailViewModel : ObservableObject
     /// <summary>Who called or was called.</summary>
     [ObservableProperty]
     public partial string Title { get; set; } = string.Empty;
+
+    /// <summary>When it started, in local time, and how long it lasted.</summary>
+    [ObservableProperty]
+    public partial string Subtitle { get; set; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="Subtitle"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasSubtitle { get; set; }
+
+    /// <summary>Whether a follow-up was sent.</summary>
+    [ObservableProperty]
+    public partial bool HasFollowUp { get; set; }
 
     /// <summary>Whether there is an AI summary.</summary>
     [ObservableProperty]
@@ -95,7 +110,11 @@ public sealed partial class CallDetailViewModel : ObservableObject
         Load.Show(view.Status, hasRows: true, empty: null, refreshing: false, view.RefreshFailure);
         Display.Sync(Facts, [.. view.Facts.Select(FactItem.From)]);
         Display.Sync(Analysis, [.. view.Analysis.Select(FactItem.From)]);
-        HasAnalysis = view.Analysis.Count > 0;
+        Display.Sync(FollowUp, [.. view.FollowUp.Select(FactItem.From)]);
+        HasFollowUp = view.FollowUp.Length > 0;
+        Subtitle = string.Join(" \u00B7 ", new[] { Display.When(view.StartedAt), view.DurationLabel ?? string.Empty }.Where(part => part.Length > 0));
+        HasSubtitle = Subtitle.Length > 0;
+        HasAnalysis = view.Analysis.Length > 0;
         HasSummary = view.Summary is not null;
         SummaryLabel = view.Summary?.Label ?? string.Empty;
         SummaryText = view.Summary?.Text ?? string.Empty;

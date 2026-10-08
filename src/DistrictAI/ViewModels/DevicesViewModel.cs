@@ -8,12 +8,6 @@ namespace DistrictAI.ViewModels;
 /// <summary>The installations signed in to the account, and signing them out, each after a question.</summary>
 public sealed partial class DevicesViewModel : ObservableObject
 {
-    private const string NothingRevoked = "That device was already signed out. The list has been refreshed.";
-
-    private static readonly EmptyView _noDevices = new(
-        "No other devices",
-        "Nothing else is signed in to this account right now. A device that just signed in can take a few minutes to appear.");
-
     private PageContext? _context;
 
     /// <summary>Loading, failure and refresh.</summary>
@@ -55,13 +49,13 @@ public sealed partial class DevicesViewModel : ObservableObject
 
     internal void Show(DevicesView view)
     {
-        Load.Show(view.Status, view.Rows.Count > 0, _noDevices, view.Refreshing, refreshFailure: null);
+        Load.Show(view.Status, view.Rows.Length > 0, view.Empty, view.Refreshing, refreshFailure: null);
         Busy = view.Busy;
-        EverywhereEnabled = Load.Ready && !view.Busy && view.Rows.Count > 0;
+        EverywhereEnabled = Load.Ready && !view.Busy && view.Rows.Length > 0;
         Display.Sync(Rows, [.. view.Rows.Select(row => DeviceRowItem.From(row, view.Busy))]);
         Notice = view.Failure is not null
             ? Display.Failure(view.Failure)
-            : view.NothingRevoked ? NothingRevoked : string.Empty;
+            : view.NothingRevoked ? view.NothingRevokedNote ?? string.Empty : string.Empty;
         HasNotice = Notice.Length > 0;
         Confirming = view.Confirming is not null;
         ConfirmQuestion = view.Confirming?.Question ?? string.Empty;

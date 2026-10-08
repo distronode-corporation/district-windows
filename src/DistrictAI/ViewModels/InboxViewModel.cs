@@ -75,7 +75,7 @@ public sealed partial class InboxViewModel : ObservableObject
 
     internal void Show(InboxView view)
     {
-        Load.Show(view.Status, view.Threads.Count > 0, view.Empty, view.Refreshing, view.RefreshFailure);
+        Load.Show(view.Status, view.Threads.Length > 0, view.Empty, view.Refreshing, view.RefreshFailure);
         ReadOnlyNote = view.ReadOnlyNote;
         PartialNote = view.PartialNote ?? string.Empty;
         HasPartialNote = view.PartialNote is not null;
@@ -104,11 +104,20 @@ public sealed partial class InboxViewModel : ObservableObject
         {
             return string.Create(CultureInfo.CurrentCulture, $"Type at least {search.MinQueryLength} characters to search.");
         }
-        if (search.Hits.Count == 0)
+        if (search.Hits.Length == 0)
         {
-            return "No messages match.";
+            return search.Empty is { } empty ? JoinLines(empty.Title, empty.Body) : string.Empty;
         }
-        return search.Truncated ? "Only the first matches are shown. Add words to narrow the search." : string.Empty;
+        return search.Truncated ? search.TruncatedNote ?? string.Empty : string.Empty;
+    }
+
+    private static string JoinLines(string first, string second)
+    {
+        if (second.Length == 0)
+        {
+            return first;
+        }
+        return first.Length == 0 ? second : first + Environment.NewLine + second;
     }
 
     /// <summary>The search box changed: a new query, or cleared. The core waits for typing to pause.</summary>
@@ -130,5 +139,11 @@ public sealed partial class InboxViewModel : ObservableObject
         }
     }
 
-    internal void OpenHit(SearchHitItem hit) => _context?.Send(new UiEvent.OpenThread(hit.ThreadKey));
+    internal void OpenHit(SearchHitItem hit)
+    {
+        if (hit.CanOpen)
+        {
+            _context?.Send(new UiEvent.OpenThread(hit.ThreadKey));
+        }
+    }
 }

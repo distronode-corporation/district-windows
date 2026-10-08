@@ -27,7 +27,7 @@ public sealed partial class CallsViewModel : ObservableObject
 
     internal void Show(CallsView view)
     {
-        Load.Show(view.Status, view.Rows.Count > 0, view.Empty, view.Paging.Refreshing, view.Paging.RefreshFailure);
+        Load.Show(view.Status, view.Rows.Length > 0, view.Empty, view.Paging.Refreshing, view.Paging.RefreshFailure);
         Paging.Show(view.Paging);
         Display.Sync(Rows, [.. view.Rows.Select(CallRowItem.From)]);
     }

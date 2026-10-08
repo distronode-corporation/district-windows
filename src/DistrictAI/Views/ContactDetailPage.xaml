@@ -16,6 +16,11 @@
                     Style="{StaticResource TitleTextBlockStyle}"
                     Text="{x:Bind ViewModel.Name, Mode=OneWay}"
                     TextWrapping="Wrap" />
+                <TextBlock
+                    IsTextSelectionEnabled="True"
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Reach, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasReach, Mode=OneWay}" />
                 <InfoBar
                     AutomationProperties.Name="Problem"
                     IsClosable="False"
@@ -45,6 +50,29 @@
                         </ItemsRepeater.ItemTemplate>
                     </ItemsRepeater>
 
+                    <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasNumberFacts, Mode=OneWay}">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="Phone number" />
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.NumberFacts}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Spacing="8" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FactItem">
+                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
+                                        <TextBlock
+                                            IsTextSelectionEnabled="True"
+                                            Text="{x:Bind Value}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
                     <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasDossier, Mode=OneWay}">
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level2"
@@ -55,6 +83,10 @@
                             Text="{x:Bind ViewModel.DossierText, Mode=OneWay}"
                             TextWrapping="Wrap" />
                     </StackPanel>
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.ResearchStatus, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.HasResearchStatus, Mode=OneWay}" />
 
                     <Button
                         AutomationProperties.Name="{x:Bind ViewModel.ReportLabel, Mode=OneWay}"

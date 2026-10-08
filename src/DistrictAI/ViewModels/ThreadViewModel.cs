@@ -60,7 +60,7 @@ public sealed partial class ThreadViewModel : ObservableObject
         ThreadKey = view.ThreadKey;
         Title = view.Title;
         ReadOnlyNote = view.ReadOnlyNote;
-        Load.Show(view.Status, view.Items.Count > 0, _noMessages, view.Refreshing, view.RefreshFailure);
+        Load.Show(view.Status, view.Items.Length > 0, _noMessages, view.Refreshing, view.RefreshFailure);
         Display.Sync(Items, [.. view.Items.Select(item => TimelineItem.From(item, !reportSending))]);
         HasMore = Load.Ready && view.HasMore;
         LoadingOlder = view.LoadingOlder;

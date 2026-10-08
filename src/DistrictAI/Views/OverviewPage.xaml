@@ -70,7 +70,7 @@
                         Text="Recent calls" />
                     <TextBlock
                         Style="{StaticResource QuietTextStyle}"
-                        Text="No calls yet. They appear here as your receptionist answers them."
+                        Text="{x:Bind ViewModel.RecentCallsEmpty, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.NoRecentCalls, Mode=OneWay}" />
                     <ListView
                         AutomationProperties.Name="Recent calls"

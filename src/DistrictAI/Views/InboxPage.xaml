@@ -125,7 +125,8 @@
                         <Grid
                             Padding="0,8"
                             AutomationProperties.Name="{x:Bind AccessibleName}"
-                            ColumnSpacing="12">
+                            ColumnSpacing="12"
+                            Opacity="{x:Bind RowOpacity}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />

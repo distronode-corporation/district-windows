@@ -35,7 +35,7 @@ public sealed partial class ContactsViewModel : ObservableObject
 
     internal void Show(ContactsView view)
     {
-        Load.Show(view.Status, view.Rows.Count > 0, view.Empty, view.Paging.Refreshing, view.Paging.RefreshFailure);
+        Load.Show(view.Status, view.Rows.Length > 0, view.Empty, view.Paging.Refreshing, view.Paging.RefreshFailure);
         Paging.Show(view.Paging);
         TotalLabel = view.TotalLabel ?? string.Empty;
         HasTotalLabel = view.TotalLabel is not null;

@@ -43,6 +43,18 @@ public sealed partial class AccountViewModel : ObservableObject
     [ObservableProperty]
     public partial string DeviceId { get; set; } = string.Empty;
 
+    /// <summary>The Devices row's caption.</summary>
+    [ObservableProperty]
+    public partial string DevicesCaption { get; set; } = string.Empty;
+
+    /// <summary>The Sign out row's caption.</summary>
+    [ObservableProperty]
+    public partial string SignOutCaption { get; set; } = string.Empty;
+
+    /// <summary>The Delete account row's caption.</summary>
+    [ObservableProperty]
+    public partial string DeleteAccountCaption { get; set; } = string.Empty;
+
     /// <summary>Whether the app starts at sign-in.</summary>
     [ObservableProperty]
     public partial bool StartupEnabled { get; set; }
@@ -70,6 +82,9 @@ public sealed partial class AccountViewModel : ObservableObject
         UserId = view.UserId;
         AppVersion = "Version " + view.AppVersion;
         DeviceId = view.DeviceId;
+        DevicesCaption = view.DevicesCaption;
+        SignOutCaption = view.SignOutCaption;
+        DeleteAccountCaption = view.DeleteAccountCaption;
     }
 
     /// <summary>Reads the start-at-sign-in setting, each time the page opens.</summary>

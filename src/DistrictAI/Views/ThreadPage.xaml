@@ -77,6 +77,12 @@
                             <StackPanel Spacing="2">
                                 <TextBlock
                                     Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind Subject}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{x:Bind HasSubject}" />
+                                <TextBlock
+                                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                                     IsTextSelectionEnabled="True"
                                     Text="{x:Bind Body}"
                                     TextWrapping="Wrap" />
@@ -85,6 +91,11 @@
                                     Style="{StaticResource CaptionTextBlockStyle}"
                                     Text="{x:Bind Attachments}"
                                     Visibility="{x:Bind HasAttachments}" />
+                                <TextBlock
+                                    Foreground="{ThemeResource TextOnAccentFillColorSecondaryBrush}"
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Meta}"
+                                    Visibility="{x:Bind HasMeta}" />
                             </StackPanel>
                         </Border>
                         <!-- A message this workspace received. -->
@@ -103,6 +114,11 @@
                                     Text="{x:Bind Author}"
                                     Visibility="{x:Bind HasAuthor}" />
                                 <TextBlock
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind Subject}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{x:Bind HasSubject}" />
+                                <TextBlock
                                     IsTextSelectionEnabled="True"
                                     Text="{x:Bind Body}"
                                     TextWrapping="Wrap" />
@@ -110,6 +126,10 @@
                                     Style="{StaticResource CaptionTextBlockStyle}"
                                     Text="{x:Bind Attachments}"
                                     Visibility="{x:Bind HasAttachments}" />
+                                <TextBlock
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Meta}"
+                                    Visibility="{x:Bind HasMeta}" />
                             </StackPanel>
                         </Border>
                         <!-- A call, with its AI summary. -->

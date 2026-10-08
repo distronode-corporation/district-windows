@@ -72,13 +72,17 @@ public sealed record ThreadRowItem(string ThreadKey, string Title, string Previe
 /// <param name="Title">Who the conversation is with.</param>
 /// <param name="Snippet">The matching text.</param>
 /// <param name="When">When it was sent, in local time.</param>
-public sealed record SearchHitItem(string ThreadKey, string Title, string Snippet, string When)
+/// <param name="CanOpen">Whether this build can open its conversation.</param>
+public sealed record SearchHitItem(string ThreadKey, string Title, string Snippet, string When, bool CanOpen)
 {
+    /// <summary>A match in a conversation this build cannot open is shown faded.</summary>
+    public double RowOpacity => CanOpen ? 1.0 : 0.6;
+
     /// <summary>What a screen reader says for the row.</summary>
     public string AccessibleName => string.Join(", ", new[] { Title, Snippet, When }.Where(part => part.Length > 0));
 
     internal static SearchHitItem From(SearchHitView hit) =>
-        new(hit.ThreadKey, hit.Title, hit.Snippet, Display.When(hit.At));
+        new(hit.ThreadKey, hit.Title, hit.Snippet, Display.When(hit.At), hit.CanOpen);
 
     /// <inheritdoc/>
     public override string ToString() => AccessibleName;
@@ -101,6 +105,12 @@ public sealed record TimelineItem
 
     /// <summary>The message's text.</summary>
     public string Body { get; init; } = string.Empty;
+
+    /// <summary>The email's subject, or empty.</summary>
+    public string Subject { get; init; } = string.Empty;
+
+    /// <summary>How the message went: text message, email, and its delivery ("Delivered", "Not delivered").</summary>
+    public string Meta { get; init; } = string.Empty;
 
     /// <summary>The names of the message's attachments, one per line, or empty.</summary>
     public string Attachments { get; init; } = string.Empty;
@@ -128,6 +138,12 @@ public sealed record TimelineItem
 
     /// <summary>Whether the Report button can be pressed now (no report on its way).</summary>
     public bool ReportEnabled { get; init; }
+
+    /// <summary>Whether there is a <see cref="Subject"/>.</summary>
+    public bool HasSubject => Subject.Length > 0;
+
+    /// <summary>Whether there is a <see cref="Meta"/>.</summary>
+    public bool HasMeta => Meta.Length > 0;
 
     /// <summary>Whether there is an <see cref="Author"/>.</summary>
     public bool HasAuthor => Author.Length > 0;
@@ -159,7 +175,10 @@ public sealed record TimelineItem
         new[]
         {
             IsOutboundMessage ? "You" : Author,
+            Subject,
             Body,
+            Attachments,
+            Meta,
             CallTitle,
             SummaryText.Length > 0 ? SummaryLabel + ": " + SummaryText : string.Empty,
             NoteText,
@@ -177,8 +196,12 @@ public sealed record TimelineItem
                 IsOutboundMessage = message.Outbound,
                 IsInboundMessage = !message.Outbound,
                 Author = message.Author ?? string.Empty,
+                Subject = message.Subject ?? string.Empty,
                 Body = message.Body,
-                Attachments = string.Join(Environment.NewLine, message.Attachments),
+                Attachments = message.Attachments.Length > 0
+                    ? string.Join(Environment.NewLine, message.Attachments)
+                    : message.AttachmentsLabel ?? string.Empty,
+                Meta = string.Join(" \u00B7 ", new[] { message.ChannelLabel, message.Delivery ?? string.Empty }.Where(part => part.Length > 0)),
                 When = when,
                 Report = item.Report,
                 ReportEnabled = reportEnabled,
@@ -243,8 +266,14 @@ public sealed record DeviceRowItem(string DeviceId, string Name, string Detail, 
     /// <summary>What a screen reader says for the row.</summary>
     public string AccessibleName => IsThisDevice ? Name + ", this device, " + Detail : Name + ", " + Detail;
 
-    internal static DeviceRowItem From(DeviceRowView row, bool busy) =>
-        new(row.DeviceId, row.Name, row.Platform + " \u00B7 " + row.LastActiveLabel, row.IsThisDevice, !busy);
+    internal static DeviceRowItem From(DeviceRowView row, bool busy)
+    {
+        // The time in this computer's zone when the core has one; otherwise
+        // the service's words ("Signed in recently").
+        var when = Display.When(row.LastActiveAt);
+        var lastActive = when.Length > 0 ? "Last active " + when : row.LastActiveLabel;
+        return new(row.DeviceId, row.Name, row.Platform + " \u00B7 " + lastActive, row.IsThisDevice, !busy);
+    }
 
     /// <inheritdoc/>
     public override string ToString() => AccessibleName;

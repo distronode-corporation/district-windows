@@ -51,6 +51,10 @@ public sealed partial class OverviewViewModel : ObservableObject
     [ObservableProperty]
     public partial bool NoRecentCalls { get; set; }
 
+    /// <summary>What to say when there are no recent calls.</summary>
+    [ObservableProperty]
+    public partial string RecentCallsEmpty { get; set; } = string.Empty;
+
     internal void Attach(PageContext context)
     {
         _context = context;
@@ -69,7 +73,8 @@ public sealed partial class OverviewViewModel : ObservableObject
         FinishSetupAction = view.FinishSetup?.Action ?? string.Empty;
         Display.Sync(Metrics, [.. view.Metrics.Select(FactItem.From)]);
         Display.Sync(RecentCalls, [.. view.RecentCalls.Select(CallRowItem.From)]);
-        NoRecentCalls = Load.Ready && view.RecentCalls.Count == 0;
+        RecentCallsEmpty = view.RecentCallsEmpty ?? string.Empty;
+        NoRecentCalls = Load.Ready && view.RecentCalls.Length == 0 && RecentCallsEmpty.Length > 0;
     }
 
     internal void OpenCall(CallRowItem row) => _context?.Send(new UiEvent.OpenCall(row.CallId));

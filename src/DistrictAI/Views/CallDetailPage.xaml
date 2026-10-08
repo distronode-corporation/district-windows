@@ -16,6 +16,10 @@
                     Style="{StaticResource TitleTextBlockStyle}"
                     Text="{x:Bind ViewModel.Title, Mode=OneWay}"
                     TextWrapping="Wrap" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasSubtitle, Mode=OneWay}" />
                 <views:RefreshStrip x:Name="Refresh" />
 
                 <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
@@ -57,6 +61,29 @@
                             Style="{StaticResource SectionHeaderStyle}"
                             Text="Analysis" />
                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.Analysis}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Spacing="8" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FactItem">
+                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
+                                        <TextBlock
+                                            IsTextSelectionEnabled="True"
+                                            Text="{x:Bind Value}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasFollowUp, Mode=OneWay}">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="Follow-up sent" />
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.FollowUp}">
                             <ItemsRepeater.Layout>
                                 <StackLayout Spacing="8" />
                             </ItemsRepeater.Layout>
