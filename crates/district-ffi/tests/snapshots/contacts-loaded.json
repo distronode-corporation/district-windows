@@ -1,0 +1,53 @@
+{
+  "screen": {
+    "Contacts": {
+      "view": {
+        "empty": null,
+        "paging": {
+          "can_load_more": false,
+          "loading_more": false,
+          "more_failure": null,
+          "refresh_failure": null,
+          "refreshing": false
+        },
+        "rows": [
+          {
+            "contact_id": "contact_contract_1",
+            "detail": "+1 416 555 0142 · ada@example.com",
+            "name": "Contract Test Caller"
+          },
+          {
+            "contact_id": "contact_contract_2",
+            "detail": "sparse@example.com",
+            "name": "Sparse Contact"
+          }
+        ],
+        "status": "Ready",
+        "total_label": "2 contacts"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Contacts",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

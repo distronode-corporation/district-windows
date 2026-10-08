@@ -10,32 +10,11 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use district_core::{
-    ActiveCall, CallDirection, CallEnd, CallPhase, DialerScreen, FailureText, IncomingRing,
-    MediaOwner, MediaSession, MicrophoneState, Notification, RingEnd, RingPhase, SignedIn,
-    WorkspacesState,
+    ActiveCall, CallDirection, CallEnd, CallPhase, DialerScreen, IncomingRing, MediaOwner,
+    MediaSession, MicrophoneState, Notification, RingEnd, RingPhase, SignedIn, WorkspacesState,
 };
 
-/// Something that failed, as the screen says it. The contract's shared record;
-/// it moves to the shared views module when the screens' projections land.
-#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, uniffi::Record)]
-pub struct FailureView {
-    /// What went wrong, and what to do about it.
-    pub message: String,
-    /// "Affected regions: ..." when regions did not answer.
-    pub regions_line: Option<String>,
-    /// Whether trying again could help.
-    pub retryable: bool,
-}
-
-impl From<&FailureText> for FailureView {
-    fn from(failure: &FailureText) -> Self {
-        Self {
-            message: failure.message.clone(),
-            regions_line: failure.regions_line(),
-            retryable: failure.retryable,
-        }
-    }
-}
+use crate::views::FailureView;
 
 /// The dialler: the number typed, how it reads, and whether Call works.
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, uniffi::Record)]
@@ -298,8 +277,8 @@ mod tests {
     use district_api::{ApiError, RetryReason};
     use district_auth::AccessClaims;
     use district_core::{
-        CallEvent, CoreConfig, DialerEvent, Effect, Event, MediaEvent, MediaUpdate, Model,
-        SessionState, Ticket,
+        CallEvent, CoreConfig, DialerEvent, Effect, Event, FailureText, MediaEvent, MediaUpdate,
+        Model, SessionState, Ticket,
     };
     use district_model::{DialResponse, WorkspaceListResponse};
     use serde_json::json;

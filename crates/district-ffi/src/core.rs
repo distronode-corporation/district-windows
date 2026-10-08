@@ -23,8 +23,8 @@ use crate::events::{PowerChange, UiEvent};
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
 use crate::link::{LinkKind, link_kind};
-use crate::screen::{ScreenView, screen_view};
-use crate::shell::{ShellView, shell_view};
+use crate::screen::{ScreenView, screen_view, session_view};
+use crate::shell::{ShellView, shell_for, shell_view};
 
 /// How long the work the model asks for at shutdown (saving the session,
 /// unregistering this desktop's presence) may take before the runtime stops
@@ -102,6 +102,9 @@ enum Lifecycle {
 pub(crate) enum Message {
     /// An event for the model.
     Event(Box<Event>),
+    /// Something the user did: one or more events for the model, delivered in
+    /// order before the window is told.
+    Ui(UiEvent),
     /// Run the model's last effects and stop, then answer.
     Shutdown(oneshot::Sender<()>),
 }
@@ -133,8 +136,8 @@ impl SnapshotCell {
         });
         Self(Mutex::new(Snapshot {
             revision: 0,
-            shell: shell_view(&session),
-            screen: screen_view(&session),
+            shell: shell_for(&session, false),
+            screen: session_view(&session, |_| ScreenView::unavailable()),
         }))
     }
 
@@ -143,11 +146,12 @@ impl SnapshotCell {
         self.0.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
-    /// Projects `session`, and when anything the window shows changed, bumps
-    /// the revision and tells the host.
-    fn publish(&self, session: &SessionState, host: &dyn UiHost) {
-        let shell = shell_view(session);
-        let screen = screen_view(session);
+    /// Projects `model`, and when anything the window shows changed, bumps the
+    /// revision and tells the host. `reporting` says whether this session
+    /// started a report that has not been dismissed.
+    fn publish(&self, model: &Model, reporting: bool, host: &dyn UiHost) {
+        let shell = shell_view(model, reporting);
+        let screen = screen_view(model);
         let revision = {
             let mut snapshot = self.lock();
             if snapshot.shell == shell && snapshot.screen == screen {
@@ -231,10 +235,11 @@ impl Core {
         Ok(())
     }
 
-    /// Hands the model something the user did. Ignored before
-    /// [`start`](Self::start) and after [`shutdown`](Self::shutdown).
+    /// Hands the model something the user did: each of its core events, in
+    /// order. Ignored before [`start`](Self::start) and after
+    /// [`shutdown`](Self::shutdown).
     pub fn send(&self, event: UiEvent) {
-        self.deliver(Message::event(event));
+        self.deliver(Message::Ui(event));
     }
 
     /// Hands the model a `districtai:` link Windows activated the app with,
@@ -492,6 +497,7 @@ fn launch<X: Effects>(
         host,
         snapshot,
         sender: sender.clone(),
+        reporting: false,
     };
     runtime.spawn(actor.run(first, inbox));
     sender
@@ -503,22 +509,43 @@ struct Actor<X> {
     host: Arc<dyn UiHost>,
     snapshot: Arc<SnapshotCell>,
     sender: UnboundedSender<Message>,
+    /// Whether this session started a report that has not been dismissed. The
+    /// support form's state says how it went; this says it was ours.
+    reporting: bool,
 }
 
 impl<X: Effects> Actor<X> {
+    fn publish(&self) {
+        self.snapshot
+            .publish(&self.model, self.reporting, &*self.host);
+    }
+
     async fn run(mut self, first: Vec<Effect>, mut inbox: UnboundedReceiver<Message>) {
-        self.snapshot.publish(self.model.session(), &*self.host);
+        self.publish();
         self.dispatch(first);
         while let Some(message) = inbox.recv().await {
             match message {
                 Message::Event(event) => {
                     let next = self.model.update(*event);
-                    self.snapshot.publish(self.model.session(), &*self.host);
+                    self.publish();
+                    self.dispatch(next);
+                }
+                Message::Ui(action) => {
+                    match &action {
+                        UiEvent::Report { .. } => self.reporting = true,
+                        UiEvent::DismissReport => self.reporting = false,
+                        _ => {}
+                    }
+                    let mut next = Vec::new();
+                    for event in action.events() {
+                        next.extend(self.model.update(event));
+                    }
+                    self.publish();
                     self.dispatch(next);
                 }
                 Message::Shutdown(done) => {
                     let last = self.model.update(Event::Quitting);
-                    self.snapshot.publish(self.model.session(), &*self.host);
+                    self.publish();
                     let running: Vec<_> = last
                         .into_iter()
                         .map(|effect| {
@@ -658,7 +685,7 @@ mod tests {
     fn session_screen(core: &Core) -> Option<SessionScreen> {
         match core.screen() {
             ScreenView::Session { view } => Some(view),
-            ScreenView::Route { .. } => None,
+            _ => None,
         }
     }
 
@@ -764,6 +791,37 @@ mod tests {
         assert_eq!(session_screen(&core), None);
         core.shutdown().await;
         assert!(effects.ran(|effect| matches!(effect, Effect::SaveSession)));
+    }
+
+    /// A report's three events reach the model, and a dismissal its two; with
+    /// no workspace open the core refuses both, so nothing is under way.
+    #[tokio::test]
+    async fn a_report_and_its_dismissal_reach_the_model() {
+        let core = Core::new();
+        let host = Arc::new(RecordingHost::default());
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            ..FakeEffects::default()
+        });
+        core.start_with(config(), Arc::clone(&effects), host);
+        eventually("signed in", || phase(&core) == SessionPhase::SignedIn).await;
+        core.send(UiEvent::Report {
+            target: crate::views::ReportTarget::Call {
+                call_id: "call-1".to_owned(),
+            },
+            note: String::new(),
+        });
+        core.send(UiEvent::DismissReport);
+        core.send(UiEvent::OpenTab {
+            tab: crate::shell::TabView::Account,
+        });
+        eventually("the account screen", || {
+            matches!(core.screen(), ScreenView::Account { .. })
+        })
+        .await;
+        assert_eq!(core.shell().report, None);
+        assert!(!effects.ran(|effect| matches!(effect, Effect::CreateSupportRequest { .. })));
+        core.shutdown().await;
     }
 
     #[tokio::test]

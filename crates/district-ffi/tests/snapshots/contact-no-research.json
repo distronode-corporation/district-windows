@@ -1,0 +1,69 @@
+{
+  "screen": {
+    "ContactDetail": {
+      "view": {
+        "contact_id": "contact_contract_1",
+        "created_at": "2026-08-15T14:30:00.000Z",
+        "dossier": null,
+        "facts": [
+          {
+            "label": "Phone number",
+            "value": "416 555 0142"
+          },
+          {
+            "label": "Email address",
+            "value": "ada@example.com"
+          },
+          {
+            "label": "Website",
+            "value": "https://engines.test"
+          },
+          {
+            "label": "Budget",
+            "value": "10k"
+          },
+          {
+            "label": "Timeline",
+            "value": "Q4"
+          },
+          {
+            "label": "Latest context",
+            "value": "Booked an appointment."
+          }
+        ],
+        "failure": null,
+        "name": "Contract Test Caller",
+        "number_facts": [],
+        "phone_number": null,
+        "reach": "416 555 0142 · ada@example.com",
+        "report": "Hidden",
+        "research_status": "Searching the web",
+        "status": "Ready",
+        "updated_at": "2026-08-15T14:30:00.000Z"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": true,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Contacts",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

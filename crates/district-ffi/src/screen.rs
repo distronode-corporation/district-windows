@@ -1,11 +1,17 @@
 //! The screen inside the window's frame.
 //!
 //! Outside a session this is the whole of the sign-in page. While signed in it
-//! names the route showing; each route's own projection arrives with the wave
-//! that builds its page (overview, account and devices first).
+//! is the page of the route showing, projected from the core's state for that
+//! screen. Routes this version has no page for are [`ScreenView::Unavailable`].
 
-use district_core::{Route, SessionState, SignOutScope, SignedOutWhy, WorkspaceSection};
+use district_core::{Model, Route, SessionState, SignOutScope, SignedIn, SignedOutWhy};
 use serde::Serialize;
+
+use crate::account::{AccountView, DevicesView, devices_view};
+use crate::calls::{CallDetailView, CallsView, call_detail_view, calls_view};
+use crate::contacts::{ContactDetailView, ContactsView, contact_detail_view, contacts_view};
+use crate::inbox::{InboxView, ThreadView, inbox_view, thread_view};
+use crate::overview::{OverviewView, overview_view};
 
 /// The heading of the signed-out screen on a first run.
 pub const WELCOME_TITLE: &str = "Welcome to District AI";
@@ -17,6 +23,11 @@ pub const SIGNED_OUT_BODY: &str = "Sign in again whenever you are ready.";
 /// A note under a start-up check that will try again by itself.
 pub const RETRYING: &str = "District AI will try again by itself.";
 
+/// The heading of a screen this version does not have.
+pub const UNAVAILABLE_TITLE: &str = "Not in this version yet";
+/// Its body.
+pub const UNAVAILABLE_BODY: &str = "Use the web dashboard or the District AI phone apps for this.";
+
 /// What the screen inside the frame shows.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
 pub enum ScreenView {
@@ -26,11 +37,67 @@ pub enum ScreenView {
         /// The page.
         view: SessionScreen,
     },
-    /// A screen of the signed-in app.
-    Route {
-        /// Which one.
-        route: RouteView,
+    /// The open workspace's overview.
+    Overview {
+        /// The page.
+        view: OverviewView,
     },
+    /// The conversations.
+    Inbox {
+        /// The page.
+        view: InboxView,
+    },
+    /// One conversation.
+    Thread {
+        /// The page.
+        view: ThreadView,
+    },
+    /// The call log.
+    Calls {
+        /// The page.
+        view: CallsView,
+    },
+    /// One call.
+    CallDetail {
+        /// The page.
+        view: CallDetailView,
+    },
+    /// The contacts.
+    Contacts {
+        /// The page.
+        view: ContactsView,
+    },
+    /// One contact.
+    ContactDetail {
+        /// The page.
+        view: ContactDetailView,
+    },
+    /// The account.
+    Account {
+        /// The page.
+        view: AccountView,
+    },
+    /// The devices signed in to the account.
+    Devices {
+        /// The page.
+        view: DevicesView,
+    },
+    /// A screen of the core this version has no page for: every other route.
+    Unavailable {
+        /// [`UNAVAILABLE_TITLE`].
+        title: String,
+        /// [`UNAVAILABLE_BODY`].
+        body: String,
+    },
+}
+
+impl ScreenView {
+    pub(crate) fn unavailable() -> Self {
+        Self::Unavailable {
+            title: UNAVAILABLE_TITLE.to_owned(),
+            body: UNAVAILABLE_BODY.to_owned(),
+        }
+    }
 }
 
 /// The sign-in page, for every session state but signed in. The same fields,
@@ -55,101 +122,108 @@ pub struct SessionScreen {
     pub error: Option<String>,
 }
 
-/// A screen of the signed-in app. One variant per core [`Route`], with each
-/// workspace settings section its own.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, uniffi::Enum)]
-#[allow(
-    missing_docs,
-    reason = "each variant is the core Route of the same name"
-)]
-pub enum RouteView {
-    Overview,
-    Inbox,
-    Thread,
-    Calls,
-    CallDetail,
-    Contacts,
-    ContactDetail,
-    BlockedContacts,
-    Hq,
-    Analytics,
-    Marketplace,
-    Billing,
-    Workflows,
-    Scheduling,
-    Desk,
-    DeskTicket,
-    DeskSettings,
-    Support,
-    SupportRequest,
-    Rooms,
-    Dialer,
-    Account,
-    Devices,
-    WorkspaceHub,
-    Persona,
-    VoiceStudio,
-    Tools,
-    Directory,
-    Routing,
-    CallHandling,
-    Knowledge,
-    Messaging,
-    Members,
-    Numbers,
-}
-
-impl From<&Route> for RouteView {
-    fn from(route: &Route) -> Self {
-        match route {
-            Route::Overview => Self::Overview,
-            Route::Inbox => Self::Inbox,
-            Route::Thread { .. } => Self::Thread,
-            Route::Calls => Self::Calls,
-            Route::CallDetail { .. } => Self::CallDetail,
-            Route::Contacts => Self::Contacts,
-            Route::ContactDetail { .. } => Self::ContactDetail,
-            Route::BlockedContacts => Self::BlockedContacts,
-            Route::Hq => Self::Hq,
-            Route::Analytics => Self::Analytics,
-            Route::Marketplace => Self::Marketplace,
-            Route::Billing => Self::Billing,
-            Route::Workflows => Self::Workflows,
-            Route::Scheduling => Self::Scheduling,
-            Route::Desk => Self::Desk,
-            Route::DeskTicket { .. } => Self::DeskTicket,
-            Route::DeskSettings => Self::DeskSettings,
-            Route::Support => Self::Support,
-            Route::SupportRequest { .. } => Self::SupportRequest,
-            Route::Rooms => Self::Rooms,
-            Route::Dialer => Self::Dialer,
-            Route::Account => Self::Account,
-            Route::Devices => Self::Devices,
-            Route::Workspace(section) => (*section).into(),
-        }
+/// The page of the route showing, for a signed-in `model`.
+fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
+    let capabilities = signed_in.capabilities();
+    match &signed_in.route {
+        Route::Overview => ScreenView::Overview {
+            view: overview_view(signed_in),
+        },
+        Route::Inbox => ScreenView::Inbox {
+            view: inbox_view(&signed_in.inbox),
+        },
+        Route::Thread { thread_key } => ScreenView::Thread {
+            view: thread_view(thread_key, signed_in.thread.as_ref(), &capabilities),
+        },
+        Route::Calls => ScreenView::Calls {
+            view: calls_view(&signed_in.calls),
+        },
+        Route::CallDetail { call_id } => ScreenView::CallDetail {
+            view: call_detail_view(
+                signed_in
+                    .call
+                    .as_ref()
+                    .filter(|screen| screen.call_id == *call_id)
+                    .unwrap_or(&loading_call(call_id)),
+                &capabilities,
+            ),
+        },
+        Route::Contacts => ScreenView::Contacts {
+            view: contacts_view(&signed_in.contacts),
+        },
+        Route::ContactDetail { contact_id } => ScreenView::ContactDetail {
+            view: contact_detail_view(
+                signed_in
+                    .contact
+                    .as_ref()
+                    .filter(|screen| screen.contact_id == *contact_id)
+                    .unwrap_or(&loading_contact(contact_id)),
+                &capabilities,
+            ),
+        },
+        Route::Account => model
+            .account()
+            .map_or_else(ScreenView::unavailable, |account| ScreenView::Account {
+                view: account.into(),
+            }),
+        Route::Devices => ScreenView::Devices {
+            view: devices_view(&signed_in.devices),
+        },
+        // Calls are placed in a later version.
+        Route::Dialer
+        | Route::BlockedContacts
+        | Route::Hq
+        | Route::Analytics
+        | Route::Marketplace
+        | Route::Billing
+        | Route::Workflows
+        | Route::Scheduling
+        | Route::Desk
+        | Route::DeskTicket { .. }
+        | Route::DeskSettings
+        | Route::Support
+        | Route::SupportRequest { .. }
+        | Route::Rooms
+        | Route::Workspace(_) => ScreenView::unavailable(),
     }
 }
 
-impl From<WorkspaceSection> for RouteView {
-    fn from(section: WorkspaceSection) -> Self {
-        match section {
-            WorkspaceSection::Hub => Self::WorkspaceHub,
-            WorkspaceSection::Persona => Self::Persona,
-            WorkspaceSection::VoiceStudio => Self::VoiceStudio,
-            WorkspaceSection::Tools => Self::Tools,
-            WorkspaceSection::Directory => Self::Directory,
-            WorkspaceSection::Routing => Self::Routing,
-            WorkspaceSection::CallHandling => Self::CallHandling,
-            WorkspaceSection::Knowledge => Self::Knowledge,
-            WorkspaceSection::Messaging => Self::Messaging,
-            WorkspaceSection::Members => Self::Members,
-            WorkspaceSection::Numbers => Self::Numbers,
-        }
+/// A call not read yet: what the page shows before the core opens it.
+fn loading_call(call_id: &str) -> district_core::CallDetailScreen {
+    district_core::CallDetailScreen {
+        call_id: call_id.to_owned(),
+        call: district_core::CallView::Loading,
+        transcript: district_core::TranscriptView::Loading,
+        refresh_failure: None,
     }
 }
 
-/// The screen for `session`.
-pub fn screen_view(session: &SessionState) -> ScreenView {
+/// A contact not read yet.
+fn loading_contact(contact_id: &str) -> district_core::ContactDetailScreen {
+    district_core::ContactDetailScreen {
+        contact_id: contact_id.to_owned(),
+        contact: district_core::ContactView::Loading,
+        saving: None,
+        failure: None,
+        confirming: None,
+        editing: None,
+        blocked: None,
+    }
+}
+
+/// The screen for `model`.
+pub fn screen_view(model: &Model) -> ScreenView {
+    session_view(model.session(), |signed_in| {
+        signed_in_view(model, signed_in)
+    })
+}
+
+/// The screen for `session`, with `signed_in` making the page of a signed-in
+/// one.
+pub(crate) fn session_view(
+    session: &SessionState,
+    signed_in: impl FnOnce(&SignedIn) -> ScreenView,
+) -> ScreenView {
     let nothing = SessionScreen {
         title: "District AI".to_owned(),
         body: String::new(),
@@ -161,11 +235,7 @@ pub fn screen_view(session: &SessionState) -> ScreenView {
         error: None,
     };
     let view = match session {
-        SessionState::SignedIn(signed_in) => {
-            return ScreenView::Route {
-                route: (&signed_in.route).into(),
-            };
-        }
+        SessionState::SignedIn(state) => return signed_in(state),
         SessionState::Restoring(restoring) => {
             let mut body = restoring.message();
             if restoring.retry_in.is_some() && !restoring.checking {
@@ -231,53 +301,29 @@ pub fn screen_view(session: &SessionState) -> ScreenView {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
     use district_auth::StoreErrorKind;
     use district_core::{ServiceSignOut, SignOutOutcome, SignedOut, SigningOut};
 
     use super::*;
 
-    /// Every route the core has, each its own view.
-    #[test]
-    fn every_route_has_a_view_of_its_own() {
-        let id = || "id-1".to_owned();
-        let mut routes = vec![
-            Route::Overview,
-            Route::Inbox,
-            Route::Thread { thread_key: id() },
-            Route::Calls,
-            Route::CallDetail { call_id: id() },
-            Route::Contacts,
-            Route::ContactDetail { contact_id: id() },
-            Route::BlockedContacts,
-            Route::Hq,
-            Route::Analytics,
-            Route::Marketplace,
-            Route::Billing,
-            Route::Workflows,
-            Route::Scheduling,
-            Route::Desk,
-            Route::DeskTicket { ticket_id: id() },
-            Route::DeskSettings,
-            Route::Support,
-            Route::SupportRequest { key: id() },
-            Route::Rooms,
-            Route::Dialer,
-            Route::Account,
-            Route::Devices,
-        ];
-        routes.extend(WorkspaceSection::ALL.map(Route::Workspace));
-        let views: HashSet<RouteView> = routes.iter().map(RouteView::from).collect();
-        assert_eq!(views.len(), routes.len());
+    fn session_screen(view: ScreenView) -> Option<SessionScreen> {
+        match view {
+            ScreenView::Session { view } => Some(view),
+            _ => None,
+        }
     }
 
-    fn session_screen(view: ScreenView) -> Option<SessionScreen> {
-        if let ScreenView::Session { view } = view {
-            Some(view)
-        } else {
-            None
-        }
+    #[test]
+    fn a_screen_with_no_page_says_so() {
+        let view = ScreenView::unavailable();
+        assert_eq!(session_screen(view.clone()), None);
+        assert_eq!(
+            view,
+            ScreenView::Unavailable {
+                title: UNAVAILABLE_TITLE.to_owned(),
+                body: UNAVAILABLE_BODY.to_owned(),
+            }
+        );
     }
 
     fn signed_out(outcome: SignOutOutcome) -> SessionScreen {
@@ -285,7 +331,8 @@ mod tests {
             why: SignedOutWhy::SignedOut(outcome),
             sign_in_error: None,
         });
-        session_screen(screen_view(&session)).expect("signed out is a session screen")
+        session_screen(session_view(&session, |_| unreachable!()))
+            .expect("signed out is a session screen")
     }
 
     #[test]
@@ -313,7 +360,8 @@ mod tests {
         let session = SessionState::SigningOut(SigningOut {
             scope: SignOutScope::Everywhere,
         });
-        let view = session_screen(screen_view(&session)).expect("signing out is a session screen");
+        let view = session_screen(session_view(&session, |_| unreachable!()))
+            .expect("signing out is a session screen");
         assert!(view.body.starts_with("Every device is signed out."));
         assert!(view.busy);
     }
