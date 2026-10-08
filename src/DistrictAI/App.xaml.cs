@@ -1,4 +1,5 @@
 using DistrictAI.Core;
+using DistrictAI.Core.Ffi;
 using DistrictAI.Platform;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -16,6 +17,7 @@ public sealed partial class App : Application, IDisposable
     private readonly AppActivationArguments _launch;
     private CoreHost? _core;
     private MainWindow? _window;
+    private string? _otherCopy;
 
     /// <summary>The app, started by <paramref name="launch"/>.</summary>
     public App(AppActivationArguments launch)
@@ -45,6 +47,23 @@ public sealed partial class App : Application, IDisposable
             Package.Current.Id.FamilyName);
         Handle(_launch);
         _window.Activate();
+        _ = LookForOtherCopyAsync();
+    }
+
+    /// <summary>
+    /// With the other copy of the app installed, says so and offers no
+    /// browser sign-in (its answer could land in the other copy).
+    /// </summary>
+    private async Task LookForOtherCopyAsync()
+    {
+        _otherCopy = await OtherCopy.FindAsync();
+#if DISTRICT_SPIKES
+        Spikes.SpikeLog.Write($"other-copy found={_otherCopy ?? "none"} credentials={Package.Current.Id.FamilyName}");
+#endif
+        if (_otherCopy is not null)
+        {
+            _window?.BlockSignIn(OtherCopy.Notice(_otherCopy));
+        }
     }
 
     /// <summary>The package's version, as the service sees it: major.minor.build.</summary>
@@ -66,14 +85,68 @@ public sealed partial class App : Application, IDisposable
     {
         if (args.Kind == ExtendedActivationKind.Protocol && args.Data is IProtocolActivatedEventArgs protocol)
         {
-            _core?.OpenLink(protocol.Uri.AbsoluteUri);
+            OpenLink(protocol.Uri.AbsoluteUri);
         }
+#if DISTRICT_SPIKES
+        if (args.Kind == ExtendedActivationKind.AppNotification && args.Data is AppNotificationActivatedEventArgs toast)
+        {
+            Spikes.SpikeLog.Write($"toast-activated cold=true args={Spikes.IncomingCallSpike.Describe(toast)}");
+        }
+#endif
         // Launch: nothing more to do. AppNotification: this build shows no
         // notifications yet, so there is no button to act on.
     }
 
+    private void OpenLink(string uri)
+    {
+        var kind = DistrictFfi.LinkKind(uri);
+        // A sign-in's answer while the other copy is installed and this one
+        // started no sign-in: it belongs to the other copy, which holds the
+        // attempt's verifier. Dropped, with a notice.
+        if (kind == LinkKind.Auth && _otherCopy is not null
+            && _core?.Current.Shell.Phase != SessionPhase.SigningIn)
+        {
+            _window?.ShowNotice(OtherCopy.WrongCopy);
+#if DISTRICT_SPIKES
+            Spikes.SpikeLog.Write("received link=Auth dropped=wrong-copy");
+#endif
+            return;
+        }
+        _core?.OpenLink(uri);
+#if DISTRICT_SPIKES
+        Spikes.SpikeLog.Write($"received link={kind} host={new Uri(uri).Host}");
+        _ = SpikeLinkAsync(uri, kind);
+#endif
+    }
+
+#if DISTRICT_SPIKES
+    private async Task SpikeLinkAsync(string uri, LinkKind kind)
+    {
+        var host = new Uri(uri).Host;
+        if (kind == LinkKind.Unknown && host == "spike-toast")
+        {
+            await Spikes.IncomingCallSpike.ShowAsync();
+        }
+        else if (kind == LinkKind.Unknown && host == "spike-checkout")
+        {
+            await Spikes.CheckoutSpike.RunAsync();
+        }
+        else if (kind == LinkKind.Auth && _core is not null)
+        {
+            // What the core made of the answer: with no sign-in under way, the
+            // sign-in page's error. The exchange itself needs the service.
+            await Task.Delay(500);
+            var screen = _core.Current.Screen as ScreenView.Session;
+            Spikes.SpikeLog.Write($"auth-handled phase={_core.Current.Shell.Phase} error={screen?.View.Error ?? "none"}");
+        }
+    }
+#endif
+
     private void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)
     {
+#if DISTRICT_SPIKES
+        Spikes.SpikeLog.Write($"toast-activated cold=false args={Spikes.IncomingCallSpike.Describe(args)}");
+#endif
         // This build shows no notifications yet (W4 adds message toasts, W7
         // the incoming call's), so no button can be pressed.
     }

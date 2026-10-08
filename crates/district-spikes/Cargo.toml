@@ -1,0 +1,25 @@
+[package]
+name = "district-spikes"
+description = "W2 spike 2: a UniFFI async call that awaits a C# async callback, many times over, and a shutdown while callbacks are in flight. Never shipped."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "sync", "time"] }
+uniffi = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "sync", "time", "macros"] }
+
+[lints]
+workspace = true

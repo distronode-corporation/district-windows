@@ -20,4 +20,6 @@ public sealed partial class SignInPage : UserControl
     internal void Attach(CoreHost core) => ViewModel.Attach(core);
 
     internal void Show(SessionScreen screen) => ViewModel.Show(screen);
+
+    internal void BlockSignIn() => ViewModel.BlockSignIn();
 }

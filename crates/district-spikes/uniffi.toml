@@ -1,0 +1,5 @@
+# uniffi-bindgen-cs settings for tests/DistrictAI.Spikes/Generated.
+[bindings.csharp]
+namespace = "DistrictAI.Spikes.Ffi"
+global_methods_class_name = "DistrictSpikes"
+access_modifier = "public"

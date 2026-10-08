@@ -194,6 +194,8 @@ jobs:
         run: |
           dotnet format src/DistrictAI.Core/DistrictAI.Core.csproj --verify-no-changes
           dotnet format tests/DistrictAI.Core.Tests/DistrictAI.Core.Tests.csproj --verify-no-changes
+          dotnet format tests/DistrictAI.Spikes.Tests/DistrictAI.Spikes.Tests.csproj --verify-no-changes
+          dotnet format spikes/AotProbe/AotProbe.csproj --verify-no-changes
 
   # Seconds of runtime.
   repo:
@@ -218,6 +220,12 @@ jobs:
 
       - name: No hand-written unsafe Rust
         run: python3 scripts/check-unsafe.py
+
+      - name: The flavour check still catches what it claims to
+        run: python3 scripts/check-flavours.py --self-test
+
+      - name: The Store and GitHub manifests are one app under two identities
+        run: python3 scripts/check-flavours.py
 
   # RustSec advisories, the licence allow-list, banned crates and allowed sources,
   # read from deny.toml, for both targets it names (windows-msvc and linux-gnu).

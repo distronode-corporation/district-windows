@@ -8,5 +8,10 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/DistrictAI.Core.Tests/DistrictAI.Core.Tests.csproj" />
+    <Project Path="tests/DistrictAI.Spikes/DistrictAI.Spikes.csproj" />
+    <Project Path="tests/DistrictAI.Spikes.Tests/DistrictAI.Spikes.Tests.csproj" />
+  </Folder>
+  <Folder Name="/spikes/">
+    <Project Path="spikes/AotProbe/AotProbe.csproj" />
   </Folder>
 </Solution>
