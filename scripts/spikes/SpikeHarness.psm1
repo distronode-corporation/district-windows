@@ -57,8 +57,10 @@ function Get-LogPath([string] $Family) {
 }
 
 function Get-SpikeLog([string] $Family) {
+    <# Always an array, even of none or one line (so .Count works under StrictMode). #>
     $path = Get-LogPath $Family
-    if (Test-Path $path) { @(Get-Content -LiteralPath $path) } else { @() }
+    $lines = if (Test-Path $path) { @(Get-Content -LiteralPath $path) } else { @() }
+    Write-Output -NoEnumerate $lines
 }
 
 function Wait-SpikeLine {
@@ -80,7 +82,7 @@ function Start-App([string] $Family) {
 }
 
 function Get-AppProcesses {
-    @(Get-Process -Name 'DistrictAI' -ErrorAction SilentlyContinue)
+    Write-Output -NoEnumerate @(Get-Process -Name 'DistrictAI' -ErrorAction SilentlyContinue)
 }
 
 function Stop-App {

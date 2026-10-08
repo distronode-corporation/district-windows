@@ -126,7 +126,7 @@ jobs:
       # Trim and AOT analysis warnings are errors (TreatWarningsAsErrors), so a
       # publish that succeeds is one the analyzers accepted.
       - name: Publish the probe with Native AOT
-        run: dotnet publish spikes/AotProbe -c Release -r win-x64 -p:DistrictFfiProfile=release -o "${{ runner.temp }}/aot"
+        run: dotnet publish spikes/AotProbe -c Release -p:DistrictFfiProfile=release -o "${{ runner.temp }}/aot"
       - name: Spike 6
         shell: bash
         run: |

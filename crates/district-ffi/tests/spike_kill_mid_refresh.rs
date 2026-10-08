@@ -45,7 +45,10 @@ fn session(token: &str) -> PersistedSession {
 }
 
 fn store(prefix: &str, dir: &PathBuf) -> CredentialStore<WindowsVault> {
-    CredentialStore::new(WindowsVault::with_prefix(prefix), RefreshMarkerFile::new(dir))
+    CredentialStore::new(
+        WindowsVault::with_prefix(prefix),
+        RefreshMarkerFile::new(dir),
+    )
 }
 
 fn coordinator(
@@ -120,7 +123,9 @@ fn spike_4_the_session_survives_taskkill_mid_refresh() {
         let dir = dir.path().to_path_buf();
         let token = format!("rt-spike-4-{round}");
         let saved = session(&token);
-        runtime.block_on(store(&prefix, &dir).save_session(&saved)).unwrap();
+        runtime
+            .block_on(store(&prefix, &dir).save_session(&saved))
+            .unwrap();
 
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let port = listener.local_addr().unwrap().port();
@@ -148,9 +153,8 @@ fn spike_4_the_session_survives_taskkill_mid_refresh() {
         // A fresh coordinator against a server that counts every connection.
         let watcher = TcpListener::bind("127.0.0.1:0").unwrap();
         let watcher_port = watcher.local_addr().unwrap().port();
-        let restored = runtime.block_on(async {
-            coordinator(&prefix, &dir, watcher_port).restore().await
-        });
+        let restored =
+            runtime.block_on(async { coordinator(&prefix, &dir, watcher_port).restore().await });
         let presented_again = accept_request(&watcher, Duration::from_millis(500)).is_some();
         let after = runtime.block_on(reopened.load_session());
 
