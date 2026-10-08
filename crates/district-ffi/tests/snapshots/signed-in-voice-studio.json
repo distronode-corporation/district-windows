@@ -6,11 +6,14 @@
     }
   },
   "shell": {
+    "call": null,
+    "calls_available": false,
     "can_go_back": true,
     "live": null,
     "notice": null,
     "phase": "SignedIn",
     "report": null,
+    "ring": null,
     "tab": "Overview",
     "unread": 0,
     "workspaces": {

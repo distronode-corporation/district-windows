@@ -7,8 +7,9 @@
 use district_core::{Model, Route, SessionState, SignOutScope, SignedIn, SignedOutWhy};
 use serde::Serialize;
 
-use crate::account::{AccountView, DevicesView, devices_view};
+use crate::account::{AccountView, DevicesView, account_view, devices_view};
 use crate::calls::{CallDetailView, CallsView, call_detail_view, calls_view};
+use crate::calls_live::{DialerView, dialer_view};
 use crate::contacts::{ContactDetailView, ContactsView, contact_detail_view, contacts_view};
 use crate::inbox::{InboxView, ThreadView, inbox_view, thread_view};
 use crate::overview::{OverviewView, overview_view};
@@ -82,6 +83,11 @@ pub enum ScreenView {
         /// The page.
         view: DevicesView,
     },
+    /// The dialler, in a build that can carry calls.
+    Dialer {
+        /// The page.
+        view: DialerView,
+    },
     /// A screen of the core this version has no page for: every other route.
     Unavailable {
         /// [`UNAVAILABLE_TITLE`].
@@ -125,6 +131,7 @@ pub struct SessionScreen {
 /// The page of the route showing, for a signed-in `model`.
 fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
     let capabilities = signed_in.capabilities();
+    let calls_available = model.config().calls_available;
     match &signed_in.route {
         Route::Overview => ScreenView::Overview {
             view: overview_view(signed_in),
@@ -164,12 +171,14 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
         Route::Account => model
             .account()
             .map_or_else(ScreenView::unavailable, |account| ScreenView::Account {
-                view: account.into(),
+                view: account_view(account, signed_in, calls_available),
             }),
         Route::Devices => ScreenView::Devices {
             view: devices_view(&signed_in.devices),
         },
-        // Calls are placed in a later version.
+        Route::Dialer if calls_available => ScreenView::Dialer {
+            view: dialer_view(signed_in),
+        },
         Route::Dialer
         | Route::BlockedContacts
         | Route::Hq
