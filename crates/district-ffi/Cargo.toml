@@ -50,7 +50,7 @@ url = { workspace = true }
 # static CRT, which is why .cargo/config.toml builds Rust with +crt-static. The
 # Linux build of this crate, which only DistrictAI.Core.Tests loads, keeps the
 # engine that joins nothing.
-district-call = { workspace = true, features = ["livekit"] }
+# wf-xaml-check: no LiveKit engine, so no libwebrtc to fetch.
 keyring = { workspace = true }
 
 [dev-dependencies]

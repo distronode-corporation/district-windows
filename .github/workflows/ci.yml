@@ -301,20 +301,6 @@ jobs:
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      # The audio-only libwebrtc the LiveKit engine links, which district-ffi
-      # has on Windows: checked against the SHA-256 scripts/fetch-libwebrtc.ps1
-      # pins on every run, cached or not, so the cache saves the download and
-      # vouches for nothing. It sets LK_CUSTOM_WEBRTC, so the SDK's build never
-      # downloads LiveKit's own prebuilt.
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ runner.temp }}/libwebrtc/webrtc-win-x64-release.zip
-          key: libwebrtc-win-${{ hashFiles('scripts/fetch-libwebrtc.ps1') }}
-
-      - name: Fetch and verify libwebrtc
-        shell: pwsh
-        run: ./scripts/fetch-libwebrtc.ps1 (Join-Path $env:RUNNER_TEMP 'libwebrtc') -GitHubEnv
-
       - name: Build district_ffi.dll
         run: cargo build -p district-ffi --locked --release
 
