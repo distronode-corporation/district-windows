@@ -6,10 +6,20 @@
     xmlns:views="using:DistrictAI.Views"
     Title="District AI">
     <Grid>
-        <views:SignInPage x:Name="SignIn" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <InfoBar
+            x:Name="Notice"
+            AutomationProperties.Name="Notice"
+            IsOpen="False"
+            Severity="Warning" />
+        <views:SignInPage x:Name="SignIn" Grid.Row="1" />
         <!-- Signed in: the navigation view arrives with W3. -->
         <TextBlock
             x:Name="SignedIn"
+            Grid.Row="1"
             AutomationProperties.Name="Signed in"
             Visibility="Collapsed"
             HorizontalAlignment="Center"

@@ -14,3 +14,7 @@
 [crates.district-ffi]
 floor = 99
 reason = "Measured on Linux, where the Credential Manager vault (cfg(windows), tested on the Windows job) is not compiled; left out are the API client's configuration error, which a constant base URL never produces, and UniFFI's generated foreign-trait glue."
+
+[crates.district-spikes]
+floor = 98
+reason = "Spike code, never shipped, measured: the one line left is the expect on building the flood's runtime, which only fails when the OS refuses threads."

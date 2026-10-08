@@ -26,6 +26,20 @@ public sealed partial class MainWindow : Window
         Render(core.Current);
     }
 
+    /// <summary>Shows <paramref name="message"/> over the window until closed.</summary>
+    internal void ShowNotice(string message)
+    {
+        Notice.Message = message;
+        Notice.IsOpen = true;
+    }
+
+    /// <summary>Offers no browser sign-in, and says why.</summary>
+    internal void BlockSignIn(string why)
+    {
+        SignIn.BlockSignIn();
+        ShowNotice(why);
+    }
+
     private void Render(CoreSnapshot snapshot)
     {
         var signedIn = snapshot.Shell.Phase == SessionPhase.SignedIn;
