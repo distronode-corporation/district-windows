@@ -131,7 +131,7 @@ public sealed partial class App : Application, IDisposable
     }
 
     /// <summary>The tray menu, as it is when it opens.</summary>
-    private IReadOnlyList<TrayMenuItem?> TrayMenu()
+    private List<TrayMenuItem?> TrayMenu()
     {
         var items = new List<TrayMenuItem?> { new("Open District AI", ShowWindow) };
         if (_core?.Current.Shell.Phase == SessionPhase.SignedIn)
