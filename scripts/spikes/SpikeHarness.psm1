@@ -77,6 +77,31 @@ function Wait-SpikeLine {
     $null
 }
 
+function Enable-CrashDumps {
+    <# Windows Error Reporting writes a full dump of DistrictAI.exe if it crashes. #>
+    $key = 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\DistrictAI.exe'
+    $folder = Join-Path $env:RUNNER_TEMP 'dumps'
+    New-Item -ItemType Directory -Force -Path $folder | Out-Null
+    New-Item -Force -Path $key | Out-Null
+    Set-ItemProperty -Path $key -Name DumpFolder -Value $folder -Type ExpandString
+    Set-ItemProperty -Path $key -Name DumpType -Value 2 -Type DWord
+}
+
+function Show-CrashDumps {
+    <# What the debugger makes of any dump: the stowed exception behind a XAML fail-fast included. #>
+    $cdb = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
+    foreach ($dump in Get-ChildItem (Join-Path $env:RUNNER_TEMP 'dumps') -Filter '*.dmp' -ErrorAction SilentlyContinue) {
+        Write-Host "--- dump $($dump.Name) ($($dump.Length) bytes)"
+        if ($cdb) {
+            & $cdb.FullName -z $dump.FullName -c '.symfix; .reload; !analyze -v; .exr -1; !error @$ea; q' 2>&1 |
+                Select-String -Pattern 'STOWED|Stowed|HRESULT|EXCEPTION_|ERROR_CODE|FAILURE_|SYMBOL_NAME|Error code|Exception|WebView|Message' |
+                Select-Object -First 80 | ForEach-Object { Write-Host $_.Line }
+        } else {
+            Write-Host 'no cdb.exe on this runner'
+        }
+    }
+}
+
 function Start-App([string] $Family) {
     Start-Process -FilePath 'explorer.exe' -ArgumentList "shell:AppsFolder\$Family!App"
 }
