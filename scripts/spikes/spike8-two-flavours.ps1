@@ -5,7 +5,7 @@
 param([Parameter(Mandatory)] [string] $StorePackages, [Parameter(Mandatory)] [string] $GitHubPackages)
 Import-Module (Join-Path $PSScriptRoot 'SpikeHarness.psm1') -Force
 Start-Summary 'Spike 8: two flavours side by side'
-$store = Install-TestPackage -Folder $StorePackages -Name 'Distronode.DistrictAI.Placeholder'
+$store = Install-TestPackage -Folder $StorePackages -Name 'DistronodeCorporation.42101E4C5A5B6'
 $github = Install-TestPackage -Folder $GitHubPackages -Name 'Distronode.DistrictAI.GitHub'
 Add-Result 'both flavours install together' ($store.PackageFamilyName -ne $github.PackageFamilyName) "$($store.PackageFamilyName) and $($github.PackageFamilyName)"
 

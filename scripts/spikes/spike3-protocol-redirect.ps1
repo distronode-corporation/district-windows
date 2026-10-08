@@ -4,7 +4,7 @@
 param([Parameter(Mandatory)] [string] $Packages)
 Import-Module (Join-Path $PSScriptRoot 'SpikeHarness.psm1') -Force
 Start-Summary 'Spike 3: protocol activation redirect'
-$package = Install-TestPackage -Folder $Packages -Name 'Distronode.DistrictAI.Placeholder'
+$package = Install-TestPackage -Folder $Packages -Name 'DistronodeCorporation.42101E4C5A5B6'
 $family = $package.PackageFamilyName
 try {
 

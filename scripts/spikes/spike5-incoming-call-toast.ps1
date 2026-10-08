@@ -3,7 +3,7 @@
 param([Parameter(Mandatory)] [string] $Packages, [Parameter(Mandatory)] [string] $Manifest)
 Import-Module (Join-Path $PSScriptRoot 'SpikeHarness.psm1') -Force
 Start-Summary 'Spike 5: IncomingCall toast'
-$package = Install-TestPackage -Folder $Packages -Name 'Distronode.DistrictAI.Placeholder'
+$package = Install-TestPackage -Folder $Packages -Name 'DistronodeCorporation.42101E4C5A5B6'
 $family = $package.PackageFamilyName
 try {
     $clsid = Get-ActivatorClsid $Manifest

@@ -74,7 +74,7 @@ def self_test() -> int:
     github = GITHUB.read_text(encoding="utf-8")
     cases = [
         ("the committed pair", store, github, False),
-        ("the same identity", store, github.replace("Distronode.DistrictAI.GitHub", "Distronode.DistrictAI.Placeholder"), True),
+        ("the same identity", store, github.replace("Distronode.DistrictAI.GitHub", facts(store)["name"]), True),
         ("a capability added to one", store, github.replace("<rescap:Capability Name=\"runFullTrust\" />",
                                                              "<rescap:Capability Name=\"runFullTrust\" /><DeviceCapability Name=\"webcam\" />"), True),
         ("one class shared", store, github.replace(facts(github)["clsids"][0], facts(store)["clsids"][0]), True),
