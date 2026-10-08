@@ -136,6 +136,11 @@ Set-Once $cmd 'rtc_use_h264=true' 'rtc_use_h264=false rtc_use_h265=false'
 # and its Windows recipe does not: GN warns that ffmpeg_branding has no effect
 # on Windows (no FFmpeg is built there), the warning lands in front of the JSON
 # the generator parses, and without the fix there is no LICENSE.md.
+# The patch has a context line that is empty (no leading space), which git
+# apply reads as corrupt once the checkout has given it CRLF endings, as the
+# runner's git does: it is applied with LF endings.
+$licenceFix = Join-Path $recipe 'patches\fix_license_json_parsing.patch'
+[IO.File]::WriteAllText($licenceFix, [IO.File]::ReadAllText($licenceFix).Replace("`r`n", "`n"), [Text.UTF8Encoding]::new($false))
 $applyLicenses = 'call git apply "%COMMAND_DIR%/patches/add_licenses.patch" -v --ignore-space-change --ignore-whitespace --whitespace=nowarn'
 $eol = if ([IO.File]::ReadAllText($cmd).Contains("`r`n")) { "`r`n" } else { "`n" }
 Set-Once $cmd $applyLicenses ($applyLicenses + $eol + $applyLicenses.Replace('add_licenses.patch', 'fix_license_json_parsing.patch'))
