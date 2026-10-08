@@ -77,6 +77,41 @@ It refuses em and en dashes (use commas, periods or parentheses), phone numbers 
 the fictional +1 NPA 555-0100 to 555-0199, host names under our domains other than the
 public website, and email addresses other than the project's contacts and example.com.
 
+## Store copy
+
+District AI 1.0 is listed in the Microsoft Store as a client for an existing account: nobody
+signs up in the app and nothing is bought in it. `scripts/check-store-copy.py` keeps the
+app's strings honest to that listing. It refuses "sign up", "create an account", "buy",
+"price", "pricing", "subscribe" and "free trial" in the app's XAML text, its C# strings, any
+`.resw` and `district-ffi`'s Rust strings (comments are not read). CI runs it on every push
+and pull request:
+
+```
+python3 scripts/check-store-copy.py --self-test
+python3 scripts/check-store-copy.py
+```
+
+A string that is genuinely fine goes in its `ALLOW` list by exact `path:line`, with the
+reason.
+
+## Releasing
+
+A release is a `vX.Y.Z` tag on a commit already on `main`, and
+`.github/workflows/release.yml` does the rest. Before tagging:
+
+- `Version` in `src/DistrictAI/Package.appxmanifest` is `X.Y.Z.0`;
+- `CHANGELOG.md` has a `## [X.Y.Z]` section, which becomes the release notes.
+
+The workflow refuses the tag otherwise. It builds the Store package (an unsigned
+`.msixupload`; the Store signs what it ships) and a sideload test MSIX signed with a
+throwaway certificate, runs the Windows App Certification Kit on the package, and publishes
+both with the certificate's public half, the kit's report, a source zip, `SHA256SUMS` and a
+provenance attestation. The `.msixupload` is what goes to Partner Center.
+
+Pull requests that change the workflow or the packaging run the same build and
+certification as a dry run, with nothing attested or released. CI's `windows-app` job runs
+the certification kit on every pull request too, through `scripts/run-wack.ps1`.
+
 ## Commits and pull requests
 
 Say why in the commit message, not only what. Keep a pull request to one concern. Every

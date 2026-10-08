@@ -219,6 +219,12 @@ jobs:
       - name: No hand-written unsafe Rust
         run: python3 scripts/check-unsafe.py
 
+      # 1.0 offers no sign-up and no purchase in the app, as its Store listing says.
+      - name: No sign-up or purchase wording in the app (and the check still catches it)
+        run: |
+          python3 scripts/check-store-copy.py --self-test
+          python3 scripts/check-store-copy.py
+
   # RustSec advisories, the licence allow-list, banned crates and allowed sources,
   # read from deny.toml, for both targets it names (windows-msvc and linux-gnu).
   cargo-deny:
@@ -333,6 +339,21 @@ jobs:
           if ($msix.Count -ne 1) { throw "expected one DistrictAI MSIX, found $($msix.Count)" }
           $signature = Get-AuthenticodeSignature $msix[0].FullName
           if ($signature.SignerCertificate.Subject -ne $publisher) { throw "unexpected signer: $($signature.SignerCertificate.Subject)" }
+
+      # The Store's certification checks, run here so a failure shows on the
+      # pull request rather than at the release tag. The report goes in the
+      # uploaded artifact.
+      - name: Windows App Certification Kit
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python scripts/check-wack-report.py --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'the WACK report reader failed its self-test' }
+          $out = Join-Path $env:RUNNER_TEMP 'AppPackages'
+          $msix = @(Get-ChildItem -Recurse $out -Filter 'DistrictAI_*.msix')[0]
+          $deps = Join-Path $msix.DirectoryName 'Dependencies\x64'
+          ./scripts/run-wack.ps1 -Package $msix.FullName -Certificate (Join-Path $out 'District-AI-CI-test.cer') `
+            -Report (Join-Path $out 'wack-report.xml') -Dependencies $(if (Test-Path $deps) { $deps } else { '' })
 
       - name: dotnet format, the whole solution
         run: dotnet format DistrictAI.slnx --verify-no-changes --no-restore

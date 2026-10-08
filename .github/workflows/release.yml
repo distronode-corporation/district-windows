@@ -1,0 +1,511 @@
+name: Release
+
+# Fires on a `vX.Y.Z` tag and publishes District AI for Windows: the Store
+# package Partner Center takes (an unsigned .msixupload; the Store signs what it
+# ships), a sideload test MSIX signed with a throwaway certificate and that
+# certificate's public half, the Windows App Certification Kit's report on the
+# package, a source zip, SHA256SUMS over all of them, and the signed provenance
+# attestation over them (`district-ai-windows_<version>.intoto.jsonl`).
+#
+# Four stages, and only the last can write anything:
+#
+# - `guard` refuses a tag that should not be built: one on a commit that is not
+#   on main (CI never tested it), one that Package.appxmanifest's Version does
+#   not name (tag vX.Y.Z needs Version X.Y.Z.0), or one without a CHANGELOG.md
+#   section to make the notes from. It also makes the source zip.
+# - `build` builds both packages on windows-2025 from the committed lock files,
+#   with no caches, checks what is inside them (identity, version, ReadyToRun),
+#   and runs the Windows App Certification Kit on the package.
+# - `assemble` checks the files are exactly the names a release carries and
+#   writes SHA256SUMS.
+# - `publish` attests the files' provenance, verifies the attestations, creates
+#   a DRAFT release, checks that GitHub holds exactly the expected files, and
+#   only then makes the release public.
+#
+# Pull requests that touch this workflow or the packaging run the first three
+# stages as a dry run: the same build and certification, nothing attested and
+# nothing released.
+#
+# Artifact attestations need the repository to be public (or GitHub Enterprise
+# Cloud); in a private repository `publish` fails at the attestation.
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - src/DistrictAI/Package.appxmanifest
+      - src/DistrictAI/DistrictAI.csproj
+      - src/DistrictAI/packages.lock.json
+      - src/DistrictAI/app.manifest
+      - src/DistrictAI/Assets/**
+      - Directory.Build.props
+      - Directory.Packages.props
+      - global.json
+      - scripts/run-wack.ps1
+      - scripts/check-wack-report.py
+
+permissions:
+  contents: read
+
+# Never cancel a release in flight: a cancelled publish can leave a draft with
+# only some of its assets. A superseded pull request dry run is waste.
+concurrency:
+  group: release-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+  # True for a tag push, the only event that can publish.
+  RELEASING: ${{ github.event_name == 'push' }}
+
+jobs:
+  guard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      body: ${{ steps.notes.outputs.body }}
+    steps:
+      # The whole history and every branch, for the ancestry check below.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # A tag is not a branch, and CI does not run on one: a tag on a commit
+      # that never reached main would be built and released untested.
+      - name: The tagged commit is on main
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          if ! git rev-parse --verify --quiet refs/remotes/origin/main > /dev/null; then
+            echo "::error::the checkout has no origin/main to compare the tag with"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/main; then
+            echo "::error::$GITHUB_REF_NAME points at $GITHUB_SHA, which is not on main."
+            echo "CI never ran on this commit. Merge it to main first, then move the tag."
+            exit 1
+          fi
+          echo "$GITHUB_SHA is on main"
+
+      # Tag vX.Y.Z needs Identity/@Version X.Y.Z.0 (the Store requires the
+      # fourth part to be 0). A pull request has no tag, so its dry run takes
+      # the manifest's version and checks only its form.
+      - name: Package.appxmanifest's version agrees with the tag
+        id: version
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          python3 - <<'EOF'
+          import os, re, xml.etree.ElementTree as ET
+          ns = {"m": "http://schemas.microsoft.com/appx/manifest/foundation/windows10"}
+          identity = ET.parse("src/DistrictAI/Package.appxmanifest").getroot().find("m:Identity", ns)
+          manifest = identity.get("Version", "") if identity is not None else ""
+          m = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)\.0", manifest)
+          if not m:
+              raise SystemExit(f"::error::Package.appxmanifest Identity/@Version is {manifest!r}, not X.Y.Z.0")
+          version = ".".join(m.groups())
+          if os.environ["EVENT"] == "push":
+              tag = os.environ["GITHUB_REF_NAME"]
+              if not re.fullmatch(r"v\d+\.\d+\.\d+", tag):
+                  raise SystemExit(f"::error::{tag} is not a vX.Y.Z tag")
+              if tag != f"v{version}":
+                  raise SystemExit(f"::error::the tag is {tag}, but Package.appxmanifest says {manifest}; a release needs Version {tag[1:]}.0")
+          print(f"Package.appxmanifest Version {manifest}: release version {version}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"version={version}\n")
+          EOF
+
+      # The tag's section of CHANGELOG.md, so the release notes and the
+      # changelog cannot drift. A dry run only warns when it is missing.
+      - name: Extract release notes from CHANGELOG.md
+        id: notes
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          awk -v tag="## [${VERSION}]" '
+            index($0, tag)==1 {cap=1; next}
+            index($0, "## [")==1 && cap==1 {cap=0}
+            substr($0,1,1)=="[" && cap==1 {exit}
+            cap {print}
+          ' CHANGELOG.md > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            if [ "$RELEASING" = "true" ]; then
+              echo "::error::CHANGELOG.md has no section for $VERSION (## [$VERSION]) to make the release notes from"
+              exit 1
+            fi
+            echo "::warning::CHANGELOG.md has no section for $VERSION yet; a tag would fail here"
+            echo "(dry run: no notes)" > release-notes.md
+          fi
+          delim="body_$(openssl rand -hex 16)"
+          {
+            echo "body<<${delim}"
+            cat release-notes.md
+            echo "${delim}"
+          } >> "$GITHUB_OUTPUT"
+
+      # The source at the tagged commit, as GitHub's own archive would be but
+      # covered by SHA256SUMS and the attestation.
+      - name: Source zip
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/source"
+          git archive --format=zip --prefix="district-windows-${VERSION}/" \
+            -o "$RUNNER_TEMP/source/district-windows-${VERSION}-source.zip" "$GITHUB_SHA"
+          ls -l "$RUNNER_TEMP/source"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-source
+          path: ${{ runner.temp }}/source
+          retention-days: 7
+          if-no-files-found: error
+
+  # Read-only, deliberately, and with no caches: it runs `cargo build`, which
+  # executes every build script in the dependency tree, so it holds no write
+  # permission and restores nothing an earlier run could have poisoned.
+  build:
+    needs: guard
+    if: ${{ !github.event.repository.private }}
+    runs-on: windows-2025
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      AWS_LC_SYS_PREBUILT_NASM: "1"
+      VERSION: ${{ needs.guard.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the stable toolchain
+        run: rustup toolchain install stable --profile minimal
+
+      - name: Build district_ffi.dll
+        run: cargo build -p district-ffi --locked --release
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: dotnet restore (locked)
+        run: dotnet restore DistrictAI.slnx -p:Platform=x64
+
+      # The package Partner Center takes: StoreUpload, x64, Release,
+      # ReadyToRun, no bundle, unsigned (the Store signs it). No PDBs and no
+      # symbols package, as in ci.yml: with PDBs the packaging step needs
+      # mspdbcmf.exe, which the runner does not have.
+      - name: Build the Store package (.msixupload)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'StorePackage'
+          dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+            -p:DistrictFfiProfile=release -warnaserror `
+            -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=StoreUpload `
+            -p:AppxBundle=Never -p:AppxPackageSigningEnabled=false -p:PublishReadyToRun=true `
+            -p:AppxSymbolPackageEnabled=false -p:DebugType=none "-p:AppxPackageDir=$out\"
+          if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
+          Get-ChildItem -Recurse $out | Select-Object FullName, Length | Format-Table -AutoSize
+
+      # A certificate made here, for this run's package only: its subject is the
+      # manifest's Publisher, it expires tomorrow, and it is removed from the
+      # store, private key and all, as soon as the package is signed. The
+      # package is signed by thumbprint, so the private key is never written to
+      # a file. Only the public half is kept, so a tester can trust it.
+      - name: Build the sideload test MSIX, signed with a throwaway certificate
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $publisher = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity.Publisher
+          if (-not $publisher) { throw 'no Identity/@Publisher in the manifest' }
+          $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher `
+            -KeyUsage DigitalSignature -FriendlyName 'District AI release test package' `
+            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1) `
+            -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
+          $out = Join-Path $env:RUNNER_TEMP 'SideloadPackage'
+          try {
+            dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+              -p:DistrictFfiProfile=release -warnaserror `
+              -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=SideloadOnly `
+              -p:AppxBundle=Never -p:AppxPackageSigningEnabled=true -p:PublishReadyToRun=true `
+              -p:AppxSymbolPackageEnabled=false -p:DebugType=none `
+              "-p:PackageCertificateThumbprint=$($cert.Thumbprint)" "-p:AppxPackageDir=$out\"
+            if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
+            Export-Certificate -Cert $cert -FilePath (Join-Path $out 'test.cer') | Out-Null
+          } finally {
+            Remove-Item -Path "Cert:\CurrentUser\My\$($cert.Thumbprint)" -DeleteKey
+          }
+          if (Get-ChildItem -Path 'Cert:\CurrentUser\My' | Where-Object Thumbprint -eq $cert.Thumbprint) { throw 'the test certificate is still in the store' }
+          Get-ChildItem -Recurse $out | Select-Object FullName, Length | Format-Table -AutoSize
+
+      # What is inside, checked rather than assumed: one package each, the
+      # manifest's identity and version, DistrictAI.dll compiled ReadyToRun,
+      # and the test package signed by the manifest's Publisher.
+      - name: Both packages hold what a release needs
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $manifest = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity
+          if ($manifest.Version -ne "$env:VERSION.0") { throw "manifest Version $($manifest.Version) is not $env:VERSION.0" }
+          $work = Join-Path $env:RUNNER_TEMP 'inspect'
+          New-Item -ItemType Directory -Force $work | Out-Null
+
+          function Test-Msix([string] $path, [string] $label) {
+            $zip = [IO.Compression.ZipFile]::OpenRead($path)
+            try {
+              $entry = $zip.GetEntry('AppxManifest.xml')
+              if (-not $entry) { throw "$label has no AppxManifest.xml" }
+              $reader = [IO.StreamReader]::new($entry.Open())
+              $identity = ([xml]$reader.ReadToEnd()).Package.Identity
+              $reader.Dispose()
+              foreach ($field in 'Name', 'Publisher', 'Version') {
+                if ($identity.$field -ne $manifest.$field) { throw "$label Identity/@$field is '$($identity.$field)', the manifest says '$($manifest.$field)'" }
+              }
+              if ($identity.ProcessorArchitecture -ne 'x64') { throw "$label is $($identity.ProcessorArchitecture), not x64" }
+              $dll = @($zip.Entries | Where-Object FullName -eq 'DistrictAI.dll')
+              if ($dll.Count -ne 1) { throw "$label has no DistrictAI.dll at its root" }
+              $file = Join-Path $work "$label-DistrictAI.dll"
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($dll[0], $file, $true)
+              $stream = [IO.File]::OpenRead($file)
+              try {
+                $pe = [System.Reflection.PortableExecutable.PEReader]::new($stream)
+                if ($pe.PEHeaders.CorHeader.ManagedNativeHeaderDirectory.Size -le 0) { throw "$label DistrictAI.dll is not ReadyToRun" }
+              } finally { $stream.Dispose() }
+              Write-Host "$label`: $($identity.Name) $($identity.Version) x64, ReadyToRun"
+            } finally { $zip.Dispose() }
+          }
+
+          $upload = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'StorePackage') -Filter '*.msixupload')
+          if ($upload.Count -ne 1) { throw "expected one .msixupload, found $($upload.Count)" }
+          $unpacked = Join-Path $work 'msixupload'
+          Expand-Archive -Path $upload[0].FullName -DestinationPath $unpacked -Force
+          Get-ChildItem -Recurse $unpacked | Select-Object FullName, Length | Format-Table -AutoSize
+          $inner = @(Get-ChildItem -Recurse $unpacked -Filter '*.msix')
+          if ($inner.Count -ne 1) { throw "expected one .msix inside the .msixupload, found $($inner.Count)" }
+          Test-Msix $inner[0].FullName 'store'
+          if ((Get-AuthenticodeSignature $inner[0].FullName).SignerCertificate) { throw 'the Store package is signed; the Store signs it' }
+
+          $sideload = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'SideloadPackage') -Filter 'DistrictAI_*.msix')
+          if ($sideload.Count -ne 1) { throw "expected one sideload MSIX, found $($sideload.Count)" }
+          Test-Msix $sideload[0].FullName 'sideload'
+          $signature = Get-AuthenticodeSignature $sideload[0].FullName
+          if ($signature.SignerCertificate.Subject -ne $manifest.Publisher) { throw "unexpected signer: $($signature.SignerCertificate.Subject)" }
+
+      - name: The WACK report reader still catches what it claims to
+        run: python scripts/check-wack-report.py --self-test
+
+      # The Store's certification checks, on the signed test package (the kit
+      # installs what it tests, so it needs a signature it can trust; the
+      # .msixupload holds the same payload, unsigned).
+      - name: Windows App Certification Kit
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'SideloadPackage'
+          $msix = @(Get-ChildItem -Recurse $out -Filter 'DistrictAI_*.msix')[0]
+          $deps = Join-Path $msix.DirectoryName 'Dependencies\x64'
+          ./scripts/run-wack.ps1 -Package $msix.FullName -Certificate (Join-Path $out 'test.cer') `
+            -Report (Join-Path $env:RUNNER_TEMP 'wack-report.xml') -Dependencies $(if (Test-Path $deps) { $deps } else { '' })
+
+      # The names a release carries, fixed here.
+      - name: Stage the release files
+        if: ${{ !cancelled() }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stage = Join-Path $env:RUNNER_TEMP 'release'
+          New-Item -ItemType Directory -Force $stage | Out-Null
+          $report = Join-Path $env:RUNNER_TEMP 'wack-report.xml'
+          if (Test-Path $report) { Copy-Item $report (Join-Path $stage "DistrictAI_$($env:VERSION)_wack-report.xml") }
+          $upload = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'StorePackage') -Filter '*.msixupload')[0]
+          Copy-Item $upload.FullName (Join-Path $stage "DistrictAI_$($env:VERSION)_x64.msixupload")
+          $side = Join-Path $env:RUNNER_TEMP 'SideloadPackage'
+          $msix = @(Get-ChildItem -Recurse $side -Filter 'DistrictAI_*.msix')[0]
+          Copy-Item $msix.FullName (Join-Path $stage "DistrictAI_$($env:VERSION)_x64_sideload-test.msix")
+          Copy-Item (Join-Path $side 'test.cer') (Join-Path $stage "DistrictAI_$($env:VERSION)_sideload-test.cer")
+          Get-ChildItem $stage | Select-Object Name, Length | Format-Table -AutoSize
+
+      # Uploaded even when the kit failed, so its report can be read.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: release-windows
+          path: ${{ runner.temp }}/release
+          retention-days: 7
+          if-no-files-found: error
+
+  # Sees files, never source, and runs no build.
+  assemble:
+    needs: [guard, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.guard.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: assets
+
+      # By name, not by count: a tree whose version drifted from the tag still
+      # makes the same number of files.
+      - name: The release files are exactly what was expected
+        run: |
+          set -euo pipefail
+          expected="$(printf '%s\n' \
+            "DistrictAI_${VERSION}_x64.msixupload" \
+            "DistrictAI_${VERSION}_x64_sideload-test.msix" \
+            "DistrictAI_${VERSION}_sideload-test.cer" \
+            "DistrictAI_${VERSION}_wack-report.xml" \
+            "district-windows-${VERSION}-source.zip" | sort)"
+          actual="$(cd assets && find . -type f -printf '%f\n' | sort)"
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::the built files are not the names a release must carry"
+            diff <(printf '%s\n' "$expected") <(printf '%s\n' "$actual") || true
+            exit 1
+          fi
+          printf '%s\n' "$actual"
+
+      - name: SHA256SUMS
+        run: |
+          set -euo pipefail
+          cd assets
+          # Written outside assets/ first, so the list does not include itself.
+          find . -maxdepth 1 -type f -printf '%f\n' | sort | xargs -d '\n' sha256sum > "$RUNNER_TEMP/SHA256SUMS"
+          mv "$RUNNER_TEMP/SHA256SUMS" SHA256SUMS
+          [ "$(wc -l < SHA256SUMS)" -eq 5 ] || { echo "::error::SHA256SUMS does not name five files"; exit 1; }
+          cat SHA256SUMS
+          sha256sum -c SHA256SUMS
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-assets
+          path: assets
+          retention-days: 7
+          if-no-files-found: error
+
+  # The only job that can write to the repository, and only for a tag.
+  publish:
+    needs: [guard, assemble]
+    if: github.event_name == 'push'
+    # The `release` environment admits only `v*` tags (and main), so this job,
+    # the one that can write, cannot run for anything else.
+    environment: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      # Creating the release and uploading its assets.
+      contents: write
+      # Both only for the provenance attestation: id-token to obtain the OIDC
+      # token Sigstore signs against, attestations to store the result.
+      id-token: write
+      attestations: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # This job never checks out the repository, and `gh release` resolves its
+      # repository from the working directory's git remote unless told.
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      VERSION: ${{ needs.guard.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-assets
+          path: assets
+
+      - name: The files are the ones SHA256SUMS names
+        run: |
+          set -euo pipefail
+          cd assets
+          sha256sum -c SHA256SUMS
+          find . -maxdepth 1 -type f -printf '%f\n' | sort > "$RUNNER_TEMP/expected-assets.txt"
+          [ "$(wc -l < "$RUNNER_TEMP/expected-assets.txt")" -eq 6 ] || { echo "::error::expected six files"; exit 1; }
+
+      # Signed provenance over the bytes a user downloads, verifiable with:
+      #   gh attestation verify <file> --repo distronode-corporation/district-windows
+      - name: Attest build provenance
+        id: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: assets/*
+
+      # One Sigstore bundle whose subjects are every file, attached so the
+      # files can be verified offline (`--bundle`) and so OpenSSF Scorecard
+      # finds provenance on the release.
+      - name: Stage the provenance bundle
+        env:
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          [ -s "$BUNDLE_PATH" ] || { echo "::error::the attestation step wrote no bundle"; exit 1; }
+          mkdir -p provenance
+          cp "$BUNDLE_PATH" "provenance/district-ai-windows_${VERSION}.intoto.jsonl"
+          echo "district-ai-windows_${VERSION}.intoto.jsonl" >> "$RUNNER_TEMP/expected-assets.txt"
+          sort -o "$RUNNER_TEMP/expected-assets.txt" "$RUNNER_TEMP/expected-assets.txt"
+
+      - name: The attestations verify
+        run: |
+          set -euo pipefail
+          for f in assets/*; do
+            for attempt in 1 2 3 4 5; do
+              if gh attestation verify "$f" --repo "$GITHUB_REPOSITORY"; then
+                gh attestation verify "$f" --repo "$GITHUB_REPOSITORY" \
+                  --bundle "provenance/district-ai-windows_${VERSION}.intoto.jsonl"
+                continue 2
+              fi
+              echo "attestation for $(basename "$f") not queryable yet (attempt $attempt)"
+              sleep 15
+            done
+            echo "::error::no verifiable attestation for $(basename "$f")"
+            exit 1
+          done
+
+      # A draft first, so anything below can fail without a half-made release
+      # showing. A leftover draft from a failed run is replaced; a public
+      # release is never touched.
+      - name: Create the draft release
+        env:
+          NOTES: ${{ needs.guard.outputs.body }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            if [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "true" ]; then
+              echo "deleting a leftover draft for $TAG"
+              gh release delete "$TAG" --yes
+            else
+              echo "::error::$TAG is already published. Refusing to modify a public release."
+              exit 1
+            fi
+          fi
+          printf '%s\n' "$NOTES" > release-notes.md
+          gh release create "$TAG" --draft --verify-tag \
+            --title "District AI for Windows $TAG" \
+            --notes-file release-notes.md assets/* provenance/*
+
+      - name: GitHub holds every file
+        run: |
+          set -euo pipefail
+          expected="$(cat "$RUNNER_TEMP/expected-assets.txt")"
+          [ "$(printf '%s\n' "$expected" | wc -l)" -eq 7 ] || { echo "::error::the expected asset list does not name seven files"; exit 1; }
+          actual="$(gh release view "$TAG" --json assets --jq '.assets[].name' | sort)"
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::the draft does not hold the expected assets; leaving it as a draft"
+            diff <(printf '%s\n' "$expected") <(printf '%s\n' "$actual") || true
+            exit 1
+          fi
+
+      - name: Publish
+        run: gh release edit "$TAG" --draft=false --latest
