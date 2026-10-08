@@ -22,18 +22,38 @@ Where the scan looks, and what counts as a user-facing string there:
     **/*.resw                       every <value> of a resource file
     crates/district-ffi/src/**/*.rs Rust string literals, which become the
                                     projections' text; comments are skipped
+    crates/district-ffi/tests/snapshots/*.json
+                                    every string value, at any depth (object
+                                    keys are field names, not copy, and are
+                                    skipped): the text the core projects for
+                                    each screen state, such as plan names and
+                                    amounts, which no source literal holds
+
+A snapshot finding is reported by file, JSON path (`$.screen.Account.view.x`)
+and the whole string that matched, and is tied to the screen it comes from: the
+variant under `screen`, or `shell` for the chrome around every screen.
 
 A finding that is genuinely fine goes in ALLOW below, keyed by the exact
-`path:line` and with the reason. An ALLOW entry that no longer matches anything
+`path:line` (a snapshot's by `path:$.json.path`) and with the reason. An ALLOW entry that no longer matches anything
 is itself a finding, so the list cannot outlive what it excuses.
 
 `--self-test` plants each phrase in each kind of file, and look-alikes that
 must not trip it (comments, code, words that merely contain a phrase), and
 fails unless every case answers as expected.
+
+Per-screen rules (packet K4, not built yet): today every screen gets the same
+rule, `phrases_for_screen` returns PHRASES whatever the screen. When 2.0 adds
+billing, checkout, marketplace and welcome screens that may say "sign up" or
+"price", K4 splits PHRASES into the words those screens may use and the rest,
+and has `phrases_for_screen` return the narrower pattern for a screen in a set
+of allowed names. Snapshot findings already carry their screen, so nothing else
+in the snapshot scan changes; source literals have no screen (`None`) and keep
+the full rule.
 """
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 import tempfile
@@ -57,6 +77,14 @@ PHRASES = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+
+
+def phrases_for_screen(screen: str | None) -> re.Pattern[str]:
+    """The refused wording for text shown on `screen` (None: not tied to one).
+
+    One rule for every screen today; K4 narrows it per screen (module docstring).
+    """
+    return PHRASES
 
 # `path:line` (forward slashes, relative to the repository root) to the reason
 # the line is fine. None is expected for 1.0.
@@ -91,12 +119,19 @@ class Finding:
     line: int
     phrase: str
     where: str
+    # Snapshot findings only: the JSON path of the value, the whole value, and
+    # the screen it comes from.
+    pointer: str = ""
+    text: str = ""
+    screen: str | None = None
 
     @property
     def key(self) -> str:
-        return f"{self.path}:{self.line}"
+        return f"{self.path}:{self.pointer or self.line}"
 
     def __str__(self) -> str:
+        if self.pointer:
+            return f"{self.key}: {self.phrase!r} in {self.where} ({self.screen} screen): {self.text!r}"
         return f"{self.key}: {self.phrase!r} in {self.where}"
 
 
@@ -333,7 +368,52 @@ def scan_resw(path: str, text: str) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
+# Projection snapshots (JSON)
 
+_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+
+
+def json_strings(value: object, pointer: str = "$") -> list[tuple[str, str]]:
+    """Every string value under `value`, as (JSON path, string). Keys are not values."""
+    if isinstance(value, str):
+        return [(pointer, value)]
+    out: list[tuple[str, str]] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            step = f".{key}" if _IDENTIFIER.match(key) else f"[{json.dumps(key)}]"
+            out.extend(json_strings(child, pointer + step))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            out.extend(json_strings(child, f"{pointer}[{index}]"))
+    return out
+
+
+def _screen_of(document: object, pointer: str) -> str | None:
+    """The screen a value belongs to: the variant under `screen`, else `shell`."""
+    if pointer.startswith("$.screen") and isinstance(document, dict):
+        screen = document.get("screen")
+        if isinstance(screen, dict) and len(screen) == 1:
+            return next(iter(screen))
+        if isinstance(screen, str):
+            return screen
+    if pointer.startswith("$.shell"):
+        return "shell"
+    return None
+
+
+def scan_snapshot(path: str, text: str) -> list[Finding]:
+    document = json.loads(text)
+    found: list[Finding] = []
+    for pointer, value in json_strings(document):
+        screen = _screen_of(document, pointer)
+        for m in phrases_for_screen(screen).finditer(value):
+            found.append(Finding(path, 1, m.group(0), "a projection snapshot", pointer, value, screen))
+    return found
+
+
+# ---------------------------------------------------------------------------
+
+SNAPSHOTS = "crates/district-ffi/tests/snapshots/*.json"
 SKIP_DIRS = {"bin", "obj", "target", ".git", "AppPackages"}
 
 
@@ -350,6 +430,7 @@ def scan_tree(root: Path) -> tuple[int, list[Finding]]:
         ("src/DistrictAI/**/*.cs", scan_csharp),
         ("**/*.resw", scan_resw),
         ("crates/district-ffi/src/**/*.rs", scan_rust),
+        (SNAPSHOTS, scan_snapshot),
     ]
     scanned = 0
     found: list[Finding] = []
@@ -461,7 +542,36 @@ def self_test() -> int:
         failed += 1
         print(f"self-test: XAML lines should be [2, 5, 6, 7, 7, 8], got {sorted(f.line for f in got)}")
 
-    # The tree walk reads the four places and nothing else, and ALLOW excuses by
+    # Snapshots: a string value at any depth is read, with its JSON path, text
+    # and screen; keys, numbers, booleans and nulls are not.
+    snapshot = json.dumps({
+        "screen": {"Billing": {"view": {
+            "plans": [{"name": "Team", "caption": "Free trial for 14 days"}],
+            "subscription": None,
+            "price": 12,
+            "buy": True,
+            "pricing_note": "Billed in the browser",
+        }}},
+        "shell": {"notice": {"text": "Sign up on the web"}, "Subscribe": "ok"},
+    }, indent=2)
+    got = scan_snapshot("s.json", snapshot)
+    expect("snapshot nested values, keys ignored", got, 2)
+    want = [
+        ("s.json:$.screen.Billing.view.plans[0].caption", "Free trial", "Free trial for 14 days", "Billing"),
+        ("s.json:$.shell.notice.text", "Sign up", "Sign up on the web", "shell"),
+    ]
+    total += 1
+    if [(f.key, f.phrase, f.text, f.screen) for f in got] != want:
+        failed += 1
+        print(f"self-test: snapshot findings should be {want}, got {[(f.key, f.phrase, f.text, f.screen) for f in got]}")
+    got = scan_snapshot("s.json", '{"a b": ["x", {"y": "buy"}]}')
+    expect("snapshot value under a quoted key", got, 1)
+    total += 1
+    if [f.key for f in got] != ['s.json:$["a b"][1].y']:
+        failed += 1
+        print(f"self-test: a key that is not an identifier should be quoted in the JSON path, got {[f.key for f in got]}")
+
+    # The tree walk reads the five places and nothing else, and ALLOW excuses by
     # exact path:line and reports a stale entry.
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -473,16 +583,23 @@ def self_test() -> int:
             "src/DistrictAI/obj/Generated.cs": 'var s = "Sign up";\n',
             "src/DistrictAI.Core/Generated/x.cs": 'var s = "Sign up";\n',
             "crates/other/src/lib.rs": 'const S: &str = "Buy";\n',
+            "crates/district-ffi/tests/snapshots/billing.json": '{"screen": {"Billing": {"view": {"cta": "Subscribe"}}}}\n',
+            "crates/district-ffi/tests/snapshots/nested/x.json": '{"t": "Buy"}\n',
+            "crates/district-ffi/tests/fixtures/x.json": '{"t": "Buy"}\n',
         }.items():
             path = root / rel
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(body, encoding="utf-8")
         scanned, found = scan_tree(root)
-        expect("tree", found, 4)
-        if scanned != 4:
+        expect("tree", found, 5)
+        if scanned != 5:
             failed += 1
-            print(f"self-test: the tree walk should read 4 files, read {scanned}")
-        left, stale = verdict(found, {"src/DistrictAI/A.cs:1": "test", "src/DistrictAI/A.cs:2": "stale"})
+            print(f"self-test: the tree walk should read 5 files, read {scanned}")
+        left, stale = verdict(found, {
+            "src/DistrictAI/A.cs:1": "test",
+            "crates/district-ffi/tests/snapshots/billing.json:$.screen.Billing.view.cta": "test",
+            "src/DistrictAI/A.cs:2": "stale",
+        })
         total += 1
         if len(left) != 3 or stale != ["src/DistrictAI/A.cs:2"]:
             failed += 1
@@ -511,11 +628,16 @@ def main() -> int:
         print(
             "District AI 1.0 offers no sign-up and no purchase in the app, and its Store "
             "listing says so. Reword the string, or, if it is genuinely fine, add its "
-            "path:line to ALLOW in scripts/check-store-copy.py with the reason."
+            "path:line (a snapshot's path:$.json.path) to ALLOW in scripts/check-store-copy.py "
+            "with the reason. A snapshot finding is text the core projects: reword it where the "
+            "core writes it, then refresh the snapshot."
         )
         return 1
     if scanned == 0:
         print("no files scanned: the scan's globs no longer match the tree")
+        return 1
+    if not _files(ROOT, SNAPSHOTS):
+        print(f"no projection snapshots at {SNAPSHOTS}: the snapshot scan read nothing")
         return 1
     print(f"store copy: {scanned} files, no sign-up or purchase wording")
     return 0
