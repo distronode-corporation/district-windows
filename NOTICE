@@ -6,3 +6,19 @@ under the Apache License, Version 2.0. The full licence text is in LICENSE.
 
 Third-party dependencies keep their own licences. Their notices are listed in
 this file, and their licence texts ship with the app, as each one is added.
+
+libwebrtc
+---------
+
+The Windows build (district-call's `livekit` feature, in District AI core for
+Rust, which district-ffi turns on for Windows) statically links libwebrtc, as
+this project builds it for the LiveKit Rust SDK: LiveKit's own Windows recipe
+and pinned sources for release webrtc-89d790b of github.com/livekit/rust-sdks,
+with every patch that recipe applies, built by scripts/build-libwebrtc.ps1
+without the H.264 and H.265 codecs or FFmpeg. The archive is
+webrtc-win-x64-release.zip in release libwebrtc-89d790b-audio-win-1 of this
+repository, SHA-256
+2ebac04343a2b4e3705164831409432356f52ceda751829689c1366e3ba214c6, which is the
+pin in scripts/fetch-libwebrtc.ps1. The archive's LICENSE.md holds the full
+licence text of every component it contains (WebRTC, BSD-3-Clause, and its
+third-party code), and a distribution of the app must ship it with the binary.

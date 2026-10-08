@@ -47,9 +47,10 @@ $WebrtcSysBuildVersion = '0.3.19'
 # "audio-win" counts builds of the same WebRTC commit.
 $Release = 'libwebrtc-89d790b-audio-win-1'
 $Archive = 'webrtc-win-x64-release.zip'
-# PLACEHOLDER until libwebrtc-windows.yml has published $Release: no archive
-# matches it, so a build with calls fails here rather than link anything else.
-$Sha256 = '0000000000000000000000000000000000000000000000000000000000000000'
+# Published by libwebrtc-windows.yml run 37839872970, with a build provenance
+# attestation (gh attestation verify webrtc-win-x64-release.zip --repo
+# distronode-corporation/district-windows).
+$Sha256 = '2ebac04343a2b4e3705164831409432356f52ceda751829689c1366e3ba214c6'
 $Url = "https://github.com/distronode-corporation/district-windows/releases/download/$Release/$Archive"
 $Unpacked = 'win-x64-release'
 
@@ -86,9 +87,10 @@ if (-not (Test-Archive)) {
 }
 
 $target = Join-Path $dir $Unpacked
-$unpacked = (Test-Path $target) -and (Test-Path $stamp) -and
+# Named apart from $Unpacked: PowerShell's variable names ignore case.
+$current = (Test-Path $target) -and (Test-Path $stamp) -and
     ((Get-Content -Raw $stamp).Trim() -eq $Sha256)
-if (-not $unpacked) {
+if (-not $current) {
     $staging = Join-Path $dir '.unpacking'
     Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $target, $staging, $stamp
     Expand-Archive -Path $archivePath -DestinationPath $staging
