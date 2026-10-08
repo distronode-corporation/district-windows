@@ -7,8 +7,8 @@ Import-Module (Join-Path $PSScriptRoot 'SpikeHarness.psm1') -Force
 Start-Summary 'Spike 7: checkout in WebView2'
 $package = Install-TestPackage -Folder $Packages -Name 'Distronode.DistrictAI.Placeholder'
 $family = $package.PackageFamilyName
+Enable-CrashDumps
 try {
-
     Start-App $family
     $null = Wait-SpikeLine -Family $family -Pattern 'started' -Seconds 60
     Start-Sleep -Seconds 3
@@ -29,4 +29,5 @@ try {
 } catch {
     Add-Result 'the spike ran to its end' $false "$($_.Exception.Message)"
 }
+Show-CrashDumps
 Complete-Summary $family
