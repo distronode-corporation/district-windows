@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Calls.CallBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    AutomationProperties.LandmarkType="Custom"
+    AutomationProperties.LocalizedLandmarkType="Call"
+    AutomationProperties.Name="Call"
+    Visibility="{x:Bind ViewModel.IsShown, Mode=OneWay}">
+    <StackPanel
+        Padding="16,8"
+        Background="{ThemeResource LayerFillColorDefaultBrush}"
+        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        BorderThickness="0,1,0,0"
+        Spacing="8">
+        <InfoBar
+            AutomationProperties.Name="Microphone blocked"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.MicrophoneDenied, Mode=OneWay}"
+            Message="District AI can't use your microphone. Allow microphone access in Windows Settings."
+            Severity="Warning">
+            <InfoBar.ActionButton>
+                <HyperlinkButton
+                    AutomationProperties.Name="Open microphone settings"
+                    Content="Open microphone settings"
+                    NavigateUri="ms-settings:privacy-microphone" />
+            </InfoBar.ActionButton>
+        </InfoBar>
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <SymbolIcon
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                AutomationProperties.AccessibilityView="Raw"
+                Symbol="Phone" />
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Peer, Mode=OneWay}"
+                    TextTrimming="CharacterEllipsis" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Polite"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{x:Bind ViewModel.StateLabel, Mode=OneWay}" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        VerticalAlignment="Center"
+                        Text="{x:Bind ViewModel.Duration, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.HasDuration, Mode=OneWay}" />
+                </StackPanel>
+                <TextBlock
+                    Text="{x:Bind ViewModel.Ended, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasEnded, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8">
+                <ToggleButton
+                    AutomationProperties.Name="Mute"
+                    IsChecked="{x:Bind ViewModel.Muted, Mode=TwoWay}"
+                    ToolTipService.ToolTip="Mute"
+                    Visibility="{x:Bind ViewModel.IsLive, Mode=OneWay}">
+                    <SymbolIcon Symbol="Microphone" />
+                </ToggleButton>
+                <Button
+                    AutomationProperties.Name="Hang up"
+                    Command="{x:Bind ViewModel.HangUpCommand}"
+                    Visibility="{x:Bind ViewModel.IsLive, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="HangUp" />
+                        <TextBlock Text="Hang up" />
+                    </StackPanel>
+                </Button>
+                <Button
+                    AutomationProperties.Name="Dismiss"
+                    Command="{x:Bind ViewModel.DismissCommand}"
+                    Content="Dismiss"
+                    Visibility="{x:Bind ViewModel.CanDismiss, Mode=OneWay}" />
+            </StackPanel>
+        </Grid>
+        <InfoBar
+            AutomationProperties.Name="Call problem"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Failure, Mode=OneWay}"
+            Severity="Error" />
+    </StackPanel>
+</UserControl>
