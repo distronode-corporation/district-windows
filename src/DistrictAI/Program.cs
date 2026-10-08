@@ -27,8 +27,14 @@ public static class Program
         if (!main.IsCurrent)
         {
             RedirectTo(main, activation);
+#if DISTRICT_SPIKES
+            Spikes.SpikeLog.Write($"redirected kind={activation.Kind} uptime_ms={Spikes.SpikeLog.Uptime()}");
+#endif
             return 0;
         }
+#if DISTRICT_SPIKES
+        Spikes.SpikeLog.Write($"started kind={activation.Kind} uptime_ms={Spikes.SpikeLog.Uptime()}");
+#endif
         Application.Start(started =>
         {
             var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());

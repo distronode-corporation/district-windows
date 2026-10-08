@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    W2 spike 2, the C# half: the bindings uniffi-bindgen-cs writes for
+    crates/district-spikes (Generated/, committed and diffed like the app's),
+    and the checks the spike runs. Called by DistrictAI.Spikes.Tests and by the
+    Native AOT probe (spike 6). Never shipped.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>DistrictAI.Spikes</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(DistrictFfiDir)libdistrict_spikes.so" Link="libdistrict_spikes.so" Condition="Exists('$(DistrictFfiDir)libdistrict_spikes.so')" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(DistrictFfiDir)district_spikes.dll" Link="district_spikes.dll" Condition="Exists('$(DistrictFfiDir)district_spikes.dll')" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>

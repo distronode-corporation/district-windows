@@ -13,6 +13,8 @@ namespace DistrictAI.ViewModels;
 public sealed partial class SignInViewModel : ObservableObject
 {
     private CoreHost? _core;
+    private SessionScreen? _shown;
+    private bool _signInBlocked;
 
     /// <summary>The heading.</summary>
     [ObservableProperty]
@@ -52,14 +54,28 @@ public sealed partial class SignInViewModel : ObservableObject
 
     internal void Attach(CoreHost core) => _core = core;
 
+    /// <summary>
+    /// Offers no browser sign-in from now on: another copy of the app is
+    /// installed, and the answer could land there.
+    /// </summary>
+    internal void BlockSignIn()
+    {
+        _signInBlocked = true;
+        if (_shown is not null)
+        {
+            Show(_shown);
+        }
+    }
+
     internal void Show(SessionScreen screen)
     {
+        _shown = screen;
         Title = screen.Title;
         Body = screen.Body;
         Busy = screen.Busy;
         Error = screen.Error ?? string.Empty;
         HasError = screen.Error is not null;
-        CanSignIn = screen.SignIn;
+        CanSignIn = screen.SignIn && !_signInBlocked;
         CanRetry = screen.Retry;
         CanRetrySignOut = screen.RetrySignOut;
         CanCancel = screen.Cancel;

@@ -57,6 +57,21 @@ core's enums with no catch-all arm, so a core change that adds a state fails the
 `crates/district-ffi/tests/snapshots/` pins the JSON of each; after a deliberate change,
 `UPDATE_SNAPSHOTS=1 cargo test -p district-ffi --test projections` writes them again.
 
+### Spikes
+
+`.github/workflows/spikes.yml` runs the W2 spikes, each as a job with a verdict and its
+numbers in the job summary. The spike hooks in `src/DistrictAI/Spikes/` compile only into a
+build made with `-p:DistrictSpikes=true`; the app as shipped has none of them.
+`crates/district-spikes` and `tests/DistrictAI.Spikes*` exist only for spike 2, and
+`spikes/AotProbe` only for spike 6.
+
+### Flavours
+
+The app builds in two flavours from the same sources: the Store's
+(`Package.appxmanifest`) and the GitHub one (`Package.GitHub.appxmanifest`,
+`-p:DistrictFlavour=GitHub`), separate packages that can be installed side by side.
+`scripts/check-flavours.py` keeps the two manifests the same app under two identities.
+
 ### Packages
 
 Every NuGet version is in `Directory.Packages.props`, and each project has a
