@@ -166,6 +166,12 @@ public sealed class CoreHostTests : IDisposable
         dispatcher.Accepting = true;
         host.Send(new UiEvent.SignIn());
         await Eventually("a render queued", () => dispatcher.Pending > 0);
+        // Signing in changes the snapshot twice (opening the browser, then
+        // waiting for it, both with Cancel); drained after the second, one
+        // render draws both.
+        await Eventually("waiting for the browser", () =>
+            host.Current.Screen is ScreenView.Session { View.Body: var body }
+            && body.StartsWith("Waiting", StringComparison.Ordinal));
         dispatcher.Drain();
         Assert.Equal(1, rendered);
         // Rendering an unchanged snapshot again draws nothing.
