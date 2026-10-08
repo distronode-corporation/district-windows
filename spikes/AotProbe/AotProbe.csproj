@@ -10,8 +10,14 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>DistrictAI.AotProbe</RootNamespace>
     <PublishAot>true</PublishAot>
-    <!-- Both, so one lock file serves the Windows job and a Linux run. -->
+    <!--
+      Both in the lock file, and the one for this OS chosen here rather than
+      with `-r`, which would pass it to the referenced projects too and break
+      their lock files.
+    -->
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier Condition="'$(OS)' == 'Windows_NT'">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(OS)' != 'Windows_NT'">linux-x64</RuntimeIdentifier>
     <IsAotCompatible>true</IsAotCompatible>
     <InvariantGlobalization>true</InvariantGlobalization>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>

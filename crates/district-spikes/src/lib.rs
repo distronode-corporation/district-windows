@@ -142,7 +142,11 @@ mod tests {
     impl EchoHost for Echo {
         async fn echo(&self, value: u64) -> u64 {
             tokio::task::yield_now().await;
-            if Some(value) == self.wrong_at { value } else { value + 1 }
+            if Some(value) == self.wrong_at {
+                value
+            } else {
+                value + 1
+            }
         }
     }
 
