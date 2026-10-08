@@ -15,7 +15,8 @@ name: CI
 # Windows (windows-2025), where the app is:
 #
 # - `windows-rust` runs district-ffi's tests on MSVC, the Credential Manager
-#   ones included;
+#   ones included, with the LiveKit call engine linked against the audio-only
+#   libwebrtc scripts/fetch-libwebrtc.ps1 pins;
 # - `windows-app` tests DistrictAI.Core against district_ffi.dll, checks the
 #   formatting of the whole solution, builds the WinUI app with warnings as
 #   errors and packages it as an MSIX signed with a throwaway certificate made
@@ -265,6 +266,20 @@ jobs:
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
+      # The audio-only libwebrtc the LiveKit engine links, which district-ffi
+      # has on Windows: checked against the SHA-256 scripts/fetch-libwebrtc.ps1
+      # pins on every run, cached or not, so the cache saves the download and
+      # vouches for nothing. It sets LK_CUSTOM_WEBRTC, so the SDK's build never
+      # downloads LiveKit's own prebuilt.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/libwebrtc/webrtc-win-x64-release.zip
+          key: libwebrtc-win-${{ hashFiles('scripts/fetch-libwebrtc.ps1') }}
+
+      - name: Fetch and verify libwebrtc
+        shell: pwsh
+        run: ./scripts/fetch-libwebrtc.ps1 (Join-Path $env:RUNNER_TEMP 'libwebrtc') -GitHubEnv
+
       - name: cargo test -p district-ffi
         run: cargo test -p district-ffi --locked --no-fail-fast
 
@@ -285,6 +300,20 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # The audio-only libwebrtc the LiveKit engine links, which district-ffi
+      # has on Windows: checked against the SHA-256 scripts/fetch-libwebrtc.ps1
+      # pins on every run, cached or not, so the cache saves the download and
+      # vouches for nothing. It sets LK_CUSTOM_WEBRTC, so the SDK's build never
+      # downloads LiveKit's own prebuilt.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/libwebrtc/webrtc-win-x64-release.zip
+          key: libwebrtc-win-${{ hashFiles('scripts/fetch-libwebrtc.ps1') }}
+
+      - name: Fetch and verify libwebrtc
+        shell: pwsh
+        run: ./scripts/fetch-libwebrtc.ps1 (Join-Path $env:RUNNER_TEMP 'libwebrtc') -GitHubEnv
 
       - name: Build district_ffi.dll
         run: cargo build -p district-ffi --locked --release

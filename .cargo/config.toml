@@ -1,0 +1,16 @@
+# The MSVC C runtime, linked statically on Windows.
+#
+# libwebrtc is built the way Chromium builds a release: with the static CRT
+# (/MT). Everything linked into district_ffi.dll must use the same CRT, so Rust
+# and every C and C++ dependency (cc and cmake follow this feature) link it
+# statically too. A mismatch fails at link time with LNK2038 ("mismatch detected
+# for 'RuntimeLibrary'"); see livekit/rust-sdks issue #364. LiveKit's own
+# workspace sets the same.
+#
+# The DLL then carries its own copy of the CRT, so the app needs no Visual C++
+# Redistributable for it.
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.aarch64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
