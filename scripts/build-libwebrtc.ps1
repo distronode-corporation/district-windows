@@ -29,8 +29,9 @@
 # into the library, and its Windows recipe leaves rtc_use_h265 to WebRTC's
 # default. Those codecs carry patent licensing that an audio-only app has no use
 # for. This build sets ffmpeg_branding="Chromium", rtc_use_h264=false and
-# rtc_use_h265=false, and changes nothing else: the WebRTC source LiveKit pins,
-# every patch its Windows recipe applies, and every other argument, including
+# rtc_use_h265=false, and otherwise keeps LiveKit's: the WebRTC source it pins,
+# every patch its Windows recipe applies (plus its licence generator's fix,
+# from its Linux recipe), and every other argument, including
 # use_custom_libcxx=false (MSVC's own standard library, which webrtc-sys
 # compiles against) and Chromium's static CRT (/MT), which is why this
 # repository builds Rust with +crt-static on Windows.
@@ -59,10 +60,12 @@ $WebrtcCommit = '89d790b40447c3c5c54c3edd58aa53d285e35fa7'
 $Archive = 'webrtc-win-x64-release.zip'
 $Unpacked = 'win-x64-release'
 
-# The patches build_windows.cmd applies to src, in its order. Checked after the
-# build, because the recipe does not stop when one fails to apply.
+# The patches build_windows.cmd applies to src, in its order, and the licence
+# generator's fix this script adds. Checked after the build, because the recipe
+# does not stop when one fails to apply.
 $Patches = @(
     'add_licenses.patch',
+    'fix_license_json_parsing.patch',
     'add_deps.patch',
     'ssl_verify_callback_with_native_handle.patch',
     'external_audio_source.patch'
@@ -129,6 +132,13 @@ $cmd = Join-Path $recipe 'build_windows.cmd'
 # target_os the same way.
 Set-Once $cmd 'ffmpeg_branding=\"Chrome\"' 'ffmpeg_branding=\"Chromium\"'
 Set-Once $cmd 'rtc_use_h264=true' 'rtc_use_h264=false rtc_use_h265=false'
+# LiveKit's own fix for its licence generator, which its Linux recipe applies
+# and its Windows recipe does not: GN warns that ffmpeg_branding has no effect
+# on Windows (no FFmpeg is built there), the warning lands in front of the JSON
+# the generator parses, and without the fix there is no LICENSE.md.
+$applyLicenses = 'call git apply "%COMMAND_DIR%/patches/add_licenses.patch" -v --ignore-space-change --ignore-whitespace --whitespace=nowarn'
+$eol = if ([IO.File]::ReadAllText($cmd).Contains("`r`n")) { "`r`n" } else { "`n" }
+Set-Once $cmd $applyLicenses ($applyLicenses + $eol + $applyLicenses.Replace('add_licenses.patch', 'fix_license_json_parsing.patch'))
 Set-Once (Join-Path $recipe '.gclient') "webrtc.git@m150_release'" "webrtc.git@$WebrtcCommit'"
 Add-Content -NoNewline -Path (Join-Path $recipe '.gclient') -Value "`ntarget_os = [`"win`"]`n"
 Write-Host 'The recipe, as this build runs it:'
@@ -149,6 +159,20 @@ $head = (git -C src rev-parse HEAD).Trim()
 if ($head -ne $WebrtcCommit) {
     throw "src is at $head, not the pinned $WebrtcCommit."
 }
+
+# The time every binary is stamped with. Chromium's build takes it from
+# build/util/LASTCHANGE.committime, which the sync's lastchange hook writes from
+# the last commit of src/build that carries a Change-Id; a checkout without
+# history has none, the hook falls back to 0, and lld-link then refuses the
+# negative /TIMESTAMP it is given ("invalid timestamp"). Linux links ELF, which
+# has no such stamp. The commit time of the pinned src/build is what a full
+# checkout would give, and it depends only on the pins.
+$committime = (git -C src/build log -1 --format=%ct HEAD).Trim()
+if ($committime -notmatch '^[1-9][0-9]{9}$') {
+    throw "src/build's commit time is '$committime', not a time."
+}
+Set-Content -NoNewline -Path 'src\build\util\LASTCHANGE.committime' -Value $committime
+Write-Host "build timestamp: $committime"
 
 # LiveKit's recipe, which does not stop on a failed step (its exit status is
 # its last copy's), so what it leaves is checked below instead.
