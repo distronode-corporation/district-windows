@@ -383,7 +383,10 @@ jobs:
         run: |
           set -euo pipefail
           cd assets
-          find . -maxdepth 1 -type f -printf '%f\n' | sort | xargs -d '\n' sha256sum > SHA256SUMS
+          # Written outside assets/ first, so the list does not include itself.
+          find . -maxdepth 1 -type f -printf '%f\n' | sort | xargs -d '\n' sha256sum > "$RUNNER_TEMP/SHA256SUMS"
+          mv "$RUNNER_TEMP/SHA256SUMS" SHA256SUMS
+          [ "$(wc -l < SHA256SUMS)" -eq 5 ] || { echo "::error::SHA256SUMS does not name five files"; exit 1; }
           cat SHA256SUMS
           sha256sum -c SHA256SUMS
 
