@@ -4,17 +4,154 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels"
     Title="District AI">
-    <Grid>
+    <Grid x:Name="Root" KeyboardAcceleratorPlacementMode="Hidden">
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator
+                Key="Left"
+                Invoked="OnBackAccelerator"
+                Modifiers="Menu" />
+            <KeyboardAccelerator Key="Escape" Invoked="OnEscapeAccelerator" />
+        </Grid.KeyboardAccelerators>
+
         <views:SignInPage x:Name="SignIn" />
-        <!-- Signed in: the navigation view arrives with W3. -->
-        <TextBlock
-            x:Name="SignedIn"
-            AutomationProperties.Name="Signed in"
-            Visibility="Collapsed"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Style="{StaticResource SubtitleTextBlockStyle}"
-            Text="You are signed in. The workspace screens arrive in a later build." />
+
+        <NavigationView
+            x:Name="Nav"
+            BackRequested="OnBackRequested"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            ItemInvoked="OnTabInvoked"
+            PaneTitle="District AI"
+            Visibility="Collapsed">
+            <NavigationView.PaneHeader>
+                <StackPanel
+                    Padding="12,4,12,8"
+                    HorizontalAlignment="Stretch"
+                    Spacing="4">
+                    <ComboBox
+                        x:Name="WorkspacePicker"
+                        HorizontalAlignment="Stretch"
+                        AutomationProperties.Name="Workspace"
+                        SelectionChanged="OnWorkspaceChanged"
+                        Visibility="Collapsed">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:WorkspaceItem">
+                                <StackPanel>
+                                    <TextBlock Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind RoleLabel}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <TextBlock
+                        x:Name="WorkspaceName"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        x:Name="WorkspaceWarning"
+                        Style="{StaticResource QuietTextStyle}"
+                        Visibility="Collapsed" />
+                </StackPanel>
+            </NavigationView.PaneHeader>
+            <NavigationView.MenuItems>
+                <NavigationViewItem
+                    x:Name="OverviewTab"
+                    AutomationProperties.Name="Overview"
+                    Content="Overview">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Home" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="InboxTab"
+                    AutomationProperties.Name="Inbox"
+                    Content="Inbox">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Mail" />
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.InfoBadge>
+                        <InfoBadge x:Name="UnreadBadge" Visibility="Collapsed" />
+                    </NavigationViewItem.InfoBadge>
+                </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="CallsTab"
+                    AutomationProperties.Name="Calls"
+                    Content="Calls">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Phone" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="ContactsTab"
+                    AutomationProperties.Name="Contacts"
+                    Content="Contacts">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="People" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem
+                    x:Name="AccountTab"
+                    AutomationProperties.Name="Account"
+                    Content="Account">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Contact" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Padding="24,8,24,0" Spacing="8">
+                    <!-- The workspaces when they are not ready: loading, failed, none. -->
+                    <InfoBar
+                        x:Name="WorkspaceBar"
+                        AutomationProperties.Name="Workspaces"
+                        IsClosable="False"
+                        Severity="Informational" />
+                    <!-- A notice over every screen, until it is dismissed. -->
+                    <InfoBar
+                        x:Name="NoticeBar"
+                        AutomationProperties.Name="Notice"
+                        CloseButtonClick="OnNoticeClosed"
+                        IsClosable="True"
+                        Severity="Warning" />
+                    <!-- The live connection, when there is something to say about it. -->
+                    <InfoBar
+                        x:Name="LiveBar"
+                        AutomationProperties.Name="Live updates"
+                        IsClosable="False"
+                        Severity="Informational">
+                        <InfoBar.ActionButton>
+                            <Button
+                                x:Name="LiveRefresh"
+                                AutomationProperties.Name="Refresh"
+                                Click="OnLiveRefresh"
+                                Content="Refresh" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                    <!-- A report on its way, sent, or failed. -->
+                    <InfoBar
+                        x:Name="ReportBar"
+                        AutomationProperties.Name="Report"
+                        CloseButtonClick="OnReportClosed" />
+                </StackPanel>
+                <!-- The call bar, filled by the calls work. -->
+                <ContentPresenter x:Name="CallBarHost" Grid.Row="1" />
+                <ContentControl
+                    x:Name="PageHost"
+                    Grid.Row="2"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    IsTabStop="False" />
+            </Grid>
+        </NavigationView>
     </Grid>
 </Window>
