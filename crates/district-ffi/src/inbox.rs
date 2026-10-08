@@ -11,6 +11,7 @@ use district_model::{
 };
 use serde::Serialize;
 
+use crate::composer::{ComposerView, composer};
 use crate::views::{
     AI_SUMMARY, AiTextView, EmptyView, FailureView, LoadStatus, ReportAvailability, ai_summary,
     failure, humanize,
@@ -125,6 +126,9 @@ pub struct ThreadView {
     pub refresh_failure: Option<FailureView>,
     /// Why there is no reply box.
     pub read_only_note: String,
+    /// The reply box: `None` until the composer packet builds it
+    /// (crate::composer), and then for a member who may not reply.
+    pub composer: Option<ComposerView>,
 }
 
 /// One event of a conversation.
@@ -418,6 +422,7 @@ pub(crate) fn thread_view(
         refreshing: false,
         refresh_failure: None,
         read_only_note: READ_ONLY_NOTE.to_owned(),
+        composer: composer(screen, capabilities),
     };
     match screen.map(|screen| &screen.history) {
         None | Some(ThreadHistory::Loading) => {}

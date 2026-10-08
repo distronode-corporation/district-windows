@@ -37,18 +37,48 @@
 
 uniffi::setup_scaffolding!();
 
+// The areas of 1.0.
 mod account;
 mod calls;
 mod calls_live;
 mod contacts;
+mod inbox;
+mod overview;
+mod report;
+
+// The areas of 2.0, one module each (CONTRIBUTING.md, "Areas"). Public, so the
+// packet that builds one adds its types without editing this file.
+pub mod analytics;
+pub mod billing;
+pub mod blocked;
+pub mod composer;
+pub mod desk;
+pub mod hq;
+pub mod marketplace;
+pub mod rooms;
+pub mod scheduling;
+pub mod settings;
+pub mod support;
+pub mod workflows;
+
+// What the areas of 2.0 share, each filled by its own packet.
+mod chart;
+mod checkout;
+mod copies;
+mod files;
+mod guard;
+mod palette;
+mod push;
+mod rich_text;
+mod transcript;
+
+// The boundary itself.
 mod core;
 mod events;
 mod host;
 mod identity;
-mod inbox;
 mod link;
-mod overview;
-mod report;
+mod nav;
 mod screen;
 mod shell;
 mod store;
@@ -71,6 +101,7 @@ pub use crate::inbox::{
     ThreadView, TimelineItemView, TimelineKind,
 };
 pub use crate::link::{LinkKind, link_kind};
+pub use crate::nav::{NavDestination, NavEntryView, NavGroupView, NavSection, NavView};
 pub use crate::overview::{FinishSetupView, NO_RECENT_CALLS, OVERVIEW_FAILED_TITLE, OverviewView};
 pub use crate::report::{NO_NOTE, NOTE_LIMIT, PREAMBLE, REPORT_SUBJECT, ReportStatus};
 pub use crate::screen::{

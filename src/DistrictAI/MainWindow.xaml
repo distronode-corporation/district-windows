@@ -22,7 +22,7 @@
             BackRequested="OnBackRequested"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
-            ItemInvoked="OnTabInvoked"
+            ItemInvoked="OnNavInvoked"
             PaneTitle="District AI"
             Visibility="Collapsed">
             <NavigationView.PaneHeader>
@@ -55,53 +55,7 @@
                         Visibility="Collapsed" />
                 </StackPanel>
             </NavigationView.PaneHeader>
-            <NavigationView.MenuItems>
-                <NavigationViewItem
-                    x:Name="OverviewTab"
-                    AutomationProperties.Name="Overview"
-                    Content="Overview">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Home" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem
-                    x:Name="InboxTab"
-                    AutomationProperties.Name="Inbox"
-                    Content="Inbox">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Mail" />
-                    </NavigationViewItem.Icon>
-                    <NavigationViewItem.InfoBadge>
-                        <InfoBadge x:Name="UnreadBadge" Visibility="Collapsed" />
-                    </NavigationViewItem.InfoBadge>
-                </NavigationViewItem>
-                <NavigationViewItem
-                    x:Name="CallsTab"
-                    AutomationProperties.Name="Calls"
-                    Content="Calls">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Phone" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem
-                    x:Name="ContactsTab"
-                    AutomationProperties.Name="Contacts"
-                    Content="Contacts">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="People" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
-            <NavigationView.FooterMenuItems>
-                <NavigationViewItem
-                    x:Name="AccountTab"
-                    AutomationProperties.Name="Account"
-                    Content="Account">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Contact" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.FooterMenuItems>
+            <!-- The entries are the core's (ShellView.Nav), built in MainWindow.Nav.cs. -->
 
             <Grid>
                 <Grid.RowDefinitions>

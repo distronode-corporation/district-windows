@@ -1,18 +1,17 @@
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using DistrictAI.Views.Calls;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace DistrictAI;
 
 /// <summary>
-/// The window's calls: the dialler screen, and over every signed-in screen the
-/// banner of a call ringing here and the strip of the call under way.
+/// The window's calls: over every signed-in screen, the banner of a call
+/// ringing here and the strip of the call under way. The dialler is a screen,
+/// in MainWindow.Screens.cs.
 /// </summary>
 public sealed partial class MainWindow
 {
-    private DialerPage? _dialer;
     private IncomingCallBanner? _ringBanner;
     private CallBar? _callBar;
 
@@ -34,24 +33,5 @@ public sealed partial class MainWindow
         }
         _ringBanner.Show(shell);
         _callBar.Show(shell);
-    }
-
-    partial void ShowOtherScreen(ScreenView screen, PageContext context, ref UIElement? page)
-    {
-        if (screen is not ScreenView.Dialer dialer)
-        {
-            return;
-        }
-        var arriving = _dialer is null || !ReferenceEquals(PageHost.Content, _dialer);
-        _dialer ??= Made(new DialerPage(), p => p.Attach(context));
-        _dialer.Show(dialer.View);
-        page = _dialer;
-        if (arriving)
-        {
-            // Once it is on screen: the box takes the keyboard, so typing and
-            // pasting a number go straight into it.
-            var shown = _dialer;
-            DispatcherQueue.TryEnqueue(shown.FocusNumber);
-        }
     }
 }

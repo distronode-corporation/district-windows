@@ -39,11 +39,11 @@
     "calls_available": false,
     "can_go_back": true,
     "live": null,
+    "nav_selected": "Account",
     "notice": null,
     "phase": "SignedIn",
     "report": null,
     "ring": null,
-    "tab": "Account",
     "unread": 0,
     "workspaces": {
       "active_id": "ws-1",

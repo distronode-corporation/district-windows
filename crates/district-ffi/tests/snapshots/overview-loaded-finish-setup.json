@@ -86,11 +86,11 @@
     "calls_available": false,
     "can_go_back": false,
     "live": null,
+    "nav_selected": "Overview",
     "notice": null,
     "phase": "SignedIn",
     "report": null,
     "ring": null,
-    "tab": "Overview",
     "unread": 3,
     "workspaces": {
       "active_id": "ws-1",

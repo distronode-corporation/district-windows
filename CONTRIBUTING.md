@@ -186,3 +186,39 @@ once it is signed and installable, install one copy, not both.
 
 Say why in the commit message, not only what. Keep a pull request to one concern. Every
 pull request runs CI, and `main` accepts only pull requests whose checks pass.
+
+## Areas
+
+From 2.0 the app grows one area at a time (District HQ, analytics, phone numbers, billing,
+workflows, booking pages, the help desk, support, meeting rooms, the blocked callers, the
+reply box, the workspace settings hub and each of its sections), each built by its own pull
+request, and several at once. So that two of them never edit the same file, each area
+already has its own files, with a placeholder in each, and a pull request for an area
+changes only these:
+
+- `crates/district-ffi/src/<area>.rs`, or `src/settings/<section>.rs` for a settings section
+  (`src/settings/mod.rs` is the hub's): its views, its `<Area>Action` and the core events
+  each action is, and the projection of its screens;
+- `crates/district-ffi/tests/projections/<area>.rs` (or `settings/<section>.rs`), and the
+  snapshots its cases write under `tests/snapshots/`;
+- `src/DistrictAI/Views/<Area>/**` and `src/DistrictAI/ViewModels/<Area>/**` (a settings
+  section's are under `Views/Settings/<Section>/` and `ViewModels/Settings/<Section>/`), and
+  their tests.
+
+Until then an area's screens are the "Not in this version yet" page and the navigation pane
+does not offer it. It goes live when its pull request sets `BUILT = true` in its module:
+the pane then offers it to every role `Capabilities::allows` (district-core's `role.rs`).
+
+The shared files are the manager's, and an area's pull request leaves them alone (say in
+the pull request if one has to change, and why): `screen.rs`, `events.rs`, `shell.rs`,
+`lib.rs`, `views.rs`, `core.rs` and `nav.rs` in `crates/district-ffi/src/`;
+`MainWindow.*`, `App.*` and `Program.cs` in `src/DistrictAI/`;
+`src/DistrictAI.Core/Generated/district_ffi.cs` (regenerated, never edited);
+`Cargo.toml`, `Cargo.lock`, `Directory.Packages.props`; `.github/workflows/ci.yml` and
+`release.yml`; `CHANGELOG.md`; and `Package*.appxmanifest`.
+
+An area's own types still reach `district_ffi.cs`, so every area's pull request
+regenerates it (`scripts/generate-bindings.sh`). When another lands first, rebase and
+regenerate it; never merge it by hand. The snapshots record only which navigation entry is
+selected (`nav_selected`), so building an area changes no other area's snapshots; the
+pane's entries are pinned by `nav.rs`'s own tests.
