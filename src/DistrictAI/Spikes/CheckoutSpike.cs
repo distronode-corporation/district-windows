@@ -32,10 +32,23 @@ internal static class CheckoutSpike
 
     public static async Task RunAsync()
     {
+        string runtime;
+        try
+        {
+            runtime = CoreWebView2Environment.GetAvailableBrowserVersionString();
+        }
+        catch (Exception error)
+        {
+            runtime = $"none ({error.GetType().Name} 0x{error.HResult:X8})";
+        }
+        SpikeLog.Write($"checkout-step runtime={runtime}");
         var view = new WebView2();
         var window = new Window { Title = "District AI checkout spike", Content = view };
+        SpikeLog.Write("checkout-step window-made");
         window.Activate();
+        SpikeLog.Write("checkout-step window-shown");
         await view.EnsureCoreWebView2Async();
+        SpikeLog.Write("checkout-step webview2-ready");
         var core = view.CoreWebView2;
         SpikeLog.Write($"checkout-webview2 version={CoreWebView2Environment.GetAvailableBrowserVersionString()}");
 
