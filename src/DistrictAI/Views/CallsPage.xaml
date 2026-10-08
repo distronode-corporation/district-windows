@@ -11,10 +11,28 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock
-            AutomationProperties.HeadingLevel="Level1"
-            Style="{StaticResource TitleTextBlockStyle}"
-            Text="Calls" />
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="Calls" />
+            <!-- The dialler, in a build that can carry calls. -->
+            <Button
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                AutomationProperties.Name="Place a call"
+                Command="{x:Bind ViewModel.PlaceCallCommand}"
+                Visibility="{x:Bind ViewModel.CanPlaceCall, Mode=OneWay}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE75F;" />
+                    <TextBlock Text="Place a call" />
+                </StackPanel>
+            </Button>
+        </Grid>
         <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
         <ListView
             Grid.Row="2"

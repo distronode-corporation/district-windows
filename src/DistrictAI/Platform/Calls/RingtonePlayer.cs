@@ -19,7 +19,7 @@ namespace DistrictAI.Platform.Calls;
 /// </remarks>
 internal sealed class RingtonePlayer : IDisposable
 {
-    private static readonly Uri Ringtone = new("ms-appx:///Assets/Sounds/ringtone.wav");
+    private static readonly Uri _source = new("ms-appx:///Assets/Sounds/ringtone.wav");
 
     private MediaPlayer? _player;
     private bool _disposed;
@@ -69,7 +69,7 @@ internal sealed class RingtonePlayer : IDisposable
             AudioCategory = MediaPlayerAudioCategory.Alerts,
             IsLoopingEnabled = true,
             AutoPlay = false,
-            Source = MediaSource.CreateFromUri(Ringtone),
+            Source = MediaSource.CreateFromUri(_source),
         };
         // The system media controls (the volume flyout's player) are for media
         // the user chose to play, not for a ringtone.

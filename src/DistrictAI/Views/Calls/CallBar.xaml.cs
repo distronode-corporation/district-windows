@@ -1,5 +1,5 @@
-using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Calls;
 using Microsoft.UI.Xaml.Controls;
 
@@ -22,7 +22,7 @@ public sealed partial class CallBar : UserControl
     /// <summary>What the strip shows, and its buttons' commands.</summary>
     public CallBarViewModel ViewModel { get; } = new();
 
-    internal void Attach(CoreHost core) => ViewModel.Attach(core);
+    internal void Attach(PageContext context) => ViewModel.Attach(context);
 
     internal void Show(ShellView shell) => ViewModel.Show(shell.Call);
 }
