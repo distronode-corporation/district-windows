@@ -43,11 +43,18 @@ internal static class CheckoutSpike
         }
         SpikeLog.Write($"checkout-step runtime={runtime}");
         var view = new WebView2();
+        view.CoreWebView2Initialized += (_, args) => SpikeLog.Write(
+            $"checkout-step initialized error={(args.Exception is null ? "none" : $"{args.Exception.GetType().Name} 0x{args.Exception.HResult:X8} {args.Exception.Message.ReplaceLineEndings(" ")}")}");
         var window = new Window { Title = "District AI checkout spike", Content = view };
         SpikeLog.Write("checkout-step window-made");
         window.Activate();
         SpikeLog.Write("checkout-step window-shown");
-        await view.EnsureCoreWebView2Async();
+        // Its own user data folder in LocalState, named rather than left to
+        // the default, so a failure to make one is reported here.
+        var data = System.IO.Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "WebView2");
+        var environment = await CoreWebView2Environment.CreateWithOptionsAsync(null, data, new CoreWebView2EnvironmentOptions());
+        SpikeLog.Write($"checkout-step environment version={environment.BrowserVersionString}");
+        await view.EnsureCoreWebView2Async(environment);
         SpikeLog.Write("checkout-step webview2-ready");
         var core = view.CoreWebView2;
         SpikeLog.Write($"checkout-webview2 version={CoreWebView2Environment.GetAvailableBrowserVersionString()}");
