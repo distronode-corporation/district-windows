@@ -21,7 +21,7 @@
   <Identity
     Name="DistronodeCorporation.42101E4C5A5B6"
     Publisher="CN=88F0B47E-0C40-4DCA-A217-DF66120AACBE"
-    Version="1.0.0.0"
+    Version="1.1.0.0"
     ProcessorArchitecture="x64" />
 
   <Properties>

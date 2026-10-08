@@ -7,6 +7,22 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-08
+
+### Fixed
+
+- When Windows announces that the computer is going to sleep or hibernate, District AI
+  stops ringing on it first (ending any call under way), and rings on it again when it
+  wakes. Before, a sleeping computer could stay listed to ring for up to ten minutes, so a
+  caller could wait for a ring nobody heard, and after waking it could take minutes to
+  ring again.
+
+### Added
+
+- Each release also carries the GitHub flavour of the app as an unsigned MSIX, for the
+  code-signing application. It is not meant to be installed; the README says what each
+  release file is for.
+
 ## [1.0.0] - 2026-10-08
 
 The first release of District AI for Windows, for the Microsoft Store.

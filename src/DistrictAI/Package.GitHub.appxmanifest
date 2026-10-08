@@ -28,7 +28,7 @@
   <Identity
     Name="Distronode.DistrictAI.GitHub"
     Publisher="CN=SignPath Foundation, O=SignPath Foundation, L=Lewes, S=Delaware, C=US"
-    Version="1.0.0.0"
+    Version="1.1.0.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
