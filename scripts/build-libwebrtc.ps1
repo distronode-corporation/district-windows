@@ -74,6 +74,18 @@ $Patches = @(
 # What must not be in the library: FFmpeg's H.264 and H.265 decoders, and the
 # OpenH264 encoder and decoder. Linux's list, case-insensitive.
 $CodecPattern = 'ff_h264|ff_hevc|hevc|WelsCreateSVCEncoder|WelsCreateDecoder|WelsDecoder|avcodec_'
+# The Windows SDK's own names that match "hevc" and are no codec: the interface
+# id and the two name strings of the WinRT class
+# Windows.Media.MediaProperties.HevcProfileIds, constants that
+# windows.media.mediaproperties.h defines in every object that includes it
+# (WebRTC's Windows capture code does). A GUID and two strings; nothing that
+# encodes or decodes. Exactly these decorated names, so anything else that
+# matches still fails the build.
+$SdkNames = @(
+    '?IID_IHevcProfileIdsStatics@MediaProperties@Media@Windows@ABI@@3AEBU_GUID@@EB',
+    '?InterfaceName_Windows_Media_MediaProperties_IHevcProfileIdsStatics@@3QB_WB',
+    '?RuntimeClass_Windows_Media_MediaProperties_HevcProfileIds@@3QB_WB'
+)
 # What is printed for the record when it is defined: WebRTC's own RTP code for
 # those formats (packetizers, SDP names) stays; it parses headers and carries no
 # codec.
@@ -227,7 +239,13 @@ $all = Join-Path $work 'dumpbin-symbols.txt'
 Write-Host ("dumpbin listed {0:N0} bytes of symbols" -f (Get-Item $all).Length)
 if ((Get-Item $all).Length -lt 1MB) { throw 'dumpbin listed almost nothing; the check would prove nothing.' }
 $defined = { param($m) $m.Line -notmatch '\sUNDEF\s' }
-$codecs = @(Select-String -Path $all -Pattern $CodecPattern | Where-Object { & $defined $_ })
+# The decorated name: the first word after dumpbin's '|'.
+$decorated = { param($m) (($m.Line -split '\|', 2)[-1].Trim() -split '\s+', 2)[0] }
+$matched = @(Select-String -Path $all -Pattern $CodecPattern | Where-Object { & $defined $_ })
+$sdk = @($matched | Where-Object { $SdkNames -ccontains (& $decorated $_) })
+$codecs = @($matched | Where-Object { $SdkNames -cnotcontains (& $decorated $_) })
+Write-Host "Windows SDK WinRT constants that only name HEVC (no codec): $($sdk.Count)"
+$sdk | ForEach-Object { & $decorated $_ } | Sort-Object -Unique | ForEach-Object { Write-Host "  $_" }
 Write-Host "Defined symbols naming an H.264 or H.265 codec: $($codecs.Count)"
 $symbols = Join-Path $work 'libwebrtc-symbols.txt'
 $mentions = @(Select-String -Path $all -Pattern $MentionPattern | Where-Object { & $defined $_ } |
