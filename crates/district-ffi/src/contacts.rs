@@ -261,18 +261,17 @@ mod tests {
 
     #[test]
     fn findings_put_the_summary_first_and_skip_what_says_nothing() {
-        let Value::Object(map) = json!({
+        let map = json!({
             "topics": ["roofing", 3, null],
             "summary": "Runs a roofing firm.",
             "empty": [],
             "blank": " ",
             "nested": {"a": 1},
             "founded_year": 1999
-        }) else {
-            unreachable!()
-        };
+        });
+        let map = map.as_object().expect("an object");
         assert_eq!(
-            findings(&map),
+            findings(map),
             [
                 "Summary: Runs a roofing firm.",
                 "Founded year: 1999",
@@ -280,6 +279,26 @@ mod tests {
             ]
         );
         assert_eq!(count(1), "1 contact");
+        let status = |dgi: Option<&str>| {
+            let mut contact: Contact = serde_json::from_value(json!({
+                "id": "c-1", "workspaceId": "ws-1", "name": "", "phoneNumber": null,
+                "email": null, "socialHandles": null, "company": null, "intelligence": null,
+                "visualMemory": null, "latestContextSummary": null, "dgiStatus": null,
+                "dgiError": null, "budget": null, "timeline": null, "website": null,
+                "lastUpdated": null, "createdAt": ""
+            }))
+            .unwrap();
+            contact.dgi_status = dgi.map(str::to_owned);
+            research_status(&contact)
+        };
+        assert_eq!(status(None), None);
+        assert_eq!(status(Some("pending")).as_deref(), Some("Queued"));
+        assert_eq!(
+            status(Some("synthesizing")).as_deref(),
+            Some("Writing the summary")
+        );
+        assert_eq!(status(Some("failed")).as_deref(), Some("Did not finish"));
+        assert_eq!(status(Some("on_hold")).as_deref(), Some("On hold"));
         assert_eq!(count(12), "12 contacts");
     }
 }

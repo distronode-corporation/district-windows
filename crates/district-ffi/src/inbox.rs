@@ -167,8 +167,8 @@ pub enum TimelineKind {
     },
     /// A call.
     CallEvent {
-        /// The call, to open it by. Always `None` with core 1.2.0, whose
-        /// timeline events do not name their call.
+        /// The call, to open it by: a call's timeline event carries the call's
+        /// own id.
         call_id: Option<String>,
         /// "Incoming call, 01:05", "Missed call".
         title: String,
@@ -206,9 +206,19 @@ fn channel(event_type: &str) -> &'static str {
     }
 }
 
+/// The last message on one line, "You: " first when it was ours, as the
+/// Linux app shows it.
+fn preview(body: &str, direction: &str) -> String {
+    let text = one_line(body);
+    if direction == "outbound" {
+        format!("You: {text}")
+    } else {
+        text
+    }
+}
+
 fn thread_row(conversation: &ConversationSummary) -> ThreadRowView {
     let last = &conversation.last_message;
-    let text = one_line(&last.body);
     let mut channels: Vec<&str> = conversation
         .channels
         .iter()
@@ -218,11 +228,7 @@ fn thread_row(conversation: &ConversationSummary) -> ThreadRowView {
     ThreadRowView {
         thread_key: conversation.thread_key.clone(),
         title: format_phone_number(conversation.display_name()),
-        preview: if last.direction == "outbound" {
-            format!("You: {text}")
-        } else {
-            text
-        },
+        preview: preview(&last.body, &last.direction),
         channel_label: channels.join(", "),
         unread: conversation.has_unread(),
         last_at: instant(&last.created_at),
@@ -378,7 +384,7 @@ fn timeline_item(event: &TimelineEvent, capabilities: &Capabilities) -> Timeline
             .flatten();
         report = ReportAvailability::for_content(summary.is_some(), capabilities);
         TimelineKind::CallEvent {
-            call_id: None,
+            call_id: Some(event.id.clone()),
             title: call_line(event),
             summary: summary.map(|text| AiTextView::new(AI_SUMMARY, text)),
             missed,
@@ -392,11 +398,18 @@ fn timeline_item(event: &TimelineEvent, capabilities: &Capabilities) -> Timeline
     }
 }
 
-/// A conversation the core has not opened yet, by its key alone.
-pub(crate) fn loading_thread(thread_key: &str) -> ThreadView {
-    ThreadView {
+/// The conversation `thread_key`, read-only, from the core's `screen` of it.
+/// The core opens the screen as it shows the route, so `screen` is `None`
+/// only for a route without one, which core 1.2.0 never shows: the page then
+/// waits, as for a thread being read.
+pub(crate) fn thread_view(
+    thread_key: &str,
+    screen: Option<&ThreadScreen>,
+    capabilities: &Capabilities,
+) -> ThreadView {
+    let mut view = ThreadView {
         thread_key: thread_key.to_owned(),
-        title: String::new(),
+        title: screen.map_or_else(String::new, |screen| format_phone_number(&screen.title)),
         status: LoadStatus::Loading,
         items: Vec::new(),
         has_more: false,
@@ -405,21 +418,13 @@ pub(crate) fn loading_thread(thread_key: &str) -> ThreadView {
         refreshing: false,
         refresh_failure: None,
         read_only_note: READ_ONLY_NOTE.to_owned(),
-    }
-}
-
-/// The open conversation, read-only.
-pub(crate) fn thread_view(screen: &ThreadScreen, capabilities: &Capabilities) -> ThreadView {
-    let mut view = ThreadView {
-        title: format_phone_number(&screen.title),
-        ..loading_thread(&screen.thread_key)
     };
-    match &screen.history {
-        ThreadHistory::Loading => {}
-        ThreadHistory::Failed(failure) => {
+    match screen.map(|screen| &screen.history) {
+        None | Some(ThreadHistory::Loading) => {}
+        Some(ThreadHistory::Failed(failure)) => {
             view.status = LoadStatus::failed(THREAD_FAILED_TITLE, failure);
         }
-        ThreadHistory::Ready(events) => {
+        Some(ThreadHistory::Ready(events)) => {
             view.status = LoadStatus::Ready;
             view.items = events
                 .events
@@ -438,7 +443,61 @@ pub(crate) fn thread_view(screen: &ThreadScreen, capabilities: &Capabilities) ->
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
     use super::*;
+
+    fn event(kind: &str, direction: &str, status: &str, duration: Option<i64>) -> TimelineEvent {
+        serde_json::from_value(json!({
+            "id": "e-1",
+            "type": kind,
+            "timestamp": "",
+            "direction": direction,
+            "body": "",
+            "status": status,
+            "duration": duration
+        }))
+        .unwrap()
+    }
+
+    #[test]
+    fn an_outbound_message_says_where_it_got_to() {
+        let delivered = |status| delivery(&event("sms", "outbound", status, None));
+        assert_eq!(delivered("queued").as_deref(), Some("Sending"));
+        assert_eq!(delivered("sent").as_deref(), Some("Sent"));
+        assert_eq!(delivered("delivered").as_deref(), Some("Delivered"));
+        assert_eq!(delivered("read").as_deref(), Some("Read"));
+        assert_eq!(delivered("undelivered").as_deref(), Some(NOT_DELIVERED));
+        assert_eq!(delivered("bounced_soft").as_deref(), Some("Bounced soft"));
+        assert_eq!(delivered(""), None);
+        assert_eq!(delivery(&event("sms", "inbound", "received", None)), None);
+        assert_eq!(channel("whatsapp"), "WhatsApp");
+    }
+
+    #[test]
+    fn a_call_line_says_which_way_and_how_long() {
+        assert_eq!(
+            call_line(&event("call", "outbound", "completed", Some(154))),
+            "Outgoing call, 02:34"
+        );
+        assert_eq!(
+            call_line(&event("call", "inbound", "completed", None)),
+            "Incoming call"
+        );
+        assert_eq!(
+            call_line(&event("call", "missed", "no-answer", Some(0))),
+            "Missed call"
+        );
+    }
+
+    #[test]
+    fn a_preview_is_one_line_and_says_when_it_was_ours() {
+        assert_eq!(
+            preview("See you\n  Thursday.", "outbound"),
+            "You: See you Thursday."
+        );
+        assert_eq!(preview("Hello", "inbound"), "Hello");
+    }
 
     #[test]
     fn an_attachment_is_named_by_its_path() {

@@ -266,11 +266,28 @@ fn analysis(analysis: Option<&CallAnalysis>) -> Vec<FactView> {
     ])
 }
 
-/// A number that can be dialled as it is: E.164.
+/// `number` in E.164, when it can be said without a guess: written with its
+/// `+` (spaces, brackets, dashes and dots dropped), or eleven digits starting
+/// with North America's `1`, which the service stores without the `+`. Ten
+/// digits could be any country's, so they are not given one.
 pub(crate) fn dialable(number: Option<&str>) -> Option<String> {
     let number = number?.trim();
-    let digits = number.strip_prefix('+')?;
-    (!digits.is_empty() && digits.chars().all(|c| c.is_ascii_digit())).then(|| number.to_owned())
+    let written = number
+        .chars()
+        .all(|c| c.is_ascii_digit() || matches!(c, '+' | ' ' | '(' | ')' | '-' | '.'));
+    let digits: String = number.chars().filter(char::is_ascii_digit).collect();
+    let plus = number.starts_with('+') && number.matches('+').count() == 1;
+    let e164 = |digits: &str| {
+        (8..=15)
+            .contains(&digits.len())
+            .then(|| format!("+{digits}"))
+    };
+    match (written, plus) {
+        (false, _) => None,
+        (true, true) => e164(&digits),
+        (true, false) if digits.len() == 11 && digits.starts_with('1') => e164(&digits),
+        (true, false) => None,
+    }
 }
 
 /// One call as the Linux call view shows it.
@@ -334,14 +351,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn only_e164_is_dialable() {
-        assert_eq!(
-            dialable(Some(" +14165550142 ")),
-            Some("+14165550142".to_owned())
-        );
-        assert_eq!(dialable(Some("4165550142")), None);
-        assert_eq!(dialable(Some("+")), None);
-        assert_eq!(dialable(Some("+1 416")), None);
+    fn only_a_number_whose_country_is_known_is_dialable() {
+        let dial = |number| dialable(Some(number));
+        assert_eq!(dial(" +1 (416) 555-0142 ").as_deref(), Some("+14165550142"));
+        assert_eq!(dial("14165550142").as_deref(), Some("+14165550142"));
+        assert_eq!(dial("4165550142"), None, "ten digits, no country");
+        assert_eq!(dial("+"), None);
+        assert_eq!(dial("+1+416"), None);
+        assert_eq!(dial("Direct Dial"), None);
         assert_eq!(dialable(None), None);
     }
 }

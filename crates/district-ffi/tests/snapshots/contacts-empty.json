@@ -1,0 +1,45 @@
+{
+  "screen": {
+    "Contacts": {
+      "view": {
+        "empty": {
+          "body": "Callers are added automatically as they come in.",
+          "title": "No contacts yet"
+        },
+        "paging": {
+          "can_load_more": false,
+          "loading_more": false,
+          "more_failure": null,
+          "refresh_failure": null,
+          "refreshing": false
+        },
+        "rows": [],
+        "status": "Ready",
+        "total_label": null
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": false,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Contacts",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

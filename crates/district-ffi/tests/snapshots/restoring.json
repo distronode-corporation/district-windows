@@ -15,8 +15,19 @@
   },
   "shell": {
     "can_go_back": false,
+    "live": null,
     "notice": null,
     "phase": "Restoring",
-    "tab": null
+    "report": null,
+    "tab": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": null,
+      "can_switch": false,
+      "entries": [],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
   }
 }

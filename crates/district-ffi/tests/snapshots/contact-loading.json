@@ -1,0 +1,44 @@
+{
+  "screen": {
+    "ContactDetail": {
+      "view": {
+        "contact_id": "contact_contract_1",
+        "created_at": null,
+        "dossier": null,
+        "facts": [],
+        "failure": null,
+        "name": "",
+        "number_facts": [],
+        "phone_number": null,
+        "reach": "",
+        "report": "Hidden",
+        "research_status": null,
+        "status": "Loading",
+        "updated_at": null
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": true,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Contacts",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

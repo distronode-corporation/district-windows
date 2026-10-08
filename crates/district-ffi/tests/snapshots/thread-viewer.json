@@ -1,0 +1,137 @@
+{
+  "screen": {
+    "Thread": {
+      "view": {
+        "has_more": false,
+        "items": [
+          {
+            "at": "2026-08-15T13:10:00.000Z",
+            "id": "call_contract_missed",
+            "kind": {
+              "CallEvent": {
+                "call_id": "call_contract_missed",
+                "missed": true,
+                "summary": null,
+                "title": "Missed call"
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T13:40:00.000Z",
+            "id": "call_contract_answered",
+            "kind": {
+              "CallEvent": {
+                "call_id": "call_contract_answered",
+                "missed": false,
+                "summary": {
+                  "label": "AI summary",
+                  "text": "Caller booked an appointment for Thursday."
+                },
+                "title": "Incoming call, 01:05"
+              }
+            },
+            "report": "OnWeb"
+          },
+          {
+            "at": "2026-08-15T14:05:00.000Z",
+            "id": "msg_timeline_sms_out",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Confirmed for Thursday at 2pm.",
+                "channel_label": "Text message",
+                "delivery": "Delivered",
+                "delivery_failed": false,
+                "outbound": true,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T14:10:00.000Z",
+            "id": "msg_timeline_mms",
+            "kind": {
+              "Message": {
+                "attachments": [
+                  "roof.jpg"
+                ],
+                "attachments_label": "1 image attached",
+                "author": null,
+                "body": "Here is the photo of the roof.",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T14:20:00.000Z",
+            "id": "msg_timeline_email",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Following up by email - could we move Thursday to Friday?",
+                "channel_label": "Email",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": "Re: Thursday appointment"
+              }
+            },
+            "report": "Hidden"
+          }
+        ],
+        "loading_older": false,
+        "older_failure": null,
+        "read_only_note": "Replies are sent from the web dashboard or the District AI phone apps.",
+        "refresh_failure": null,
+        "refreshing": false,
+        "status": "Ready",
+        "thread_key": "contact:contact_contract_1",
+        "title": "Contract Test Caller"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": true,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Inbox",
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

@@ -1,0 +1,946 @@
+{
+  "screen": {
+    "Thread": {
+      "view": {
+        "has_more": true,
+        "items": [
+          {
+            "at": "2026-08-15T12:11:00.000Z",
+            "id": "msg_page_049",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 49",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:12:00.000Z",
+            "id": "msg_page_048",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 48",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:13:00.000Z",
+            "id": "msg_page_047",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 47",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:14:00.000Z",
+            "id": "msg_page_046",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 46",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:15:00.000Z",
+            "id": "msg_page_045",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 45",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:16:00.000Z",
+            "id": "msg_page_044",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 44",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:17:00.000Z",
+            "id": "msg_page_043",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 43",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:18:00.000Z",
+            "id": "msg_page_042",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 42",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:19:00.000Z",
+            "id": "msg_page_041",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 41",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:20:00.000Z",
+            "id": "msg_page_040",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 40",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:21:00.000Z",
+            "id": "msg_page_039",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 39",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:22:00.000Z",
+            "id": "msg_page_038",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 38",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:23:00.000Z",
+            "id": "msg_page_037",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 37",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:24:00.000Z",
+            "id": "msg_page_036",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 36",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:25:00.000Z",
+            "id": "msg_page_035",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 35",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:26:00.000Z",
+            "id": "msg_page_034",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 34",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:27:00.000Z",
+            "id": "msg_page_033",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 33",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:28:00.000Z",
+            "id": "msg_page_032",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 32",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:29:00.000Z",
+            "id": "msg_page_031",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 31",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:30:00.000Z",
+            "id": "msg_page_030",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 30",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:31:00.000Z",
+            "id": "msg_page_029",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 29",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:32:00.000Z",
+            "id": "msg_page_028",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 28",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:33:00.000Z",
+            "id": "msg_page_027",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 27",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:34:00.000Z",
+            "id": "msg_page_026",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 26",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:35:00.000Z",
+            "id": "msg_page_025",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 25",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:36:00.000Z",
+            "id": "msg_page_024",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 24",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:37:00.000Z",
+            "id": "msg_page_023",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 23",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:38:00.000Z",
+            "id": "msg_page_022",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 22",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:39:00.000Z",
+            "id": "msg_page_021",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 21",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:40:00.000Z",
+            "id": "msg_page_020",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 20",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:41:00.000Z",
+            "id": "msg_page_019",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 19",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:42:00.000Z",
+            "id": "msg_page_018",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 18",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:43:00.000Z",
+            "id": "msg_page_017",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 17",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:44:00.000Z",
+            "id": "msg_page_016",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 16",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:45:00.000Z",
+            "id": "msg_page_015",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 15",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:46:00.000Z",
+            "id": "msg_page_014",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 14",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:47:00.000Z",
+            "id": "msg_page_013",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 13",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:48:00.000Z",
+            "id": "msg_page_012",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 12",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:49:00.000Z",
+            "id": "msg_page_011",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 11",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:50:00.000Z",
+            "id": "msg_page_010",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 10",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:51:00.000Z",
+            "id": "msg_page_009",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 9",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:52:00.000Z",
+            "id": "msg_page_008",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 8",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:53:00.000Z",
+            "id": "msg_page_007",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 7",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:54:00.000Z",
+            "id": "msg_page_006",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 6",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:55:00.000Z",
+            "id": "msg_page_005",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 5",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:56:00.000Z",
+            "id": "msg_page_004",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 4",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:57:00.000Z",
+            "id": "msg_page_003",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 3",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:58:00.000Z",
+            "id": "msg_page_002",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 2",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T12:59:00.000Z",
+            "id": "msg_page_001",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 1",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T13:00:00.000Z",
+            "id": "msg_page_000",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Older message 0",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          }
+        ],
+        "loading_older": false,
+        "older_failure": null,
+        "read_only_note": "Replies are sent from the web dashboard or the District AI phone apps.",
+        "refresh_failure": {
+          "message": "Something went wrong on our side. Please try again shortly.",
+          "regions_line": null,
+          "retryable": true
+        },
+        "refreshing": false,
+        "status": "Ready",
+        "thread_key": "contact:contact_contract_1",
+        "title": "Contract Test Caller"
+      }
+    }
+  },
+  "shell": {
+    "can_go_back": true,
+    "live": null,
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "tab": "Inbox",
+    "unread": 1,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
