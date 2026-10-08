@@ -85,11 +85,11 @@
       "can_refresh": true,
       "message": "Live updates could not be started, so new calls and messages appear when you refresh. Updating the app may fix it."
     },
+    "nav_selected": "Overview",
     "notice": null,
     "phase": "SignedIn",
     "report": null,
     "ring": null,
-    "tab": "Overview",
     "unread": 3,
     "workspaces": {
       "active_id": "ws-1",

@@ -51,11 +51,11 @@
     "calls_available": false,
     "can_go_back": false,
     "live": null,
+    "nav_selected": "Inbox",
     "notice": null,
     "phase": "SignedIn",
     "report": null,
     "ring": null,
-    "tab": "Inbox",
     "unread": 0,
     "workspaces": {
       "active_id": "ws-1",

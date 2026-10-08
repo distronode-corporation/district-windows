@@ -2,9 +2,12 @@
 //!
 //! Outside a session this is the whole of the sign-in page. While signed in it
 //! is the page of the route showing, projected from the core's state for that
-//! screen. Routes this version has no page for are [`ScreenView::Unavailable`].
+//! screen. Each area of 2.0 projects its own screens in its own module; until
+//! its packet builds them they are [`ScreenView::Unavailable`].
 
-use district_core::{Model, Route, SessionState, SignOutScope, SignedIn, SignedOutWhy};
+use district_core::{
+    Model, Route, SessionState, SignOutScope, SignedIn, SignedOutWhy, WorkspaceSection,
+};
 use serde::Serialize;
 
 use crate::account::{AccountView, DevicesView, account_view, devices_view};
@@ -13,6 +16,10 @@ use crate::calls_live::{DialerView, dialer_view};
 use crate::contacts::{ContactDetailView, ContactsView, contact_detail_view, contacts_view};
 use crate::inbox::{InboxView, ThreadView, inbox_view, thread_view};
 use crate::overview::{OverviewView, overview_view};
+use crate::{
+    analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling, settings, support,
+    workflows,
+};
 
 /// The heading of the signed-out screen on a first run.
 pub const WELCOME_TITLE: &str = "Welcome to District AI";
@@ -88,7 +95,123 @@ pub enum ScreenView {
         /// The page.
         view: DialerView,
     },
-    /// A screen of the core this version has no page for: every other route.
+    /// The callers the workspace has blocked.
+    BlockedContacts {
+        /// The page.
+        view: crate::blocked::BlockedView,
+    },
+    /// District HQ, the workspace assistant.
+    Hq {
+        /// The page.
+        view: crate::hq::HqView,
+    },
+    /// Call analytics and metered usage.
+    Analytics {
+        /// The page.
+        view: crate::analytics::AnalyticsView,
+    },
+    /// The workspace's phone numbers, read only.
+    Marketplace {
+        /// The page.
+        view: crate::marketplace::MarketplaceView,
+    },
+    /// The plan and invoices, read only.
+    Billing {
+        /// The page.
+        view: crate::billing::BillingView,
+    },
+    /// Workflows and their runs.
+    Workflows {
+        /// The page.
+        view: crate::workflows::WorkflowsView,
+    },
+    /// Booking pages.
+    Scheduling {
+        /// The page.
+        view: crate::scheduling::SchedulingView,
+    },
+    /// The help desk's tickets.
+    Desk {
+        /// The page.
+        view: crate::desk::DeskView,
+    },
+    /// One help desk ticket.
+    DeskTicket {
+        /// The page.
+        view: crate::desk::DeskTicketView,
+    },
+    /// The help desk's settings.
+    DeskSettings {
+        /// The page.
+        view: crate::desk::DeskSettingsView,
+    },
+    /// Support requests to Distronode.
+    Support {
+        /// The page.
+        view: crate::support::SupportView,
+    },
+    /// One support request.
+    SupportRequest {
+        /// The page.
+        view: crate::support::SupportRequestView,
+    },
+    /// Meeting rooms.
+    Rooms {
+        /// The page.
+        view: crate::rooms::RoomsView,
+    },
+    /// The workspace settings hub.
+    WorkspaceSettings {
+        /// The page.
+        view: crate::settings::SettingsHubView,
+    },
+    /// The persona section.
+    Persona {
+        /// The page.
+        view: crate::settings::persona::PersonaView,
+    },
+    /// The Voice section (Voice Studio).
+    VoiceStudio {
+        /// The page.
+        view: crate::settings::voice_studio::VoiceStudioView,
+    },
+    /// The call handling section.
+    CallHandling {
+        /// The page.
+        view: crate::settings::call_handling::CallHandlingView,
+    },
+    /// The routing rules section.
+    Routing {
+        /// The page.
+        view: crate::settings::routing::RoutingView,
+    },
+    /// The transfer directory section.
+    Directory {
+        /// The page.
+        view: crate::settings::directory::DirectoryView,
+    },
+    /// The Skills section (the receptionist's tools).
+    Tools {
+        /// The page.
+        view: crate::settings::tools::ToolsView,
+    },
+    /// The knowledge base section.
+    Knowledge {
+        /// The page.
+        view: crate::settings::knowledge::KnowledgeView,
+    },
+    /// The messaging accounts section.
+    Messaging {
+        /// The page.
+        view: crate::settings::messaging::MessagingView,
+    },
+    /// The members section.
+    Members {
+        /// The page.
+        view: crate::settings::members::MembersView,
+    },
+    /// A screen of the core this version has no page for: an area whose
+    /// packet has not built it yet, and the dialler in a build without calls.
     Unavailable {
         /// [`UNAVAILABLE_TITLE`].
         title: String,
@@ -176,24 +299,48 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
         Route::Devices => ScreenView::Devices {
             view: devices_view(&signed_in.devices),
         },
-        Route::Dialer if calls_available => ScreenView::Dialer {
-            view: dialer_view(signed_in),
-        },
-        Route::Dialer
-        | Route::BlockedContacts
-        | Route::Hq
-        | Route::Analytics
-        | Route::Marketplace
-        | Route::Billing
-        | Route::Workflows
-        | Route::Scheduling
-        | Route::Desk
-        | Route::DeskTicket { .. }
-        | Route::DeskSettings
-        | Route::Support
-        | Route::SupportRequest { .. }
-        | Route::Rooms
-        | Route::Workspace(_) => ScreenView::unavailable(),
+        // A build without calls never shows the dialler: the core refuses it.
+        Route::Dialer => calls_available
+            .then(|| dialer_view(signed_in))
+            .map_or_else(ScreenView::unavailable, |view| ScreenView::Dialer { view }),
+        Route::BlockedContacts => blocked::screen(model, signed_in),
+        Route::Hq => hq::screen(model, signed_in),
+        Route::Analytics => analytics::screen(model, signed_in),
+        // The core shows the phone numbers screen for the settings section of
+        // the same name, so the section never shows itself; its page would be
+        // this one.
+        Route::Marketplace | Route::Workspace(WorkspaceSection::Numbers) => {
+            marketplace::screen(model, signed_in)
+        }
+        Route::Billing => billing::screen(model, signed_in),
+        Route::Workflows => workflows::screen(model, signed_in),
+        Route::Scheduling => scheduling::screen(model, signed_in),
+        Route::Desk => desk::screen(model, signed_in),
+        Route::DeskTicket { ticket_id } => desk::ticket_screen(model, signed_in, ticket_id),
+        Route::DeskSettings => desk::settings_screen(model, signed_in),
+        Route::Support => support::screen(model, signed_in),
+        Route::SupportRequest { key } => support::request_screen(model, signed_in, key),
+        Route::Rooms => rooms::screen(model, signed_in),
+        Route::Workspace(WorkspaceSection::Hub) => settings::screen(model, signed_in),
+        Route::Workspace(WorkspaceSection::Persona) => settings::persona::screen(model, signed_in),
+        Route::Workspace(WorkspaceSection::VoiceStudio) => {
+            settings::voice_studio::screen(model, signed_in)
+        }
+        Route::Workspace(WorkspaceSection::CallHandling) => {
+            settings::call_handling::screen(model, signed_in)
+        }
+        Route::Workspace(WorkspaceSection::Routing) => settings::routing::screen(model, signed_in),
+        Route::Workspace(WorkspaceSection::Directory) => {
+            settings::directory::screen(model, signed_in)
+        }
+        Route::Workspace(WorkspaceSection::Tools) => settings::tools::screen(model, signed_in),
+        Route::Workspace(WorkspaceSection::Knowledge) => {
+            settings::knowledge::screen(model, signed_in)
+        }
+        Route::Workspace(WorkspaceSection::Messaging) => {
+            settings::messaging::screen(model, signed_in)
+        }
+        Route::Workspace(WorkspaceSection::Members) => settings::members::screen(model, signed_in),
     }
 }
 
@@ -373,5 +520,135 @@ mod tests {
             .expect("signing out is a session screen");
         assert!(view.body.starts_with("Every device is signed out."));
         assert!(view.busy);
+    }
+
+    /// Every area's screen crosses to C# and back intact, through UniFFI's
+    /// own converters (the ones the generated bindings call).
+    #[test]
+    fn every_area_screen_survives_the_trip_to_csharp() {
+        use uniffi::{Lift, Lower};
+        for screen in [
+            ScreenView::BlockedContacts {
+                view: crate::blocked::BlockedView {
+                    title: "BlockedContacts".to_owned(),
+                },
+            },
+            ScreenView::Hq {
+                view: crate::hq::HqView {
+                    title: "Hq".to_owned(),
+                },
+            },
+            ScreenView::Analytics {
+                view: crate::analytics::AnalyticsView {
+                    title: "Analytics".to_owned(),
+                },
+            },
+            ScreenView::Marketplace {
+                view: crate::marketplace::MarketplaceView {
+                    title: "Marketplace".to_owned(),
+                },
+            },
+            ScreenView::Billing {
+                view: crate::billing::BillingView {
+                    title: "Billing".to_owned(),
+                },
+            },
+            ScreenView::Workflows {
+                view: crate::workflows::WorkflowsView {
+                    title: "Workflows".to_owned(),
+                },
+            },
+            ScreenView::Scheduling {
+                view: crate::scheduling::SchedulingView {
+                    title: "Scheduling".to_owned(),
+                },
+            },
+            ScreenView::Desk {
+                view: crate::desk::DeskView {
+                    title: "Desk".to_owned(),
+                },
+            },
+            ScreenView::DeskTicket {
+                view: crate::desk::DeskTicketView {
+                    title: "DeskTicket".to_owned(),
+                },
+            },
+            ScreenView::DeskSettings {
+                view: crate::desk::DeskSettingsView {
+                    title: "DeskSettings".to_owned(),
+                },
+            },
+            ScreenView::Support {
+                view: crate::support::SupportView {
+                    title: "Support".to_owned(),
+                },
+            },
+            ScreenView::SupportRequest {
+                view: crate::support::SupportRequestView {
+                    title: "SupportRequest".to_owned(),
+                },
+            },
+            ScreenView::Rooms {
+                view: crate::rooms::RoomsView {
+                    title: "Rooms".to_owned(),
+                },
+            },
+            ScreenView::WorkspaceSettings {
+                view: crate::settings::SettingsHubView {
+                    title: "WorkspaceSettings".to_owned(),
+                },
+            },
+            ScreenView::Persona {
+                view: crate::settings::persona::PersonaView {
+                    title: "Persona".to_owned(),
+                },
+            },
+            ScreenView::VoiceStudio {
+                view: crate::settings::voice_studio::VoiceStudioView {
+                    title: "VoiceStudio".to_owned(),
+                },
+            },
+            ScreenView::CallHandling {
+                view: crate::settings::call_handling::CallHandlingView {
+                    title: "CallHandling".to_owned(),
+                },
+            },
+            ScreenView::Routing {
+                view: crate::settings::routing::RoutingView {
+                    title: "Routing".to_owned(),
+                },
+            },
+            ScreenView::Directory {
+                view: crate::settings::directory::DirectoryView {
+                    title: "Directory".to_owned(),
+                },
+            },
+            ScreenView::Tools {
+                view: crate::settings::tools::ToolsView {
+                    title: "Tools".to_owned(),
+                },
+            },
+            ScreenView::Knowledge {
+                view: crate::settings::knowledge::KnowledgeView {
+                    title: "Knowledge".to_owned(),
+                },
+            },
+            ScreenView::Messaging {
+                view: crate::settings::messaging::MessagingView {
+                    title: "Messaging".to_owned(),
+                },
+            },
+            ScreenView::Members {
+                view: crate::settings::members::MembersView {
+                    title: "Members".to_owned(),
+                },
+            },
+        ] {
+            let buffer =
+                <ScreenView as Lower<crate::UniFfiTag>>::lower_into_rust_buffer(screen.clone());
+            let back =
+                <ScreenView as Lift<crate::UniFfiTag>>::try_lift_from_rust_buffer(buffer).unwrap();
+            assert_eq!(back, screen);
+        }
     }
 }

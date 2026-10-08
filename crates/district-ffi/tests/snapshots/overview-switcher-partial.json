@@ -19,11 +19,11 @@
     "calls_available": false,
     "can_go_back": false,
     "live": null,
+    "nav_selected": "Overview",
     "notice": null,
     "phase": "SignedIn",
     "report": null,
     "ring": null,
-    "tab": "Overview",
     "unread": 0,
     "workspaces": {
       "active_id": "ws-contract-active",

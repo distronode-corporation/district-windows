@@ -1,5 +1,5 @@
 //! The window's frame: which part of the session the app is in, and while
-//! signed in, which tab is highlighted, the workspace switcher, the inbox's
+//! signed in, the navigation pane (nav.rs), the workspace switcher, the inbox's
 //! unread count, the live updates' state, a report under way, and the call
 //! strip (the call under way and the call ringing here).
 
@@ -12,6 +12,7 @@ use district_model::WorkspaceEntry;
 use serde::Serialize;
 
 use crate::calls_live::{ActiveCallView, IncomingRingView, active_call_view, incoming_ring_view};
+use crate::nav::{NavView, nav_view};
 use crate::report::{ReportStatus, report_status};
 use crate::views::humanize;
 
@@ -21,8 +22,9 @@ pub struct ShellView {
     /// Where the session is. The app shows the sign-in page for every phase but
     /// [`SessionPhase::SignedIn`], and the navigation view for that one.
     pub phase: SessionPhase,
-    /// The tab to highlight, while signed in.
-    pub tab: Option<TabView>,
+    /// The navigation pane: its entries and the one to highlight. Empty
+    /// outside a session.
+    pub nav: NavView,
     /// Whether the screen showing has a parent to go back to.
     pub can_go_back: bool,
     /// A notice over every screen (a sign-in that could not be saved, a page no
@@ -104,7 +106,8 @@ pub enum SessionPhase {
     SigningOut,
 }
 
-/// A tab of the navigation view. One variant per core [`Tab`].
+/// One of 1.0's tabs, which [`UiEvent::OpenTab`](crate::UiEvent::OpenTab)
+/// names. One variant per core [`Tab`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, uniffi::Enum)]
 pub enum TabView {
     /// The open workspace's summary.
@@ -164,7 +167,7 @@ pub(crate) fn shell_for(
 ) -> ShellView {
     let outside = |phase| ShellView {
         phase,
-        tab: None,
+        nav: NavView::default(),
         can_go_back: false,
         notice: None,
         workspaces: WorkspaceSwitcherView::default(),
@@ -180,21 +183,24 @@ pub(crate) fn shell_for(
         SessionState::SignedOut(_) => outside(SessionPhase::SignedOut),
         SessionState::SigningIn(_) => outside(SessionPhase::SigningIn),
         SessionState::SigningOut(_) => outside(SessionPhase::SigningOut),
-        SessionState::SignedIn(signed_in) => ShellView {
-            phase: SessionPhase::SignedIn,
-            tab: Some(signed_in.route.tab().into()),
-            can_go_back: has_parent(&signed_in.route),
-            notice: signed_in.notice.as_ref().map(|notice| notice.message()),
-            workspaces: switcher(&signed_in.workspaces),
-            unread: signed_in
+        SessionState::SignedIn(signed_in) => {
+            let unread = signed_in
                 .unread
-                .map_or(0, |count| u32::try_from(count.max(0)).unwrap_or(u32::MAX)),
-            live: live_banner(signed_in),
-            report: report_status(signed_in, reporting),
-            call: active_call_view(signed_in, now),
-            ring: incoming_ring_view(signed_in),
-            calls_available,
-        },
+                .map_or(0, |count| u32::try_from(count.max(0)).unwrap_or(u32::MAX));
+            ShellView {
+                phase: SessionPhase::SignedIn,
+                nav: nav_view(signed_in, unread),
+                can_go_back: has_parent(&signed_in.route),
+                notice: signed_in.notice.as_ref().map(|notice| notice.message()),
+                workspaces: switcher(&signed_in.workspaces),
+                unread,
+                live: live_banner(signed_in),
+                report: report_status(signed_in, reporting),
+                call: active_call_view(signed_in, now),
+                ring: incoming_ring_view(signed_in),
+                calls_available,
+            }
+        }
     }
 }
 

@@ -81,6 +81,7 @@
     "calls_available": false,
     "can_go_back": true,
     "live": null,
+    "nav_selected": "Calls",
     "notice": null,
     "phase": "SignedIn",
     "report": {
@@ -89,7 +90,6 @@
       }
     },
     "ring": null,
-    "tab": "Calls",
     "unread": 0,
     "workspaces": {
       "active_id": "ws-1",

@@ -2,6 +2,7 @@
   "screen": {
     "Thread": {
       "view": {
+        "composer": null,
         "has_more": false,
         "items": [],
         "loading_older": false,
@@ -29,11 +30,11 @@
     "calls_available": false,
     "can_go_back": true,
     "live": null,
+    "nav_selected": "Inbox",
     "notice": null,
     "phase": "SignedIn",
     "report": null,
     "ring": null,
-    "tab": "Inbox",
     "unread": 1,
     "workspaces": {
       "active_id": "ws-1",
