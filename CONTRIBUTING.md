@@ -1,7 +1,7 @@
 # Contributing
 
-Thanks for looking. The app is in early development, so the layout below is the plan, and
-this file grows as each part lands.
+Thanks for looking. 1.0.0 is released (see the README's
+[Releases](README.md#releases)), and this file grows as each part lands.
 
 ## Layout
 
@@ -75,6 +75,32 @@ core's enums with no catch-all arm, so a core change that adds a state fails the
 `crates/district-ffi/tests/snapshots/` pins the JSON of each; after a deliberate change,
 `UPDATE_SNAPSHOTS=1 cargo test -p district-ffi --test projections` writes them again.
 
+### Flavours
+
+The app builds in two flavours from the same sources, as two separate packages:
+
+- **Store** (the default): `src/DistrictAI/Package.appxmanifest`, with the identity Partner
+  Center reserved. The Store package and the sideload test build are this flavour.
+- **GitHub**: `src/DistrictAI/Package.GitHub.appxmanifest`, built with
+  `-p:DistrictFlavour=GitHub`, under its own identity (`Distronode.DistrictAI.GitHub`) and
+  its own notification activator class. Its publisher is meant for SignPath Foundation's
+  certificate and is provisional until that certificate is issued. Releases carry it
+  unsigned, for the code-signing application only.
+
+`scripts/check-flavours.py` keeps the two manifests the same app under two identities: they
+must differ in the identity name, the publisher and the activator's COM class, may differ in
+the display name, and must agree on everything else, the version included. CI runs it, and
+its self-test, on every push and pull request; `windows-app` also builds and packages the
+GitHub flavour, unsigned, so a flavour that breaks fails the pull request.
+
+```
+python3 scripts/check-flavours.py --self-test
+python3 scripts/check-flavours.py
+```
+
+A change to `Package.appxmanifest` goes into `Package.GitHub.appxmanifest` in the same pull
+request.
+
 ### Packages
 
 Every NuGet version is in `Directory.Packages.props`, and each project has a
@@ -115,16 +141,24 @@ reason.
 ## Releasing
 
 A release is a `vX.Y.Z` tag on a commit already on `main`, and
-`.github/workflows/release.yml` does the rest. Before tagging:
+`.github/workflows/release.yml` does the rest. `main` accepts only pull requests whose
+checks pass, so tag a commit whose CI on `main` is green. Before tagging:
 
-- `Version` in `src/DistrictAI/Package.appxmanifest` is `X.Y.Z.0`;
+- `Version` in `src/DistrictAI/Package.appxmanifest` (and so in
+  `Package.GitHub.appxmanifest`, which `check-flavours.py` holds to it) is `X.Y.Z.0`;
 - `CHANGELOG.md` has a `## [X.Y.Z]` section, which becomes the release notes.
 
-The workflow refuses the tag otherwise. It builds the Store package (an unsigned
-`.msixupload`; the Store signs what it ships) and a sideload test MSIX signed with a
-throwaway certificate, runs the Windows App Certification Kit on the package, and publishes
-both with the certificate's public half, the kit's report, a source zip, `SHA256SUMS` and a
-provenance attestation. The `.msixupload` is what goes to Partner Center.
+The workflow's first job refuses the tag when the tagged commit is not on `main` (CI never
+tested it), when the manifest's `Version` does not match the tag, or when `CHANGELOG.md`
+has no section for it. It then builds, with no caches, the Store package (an unsigned
+`.msixupload`; the Store signs what it ships), a sideload test MSIX signed with a throwaway
+certificate, and the GitHub flavour as an unsigned MSIX, checks each package's identity,
+version and ReadyToRun code, and runs the Windows App Certification Kit on the test MSIX.
+The next job checks the files are exactly the names a release carries and writes
+`SHA256SUMS`. Only the last job can write: it attests every file's provenance, verifies the
+attestations, creates a draft release, checks GitHub holds exactly the expected files, and
+only then publishes it. The `.msixupload` is what goes to Partner Center; the README's
+[Releases](README.md#releases) says what each file is for.
 
 Pull requests that change the workflow or the packaging run the same build and
 certification as a dry run, with nothing attested or released. CI's `windows-app` job runs
@@ -133,14 +167,20 @@ the certification kit on every pull request too, through `scripts/run-wack.ps1`.
 ### Testing the sideload package
 
 The test MSIX is signed with a throwaway certificate and depends on the Windows App
-Runtime, which a fresh Windows does not have. From a release, take
-`DistrictAI_<version>_x64_sideload-test.msix`, `DistrictAI_<version>_sideload-test.cer` and
-`DistrictAI_<version>_x64_sideload-dependencies.zip`, then in an administrator PowerShell:
+Runtime, which a fresh Windows does not have. From a release, download
+`DistrictAI_<v>_x64_sideload-test.msix`, `DistrictAI_<v>_sideload-test.cer` and
+`DistrictAI_<v>_x64_sideload-dependencies.zip` into one folder, then run PowerShell as
+administrator in that folder:
 
-1. Trust the certificate (Local Machine, Trusted People):
-   `Import-Certificate -FilePath <cer> -CertStoreLocation Cert:\LocalMachine\TrustedPeople`
-2. Unzip the dependencies and `Add-AppxPackage <file>` each `.msix` in it.
-3. `Add-AppxPackage` the test `.msix`.
+```
+Import-Certificate -FilePath .\DistrictAI_<v>_sideload-test.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
+Expand-Archive .\DistrictAI_<v>_x64_sideload-dependencies.zip deps
+Get-ChildItem deps -Filter *.msix | ForEach-Object { Add-AppxPackage $_.FullName }
+Add-AppxPackage .\DistrictAI_<v>_x64_sideload-test.msix
+```
+
+The test build has the Store flavour's identity. The GitHub flavour is a separate package;
+once it is signed and installable, install one copy, not both.
 
 ## Commits and pull requests
 

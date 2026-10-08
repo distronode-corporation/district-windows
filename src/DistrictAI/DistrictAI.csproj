@@ -39,6 +39,20 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <!--
+    The flavour: Store (Package.appxmanifest) or GitHub
+    (Package.GitHub.appxmanifest), the same app under two package identities.
+    Pass -p:DistrictFlavour=GitHub for the second.
+  -->
+  <PropertyGroup>
+    <DistrictFlavour Condition="'$(DistrictFlavour)' == ''">Store</DistrictFlavour>
+  </PropertyGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" Condition="'$(DistrictFlavour)' == 'Store'" />
+    <AppxManifest Include="Package.GitHub.appxmanifest" Condition="'$(DistrictFlavour)' == 'GitHub'" />
+    <None Remove="Package.GitHub.appxmanifest" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
@@ -71,6 +85,10 @@
 
   <Target Name="RequireLibwebrtcLicence" BeforeTargets="Build" Condition="'$(OS)' == 'Windows_NT' and ('$(Configuration)' == 'Release' or '$(GenerateAppxPackageOnBuild)' == 'true')">
     <Error Condition="'$(LK_CUSTOM_WEBRTC)' == '' or !Exists('$(LK_CUSTOM_WEBRTC)\LICENSE.md')" Text="libwebrtc's LICENSE.md is not in LK_CUSTOM_WEBRTC ('$(LK_CUSTOM_WEBRTC)'), and a release or a package must ship it. Run scripts/fetch-libwebrtc.ps1 and set LK_CUSTOM_WEBRTC to the directory it prints." />
+  </Target>
+
+  <Target Name="RequireOneManifest" BeforeTargets="Build">
+    <Error Condition="'@(AppxManifest->Count())' != '1'" Text="Expected one AppxManifest for the $(DistrictFlavour) flavour, found: @(AppxManifest)" />
   </Target>
 
   <Target Name="RequireDistrictFfi" BeforeTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
