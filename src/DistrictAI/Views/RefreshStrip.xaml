@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.RefreshStrip"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Over content already shown: a refresh under way, or one that failed. -->
+    <StackPanel Spacing="4">
+        <ProgressBar
+            AutomationProperties.Name="Refreshing"
+            IsIndeterminate="True"
+            Visibility="{x:Bind State.Refreshing, Mode=OneWay}" />
+        <InfoBar
+            AutomationProperties.Name="Could not refresh"
+            IsClosable="False"
+            IsOpen="{x:Bind State.HasRefreshFailure, Mode=OneWay}"
+            Message="{x:Bind State.RefreshFailureMessage, Mode=OneWay}"
+            Severity="Warning">
+            <InfoBar.ActionButton>
+                <Button
+                    AutomationProperties.Name="Try again"
+                    Command="{x:Bind State.RetryCommand}"
+                    Content="Try again"
+                    Visibility="{x:Bind State.CanRetryRefresh, Mode=OneWay}" />
+            </InfoBar.ActionButton>
+        </InfoBar>
+    </StackPanel>
+</UserControl>

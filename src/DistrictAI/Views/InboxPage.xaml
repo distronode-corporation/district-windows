@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.InboxPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels">
+    <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock
+            AutomationProperties.HeadingLevel="Level1"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Text="Conversations" />
+        <StackPanel Grid.Row="1" Spacing="4">
+            <AutoSuggestBox
+                x:Name="SearchBox"
+                AutomationProperties.Name="Search every message"
+                PlaceholderText="Search every message"
+                QueryIcon="Find"
+                TextChanged="OnSearchChanged" />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.ReadOnlyNote, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.PartialNote, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasPartialNote, Mode=OneWay}" />
+        </StackPanel>
+        <views:RefreshStrip x:Name="Refresh" Grid.Row="2" />
+
+        <!-- The conversations. -->
+        <ListView
+            Grid.Row="3"
+            AutomationProperties.Name="Conversations"
+            IsItemClickEnabled="True"
+            ItemClick="OnThreadClick"
+            ItemsSource="{x:Bind ViewModel.Threads}"
+            SelectionMode="None"
+            Visibility="{x:Bind ViewModel.ShowThreads, Mode=OneWay}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ThreadRowItem">
+                    <Grid
+                        Padding="0,8"
+                        AutomationProperties.Name="{x:Bind AccessibleName}"
+                        ColumnSpacing="12"
+                        Opacity="{x:Bind RowOpacity}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Ellipse
+                            Width="8"
+                            Height="8"
+                            VerticalAlignment="Center"
+                            Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                            Visibility="{x:Bind Unread}" />
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Text="{x:Bind Title}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                MaxLines="2"
+                                Text="{x:Bind Preview}"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="Wrap" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ChannelLabel}" />
+                        </StackPanel>
+                        <TextBlock
+                            Grid.Column="2"
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind When}" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <views:StatusPanel
+            x:Name="Status"
+            Grid.Row="3"
+            Visibility="{x:Bind ViewModel.ShowStatus, Mode=OneWay}" />
+
+        <!-- The search, in place of the conversations while there is a query. -->
+        <Grid
+            Grid.Row="3"
+            RowSpacing="8"
+            Visibility="{x:Bind ViewModel.SearchActive, Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="Matching messages" />
+                <ProgressBar
+                    AutomationProperties.Name="Searching"
+                    IsIndeterminate="True"
+                    Visibility="{x:Bind ViewModel.SearchRunning, Mode=OneWay}" />
+                <InfoBar
+                    AutomationProperties.Name="Could not search"
+                    IsClosable="False"
+                    IsOpen="{x:Bind ViewModel.HasSearchFailure, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.SearchFailure, Mode=OneWay}"
+                    Severity="Warning"
+                    Title="Could not search" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.SearchNote, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasSearchNote, Mode=OneWay}" />
+            </StackPanel>
+            <ListView
+                Grid.Row="1"
+                AutomationProperties.Name="Matching messages"
+                IsItemClickEnabled="True"
+                ItemClick="OnHitClick"
+                ItemsSource="{x:Bind ViewModel.Hits}"
+                SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SearchHitItem">
+                        <Grid
+                            Padding="0,8"
+                            AutomationProperties.Name="{x:Bind AccessibleName}"
+                            ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2">
+                                <TextBlock
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind Title}"
+                                    TextTrimming="CharacterEllipsis" />
+                                <TextBlock
+                                    MaxLines="3"
+                                    Text="{x:Bind Snippet}"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                            <TextBlock
+                                Grid.Column="1"
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind When}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
+</UserControl>

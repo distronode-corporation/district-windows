@@ -8,6 +8,36 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Every signed-in page: its padding and the widest its text runs. -->
+            <Thickness x:Key="PagePadding">24,16,24,16</Thickness>
+            <x:Double x:Key="ReadingWidth">760</x:Double>
+
+            <!-- A line that says something about the page without competing with it. -->
+            <Style
+                x:Key="QuietTextStyle"
+                BasedOn="{StaticResource BodyTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <!-- A section's heading inside a page. -->
+            <Style
+                x:Key="SectionHeaderStyle"
+                BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Margin" Value="0,12,0,4" />
+            </Style>
+
+            <!-- A card: the finish-setup card, a metric, a call in a conversation. -->
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="{StaticResource OverlayCornerRadius}" />
+                <Setter Property="Padding" Value="16" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

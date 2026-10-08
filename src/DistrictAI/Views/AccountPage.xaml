@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.AccountPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="{StaticResource ReadingWidth}"
+            Padding="{StaticResource PagePadding}"
+            Spacing="8">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="Account" />
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="Your account" />
+            <TextBlock
+                IsTextSelectionEnabled="True"
+                Text="{x:Bind ViewModel.Name, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasName, Mode=OneWay}" />
+            <TextBlock
+                IsTextSelectionEnabled="True"
+                Text="{x:Bind ViewModel.Email, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasEmail, Mode=OneWay}" />
+            <StackPanel>
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="User ID" />
+                <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.UserId, Mode=OneWay}" />
+            </StackPanel>
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="This computer" />
+            <StackPanel>
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="District AI for Windows" />
+                <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Device ID" />
+                <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.DeviceId, Mode=OneWay}" />
+            </StackPanel>
+            <ToggleSwitch
+                x:Name="StartupSwitch"
+                AutomationProperties.Name="Start at sign-in"
+                Header="Start at sign-in"
+                IsEnabled="{x:Bind ViewModel.StartupSwitchEnabled, Mode=OneWay}"
+                IsOn="{x:Bind ViewModel.StartupEnabled, Mode=OneWay}"
+                Toggled="OnStartupToggled" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.StartupMessage, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasStartupMessage, Mode=OneWay}" />
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="Devices" />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="See where you are signed in, and sign out a device you no longer have." />
+            <Button
+                AutomationProperties.Name="Devices"
+                Command="{x:Bind ViewModel.OpenDevicesCommand}"
+                Content="Devices" />
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="Sign out" />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="Sign out of District AI on this device." />
+            <Button
+                AutomationProperties.Name="Sign out"
+                Command="{x:Bind ViewModel.SignOutCommand}"
+                Content="Sign out" />
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="Delete your account" />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="Request deletion of your account and its data. Opens in your browser." />
+            <Button
+                AutomationProperties.Name="Delete account"
+                Command="{x:Bind ViewModel.DeleteAccountCommand}"
+                Content="Delete account" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

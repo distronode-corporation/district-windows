@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.ThreadPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels">
+    <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock
+            AutomationProperties.HeadingLevel="Level1"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+            TextTrimming="CharacterEllipsis" />
+        <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
+
+        <ListView
+            Grid.Row="2"
+            AutomationProperties.Name="{x:Bind ViewModel.Title, Mode=OneWay}"
+            ItemsSource="{x:Bind ViewModel.Items}"
+            SelectionMode="None"
+            Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsStackPanel ItemsUpdatingScrollMode="KeepLastItemInView" />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemContainerStyle>
+                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.Header>
+                <StackPanel
+                    Padding="0,0,0,8"
+                    HorizontalAlignment="Center"
+                    Spacing="4"
+                    Visibility="{x:Bind ViewModel.HasMore, Mode=OneWay}">
+                    <Button
+                        HorizontalAlignment="Center"
+                        AutomationProperties.Name="Older messages"
+                        Command="{x:Bind ViewModel.LoadOlderCommand}"
+                        Content="Older messages"
+                        IsEnabled="{x:Bind ViewModel.CanLoadOlder, Mode=OneWay}" />
+                    <ProgressRing
+                        Width="20"
+                        Height="20"
+                        AutomationProperties.Name="Loading older messages"
+                        IsActive="{x:Bind ViewModel.LoadingOlder, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.LoadingOlder, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.OlderFailure, Mode=OneWay}"
+                        TextAlignment="Center"
+                        Visibility="{x:Bind ViewModel.HasOlderFailure, Mode=OneWay}" />
+                </StackPanel>
+            </ListView.Header>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="vm:TimelineItem">
+                    <StackPanel
+                        Padding="0,6"
+                        AutomationProperties.Name="{x:Bind AccessibleName}"
+                        Spacing="4">
+                        <!-- A message this workspace sent. -->
+                        <Border
+                            MaxWidth="560"
+                            Padding="12,8"
+                            HorizontalAlignment="Right"
+                            Background="{ThemeResource AccentFillColorDefaultBrush}"
+                            CornerRadius="{StaticResource OverlayCornerRadius}"
+                            Visibility="{x:Bind IsOutboundMessage}">
+                            <StackPanel Spacing="2">
+                                <TextBlock
+                                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                    IsTextSelectionEnabled="True"
+                                    Text="{x:Bind Body}"
+                                    TextWrapping="Wrap" />
+                                <TextBlock
+                                    Foreground="{ThemeResource TextOnAccentFillColorSecondaryBrush}"
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Attachments}"
+                                    Visibility="{x:Bind HasAttachments}" />
+                            </StackPanel>
+                        </Border>
+                        <!-- A message this workspace received. -->
+                        <Border
+                            MaxWidth="560"
+                            Padding="12,8"
+                            HorizontalAlignment="Left"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource OverlayCornerRadius}"
+                            Visibility="{x:Bind IsInboundMessage}">
+                            <StackPanel Spacing="2">
+                                <TextBlock
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Author}"
+                                    Visibility="{x:Bind HasAuthor}" />
+                                <TextBlock
+                                    IsTextSelectionEnabled="True"
+                                    Text="{x:Bind Body}"
+                                    TextWrapping="Wrap" />
+                                <TextBlock
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Attachments}"
+                                    Visibility="{x:Bind HasAttachments}" />
+                            </StackPanel>
+                        </Border>
+                        <!-- A call, with its AI summary. -->
+                        <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind IsCallEvent}">
+                            <StackPanel Spacing="4">
+                                <TextBlock
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind CallTitle}"
+                                    TextWrapping="Wrap" />
+                                <TextBlock
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind SummaryLabel}"
+                                    Visibility="{x:Bind HasSummary}" />
+                                <TextBlock
+                                    IsTextSelectionEnabled="True"
+                                    Text="{x:Bind SummaryText}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{x:Bind HasSummary}" />
+                            </StackPanel>
+                        </Border>
+                        <!-- Anything else, as one line. -->
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind NoteText}"
+                            TextAlignment="Center"
+                            Visibility="{x:Bind IsNote}" />
+                        <StackPanel
+                            HorizontalAlignment="{x:Bind Alignment}"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Text="{x:Bind When}"
+                                Visibility="{x:Bind HasWhen}" />
+                            <HyperlinkButton
+                                Padding="4,2"
+                                AutomationProperties.Name="{x:Bind ReportLabel}"
+                                Click="OnReportClick"
+                                Content="{x:Bind ReportLabel}"
+                                IsEnabled="{x:Bind ReportEnabled}"
+                                Visibility="{x:Bind ReportVisible}" />
+                        </StackPanel>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <views:StatusPanel x:Name="Status" Grid.Row="2" />
+
+        <TextBlock
+            Grid.Row="3"
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.ReadOnlyNote, Mode=OneWay}" />
+    </Grid>
+</UserControl>
