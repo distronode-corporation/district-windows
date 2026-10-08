@@ -21,12 +21,17 @@
   <Identity
     Name="DistronodeCorporation.42101E4C5A5B6"
     Publisher="CN=88F0B47E-0C40-4DCA-A217-DF66120AACBE"
-    Version="0.1.0.0"
+    Version="1.0.0.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
     <DisplayName>District AI</DisplayName>
     <PublisherDisplayName>Distronode</PublisherDisplayName>
+    <!--
+      Each logo below names a resource, not a file: the Assets folder holds it
+      at every scale (and the 44x44 at every target size, plated and unplated),
+      and Windows picks the one for the display.
+    -->
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -43,7 +48,7 @@
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
       <uap:VisualElements
         DisplayName="District AI"
-        Description="The District AI receptionist on your desktop."
+        Description="District AI is your AI receptionist. See your calls, messages and contacts, and place and answer calls from your computer."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

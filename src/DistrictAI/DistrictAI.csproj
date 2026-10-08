@@ -51,7 +51,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\*.png" />
+    <!-- The logos at every scale and target size, and the tray icon. -->
+    <Content Include="Assets\*.png;Assets\*.ico" />
     <Manifest Include="$(ApplicationManifest)" />
     <!-- The Rust core, inside the package next to DistrictAI.exe. -->
     <Content Include="$(DistrictFfiDir)district_ffi.dll" Link="district_ffi.dll" CopyToOutputDirectory="PreserveNewest" Condition="Exists('$(DistrictFfiDir)district_ffi.dll')" />
