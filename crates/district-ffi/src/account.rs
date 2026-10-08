@@ -1,7 +1,8 @@
 //! The account screen and the devices signed in to the account.
 
 use district_core::{
-    AccountView as CoreAccount, Confirmation, DeviceRow, DevicesList, DevicesScreen,
+    AccountView as CoreAccount, Confirmation, DeviceRow, DevicesList, DevicesScreen, PresenceState,
+    SignedIn,
 };
 use serde::Serialize;
 
@@ -29,6 +30,16 @@ pub struct AccountView {
     pub devices_caption: String,
     /// The account deletion row's caption.
     pub delete_account_caption: String,
+    /// The "Ring on this computer" setting, once the core has read it, in a
+    /// build that can carry calls; `None` otherwise, and then the setting is
+    /// not shown. Changed with `UiEvent::SetRingOnThisComputer`.
+    pub ring_on_this_computer: Option<bool>,
+    /// The setting's label, "Ring on this computer".
+    pub ring_setting_label: String,
+    /// What the setting does.
+    pub ring_setting_body: String,
+    /// The line under the setting when calls cannot ring here right now.
+    pub ring_setting_message: Option<String>,
 }
 
 impl From<CoreAccount> for AccountView {
@@ -42,7 +53,26 @@ impl From<CoreAccount> for AccountView {
             sign_out_caption: CoreAccount::SIGN_OUT_CAPTION.to_owned(),
             devices_caption: CoreAccount::DEVICES_CAPTION.to_owned(),
             delete_account_caption: CoreAccount::DELETE_ACCOUNT_CAPTION.to_owned(),
+            ring_on_this_computer: None,
+            ring_setting_label: PresenceState::SETTING_LABEL.to_owned(),
+            ring_setting_body: PresenceState::SETTING_BODY.to_owned(),
+            ring_setting_message: None,
         }
+    }
+}
+
+/// The account screen for `account`, with the ring setting of `signed_in` when
+/// `calls_available`.
+pub(crate) fn account_view(
+    account: CoreAccount,
+    signed_in: &SignedIn,
+    calls_available: bool,
+) -> AccountView {
+    let presence = &signed_in.presence;
+    AccountView {
+        ring_on_this_computer: presence.ring_here.filter(|_| calls_available),
+        ring_setting_message: presence.message().filter(|_| calls_available),
+        ..account.into()
     }
 }
 

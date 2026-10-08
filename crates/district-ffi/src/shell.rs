@@ -1,6 +1,9 @@
 //! The window's frame: which part of the session the app is in, and while
 //! signed in, which tab is highlighted, the workspace switcher, the inbox's
-//! unread count, the live updates' state and a report under way.
+//! unread count, the live updates' state, a report under way, and the call
+//! strip (the call under way and the call ringing here).
+
+use std::time::SystemTime;
 
 use district_core::{
     LiveStatus, Model, Route, SessionState, SignedIn, Tab, WorkspaceRole, WorkspacesState,
@@ -8,6 +11,7 @@ use district_core::{
 use district_model::WorkspaceEntry;
 use serde::Serialize;
 
+use crate::calls_live::{ActiveCallView, IncomingRingView, active_call_view, incoming_ring_view};
 use crate::report::{ReportStatus, report_status};
 use crate::views::humanize;
 
@@ -34,6 +38,17 @@ pub struct ShellView {
     /// The report this session started, while it is under way or until its
     /// outcome is dismissed (`UiEvent::DismissReport`).
     pub report: Option<ReportStatus>,
+    /// The phone call on this desktop, placed or answered, until its summary
+    /// is put away (`UiEvent::DismissCall`). It outlives a change of screen and
+    /// of workspace, so the window shows it over every screen.
+    pub call: Option<ActiveCallView>,
+    /// A call ringing here, or the last ring's ending until it is put away
+    /// (`UiEvent::DismissRing`).
+    pub ring: Option<IncomingRingView>,
+    /// Whether this build can carry a call's audio: true in the Windows build,
+    /// which links the LiveKit engine. Without it the dialler, Call buttons and
+    /// "Ring on this computer" are not offered.
+    pub calls_available: bool,
 }
 
 /// The workspaces the member can open, and the open one.
@@ -131,11 +146,22 @@ impl From<TabView> for Tab {
 /// The frame for `model`. `reporting` says whether this session started a
 /// report that has not been dismissed.
 pub fn shell_view(model: &Model, reporting: bool) -> ShellView {
-    shell_for(model.session(), reporting)
+    shell_for(
+        model.session(),
+        reporting,
+        model.config().calls_available,
+        SystemTime::now(),
+    )
 }
 
-/// The frame for `session`.
-pub(crate) fn shell_for(session: &SessionState, reporting: bool) -> ShellView {
+/// The frame for `session`, in a build that can carry calls when
+/// `calls_available`, as of `now` (when a call under way was answered).
+pub(crate) fn shell_for(
+    session: &SessionState,
+    reporting: bool,
+    calls_available: bool,
+    now: SystemTime,
+) -> ShellView {
     let outside = |phase| ShellView {
         phase,
         tab: None,
@@ -145,6 +171,9 @@ pub(crate) fn shell_for(session: &SessionState, reporting: bool) -> ShellView {
         unread: 0,
         live: None,
         report: None,
+        call: None,
+        ring: None,
+        calls_available,
     };
     match session {
         SessionState::Restoring(_) => outside(SessionPhase::Restoring),
@@ -162,6 +191,9 @@ pub(crate) fn shell_for(session: &SessionState, reporting: bool) -> ShellView {
                 .map_or(0, |count| u32::try_from(count.max(0)).unwrap_or(u32::MAX)),
             live: live_banner(signed_in),
             report: report_status(signed_in, reporting),
+            call: active_call_view(signed_in, now),
+            ring: incoming_ring_view(signed_in),
+            calls_available,
         },
     }
 }

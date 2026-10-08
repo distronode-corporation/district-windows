@@ -3049,6 +3049,20 @@ class FfiConverterTypeUiHost: FfiConverter<UiHost, ulong> {
 /// <param name="DeleteAccountCaption">
 /// The account deletion row's caption.
 /// </param>
+/// <param name="RingOnThisComputer">
+/// The "Ring on this computer" setting, once the core has read it, in a
+/// build that can carry calls; `None` otherwise, and then the setting is
+/// not shown. Changed with `UiEvent::SetRingOnThisComputer`.
+/// </param>
+/// <param name="RingSettingLabel">
+/// The setting's label, "Ring on this computer".
+/// </param>
+/// <param name="RingSettingBody">
+/// What the setting does.
+/// </param>
+/// <param name="RingSettingMessage">
+/// The line under the setting when calls cannot ring here right now.
+/// </param>
 public record AccountView (
     /// <summary>
     /// This build's version.
@@ -3083,7 +3097,25 @@ public record AccountView (
     /// <summary>
     /// The account deletion row's caption.
     /// </summary>
-    string DeleteAccountCaption
+    string DeleteAccountCaption, 
+    /// <summary>
+    /// The "Ring on this computer" setting, once the core has read it, in a
+    /// build that can carry calls; `None` otherwise, and then the setting is
+    /// not shown. Changed with `UiEvent::SetRingOnThisComputer`.
+    /// </summary>
+    bool? RingOnThisComputer, 
+    /// <summary>
+    /// The setting's label, "Ring on this computer".
+    /// </summary>
+    string RingSettingLabel, 
+    /// <summary>
+    /// What the setting does.
+    /// </summary>
+    string RingSettingBody, 
+    /// <summary>
+    /// The line under the setting when calls cannot ring here right now.
+    /// </summary>
+    string? RingSettingMessage
 ) {
 }
 
@@ -3099,7 +3131,11 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             Name: FfiConverterOptionalString.INSTANCE.Read(stream),
             SignOutCaption: FfiConverterString.INSTANCE.Read(stream),
             DevicesCaption: FfiConverterString.INSTANCE.Read(stream),
-            DeleteAccountCaption: FfiConverterString.INSTANCE.Read(stream)
+            DeleteAccountCaption: FfiConverterString.INSTANCE.Read(stream),
+            RingOnThisComputer: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
+            RingSettingLabel: FfiConverterString.INSTANCE.Read(stream),
+            RingSettingBody: FfiConverterString.INSTANCE.Read(stream),
+            RingSettingMessage: FfiConverterOptionalString.INSTANCE.Read(stream)
         );
     }
 
@@ -3112,7 +3148,11 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Name)
             + FfiConverterString.INSTANCE.AllocationSize(value.SignOutCaption)
             + FfiConverterString.INSTANCE.AllocationSize(value.DevicesCaption)
-            + FfiConverterString.INSTANCE.AllocationSize(value.DeleteAccountCaption);
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeleteAccountCaption)
+            + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.RingOnThisComputer)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RingSettingLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RingSettingBody)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RingSettingMessage);
     }
 
     public override void Write(AccountView value, BigEndianStream stream) {
@@ -3124,6 +3164,10 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             FfiConverterString.INSTANCE.Write(value.SignOutCaption, stream);
             FfiConverterString.INSTANCE.Write(value.DevicesCaption, stream);
             FfiConverterString.INSTANCE.Write(value.DeleteAccountCaption, stream);
+            FfiConverterOptionalBoolean.INSTANCE.Write(value.RingOnThisComputer, stream);
+            FfiConverterString.INSTANCE.Write(value.RingSettingLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RingSettingBody, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.RingSettingMessage, stream);
     }
 }
 
@@ -5461,6 +5505,20 @@ class FfiConverterTypeSessionScreen: FfiConverterRustBuffer<SessionScreen> {
 /// The report this session started, while it is under way or until its
 /// outcome is dismissed (`UiEvent::DismissReport`).
 /// </param>
+/// <param name="Call">
+/// The phone call on this desktop, placed or answered, until its summary
+/// is put away (`UiEvent::DismissCall`). It outlives a change of screen and
+/// of workspace, so the window shows it over every screen.
+/// </param>
+/// <param name="Ring">
+/// A call ringing here, or the last ring's ending until it is put away
+/// (`UiEvent::DismissRing`).
+/// </param>
+/// <param name="CallsAvailable">
+/// Whether this build can carry a call's audio: true in the Windows build,
+/// which links the LiveKit engine. Without it the dialler, Call buttons and
+/// "Ring on this computer" are not offered.
+/// </param>
 public record ShellView (
     /// <summary>
     /// Where the session is. The app shows the sign-in page for every phase but
@@ -5497,7 +5555,24 @@ public record ShellView (
     /// The report this session started, while it is under way or until its
     /// outcome is dismissed (`UiEvent::DismissReport`).
     /// </summary>
-    ReportStatus? Report
+    ReportStatus? Report, 
+    /// <summary>
+    /// The phone call on this desktop, placed or answered, until its summary
+    /// is put away (`UiEvent::DismissCall`). It outlives a change of screen and
+    /// of workspace, so the window shows it over every screen.
+    /// </summary>
+    ActiveCallView? Call, 
+    /// <summary>
+    /// A call ringing here, or the last ring's ending until it is put away
+    /// (`UiEvent::DismissRing`).
+    /// </summary>
+    IncomingRingView? Ring, 
+    /// <summary>
+    /// Whether this build can carry a call's audio: true in the Windows build,
+    /// which links the LiveKit engine. Without it the dialler, Call buttons and
+    /// "Ring on this computer" are not offered.
+    /// </summary>
+    bool CallsAvailable
 ) {
 }
 
@@ -5513,7 +5588,10 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             Workspaces: FfiConverterTypeWorkspaceSwitcherView.INSTANCE.Read(stream),
             Unread: FfiConverterUInt32.INSTANCE.Read(stream),
             Live: FfiConverterOptionalTypeLiveBannerView.INSTANCE.Read(stream),
-            Report: FfiConverterOptionalTypeReportStatus.INSTANCE.Read(stream)
+            Report: FfiConverterOptionalTypeReportStatus.INSTANCE.Read(stream),
+            Call: FfiConverterOptionalTypeActiveCallView.INSTANCE.Read(stream),
+            Ring: FfiConverterOptionalTypeIncomingRingView.INSTANCE.Read(stream),
+            CallsAvailable: FfiConverterBoolean.INSTANCE.Read(stream)
         );
     }
 
@@ -5526,7 +5604,10 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             + FfiConverterTypeWorkspaceSwitcherView.INSTANCE.AllocationSize(value.Workspaces)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.Unread)
             + FfiConverterOptionalTypeLiveBannerView.INSTANCE.AllocationSize(value.Live)
-            + FfiConverterOptionalTypeReportStatus.INSTANCE.AllocationSize(value.Report);
+            + FfiConverterOptionalTypeReportStatus.INSTANCE.AllocationSize(value.Report)
+            + FfiConverterOptionalTypeActiveCallView.INSTANCE.AllocationSize(value.Call)
+            + FfiConverterOptionalTypeIncomingRingView.INSTANCE.AllocationSize(value.Ring)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CallsAvailable);
     }
 
     public override void Write(ShellView value, BigEndianStream stream) {
@@ -5538,6 +5619,9 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             FfiConverterUInt32.INSTANCE.Write(value.Unread, stream);
             FfiConverterOptionalTypeLiveBannerView.INSTANCE.Write(value.Live, stream);
             FfiConverterOptionalTypeReportStatus.INSTANCE.Write(value.Report, stream);
+            FfiConverterOptionalTypeActiveCallView.INSTANCE.Write(value.Call, stream);
+            FfiConverterOptionalTypeIncomingRingView.INSTANCE.Write(value.Ring, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CallsAvailable, stream);
     }
 }
 
@@ -6558,6 +6642,13 @@ public record ScreenView {
     ) : ScreenView {}
     
     /// <summary>
+    /// The dialler, in a build that can carry calls.
+    /// </summary>
+    public record Dialer (
+        DialerView View
+    ) : ScreenView {}
+    
+    /// <summary>
     /// A screen of the core this version has no page for: every other route.
     /// </summary>
     public record Unavailable (
@@ -6616,6 +6707,10 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
                     FfiConverterTypeDevicesView.INSTANCE.Read(stream)
                 );
             case 11:
+                return new ScreenView.Dialer(
+                    FfiConverterTypeDialerView.INSTANCE.Read(stream)
+                );
+            case 12:
                 return new ScreenView.Unavailable(
                     FfiConverterString.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
@@ -6657,6 +6752,9 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
             case ScreenView.Devices variant_value:
                 return 4
                     + FfiConverterTypeDevicesView.INSTANCE.AllocationSize(variant_value.View);
+            case ScreenView.Dialer variant_value:
+                return 4
+                    + FfiConverterTypeDialerView.INSTANCE.AllocationSize(variant_value.View);
             case ScreenView.Unavailable variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Title)
@@ -6708,8 +6806,12 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
                 stream.WriteInt(10);
                 FfiConverterTypeDevicesView.INSTANCE.Write(variant_value.View, stream);
                 break;
-            case ScreenView.Unavailable variant_value:
+            case ScreenView.Dialer variant_value:
                 stream.WriteInt(11);
+                FfiConverterTypeDialerView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case ScreenView.Unavailable variant_value:
+                stream.WriteInt(12);
                 FfiConverterString.INSTANCE.Write(variant_value.Title, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.Body, stream);
                 break;
@@ -7395,6 +7497,79 @@ public record UiEvent {
     public record DismissReport: UiEvent {}
     
     
+    /// <summary>
+    /// Open the dialler.
+    /// </summary>
+    public record OpenDialer: UiEvent {}
+    
+    
+    /// <summary>
+    /// The dialler's number changed: what the box holds now, exactly as typed.
+    /// </summary>
+    public record DialerEdit (
+        string Number
+    ) : UiEvent {}
+    
+    /// <summary>
+    /// The dialler's "Call" (or Enter in its box).
+    /// </summary>
+    public record Dial: UiEvent {}
+    
+    
+    /// <summary>
+    /// Call `number` from anywhere (a call's or a contact's "Call back"): the
+    /// dialler is given the number, then dialled. Two core events.
+    /// </summary>
+    public record CallNumber (
+        string Number
+    ) : UiEvent {}
+    
+    /// <summary>
+    /// Hang up the call under way, or abandon a dial on its way.
+    /// </summary>
+    public record HangUp: UiEvent {}
+    
+    
+    /// <summary>
+    /// Put an ended call's summary away.
+    /// </summary>
+    public record DismissCall: UiEvent {}
+    
+    
+    /// <summary>
+    /// Answer the call ringing.
+    /// </summary>
+    public record Answer (
+        string CallId
+    ) : UiEvent {}
+    
+    /// <summary>
+    /// Decline it. Nothing is sent to the service.
+    /// </summary>
+    public record Decline (
+        string CallId
+    ) : UiEvent {}
+    
+    /// <summary>
+    /// Put an ended ring's line away.
+    /// </summary>
+    public record DismissRing: UiEvent {}
+    
+    
+    /// <summary>
+    /// Turn the microphone on or off, during a call.
+    /// </summary>
+    public record Microphone (
+        bool On
+    ) : UiEvent {}
+    
+    /// <summary>
+    /// The account screen's "Ring on this computer".
+    /// </summary>
+    public record SetRingOnThisComputer (
+        bool On
+    ) : UiEvent {}
+    
 
     
 }
@@ -7502,6 +7677,45 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case 29:
                 return new UiEvent.DismissReport(
                 );
+            case 30:
+                return new UiEvent.OpenDialer(
+                );
+            case 31:
+                return new UiEvent.DialerEdit(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 32:
+                return new UiEvent.Dial(
+                );
+            case 33:
+                return new UiEvent.CallNumber(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 34:
+                return new UiEvent.HangUp(
+                );
+            case 35:
+                return new UiEvent.DismissCall(
+                );
+            case 36:
+                return new UiEvent.Answer(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 37:
+                return new UiEvent.Decline(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 38:
+                return new UiEvent.DismissRing(
+                );
+            case 39:
+                return new UiEvent.Microphone(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 40:
+                return new UiEvent.SetRingOnThisComputer(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeUiEvent.Read()", value));
         }
@@ -7577,6 +7791,34 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Note);
             case UiEvent.DismissReport variant_value:
                 return 4;
+            case UiEvent.OpenDialer variant_value:
+                return 4;
+            case UiEvent.DialerEdit variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Number);
+            case UiEvent.Dial variant_value:
+                return 4;
+            case UiEvent.CallNumber variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Number);
+            case UiEvent.HangUp variant_value:
+                return 4;
+            case UiEvent.DismissCall variant_value:
+                return 4;
+            case UiEvent.Answer variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.CallId);
+            case UiEvent.Decline variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.CallId);
+            case UiEvent.DismissRing variant_value:
+                return 4;
+            case UiEvent.Microphone variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case UiEvent.SetRingOnThisComputer variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeUiEvent.AllocationSize()", value));
         }
@@ -7681,6 +7923,45 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case UiEvent.DismissReport variant_value:
                 stream.WriteInt(29);
                 break;
+            case UiEvent.OpenDialer variant_value:
+                stream.WriteInt(30);
+                break;
+            case UiEvent.DialerEdit variant_value:
+                stream.WriteInt(31);
+                FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
+                break;
+            case UiEvent.Dial variant_value:
+                stream.WriteInt(32);
+                break;
+            case UiEvent.CallNumber variant_value:
+                stream.WriteInt(33);
+                FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
+                break;
+            case UiEvent.HangUp variant_value:
+                stream.WriteInt(34);
+                break;
+            case UiEvent.DismissCall variant_value:
+                stream.WriteInt(35);
+                break;
+            case UiEvent.Answer variant_value:
+                stream.WriteInt(36);
+                FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
+                break;
+            case UiEvent.Decline variant_value:
+                stream.WriteInt(37);
+                FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
+                break;
+            case UiEvent.DismissRing variant_value:
+                stream.WriteInt(38);
+                break;
+            case UiEvent.Microphone variant_value:
+                stream.WriteInt(39);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case UiEvent.SetRingOnThisComputer variant_value:
+                stream.WriteInt(40);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeUiEvent.Write()", value));
         }
@@ -7688,6 +7969,37 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
 }
 
 
+
+
+
+
+class FfiConverterOptionalBoolean: FfiConverterRustBuffer<bool?> {
+    public static FfiConverterOptionalBoolean INSTANCE = new FfiConverterOptionalBoolean();
+
+    public override bool? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterBoolean.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(bool? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterBoolean.INSTANCE.AllocationSize((bool)value);
+        }
+    }
+
+    public override void Write(bool? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterBoolean.INSTANCE.Write((bool)value, stream);
+        }
+    }
+}
 
 
 
@@ -7716,6 +8028,37 @@ class FfiConverterOptionalString: FfiConverterRustBuffer<string?> {
         } else {
             stream.WriteByte(1);
             FfiConverterString.INSTANCE.Write((string)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView?> {
+    public static FfiConverterOptionalTypeActiveCallView INSTANCE = new FfiConverterOptionalTypeActiveCallView();
+
+    public override ActiveCallView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeActiveCallView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(ActiveCallView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeActiveCallView.INSTANCE.AllocationSize((ActiveCallView)value);
+        }
+    }
+
+    public override void Write(ActiveCallView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeActiveCallView.INSTANCE.Write((ActiveCallView)value, stream);
         }
     }
 }
@@ -7871,6 +8214,37 @@ class FfiConverterOptionalTypeFinishSetupView: FfiConverterRustBuffer<FinishSetu
         } else {
             stream.WriteByte(1);
             FfiConverterTypeFinishSetupView.INSTANCE.Write((FinishSetupView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeIncomingRingView: FfiConverterRustBuffer<IncomingRingView?> {
+    public static FfiConverterOptionalTypeIncomingRingView INSTANCE = new FfiConverterOptionalTypeIncomingRingView();
+
+    public override IncomingRingView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeIncomingRingView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(IncomingRingView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeIncomingRingView.INSTANCE.AllocationSize((IncomingRingView)value);
+        }
+    }
+
+    public override void Write(IncomingRingView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeIncomingRingView.INSTANCE.Write((IncomingRingView)value, stream);
         }
     }
 }

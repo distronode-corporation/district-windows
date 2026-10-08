@@ -58,6 +58,19 @@
     <Content Include="$(DistrictFfiDir)district_ffi.dll" Link="district_ffi.dll" CopyToOutputDirectory="PreserveNewest" Condition="Exists('$(DistrictFfiDir)district_ffi.dll')" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--
+      libwebrtc, which district_ffi.dll links, ships with its licence texts:
+      the LICENSE.md of the archive scripts/fetch-libwebrtc.ps1 unpacks into
+      LK_CUSTOM_WEBRTC (NOTICE says why).
+    -->
+    <Content Include="$(LK_CUSTOM_WEBRTC)\LICENSE.md" Link="ThirdPartyNotices\libwebrtc-LICENSE.md" CopyToOutputDirectory="PreserveNewest" Condition="'$(LK_CUSTOM_WEBRTC)' != '' and Exists('$(LK_CUSTOM_WEBRTC)\LICENSE.md')" />
+  </ItemGroup>
+
+  <Target Name="RequireLibwebrtcLicence" BeforeTargets="Build" Condition="'$(OS)' == 'Windows_NT' and ('$(Configuration)' == 'Release' or '$(GenerateAppxPackageOnBuild)' == 'true')">
+    <Error Condition="'$(LK_CUSTOM_WEBRTC)' == '' or !Exists('$(LK_CUSTOM_WEBRTC)\LICENSE.md')" Text="libwebrtc's LICENSE.md is not in LK_CUSTOM_WEBRTC ('$(LK_CUSTOM_WEBRTC)'), and a release or a package must ship it. Run scripts/fetch-libwebrtc.ps1 and set LK_CUSTOM_WEBRTC to the directory it prints." />
+  </Target>
+
   <Target Name="RequireDistrictFfi" BeforeTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
     <Error Condition="!Exists('$(DistrictFfiDir)district_ffi.dll')" Text="district_ffi.dll is not in $(DistrictFfiDir). Run `cargo build -p district-ffi --release` and build with -p:DistrictFfiProfile=release." />
   </Target>

@@ -43,6 +43,14 @@ uniffi = { workspace = true }
 url = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
+# The LiveKit call engine, on Windows only: `district_call::engine()` is then
+# `LiveKitCallEngine` and `CALLS_AVAILABLE` is true. It links libwebrtc, the
+# audio-only build scripts/fetch-libwebrtc.ps1 fetches and LK_CUSTOM_WEBRTC
+# names (CONTRIBUTING.md, "Building with calls"); that library is built with the
+# static CRT, which is why .cargo/config.toml builds Rust with +crt-static. The
+# Linux build of this crate, which only DistrictAI.Core.Tests loads, keeps the
+# engine that joins nothing.
+district-call = { workspace = true, features = ["livekit"] }
 keyring = { workspace = true }
 
 [dev-dependencies]

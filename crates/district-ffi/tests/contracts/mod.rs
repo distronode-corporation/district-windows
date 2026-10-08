@@ -20,6 +20,11 @@ pub fn dir() -> &'static Path {
         let workspace = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../Cargo.toml");
         let output = Command::new(env!("CARGO"))
             .args(["metadata", "--format-version", "1", "--locked", "--offline"])
+            // This machine's dependencies only. Unfiltered, cargo resolves every
+            // target's, and the Windows-only call engine's are not downloaded
+            // on Linux, which offline is an error.
+            .arg("--filter-platform")
+            .arg(host())
             .arg("--manifest-path")
             .arg(&workspace)
             .output()
@@ -51,6 +56,19 @@ pub fn dir() -> &'static Path {
         );
         dir
     })
+}
+
+/// The target triple of the toolchain running the tests (`rustc -vV`'s host).
+fn host() -> String {
+    let output = Command::new("rustc")
+        .arg("-vV")
+        .output()
+        .expect("rustc did not start");
+    String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .find_map(|line| line.strip_prefix("host: "))
+        .expect("rustc -vV named no host")
+        .to_owned()
 }
 
 /// A recorded response from the core's `fixtures` set, as JSON to adjust.

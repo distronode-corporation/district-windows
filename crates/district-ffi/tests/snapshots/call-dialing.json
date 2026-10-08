@@ -15,8 +15,22 @@
     }
   },
   "shell": {
-    "call": null,
-    "calls_available": false,
+    "call": {
+      "call_id": null,
+      "can_hang_up": true,
+      "can_mute": false,
+      "connected_at": null,
+      "ended": null,
+      "ended_note": null,
+      "failure": null,
+      "media_notice": null,
+      "microphone_denied": false,
+      "muted": true,
+      "outbound": true,
+      "peer": "+1 212 555 0142",
+      "state_label": "Placing the call."
+    },
+    "calls_available": true,
     "can_go_back": false,
     "live": null,
     "notice": null,
