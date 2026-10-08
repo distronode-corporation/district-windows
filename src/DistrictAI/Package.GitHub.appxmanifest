@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The MSIX manifest of the GitHub flavour: the same app as Package.appxmanifest
+  (the Store flavour) under its own identity, so the two are separate packages.
+  scripts/check-flavours.py fails CI if the two differ anywhere but the
+  identity name, the publisher, the display name and the notification
+  activator's COM class (each package registers its own). The version must be
+  the Store manifest's.
+
+  Its Publisher must equal the subject of the certificate that signs it:
+  SignPath Foundation's, once the project's application is accepted. The value
+  below is PROVISIONAL: it is the subject seen on a SignPath Foundation
+  certificate in a public report (github.com/jgm/pandoc/discussions/11551,
+  March 2026), not one SignPath's documentation states. Replace it with the
+  exact subject of the certificate SignPath issues before anything is signed
+  with it. Until then the release carries this package unsigned, for the
+  application only; an unsigned package does not install normally.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  IgnorableNamespaces="uap uap5 rescap com desktop">
+
+  <Identity
+    Name="Distronode.DistrictAI.GitHub"
+    Publisher="CN=SignPath Foundation, O=SignPath Foundation, L=Lewes, S=Delaware, C=US"
+    Version="1.0.0.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>District AI (GitHub)</DisplayName>
+    <PublisherDisplayName>Distronode</PublisherDisplayName>
+    <!--
+      Each logo below names a resource, not a file: the Assets folder holds it
+      at every scale (and the 44x44 at every target size, plated and unplated),
+      and Windows picks the one for the display.
+    -->
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <!-- Windows 10 2004 or later. -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
+      <uap:VisualElements
+        DisplayName="District AI (GitHub)"
+        Description="District AI is your AI receptionist. See your calls, messages and contacts, and place and answer calls from your computer."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+
+      <Extensions>
+        <!-- districtai://auth (the browser handing a sign-in back) and districtai://handoff. -->
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="districtai">
+            <uap:DisplayName>District AI</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+
+        <!--
+          Toast activation. A notification's button (an incoming call's Answer
+          or Decline) reaches the app through this COM class: Windows App SDK's
+          AppNotificationManager serves it while the app runs, and Windows
+          starts DistrictAI.exe with the argument below when it does not.
+        -->
+        <desktop:Extension Category="windows.toastNotificationActivation">
+          <desktop:ToastNotificationActivation ToastActivatorCLSID="ed8e185e-be4e-49ff-9113-03904e2fa69b" />
+        </desktop:Extension>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="DistrictAI.exe" Arguments="----AppNotificationActivated:" DisplayName="District AI notifications">
+              <com:Class Id="ed8e185e-be4e-49ff-9113-03904e2fa69b" DisplayName="District AI notifications" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+
+        <!-- Start at sign-in to Windows: off until the person turns it on. -->
+        <uap5:Extension Category="windows.startupTask">
+          <uap5:StartupTask TaskId="DistrictAIStartup" Enabled="false" DisplayName="District AI" />
+        </uap5:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <!-- Calls (W7). Asked for once, when the first call needs it. -->
+    <DeviceCapability Name="microphone" />
+  </Capabilities>
+</Package>

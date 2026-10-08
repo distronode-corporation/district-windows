@@ -5,7 +5,9 @@ name: Release
 # ships), a sideload test MSIX signed with a throwaway certificate and that
 # certificate's public half, a zip of the framework packages the test MSIX
 # needs (the Windows App Runtime), the Windows App Certification Kit's report
-# on the package, a source zip, SHA256SUMS over all of them, and the signed provenance
+# on the package, the GitHub flavour as an unsigned MSIX (for the SignPath
+# Foundation code-signing application; it is not meant to be installed), a
+# source zip, SHA256SUMS over all of them, and the signed provenance
 # attestation over them (`district-ai-windows_<version>.intoto.jsonl`).
 #
 # Four stages, and only the last can write anything:
@@ -14,9 +16,10 @@ name: Release
 #   on main (CI never tested it), one that Package.appxmanifest's Version does
 #   not name (tag vX.Y.Z needs Version X.Y.Z.0), or one without a CHANGELOG.md
 #   section to make the notes from. It also makes the source zip.
-# - `build` builds both packages on windows-2025 from the committed lock files,
-#   with no caches, checks what is inside them (identity, version, ReadyToRun),
-#   and runs the Windows App Certification Kit on the package.
+# - `build` builds the Store and sideload packages and the unsigned GitHub
+#   flavour on windows-2025 from the committed lock files, with no caches,
+#   checks what is inside them (identity, version, ReadyToRun), and runs the
+#   Windows App Certification Kit on the sideload package.
 # - `assemble` checks the files are exactly the names a release carries and
 #   writes SHA256SUMS.
 # - `publish` attests the files' provenance, verifies the attestations, creates
@@ -36,6 +39,7 @@ on:
     paths:
       - .github/workflows/release.yml
       - src/DistrictAI/Package.appxmanifest
+      - src/DistrictAI/Package.GitHub.appxmanifest
       - src/DistrictAI/DistrictAI.csproj
       - src/DistrictAI/packages.lock.json
       - src/DistrictAI/app.manifest
@@ -143,6 +147,11 @@ jobs:
             echo "::warning::CHANGELOG.md has no section for $VERSION yet; a tag would fail here"
             echo "(dry run: no notes)" > release-notes.md
           fi
+          # One fixed line for the asset that is not for people to install.
+          {
+            echo
+            echo "DistrictAI_${VERSION}_x64_github-unsigned.msix is the GitHub flavour, unsigned, for the SignPath Foundation code-signing application. It is not meant to be installed."
+          } >> release-notes.md
           delim="body_$(openssl rand -hex 16)"
           {
             echo "body<<${delim}"
@@ -266,9 +275,27 @@ jobs:
           if (Get-ChildItem -Path 'Cert:\CurrentUser\My' | Where-Object Thumbprint -eq $cert.Thumbprint) { throw 'the test certificate is still in the store' }
           Get-ChildItem -Recurse $out | Select-Object FullName, Length | Format-Table -AutoSize
 
-      # What is inside, checked rather than assumed: one package each, the
+      # The GitHub flavour (Package.GitHub.appxmanifest), unsigned: the asset
+      # the SignPath Foundation code-signing application points at. Its
+      # Publisher is meant for SignPath Foundation's certificate, so nothing
+      # here can sign it, and an unsigned package does not install normally.
+      - name: Build the GitHub flavour MSIX, unsigned
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'GitHubPackage'
+          dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+            -p:DistrictFfiProfile=release -warnaserror -p:DistrictFlavour=GitHub `
+            -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=SideloadOnly `
+            -p:AppxBundle=Never -p:AppxPackageSigningEnabled=false -p:PublishReadyToRun=true `
+            -p:AppxSymbolPackageEnabled=false -p:DebugType=none "-p:AppxPackageDir=$out\"
+          if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
+          Get-ChildItem -Recurse $out | Select-Object FullName, Length | Format-Table -AutoSize
+
+      # What is inside, checked rather than assumed: one package each, its
       # manifest's identity and version, DistrictAI.dll compiled ReadyToRun,
-      # and the test package signed by the manifest's Publisher.
+      # the test package signed by the manifest's Publisher, and the Store and
+      # GitHub packages unsigned.
       - name: Both packages hold what a release needs
         shell: pwsh
         run: |
@@ -276,10 +303,13 @@ jobs:
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $manifest = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity
           if ($manifest.Version -ne "$env:VERSION.0") { throw "manifest Version $($manifest.Version) is not $env:VERSION.0" }
+          $github = ([xml](Get-Content src/DistrictAI/Package.GitHub.appxmanifest)).Package.Identity
+          if ($github.Version -ne "$env:VERSION.0") { throw "GitHub manifest Version $($github.Version) is not $env:VERSION.0" }
+          if ($github.Name -eq $manifest.Name -or $github.Publisher -eq $manifest.Publisher) { throw 'the GitHub manifest has the Store identity' }
           $work = Join-Path $env:RUNNER_TEMP 'inspect'
           New-Item -ItemType Directory -Force $work | Out-Null
 
-          function Test-Msix([string] $path, [string] $label) {
+          function Test-Msix([string] $path, [string] $label, $expected) {
             $zip = [IO.Compression.ZipFile]::OpenRead($path)
             try {
               $entry = $zip.GetEntry('AppxManifest.xml')
@@ -288,7 +318,7 @@ jobs:
               $identity = ([xml]$reader.ReadToEnd()).Package.Identity
               $reader.Dispose()
               foreach ($field in 'Name', 'Publisher', 'Version') {
-                if ($identity.$field -ne $manifest.$field) { throw "$label Identity/@$field is '$($identity.$field)', the manifest says '$($manifest.$field)'" }
+                if ($identity.$field -ne $expected.$field) { throw "$label Identity/@$field is '$($identity.$field)', the manifest says '$($expected.$field)'" }
               }
               if ($identity.ProcessorArchitecture -ne 'x64') { throw "$label is $($identity.ProcessorArchitecture), not x64" }
               $dll = @($zip.Entries | Where-Object FullName -eq 'DistrictAI.dll')
@@ -312,14 +342,19 @@ jobs:
           Get-ChildItem -Recurse $unpacked | Select-Object FullName, Length | Format-Table -AutoSize
           $inner = @(Get-ChildItem -Recurse $unpacked -Filter '*.msix')
           if ($inner.Count -ne 1) { throw "expected one .msix inside the .msixupload, found $($inner.Count)" }
-          Test-Msix $inner[0].FullName 'store'
+          Test-Msix $inner[0].FullName 'store' $manifest
           if ((Get-AuthenticodeSignature $inner[0].FullName).SignerCertificate) { throw 'the Store package is signed; the Store signs it' }
 
           $sideload = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'SideloadPackage') -Filter 'DistrictAI_*.msix')
           if ($sideload.Count -ne 1) { throw "expected one sideload MSIX, found $($sideload.Count)" }
-          Test-Msix $sideload[0].FullName 'sideload'
+          Test-Msix $sideload[0].FullName 'sideload' $manifest
           $signature = Get-AuthenticodeSignature $sideload[0].FullName
           if ($signature.SignerCertificate.Subject -ne $manifest.Publisher) { throw "unexpected signer: $($signature.SignerCertificate.Subject)" }
+
+          $githubMsix = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'GitHubPackage') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
+          if ($githubMsix.Count -ne 1) { throw "expected one GitHub flavour MSIX, found $($githubMsix.Count)" }
+          Test-Msix $githubMsix[0].FullName 'github' $github
+          if ((Get-AuthenticodeSignature $githubMsix[0].FullName).SignerCertificate) { throw 'the GitHub flavour package is signed; this release carries it unsigned' }
 
       - name: The WACK report reader still catches what it claims to
         run: python scripts/check-wack-report.py --self-test
@@ -353,6 +388,9 @@ jobs:
           $msix = @(Get-ChildItem -Recurse $side -Filter 'DistrictAI_*.msix')[0]
           Copy-Item $msix.FullName (Join-Path $stage "DistrictAI_$($env:VERSION)_x64_sideload-test.msix")
           Copy-Item (Join-Path $side 'test.cer') (Join-Path $stage "DistrictAI_$($env:VERSION)_sideload-test.cer")
+          $githubMsix = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'GitHubPackage') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
+          if ($githubMsix.Count -ne 1) { throw "expected one GitHub flavour MSIX, found $($githubMsix.Count)" }
+          Copy-Item $githubMsix[0].FullName (Join-Path $stage "DistrictAI_$($env:VERSION)_x64_github-unsigned.msix")
           # The framework packages the test MSIX depends on (the Windows App
           # Runtime), which a fresh Windows does not have. Missing or empty is a
           # failure: a sideload package nobody can install is no release.
@@ -397,6 +435,7 @@ jobs:
           expected="$(printf '%s\n' \
             "DistrictAI_${VERSION}_x64.msixupload" \
             "DistrictAI_${VERSION}_x64_sideload-test.msix" \
+            "DistrictAI_${VERSION}_x64_github-unsigned.msix" \
             "DistrictAI_${VERSION}_x64_sideload-dependencies.zip" \
             "DistrictAI_${VERSION}_sideload-test.cer" \
             "DistrictAI_${VERSION}_wack-report.xml" \
@@ -416,7 +455,7 @@ jobs:
           # Written outside assets/ first, so the list does not include itself.
           find . -maxdepth 1 -type f -printf '%f\n' | sort | xargs -d '\n' sha256sum > "$RUNNER_TEMP/SHA256SUMS"
           mv "$RUNNER_TEMP/SHA256SUMS" SHA256SUMS
-          [ "$(wc -l < SHA256SUMS)" -eq 6 ] || { echo "::error::SHA256SUMS does not name six files"; exit 1; }
+          [ "$(wc -l < SHA256SUMS)" -eq 7 ] || { echo "::error::SHA256SUMS does not name seven files"; exit 1; }
           cat SHA256SUMS
           sha256sum -c SHA256SUMS
 
@@ -462,7 +501,7 @@ jobs:
           cd assets
           sha256sum -c SHA256SUMS
           find . -maxdepth 1 -type f -printf '%f\n' | sort > "$RUNNER_TEMP/expected-assets.txt"
-          [ "$(wc -l < "$RUNNER_TEMP/expected-assets.txt")" -eq 7 ] || { echo "::error::expected seven files"; exit 1; }
+          [ "$(wc -l < "$RUNNER_TEMP/expected-assets.txt")" -eq 8 ] || { echo "::error::expected eight files"; exit 1; }
 
       # Signed provenance over the bytes a user downloads, verifiable with:
       #   gh attestation verify <file> --repo distronode-corporation/district-windows
@@ -529,7 +568,7 @@ jobs:
         run: |
           set -euo pipefail
           expected="$(cat "$RUNNER_TEMP/expected-assets.txt")"
-          [ "$(printf '%s\n' "$expected" | wc -l)" -eq 8 ] || { echo "::error::the expected asset list does not name eight files"; exit 1; }
+          [ "$(printf '%s\n' "$expected" | wc -l)" -eq 9 ] || { echo "::error::the expected asset list does not name nine files"; exit 1; }
           actual="$(gh release view "$TAG" --json assets --jq '.assets[].name' | sort)"
           if [ "$expected" != "$actual" ]; then
             echo "::error::the draft does not hold the expected assets; leaving it as a draft"
