@@ -112,6 +112,18 @@ Pull requests that change the workflow or the packaging run the same build and
 certification as a dry run, with nothing attested or released. CI's `windows-app` job runs
 the certification kit on every pull request too, through `scripts/run-wack.ps1`.
 
+### Testing the sideload package
+
+The test MSIX is signed with a throwaway certificate and depends on the Windows App
+Runtime, which a fresh Windows does not have. From a release, take
+`DistrictAI_<version>_x64_sideload-test.msix`, `DistrictAI_<version>_sideload-test.cer` and
+`DistrictAI_<version>_x64_sideload-dependencies.zip`, then in an administrator PowerShell:
+
+1. Trust the certificate (Local Machine, Trusted People):
+   `Import-Certificate -FilePath <cer> -CertStoreLocation Cert:\LocalMachine\TrustedPeople`
+2. Unzip the dependencies and `Add-AppxPackage <file>` each `.msix` in it.
+3. `Add-AppxPackage` the test `.msix`.
+
 ## Commits and pull requests
 
 Say why in the commit message, not only what. Keep a pull request to one concern. Every

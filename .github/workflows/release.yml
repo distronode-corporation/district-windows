@@ -3,8 +3,9 @@ name: Release
 # Fires on a `vX.Y.Z` tag and publishes District AI for Windows: the Store
 # package Partner Center takes (an unsigned .msixupload; the Store signs what it
 # ships), a sideload test MSIX signed with a throwaway certificate and that
-# certificate's public half, the Windows App Certification Kit's report on the
-# package, a source zip, SHA256SUMS over all of them, and the signed provenance
+# certificate's public half, a zip of the framework packages the test MSIX
+# needs (the Windows App Runtime), the Windows App Certification Kit's report
+# on the package, a source zip, SHA256SUMS over all of them, and the signed provenance
 # attestation over them (`district-ai-windows_<version>.intoto.jsonl`).
 #
 # Four stages, and only the last can write anything:
@@ -333,6 +334,15 @@ jobs:
           $msix = @(Get-ChildItem -Recurse $side -Filter 'DistrictAI_*.msix')[0]
           Copy-Item $msix.FullName (Join-Path $stage "DistrictAI_$($env:VERSION)_x64_sideload-test.msix")
           Copy-Item (Join-Path $side 'test.cer') (Join-Path $stage "DistrictAI_$($env:VERSION)_sideload-test.cer")
+          # The framework packages the test MSIX depends on (the Windows App
+          # Runtime), which a fresh Windows does not have. Missing or empty is a
+          # failure: a sideload package nobody can install is no release.
+          $deps = Join-Path $msix.DirectoryName 'Dependencies\x64'
+          if (-not (Test-Path $deps -PathType Container)) { throw "no framework dependencies at $deps" }
+          $depFiles = @(Get-ChildItem -Path $deps -Filter '*.msix' -File)
+          if ($depFiles.Count -eq 0) { throw "no .msix in $deps" }
+          $depFiles | ForEach-Object { Write-Host "dependency: $($_.Name) $($_.Length)" }
+          Compress-Archive -Path $depFiles.FullName -DestinationPath (Join-Path $stage "DistrictAI_$($env:VERSION)_x64_sideload-dependencies.zip")
           Get-ChildItem $stage | Select-Object Name, Length | Format-Table -AutoSize
 
       # Uploaded even when the kit failed, so its report can be read.
@@ -368,6 +378,7 @@ jobs:
           expected="$(printf '%s\n' \
             "DistrictAI_${VERSION}_x64.msixupload" \
             "DistrictAI_${VERSION}_x64_sideload-test.msix" \
+            "DistrictAI_${VERSION}_x64_sideload-dependencies.zip" \
             "DistrictAI_${VERSION}_sideload-test.cer" \
             "DistrictAI_${VERSION}_wack-report.xml" \
             "district-windows-${VERSION}-source.zip" | sort)"
@@ -386,7 +397,7 @@ jobs:
           # Written outside assets/ first, so the list does not include itself.
           find . -maxdepth 1 -type f -printf '%f\n' | sort | xargs -d '\n' sha256sum > "$RUNNER_TEMP/SHA256SUMS"
           mv "$RUNNER_TEMP/SHA256SUMS" SHA256SUMS
-          [ "$(wc -l < SHA256SUMS)" -eq 5 ] || { echo "::error::SHA256SUMS does not name five files"; exit 1; }
+          [ "$(wc -l < SHA256SUMS)" -eq 6 ] || { echo "::error::SHA256SUMS does not name six files"; exit 1; }
           cat SHA256SUMS
           sha256sum -c SHA256SUMS
 
@@ -432,7 +443,7 @@ jobs:
           cd assets
           sha256sum -c SHA256SUMS
           find . -maxdepth 1 -type f -printf '%f\n' | sort > "$RUNNER_TEMP/expected-assets.txt"
-          [ "$(wc -l < "$RUNNER_TEMP/expected-assets.txt")" -eq 6 ] || { echo "::error::expected six files"; exit 1; }
+          [ "$(wc -l < "$RUNNER_TEMP/expected-assets.txt")" -eq 7 ] || { echo "::error::expected seven files"; exit 1; }
 
       # Signed provenance over the bytes a user downloads, verifiable with:
       #   gh attestation verify <file> --repo distronode-corporation/district-windows
@@ -499,7 +510,7 @@ jobs:
         run: |
           set -euo pipefail
           expected="$(cat "$RUNNER_TEMP/expected-assets.txt")"
-          [ "$(printf '%s\n' "$expected" | wc -l)" -eq 7 ] || { echo "::error::the expected asset list does not name seven files"; exit 1; }
+          [ "$(printf '%s\n' "$expected" | wc -l)" -eq 8 ] || { echo "::error::the expected asset list does not name eight files"; exit 1; }
           actual="$(gh release view "$TAG" --json assets --jq '.assets[].name' | sort)"
           if [ "$expected" != "$actual" ]; then
             echo "::error::the draft does not hold the expected assets; leaving it as a draft"
