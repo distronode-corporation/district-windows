@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
@@ -10,6 +11,7 @@ namespace DistrictAI.ViewModels;
 /// </summary>
 public sealed partial class AccountViewModel : ObservableObject
 {
+    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "The interface is the seam: the platform's StartupRegistration replaces the stand-in when it lands.")]
     private readonly IStartupRegistration _startup = new NoStartupRegistration();
     private PageContext? _context;
     private bool _startupCanChange;
