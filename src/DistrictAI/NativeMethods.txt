@@ -24,3 +24,6 @@ WM_WINDOWPOSCHANGED
 WM_NULL
 FlashWindowEx
 GetForegroundWindow
+PowerRegisterSuspendResumeNotification
+PowerUnregisterSuspendResumeNotification
+DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS

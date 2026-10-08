@@ -148,8 +148,27 @@ public sealed class CoreHostTests : IDisposable
 
         host.Send(new UiEvent.CancelSignIn());
         await Eventually("signed out again", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
-        host.Power(PowerChange.Suspending);
+        // Signed out, nothing rings here, so a sleep has nothing to wait for.
+        await host.SuspendAsync().WaitAsync(TimeSpan.FromMilliseconds(500), TestContext.Current.CancellationToken);
+        host.Resume();
+        Assert.Equal(SessionPhase.SignedOut, host.Current.Shell.Phase);
         Assert.True(File.Exists(Path.Combine(_dataDir, "device-id")));
+    }
+
+    [Fact]
+    public async Task SleepingAndWakingBeforeTheStartAndAfterTheEndDoNothing()
+    {
+        var host = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
+        var cancel = TestContext.Current.CancellationToken;
+        // Not started: the core has nothing to wait for.
+        await host.SuspendAsync().WaitAsync(TimeSpan.FromMilliseconds(500), cancel);
+        host.Resume();
+        host.Start(_dataDir, "0.1.0", null, Namespace);
+        await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
+        await host.DisposeAsync();
+        // Disposed: a notification that arrives late reaches nothing.
+        await host.SuspendAsync().WaitAsync(TimeSpan.FromMilliseconds(500), cancel);
+        host.Resume();
     }
 
     [Fact]
