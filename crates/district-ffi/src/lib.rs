@@ -37,23 +37,50 @@
 
 uniffi::setup_scaffolding!();
 
+mod account;
+mod calls;
+mod contacts;
 mod core;
 mod events;
 mod host;
 mod identity;
+mod inbox;
 mod link;
+mod overview;
+mod report;
 mod screen;
 mod shell;
 mod store;
+mod views;
 
+pub use crate::account::{AccountView, ConfirmView, DeviceRowView, DevicesView};
+pub use crate::calls::{
+    CALL_FAILED_TITLE, CallDetailView, CallRowView, CallsView, TranscriptState,
+};
+pub use crate::contacts::{CONTACT_FAILED_TITLE, ContactDetailView, ContactRowView, ContactsView};
 pub use crate::core::{Core, StartConfig, StartError};
 pub use crate::events::{PowerChange, UiEvent};
 pub use crate::host::UiHost;
 pub use crate::identity::{PRODUCT, client_identity};
+pub use crate::inbox::{
+    InboxView, READ_ONLY_NOTE, SearchHitView, SearchView, THREAD_FAILED_TITLE, ThreadRowView,
+    ThreadView, TimelineItemView, TimelineKind,
+};
 pub use crate::link::{LinkKind, link_kind};
-pub use crate::screen::{RouteView, ScreenView, SessionScreen, screen_view};
-pub use crate::shell::{SessionPhase, ShellView, TabView, shell_view};
+pub use crate::overview::{FinishSetupView, NO_RECENT_CALLS, OVERVIEW_FAILED_TITLE, OverviewView};
+pub use crate::report::{NO_NOTE, NOTE_LIMIT, PREAMBLE, REPORT_SUBJECT, ReportStatus};
+pub use crate::screen::{
+    ScreenView, SessionScreen, UNAVAILABLE_BODY, UNAVAILABLE_TITLE, screen_view,
+};
+pub use crate::shell::{
+    LiveBannerView, SessionPhase, ShellView, TabView, WorkspaceEntryView, WorkspaceSwitcherView,
+    shell_view,
+};
 pub use crate::store::{CredentialStore, MemoryVault, OUTBOX_MAX_BYTES, Vault};
+pub use crate::views::{
+    AI_DOSSIER, AI_SUMMARY, AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView,
+    REPORT_WEB_URL, ReportAvailability, ReportTarget,
+};
 
 #[cfg(windows)]
 pub use crate::store::WindowsVault;
