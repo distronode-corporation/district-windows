@@ -10,9 +10,8 @@ pub const SCHEME: &str = "districtai";
 pub enum LinkKind {
     /// `districtai://auth`: the browser handing a sign-in back.
     Auth,
-    /// `districtai://handoff`: the web handing a page over to the app. Read by
-    /// the core from version 1.1 (the hand-off nonce); until then it is
-    /// recognised and not acted on.
+    /// `districtai://handoff`: the browser's answer to a hand-off to the web
+    /// (the scheduling pages), checked by the core against its one-time nonce.
     Handoff,
     /// Anything else: another scheme, another host, or not a link at all.
     Unknown,

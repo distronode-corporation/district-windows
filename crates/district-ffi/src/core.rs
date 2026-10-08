@@ -229,14 +229,18 @@ impl Core {
     }
 
     /// Hands the model a `districtai:` link Windows activated the app with,
-    /// and says what kind it was. A sign-in's answer goes to the sign-in; a
-    /// hand-off is recognised and, until the core reads hand-offs, not acted
-    /// on; anything else is ignored.
+    /// and says what kind it was. A sign-in's answer goes to the sign-in, a
+    /// hand-off's to the hand-off (the core checks each against what it is
+    /// waiting for); anything else is ignored.
     pub fn open_link(&self, uri: String) -> LinkKind {
         let kind = link_kind(&uri);
         match kind {
-            LinkKind::Auth => self.deliver(Message::event(Event::SignInCallback(uri))),
-            LinkKind::Handoff | LinkKind::Unknown => {}
+            LinkKind::Auth | LinkKind::Handoff => {
+                if let Some(event) = Event::from_link(&uri) {
+                    self.deliver(Message::event(event));
+                }
+            }
+            LinkKind::Unknown => {}
         }
         kind
     }

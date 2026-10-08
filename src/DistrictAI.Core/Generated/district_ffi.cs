@@ -1715,8 +1715,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_open_link();
-            if (checksum != 28235) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_open_link` checksum `28235`, library returned `{checksum}`");
+            if (checksum != 2805) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_open_link` checksum `2805`, library returned `{checksum}`");
             }
         }
         {
@@ -1901,9 +1901,9 @@ class FfiConverterString: FfiConverter<string, RustBuffer> {
 public interface ICore {
     /// <summary>
     /// Hands the model a `districtai:` link Windows activated the app with,
-    /// and says what kind it was. A sign-in's answer goes to the sign-in; a
-    /// hand-off is recognised and, until the core reads hand-offs, not acted
-    /// on; anything else is ignored.
+    /// and says what kind it was. A sign-in's answer goes to the sign-in, a
+    /// hand-off's to the hand-off (the core checks each against what it is
+    /// waiting for); anything else is ignored.
     /// </summary>
     LinkKind OpenLink(string @uri);
     /// <summary>
@@ -2051,9 +2051,9 @@ public class Core : ICore, IDisposable {
     
     /// <summary>
     /// Hands the model a `districtai:` link Windows activated the app with,
-    /// and says what kind it was. A sign-in's answer goes to the sign-in; a
-    /// hand-off is recognised and, until the core reads hand-offs, not acted
-    /// on; anything else is ignored.
+    /// and says what kind it was. A sign-in's answer goes to the sign-in, a
+    /// hand-off's to the hand-off (the core checks each against what it is
+    /// waiting for); anything else is ignored.
     /// </summary>
     public LinkKind OpenLink(string @uri) {
         return CallWithPointer(thisPtr => FfiConverterTypeLinkKind.INSTANCE.Lift(
@@ -2826,9 +2826,8 @@ public enum LinkKind: int {
     /// </summary>
     Auth,
     /// <summary>
-    /// `districtai://handoff`: the web handing a page over to the app. Read by
-    /// the core from version 1.1 (the hand-off nonce); until then it is
-    /// recognised and not acted on.
+    /// `districtai://handoff`: the browser's answer to a hand-off to the web
+    /// (the scheduling pages), checked by the core against its one-time nonce.
     /// </summary>
     Handoff,
     /// <summary>

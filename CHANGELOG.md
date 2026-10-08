@@ -10,7 +10,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - The repository: licence, community files and the public hygiene check.
-- `crates/district-ffi`: the boundary the app calls, over district-core-rust 1.0.0. One
+- `crates/district-ffi`: the boundary the app calls, over district-core-rust 1.2.0. One
   `Core` object (start, send, open a link, power changes, the window's frame and screen,
   shut down) with a C# callback for each new revision and for opening the browser; the
   sign-in page's projection, pinned by JSON snapshots; the session in Windows Credential

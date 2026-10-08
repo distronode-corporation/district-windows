@@ -1,6 +1,6 @@
 using DistrictAI.Core;
 using Microsoft.UI.Dispatching;
-using Windows.System;
+using Launcher = Windows.System.Launcher;
 
 namespace DistrictAI.Platform;
 
