@@ -1,0 +1,214 @@
+name: libwebrtc-windows
+
+# Builds the audio-only libwebrtc that a Windows build with calls links, with
+# scripts/build-libwebrtc.ps1: LiveKit's own Windows recipe for its Rust SDK's
+# prebuilt library (build_windows.cmd), from the same pinned sources and patches
+# as District AI for Linux's build, without the H.264 and H.265 codecs and
+# FFmpeg. The script checks the arguments the library was built with, and fails
+# if dumpbin finds any H.264 or H.265 codec symbol defined in webrtc.lib.
+#
+# From main, it then publishes the zip as the release
+# libwebrtc-<webrtc short hash>-audio-win-<number>, with its SHA-256 and a build
+# provenance attestation (`gh attestation verify <zip> --repo
+# distronode-corporation/district-windows`). scripts/fetch-libwebrtc pins that
+# release's digest; moving the pin is a separate pull request.
+#
+# The licensing of this build was cleared on 2026-10-08, on the same terms as
+# District AI for Linux's (audio-only; no H.264, H.265 or FFmpeg). It is
+# recorded the way Linux records it: the repository variable
+# LIBWEBRTC_LICENCE_CLEARED, set to true by a maintainer, which a workflow that
+# ships a package with this library in it checks before it publishes. Like
+# Linux's, this build itself does not depend on it: it builds without the
+# codecs that were never cleared.
+#
+# By hand only. It downloads about 15 GB and builds for hours, and nothing in it
+# changes unless its pins do.
+on:
+  workflow_dispatch:
+    inputs:
+      number:
+        description: The build number after "audio-win-", counting builds of the same WebRTC commit
+        required: true
+        default: "1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: libwebrtc-windows
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: ${{ !github.event.repository.private }}
+    runs-on: windows-2022
+    timeout-minutes: 360
+    outputs:
+      release: ${{ steps.name.outputs.release }}
+    steps:
+      - name: Name the release
+        id: name
+        shell: bash
+        env:
+          NUMBER: ${{ inputs.number }}
+        run: |
+          set -euo pipefail
+          case "$NUMBER" in
+            '' | *[!0-9]* | 0*) echo "::error::number must be a positive whole number, not '$NUMBER'"; exit 1 ;;
+          esac
+          echo "release=libwebrtc-89d790b-audio-win-$NUMBER" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The release name's short hash is the build script's pin, so the two
+      # cannot drift.
+      - name: The release names the pinned WebRTC commit
+        shell: bash
+        env:
+          RELEASE: ${{ steps.name.outputs.release }}
+        run: |
+          set -euo pipefail
+          commit="$(sed -n "s/^\$WebrtcCommit = '\([0-9a-f]\{40\}\)'.*/\1/p" scripts/build-libwebrtc.ps1)"
+          case "$RELEASE" in
+            "libwebrtc-${commit:0:7}-audio-win-"*) echo "$RELEASE names $commit" ;;
+            *) echo "::error::$RELEASE does not name the pinned WebRTC commit '$commit'"; exit 1 ;;
+          esac
+
+      # What LiveKit's own CI installs for this build: setuptools for the
+      # licence generator, and ninja, here a pinned release checked against its
+      # digest instead of whatever "latest" is.
+      - name: Install the build's tools
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          python -m pip install --disable-pip-version-check setuptools==80.9.0
+          $zip = Join-Path $env:RUNNER_TEMP 'ninja-win.zip'
+          Invoke-WebRequest -Uri 'https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-win.zip' -OutFile $zip
+          $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
+          if ($hash -ne '07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78dc65') { throw "ninja-win.zip is $hash, not the pinned digest" }
+          $dir = Join-Path $env:RUNNER_TEMP 'ninja'
+          Expand-Archive -Path $zip -DestinationPath $dir
+          $dir | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_PATH
+          & (Join-Path $dir 'ninja.exe') --version
+
+      # On whichever drive has more room, at a short path: Chromium's checkout
+      # has paths near Windows' limit.
+      - name: Choose where to build
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Get-PSDrive -PSProvider FileSystem | Format-Table Name, Used, Free -AutoSize
+          $drive = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Name -in 'C', 'D' } |
+            Sort-Object Free -Descending | Select-Object -First 1
+          $work = "$($drive.Name):\lw"
+          Write-Host "building in $work ($([math]::Round($drive.Free / 1GB)) GB free)"
+          "WORK=$work" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
+
+      - name: Build libwebrtc without H.264, H.265 or FFmpeg
+        shell: pwsh
+        env:
+          # The installed Visual Studio 2022, not Google's internal toolchain.
+          DEPOT_TOOLS_WIN_TOOLCHAIN: "0"
+          GYP_MSVS_VERSION: "2022"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./scripts/build-libwebrtc.ps1 $env:WORK
+          Get-PSDrive -PSProvider FileSystem | Format-Table Name, Used, Free -AutoSize
+
+      - name: The archive and its digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$WORK"
+          ls -l webrtc-win-x64-release.zip
+          sha256sum --check webrtc-win-x64-release.zip.sha256
+          python -I -c '
+          import sys, zipfile
+          names = set(zipfile.ZipFile(sys.argv[1]).namelist())
+          need = ["lib/webrtc.lib", "args.gn", "webrtc.ninja", "desktop_capture.ninja", "LICENSE.md", "include/"]
+          missing = [n for n in need if "win-x64-release/" + n not in names]
+          sys.exit(f"the zip has no win-x64-release/{missing}" if missing else None)
+          print(len(names), "entries, all under win-x64-release/:", all(n.startswith("win-x64-release/") for n in names))
+          ' webrtc-win-x64-release.zip
+          {
+            echo "### libwebrtc for Windows"
+            echo '```'
+            cat webrtc-win-x64-release.zip.sha256
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: libwebrtc-win-x64-release
+          path: |
+            ${{ env.WORK }}/webrtc-win-x64-release.zip
+            ${{ env.WORK }}/webrtc-win-x64-release.zip.sha256
+            ${{ env.WORK }}/libwebrtc-symbols.txt
+          if-no-files-found: error
+          retention-days: 30
+          # Already compressed.
+          compression-level: 0
+
+  # From main only: a run on another branch is a rehearsal, and its zip stays
+  # an artifact of the run.
+  publish:
+    needs: build
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: libwebrtc-win-x64-release
+          path: libwebrtc
+
+      - name: The archive is the one the build checked
+        working-directory: libwebrtc
+        run: sha256sum --check webrtc-win-x64-release.zip.sha256
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: libwebrtc/webrtc-win-x64-release.zip
+
+      # A new tag at the commit the run built from. `gh release create` refuses
+      # a tag that exists, so a published build is never replaced: a rebuild
+      # takes the next number.
+      - name: Publish the release
+        working-directory: libwebrtc
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE: ${{ needs.build.outputs.release }}
+        run: |
+          set -euo pipefail
+          digest="$(cut -d' ' -f1 webrtc-win-x64-release.zip.sha256)"
+          cat > notes.md <<EOF
+          The audio-only libwebrtc that District AI for Windows links for calls:
+          LiveKit's Windows build of libwebrtc for its Rust SDK (webrtc-sys-build
+          0.3.19), from WebRTC commit 89d790b40447c3c5c54c3edd58aa53d285e35fa7 and
+          LiveKit's patches, built with ffmpeg_branding="Chromium",
+          rtc_use_h264=false and rtc_use_h265=false, so no H.264 or H.265 codec and
+          no FFmpeg. Built by .github/workflows/libwebrtc-windows.yml in run
+          ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}.
+
+          SHA-256 of webrtc-win-x64-release.zip: ${digest}
+
+          Verify its provenance with:
+          gh attestation verify webrtc-win-x64-release.zip --repo ${GITHUB_REPOSITORY}
+          EOF
+          gh release create "$RELEASE" \
+            --target "$GITHUB_SHA" \
+            --title "$RELEASE" \
+            --notes-file notes.md \
+            --latest=false \
+            webrtc-win-x64-release.zip \
+            webrtc-win-x64-release.zip.sha256 \
+            libwebrtc-symbols.txt
+          gh release view "$RELEASE"
