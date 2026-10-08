@@ -201,8 +201,8 @@ fn every_projection_matches_its_snapshot() {
     let mut failures = Vec::new();
     for (name, model) in cases() {
         let actual = serde_json::to_string_pretty(&json!({
-            "shell": shell_view(model.session()),
-            "screen": screen_view(model.session()),
+            "shell": shell_view(&model, false),
+            "screen": screen_view(&model),
         }))
         .unwrap()
             + "\n";
