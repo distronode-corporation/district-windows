@@ -7,7 +7,7 @@
 //! workspace, where an agent can read it under the workspace's own rules.
 
 use district_core::{Event, SignedIn, SupportEvent, SupportForm, SupportScreen};
-use district_model::{SupportRequestFiling, SupportRequestKind};
+use district_model::{SupportRequestFiling, SupportRequestKind, ThreadRef};
 use serde::Serialize;
 
 use crate::views::ReportTarget;
@@ -47,10 +47,18 @@ fn reference(target: &ReportTarget) -> String {
     match target {
         ReportTarget::Call { call_id } => format!("Call: {call_id}"),
         ReportTarget::Contact { contact_id } => format!("Contact: {contact_id}"),
+        // Never the thread key itself: a thread with no contact is keyed by the
+        // other party's phone number or email address, which must not reach
+        // the support desk. A contact's thread names the contact by its id.
         ReportTarget::ThreadEvent {
             thread_key,
             event_id,
-        } => format!("Conversation: {thread_key}\nEvent: {event_id}"),
+        } => match ThreadRef::from_thread_key(thread_key) {
+            Some(ThreadRef::Contact(contact_id)) => {
+                format!("Conversation event: {event_id}\nContact: {contact_id}")
+            }
+            Some(ThreadRef::Address(_)) | None => format!("Conversation event: {event_id}"),
+        },
     }
 }
 
@@ -63,11 +71,20 @@ pub(crate) fn message(target: &ReportTarget, note: &str) -> String {
     format!("{PREAMBLE}\n{}\n\n{tail}", reference(target))
 }
 
-/// The core events that raise a report: open the support form, fill it in,
-/// send it. The core accepts these on any screen, for a member whose role
-/// allows support requests, and raising one does not navigate.
+/// The core events that raise a report: drop any draft left over, open the
+/// support form, fill it in, send it. The core accepts these on any screen,
+/// for a member whose role allows support requests, and raising one does not
+/// navigate.
+///
+/// The cancel comes first because the draft carries the idempotency key: a
+/// failed report's draft stays open, and filling it with a report on another
+/// target would send that under the old key, which the service could answer
+/// as already reported. With no draft the cancel does nothing, and while a
+/// report is on its way the core refuses all four, so a second press during
+/// Sending is ignored.
 pub(crate) fn events(target: &ReportTarget, note: &str) -> Vec<Event> {
     vec![
+        Event::Support(SupportEvent::CancelRequest),
         Event::Support(SupportEvent::StartRequest),
         Event::Support(SupportEvent::EditRequest(SupportForm {
             kind: SupportRequestKind::Problem,
@@ -147,13 +164,38 @@ mod tests {
         let long = "x".repeat(NOTE_LIMIT + 50);
         let sent = message(&event, &long);
         assert!(sent.starts_with(&format!(
-            "{PREAMBLE}\nConversation: contact:c-1\nEvent: e-1\n\n"
+            "{PREAMBLE}\nConversation event: e-1\nContact: c-1\n\n"
         )));
         assert!(sent.ends_with(&"x".repeat(NOTE_LIMIT)));
         assert!(!sent.ends_with(&"x".repeat(NOTE_LIMIT + 1)));
         // Cut in the middle of a space run: no trailing space survives.
         let spaced = format!("{} tail", "y".repeat(NOTE_LIMIT - 1));
         assert!(message(&call, &spaced).ends_with(&"y".repeat(NOTE_LIMIT - 1)));
+    }
+
+    /// A thread with no contact is keyed by an address, and no part of it
+    /// reaches the support desk: only the event's id does.
+    #[test]
+    fn an_address_thread_is_reported_by_its_event_alone() {
+        for (key, address) in [
+            ("addr:ada@example.com", "ada@example.com"),
+            ("addr:+14165550181", "4165550181"),
+            ("fax:4165550181", "4165550181"),
+        ] {
+            let sent = message(
+                &ReportTarget::ThreadEvent {
+                    thread_key: key.to_owned(),
+                    event_id: "e-9".to_owned(),
+                },
+                "",
+            );
+            assert_eq!(
+                sent,
+                format!("{PREAMBLE}\nConversation event: e-9\n\n{NO_NOTE}")
+            );
+            assert!(!sent.contains(address), "{sent}");
+            assert!(!sent.contains("addr:"), "{sent}");
+        }
     }
 
     #[test]

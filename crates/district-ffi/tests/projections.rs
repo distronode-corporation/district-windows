@@ -1041,3 +1041,58 @@ fn a_report_stays_on_the_screen_it_was_made_from() {
         Some(district_ffi::ReportStatus::Sent { .. })
     ));
 }
+
+/// The idempotency key of the report the core is sending.
+fn report_key(session: &Session) -> String {
+    session
+        .pending
+        .iter()
+        .rev()
+        .find_map(|effect| match effect {
+            Effect::CreateSupportRequest {
+                idempotency_key, ..
+            } => Some(idempotency_key.clone()),
+            _ => None,
+        })
+        .expect("a report on its way")
+}
+
+/// A report that failed leaves its draft, and its key, open. A report on
+/// another target drops that draft first, so it goes under a new key and the
+/// service cannot take it for a repeat of the first.
+#[test]
+fn a_report_after_a_failed_one_gets_a_new_key() {
+    let first = reported(on_call(signed_in()));
+    let first_key = report_key(&first);
+    let failed = report_answer(first, Err(server_error()));
+    assert!(matches!(
+        shell_view(&failed.model, true).report,
+        Some(district_ffi::ReportStatus::Failed { .. })
+    ));
+    let second = failed.ui(UiEvent::Report {
+        target: ReportTarget::Contact {
+            contact_id: "contact_contract_1".to_owned(),
+        },
+        note: String::new(),
+    });
+    let second_key = report_key(&second);
+    assert_ne!(first_key, second_key);
+    assert!(matches!(
+        shell_view(&second.model, true).report,
+        Some(district_ffi::ReportStatus::Sending)
+    ));
+}
+
+/// While a report is on its way, a second press is refused whole: nothing
+/// else is sent, and the first draft is not dropped.
+#[test]
+fn a_second_report_while_sending_is_ignored() {
+    let sending = reported(on_call(signed_in()));
+    let sent_before = sending.pending.len();
+    let again = reported(sending);
+    assert_eq!(again.pending.len(), sent_before);
+    assert!(matches!(
+        shell_view(&again.model, true).report,
+        Some(district_ffi::ReportStatus::Sending)
+    ));
+}

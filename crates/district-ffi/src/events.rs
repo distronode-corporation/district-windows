@@ -9,7 +9,7 @@ use crate::shell::TabView;
 use crate::views::ReportTarget;
 
 /// Something the user did in the window. Most are one core event, and Report
-/// is three ([`UiEvent::events`]); the core decides what each means in the
+/// is four ([`UiEvent::events`]); the core decides what each means in the
 /// state it is in.
 #[derive(Clone, Debug, PartialEq, Eq, uniffi::Enum)]
 pub enum UiEvent {
@@ -268,7 +268,8 @@ mod tests {
         assert_eq!(Event::from(PowerChange::Resumed), Event::Resumed);
     }
 
-    /// Report is three events, in order: open the form, fill it in, send it.
+    /// Report is four events, in order: drop a leftover draft, open the form,
+    /// fill it in, send it.
     #[test]
     fn a_report_opens_fills_and_sends_the_support_form() {
         let events = UiEvent::Report {
@@ -281,6 +282,7 @@ mod tests {
         assert_eq!(
             events,
             [
+                Event::Support(SupportEvent::CancelRequest),
                 Event::Support(SupportEvent::StartRequest),
                 Event::Support(SupportEvent::EditRequest(SupportForm {
                     kind: SupportRequestKind::Problem,

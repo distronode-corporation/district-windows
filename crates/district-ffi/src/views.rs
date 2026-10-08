@@ -201,7 +201,8 @@ pub enum ReportTarget {
     },
     /// A call's AI summary in a conversation's timeline.
     ThreadEvent {
-        /// The conversation.
+        /// The conversation. Never sent: a thread with no contact is keyed by
+        /// an address. A contact's thread names the contact by its id.
         thread_key: String,
         /// The timeline event.
         event_id: String,
