@@ -1,0 +1,35 @@
+# Rust
+/target
+*.profraw
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+AppPackages/
+BundleArtifacts/
+*.msix
+*.msixbundle
+*.msixupload
+*.appxsym
+
+# Signing material never belongs in the repository.
+*.pfx
+*.p12
+*.cer
+
+# Python bytecode from scripts/
+__pycache__/
+
+# Local environment and secrets. Never commit a real token.
+.env
+.env.*
+!.env.example
+
+# Editors
+.idea/
+.vscode/
+*.swp

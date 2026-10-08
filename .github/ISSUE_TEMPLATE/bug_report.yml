@@ -1,0 +1,70 @@
+name: Bug report
+description: Report a reproducible bug in District AI for Windows (not a question or a feature request).
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Before you start, please [search existing issues](https://github.com/distronode-corporation/district-windows/issues?q=is%3Aissue).** It may already be reported or fixed.
+
+        **Do not report a security vulnerability here.** Report it privately through [Report a vulnerability](https://github.com/distronode-corporation/district-windows/security/advisories/new) instead; see [SECURITY.md](https://github.com/distronode-corporation/district-windows/blob/main/SECURITY.md).
+
+        **Nothing you paste here is private.** Leave out tokens, and leave out anything about the people your workspace talks to: names, phone numbers, transcripts, messages. Redact what you would not publish.
+  - type: checkboxes
+    id: prechecks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I've searched existing issues and this isn't a duplicate.
+          required: true
+        - label: I'm on the latest release or a build of `main`.
+          required: true
+        - label: This is not a security issue (those go to [Report a vulnerability](https://github.com/distronode-corporation/district-windows/security/advisories/new)).
+          required: true
+        - label: I've removed every token and every piece of customer or caller data from what I'm pasting.
+          required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What's the bug?
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact steps, so a maintainer can reproduce it.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The version shown in the app's Account screen, or the commit you built from (`git rev-parse --short HEAD`).
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options:
+        - Microsoft Store
+        - Built from source
+        - Other (say which in the description)
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Windows version
+      description: From Settings, System, About (Edition and Version).
+      placeholder: Windows 11 Pro 24H2
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: What the app showed
+      description: The exact words of any error the app showed. Optional, but it often decides the issue. Read it before pasting.
+      render: text

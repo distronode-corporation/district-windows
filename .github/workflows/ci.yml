@@ -1,0 +1,74 @@
+name: CI
+
+# `repo` runs the repository checks under scripts/. `zizmor` checks these workflows
+# themselves. `dependency-review` (pull requests only, public repository only) checks
+# what a pull request adds to the dependency tree.
+#
+# The Rust and Windows build jobs join this file with the code they build. While the
+# repository is private, any job on a Windows runner carries
+# `if: ${{ !github.event.repository.private }}`, because private Windows minutes are
+# metered; public runners are not.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege at the top level, so a job added later starts read-only instead
+# of inheriting the repository's default token scope. Nothing in CI writes.
+permissions:
+  contents: read
+
+# Per ref, and only pull requests cancel in flight: a superseded pull request run
+# is waste, a superseded main run is history.
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  repo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: The hygiene check still catches what it claims to
+        run: python3 scripts/check-public-hygiene.py --self-test
+
+      - name: Nothing in the tree that must not be public
+        run: python3 scripts/check-public-hygiene.py
+
+  # Skipped while the repository is private: dependency review on a private
+  # repository needs GitHub Code Security, and without it the action fails every
+  # pull request. It starts running by itself when the repository is made public.
+  dependency-review:
+    if: github.event_name == 'pull_request' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate
+          deny-licenses: GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later, AGPL-3.0-only, AGPL-3.0-or-later, LGPL-2.1-only, LGPL-2.1-or-later, LGPL-3.0-only, LGPL-3.0-or-later, SSPL-1.0, BUSL-1.1
+
+  # Static analysis of these workflows: template injection, over-broad token
+  # permissions, credential persistence, cache poisoning, unpinned actions.
+  # Suppressions are inline `# zizmor: ignore[...]` comments with a reason.
+  #
+  # Annotations mode, not SARIF: uploading SARIF to code scanning needs GitHub
+  # Code Security on a private repository, so zizmor reports as annotations and
+  # FAILS the job on a finding, on pushes and pull requests alike.
+  zizmor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        with:
+          version: 1.30.1
+          advanced-security: false
+          annotations: true

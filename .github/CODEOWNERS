@@ -1,0 +1,9 @@
+# Every path is owned, so a pull request always requests a review from someone.
+#
+# CODEOWNERS only has teeth behind a branch protection rule or ruleset with
+# "Require review from Code Owners" turned on; on its own it is a request, not a
+# gate.
+#
+# A handle here that has no write access to the repository is silently ignored by
+# GitHub (no error, no review request), so check access before adding one.
+* @distronode-com

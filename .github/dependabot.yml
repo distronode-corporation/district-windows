@@ -1,0 +1,23 @@
+version: 2
+
+# Every `uses:` in the workflows is pinned to a commit with a `# vX.Y.Z` comment, which
+# is right for supply-chain safety and wrong for noticing a security fix, because a
+# pinned SHA never moves on its own. This turns each pin into a pull request.
+#
+# `cooldown` holds a version update back until the release is a week old, so a
+# compromised publish that is yanked within days never reaches a pull request here.
+# It does not delay security updates.
+#
+# The `cargo` and `nuget` ecosystems join this file in the same pull request as the
+# first Cargo.toml and the first project file: Dependabot reports an error for an
+# ecosystem whose manifest does not exist yet.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions-minor:
+        update-types: [minor, patch]

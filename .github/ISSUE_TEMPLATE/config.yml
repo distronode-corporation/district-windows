@@ -1,0 +1,17 @@
+# No blank issues: bugs go through the structured Bug report form, and everything
+# else through the links below.
+#
+# The Discussions link needs Discussions enabled on the repository (Settings,
+# Features). With blank issues off and Discussions off there is nowhere for a
+# question or an idea to go.
+blank_issues_enabled: false
+contact_links:
+  - name: README
+    url: https://github.com/distronode-corporation/district-windows#readme
+    about: What the app does, how to install the current release, and how to build it from source.
+  - name: Questions and ideas
+    url: https://github.com/distronode-corporation/district-windows/discussions
+    about: For "how do I", build trouble and feature ideas. The issue tracker is for reproducible bugs.
+  - name: Security report
+    url: https://github.com/distronode-corporation/district-windows/security/advisories/new
+    about: Please do not open a public issue for a vulnerability. Report it privately here (see SECURITY.md).

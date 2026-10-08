@@ -1,0 +1,8 @@
+# LF everywhere, on every platform. Windows runners check out with CRLF by default,
+# which would change the bytes of anything this repository checksums or compares.
+* text=auto eol=lf
+
+# Binary assets are never converted.
+*.png binary
+*.ico binary
+*.wav binary
