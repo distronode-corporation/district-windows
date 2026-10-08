@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="DistrictAI.Views.ReportDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Report AI-generated content"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    PrimaryButtonText="Send"
+    Style="{StaticResource DefaultContentDialogStyle}">
+    <StackPanel MinWidth="360" Spacing="12">
+        <TextBlock Text="Tell us what is wrong with this AI-generated content. We will review it." TextWrapping="Wrap" />
+        <TextBox
+            x:Name="Note"
+            MinHeight="96"
+            AcceptsReturn="True"
+            AutomationProperties.Name="What is wrong (optional)"
+            Header="What is wrong (optional)"
+            MaxLength="2000"
+            TextWrapping="Wrap" />
+    </StackPanel>
+</ContentDialog>
