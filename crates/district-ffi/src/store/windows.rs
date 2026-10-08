@@ -7,7 +7,7 @@ use super::Vault;
 
 /// The start of every credential the app keeps. Credential Manager shows the
 /// whole target name (for example
-/// `DistrictAI/Distronode.DistrictAI_8wekyb3d8bbwe/session`) in its list.
+/// `DistrictAI/DistronodeCorporation.42101E4C5A5B6_kp9h3zhgekf9c/session`) in its list.
 pub const APP_TARGET: &str = "DistrictAI";
 
 /// A [`Vault`] in Windows Credential Manager: one generic credential per name,

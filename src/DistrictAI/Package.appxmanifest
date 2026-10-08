@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The MSIX manifest. The placeholder below is deliberate:
+  The MSIX manifest, with the Store identity Partner Center reserved for
+  "District AI" (Store product ID 9P9F0NNFJ3CP, Product management > Product
+  identity). The package family name is
+  DistronodeCorporation.42101E4C5A5B6_kp9h3zhgekf9c.
 
-  STORE IDENTITY PLACEHOLDER. Identity/@Name is not the Store's: the app name
-  "District AI" is not reserved in Partner Center yet. When it is, Partner
-  Center gives the package identity name, the Publisher (a CN=... string) and
-  the publisher display name, and all three replace the values here.
-  Until then the Publisher is "CN=Distronode", which is also the subject of the
-  throwaway test certificate CI signs its test packages with (it must match).
+  The Store re-signs what it ships. CI signs its test packages with a throwaway
+  certificate whose subject it reads from Identity/@Publisher below, because
+  the two must match for the package to install.
 -->
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -19,8 +19,8 @@
   IgnorableNamespaces="uap uap5 rescap com desktop">
 
   <Identity
-    Name="Distronode.DistrictAI.Placeholder"
-    Publisher="CN=Distronode"
+    Name="DistronodeCorporation.42101E4C5A5B6"
+    Publisher="CN=88F0B47E-0C40-4DCA-A217-DF66120AACBE"
     Version="0.1.0.0"
     ProcessorArchitecture="x64" />
 
