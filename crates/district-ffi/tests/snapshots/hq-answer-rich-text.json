@@ -1,0 +1,210 @@
+{
+  "screen": {
+    "Hq": {
+      "view": {
+        "ask_label": "Ask",
+        "can_ask": true,
+        "can_retry": false,
+        "card": null,
+        "empty": null,
+        "failure": null,
+        "footnote": "Each question is answered by an AI model, which is billed. A change it proposes is made only when you confirm it.",
+        "messages": [
+          {
+            "Question": {
+              "index": 0,
+              "text": "How did this week go?"
+            }
+          },
+          {
+            "Answer": {
+              "index": 1,
+              "report": "InApp",
+              "text": {
+                "blocks": [
+                  {
+                    "Heading": {
+                      "runs": [
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "This week"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "Paragraph": {
+                      "runs": [
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "You had "
+                        },
+                        {
+                          "bold": true,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "19 calls"
+                        },
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": ", and "
+                        },
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": true,
+                          "link": null,
+                          "text": "3"
+                        },
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": " were missed:"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "ListItem": {
+                      "depth": 0,
+                      "marker": "•",
+                      "runs": [
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "12 answered by the receptionist"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "ListItem": {
+                      "depth": 0,
+                      "marker": "•",
+                      "runs": [
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "4 sent to "
+                        },
+                        {
+                          "bold": false,
+                          "code": true,
+                          "italic": false,
+                          "link": null,
+                          "text": "voicemail"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "ListItem": {
+                      "depth": 1,
+                      "marker": "•",
+                      "runs": [
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "2 after hours"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "Paragraph": {
+                      "runs": [
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "See "
+                        },
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": "https://www.distronode.com/dashboard",
+                          "text": "the dashboard"
+                        },
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": " or "
+                        },
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": "https://example.com/calls",
+                          "text": "https://example.com/calls"
+                        },
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": ".\nNot this and <b>not this</b> either."
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "prompt_placeholder": "Ask District HQ",
+        "retry_label": "Try again",
+        "thinking": null,
+        "title": "District HQ"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Hq",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

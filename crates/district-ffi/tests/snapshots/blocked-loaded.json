@@ -1,0 +1,56 @@
+{
+  "screen": {
+    "BlockedContacts": {
+      "view": {
+        "can_unblock": true,
+        "confirming": null,
+        "empty": null,
+        "failure": null,
+        "rows": [
+          {
+            "blocked_at": "2026-09-01T09:00:00.000Z",
+            "contact_id": "contact_contract_1",
+            "name": "Contract Test Caller",
+            "phone_number": "+1 416 555 0142",
+            "unblocking": false
+          },
+          {
+            "blocked_at": "2026-08-20T16:30:00.000Z",
+            "contact_id": "contact_contract_2",
+            "name": "+1 416 555 0181",
+            "phone_number": null,
+            "unblocking": false
+          }
+        ],
+        "status": "Ready",
+        "title": "Blocked callers"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Contacts",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

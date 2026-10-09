@@ -30,8 +30,8 @@ public sealed partial class WorkflowsViewModel : ObservableObject
     /// <summary>Loading and failure, for the campaign's card.</summary>
     public LoadStateViewModel CampaignLoad { get; } = new();
 
-    /// <summary>The workflows, newest first.</summary>
-    public ObservableCollection<WorkflowItem> Rows { get; } = [];
+    /// <summary>The workflows, newest first, each followed by its runs while they are open.</summary>
+    public ObservableCollection<WorkflowEntry> Entries { get; } = [];
 
     /// <summary>The campaign card's heading.</summary>
     [ObservableProperty]
@@ -137,7 +137,7 @@ public sealed partial class WorkflowsViewModel : ObservableObject
         View = view;
         Title = view.Title;
         Load.Show(view.Status, view.Rows.Length > 0, view.Empty, refreshing: false, refreshFailure: null);
-        Display.Sync(Rows, [.. view.Rows.Select(WorkflowItem.From)]);
+        Display.Sync(Entries, [.. view.Rows.SelectMany(WorkflowEntry.From)]);
         ToggleFailure = Display.Failure(view.ToggleFailure);
         HasToggleFailure = ToggleFailure.Length > 0;
 
@@ -172,10 +172,10 @@ public sealed partial class WorkflowsViewModel : ObservableObject
     internal void Send(WorkflowsAction action) => _context?.Send(new UiEvent.Workflows(action));
 
     /// <summary>Opens or closes <paramref name="row"/>'s runs.</summary>
-    internal void ToggleRuns(WorkflowItem row) => Send(new WorkflowsAction.ToggleExpanded(row.WorkflowId));
+    internal void ToggleRuns(WorkflowEntry row) => Send(new WorkflowsAction.ToggleExpanded(row.WorkflowId));
 
     /// <summary>Reads the next page of <paramref name="row"/>'s runs, once per page.</summary>
-    internal void LoadMoreRuns(WorkflowItem row)
+    internal void LoadMoreRuns(WorkflowEntry row)
     {
         if (!row.CanLoadMore || row.RunsLoading)
         {
@@ -190,9 +190,9 @@ public sealed partial class WorkflowsViewModel : ObservableObject
     /// back) sends nothing, and one already being changed or locked by the
     /// role sends nothing either.
     /// </summary>
-    internal void SetActive(WorkflowItem row, bool on)
+    internal void SetActive(WorkflowEntry row, bool on)
     {
-        if (!row.CanSwitch || row.Active == on)
+        if (!row.IsWorkflow || !row.CanSwitch || row.Active == on)
         {
             return;
         }

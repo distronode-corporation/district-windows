@@ -1,9 +1,14 @@
-//! Contacts and one contact, read-only: what the Linux contacts page and
-//! contact view show, without the forms.
+//! Contacts and one contact: what the Linux contacts page, contact view and
+//! contact form show, and the changes a member makes there (adding, editing,
+//! deleting, running and clearing research, blocking and unblocking), each as
+//! the core's events. The core decides what may be offered
+//! (`ContactDetailScreen::controls`, `Capabilities::can_change`), what asks
+//! first, and what the form says.
 
 use district_core::{
-    Capabilities, ContactDetailScreen, ContactList, ContactView, ContactsScreen, contact_label,
-    format_phone_number,
+    Capabilities, ContactAction, ContactConfirmation, ContactDetailScreen, ContactForm,
+    ContactList, ContactView, ContactsEvent, ContactsScreen, CreateContact, Event, FailureText,
+    contact_label, format_phone_number,
 };
 use district_model::Contact;
 use serde::Serialize;
@@ -21,6 +26,215 @@ pub const CONTACT_FAILED_TITLE: &str = "Could not load this contact";
 /// The separator between the parts of one line.
 const DOT: &str = " \u{b7} ";
 
+/// A contact's name, phone number and email address as the form holds them,
+/// sent whole at every change (the core's `ContactForm`).
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct ContactFormInput {
+    /// The name.
+    pub name: String,
+    /// The phone number, as typed.
+    pub phone_number: String,
+    /// The email address.
+    pub email: String,
+}
+
+impl From<ContactFormInput> for ContactForm {
+    fn from(input: ContactFormInput) -> Self {
+        Self {
+            name: input.name,
+            phone_number: input.phone_number,
+            email: input.email,
+        }
+    }
+}
+
+/// The form adding a contact, or changing the open one.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct ContactFormView {
+    /// The dialog's heading: "Add contact" or "Edit contact".
+    pub title: String,
+    /// The sending button's label: "Add" or "Save".
+    pub submit_label: String,
+    /// What is typed, as the core holds it.
+    pub form: ContactFormInput,
+    /// The core's guidance under the form ("Enter a phone number or an email
+    /// address."), or `None`.
+    pub hint: Option<String>,
+    /// Whether the sending button works: the core would send this form, and
+    /// nothing is on its way.
+    pub can_submit: bool,
+    /// Whether the form is on its way (disable the fields and both buttons).
+    pub saving: bool,
+    /// Why the last attempt failed, in the core's (or the service's) words.
+    pub failure: Option<FailureView>,
+}
+
+/// Which form [`ContactFormView`] is.
+#[derive(Clone, Copy)]
+enum FormKind {
+    Create,
+    Edit,
+}
+
+impl FormKind {
+    /// The heading and the button, as the Linux app words them.
+    fn words(self) -> (&'static str, &'static str) {
+        match self {
+            Self::Create => ("Add contact", "Add"),
+            Self::Edit => ("Edit contact", "Save"),
+        }
+    }
+}
+
+fn form_view(
+    kind: FormKind,
+    form: &ContactForm,
+    saving: bool,
+    failure: Option<&FailureText>,
+) -> ContactFormView {
+    let (title, submit_label) = kind.words();
+    ContactFormView {
+        title: title.to_owned(),
+        submit_label: submit_label.to_owned(),
+        form: ContactFormInput {
+            name: form.name.clone(),
+            phone_number: form.phone_number.clone(),
+            email: form.email.clone(),
+        },
+        hint: form.hint().map(str::to_owned),
+        can_submit: form.can_submit() && !saving,
+        saving,
+        failure: crate::views::failure(failure),
+    }
+}
+
+fn create_view(create: &CreateContact) -> ContactFormView {
+    form_view(
+        FormKind::Create,
+        &create.form,
+        create.saving,
+        create.failure.as_ref(),
+    )
+}
+
+/// The question the core asks before a change to a contact.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct ContactQuestionView {
+    /// The question, in the core's words.
+    pub question: String,
+    /// The confirming button's label, in the core's words.
+    pub action: String,
+    /// Whether answering yes removes or hides something (every question but
+    /// unblocking): the dialog's default button is then Cancel.
+    pub destructive: bool,
+}
+
+impl From<ContactConfirmation> for ContactQuestionView {
+    fn from(confirmation: ContactConfirmation) -> Self {
+        Self {
+            question: confirmation.question().to_owned(),
+            action: confirmation.action().to_owned(),
+            destructive: confirmation != ContactConfirmation::Unblock,
+        }
+    }
+}
+
+/// The changes a member may make to the open contact now, from the core's
+/// `ContactControls`. Absent altogether for a role that may change nothing,
+/// which reads that its access is read-only instead.
+///
+/// The controls' own words are fixed and live in the page, as 1.0's do; the
+/// block control reads "Unblock" when [`ContactDetailView::blocked`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct ContactWritesView {
+    /// Whether "Edit" works.
+    pub can_edit: bool,
+    /// Whether "Delete" works.
+    pub can_delete: bool,
+    /// Whether "Run research" works (billed).
+    pub can_enrich: bool,
+    /// Whether "Clear research" is offered: there is research to clear.
+    pub can_clear_research: bool,
+    /// Whether the block control works.
+    pub can_block: bool,
+}
+
+/// What the screen says while a change is on its way, as the Linux app words
+/// it.
+fn busy_words(action: ContactAction) -> &'static str {
+    match action {
+        ContactAction::Save => "Saving the contact",
+        ContactAction::Delete => "Deleting the contact",
+        ContactAction::Enrich => "Starting research",
+        ContactAction::ClearIntel => "Clearing research",
+        ContactAction::Block => "Blocking the caller",
+        ContactAction::Unblock => "Unblocking the caller",
+    }
+}
+
+/// Something the member did on the contacts or a contact.
+#[derive(Clone, Debug, PartialEq, Eq, uniffi::Enum)]
+pub enum ContactsAction {
+    /// "Add contact": open the form.
+    StartCreate,
+    /// The form adding a contact changed: what it holds now.
+    EditCreate {
+        /// The whole form.
+        form: ContactFormInput,
+    },
+    /// "Add", or Enter in the form.
+    SubmitCreate,
+    /// Close the form adding a contact. The core refuses while it is saving.
+    CancelCreate,
+    /// "Edit", on the open contact.
+    StartEdit,
+    /// The form changing the contact changed: what it holds now.
+    Edit {
+        /// The whole form.
+        form: ContactFormInput,
+    },
+    /// "Save", or Enter in the form.
+    SaveEdit,
+    /// Close the form changing the contact. The core refuses while it is
+    /// saving.
+    CancelEdit,
+    /// "Delete": the core asks first.
+    AskDelete,
+    /// "Clear research": the core asks first.
+    AskClearResearch,
+    /// "Block" or "Unblock": the core asks first.
+    AskBlock,
+    /// "Run research". Billed; the core does not ask first.
+    Enrich,
+    /// Answer the open contact's question yes.
+    Confirm,
+    /// Answer it no.
+    Cancel,
+    /// Put away the open contact's failure.
+    DismissFailure,
+}
+
+/// The core events `action` is, in the order the core is to hear them.
+pub(crate) fn events(action: ContactsAction) -> Vec<Event> {
+    vec![Event::Contacts(match action {
+        ContactsAction::StartCreate => ContactsEvent::StartCreate,
+        ContactsAction::EditCreate { form } => ContactsEvent::EditCreate(form.into()),
+        ContactsAction::SubmitCreate => ContactsEvent::SubmitCreate,
+        ContactsAction::CancelCreate => ContactsEvent::CancelCreate,
+        ContactsAction::StartEdit => ContactsEvent::StartEdit,
+        ContactsAction::Edit { form } => ContactsEvent::Edit(form.into()),
+        ContactsAction::SaveEdit => ContactsEvent::SaveEdit,
+        ContactsAction::CancelEdit => ContactsEvent::CancelEdit,
+        ContactsAction::AskDelete => ContactsEvent::AskDelete,
+        ContactsAction::AskClearResearch => ContactsEvent::AskClearIntel,
+        ContactsAction::AskBlock => ContactsEvent::AskBlock,
+        ContactsAction::Enrich => ContactsEvent::Enrich,
+        ContactsAction::Confirm => ContactsEvent::Confirm,
+        ContactsAction::Cancel => ContactsEvent::Cancel,
+        ContactsAction::DismissFailure => ContactsEvent::DismissFailure,
+    })]
+}
+
 /// The contacts list.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct ContactsView {
@@ -34,6 +248,10 @@ pub struct ContactsView {
     pub total_label: Option<String>,
     /// The next page, and the first page read again.
     pub paging: PagingView,
+    /// Whether "Add contact" is offered: the member's role may change contacts.
+    pub can_create: bool,
+    /// The form adding a contact, while it is open.
+    pub create: Option<ContactFormView>,
 }
 
 /// One contact in the list.
@@ -76,6 +294,18 @@ pub struct ContactDetailView {
     pub report: ReportAvailability,
     /// The number to call, in E.164, when the contact has one.
     pub phone_number: Option<String>,
+    /// Whether the caller is known to be blocked (say "Blocked" by the name).
+    pub blocked: bool,
+    /// The changes the member may make now; `None` for a role that may change
+    /// nothing, which sees no controls at all.
+    pub writes: Option<ContactWritesView>,
+    /// What is on its way ("Deleting the contact"), while a change is.
+    pub busy: Option<String>,
+    /// The question the core is asking before a change, while it asks.
+    pub confirming: Option<ContactQuestionView>,
+    /// The form changing the contact, while it is open. A failure while it
+    /// is open is shown on the form, not in [`ContactDetailView::failure`].
+    pub editing: Option<ContactFormView>,
 }
 
 fn count(total: i64) -> String {
@@ -104,13 +334,18 @@ fn contact_row(contact: &Contact) -> ContactRowView {
 }
 
 /// The contacts list, as the Linux contacts page shows it.
-pub(crate) fn contacts_view(contacts: &ContactsScreen) -> ContactsView {
+pub(crate) fn contacts_view(
+    contacts: &ContactsScreen,
+    capabilities: &Capabilities,
+) -> ContactsView {
     let nothing = ContactsView {
         status: LoadStatus::Loading,
         rows: Vec::new(),
         empty: None,
         total_label: None,
         paging: PagingView::default(),
+        can_create: capabilities.can_change,
+        create: contacts.create.as_ref().map(create_view),
     };
     match &contacts.list {
         ContactList::NotLoaded | ContactList::Loading => nothing,
@@ -127,6 +362,7 @@ pub(crate) fn contacts_view(contacts: &ContactsScreen) -> ContactsView {
                 .then(|| EmptyView::new(ContactList::EMPTY_TITLE, ContactList::EMPTY_BODY)),
             total_label: (!rows.contacts.is_empty()).then(|| count(rows.total)),
             paging: (&rows.paging).into(),
+            ..nothing
         },
     }
 }
@@ -196,6 +432,12 @@ pub(crate) fn contact_detail_view(
     screen: &ContactDetailScreen,
     capabilities: &Capabilities,
 ) -> ContactDetailView {
+    let controls = screen.controls(capabilities);
+    let saving = screen.saving == Some(ContactAction::Save);
+    let editing = screen
+        .editing
+        .as_ref()
+        .map(|form| form_view(FormKind::Edit, form, saving, screen.failure.as_ref()));
     let mut view = ContactDetailView {
         contact_id: screen.contact_id.clone(),
         status: LoadStatus::Loading,
@@ -207,9 +449,20 @@ pub(crate) fn contact_detail_view(
         updated_at: None,
         research_status: None,
         dossier: None,
-        failure: failure(screen.failure.as_ref()),
+        failure: failure(screen.failure.as_ref().filter(|_| editing.is_none())),
         report: ReportAvailability::Hidden,
         phone_number: None,
+        blocked: controls.blocked,
+        writes: capabilities.can_change.then_some(ContactWritesView {
+            can_edit: controls.can_edit,
+            can_delete: controls.can_delete,
+            can_enrich: controls.can_enrich,
+            can_clear_research: controls.can_clear_intel,
+            can_block: controls.can_block,
+        }),
+        busy: screen.saving.map(|action| busy_words(action).to_owned()),
+        confirming: screen.confirming.map(ContactQuestionView::from),
+        editing,
     };
     match &screen.contact {
         ContactView::Loading => {}
@@ -300,5 +553,19 @@ mod tests {
         assert_eq!(status(Some("failed")).as_deref(), Some("Did not finish"));
         assert_eq!(status(Some("on_hold")).as_deref(), Some("On hold"));
         assert_eq!(count(12), "12 contacts");
+    }
+
+    #[test]
+    fn each_change_says_what_is_on_its_way() {
+        for (action, words) in [
+            (ContactAction::Save, "Saving the contact"),
+            (ContactAction::Delete, "Deleting the contact"),
+            (ContactAction::Enrich, "Starting research"),
+            (ContactAction::ClearIntel, "Clearing research"),
+            (ContactAction::Block, "Blocking the caller"),
+            (ContactAction::Unblock, "Unblocking the caller"),
+        ] {
+            assert_eq!(busy_words(action), words);
+        }
     }
 }

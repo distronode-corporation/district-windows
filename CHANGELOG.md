@@ -7,10 +7,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Added
+### Changed
 
-- Keyboard shortcuts in a call, from anywhere in the window: Ctrl+D turns the microphone
-  off or on, and Ctrl+Shift+H hangs up. The buttons' tooltips name them.
+- The shared core is district-core-rust 2.0.0: the live transcript of a call, the app's
+  platform at sign-in (so the sign-in page can offer to create an account), and a reply
+  still waiting to be saved is saved when the app quits.
 
 ## [1.1.0] - 2026-10-08
 
@@ -19,6 +20,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The app carries its own .NET runtime, so it starts on a computer without the .NET Desktop
   Runtime. 1.0.0 needed it installed and did not start without it.
 
+- A `districtai://` link arriving while the app runs, as the browser's sign-in hands
+  back, no longer risks closing the app. The link's details were read after the
+  short-lived process that delivered it could already have exited, and the failure
+  ended the app.
+
 - When Windows announces that the computer is going to sleep or hibernate, District AI
   stops ringing on it first (ending any call under way), and rings on it again when it
   wakes. Before, a sleeping computer could stay listed to ring for up to ten minutes, so a
@@ -26,6 +32,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   ring again.
 
 ### Added
+
+- Keyboard shortcuts in a call, from anywhere in the window: Ctrl+D turns the microphone
+  off or on, and Ctrl+Shift+H hangs up. The buttons' tooltips name them.
 
 - Each release also carries the GitHub flavour of the app as an unsigned MSIX, for the
   code-signing application. It is not meant to be installed; the README says what each

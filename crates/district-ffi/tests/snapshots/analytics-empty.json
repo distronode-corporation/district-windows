@@ -1,0 +1,130 @@
+{
+  "screen": {
+    "Analytics": {
+      "view": {
+        "history": {
+          "caption": "The bars compare metered call minutes across these months.",
+          "chart": null,
+          "empty": "No usage has been recorded in recent months.",
+          "refreshing": false,
+          "status": "Ready",
+          "title": "Recent months"
+        },
+        "period_label": "Period",
+        "periods": [
+          {
+            "label": "7 days",
+            "period": "SevenDays",
+            "selected": true
+          },
+          {
+            "label": "30 days",
+            "period": "ThirtyDays",
+            "selected": false
+          },
+          {
+            "label": "90 days",
+            "period": "NinetyDays",
+            "selected": false
+          }
+        ],
+        "refreshing": false,
+        "report": {
+          "change": "New: no calls in the previous period to compare with.",
+          "figures": [
+            {
+              "label": "Calls",
+              "value": "0"
+            },
+            {
+              "label": "Average call",
+              "value": "0s"
+            },
+            {
+              "label": "Converted",
+              "value": "0%"
+            },
+            {
+              "label": "Missed",
+              "value": "0"
+            },
+            {
+              "label": "Abandoned",
+              "value": "0"
+            }
+          ],
+          "funnel": {
+            "axis_end": "Successful Leads",
+            "axis_start": "Total Dials",
+            "bars": [
+              {
+                "label": "Total Dials",
+                "per_mille": 0,
+                "value": "0"
+              },
+              {
+                "label": "Connected Calls",
+                "per_mille": 0,
+                "value": "0"
+              },
+              {
+                "label": "Successful Leads",
+                "per_mille": 0,
+                "value": "0"
+              }
+            ],
+            "scale_bottom": "0",
+            "scale_top": "0",
+            "summary": "Call funnel: Total Dials 0, Connected Calls 0, Successful Leads 0."
+          },
+          "funnel_title": "Call funnel",
+          "refreshing": false,
+          "sentiment": null,
+          "sentiment_empty": "No calls to analyse yet.",
+          "sentiment_title": "Caller sentiment",
+          "status": "Ready",
+          "title": "Calls over 7 days",
+          "trend": null,
+          "trend_empty": "No calls in this window.",
+          "trend_title": "Calls per day"
+        },
+        "status": "Ready",
+        "title": "Analytics",
+        "usage": {
+          "empty": "No usage has been recorded this month yet.",
+          "lines": [],
+          "month": null,
+          "refreshing": false,
+          "status": "Ready",
+          "title": "This month's usage"
+        }
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Analytics",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

@@ -98,7 +98,7 @@ public sealed partial class WorkflowsPage : UserControl
         }
     }
 
-    private static WorkflowItem? RowOf(object sender) => (sender as FrameworkElement)?.DataContext as WorkflowItem;
+    private static WorkflowEntry? RowOf(object sender) => (sender as FrameworkElement)?.DataContext as WorkflowEntry;
 
     private void OnRunsClick(object sender, RoutedEventArgs e)
     {

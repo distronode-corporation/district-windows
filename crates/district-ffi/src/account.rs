@@ -18,10 +18,10 @@ pub struct AccountView {
     pub device_id: String,
     /// The signed-in user's id.
     pub user_id: String,
-    /// The account's email address. Always `None` with core 1.2.0, whose
+    /// The account's email address. Always `None` with core 2.0.0, whose
     /// session holds only the user and device ids.
     pub email: Option<String>,
-    /// The account holder's name. Always `None` with core 1.2.0, for the same
+    /// The account holder's name. Always `None` with core 2.0.0, for the same
     /// reason.
     pub name: Option<String>,
     /// The sign-out row's caption.

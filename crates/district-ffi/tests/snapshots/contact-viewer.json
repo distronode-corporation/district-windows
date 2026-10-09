@@ -2,12 +2,16 @@
   "screen": {
     "ContactDetail": {
       "view": {
+        "blocked": false,
+        "busy": null,
+        "confirming": null,
         "contact_id": "contact_contract_1",
         "created_at": "2026-08-15T14:30:00.000Z",
         "dossier": {
           "label": "AI dossier",
           "text": "Summary: Interested in Thursday."
         },
+        "editing": null,
         "facts": [
           {
             "label": "Phone number",
@@ -55,7 +59,8 @@
         "report": "OnWeb",
         "research_status": "Complete",
         "status": "Ready",
-        "updated_at": "2026-08-15T14:30:00.000Z"
+        "updated_at": "2026-08-15T14:30:00.000Z",
+        "writes": null
       }
     }
   },

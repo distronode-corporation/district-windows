@@ -99,13 +99,14 @@ public sealed class WorkflowsViewModelTests
         Assert.False(model.HasCampaignFailure);
         Assert.False(model.HasToggleFailure);
         Assert.False(model.Confirming);
-        var row = Assert.Single(model.Rows);
+        var row = Assert.Single(model.Entries);
         Assert.Equal("wf-1", row.WorkflowId);
         Assert.Equal("Follow up", row.Name);
         Assert.Equal("Turn on Follow up", row.SwitchName);
         Assert.Equal("Show runs", row.RunsButtonLabel);
         Assert.Equal("Show runs of Follow up", row.RunsButtonName);
-        Assert.Empty(row.Runs);
+        Assert.True(row.IsWorkflow);
+        Assert.False(row.IsRun || row.IsFooter || row.IsNeutral);
         Assert.Equal("Follow up, on, After a missed call · Not run yet", row.ToString());
     }
 
@@ -146,11 +147,11 @@ public sealed class WorkflowsViewModelTests
         Assert.Equal(Viewer, model.CampaignNote);
         model.PauseCommand.Execute(null);
         model.ResumeCommand.Execute(null);
-        model.SetActive(model.Rows[0], on: false);
+        model.SetActive(model.Entries[0], on: false);
         Assert.Empty(sink.Sent);
 
         // Runs are for every member.
-        model.ToggleRuns(model.Rows[0]);
+        model.ToggleRuns(model.Entries[0]);
         Assert.Equal([new UiEvent.Workflows(new WorkflowsAction.ToggleExpanded("wf-1"))], sink.Sent);
     }
 
@@ -227,7 +228,7 @@ public sealed class WorkflowsViewModelTests
     {
         var (model, sink) = Attached();
         model.Show(View(rows: [Row(active: false)]));
-        var row = model.Rows[0];
+        var row = model.Entries[0];
 
         // A switch set to the row's own value, as a snapshot sets it: nothing.
         model.SetActive(row, on: false);
@@ -238,8 +239,8 @@ public sealed class WorkflowsViewModelTests
 
         // While it is being changed, the switch does nothing.
         model.Show(View(rows: [Row(active: true, switching: true, canSwitch: false)]));
-        Assert.True(model.Rows[0].Switching);
-        model.SetActive(model.Rows[0], on: false);
+        Assert.True(model.Entries[0].Switching);
+        model.SetActive(model.Entries[0], on: false);
         Assert.Single(sink.Sent);
     }
 
@@ -273,25 +274,34 @@ public sealed class WorkflowsViewModelTests
             canLoadMore: true);
         model.Show(View(rows: [Row(lastRunAt: "2020-01-02T03:04:05Z", runs: runs)]));
 
-        var row = model.Rows[0];
+        Assert.Equal(6, model.Entries.Count);
+        var row = model.Entries[0];
+        var footer = model.Entries[5];
+        Assert.True(row.IsWorkflow);
         Assert.True(row.Expanded);
         Assert.Equal("Hide runs", row.RunsButtonLabel);
-        Assert.StartsWith("After a missed call · Not run yet, ", row.Detail, StringComparison.Ordinal);
-        Assert.Equal(4, row.Runs.Count);
-        Assert.True(row.Runs[0].IsSuccess);
-        Assert.True(row.Runs[1].IsWarning);
-        Assert.True(row.Runs[2].IsDanger);
-        Assert.True(row.Runs[3].IsNeutral);
-        Assert.False(row.Runs[0].IsNeutral);
-        Assert.StartsWith("Success, ", row.Runs[0].ToString(), StringComparison.Ordinal);
-        Assert.EndsWith(", Send sms: ok", row.Runs[0].AccessibleName, StringComparison.Ordinal);
-        Assert.DoesNotContain(", ,", row.Runs[1].AccessibleName, StringComparison.Ordinal);
-        Assert.True(row.CanLoadMore);
-        Assert.Equal("More runs", row.MoreLabel);
-        Assert.False(row.HasRunsNote);
-        Assert.False(row.HasRunsFailure);
+        Assert.StartsWith("After a missed call \u00B7 Not run yet, ", row.Detail, StringComparison.Ordinal);
+        var runsShown = model.Entries.Skip(1).Take(4).ToList();
+        Assert.All(runsShown, run => Assert.True(run.IsRun));
+        Assert.True(runsShown[0].IsSuccess);
+        Assert.True(runsShown[1].IsWarning);
+        Assert.True(runsShown[2].IsDanger);
+        Assert.True(runsShown[3].IsNeutral);
+        Assert.False(runsShown[0].IsNeutral);
+        Assert.Equal("Send sms: ok", runsShown[0].Detail);
+        Assert.StartsWith("Success, ", runsShown[0].ToString(), StringComparison.Ordinal);
+        Assert.EndsWith(", Send sms: ok", runsShown[0].AccessibleName, StringComparison.Ordinal);
+        Assert.DoesNotContain(", ,", runsShown[1].AccessibleName, StringComparison.Ordinal);
+        Assert.True(footer.IsFooter);
+        Assert.True(footer.CanLoadMore);
+        Assert.Equal("More runs", footer.MoreLabel);
+        Assert.False(footer.HasRunsNote);
+        Assert.False(footer.HasRunsFailure);
+        Assert.Equal(string.Empty, footer.AccessibleName);
 
-        model.LoadMoreRuns(row);
+        // A run's line is not a switch.
+        model.SetActive(runsShown[0], on: false);
+        model.LoadMoreRuns(footer);
         model.ToggleRuns(row);
         Assert.Equal(
             [
@@ -306,7 +316,7 @@ public sealed class WorkflowsViewModelTests
     {
         var (model, sink) = Attached();
         model.Show(View(rows: [Row(runs: Runs(loading: true, note: "Reading runs."))]));
-        var row = model.Rows[0];
+        var row = model.Entries[1];
         Assert.True(row.RunsLoading);
         Assert.True(row.HasRunsNote);
         Assert.Equal("Reading runs.", row.RunsNote);
@@ -314,14 +324,14 @@ public sealed class WorkflowsViewModelTests
         Assert.Empty(sink.Sent);
 
         model.Show(View(rows: [Row(runs: Runs(note: "This workflow has not run yet."))]));
-        Assert.Equal("This workflow has not run yet.", model.Rows[0].RunsNote);
-        model.LoadMoreRuns(model.Rows[0]);
+        Assert.Equal("This workflow has not run yet.", model.Entries[1].RunsNote);
+        model.LoadMoreRuns(model.Entries[1]);
         Assert.Empty(sink.Sent);
 
         model.Show(View(rows: [Row(runs: Runs(failure: V.Failure("Down."), canRetry: true))]));
-        Assert.True(model.Rows[0].HasRunsFailure);
-        Assert.Equal("Down.", model.Rows[0].RunsFailure);
-        Assert.True(model.Rows[0].CanRetryRuns);
+        Assert.True(model.Entries[1].HasRunsFailure);
+        Assert.Equal("Down.", model.Entries[1].RunsFailure);
+        Assert.True(model.Entries[1].CanRetryRuns);
         model.RetryRuns();
         Assert.Equal([new UiEvent.Refresh()], sink.Sent);
     }
@@ -332,16 +342,16 @@ public sealed class WorkflowsViewModelTests
         var model = new WorkflowsViewModel();
         var runs = Runs(runs: [new RunView("r1", "Success", RunTone.Success, "2020-01-02T03:04:05Z", "ok")]);
         model.Show(View(rows: [Row(runs: runs)]));
-        var first = model.Rows[0];
+        var first = model.Entries[1];
 
         model.Show(View(rows: [Row(runs: runs with { Runs = [.. runs.Runs] })]));
-        Assert.Same(first, model.Rows[0]);
-        Assert.Equal(first.GetHashCode(), model.Rows[0].GetHashCode());
+        Assert.Same(first, model.Entries[1]);
+        Assert.Equal(first.GetHashCode(), model.Entries[1].GetHashCode());
 
         model.Show(View(rows: [Row(runs: runs with { Runs = [] })]));
-        Assert.NotSame(first, model.Rows[0]);
-        Assert.False(first.Equals(null));
-        Assert.NotEqual(first, model.Rows[0]);
+        Assert.NotSame(first, model.Entries[1]);
+        Assert.True(first.IsRun);
+        Assert.NotEqual(first, model.Entries[1]);
     }
 
     [Fact]

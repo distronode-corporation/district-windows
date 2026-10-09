@@ -283,7 +283,7 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
             ),
         },
         Route::Contacts => ScreenView::Contacts {
-            view: contacts_view(&signed_in.contacts),
+            view: contacts_view(&signed_in.contacts, &capabilities),
         },
         Route::ContactDetail { contact_id } => ScreenView::ContactDetail {
             view: contact_detail_view(
@@ -535,17 +535,17 @@ mod tests {
             ScreenView::BlockedContacts {
                 view: crate::blocked::BlockedView {
                     title: "BlockedContacts".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Hq {
                 view: crate::hq::HqView {
                     title: "Hq".to_owned(),
+                    ..crate::hq::HqView::sample()
                 },
             },
             ScreenView::Analytics {
-                view: crate::analytics::AnalyticsView {
-                    title: "Analytics".to_owned(),
-                },
+                view: crate::analytics::sample(),
             },
             ScreenView::Marketplace {
                 view: crate::marketplace::MarketplaceView {
@@ -583,11 +583,13 @@ mod tests {
             ScreenView::Support {
                 view: crate::support::SupportView {
                     title: "Support".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::SupportRequest {
                 view: crate::support::SupportRequestView {
                     title: "SupportRequest".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Rooms {

@@ -120,6 +120,64 @@ Every NuGet version is in `Directory.Packages.props`, and each project has a
 `packages.lock.json` that restore refuses to change. After changing a version, run
 `dotnet restore -p:RestoreLockedMode=false` and commit the lock files with it.
 
+### UI smoke tests
+
+`tests/DistrictAI.UiTests` drives the installed app through UI Automation, with
+[FlaUI](https://github.com/FlaUI/FlaUI): it starts the package by its application user
+model ID and checks that it reaches the sign-in page, that a `districtai://` link opened
+while it runs goes to the one instance, that closing the window hides it to the tray, and
+that the tray menu's Quit ends it. Nothing signs in or reaches the service. The project
+builds on any OS, but only Windows runs it; elsewhere `dotnet test` passes over it.
+
+CI's `windows-app` job runs it on every push and pull request, against the test MSIX it
+has just built, through `scripts/run-ui-tests.ps1`: the script trusts the package's
+throwaway certificate for the run, installs the package and its framework dependencies,
+runs the tests and always removes the package again. To run them on Windows, download the
+`district-ai-test-msix` artifact of a CI run (or package the app yourself, as the job
+does), then, in PowerShell 7 as administrator:
+
+```
+./scripts/run-ui-tests.ps1 -Packages <the unpacked artifact>
+```
+
+It refuses to run while the Store copy of District AI is installed, since both have the
+same identity. With a package already installed by hand, `dotnet test
+tests/DistrictAI.UiTests` runs the tests against it directly; they skip when it is not
+installed.
+
+### Scripted scenes and the area walk
+
+`district-ffi` has a `scripted` feature (`crates/district-ffi/src/scripted.rs`): started
+with `--district-scripted-scene=signed-in` on its command line, a build with it runs the
+core against the core's own contract fixtures instead of the service, signed in to one
+workspace ("Example Dental"), with no network and nothing stored. It exists so that
+every page can be rendered and photographed without an account. Without the argument, a
+scripted build runs as any other.
+
+The feature never ships. `scripts/check-scripted.py` looks for its marker in a
+`district_ffi.dll` or in the packages that hold one; CI runs it on the DLL and the test
+MSIX it builds, and `release.yml` on every DLL and package a release carries.
+
+CI's `windows-app` job also builds the DLL with the feature into a separate scripted test
+MSIX, never uploaded, and runs the area walk against it (`SceneWalkTests`): every entry
+the navigation pane offers is opened, and each page must show its heading, finish loading
+and show no failure; a page a button opens (the blocked callers, from Contacts) is
+walked too. Each page's client area is saved at 1920x1080 in the
+`district-ai-screenshots` artifact, with the whole window once (`00-window.png`). The scenes' own Rust tests (`cargo test -p district-ffi --features scripted
+--lib scripted`) check the same thing against the projections first, and that each
+fixture still decodes. When an area is built, its effects need answers in `scripted.rs`
+if the core sends ones it does not answer yet, and its page's heading a line in
+`SceneWalkTests`.
+
+To build and walk it on Windows:
+
+```
+cargo build -p district-ffi --release --features scripted
+dotnet build src/DistrictAI -c Release -p:Platform=x64 -p:DistrictFfiProfile=release `
+  -p:GenerateAppxPackageOnBuild=true -p:AppxPackageDir=<out>\ ...   # signed as CI signs it
+./scripts/run-ui-tests.ps1 -Packages <out> -Scripted -Screenshots <folder>
+```
+
 ## Public hygiene
 
 This repository is public, and `scripts/check-public-hygiene.py` keeps it that way. CI runs
@@ -224,6 +282,18 @@ changes only these:
 Until then an area's screens are the "Not in this version yet" page and the navigation pane
 does not offer it. It goes live when its pull request sets `BUILT = true` in its module:
 the pane then offers it to every role `Capabilities::allows` (district-core's `role.rs`).
+
+Setting `BUILT` puts the area in the scripted walk (see "Scripted scenes and the area
+walk"), which every pull request must pass, so building an area also means:
+
+- a line for its page's heading in `_headings` in
+  `tests/DistrictAI.UiTests/SceneWalkTests.cs` (or in `_subPages`, for a page a button
+  opens rather than a pane entry);
+- an answer in `crates/district-ffi/src/scripted.rs` for each effect its screens send
+  that the scene does not answer yet, from the core's fixtures. `cargo test -p district-ffi
+  --features scripted --lib scripted` fails on a built screen left loading or failed.
+
+These two are shared files an area's pull request does change.
 
 The shared files are the manager's, and an area's pull request leaves them alone (say in
 the pull request if one has to change, and why): `screen.rs`, `events.rs`, `shell.rs`,

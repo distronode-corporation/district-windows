@@ -89,17 +89,22 @@
 
             <Grid>
                 <views:StatusPanel x:Name="Status" />
+                <!--
+                    One flat list: each workflow, followed by its runs and their end
+                    while they are open (one at a time). One template, whose parts
+                    show by the line's kind.
+                -->
                 <ItemsRepeater
                     AutomationProperties.Name="Workflows"
-                    ItemsSource="{x:Bind ViewModel.Rows}"
+                    ItemsSource="{x:Bind ViewModel.Entries}"
                     Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="8" />
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
-                        <DataTemplate x:DataType="wf:WorkflowItem">
-                            <Border AutomationProperties.Name="{x:Bind AccessibleName}" Style="{StaticResource CardStyle}">
-                                <StackPanel Spacing="8">
+                        <DataTemplate x:DataType="wf:WorkflowEntry">
+                            <Grid AutomationProperties.Name="{x:Bind AccessibleName}">
+                                <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind IsWorkflow}">
                                     <Grid ColumnSpacing="12">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -121,92 +126,93 @@
                                             Content="{x:Bind RunsButtonLabel}" />
                                         <ToggleSwitch
                                             Grid.Column="2"
-                                            MinWidth="0"
                                             VerticalAlignment="Center"
                                             AutomationProperties.Name="{x:Bind SwitchName}"
                                             IsEnabled="{x:Bind CanSwitch}"
                                             IsOn="{x:Bind Active}"
                                             Toggled="OnSwitchToggled" />
                                     </Grid>
-                                    <StackPanel Spacing="8" Visibility="{x:Bind Expanded}">
-                                        <ItemsRepeater AutomationProperties.Name="Runs" ItemsSource="{x:Bind Runs}">
-                                            <ItemsRepeater.Layout>
-                                                <StackLayout Spacing="8" />
-                                            </ItemsRepeater.Layout>
-                                            <ItemsRepeater.ItemTemplate>
-                                                <DataTemplate x:DataType="wf:RunItem">
-                                                    <Grid AutomationProperties.Name="{x:Bind AccessibleName}" ColumnSpacing="12">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*" />
-                                                            <ColumnDefinition Width="Auto" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <StackPanel Spacing="2">
-                                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind When}" />
-                                                            <TextBlock
-                                                                IsTextSelectionEnabled="True"
-                                                                Style="{StaticResource QuietTextStyle}"
-                                                                Text="{x:Bind Detail}" />
-                                                        </StackPanel>
-                                                        <Grid Grid.Column="1" VerticalAlignment="Center">
-                                                            <TextBlock
-                                                                Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                                Text="{x:Bind Status}"
-                                                                Visibility="{x:Bind IsSuccess}" />
-                                                            <TextBlock
-                                                                Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                                Text="{x:Bind Status}"
-                                                                Visibility="{x:Bind IsWarning}" />
-                                                            <TextBlock
-                                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                                Text="{x:Bind Status}"
-                                                                Visibility="{x:Bind IsDanger}" />
-                                                            <TextBlock
-                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                                Text="{x:Bind Status}"
-                                                                Visibility="{x:Bind IsNeutral}" />
-                                                        </Grid>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsRepeater.ItemTemplate>
-                                        </ItemsRepeater>
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <ProgressRing
-                                                Width="20"
-                                                Height="20"
-                                                AutomationProperties.Name="Reading runs"
-                                                IsActive="{x:Bind RunsLoading}"
-                                                Visibility="{x:Bind RunsLoading}" />
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                Style="{StaticResource QuietTextStyle}"
-                                                Text="{x:Bind RunsNote}"
-                                                Visibility="{x:Bind HasRunsNote}" />
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                                Text="{x:Bind RunsFailure}"
-                                                TextWrapping="Wrap"
-                                                Visibility="{x:Bind HasRunsFailure}" />
-                                            <Button
-                                                AutomationProperties.Name="{x:Bind MoreLabel}"
-                                                Click="OnMoreRunsClick"
-                                                Content="{x:Bind MoreLabel}"
-                                                IsEnabled="{x:Bind CanLoadMore}"
-                                                Visibility="{x:Bind CanLoadMore}" />
-                                            <Button
-                                                AutomationProperties.Name="Try again"
-                                                Click="OnRetryRunsClick"
-                                                Content="Try again"
-                                                IsEnabled="{x:Bind CanRetryRuns}"
-                                                Visibility="{x:Bind CanRetryRuns}" />
-                                        </StackPanel>
+                                </Border>
+                                <Grid
+                                    Padding="24,0,16,0"
+                                    ColumnSpacing="12"
+                                    Visibility="{x:Bind IsRun}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind When}" />
+                                        <TextBlock
+                                            IsTextSelectionEnabled="True"
+                                            Style="{StaticResource QuietTextStyle}"
+                                            Text="{x:Bind Detail}" />
                                     </StackPanel>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind Status}"
+                                        Visibility="{x:Bind IsSuccess}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind Status}"
+                                        Visibility="{x:Bind IsWarning}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind Status}"
+                                        Visibility="{x:Bind IsDanger}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind Status}"
+                                        Visibility="{x:Bind IsNeutral}" />
+                                </Grid>
+                                <StackPanel
+                                    Padding="24,0,16,0"
+                                    Orientation="Horizontal"
+                                    Spacing="8"
+                                    Visibility="{x:Bind IsFooter}">
+                                    <ProgressRing
+                                        Width="20"
+                                        Height="20"
+                                        AutomationProperties.Name="Reading runs"
+                                        IsActive="{x:Bind RunsLoading}"
+                                        Visibility="{x:Bind RunsLoading}" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource QuietTextStyle}"
+                                        Text="{x:Bind RunsNote}"
+                                        Visibility="{x:Bind HasRunsNote}" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        Text="{x:Bind RunsFailure}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind HasRunsFailure}" />
+                                    <Button
+                                        AutomationProperties.Name="{x:Bind MoreLabel}"
+                                        Click="OnMoreRunsClick"
+                                        Content="{x:Bind MoreLabel}"
+                                        IsEnabled="{x:Bind CanLoadMore}"
+                                        Visibility="{x:Bind CanLoadMore}" />
+                                    <Button
+                                        AutomationProperties.Name="Try again"
+                                        Click="OnRetryRunsClick"
+                                        Content="Try again"
+                                        IsEnabled="{x:Bind CanRetryRuns}"
+                                        Visibility="{x:Bind CanRetryRuns}" />
                                 </StackPanel>
-                            </Border>
+                            </Grid>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
