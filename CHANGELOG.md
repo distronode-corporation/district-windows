@@ -7,6 +7,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The shared core is district-core-rust 2.0.0: the live transcript of a call, the app's
+  platform at sign-in (so the sign-in page can offer to create an account), and a reply
+  still waiting to be saved is saved when the app quits.
+
 ## [1.1.0] - 2026-10-08
 
 ### Fixed
