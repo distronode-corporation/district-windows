@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using DistrictAI.Core.Ffi;
 
 namespace DistrictAI.ViewModels.Workflows;
@@ -11,7 +12,11 @@ namespace DistrictAI.ViewModels.Workflows;
 /// <param name="Switching">Whether it is being turned on or off now.</param>
 /// <param name="SwitchName">The switch's accessible name, "Turn on" and the name.</param>
 /// <param name="Expanded">Whether its runs are open.</param>
-/// <param name="Runs">The runs read, newest first, while they are open.</param>
+/// <param name="Runs">
+/// The runs read, newest first, while they are open: the same collection
+/// type every other list in the app binds, made once per snapshot and never
+/// changed.
+/// </param>
 /// <param name="RunsLoading">Whether a page of runs is on its way.</param>
 /// <param name="RunsNote">"Reading runs." or "This workflow has not run yet.", or empty.</param>
 /// <param name="RunsFailure">Why the last page of runs failed, or empty.</param>
@@ -27,7 +32,7 @@ public sealed record WorkflowItem(
     bool Switching,
     string SwitchName,
     bool Expanded,
-    IReadOnlyList<RunItem> Runs,
+    ObservableCollection<RunItem> Runs,
     bool RunsLoading,
     string RunsNote,
     string RunsFailure,
@@ -63,7 +68,7 @@ public sealed record WorkflowItem(
             row.Switching,
             row.SwitchName,
             row.Expanded,
-            runs is null ? [] : [.. runs.Runs.Select(RunItem.From)],
+            new(runs is null ? [] : [.. runs.Runs.Select(RunItem.From)]),
             runs?.Loading ?? false,
             runs?.Note ?? string.Empty,
             Display.Failure(runs?.Failure),
