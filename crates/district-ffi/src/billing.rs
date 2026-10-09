@@ -367,11 +367,11 @@ fn plan_choice(tier: PlanTierView, term: PlanTermView, promo: Option<&str>) -> O
 /// The page of billing, for a signed-in model.
 pub(crate) fn screen(_model: &Model, signed_in: &SignedIn) -> ScreenView {
     ScreenView::Billing {
-        view: billing_view(signed_in),
+        view: page_of(signed_in),
     }
 }
 
-fn billing_view(signed_in: &SignedIn) -> BillingView {
+fn page_of(signed_in: &SignedIn) -> BillingView {
     let screen = &signed_in.billing;
     let capabilities = signed_in.capabilities();
     let purchase = purchase_view(signed_in);
@@ -396,7 +396,7 @@ fn billing_view(signed_in: &SignedIn) -> BillingView {
         status,
         refreshing,
         plan,
-        account: account_view(&screen.account),
+        account: section_view(&screen.account),
         note: if purchase.is_some() {
             PurchaseState::IN_APP_NOTE
         } else {
@@ -429,7 +429,7 @@ fn plan_view(billing: &WorkspaceBilling, included: Option<i64>) -> PlanView {
     }
 }
 
-fn account_view(section: &AccountSection) -> AccountBillingView {
+fn section_view(section: &AccountSection) -> AccountBillingView {
     let mut view = AccountBillingView {
         state: AccountBillingState::Loading,
         title: None,

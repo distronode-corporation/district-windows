@@ -32,7 +32,7 @@ namespace DistrictAI.Platform.Checkout;
 /// Stripe's hosts show here; the start page's <c>districtai://handoff</c>
 /// answer is cancelled and handed to the core, as Windows hands over a link
 /// from the browser; any other web page opens in the user's browser; anything
-/// else is refused. Closing the window, with its button or Escape, tells the
+/// else is refused. Closing the window, with its button, Ctrl+W or Alt+F4, tells the
 /// core (<see cref="BillingAction.CheckoutClosed"/>).
 /// </para>
 /// </remarks>
@@ -71,11 +71,9 @@ internal sealed class CheckoutHost : IEmbeddedBrowser
         {
             return !string.IsNullOrEmpty(CoreWebView2Environment.GetAvailableBrowserVersionString());
         }
-        catch (WebView2RuntimeNotFoundException)
-        {
-            return false;
-        }
-        catch (System.Runtime.InteropServices.COMException)
+        // No runtime: the projection reports it as a COM error (file not
+        // found), or, on some runtimes, as the file missing.
+        catch (Exception error) when (error is System.Runtime.InteropServices.COMException or FileNotFoundException)
         {
             return false;
         }
@@ -104,7 +102,7 @@ internal sealed class CheckoutHost : IEmbeddedBrowser
     {
         if (view == EmbeddedViewKind.Same)
         {
-            return _open is { } surface && surface.Navigate(url);
+            return _open is { } current && current.Navigate(url);
         }
         if (!RuntimeAvailable())
         {

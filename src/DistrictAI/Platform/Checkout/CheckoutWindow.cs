@@ -28,29 +28,29 @@ internal sealed class CheckoutWindow
         _profile = profile;
         _handOff = handOff;
         _browser = browser;
+        _window = new Window { Title = CheckoutHost.WindowTitle };
         _view = new WebView2();
         AutomationProperties.SetName(_view, "Checkout");
-        var escape = new KeyboardAccelerator { Key = VirtualKey.Escape };
-        escape.Invoked += (_, args) =>
-        {
-            args.Handled = true;
-            _window.Close();
-        };
+        // Closing from the keyboard: Alt+F4 as any window, Ctrl+W while the
+        // window's own controls have focus, and the Close button, which Tab
+        // reaches. Not Escape: a checkout page uses it to close its own menus.
         var closeKey = new KeyboardAccelerator { Key = VirtualKey.W, Modifiers = VirtualKeyModifiers.Control };
         closeKey.Invoked += (_, args) =>
         {
             args.Handled = true;
             _window.Close();
         };
+        var close = new Button { Content = "Close", HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(8) };
+        AutomationProperties.SetName(close, "Close checkout");
+        close.Click += (_, _) => _window.Close();
         var root = new Grid();
-        root.KeyboardAccelerators.Add(escape);
+        root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         root.KeyboardAccelerators.Add(closeKey);
+        root.Children.Add(close);
+        Grid.SetRow(_view, 1);
         root.Children.Add(_view);
-        _window = new Window
-        {
-            Title = CheckoutHost.WindowTitle,
-            Content = root,
-        };
+        _window.Content = root;
         _window.AppWindow.Resize(new SizeInt32(1024, 900));
         _window.Closed += OnClosed;
     }
