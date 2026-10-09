@@ -4,23 +4,26 @@ use district_core::{Event, Route, WorkspaceSection};
 use district_ffi::UiEvent;
 use district_ffi::settings::numbers::NumbersAction;
 
-use super::super::{Case, assert_unbuilt, signed_in};
+use district_ffi::{ScreenView, screen_view};
 
-/// This area's snapshot cases: none until it is built.
+use super::super::{Case, route, signed_in};
+
+/// This area's snapshot cases: the phone numbers screen's (marketplace.rs).
 pub(crate) fn cases() -> Vec<Case> {
     Vec::new()
 }
 
-/// The core shows the phone numbers screen for this section, which until its
-/// packet builds it is unavailable, and the navigation pane does not offer it.
+/// The core shows the phone numbers screen for this section, built with it.
 #[test]
-fn unbuilt_it_is_unavailable_and_not_offered() {
-    assert_unbuilt(
-        &signed_in().ui(UiEvent::Numbers {
-            action: NumbersAction::Open,
-        }),
-        Route::Marketplace,
-    );
+fn it_is_the_phone_numbers_screen() {
+    let session = signed_in().ui(UiEvent::Numbers {
+        action: NumbersAction::Open,
+    });
+    assert_eq!(route(&session), Route::Marketplace);
+    assert!(matches!(
+        screen_view(&session.model),
+        ScreenView::Marketplace { .. }
+    ));
 }
 
 #[test]

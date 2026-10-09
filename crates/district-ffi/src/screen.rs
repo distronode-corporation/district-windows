@@ -550,6 +550,7 @@ mod tests {
             ScreenView::Marketplace {
                 view: crate::marketplace::MarketplaceView {
                     title: "Marketplace".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Billing {
