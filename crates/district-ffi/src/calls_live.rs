@@ -44,7 +44,7 @@ pub struct DialerView {
 /// put away.
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, uniffi::Record)]
 pub struct ActiveCallView {
-    /// The call's id. Always `None` in this version: core 1.2.0 keeps it
+    /// The call's id. Always `None` in this version: core 2.0.0 keeps it
     /// private to the call, and nothing on screen needs it (hanging up and
     /// putting the summary away name no call).
     pub call_id: Option<String>,
