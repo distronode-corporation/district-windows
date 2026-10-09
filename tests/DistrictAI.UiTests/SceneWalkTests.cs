@@ -1,9 +1,7 @@
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using Xunit;
+using static DistrictAI.UiTests.Walk;
 
 namespace DistrictAI.UiTests;
 
@@ -29,7 +27,6 @@ public sealed class SceneWalkTests
     public const string WorkspaceName = "Example Dental";
 
     private static readonly TimeSpan _startTimeout = TimeSpan.FromSeconds(90);
-    private static readonly TimeSpan _pageTimeout = TimeSpan.FromSeconds(30);
 
     /// <summary>
     /// The pages whose heading is not their pane entry's own name, by the start
@@ -86,9 +83,6 @@ public sealed class SceneWalkTests
     /// <summary>The reply box's UI Automation name (Views/Composer/ComposerBox.xaml).</summary>
     public const string ReplyBoxName = "Reply";
 
-    /// <summary>What a page that failed shows (StatusPanel, UnavailablePage, the core's failure titles).</summary>
-    private static readonly string[] _failureTexts = ["Something went wrong", "Could not load", "Not in this version yet"];
-
     [Fact]
     public void EveryOfferedAreaOpensAndFillsIn()
     {
@@ -102,7 +96,7 @@ public sealed class SceneWalkTests
         _ = Heading(app, WorkspaceName, _startTimeout);
         var entries = Wait.For(
             () => NavEntries(window) is { Length: >= 5 } found ? found : null,
-            _pageTimeout,
+            PageTimeout,
             "the navigation pane's entries",
             app.Describe);
         InstalledApp.Log($"the pane offers {entries.Length}: [{string.Join(", ", entries)}]");
@@ -151,7 +145,7 @@ public sealed class SceneWalkTests
                     InstalledApp.Log($"\"{entry}\" has no \"{sub.Button}\" button: not walked");
                     continue;
                 }
-                if (!Visit(app, handle, sub.Button, () => app.Find(ControlType.Button, sub.Button, _pageTimeout).AsButton().Invoke(), sub.Heading, shots, ++index, problems, sub.Edit))
+                if (!Visit(app, handle, sub.Button, () => app.Find(ControlType.Button, sub.Button, PageTimeout).AsButton().Invoke(), sub.Heading, shots, ++index, problems, sub.Edit))
                 {
                     break;
                 }
@@ -187,23 +181,23 @@ public sealed class SceneWalkTests
         }
 
         OpenUntil(app, "Calls", "Calls");
-        app.Find(ControlType.Button, "Place a call", _pageTimeout).AsButton().Invoke();
-        app.Find(ControlType.Edit, "Number to call", _pageTimeout).AsTextBox().Text = "+12125550142";
+        app.Find(ControlType.Button, "Place a call", PageTimeout).AsButton().Invoke();
+        app.Find(ControlType.Edit, "Number to call", PageTimeout).AsTextBox().Text = "+12125550142";
         Wait.For(
             () => app.TryFind(ControlType.Button, "Call") is { IsEnabled: true } call ? call : null,
-            _pageTimeout,
+            PageTimeout,
             "Call to work",
             app.Describe).AsButton().Invoke();
 
-        _ = app.Find(null, "Live transcript", _pageTimeout);
-        _ = app.Find(ControlType.Text, "I'd like to book a cleaning on Thursday.", _pageTimeout);
+        _ = app.Find(null, "Live transcript", PageTimeout);
+        _ = app.Find(ControlType.Text, "I'd like to book a cleaning on Thursday.", PageTimeout);
         InstalledApp.Log("the call strip shows the live transcript");
         if (shots is { Length: > 0 })
         {
             Save(handle, Path.Combine(shots, "90-live-transcript.png"), clientOnly: true);
         }
-        app.Find(ControlType.Button, "Hang up", _pageTimeout).AsButton().Invoke();
-        _ = app.Find(ControlType.Text, "Call ended", _pageTimeout);
+        app.Find(ControlType.Button, "Hang up", PageTimeout).AsButton().Invoke();
+        _ = app.Find(ControlType.Text, "Call ended", PageTimeout);
         Assert.True(app.IsRunning, "the app ended during the call");
     }
 
@@ -231,272 +225,21 @@ public sealed class SceneWalkTests
         var row = Wait.For(
             () => window.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
                 .FirstOrDefault(item => item.Name.StartsWith("Weekly review", StringComparison.Ordinal)),
-            _pageTimeout,
+            PageTimeout,
             "the meeting \"Weekly review\"",
             app.Describe);
-        if (row.Patterns.Invoke.IsSupported)
-        {
-            row.Patterns.Invoke.Pattern.Invoke();
-        }
-        else
-        {
-            row.Click();
-        }
-        _ = app.Find(ControlType.Text, "Minutes", _pageTimeout);
-        _ = app.Find(ControlType.Text, "Action items", _pageTimeout);
-        _ = app.Find(ControlType.Button, "Report", _pageTimeout);
+        Activate(row);
+        _ = app.Find(ControlType.Text, "Minutes", PageTimeout);
+        _ = app.Find(ControlType.Text, "Action items", PageTimeout);
+        _ = app.Find(ControlType.Button, "Report", PageTimeout);
         InstalledApp.Log("the meeting record shows its minutes and action items, with Report");
         if (shots is { Length: > 0 })
         {
             Save(handle, Path.Combine(shots, "91-meeting-record.png"), clientOnly: true);
         }
-        app.Find(ControlType.Button, "Close the meeting", _pageTimeout).AsButton().Invoke();
+        app.Find(ControlType.Button, "Close the meeting", PageTimeout).AsButton().Invoke();
         Assert.True(app.IsRunning, "the app ended in the meeting rooms");
     }
-
-    /// <summary>
-    /// Opens a page with <paramref name="open"/> and checks it: its heading
-    /// (<paramref name="expected"/>, or any), loaded, no failure, then saves
-    /// it when screenshots are on. With <paramref name="editName"/>, the
-    /// page is ready only once a text box of that name shows. Problems go in
-    /// <paramref name="problems"/>; false when the app has ended.
-    /// </summary>
-    private static bool Visit(InstalledApp app, nint handle, string name, Action open, string? expected, string? shots, int index, List<string> problems, string? editName = null)
-    {
-        var clock = Stopwatch.StartNew();
-        try
-        {
-            open();
-            InstalledApp.Log($"opened \"{name}\"");
-            var heading = Heading(app, expected, _pageTimeout);
-            // Loaded: the status panel's progress ring gone.
-            _ = Wait.For(
-                () => app.TryFind(ControlType.ProgressBar, "Loading") is null ? heading : null,
-                _pageTimeout,
-                $"\"{name}\" to finish loading",
-                app.Describe);
-            if (editName is not null)
-            {
-                _ = app.Find(ControlType.Edit, editName, _pageTimeout);
-            }
-            if (Failure(app) is { } failure)
-            {
-                problems.Add($"\"{name}\" shows \"{failure}\".{Environment.NewLine}{app.Describe()}");
-            }
-            else
-            {
-                InstalledApp.Log(FormattableString.Invariant($"\"{name}\": \"{heading.Name}\" in {clock.ElapsedMilliseconds} ms"));
-                if (shots is { Length: > 0 })
-                {
-                    Save(handle, Path.Combine(shots, FormattableString.Invariant($"{index:D2}-{FileName(name)}.png")), clientOnly: true);
-                }
-            }
-        }
-        catch (TimeoutException error)
-        {
-            problems.Add($"\"{name}\": {error.Message}");
-        }
-        if (app.IsRunning)
-        {
-            return true;
-        }
-        problems.Add($"the app ended after \"{name}\" was opened");
-        return false;
-    }
-
-    /// <summary>The names of the pane's entries, in order (headings and separators are not entries).</summary>
-    private static string[] NavEntries(Window window) =>
-        [.. window.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
-            .Where(item => item.ClassName.EndsWith(".NavigationViewItem", StringComparison.Ordinal) || item.ClassName == "NavigationViewItem")
-            .Select(item => item.Name)
-            .Where(name => name.Length > 0)
-            .Distinct()];
-
-    /// <summary>
-    /// Opens the hub's row for <paramref name="title"/>, as a click on it does.
-    /// A row's name is its title, then what the section holds.
-    /// </summary>
-    private static void OpenSettingsRow(InstalledApp app, string title)
-    {
-        var row = Wait.For(
-            () => app.Automation.GetDesktop()
-                .FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Window)))
-                ?.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
-                .FirstOrDefault(item => !item.Properties.IsOffscreen.ValueOrDefault
-                    && NameOf(item).StartsWith(title + ". ", StringComparison.Ordinal)),
-            _pageTimeout,
-            $"the settings row \"{title}\"",
-            app.Describe);
-        if (row.Patterns.Invoke.IsSupported)
-        {
-            row.Patterns.Invoke.Pattern.Invoke();
-        }
-        else
-        {
-            row.Click();
-        }
-    }
-
-    /// <summary>Opens the Inbox's first conversation, as a click on it does.</summary>
-    private static void OpenFirstConversation(InstalledApp app)
-    {
-        var list = app.Find(ControlType.List, "Conversations", _pageTimeout);
-        var first = Wait.For(
-            () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
-            _pageTimeout,
-            "a conversation in the Inbox",
-            app.Describe);
-        if (first.Patterns.Invoke.IsSupported)
-        {
-            first.Patterns.Invoke.Pattern.Invoke();
-        }
-        else
-        {
-            first.Click();
-        }
-    }
-
-    /// <summary>Chooses the entry named <paramref name="entry"/>, as a click does.</summary>
-    private static void Open(InstalledApp app, string entry)
-    {
-        var item = app.Find(ControlType.ListItem, entry, _pageTimeout);
-        if (item.Patterns.Invoke.IsSupported)
-        {
-            item.Patterns.Invoke.Pattern.Invoke();
-        }
-        else
-        {
-            item.Click();
-        }
-    }
-
-    /// <summary>
-    /// Chooses the entry named <paramref name="entry"/> until its page shows
-    /// <paramref name="heading"/>. A choice made in the first moments after
-    /// launch, while the scene is still filling the navigation pane, can be
-    /// lost (in run 37892440647 "Calls" was chosen 20 ms after the overview's
-    /// heading showed, and the overview stayed), so it is made again.
-    /// </summary>
-    private static void OpenUntil(InstalledApp app, string entry, string heading)
-    {
-        for (var attempt = 1; ; attempt++)
-        {
-            Open(app, entry);
-            try
-            {
-                _ = Heading(app, heading, TimeSpan.FromSeconds(10));
-                return;
-            }
-            catch (TimeoutException) when (attempt < 3)
-            {
-                InstalledApp.Log(FormattableString.Invariant($"\"{entry}\" did not open (attempt {attempt}): choosing it again"));
-            }
-        }
-    }
-
-    /// <summary>
-    /// The page's level-one heading: <paramref name="expected"/>, or any
-    /// heading when no text is expected, but never the unavailable page's.
-    /// </summary>
-    private static AutomationElement Heading(InstalledApp app, string? expected, TimeSpan timeout) =>
-        Wait.For(
-            () => app.Automation.GetDesktop()
-                .FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Window)))
-                ?.FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
-                .FirstOrDefault(text =>
-                    !text.Properties.IsOffscreen.ValueOrDefault
-                    && text.Properties.HeadingLevel.ValueOrDefault == HeadingLevel.Level1
-                    && NameOf(text) is { Length: > 0 } name
-                    && (expected is null || name == expected)),
-            timeout,
-            expected is null ? "a level-one heading" : $"the heading \"{expected}\"",
-            app.Describe);
-
-    /// <summary>
-    /// The element's name, or empty when UI Automation has none for it: a text
-    /// element can be gone, or never named, between being listed and being
-    /// read (seen as PropertyNotSupportedException on the Inbox).
-    /// </summary>
-    private static string NameOf(AutomationElement element) => element.Properties.Name.ValueOrDefault ?? string.Empty;
-
-    /// <summary>What shows that the page failed, or null.</summary>
-    private static string? Failure(InstalledApp app)
-    {
-        var window = app.Automation.GetDesktop()
-            .FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Window)));
-        if (window is null)
-        {
-            return "no window";
-        }
-        if (window.FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName("Try again"))) is { IsOffscreen: false })
-        {
-            return "Try again";
-        }
-        return window.FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
-            .Where(text => !text.Properties.IsOffscreen.ValueOrDefault)
-            .Select(NameOf)
-            .FirstOrDefault(name => _failureTexts.Any(failure => name.StartsWith(failure, StringComparison.Ordinal)));
-    }
-
-    /// <summary>
-    /// Makes the window's client area <paramref name="width"/> by
-    /// <paramref name="height"/>, and waits until it is. A window with its
-    /// title bar and frame would not fit a display of that size (the hosted
-    /// runner's largest), so the frame is taken off first.
-    /// </summary>
-    private static void SizeClient(nint handle, int width, int height)
-    {
-        Native.Frameless(handle, width, height);
-        var sized = Wait.Until(
-            () => Native.GetClientRect(handle, out var now) && now.Width == width && now.Height == height,
-            TimeSpan.FromSeconds(10));
-        _ = Native.GetClientRect(handle, out var actual);
-        InstalledApp.Log(FormattableString.Invariant($"client area {actual.Width}x{actual.Height} (asked for {width}x{height})"));
-        Assert.True(sized, FormattableString.Invariant($"the client area is {actual.Width}x{actual.Height}, not {width}x{height}: is the display smaller?"));
-    }
-
-    /// <summary>
-    /// Saves what the window draws as a PNG: its client area, or the visible
-    /// window (title bar and frame, without the invisible resize borders).
-    /// </summary>
-    private static void Save(nint handle, string path, bool clientOnly)
-    {
-        _ = Native.SetForegroundWindow(handle);
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        _ = Native.GetWindowRect(handle, out var outer);
-        Native.Rect area;
-        if (clientOnly)
-        {
-            _ = Native.GetClientRect(handle, out var client);
-            var origin = default(Native.Point);
-            _ = Native.ClientToScreen(handle, ref origin);
-            area = new Native.Rect { Left = origin.X, Top = origin.Y, Right = origin.X + client.Width, Bottom = origin.Y + client.Height };
-        }
-        else
-        {
-            area = Native.VisibleBounds(handle);
-        }
-        using var whole = new Bitmap(outer.Width, outer.Height, PixelFormat.Format32bppArgb);
-        using (var graphics = Graphics.FromImage(whole))
-        {
-            var dc = graphics.GetHdc();
-            try
-            {
-                Assert.True(Native.PrintWindow(handle, dc, 2), "PrintWindow failed");
-            }
-            finally
-            {
-                graphics.ReleaseHdc(dc);
-            }
-        }
-        var crop = new Rectangle(area.Left - outer.Left, area.Top - outer.Top, area.Width, area.Height);
-        using var image = whole.Clone(crop, PixelFormat.Format32bppArgb);
-        image.Save(path, ImageFormat.Png);
-        InstalledApp.Log(FormattableString.Invariant($"saved {path} ({image.Width}x{image.Height})"));
-    }
-
-    private static string FileName(string entry) =>
-        new([.. entry.Select(c => char.IsLetterOrDigit(c) ? char.ToLowerInvariant(c) : '-')]);
 
     /// <summary>
     /// Skips off Windows, and unless DISTRICTAI_UI_SCRIPTED is 1 (a scripted
