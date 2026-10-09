@@ -15,6 +15,19 @@
             Text="{x:Bind ViewModel.Title, Mode=OneWay}"
             TextWrapping="Wrap" />
         <TextBlock Text="{x:Bind ViewModel.Body, Mode=OneWay}" TextWrapping="Wrap" />
+        <!-- Another copy of the app is installed: which one this is, and why sign-in is held. -->
+        <TextBlock
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.CopyLine, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.HasCopyLine, Mode=OneWay}" />
+        <InfoBar
+            AutomationProperties.Name="{x:Bind ViewModel.HeldTitle, Mode=OneWay}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.SignInHeld, Mode=OneWay}"
+            Message="{x:Bind ViewModel.HeldMessage, Mode=OneWay}"
+            Severity="Warning"
+            Title="{x:Bind ViewModel.HeldTitle, Mode=OneWay}" />
         <ProgressRing
             AutomationProperties.Name="Working"
             IsActive="{x:Bind ViewModel.Busy, Mode=OneWay}"
