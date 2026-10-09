@@ -283,7 +283,7 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
             ),
         },
         Route::Contacts => ScreenView::Contacts {
-            view: contacts_view(&signed_in.contacts),
+            view: contacts_view(&signed_in.contacts, &capabilities),
         },
         Route::ContactDetail { contact_id } => ScreenView::ContactDetail {
             view: contact_detail_view(
@@ -535,6 +535,7 @@ mod tests {
             ScreenView::BlockedContacts {
                 view: crate::blocked::BlockedView {
                     title: "BlockedContacts".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Hq {
