@@ -1,0 +1,193 @@
+{
+  "screen": {
+    "Messaging": {
+      "view": {
+        "accounts": [
+          {
+            "id": "acct-twilio",
+            "is_default": false,
+            "label": "Twilio (main)",
+            "line": "Twilio · Your own carrier account · +1 416 555 0111, +1 416 555 0112",
+            "offers_edit": true,
+            "offers_make_default": true,
+            "offers_remove": true
+          },
+          {
+            "id": "acct-telnyx",
+            "is_default": true,
+            "label": "Telnyx (overflow)",
+            "line": "Telnyx · Managed by Distronode · +1 416 555 0113",
+            "offers_edit": true,
+            "offers_make_default": false,
+            "offers_remove": true
+          }
+        ],
+        "busy": false,
+        "channels": [
+          {
+            "channel": "Sms",
+            "label": "SMS",
+            "picker": {
+              "choices": [
+                {
+                  "label": "Twilio (main)",
+                  "value": "acct-twilio"
+                },
+                {
+                  "label": "Telnyx (overflow)",
+                  "value": "acct-telnyx"
+                }
+              ],
+              "selected": "acct-twilio",
+              "selected_label": "Twilio (main)"
+            }
+          },
+          {
+            "channel": "Voice",
+            "label": "Voice",
+            "picker": {
+              "choices": [
+                {
+                  "label": "Twilio (main)",
+                  "value": "acct-twilio"
+                },
+                {
+                  "label": "Telnyx (overflow)",
+                  "value": "acct-telnyx"
+                }
+              ],
+              "selected": "",
+              "selected_label": "The default account"
+            }
+          },
+          {
+            "channel": "Whatsapp",
+            "label": "WhatsApp",
+            "picker": {
+              "choices": [
+                {
+                  "label": "Twilio (main)",
+                  "value": "acct-twilio"
+                },
+                {
+                  "label": "Telnyx (overflow)",
+                  "value": "acct-telnyx"
+                }
+              ],
+              "selected": "",
+              "selected_label": "The default account"
+            }
+          }
+        ],
+        "channels_editable": true,
+        "confirm": null,
+        "creator": {
+          "can_save": false,
+          "heading": "The owner's mobile number",
+          "help": "Where the receptionist reaches the workspace's owner. The saved number is not shown here; typing one replaces it.",
+          "number": "",
+          "saving": false
+        },
+        "editable": true,
+        "empty": null,
+        "form": {
+          "can_save": true,
+          "can_test": true,
+          "carrier": "Twilio",
+          "carrier_switch": null,
+          "carriers": [
+            {
+              "carrier": "Twilio",
+              "label": "Twilio"
+            },
+            {
+              "carrier": "Sinch",
+              "label": "Sinch"
+            },
+            {
+              "carrier": "Telnyx",
+              "label": "Telnyx"
+            }
+          ],
+          "editable": true,
+          "keys": [
+            {
+              "field": "AccountSid",
+              "filled": true,
+              "label": "Account SID",
+              "secret": true,
+              "value": ""
+            },
+            {
+              "field": "AuthToken",
+              "filled": true,
+              "label": "Auth token",
+              "secret": true,
+              "value": ""
+            }
+          ],
+          "keys_note": "Every key the carrier needs, typed in full.",
+          "label": "Front desk",
+          "make_default": false,
+          "numbers_help": "Leave this alone to keep the numbers as they are. Editing it replaces the account's numbers with the ones listed.",
+          "phone_numbers": "",
+          "saving": false,
+          "source": "Own",
+          "sources": [
+            {
+              "label": "Your own carrier account",
+              "source": "Own"
+            },
+            {
+              "label": "Managed by Distronode",
+              "source": "Managed"
+            }
+          ],
+          "test": {
+            "message": "The carrier could not be asked, so nothing is known about these keys. Something went wrong on our side. Please try again shortly.",
+            "outcome": "Unreachable"
+          },
+          "test_hint": null,
+          "title": "Add a carrier account"
+        },
+        "managed": {
+          "body": "Bought for this workspace on Distronode's own carrier account. They are not an account of this workspace's, so they cannot be chosen as a sender.",
+          "carrier": "Twilio",
+          "heading": "Numbers held by Distronode",
+          "numbers": "+1 416 555 0190"
+        },
+        "notice": null,
+        "offers_add": true,
+        "status": "Ready",
+        "title": "Messaging accounts",
+        "viewer_note": null
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
