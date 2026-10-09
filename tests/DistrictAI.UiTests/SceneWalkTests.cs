@@ -32,24 +32,15 @@ public sealed class SceneWalkTests
     private static readonly TimeSpan _pageTimeout = TimeSpan.FromSeconds(30);
 
     /// <summary>
-    /// The heading each 1.0 page shows, by the start of its entry's name (the
-    /// inbox's name carries its unread count). An area of 2.0 that is not
-    /// listed must still show a level-one heading; add it here once built.
+    /// The pages whose heading is not their pane entry's own name, by the start
+    /// of the entry's name (the inbox's name carries its unread count). Every
+    /// other entry's page must show its entry's name as its level-one heading,
+    /// so building an area adds nothing here.
     /// </summary>
     private static readonly (string Entry, string Heading)[] _headings =
     [
         ("Overview", WorkspaceName),
         ("Inbox", "Conversations"),
-        ("Calls", "Calls"),
-        ("Contacts", "Contacts"),
-        ("Account", "Account"),
-        ("Analytics", "Analytics"),
-        ("Support", "Support"),
-        ("District HQ", "District HQ"),
-        ("Booking pages", "Booking pages"),
-        ("Phone numbers", "Phone numbers"),
-        ("Help desk", "Help desk"),
-        ("Workflows", "Workflows"),
     ];
 
     /// <summary>
@@ -106,7 +97,7 @@ public sealed class SceneWalkTests
         var index = 0;
         foreach (var entry in entries)
         {
-            var expected = _headings.FirstOrDefault(known => entry.StartsWith(known.Entry, StringComparison.Ordinal)).Heading;
+            var expected = _headings.FirstOrDefault(known => entry.StartsWith(known.Entry, StringComparison.Ordinal)).Heading ?? entry;
             if (!Visit(app, handle, entry, () => Open(app, entry), expected, shots, ++index, problems))
             {
                 break;

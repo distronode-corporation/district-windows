@@ -7535,6 +7535,74 @@ class FfiConverterTypeDirectoryView: FfiConverterRustBuffer<DirectoryView> {
 
 
 /// <summary>
+/// The question, while one is asked: a move away from a settings section with
+/// unsaved changes is held until it is answered.
+/// </summary>
+/// <param name="Title">
+/// The heading, [`DISCARD_TITLE`].
+/// </param>
+/// <param name="Body">
+/// The text under it, [`DISCARD_BODY`].
+/// </param>
+/// <param name="DiscardLabel">
+/// The button that sends `UiEvent::DiscardChanges`, [`DISCARD_ACTION`].
+/// </param>
+/// <param name="KeepLabel">
+/// The button that sends `UiEvent::KeepEditing`, [`KEEP_EDITING`]: the
+/// default, and what closing the question means.
+/// </param>
+public record DiscardView (
+    /// <summary>
+    /// The heading, [`DISCARD_TITLE`].
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The text under it, [`DISCARD_BODY`].
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The button that sends `UiEvent::DiscardChanges`, [`DISCARD_ACTION`].
+    /// </summary>
+    string DiscardLabel, 
+    /// <summary>
+    /// The button that sends `UiEvent::KeepEditing`, [`KEEP_EDITING`]: the
+    /// default, and what closing the question means.
+    /// </summary>
+    string KeepLabel
+) {
+}
+
+class FfiConverterTypeDiscardView: FfiConverterRustBuffer<DiscardView> {
+    public static FfiConverterTypeDiscardView INSTANCE = new FfiConverterTypeDiscardView();
+
+    public override DiscardView Read(BigEndianStream stream) {
+        return new DiscardView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            DiscardLabel: FfiConverterString.INSTANCE.Read(stream),
+            KeepLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DiscardView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DiscardLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.KeepLabel);
+    }
+
+    public override void Write(DiscardView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.DiscardLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.KeepLabel, stream);
+    }
+}
+
+
+
+/// <summary>
 /// What an empty list says, shown when the read is ready and has no rows.
 /// </summary>
 /// <param name="Title">
@@ -10924,16 +10992,80 @@ class FfiConverterTypeSessionScreen: FfiConverterRustBuffer<SessionScreen> {
 
 
 /// <summary>
-/// The workspace settings hub: the list of sections.
+/// One group of the hub, under its heading.
+/// </summary>
+/// <param name="Heading">
+/// The heading ("District Studio", "Workspace").
+/// </param>
+/// <param name="Rows">
+/// Its rows, in order.
+/// </param>
+public record SettingsGroupView (
+    /// <summary>
+    /// The heading ("District Studio", "Workspace").
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// Its rows, in order.
+    /// </summary>
+    SettingsRowView[] Rows
+) {
+}
+
+class FfiConverterTypeSettingsGroupView: FfiConverterRustBuffer<SettingsGroupView> {
+    public static FfiConverterTypeSettingsGroupView INSTANCE = new FfiConverterTypeSettingsGroupView();
+
+    public override SettingsGroupView Read(BigEndianStream stream) {
+        return new SettingsGroupView(
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeSettingsRowView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsGroupView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterSequenceTypeSettingsRowView.INSTANCE.AllocationSize(value.Rows);
+    }
+
+    public override void Write(SettingsGroupView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterSequenceTypeSettingsRowView.INSTANCE.Write(value.Rows, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The workspace settings hub: the sections the member's role may open, in
+/// groups, and the note under them.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`SETTINGS_TITLE`].
+/// </param>
+/// <param name="Groups">
+/// The groups, District Studio's first, each with its rows in the core's
+/// order. A group with no row for this role is left out.
+/// </param>
+/// <param name="Note">
+/// The note under the list: what is changed on the website, or for a
+/// viewer, that these are the settings they may read.
 /// </param>
 public record SettingsHubView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`SETTINGS_TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// The groups, District Studio's first, each with its rows in the core's
+    /// order. A group with no row for this role is left out.
+    /// </summary>
+    SettingsGroupView[] Groups, 
+    /// <summary>
+    /// The note under the list: what is changed on the website, or for a
+    /// viewer, that these are the settings they may read.
+    /// </summary>
+    string Note
 ) {
 }
 
@@ -10942,17 +11074,78 @@ class FfiConverterTypeSettingsHubView: FfiConverterRustBuffer<SettingsHubView> {
 
     public override SettingsHubView Read(BigEndianStream stream) {
         return new SettingsHubView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Groups: FfiConverterSequenceTypeSettingsGroupView.INSTANCE.Read(stream),
+            Note: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(SettingsHubView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterSequenceTypeSettingsGroupView.INSTANCE.AllocationSize(value.Groups)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Note);
     }
 
     public override void Write(SettingsHubView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterSequenceTypeSettingsGroupView.INSTANCE.Write(value.Groups, stream);
+            FfiConverterString.INSTANCE.Write(value.Note, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One row of the hub: a section to open.
+/// </summary>
+/// <param name="Section">
+/// The section it opens (`SettingsAction::OpenSection`).
+/// </param>
+/// <param name="Title">
+/// Its title.
+/// </param>
+/// <param name="Subtitle">
+/// What the section holds.
+/// </param>
+public record SettingsRowView (
+    /// <summary>
+    /// The section it opens (`SettingsAction::OpenSection`).
+    /// </summary>
+    SettingsSection Section, 
+    /// <summary>
+    /// Its title.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What the section holds.
+    /// </summary>
+    string Subtitle
+) {
+}
+
+class FfiConverterTypeSettingsRowView: FfiConverterRustBuffer<SettingsRowView> {
+    public static FfiConverterTypeSettingsRowView INSTANCE = new FfiConverterTypeSettingsRowView();
+
+    public override SettingsRowView Read(BigEndianStream stream) {
+        return new SettingsRowView(
+            Section: FfiConverterTypeSettingsSection.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Subtitle: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsRowView value) {
+        return 0
+            + FfiConverterTypeSettingsSection.INSTANCE.AllocationSize(value.Section)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subtitle);
+    }
+
+    public override void Write(SettingsRowView value, BigEndianStream stream) {
+            FfiConverterTypeSettingsSection.INSTANCE.Write(value.Section, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Subtitle, stream);
     }
 }
 
@@ -11008,6 +11201,12 @@ class FfiConverterTypeSettingsHubView: FfiConverterRustBuffer<SettingsHubView> {
 /// Whether this build can carry a call's audio: true in the Windows build,
 /// which links the LiveKit engine. Without it the dialler, Call buttons and
 /// "Ring on this computer" are not offered.
+/// </param>
+/// <param name="Discard">
+/// "Discard your changes?", while a move away from a settings section with
+/// unsaved changes is held (crate::guard): answered with
+/// `UiEvent::DiscardChanges` or `UiEvent::KeepEditing`. The actor sets it;
+/// left out of the snapshots while there is none.
 /// </param>
 public record ShellView (
     /// <summary>
@@ -11069,7 +11268,14 @@ public record ShellView (
     /// which links the LiveKit engine. Without it the dialler, Call buttons and
     /// "Ring on this computer" are not offered.
     /// </summary>
-    bool CallsAvailable
+    bool CallsAvailable, 
+    /// <summary>
+    /// "Discard your changes?", while a move away from a settings section with
+    /// unsaved changes is held (crate::guard): answered with
+    /// `UiEvent::DiscardChanges` or `UiEvent::KeepEditing`. The actor sets it;
+    /// left out of the snapshots while there is none.
+    /// </summary>
+    DiscardView? Discard
 ) {
 }
 
@@ -11089,7 +11295,8 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             ReportRefusal: FfiConverterOptionalString.INSTANCE.Read(stream),
             Call: FfiConverterOptionalTypeActiveCallView.INSTANCE.Read(stream),
             Ring: FfiConverterOptionalTypeIncomingRingView.INSTANCE.Read(stream),
-            CallsAvailable: FfiConverterBoolean.INSTANCE.Read(stream)
+            CallsAvailable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Discard: FfiConverterOptionalTypeDiscardView.INSTANCE.Read(stream)
         );
     }
 
@@ -11106,7 +11313,8 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReportRefusal)
             + FfiConverterOptionalTypeActiveCallView.INSTANCE.AllocationSize(value.Call)
             + FfiConverterOptionalTypeIncomingRingView.INSTANCE.AllocationSize(value.Ring)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CallsAvailable);
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CallsAvailable)
+            + FfiConverterOptionalTypeDiscardView.INSTANCE.AllocationSize(value.Discard);
     }
 
     public override void Write(ShellView value, BigEndianStream stream) {
@@ -11122,6 +11330,7 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             FfiConverterOptionalTypeActiveCallView.INSTANCE.Write(value.Call, stream);
             FfiConverterOptionalTypeIncomingRingView.INSTANCE.Write(value.Ring, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CallsAvailable, stream);
+            FfiConverterOptionalTypeDiscardView.INSTANCE.Write(value.Discard, stream);
     }
 }
 
@@ -17010,32 +17219,159 @@ class FfiConverterTypeSessionPhase: FfiConverterRustBuffer<SessionPhase> {
 /// <summary>
 /// Something the member did on the workspace settings hub.
 /// </summary>
-public enum SettingsAction: int {
+public record SettingsAction {
+    
     /// <summary>
     /// Open the hub.
     /// </summary>
-    Open
+    public record Open: SettingsAction {}
+    
+    
+    /// <summary>
+    /// Open a section from its row.
+    /// </summary>
+    public record OpenSection (
+        SettingsSection Section
+    ) : SettingsAction {}
+    
+
+    
 }
 
-class FfiConverterTypeSettingsAction: FfiConverterRustBuffer<SettingsAction> {
-    public static FfiConverterTypeSettingsAction INSTANCE = new FfiConverterTypeSettingsAction();
+class FfiConverterTypeSettingsAction : FfiConverterRustBuffer<SettingsAction>{
+    public static FfiConverterRustBuffer<SettingsAction> INSTANCE = new FfiConverterTypeSettingsAction();
 
     public override SettingsAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return SettingsAction.Open;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSettingsAction.Read()", value));
+            case 1:
+                return new SettingsAction.Open(
+                );
+            case 2:
+                return new SettingsAction.OpenSection(
+                    FfiConverterTypeSettingsSection.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSettingsAction.Read()", value));
         }
     }
 
     public override int AllocationSize(SettingsAction value) {
-        return 4;
+        switch (value) {
+            case SettingsAction.Open variant_value:
+                return 4;
+            case SettingsAction.OpenSection variant_value:
+                return 4
+                    + FfiConverterTypeSettingsSection.INSTANCE.AllocationSize(variant_value.Section);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSettingsAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(SettingsAction value, BigEndianStream stream) {
         switch (value) {
-            case SettingsAction.Open: stream.WriteInt(1); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSettingsAction.Write()", value));
+            case SettingsAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case SettingsAction.OpenSection variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypeSettingsSection.INSTANCE.Write(variant_value.Section, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSettingsAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A section of the workspace settings, as a hub row opens it.
+/// </summary>
+public enum SettingsSection: int {
+    /// <summary>
+    /// The receptionist's persona (District Studio's Persona).
+    /// </summary>
+    Persona,
+    /// <summary>
+    /// Its voice (District Studio's Voice, Voice Studio).
+    /// </summary>
+    VoiceStudio,
+    /// <summary>
+    /// Who answers an inbound call.
+    /// </summary>
+    CallHandling,
+    /// <summary>
+    /// The call routing rules.
+    /// </summary>
+    Routing,
+    /// <summary>
+    /// The transfer directory.
+    /// </summary>
+    Directory,
+    /// <summary>
+    /// What it may do on a call (District Studio's Skills).
+    /// </summary>
+    Tools,
+    /// <summary>
+    /// The knowledge base.
+    /// </summary>
+    Knowledge,
+    /// <summary>
+    /// The messaging accounts.
+    /// </summary>
+    Messaging,
+    /// <summary>
+    /// The members.
+    /// </summary>
+    Members,
+    /// <summary>
+    /// The phone numbers, which open the phone numbers screen.
+    /// </summary>
+    Numbers
+}
+
+class FfiConverterTypeSettingsSection: FfiConverterRustBuffer<SettingsSection> {
+    public static FfiConverterTypeSettingsSection INSTANCE = new FfiConverterTypeSettingsSection();
+
+    public override SettingsSection Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return SettingsSection.Persona;
+            case 2: return SettingsSection.VoiceStudio;
+            case 3: return SettingsSection.CallHandling;
+            case 4: return SettingsSection.Routing;
+            case 5: return SettingsSection.Directory;
+            case 6: return SettingsSection.Tools;
+            case 7: return SettingsSection.Knowledge;
+            case 8: return SettingsSection.Messaging;
+            case 9: return SettingsSection.Members;
+            case 10: return SettingsSection.Numbers;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSettingsSection.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SettingsSection value) {
+        return 4;
+    }
+
+    public override void Write(SettingsSection value, BigEndianStream stream) {
+        switch (value) {
+            case SettingsSection.Persona: stream.WriteInt(1); break;
+            case SettingsSection.VoiceStudio: stream.WriteInt(2); break;
+            case SettingsSection.CallHandling: stream.WriteInt(3); break;
+            case SettingsSection.Routing: stream.WriteInt(4); break;
+            case SettingsSection.Directory: stream.WriteInt(5); break;
+            case SettingsSection.Tools: stream.WriteInt(6); break;
+            case SettingsSection.Knowledge: stream.WriteInt(7); break;
+            case SettingsSection.Messaging: stream.WriteInt(8); break;
+            case SettingsSection.Members: stream.WriteInt(9); break;
+            case SettingsSection.Numbers: stream.WriteInt(10); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSettingsSection.Write()", value));
         }
     }
 }
@@ -18063,6 +18399,22 @@ public record UiEvent {
     
     
     /// <summary>
+    /// "Discard" in answer to "Discard your changes?"
+    /// ([`ShellView::discard`](crate::ShellView::discard)): the move that was
+    /// held goes to the core as it was. The actor handles it; it is no core
+    /// event of its own.
+    /// </summary>
+    public record DiscardChanges: UiEvent {}
+    
+    
+    /// <summary>
+    /// "Keep editing" in answer to it: the held move is dropped. The actor
+    /// handles it; it is no core event of its own.
+    /// </summary>
+    public record KeepEditing: UiEvent {}
+    
+    
+    /// <summary>
     /// Open the dialler.
     /// </summary>
     public record OpenDialer: UiEvent {}
@@ -18409,133 +18761,139 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                 return new UiEvent.DismissReport(
                 );
             case 31:
-                return new UiEvent.OpenDialer(
+                return new UiEvent.DiscardChanges(
                 );
             case 32:
+                return new UiEvent.KeepEditing(
+                );
+            case 33:
+                return new UiEvent.OpenDialer(
+                );
+            case 34:
                 return new UiEvent.DialerEdit(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 33:
+            case 35:
                 return new UiEvent.Dial(
                 );
-            case 34:
+            case 36:
                 return new UiEvent.CallNumber(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 35:
+            case 37:
                 return new UiEvent.HangUp(
                 );
-            case 36:
+            case 38:
                 return new UiEvent.DismissCall(
                 );
-            case 37:
+            case 39:
                 return new UiEvent.Answer(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 38:
+            case 40:
                 return new UiEvent.Decline(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 39:
+            case 41:
                 return new UiEvent.DismissRing(
                 );
-            case 40:
+            case 42:
                 return new UiEvent.Microphone(
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
-            case 41:
+            case 43:
                 return new UiEvent.SetRingOnThisComputer(
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
-            case 42:
+            case 44:
                 return new UiEvent.Contacts(
                     FfiConverterTypeContactsAction.INSTANCE.Read(stream)
                 );
-            case 43:
+            case 45:
                 return new UiEvent.Blocked(
                     FfiConverterTypeBlockedAction.INSTANCE.Read(stream)
                 );
-            case 44:
+            case 46:
                 return new UiEvent.Hq(
                     FfiConverterTypeHqAction.INSTANCE.Read(stream)
                 );
-            case 45:
+            case 47:
                 return new UiEvent.Analytics(
                     FfiConverterTypeAnalyticsAction.INSTANCE.Read(stream)
                 );
-            case 46:
+            case 48:
                 return new UiEvent.Marketplace(
                     FfiConverterTypeMarketplaceAction.INSTANCE.Read(stream)
                 );
-            case 47:
+            case 49:
                 return new UiEvent.Billing(
                     FfiConverterTypeBillingAction.INSTANCE.Read(stream)
                 );
-            case 48:
+            case 50:
                 return new UiEvent.Workflows(
                     FfiConverterTypeWorkflowsAction.INSTANCE.Read(stream)
                 );
-            case 49:
+            case 51:
                 return new UiEvent.Scheduling(
                     FfiConverterTypeSchedulingAction.INSTANCE.Read(stream)
                 );
-            case 50:
+            case 52:
                 return new UiEvent.Desk(
                     FfiConverterTypeDeskAction.INSTANCE.Read(stream)
                 );
-            case 51:
+            case 53:
                 return new UiEvent.Support(
                     FfiConverterTypeSupportAction.INSTANCE.Read(stream)
                 );
-            case 52:
+            case 54:
                 return new UiEvent.Rooms(
                     FfiConverterTypeRoomsAction.INSTANCE.Read(stream)
                 );
-            case 53:
+            case 55:
                 return new UiEvent.Composer(
                     FfiConverterTypeComposerAction.INSTANCE.Read(stream)
                 );
-            case 54:
+            case 56:
                 return new UiEvent.Settings(
                     FfiConverterTypeSettingsAction.INSTANCE.Read(stream)
                 );
-            case 55:
+            case 57:
                 return new UiEvent.Persona(
                     FfiConverterTypePersonaAction.INSTANCE.Read(stream)
                 );
-            case 56:
+            case 58:
                 return new UiEvent.VoiceStudio(
                     FfiConverterTypeVoiceStudioAction.INSTANCE.Read(stream)
                 );
-            case 57:
+            case 59:
                 return new UiEvent.CallHandling(
                     FfiConverterTypeCallHandlingAction.INSTANCE.Read(stream)
                 );
-            case 58:
+            case 60:
                 return new UiEvent.Routing(
                     FfiConverterTypeRoutingAction.INSTANCE.Read(stream)
                 );
-            case 59:
+            case 61:
                 return new UiEvent.Directory(
                     FfiConverterTypeDirectoryAction.INSTANCE.Read(stream)
                 );
-            case 60:
+            case 62:
                 return new UiEvent.Tools(
                     FfiConverterTypeToolsAction.INSTANCE.Read(stream)
                 );
-            case 61:
+            case 63:
                 return new UiEvent.Knowledge(
                     FfiConverterTypeKnowledgeAction.INSTANCE.Read(stream)
                 );
-            case 62:
+            case 64:
                 return new UiEvent.Messaging(
                     FfiConverterTypeMessagingAction.INSTANCE.Read(stream)
                 );
-            case 63:
+            case 65:
                 return new UiEvent.Members(
                     FfiConverterTypeMembersAction.INSTANCE.Read(stream)
                 );
-            case 64:
+            case 66:
                 return new UiEvent.Numbers(
                     FfiConverterTypeNumbersAction.INSTANCE.Read(stream)
                 );
@@ -18616,6 +18974,10 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                     + FfiConverterTypeReportTarget.INSTANCE.AllocationSize(variant_value.Target)
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Note);
             case UiEvent.DismissReport variant_value:
+                return 4;
+            case UiEvent.DiscardChanges variant_value:
+                return 4;
+            case UiEvent.KeepEditing variant_value:
                 return 4;
             case UiEvent.OpenDialer variant_value:
                 return 4;
@@ -18822,135 +19184,141 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case UiEvent.DismissReport variant_value:
                 stream.WriteInt(30);
                 break;
-            case UiEvent.OpenDialer variant_value:
+            case UiEvent.DiscardChanges variant_value:
                 stream.WriteInt(31);
                 break;
-            case UiEvent.DialerEdit variant_value:
+            case UiEvent.KeepEditing variant_value:
                 stream.WriteInt(32);
-                FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
                 break;
-            case UiEvent.Dial variant_value:
+            case UiEvent.OpenDialer variant_value:
                 stream.WriteInt(33);
                 break;
-            case UiEvent.CallNumber variant_value:
+            case UiEvent.DialerEdit variant_value:
                 stream.WriteInt(34);
                 FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
                 break;
-            case UiEvent.HangUp variant_value:
+            case UiEvent.Dial variant_value:
                 stream.WriteInt(35);
                 break;
-            case UiEvent.DismissCall variant_value:
+            case UiEvent.CallNumber variant_value:
                 stream.WriteInt(36);
+                FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
+                break;
+            case UiEvent.HangUp variant_value:
+                stream.WriteInt(37);
+                break;
+            case UiEvent.DismissCall variant_value:
+                stream.WriteInt(38);
                 break;
             case UiEvent.Answer variant_value:
-                stream.WriteInt(37);
+                stream.WriteInt(39);
                 FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
             case UiEvent.Decline variant_value:
-                stream.WriteInt(38);
+                stream.WriteInt(40);
                 FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
             case UiEvent.DismissRing variant_value:
-                stream.WriteInt(39);
+                stream.WriteInt(41);
                 break;
             case UiEvent.Microphone variant_value:
-                stream.WriteInt(40);
+                stream.WriteInt(42);
                 FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
                 break;
             case UiEvent.SetRingOnThisComputer variant_value:
-                stream.WriteInt(41);
+                stream.WriteInt(43);
                 FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
                 break;
             case UiEvent.Contacts variant_value:
-                stream.WriteInt(42);
+                stream.WriteInt(44);
                 FfiConverterTypeContactsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Blocked variant_value:
-                stream.WriteInt(43);
+                stream.WriteInt(45);
                 FfiConverterTypeBlockedAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Hq variant_value:
-                stream.WriteInt(44);
+                stream.WriteInt(46);
                 FfiConverterTypeHqAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Analytics variant_value:
-                stream.WriteInt(45);
+                stream.WriteInt(47);
                 FfiConverterTypeAnalyticsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Marketplace variant_value:
-                stream.WriteInt(46);
+                stream.WriteInt(48);
                 FfiConverterTypeMarketplaceAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Billing variant_value:
-                stream.WriteInt(47);
+                stream.WriteInt(49);
                 FfiConverterTypeBillingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Workflows variant_value:
-                stream.WriteInt(48);
+                stream.WriteInt(50);
                 FfiConverterTypeWorkflowsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Scheduling variant_value:
-                stream.WriteInt(49);
+                stream.WriteInt(51);
                 FfiConverterTypeSchedulingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Desk variant_value:
-                stream.WriteInt(50);
+                stream.WriteInt(52);
                 FfiConverterTypeDeskAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Support variant_value:
-                stream.WriteInt(51);
+                stream.WriteInt(53);
                 FfiConverterTypeSupportAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Rooms variant_value:
-                stream.WriteInt(52);
+                stream.WriteInt(54);
                 FfiConverterTypeRoomsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Composer variant_value:
-                stream.WriteInt(53);
+                stream.WriteInt(55);
                 FfiConverterTypeComposerAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Settings variant_value:
-                stream.WriteInt(54);
+                stream.WriteInt(56);
                 FfiConverterTypeSettingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Persona variant_value:
-                stream.WriteInt(55);
+                stream.WriteInt(57);
                 FfiConverterTypePersonaAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.VoiceStudio variant_value:
-                stream.WriteInt(56);
+                stream.WriteInt(58);
                 FfiConverterTypeVoiceStudioAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.CallHandling variant_value:
-                stream.WriteInt(57);
+                stream.WriteInt(59);
                 FfiConverterTypeCallHandlingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Routing variant_value:
-                stream.WriteInt(58);
+                stream.WriteInt(60);
                 FfiConverterTypeRoutingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Directory variant_value:
-                stream.WriteInt(59);
+                stream.WriteInt(61);
                 FfiConverterTypeDirectoryAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Tools variant_value:
-                stream.WriteInt(60);
+                stream.WriteInt(62);
                 FfiConverterTypeToolsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Knowledge variant_value:
-                stream.WriteInt(61);
+                stream.WriteInt(63);
                 FfiConverterTypeKnowledgeAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Messaging variant_value:
-                stream.WriteInt(62);
+                stream.WriteInt(64);
                 FfiConverterTypeMessagingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Members variant_value:
-                stream.WriteInt(63);
+                stream.WriteInt(65);
                 FfiConverterTypeMembersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Numbers variant_value:
-                stream.WriteInt(64);
+                stream.WriteInt(66);
                 FfiConverterTypeNumbersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -19604,6 +19972,37 @@ class FfiConverterOptionalTypeDeskOffView: FfiConverterRustBuffer<DeskOffView?> 
         } else {
             stream.WriteByte(1);
             FfiConverterTypeDeskOffView.INSTANCE.Write((DeskOffView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeDiscardView: FfiConverterRustBuffer<DiscardView?> {
+    public static FfiConverterOptionalTypeDiscardView INSTANCE = new FfiConverterOptionalTypeDiscardView();
+
+    public override DiscardView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeDiscardView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(DiscardView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeDiscardView.INSTANCE.AllocationSize((DiscardView)value);
+        }
+    }
+
+    public override void Write(DiscardView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeDiscardView.INSTANCE.Write((DiscardView)value, stream);
         }
     }
 }
@@ -21158,6 +21557,98 @@ class FfiConverterSequenceTypeSentimentBandView: FfiConverterRustBuffer<Sentimen
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeSentimentBandView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSettingsGroupView: FfiConverterRustBuffer<SettingsGroupView[]> {
+    public static FfiConverterSequenceTypeSettingsGroupView INSTANCE = new FfiConverterSequenceTypeSettingsGroupView();
+
+    public override SettingsGroupView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SettingsGroupView[length];
+        var readFn = FfiConverterTypeSettingsGroupView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SettingsGroupView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSettingsGroupView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SettingsGroupView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSettingsGroupView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSettingsRowView: FfiConverterRustBuffer<SettingsRowView[]> {
+    public static FfiConverterSequenceTypeSettingsRowView INSTANCE = new FfiConverterSequenceTypeSettingsRowView();
+
+    public override SettingsRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SettingsRowView[length];
+        var readFn = FfiConverterTypeSettingsRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SettingsRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSettingsRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SettingsRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSettingsRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

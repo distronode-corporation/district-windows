@@ -1,0 +1,98 @@
+{
+  "screen": {
+    "WorkspaceSettings": {
+      "view": {
+        "groups": [
+          {
+            "heading": "District Studio",
+            "rows": [
+              {
+                "section": "Persona",
+                "subtitle": "The receptionist's name, greeting, character, language and answer length.",
+                "title": "Persona"
+              },
+              {
+                "section": "VoiceStudio",
+                "subtitle": "The voice and engine it speaks with, part by part, and how fast it answers.",
+                "title": "Voice"
+              },
+              {
+                "section": "CallHandling",
+                "subtitle": "Who answers first, how long your devices ring, and whether you are rung.",
+                "title": "Call handling"
+              },
+              {
+                "section": "Routing",
+                "subtitle": "Which callers get which voice and instruction.",
+                "title": "Call routing rules"
+              },
+              {
+                "section": "Directory",
+                "subtitle": "Who it can put a live caller through to.",
+                "title": "Transfer directory"
+              },
+              {
+                "section": "Tools",
+                "subtitle": "What it may do on a call, and outside research on contacts.",
+                "title": "Skills"
+              },
+              {
+                "section": "Knowledge",
+                "subtitle": "The documents it answers from, and where answers come from.",
+                "title": "Knowledge"
+              }
+            ]
+          },
+          {
+            "heading": "Workspace",
+            "rows": [
+              {
+                "section": "Messaging",
+                "subtitle": "The carrier accounts this workspace sends from.",
+                "title": "Messaging accounts"
+              },
+              {
+                "section": "Members",
+                "subtitle": "Who belongs to this workspace, their roles, and its name.",
+                "title": "Members"
+              },
+              {
+                "section": "Numbers",
+                "subtitle": "The numbers this workspace uses.",
+                "title": "Phone numbers"
+              }
+            ]
+          }
+        ],
+        "note": "District Studio's Integrations and Video, and the outbound campaign, are changed on the District AI website.",
+        "title": "Workspace settings"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

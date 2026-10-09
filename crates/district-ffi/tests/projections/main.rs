@@ -175,7 +175,8 @@ fn offered(session: &Session) -> Vec<NavDestination> {
 
 /// An area whose packet has not built it: `session` shows `expected`, as
 /// [`ScreenView::Unavailable`], the navigation pane offers 1.0's five
-/// destinations, and no entry of 2.0's is highlighted for it. Which of 2.0's
+/// destinations, and no entry of 2.0's is highlighted for it (a settings
+/// section's parent, the hub, may be). Which of 2.0's
 /// the pane offers is nav.rs's to pin (only those built), so building one
 /// area changes no other area's checks.
 fn assert_unbuilt(session: &Session, expected: Route) {
@@ -197,8 +198,13 @@ fn assert_unbuilt(session: &Session, expected: Route) {
         "{expected:?}: {offered:?}"
     );
     let selected = shell_json(session)["nav_selected"].clone();
+    // A settings section's own entry is its parent's, the hub's, once the hub
+    // is built: that highlight is the hub's, not the section's.
+    let parent = matches!(expected, Route::Workspace(_)).then(|| json!(NavDestination::Settings));
     assert!(
-        selected.is_null() || FIRST_FIVE.iter().any(|five| json!(five) == selected),
+        selected.is_null()
+            || FIRST_FIVE.iter().any(|five| json!(five) == selected)
+            || parent.as_ref() == Some(&selected),
         "{expected:?}: {selected}"
     );
 }

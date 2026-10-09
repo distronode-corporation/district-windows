@@ -289,9 +289,9 @@ the pane then offers it to every role `Capabilities::allows` (district-core's `r
 Setting `BUILT` puts the area in the scripted walk (see "Scripted scenes and the area
 walk"), which every pull request must pass, so building an area also means:
 
-- a line for its page's heading in `_headings` in
-  `tests/DistrictAI.UiTests/SceneWalkTests.cs` (or in `_subPages`, for a page a button
-  opens rather than a pane entry);
+- a level-one heading on its page equal to its pane entry's name, which the walk expects
+  (`tests/DistrictAI.UiTests/SceneWalkTests.cs`; only a page whose heading differs goes in
+  `_headings`, and a page a button opens rather than a pane entry goes in `_subPages`);
 - an answer in `crates/district-ffi/src/scripted.rs` for each effect its screens send
   that the scene does not answer yet, from the core's fixtures. `cargo test -p district-ffi
   --features scripted --lib scripted` fails on a built screen left loading or failed.
