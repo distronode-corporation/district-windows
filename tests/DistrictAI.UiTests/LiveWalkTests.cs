@@ -24,8 +24,9 @@ public sealed class LiveWalkTests
     /// <summary>
     /// The whole walk, in one order: the owner's sign-in, every area, the
     /// writes, HQ and support, billing, booking pages, rooms and themes,
-    /// then the viewer's and the no-workspace login's. It fails when any
-    /// check FAILed; NOT_AUTOMATED and PROBE are for the reader.
+    /// then the viewer's and the no-workspace login's. A FAILed check is
+    /// recorded, not thrown: the harness reads the results, and a non-zero
+    /// exit means the walk itself broke.
     /// </summary>
     [Fact]
     public void Walk()
@@ -40,8 +41,10 @@ public sealed class LiveWalkTests
         {
             walk.Finish();
         }
-        var failed = walk.Results.Checks.Where(check => check.Result == "FAIL").Select(check => $"{check.Id}: {check.Detail}").ToArray();
-        Assert.True(failed.Length == 0, string.Join(Environment.NewLine, failed));
+        foreach (var check in walk.Results.Checks)
+        {
+            TestContext.Current.TestOutputHelper?.WriteLine($"{check.Id}: {check.Result} ({check.Seconds} s) {check.Detail}");
+        }
     }
 
     /// <summary>
@@ -63,7 +66,7 @@ public sealed class LiveWalkTests
             walk.Finish();
         }
         var check = walk.Results.For("two-copies");
-        Assert.True(check.Result != "FAIL", $"two-copies: {check.Detail}");
+        TestContext.Current.TestOutputHelper?.WriteLine($"two-copies: {check.Result} ({check.Seconds} s) {check.Detail}");
     }
 
     private static void RequireLive()

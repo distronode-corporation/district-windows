@@ -199,7 +199,7 @@ internal sealed partial class LiveWalk : IDisposable
             Relaunch($"{id} stopped part-way");
         }
         InstalledApp.Log(FormattableString.Invariant($"--- {id}: {LiveResults.Wire(outcome.Result)} in {clock.Elapsed.TotalSeconds:F0} s: {outcome.Detail}"));
-        return Results.Record(id, outcome.Result, outcome.Detail);
+        return Results.Record(id, outcome.Result, outcome.Detail, clock.Elapsed);
     }
 
     /// <summary>

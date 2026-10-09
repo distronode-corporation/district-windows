@@ -62,7 +62,7 @@ internal sealed partial class LiveWalk
         if (Guard("the sign-in page before the no-workspace login", ToSignInPage))
         {
             var overview = Run("nows-overview", DefaultCap + CallbackTimeout, NowsOverview);
-            if (overview.Result != "NOT_AUTOMATED" && !OnSignInPage())
+            if (SignedInAs == "nows")
             {
                 Run("nows-off", DefaultCap, NowsOff);
             }

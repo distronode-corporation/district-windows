@@ -32,6 +32,10 @@ internal sealed class CheckRecord
     [JsonPropertyName("detail")]
     public string Detail { get; set; } = string.Empty;
 
+    /// <summary>How long the check took, in whole seconds.</summary>
+    [JsonPropertyName("seconds")]
+    public int Seconds { get; set; }
+
     /// <summary>The check's screenshots, by file name under screenshots/.</summary>
     [JsonPropertyName("screenshots")]
     public List<string> Screenshots { get; } = [];
@@ -83,6 +87,7 @@ internal sealed class LiveResults(string path)
                     var record = results.For(check.GetProperty("id").GetString() ?? "?");
                     record.Result = check.GetProperty("result").GetString() ?? "NOT_AUTOMATED";
                     record.Detail = check.GetProperty("detail").GetString() ?? string.Empty;
+                    record.Seconds = check.TryGetProperty("seconds", out var seconds) && seconds.TryGetInt32(out var whole) ? whole : 0;
                     if (check.TryGetProperty("screenshots", out var shots))
                     {
                         record.Screenshots.AddRange(shots.EnumerateArray().Select(shot => shot.GetString() ?? string.Empty).Where(shot => shot.Length > 0));
@@ -121,9 +126,10 @@ internal sealed class LiveResults(string path)
     }
 
     /// <summary>Sets <paramref name="id"/>'s result and detail, and writes the file.</summary>
-    public CheckRecord Record(string id, CheckResult result, string detail)
+    public CheckRecord Record(string id, CheckResult result, string detail, TimeSpan? took = null)
     {
         var check = For(id);
+        check.Seconds = (int)Math.Round((took ?? TimeSpan.Zero).TotalSeconds);
         check.Result = Wire(result);
         check.Detail = Clean(detail);
         Write();

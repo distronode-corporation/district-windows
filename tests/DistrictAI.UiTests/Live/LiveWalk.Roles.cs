@@ -151,10 +151,10 @@ internal sealed partial class LiveWalk
             return Outcome.Pass("both installed: each window's title names its copy, and the sign-in page holds browser sign-in under \"Install one, not both\"");
         });
 
-    /// <summary>The GitHub copy's package family, when it is installed: DISTRICTAI_GITHUB_FAMILY, or what Get-AppxPackage says.</summary>
+    /// <summary>The GitHub copy's package family, when it is installed: DISTRICTAI_PACKAGE_FAMILY_GITHUB, or what Get-AppxPackage says.</summary>
     private static string? GitHubFamily()
     {
-        if (Environment.GetEnvironmentVariable("DISTRICTAI_GITHUB_FAMILY") is { Length: > 0 } given)
+        if (Environment.GetEnvironmentVariable("DISTRICTAI_PACKAGE_FAMILY_GITHUB") is { Length: > 0 } given)
         {
             return Native.IsPackageInstalled(given) ? given : null;
         }
