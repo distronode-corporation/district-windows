@@ -54,6 +54,15 @@ if (Test-Path $dependencies) {
     }
 }
 
+# A crash of DistrictAI.exe leaves a full dump, which is read below if the tests fail.
+$dumps = Join-Path ([IO.Path]::GetTempPath()) 'district-ui-test-dumps'
+$werKey = 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\DistrictAI.exe'
+New-Item -ItemType Directory -Force -Path $dumps | Out-Null
+Get-ChildItem $dumps -Filter '*.dmp' | Remove-Item
+New-Item -Force -Path $werKey | Out-Null
+Set-ItemProperty -Path $werKey -Name DumpFolder -Value $dumps -Type ExpandString
+Set-ItemProperty -Path $werKey -Name DumpType -Value 2 -Type DWord
+
 $trusted = Import-Certificate -FilePath $cer[0].FullName -CertStoreLocation 'Cert:\LocalMachine\TrustedPeople'
 $failed = $true
 try {
@@ -77,7 +86,20 @@ try {
         Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'Application Error'; StartTime = (Get-Date).AddHours(-1) } -ErrorAction SilentlyContinue |
             Where-Object { $_.Message -match 'DistrictAI' } |
             ForEach-Object { Write-Host "--- crash $($_.TimeCreated)`n$($_.Message)" }
+        # What the debugger makes of the newest dump: a XAML fail-fast's
+        # stowed exception (its HRESULT and message) included.
+        $cdb = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x64\cdb.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+        $dump = Get-ChildItem $dumps -Filter '*.dmp' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($dump -and $cdb) {
+            Write-Host "--- $($dump.Name) ($($dump.Length) bytes)"
+            & $cdb.FullName -z $dump.FullName -c '.symfix; .reload; !analyze -v; !pde.dse; q' 2>&1 |
+                Select-String -Pattern 'STOWED|Stowed|HRESULT|ERROR_CODE|EXCEPTION_|FAILURE_|SYMBOL_NAME|Message|Exception|STACK_TEXT|DistrictAI|Microsoft_UI_Xaml|!' |
+                Select-Object -First 150 | ForEach-Object { Write-Host $_.Line }
+        } elseif ($dump) {
+            Write-Host "--- $($dump.Name): no cdb.exe to read it"
+        }
     }
+    Remove-Item -Path $werKey -ErrorAction SilentlyContinue
     Get-AppxPackage -Name $name | ForEach-Object {
         Remove-AppxPackage -Package $_.PackageFullName
         Write-Host "removed $($_.PackageFullName)"
