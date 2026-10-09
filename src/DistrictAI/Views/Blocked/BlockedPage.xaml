@@ -2,7 +2,76 @@
 <UserControl
     x:Class="DistrictAI.Views.Blocked.BlockedPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:blocked="using:DistrictAI.ViewModels.Blocked"
+    xmlns:views="using:DistrictAI.Views">
+    <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock
+            AutomationProperties.HeadingLevel="Level1"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+        <InfoBar
+            Grid.Row="1"
+            AutomationProperties.Name="Problem"
+            CloseButtonClick="OnFailureClosed"
+            IsClosable="True"
+            IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Failure, Mode=OneWay}"
+            Severity="Warning" />
+        <ListView
+            Grid.Row="2"
+            AutomationProperties.Name="Blocked callers"
+            ItemsSource="{x:Bind ViewModel.Rows}"
+            SelectionMode="None"
+            Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+            <ListView.ItemContainerStyle>
+                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="blocked:BlockedRowItem">
+                    <Grid
+                        Padding="0,8"
+                        AutomationProperties.Name="{x:Bind AccessibleName}"
+                        ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2">
+                            <TextBlock
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Text="{x:Bind Name}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind Detail}"
+                                Visibility="{x:Bind HasDetail}" />
+                        </StackPanel>
+                        <ProgressRing
+                            Grid.Column="1"
+                            Width="20"
+                            Height="20"
+                            AutomationProperties.Name="Unblocking"
+                            IsActive="{x:Bind Unblocking}"
+                            Visibility="{x:Bind Unblocking}" />
+                        <Button
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            AutomationProperties.Name="{x:Bind UnblockName}"
+                            Click="OnUnblockClick"
+                            Content="Unblock"
+                            Visibility="{x:Bind ShowUnblock}" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <views:StatusPanel x:Name="Status" Grid.Row="2" />
+    </Grid>
 </UserControl>

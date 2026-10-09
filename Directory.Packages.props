@@ -18,5 +18,7 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <!-- The UI smoke tests (tests/DistrictAI.UiTests), Windows only. -->
+    <PackageVersion Include="FlaUI.UIA3" Version="5.0.0" />
   </ItemGroup>
 </Project>
