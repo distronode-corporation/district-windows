@@ -700,15 +700,15 @@ static class _UniFFILib {
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceUiHostMethod2(
-        ulong @uniffiHandle,RustBuffer @notification,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+        ulong @uniffiHandle,RustBuffer @url,RustBuffer @view,IntPtr @uniffiFutureCallback,ulong @uniffiCallbackData,IntPtr /*_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*/ @uniffiOutDroppedCallback
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceUiHostMethod3(
-        ulong @uniffiHandle,RustBuffer @id,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+        ulong @uniffiHandle,RustBuffer @notification,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceUiHostMethod4(
-        ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+        ulong @uniffiHandle,RustBuffer @id,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceUiHostMethod5(
@@ -718,6 +718,10 @@ static class _UniFFILib {
     public delegate void UniffiCallbackInterfaceUiHostMethod6(
         ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceUiHostMethod7(
+        ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiVTableCallbackInterfaceUiHost
     {
@@ -725,12 +729,15 @@ static class _UniFFILib {
         public IntPtr @uniffiClone;
         public IntPtr @stateChanged;
         public IntPtr @openUrl;
+        public IntPtr @openEmbedded;
         public IntPtr @notify;
         public IntPtr @withdraw;
         public IntPtr @startRingtone;
         public IntPtr @stopRingtone;
         public IntPtr @presentWindow;
     }
+    
+    
     
     
     
@@ -1047,6 +1054,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_district_ffi_fn_method_uihost_open_url(ulong @ptr,RustBuffer @url
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_district_ffi_fn_method_uihost_open_embedded(ulong @ptr,RustBuffer @url,RustBuffer @view
     );
 
     #if NET8_0_OR_GREATER
@@ -2014,6 +2032,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_method_uihost_open_embedded(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_method_uihost_notify(
     );
 
@@ -2219,33 +2248,39 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_open_embedded();
+            if (checksum != 14032) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_open_embedded` checksum `14032`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_notify();
-            if (checksum != 52980) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_notify` checksum `52980`, library returned `{checksum}`");
+            if (checksum != 65105) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_notify` checksum `65105`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_withdraw();
-            if (checksum != 37350) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_withdraw` checksum `37350`, library returned `{checksum}`");
+            if (checksum != 22601) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_withdraw` checksum `22601`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_start_ringtone();
-            if (checksum != 19017) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_start_ringtone` checksum `19017`, library returned `{checksum}`");
+            if (checksum != 38081) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_start_ringtone` checksum `38081`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_stop_ringtone();
-            if (checksum != 18874) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_stop_ringtone` checksum `18874`, library returned `{checksum}`");
+            if (checksum != 42039) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_stop_ringtone` checksum `42039`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_present_window();
-            if (checksum != 48954) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_present_window` checksum `48954`, library returned `{checksum}`");
+            if (checksum != 3903) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_present_window` checksum `3903`, library returned `{checksum}`");
             }
         }
         {
@@ -2261,6 +2296,32 @@ static class _UniFFILib {
 
 #pragma warning disable 8625
 
+
+
+
+class FfiConverterUInt8: FfiConverter<byte, byte> {
+    public static FfiConverterUInt8 INSTANCE = new FfiConverterUInt8();
+
+    public override byte Lift(byte value) {
+        return value;
+    }
+
+    public override byte Read(BigEndianStream stream) {
+        return stream.ReadByte();
+    }
+
+    public override byte Lower(byte value) {
+        return value;
+    }
+
+    public override int AllocationSize(byte value) {
+        return 1;
+    }
+
+    public override void Write(byte value, BigEndianStream stream) {
+        stream.WriteByte(value);
+    }
+}
 
 
 
@@ -2337,6 +2398,32 @@ class FfiConverterUInt64: FfiConverter<ulong, ulong> {
 
     public override void Write(ulong value, BigEndianStream stream) {
         stream.WriteULong(value);
+    }
+}
+
+
+
+class FfiConverterInt64: FfiConverter<long, long> {
+    public static FfiConverterInt64 INSTANCE = new FfiConverterInt64();
+
+    public override long Lift(long value) {
+        return value;
+    }
+
+    public override long Read(BigEndianStream stream) {
+        return stream.ReadLong();
+    }
+
+    public override long Lower(long value) {
+        return value;
+    }
+
+    public override int AllocationSize(long value) {
+        return 8;
+    }
+
+    public override void Write(long value, BigEndianStream stream) {
+        stream.WriteLong(value);
     }
 }
 
@@ -2826,6 +2913,22 @@ public interface UiHost {
     /// </summary>
     Task<bool> OpenUrl(string @url);
     /// <summary>
+    /// Opens `url` in the checkout window, a view inside the app, and answers
+    /// whether it did. Asked only for the service's hand-off start page and
+    /// the one-time link after it (district-core's `UrlOpener::open_embedded`).
+    ///
+    /// [`EmbeddedViewKind::NewPrivate`] opens a new private view, replacing
+    /// any earlier one, with nothing from it or from the browser and nothing
+    /// kept once it closes; [`EmbeddedViewKind::Same`] navigates that view,
+    /// answering false when it is gone. While it shows, a navigation to
+    /// `districtai://handoff` is cancelled in the view and handed to
+    /// [`Core::open_link`](crate::Core::open_link), and the window closing is
+    /// `BillingAction::CheckoutClosed`. Answer false when the view cannot be
+    /// shown at all (no WebView2 runtime): the core then opens the pages in
+    /// the browser instead, and says so.
+    /// </summary>
+    Task<bool> OpenEmbedded(string @url, EmbeddedViewKind @view);
+    /// <summary>
     /// Shows `notification` as a toast, replacing any shown with the same id.
     /// An [`urgent`](NotificationView::urgent) one (a call ringing now) stays
     /// on screen until it is dealt with. Clicking it, or one of its actions,
@@ -2969,6 +3072,43 @@ public class UiHostImpl : UiHost, IDisposable {
         // Get rust future
         CallWithPointer(thisPtr => {
             return _UniFFILib.uniffi_district_ffi_fn_method_uihost_open_url(thisPtr, FfiConverterString.INSTANCE.Lower(@url));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_district_ffi_rust_future_poll_i8(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_district_ffi_rust_future_complete_i8(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_district_ffi_rust_future_free_i8(future),
+        // Lift
+        (result) => FfiConverterBoolean.INSTANCE.Lift(result),
+        // Error
+        NullCallStatusErrorHandler.INSTANCE
+        
+    );
+    }
+    
+    /// <summary>
+    /// Opens `url` in the checkout window, a view inside the app, and answers
+    /// whether it did. Asked only for the service's hand-off start page and
+    /// the one-time link after it (district-core's `UrlOpener::open_embedded`).
+    ///
+    /// [`EmbeddedViewKind::NewPrivate`] opens a new private view, replacing
+    /// any earlier one, with nothing from it or from the browser and nothing
+    /// kept once it closes; [`EmbeddedViewKind::Same`] navigates that view,
+    /// answering false when it is gone. While it shows, a navigation to
+    /// `districtai://handoff` is cancelled in the view and handed to
+    /// [`Core::open_link`](crate::Core::open_link), and the window closing is
+    /// `BillingAction::CheckoutClosed`. Answer false when the view cannot be
+    /// shown at all (no WebView2 runtime): the core then opens the pages in
+    /// the browser instead, and says so.
+    /// </summary>
+    public async Task<bool> OpenEmbedded(string @url, EmbeddedViewKind @view) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_district_ffi_fn_method_uihost_open_embedded(thisPtr, FfiConverterString.INSTANCE.Lower(@url), FfiConverterTypeEmbeddedViewKind.INSTANCE.Lower(@view));
         }),
         // Poll
         (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_district_ffi_rust_future_poll_i8(future, continuation, data),
@@ -3138,6 +3278,71 @@ class UniffiCallbackInterfaceUiHost {
             }
         }, futureHandle.Cts.Token);
     }
+    static void OpenEmbedded(ulong @uniffiHandle,RustBuffer @url,RustBuffer @view,IntPtr @uniffiFutureCallback,ulong @uniffiCallbackData,IntPtr /*_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*/ @uniffiOutDroppedCallback) {
+        var handle = @uniffiHandle;
+        var futureHandle = new UniffiForeignFutureHandle();
+        var foreignHandle = _UniFFIAsync._foreign_futures_map.Insert(futureHandle);
+        unsafe {
+            (*(_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*)@uniffiOutDroppedCallback).handle = foreignHandle;
+            (*(_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*)@uniffiOutDroppedCallback).free = Marshal.GetFunctionPointerForDelegate(_UniFFIAsync.UniffiForeignFutureDroppedCallbackImpl.callback);
+        }
+        if (!FfiConverterTypeUiHost.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+            var ret = new _UniFFILib.UniffiForeignFutureResultI8();
+            ret.@callStatus = new UniffiRustCallStatus();
+            ret.@callStatus.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                ret.@callStatus.error_buf = FfiConverterString.INSTANCE.Lower($"No callback in handlemap '{handle}'");
+            } catch { }
+            var earlyCb = Marshal.GetDelegateForFunctionPointer<_UniFFILib.UniffiForeignFutureCompleteI8>(@uniffiFutureCallback);
+            futureHandle.InvokeCallbackOnce(() => { earlyCb(@uniffiCallbackData, ret); });
+            futureHandle.Dispose();
+            return;
+        }
+
+        // Optimization: skip queuing if already cancelled before Task.Run schedules.
+        // TryInvokeCallback is the definitive cancellation guard inside the task body.
+        Task.Run(async () => {
+            var ret = new _UniFFILib.UniffiForeignFutureResultI8();
+            ret.@callStatus = new UniffiRustCallStatus();
+
+            try {
+            try {
+            var result =
+
+            await uniffiObject.OpenEmbedded(
+                FfiConverterString.INSTANCE.Lift(@url), 
+                FfiConverterTypeEmbeddedViewKind.INSTANCE.Lift(@view))
+            #if NET6_0_OR_GREATER
+                .WaitAsync(futureHandle.Cts.Token)
+            #endif
+                ;
+            ret.@returnValue = FfiConverterBoolean.INSTANCE.Lower(result);
+
+            ret.@callStatus.code = UniffiCallbackResponseStatus.SUCCESS;
+            } catch (OperationCanceledException) when (futureHandle.Cts.IsCancellationRequested) {
+                ret.@callStatus.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+                try {
+                    ret.@callStatus.error_buf = FfiConverterString.INSTANCE.Lower("Future cancelled");
+                } catch { }
+            } catch (System.Exception e) {
+                ret.@callStatus.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+                try {
+                    ret.@callStatus.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+                }
+                catch {
+                }
+            }
+
+            
+            var cb = Marshal.GetDelegateForFunctionPointer<_UniFFILib.UniffiForeignFutureCompleteI8>(@uniffiFutureCallback);
+            futureHandle.InvokeCallbackOnce(() => {
+                cb(@uniffiCallbackData, ret);
+            });
+            } finally {
+                futureHandle.Dispose();
+            }
+        }, futureHandle.Cts.Token);
+    }
     static void Notify(ulong @uniffiHandle,RustBuffer @notification,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
         var handle = @uniffiHandle;
         try {
@@ -3252,11 +3457,12 @@ class UniffiCallbackInterfaceUiHost {
     }
     static _UniFFILib.UniffiCallbackInterfaceUiHostMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod0(StateChanged);
     static _UniFFILib.UniffiCallbackInterfaceUiHostMethod1 _m1 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod1(OpenUrl);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod2 _m2 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod2(Notify);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod3 _m3 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod3(Withdraw);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod4 _m4 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod4(StartRingtone);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod5 _m5 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod5(StopRingtone);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod6 _m6 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod6(PresentWindow);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod2 _m2 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod2(OpenEmbedded);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod3 _m3 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod3(Notify);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod4 _m4 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod4(Withdraw);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod5 _m5 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod5(StartRingtone);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod6 _m6 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod6(StopRingtone);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod7 _m7 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod7(PresentWindow);
     static _UniFFILib.UniffiCallbackInterfaceFree _callback_interface_free = new _UniFFILib.UniffiCallbackInterfaceFree(UniffiFree);
     static _UniFFILib.UniffiCallbackInterfaceClone _callback_interface_clone = new _UniFFILib.UniffiCallbackInterfaceClone(UniffiClone);
 
@@ -3267,11 +3473,12 @@ class UniffiCallbackInterfaceUiHost {
         _UniFFILib.UniffiVTableCallbackInterfaceUiHost _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceUiHost {
             @stateChanged = Marshal.GetFunctionPointerForDelegate(_m0),
             @openUrl = Marshal.GetFunctionPointerForDelegate(_m1),
-            @notify = Marshal.GetFunctionPointerForDelegate(_m2),
-            @withdraw = Marshal.GetFunctionPointerForDelegate(_m3),
-            @startRingtone = Marshal.GetFunctionPointerForDelegate(_m4),
-            @stopRingtone = Marshal.GetFunctionPointerForDelegate(_m5),
-            @presentWindow = Marshal.GetFunctionPointerForDelegate(_m6),
+            @openEmbedded = Marshal.GetFunctionPointerForDelegate(_m2),
+            @notify = Marshal.GetFunctionPointerForDelegate(_m3),
+            @withdraw = Marshal.GetFunctionPointerForDelegate(_m4),
+            @startRingtone = Marshal.GetFunctionPointerForDelegate(_m5),
+            @stopRingtone = Marshal.GetFunctionPointerForDelegate(_m6),
+            @presentWindow = Marshal.GetFunctionPointerForDelegate(_m7),
             @uniffiFree = Marshal.GetFunctionPointerForDelegate(_callback_interface_free),
             @uniffiClone = Marshal.GetFunctionPointerForDelegate(_callback_interface_clone),
         };
@@ -3378,6 +3585,121 @@ class FfiConverterTypeUiHost: FfiConverter<UiHost, ulong> {
 
 
 /// <summary>
+/// The account's subscriptions and invoices.
+/// </summary>
+/// <param name="State">
+/// Where it stands.
+/// </param>
+/// <param name="Title">
+/// The heading of the unavailable or failed card.
+/// </param>
+/// <param name="Body">
+/// Its body: why it is unavailable.
+/// </param>
+/// <param name="Failure">
+/// Why the read failed.
+/// </param>
+/// <param name="Subscriptions">
+/// The subscriptions.
+/// </param>
+/// <param name="NoSubscriptions">
+/// The line for an account with none.
+/// </param>
+/// <param name="Invoices">
+/// The latest invoices.
+/// </param>
+/// <param name="NoInvoices">
+/// The line for an account with none.
+/// </param>
+/// <param name="InvoicesTruncated">
+/// The note under a list that is not all of them.
+/// </param>
+public record AccountBillingView (
+    /// <summary>
+    /// Where it stands.
+    /// </summary>
+    AccountBillingState State, 
+    /// <summary>
+    /// The heading of the unavailable or failed card.
+    /// </summary>
+    string? Title, 
+    /// <summary>
+    /// Its body: why it is unavailable.
+    /// </summary>
+    string? Body, 
+    /// <summary>
+    /// Why the read failed.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// The subscriptions.
+    /// </summary>
+    SubscriptionRowView[] Subscriptions, 
+    /// <summary>
+    /// The line for an account with none.
+    /// </summary>
+    string? NoSubscriptions, 
+    /// <summary>
+    /// The latest invoices.
+    /// </summary>
+    InvoiceRowView[] Invoices, 
+    /// <summary>
+    /// The line for an account with none.
+    /// </summary>
+    string? NoInvoices, 
+    /// <summary>
+    /// The note under a list that is not all of them.
+    /// </summary>
+    string? InvoicesTruncated
+) {
+}
+
+class FfiConverterTypeAccountBillingView: FfiConverterRustBuffer<AccountBillingView> {
+    public static FfiConverterTypeAccountBillingView INSTANCE = new FfiConverterTypeAccountBillingView();
+
+    public override AccountBillingView Read(BigEndianStream stream) {
+        return new AccountBillingView(
+            State: FfiConverterTypeAccountBillingState.INSTANCE.Read(stream),
+            Title: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Body: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Subscriptions: FfiConverterSequenceTypeSubscriptionRowView.INSTANCE.Read(stream),
+            NoSubscriptions: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Invoices: FfiConverterSequenceTypeInvoiceRowView.INSTANCE.Read(stream),
+            NoInvoices: FfiConverterOptionalString.INSTANCE.Read(stream),
+            InvoicesTruncated: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(AccountBillingView value) {
+        return 0
+            + FfiConverterTypeAccountBillingState.INSTANCE.AllocationSize(value.State)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterSequenceTypeSubscriptionRowView.INSTANCE.AllocationSize(value.Subscriptions)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NoSubscriptions)
+            + FfiConverterSequenceTypeInvoiceRowView.INSTANCE.AllocationSize(value.Invoices)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NoInvoices)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.InvoicesTruncated);
+    }
+
+    public override void Write(AccountBillingView value, BigEndianStream stream) {
+            FfiConverterTypeAccountBillingState.INSTANCE.Write(value.State, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Title, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Body, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterSequenceTypeSubscriptionRowView.INSTANCE.Write(value.Subscriptions, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NoSubscriptions, stream);
+            FfiConverterSequenceTypeInvoiceRowView.INSTANCE.Write(value.Invoices, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NoInvoices, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.InvoicesTruncated, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The account screen: who is signed in, on which installation, with which
 /// build.
 /// </summary>
@@ -3420,6 +3742,23 @@ class FfiConverterTypeUiHost: FfiConverter<UiHost, ulong> {
 /// </param>
 /// <param name="RingSettingMessage">
 /// The line under the setting when calls cannot ring here right now.
+/// </param>
+/// <param name="PurchasesOn">
+/// "Purchases on this computer": on ("Sign in every time") or off, once
+/// the core has read it; `None` until then, and then the row is not
+/// shown. Changed with `BillingAction::SetPurchases`.
+/// </param>
+/// <param name="PurchasesLabel">
+/// The row's label, "Purchases on this computer".
+/// </param>
+/// <param name="PurchasesBody">
+/// What the row does.
+/// </param>
+/// <param name="PurchasesOnLabel">
+/// The "on" choice's name, "Sign in every time".
+/// </param>
+/// <param name="PurchasesOffLabel">
+/// The "off" choice's name, "Off".
 /// </param>
 public record AccountView (
     /// <summary>
@@ -3473,7 +3812,29 @@ public record AccountView (
     /// <summary>
     /// The line under the setting when calls cannot ring here right now.
     /// </summary>
-    string? RingSettingMessage
+    string? RingSettingMessage, 
+    /// <summary>
+    /// "Purchases on this computer": on ("Sign in every time") or off, once
+    /// the core has read it; `None` until then, and then the row is not
+    /// shown. Changed with `BillingAction::SetPurchases`.
+    /// </summary>
+    bool? PurchasesOn, 
+    /// <summary>
+    /// The row's label, "Purchases on this computer".
+    /// </summary>
+    string PurchasesLabel, 
+    /// <summary>
+    /// What the row does.
+    /// </summary>
+    string PurchasesBody, 
+    /// <summary>
+    /// The "on" choice's name, "Sign in every time".
+    /// </summary>
+    string PurchasesOnLabel, 
+    /// <summary>
+    /// The "off" choice's name, "Off".
+    /// </summary>
+    string PurchasesOffLabel
 ) {
 }
 
@@ -3493,7 +3854,12 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             RingOnThisComputer: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
             RingSettingLabel: FfiConverterString.INSTANCE.Read(stream),
             RingSettingBody: FfiConverterString.INSTANCE.Read(stream),
-            RingSettingMessage: FfiConverterOptionalString.INSTANCE.Read(stream)
+            RingSettingMessage: FfiConverterOptionalString.INSTANCE.Read(stream),
+            PurchasesOn: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
+            PurchasesLabel: FfiConverterString.INSTANCE.Read(stream),
+            PurchasesBody: FfiConverterString.INSTANCE.Read(stream),
+            PurchasesOnLabel: FfiConverterString.INSTANCE.Read(stream),
+            PurchasesOffLabel: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
@@ -3510,7 +3876,12 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.RingOnThisComputer)
             + FfiConverterString.INSTANCE.AllocationSize(value.RingSettingLabel)
             + FfiConverterString.INSTANCE.AllocationSize(value.RingSettingBody)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RingSettingMessage);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RingSettingMessage)
+            + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.PurchasesOn)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PurchasesLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PurchasesBody)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PurchasesOnLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PurchasesOffLabel);
     }
 
     public override void Write(AccountView value, BigEndianStream stream) {
@@ -3526,6 +3897,11 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             FfiConverterString.INSTANCE.Write(value.RingSettingLabel, stream);
             FfiConverterString.INSTANCE.Write(value.RingSettingBody, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.RingSettingMessage, stream);
+            FfiConverterOptionalBoolean.INSTANCE.Write(value.PurchasesOn, stream);
+            FfiConverterString.INSTANCE.Write(value.PurchasesLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PurchasesBody, stream);
+            FfiConverterString.INSTANCE.Write(value.PurchasesOnLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PurchasesOffLabel, stream);
     }
 }
 
@@ -4078,13 +4454,75 @@ class FfiConverterTypeBarChartView: FfiConverterRustBuffer<BarChartView> {
 /// The billing screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading: "Billing".
+/// </param>
+/// <param name="Status">
+/// Where the plan's read stands: the screen's status page while loading
+/// or failed.
+/// </param>
+/// <param name="Refreshing">
+/// Whether the plan is being read again, with it showing.
+/// </param>
+/// <param name="Plan">
+/// The workspace's plan, once read.
+/// </param>
+/// <param name="Account">
+/// The account's subscriptions and invoices.
+/// </param>
+/// <param name="Note">
+/// The note under the heading: what this screen can change.
+/// </param>
+/// <param name="OffersWeb">
+/// Whether "Manage billing on the web" is offered: for a role that could
+/// change the plan, while purchases in the app are not.
+/// </param>
+/// <param name="WebAction">
+/// Its label.
+/// </param>
+/// <param name="Purchase">
+/// Choosing a plan and managing billing in the app, while they are
+/// offered to this member on this computer; `None` hides them all.
 /// </param>
 public record BillingView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading: "Billing".
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// Where the plan's read stands: the screen's status page while loading
+    /// or failed.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Whether the plan is being read again, with it showing.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// The workspace's plan, once read.
+    /// </summary>
+    PlanView? Plan, 
+    /// <summary>
+    /// The account's subscriptions and invoices.
+    /// </summary>
+    AccountBillingView Account, 
+    /// <summary>
+    /// The note under the heading: what this screen can change.
+    /// </summary>
+    string Note, 
+    /// <summary>
+    /// Whether "Manage billing on the web" is offered: for a role that could
+    /// change the plan, while purchases in the app are not.
+    /// </summary>
+    bool OffersWeb, 
+    /// <summary>
+    /// Its label.
+    /// </summary>
+    string WebAction, 
+    /// <summary>
+    /// Choosing a plan and managing billing in the app, while they are
+    /// offered to this member on this computer; `None` hides them all.
+    /// </summary>
+    PurchaseView? Purchase
 ) {
 }
 
@@ -4093,17 +4531,41 @@ class FfiConverterTypeBillingView: FfiConverterRustBuffer<BillingView> {
 
     public override BillingView Read(BigEndianStream stream) {
         return new BillingView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Plan: FfiConverterOptionalTypePlanView.INSTANCE.Read(stream),
+            Account: FfiConverterTypeAccountBillingView.INSTANCE.Read(stream),
+            Note: FfiConverterString.INSTANCE.Read(stream),
+            OffersWeb: FfiConverterBoolean.INSTANCE.Read(stream),
+            WebAction: FfiConverterString.INSTANCE.Read(stream),
+            Purchase: FfiConverterOptionalTypePurchaseView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(BillingView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterOptionalTypePlanView.INSTANCE.AllocationSize(value.Plan)
+            + FfiConverterTypeAccountBillingView.INSTANCE.AllocationSize(value.Account)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWeb)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WebAction)
+            + FfiConverterOptionalTypePurchaseView.INSTANCE.AllocationSize(value.Purchase);
     }
 
     public override void Write(BillingView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterOptionalTypePlanView.INSTANCE.Write(value.Plan, stream);
+            FfiConverterTypeAccountBillingView.INSTANCE.Write(value.Account, stream);
+            FfiConverterString.INSTANCE.Write(value.Note, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersWeb, stream);
+            FfiConverterString.INSTANCE.Write(value.WebAction, stream);
+            FfiConverterOptionalTypePurchaseView.INSTANCE.Write(value.Purchase, stream);
     }
 }
 
@@ -4836,6 +5298,101 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
             FfiConverterOptionalString.INSTANCE.Write(value.Busy, stream);
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
             FfiConverterTypeAiDraftOfferView.INSTANCE.Write(value.AiDraft, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The step before checkout opens, which names Stripe.
+/// </summary>
+/// <param name="Title">
+/// The heading.
+/// </param>
+/// <param name="Body">
+/// The body: who handles payment, and where checkout opens.
+/// </param>
+/// <param name="Plan">
+/// The plan chosen, by name.
+/// </param>
+/// <param name="Term">
+/// The term chosen, by name.
+/// </param>
+/// <param name="Promo">
+/// The promotion code, when one was given.
+/// </param>
+/// <param name="Action">
+/// The confirming button's label.
+/// </param>
+/// <param name="Cancel">
+/// The way back's label.
+/// </param>
+public record ConfirmPurchaseView (
+    /// <summary>
+    /// The heading.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The body: who handles payment, and where checkout opens.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The plan chosen, by name.
+    /// </summary>
+    string Plan, 
+    /// <summary>
+    /// The term chosen, by name.
+    /// </summary>
+    string Term, 
+    /// <summary>
+    /// The promotion code, when one was given.
+    /// </summary>
+    string? Promo, 
+    /// <summary>
+    /// The confirming button's label.
+    /// </summary>
+    string Action, 
+    /// <summary>
+    /// The way back's label.
+    /// </summary>
+    string Cancel
+) {
+}
+
+class FfiConverterTypeConfirmPurchaseView: FfiConverterRustBuffer<ConfirmPurchaseView> {
+    public static FfiConverterTypeConfirmPurchaseView INSTANCE = new FfiConverterTypeConfirmPurchaseView();
+
+    public override ConfirmPurchaseView Read(BigEndianStream stream) {
+        return new ConfirmPurchaseView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Plan: FfiConverterString.INSTANCE.Read(stream),
+            Term: FfiConverterString.INSTANCE.Read(stream),
+            Promo: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Action: FfiConverterString.INSTANCE.Read(stream),
+            Cancel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ConfirmPurchaseView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Plan)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Term)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Promo)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Action)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Cancel);
+    }
+
+    public override void Write(ConfirmPurchaseView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.Plan, stream);
+            FfiConverterString.INSTANCE.Write(value.Term, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Promo, stream);
+            FfiConverterString.INSTANCE.Write(value.Action, stream);
+            FfiConverterString.INSTANCE.Write(value.Cancel, stream);
     }
 }
 
@@ -8120,6 +8677,81 @@ class FfiConverterTypeIncomingRingView: FfiConverterRustBuffer<IncomingRingView>
 
 
 /// <summary>
+/// One invoice.
+/// </summary>
+/// <param name="Id">
+/// The processor's id, to open it by.
+/// </param>
+/// <param name="Amount">
+/// What it cost ("$249.00").
+/// </param>
+/// <param name="Status">
+/// Its state ("paid"), or empty.
+/// </param>
+/// <param name="Created">
+/// When it was made, in Unix seconds.
+/// </param>
+/// <param name="CanOpen">
+/// Whether it has a page to open.
+/// </param>
+public record InvoiceRowView (
+    /// <summary>
+    /// The processor's id, to open it by.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// What it cost ("$249.00").
+    /// </summary>
+    string Amount, 
+    /// <summary>
+    /// Its state ("paid"), or empty.
+    /// </summary>
+    string Status, 
+    /// <summary>
+    /// When it was made, in Unix seconds.
+    /// </summary>
+    long Created, 
+    /// <summary>
+    /// Whether it has a page to open.
+    /// </summary>
+    bool CanOpen
+) {
+}
+
+class FfiConverterTypeInvoiceRowView: FfiConverterRustBuffer<InvoiceRowView> {
+    public static FfiConverterTypeInvoiceRowView INSTANCE = new FfiConverterTypeInvoiceRowView();
+
+    public override InvoiceRowView Read(BigEndianStream stream) {
+        return new InvoiceRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Amount: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterString.INSTANCE.Read(stream),
+            Created: FfiConverterInt64.INSTANCE.Read(stream),
+            CanOpen: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(InvoiceRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Amount)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.Created)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanOpen);
+    }
+
+    public override void Write(InvoiceRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Amount, stream);
+            FfiConverterString.INSTANCE.Write(value.Status, stream);
+            FfiConverterInt64.INSTANCE.Write(value.Created, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanOpen, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The the knowledge base section.
 /// </summary>
 /// <param name="Title">
@@ -9052,6 +9684,327 @@ class FfiConverterTypePickedFileView: FfiConverterRustBuffer<PickedFileView> {
             FfiConverterString.INSTANCE.Write(value.FileName, stream);
             FfiConverterUInt64.INSTANCE.Write(value.Size, stream);
             FfiConverterByteArray.INSTANCE.Write(value.Bytes, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One plan in the chooser.
+/// </summary>
+/// <param name="Tier">
+/// The plan.
+/// </param>
+/// <param name="Label">
+/// Its name.
+/// </param>
+public record PlanOptionView (
+    /// <summary>
+    /// The plan.
+    /// </summary>
+    PlanTierView Tier, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypePlanOptionView: FfiConverterRustBuffer<PlanOptionView> {
+    public static FfiConverterTypePlanOptionView INSTANCE = new FfiConverterTypePlanOptionView();
+
+    public override PlanOptionView Read(BigEndianStream stream) {
+        return new PlanOptionView(
+            Tier: FfiConverterTypePlanTierView.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PlanOptionView value) {
+        return 0
+            + FfiConverterTypePlanTierView.INSTANCE.AllocationSize(value.Tier)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(PlanOptionView value, BigEndianStream stream) {
+            FfiConverterTypePlanTierView.INSTANCE.Write(value.Tier, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The workspace's plan.
+/// </summary>
+/// <param name="Name">
+/// The plan's name, or the line for a workspace with none.
+/// </param>
+/// <param name="Status">
+/// The status badge.
+/// </param>
+/// <param name="StatusCaption">
+/// What the badge means, when it needs saying.
+/// </param>
+/// <param name="OverageNote">
+/// What happens past the included minutes.
+/// </param>
+/// <param name="MinutesUsed">
+/// The call minutes metered this month, rounded, or `None` when nothing
+/// was metered (never a zero that was not measured).
+/// </param>
+/// <param name="IncludedMinutes">
+/// The minutes the plan includes, when the processor said.
+/// </param>
+/// <param name="MeterPercent">
+/// How full the minutes meter is, 0 to 100, when both are known.
+/// </param>
+public record PlanView (
+    /// <summary>
+    /// The plan's name, or the line for a workspace with none.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The status badge.
+    /// </summary>
+    string Status, 
+    /// <summary>
+    /// What the badge means, when it needs saying.
+    /// </summary>
+    string? StatusCaption, 
+    /// <summary>
+    /// What happens past the included minutes.
+    /// </summary>
+    string? OverageNote, 
+    /// <summary>
+    /// The call minutes metered this month, rounded, or `None` when nothing
+    /// was metered (never a zero that was not measured).
+    /// </summary>
+    long? MinutesUsed, 
+    /// <summary>
+    /// The minutes the plan includes, when the processor said.
+    /// </summary>
+    long? IncludedMinutes, 
+    /// <summary>
+    /// How full the minutes meter is, 0 to 100, when both are known.
+    /// </summary>
+    byte? MeterPercent
+) {
+}
+
+class FfiConverterTypePlanView: FfiConverterRustBuffer<PlanView> {
+    public static FfiConverterTypePlanView INSTANCE = new FfiConverterTypePlanView();
+
+    public override PlanView Read(BigEndianStream stream) {
+        return new PlanView(
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterString.INSTANCE.Read(stream),
+            StatusCaption: FfiConverterOptionalString.INSTANCE.Read(stream),
+            OverageNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            MinutesUsed: FfiConverterOptionalInt64.INSTANCE.Read(stream),
+            IncludedMinutes: FfiConverterOptionalInt64.INSTANCE.Read(stream),
+            MeterPercent: FfiConverterOptionalUInt8.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PlanView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.StatusCaption)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.OverageNote)
+            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.MinutesUsed)
+            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.IncludedMinutes)
+            + FfiConverterOptionalUInt8.INSTANCE.AllocationSize(value.MeterPercent);
+    }
+
+    public override void Write(PlanView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.StatusCaption, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.OverageNote, stream);
+            FfiConverterOptionalInt64.INSTANCE.Write(value.MinutesUsed, stream);
+            FfiConverterOptionalInt64.INSTANCE.Write(value.IncludedMinutes, stream);
+            FfiConverterOptionalUInt8.INSTANCE.Write(value.MeterPercent, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Choosing a plan and managing billing in the app.
+/// </summary>
+/// <param name="Plans">
+/// The plans, smallest first.
+/// </param>
+/// <param name="Terms">
+/// The terms, monthly first.
+/// </param>
+/// <param name="ChooseAction">
+/// The chooser's action: "Choose a plan".
+/// </param>
+/// <param name="PricesNote">
+/// The line beside the plans: the price is shown at checkout.
+/// </param>
+/// <param name="PromoLabel">
+/// The promotion code field's label.
+/// </param>
+/// <param name="PromoInvalid">
+/// What to say about a code of the wrong shape.
+/// </param>
+/// <param name="PromoMaxLen">
+/// The longest code taken.
+/// </param>
+/// <param name="OffersManage">
+/// Whether "Manage billing" is offered.
+/// </param>
+/// <param name="ManageAction">
+/// Its label.
+/// </param>
+/// <param name="Confirming">
+/// The step naming Stripe, while it shows.
+/// </param>
+/// <param name="Opening">
+/// Whether a page is being opened (show progress).
+/// </param>
+/// <param name="OpeningLabel">
+/// What to say meanwhile.
+/// </param>
+/// <param name="Enabled">
+/// Whether the actions can be pressed: not while the link is being asked
+/// for.
+/// </param>
+/// <param name="Notice">
+/// What the last press came to, when it needs saying.
+/// </param>
+/// <param name="InBrowserNote">
+/// Said once purchase pages open in the system browser, because this
+/// computer cannot show them in the app.
+/// </param>
+public record PurchaseView (
+    /// <summary>
+    /// The plans, smallest first.
+    /// </summary>
+    PlanOptionView[] Plans, 
+    /// <summary>
+    /// The terms, monthly first.
+    /// </summary>
+    TermOptionView[] Terms, 
+    /// <summary>
+    /// The chooser's action: "Choose a plan".
+    /// </summary>
+    string ChooseAction, 
+    /// <summary>
+    /// The line beside the plans: the price is shown at checkout.
+    /// </summary>
+    string PricesNote, 
+    /// <summary>
+    /// The promotion code field's label.
+    /// </summary>
+    string PromoLabel, 
+    /// <summary>
+    /// What to say about a code of the wrong shape.
+    /// </summary>
+    string PromoInvalid, 
+    /// <summary>
+    /// The longest code taken.
+    /// </summary>
+    uint PromoMaxLen, 
+    /// <summary>
+    /// Whether "Manage billing" is offered.
+    /// </summary>
+    bool OffersManage, 
+    /// <summary>
+    /// Its label.
+    /// </summary>
+    string ManageAction, 
+    /// <summary>
+    /// The step naming Stripe, while it shows.
+    /// </summary>
+    ConfirmPurchaseView? Confirming, 
+    /// <summary>
+    /// Whether a page is being opened (show progress).
+    /// </summary>
+    bool Opening, 
+    /// <summary>
+    /// What to say meanwhile.
+    /// </summary>
+    string OpeningLabel, 
+    /// <summary>
+    /// Whether the actions can be pressed: not while the link is being asked
+    /// for.
+    /// </summary>
+    bool Enabled, 
+    /// <summary>
+    /// What the last press came to, when it needs saying.
+    /// </summary>
+    FailureView? Notice, 
+    /// <summary>
+    /// Said once purchase pages open in the system browser, because this
+    /// computer cannot show them in the app.
+    /// </summary>
+    string? InBrowserNote
+) {
+}
+
+class FfiConverterTypePurchaseView: FfiConverterRustBuffer<PurchaseView> {
+    public static FfiConverterTypePurchaseView INSTANCE = new FfiConverterTypePurchaseView();
+
+    public override PurchaseView Read(BigEndianStream stream) {
+        return new PurchaseView(
+            Plans: FfiConverterSequenceTypePlanOptionView.INSTANCE.Read(stream),
+            Terms: FfiConverterSequenceTypeTermOptionView.INSTANCE.Read(stream),
+            ChooseAction: FfiConverterString.INSTANCE.Read(stream),
+            PricesNote: FfiConverterString.INSTANCE.Read(stream),
+            PromoLabel: FfiConverterString.INSTANCE.Read(stream),
+            PromoInvalid: FfiConverterString.INSTANCE.Read(stream),
+            PromoMaxLen: FfiConverterUInt32.INSTANCE.Read(stream),
+            OffersManage: FfiConverterBoolean.INSTANCE.Read(stream),
+            ManageAction: FfiConverterString.INSTANCE.Read(stream),
+            Confirming: FfiConverterOptionalTypeConfirmPurchaseView.INSTANCE.Read(stream),
+            Opening: FfiConverterBoolean.INSTANCE.Read(stream),
+            OpeningLabel: FfiConverterString.INSTANCE.Read(stream),
+            Enabled: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            InBrowserNote: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PurchaseView value) {
+        return 0
+            + FfiConverterSequenceTypePlanOptionView.INSTANCE.AllocationSize(value.Plans)
+            + FfiConverterSequenceTypeTermOptionView.INSTANCE.AllocationSize(value.Terms)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ChooseAction)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PricesNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PromoLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PromoInvalid)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.PromoMaxLen)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersManage)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ManageAction)
+            + FfiConverterOptionalTypeConfirmPurchaseView.INSTANCE.AllocationSize(value.Confirming)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Opening)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OpeningLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enabled)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.InBrowserNote);
+    }
+
+    public override void Write(PurchaseView value, BigEndianStream stream) {
+            FfiConverterSequenceTypePlanOptionView.INSTANCE.Write(value.Plans, stream);
+            FfiConverterSequenceTypeTermOptionView.INSTANCE.Write(value.Terms, stream);
+            FfiConverterString.INSTANCE.Write(value.ChooseAction, stream);
+            FfiConverterString.INSTANCE.Write(value.PricesNote, stream);
+            FfiConverterString.INSTANCE.Write(value.PromoLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PromoInvalid, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.PromoMaxLen, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersManage, stream);
+            FfiConverterString.INSTANCE.Write(value.ManageAction, stream);
+            FfiConverterOptionalTypeConfirmPurchaseView.INSTANCE.Write(value.Confirming, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Opening, stream);
+            FfiConverterString.INSTANCE.Write(value.OpeningLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Enabled, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.InBrowserNote, stream);
     }
 }
 
@@ -10269,6 +11222,101 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
 
 
 /// <summary>
+/// One subscription.
+/// </summary>
+/// <param name="Id">
+/// The processor's id.
+/// </param>
+/// <param name="Name">
+/// The plan's name.
+/// </param>
+/// <param name="Status">
+/// The processor's word for its state.
+/// </param>
+/// <param name="Amount">
+/// The amount per period ("$249.00"), when the processor sent one.
+/// </param>
+/// <param name="RenewsAt">
+/// When it renews, in Unix seconds.
+/// </param>
+/// <param name="EndsAt">
+/// When it ends instead, in Unix seconds.
+/// </param>
+/// <param name="Coupon">
+/// A coupon applied to it, by name.
+/// </param>
+public record SubscriptionRowView (
+    /// <summary>
+    /// The processor's id.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// The plan's name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The processor's word for its state.
+    /// </summary>
+    string Status, 
+    /// <summary>
+    /// The amount per period ("$249.00"), when the processor sent one.
+    /// </summary>
+    string? Amount, 
+    /// <summary>
+    /// When it renews, in Unix seconds.
+    /// </summary>
+    long? RenewsAt, 
+    /// <summary>
+    /// When it ends instead, in Unix seconds.
+    /// </summary>
+    long? EndsAt, 
+    /// <summary>
+    /// A coupon applied to it, by name.
+    /// </summary>
+    string? Coupon
+) {
+}
+
+class FfiConverterTypeSubscriptionRowView: FfiConverterRustBuffer<SubscriptionRowView> {
+    public static FfiConverterTypeSubscriptionRowView INSTANCE = new FfiConverterTypeSubscriptionRowView();
+
+    public override SubscriptionRowView Read(BigEndianStream stream) {
+        return new SubscriptionRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterString.INSTANCE.Read(stream),
+            Amount: FfiConverterOptionalString.INSTANCE.Read(stream),
+            RenewsAt: FfiConverterOptionalInt64.INSTANCE.Read(stream),
+            EndsAt: FfiConverterOptionalInt64.INSTANCE.Read(stream),
+            Coupon: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SubscriptionRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Amount)
+            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.RenewsAt)
+            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.EndsAt)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Coupon);
+    }
+
+    public override void Write(SubscriptionRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Amount, stream);
+            FfiConverterOptionalInt64.INSTANCE.Write(value.RenewsAt, stream);
+            FfiConverterOptionalInt64.INSTANCE.Write(value.EndsAt, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Coupon, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The form raising a request.
 /// </summary>
 /// <param name="Title">
@@ -10975,6 +12023,51 @@ class FfiConverterTypeSupportView: FfiConverterRustBuffer<SupportView> {
             FfiConverterOptionalString.INSTANCE.Write(value.Submitted, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanStart, stream);
             FfiConverterOptionalTypeSupportComposeView.INSTANCE.Write(value.Compose, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One term in the chooser.
+/// </summary>
+/// <param name="Term">
+/// The term.
+/// </param>
+/// <param name="Label">
+/// Its name.
+/// </param>
+public record TermOptionView (
+    /// <summary>
+    /// The term.
+    /// </summary>
+    PlanTermView Term, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeTermOptionView: FfiConverterRustBuffer<TermOptionView> {
+    public static FfiConverterTypeTermOptionView INSTANCE = new FfiConverterTypeTermOptionView();
+
+    public override TermOptionView Read(BigEndianStream stream) {
+        return new TermOptionView(
+            Term: FfiConverterTypePlanTermView.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TermOptionView value) {
+        return 0
+            + FfiConverterTypePlanTermView.INSTANCE.AllocationSize(value.Term)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(TermOptionView value, BigEndianStream stream) {
+            FfiConverterTypePlanTermView.INSTANCE.Write(value.Term, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
     }
 }
 
@@ -11865,6 +12958,63 @@ class FfiConverterTypeWorkspaceSwitcherView: FfiConverterRustBuffer<WorkspaceSwi
 
 
 /// <summary>
+/// Where the account's half stands.
+/// </summary>
+public enum AccountBillingState: int {
+    /// <summary>
+    /// Being read.
+    /// </summary>
+    Loading,
+    /// <summary>
+    /// Read.
+    /// </summary>
+    Ready,
+    /// <summary>
+    /// The payment processor could not be reached: never shown as "none".
+    /// </summary>
+    Unavailable,
+    /// <summary>
+    /// The read failed.
+    /// </summary>
+    Failed
+}
+
+class FfiConverterTypeAccountBillingState: FfiConverterRustBuffer<AccountBillingState> {
+    public static FfiConverterTypeAccountBillingState INSTANCE = new FfiConverterTypeAccountBillingState();
+
+    public override AccountBillingState Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return AccountBillingState.Loading;
+            case 2: return AccountBillingState.Ready;
+            case 3: return AccountBillingState.Unavailable;
+            case 4: return AccountBillingState.Failed;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAccountBillingState.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(AccountBillingState value) {
+        return 4;
+    }
+
+    public override void Write(AccountBillingState value, BigEndianStream stream) {
+        switch (value) {
+            case AccountBillingState.Loading: stream.WriteInt(1); break;
+            case AccountBillingState.Ready: stream.WriteInt(2); break;
+            case AccountBillingState.Unavailable: stream.WriteInt(3); break;
+            case AccountBillingState.Failed: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAccountBillingState.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the member did on the analytics screen.
 /// </summary>
 public record AnalyticsAction {
@@ -12003,40 +13153,213 @@ class FfiConverterTypeAnalyticsPeriod: FfiConverterRustBuffer<AnalyticsPeriod> {
 
 
 /// <summary>
-/// Something the member did on the billing screen.
+/// Something the member did on the billing screen, or about purchases.
 /// </summary>
-public enum BillingAction: int {
+public record BillingAction {
+    
     /// <summary>
     /// Open billing.
     /// </summary>
-    Open,
+    public record Open: BillingAction {}
+    
+    
     /// <summary>
-    /// Manage billing on the web dashboard.
+    /// Manage billing on the web dashboard, in the browser.
     /// </summary>
-    ManageOnWeb
+    public record ManageOnWeb: BillingAction {}
+    
+    
+    /// <summary>
+    /// Open an invoice's page in the browser.
+    /// </summary>
+    public record OpenInvoice (
+        string InvoiceId
+    ) : BillingAction {}
+    
+    /// <summary>
+    /// Read the plan again ("Try again").
+    /// </summary>
+    public record CheckAgain: BillingAction {}
+    
+    
+    /// <summary>
+    /// Choose a plan: the step naming Stripe shows. A promotion code that is
+    /// not of the shape the service reads sends nothing (the page says why
+    /// before it lets the member press).
+    /// </summary>
+    public record ChoosePlan (
+        PlanTierView Tier,
+        PlanTermView Term,
+        string? Promo
+    ) : BillingAction {}
+    
+    /// <summary>
+    /// Continue to checkout.
+    /// </summary>
+    public record ConfirmPurchase: BillingAction {}
+    
+    
+    /// <summary>
+    /// Back out of the confirmation step.
+    /// </summary>
+    public record CancelPurchase: BillingAction {}
+    
+    
+    /// <summary>
+    /// Manage billing inside the app.
+    /// </summary>
+    public record ManageInApp: BillingAction {}
+    
+    
+    /// <summary>
+    /// Put the purchase notice away.
+    /// </summary>
+    public record DismissPurchaseNotice: BillingAction {}
+    
+    
+    /// <summary>
+    /// The checkout window closed.
+    /// </summary>
+    public record CheckoutClosed: BillingAction {}
+    
+    
+    /// <summary>
+    /// The Account page's "Purchases on this computer": on ("Sign in every
+    /// time") or off.
+    /// </summary>
+    public record SetPurchases (
+        bool On
+    ) : BillingAction {}
+    
+
+    
 }
 
-class FfiConverterTypeBillingAction: FfiConverterRustBuffer<BillingAction> {
-    public static FfiConverterTypeBillingAction INSTANCE = new FfiConverterTypeBillingAction();
+class FfiConverterTypeBillingAction : FfiConverterRustBuffer<BillingAction>{
+    public static FfiConverterRustBuffer<BillingAction> INSTANCE = new FfiConverterTypeBillingAction();
 
     public override BillingAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return BillingAction.Open;
-            case 2: return BillingAction.ManageOnWeb;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.Read()", value));
+            case 1:
+                return new BillingAction.Open(
+                );
+            case 2:
+                return new BillingAction.ManageOnWeb(
+                );
+            case 3:
+                return new BillingAction.OpenInvoice(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new BillingAction.CheckAgain(
+                );
+            case 5:
+                return new BillingAction.ChoosePlan(
+                    FfiConverterTypePlanTierView.INSTANCE.Read(stream),
+                    FfiConverterTypePlanTermView.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new BillingAction.ConfirmPurchase(
+                );
+            case 7:
+                return new BillingAction.CancelPurchase(
+                );
+            case 8:
+                return new BillingAction.ManageInApp(
+                );
+            case 9:
+                return new BillingAction.DismissPurchaseNotice(
+                );
+            case 10:
+                return new BillingAction.CheckoutClosed(
+                );
+            case 11:
+                return new BillingAction.SetPurchases(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.Read()", value));
         }
     }
 
     public override int AllocationSize(BillingAction value) {
-        return 4;
+        switch (value) {
+            case BillingAction.Open variant_value:
+                return 4;
+            case BillingAction.ManageOnWeb variant_value:
+                return 4;
+            case BillingAction.OpenInvoice variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.InvoiceId);
+            case BillingAction.CheckAgain variant_value:
+                return 4;
+            case BillingAction.ChoosePlan variant_value:
+                return 4
+                    + FfiConverterTypePlanTierView.INSTANCE.AllocationSize(variant_value.Tier)
+                    + FfiConverterTypePlanTermView.INSTANCE.AllocationSize(variant_value.Term)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.Promo);
+            case BillingAction.ConfirmPurchase variant_value:
+                return 4;
+            case BillingAction.CancelPurchase variant_value:
+                return 4;
+            case BillingAction.ManageInApp variant_value:
+                return 4;
+            case BillingAction.DismissPurchaseNotice variant_value:
+                return 4;
+            case BillingAction.CheckoutClosed variant_value:
+                return 4;
+            case BillingAction.SetPurchases variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(BillingAction value, BigEndianStream stream) {
         switch (value) {
-            case BillingAction.Open: stream.WriteInt(1); break;
-            case BillingAction.ManageOnWeb: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.Write()", value));
+            case BillingAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case BillingAction.ManageOnWeb variant_value:
+                stream.WriteInt(2);
+                break;
+            case BillingAction.OpenInvoice variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.InvoiceId, stream);
+                break;
+            case BillingAction.CheckAgain variant_value:
+                stream.WriteInt(4);
+                break;
+            case BillingAction.ChoosePlan variant_value:
+                stream.WriteInt(5);
+                FfiConverterTypePlanTierView.INSTANCE.Write(variant_value.Tier, stream);
+                FfiConverterTypePlanTermView.INSTANCE.Write(variant_value.Term, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.Promo, stream);
+                break;
+            case BillingAction.ConfirmPurchase variant_value:
+                stream.WriteInt(6);
+                break;
+            case BillingAction.CancelPurchase variant_value:
+                stream.WriteInt(7);
+                break;
+            case BillingAction.ManageInApp variant_value:
+                stream.WriteInt(8);
+                break;
+            case BillingAction.DismissPurchaseNotice variant_value:
+                stream.WriteInt(9);
+                break;
+            case BillingAction.CheckoutClosed variant_value:
+                stream.WriteInt(10);
+                break;
+            case BillingAction.SetPurchases variant_value:
+                stream.WriteInt(11);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.Write()", value));
         }
     }
 }
@@ -13164,6 +14487,52 @@ class FfiConverterTypeDirectoryAction: FfiConverterRustBuffer<DirectoryAction> {
 
 
 /// <summary>
+/// Which view [`UiHost::open_embedded`] opens a page in: the core's
+/// `EmbeddedView`.
+/// </summary>
+public enum EmbeddedViewKind: int {
+    /// <summary>
+    /// A new private view.
+    /// </summary>
+    NewPrivate,
+    /// <summary>
+    /// The view the last new one opened.
+    /// </summary>
+    Same
+}
+
+class FfiConverterTypeEmbeddedViewKind: FfiConverterRustBuffer<EmbeddedViewKind> {
+    public static FfiConverterTypeEmbeddedViewKind INSTANCE = new FfiConverterTypeEmbeddedViewKind();
+
+    public override EmbeddedViewKind Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return EmbeddedViewKind.NewPrivate;
+            case 2: return EmbeddedViewKind.Same;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEmbeddedViewKind.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(EmbeddedViewKind value) {
+        return 4;
+    }
+
+    public override void Write(EmbeddedViewKind value, BigEndianStream stream) {
+        switch (value) {
+            case EmbeddedViewKind.NewPrivate: stream.WriteInt(1); break;
+            case EmbeddedViewKind.Same: stream.WriteInt(2); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEmbeddedViewKind.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// What a file's first bytes say it is.
 /// </summary>
 public enum FileKind: int {
@@ -14097,6 +15466,108 @@ class FfiConverterTypePersonaAction: FfiConverterRustBuffer<PersonaAction> {
         switch (value) {
             case PersonaAction.Open: stream.WriteInt(1); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePersonaAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// How often a plan is billed.
+/// </summary>
+public enum PlanTermView: int {
+    /// <summary>
+    /// Every month.
+    /// </summary>
+    Monthly,
+    /// <summary>
+    /// A year up front.
+    /// </summary>
+    Annual
+}
+
+class FfiConverterTypePlanTermView: FfiConverterRustBuffer<PlanTermView> {
+    public static FfiConverterTypePlanTermView INSTANCE = new FfiConverterTypePlanTermView();
+
+    public override PlanTermView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return PlanTermView.Monthly;
+            case 2: return PlanTermView.Annual;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePlanTermView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(PlanTermView value) {
+        return 4;
+    }
+
+    public override void Write(PlanTermView value, BigEndianStream stream) {
+        switch (value) {
+            case PlanTermView.Monthly: stream.WriteInt(1); break;
+            case PlanTermView.Annual: stream.WriteInt(2); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePlanTermView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A plan the app offers.
+/// </summary>
+public enum PlanTierView: int {
+    /// <summary>
+    /// Voice Solo.
+    /// </summary>
+    VoiceSolo,
+    /// <summary>
+    /// Voice Starter.
+    /// </summary>
+    VoiceStarter,
+    /// <summary>
+    /// Voice Pro.
+    /// </summary>
+    VoicePro,
+    /// <summary>
+    /// Voice Studio.
+    /// </summary>
+    VoiceStudio
+}
+
+class FfiConverterTypePlanTierView: FfiConverterRustBuffer<PlanTierView> {
+    public static FfiConverterTypePlanTierView INSTANCE = new FfiConverterTypePlanTierView();
+
+    public override PlanTierView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return PlanTierView.VoiceSolo;
+            case 2: return PlanTierView.VoiceStarter;
+            case 3: return PlanTierView.VoicePro;
+            case 4: return PlanTierView.VoiceStudio;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePlanTierView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(PlanTierView value) {
+        return 4;
+    }
+
+    public override void Write(PlanTierView value, BigEndianStream stream) {
+        switch (value) {
+            case PlanTierView.VoiceSolo: stream.WriteInt(1); break;
+            case PlanTierView.VoiceStarter: stream.WriteInt(2); break;
+            case PlanTierView.VoicePro: stream.WriteInt(3); break;
+            case PlanTierView.VoiceStudio: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePlanTierView.Write()", value));
         }
     }
 }
@@ -17564,6 +19035,68 @@ class FfiConverterTypeWorkflowsAction: FfiConverterRustBuffer<WorkflowsAction> {
 
 
 
+class FfiConverterOptionalUInt8: FfiConverterRustBuffer<byte?> {
+    public static FfiConverterOptionalUInt8 INSTANCE = new FfiConverterOptionalUInt8();
+
+    public override byte? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterUInt8.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(byte? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterUInt8.INSTANCE.AllocationSize((byte)value);
+        }
+    }
+
+    public override void Write(byte? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterUInt8.INSTANCE.Write((byte)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalInt64: FfiConverterRustBuffer<long?> {
+    public static FfiConverterOptionalInt64 INSTANCE = new FfiConverterOptionalInt64();
+
+    public override long? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterInt64.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(long? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterInt64.INSTANCE.AllocationSize((long)value);
+        }
+    }
+
+    public override void Write(long? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterInt64.INSTANCE.Write((long)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalBoolean: FfiConverterRustBuffer<bool?> {
     public static FfiConverterOptionalBoolean INSTANCE = new FfiConverterOptionalBoolean();
 
@@ -17743,6 +19276,37 @@ class FfiConverterOptionalTypeComposerView: FfiConverterRustBuffer<ComposerView?
         } else {
             stream.WriteByte(1);
             FfiConverterTypeComposerView.INSTANCE.Write((ComposerView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeConfirmPurchaseView: FfiConverterRustBuffer<ConfirmPurchaseView?> {
+    public static FfiConverterOptionalTypeConfirmPurchaseView INSTANCE = new FfiConverterOptionalTypeConfirmPurchaseView();
+
+    public override ConfirmPurchaseView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeConfirmPurchaseView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(ConfirmPurchaseView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeConfirmPurchaseView.INSTANCE.AllocationSize((ConfirmPurchaseView)value);
+        }
+    }
+
+    public override void Write(ConfirmPurchaseView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeConfirmPurchaseView.INSTANCE.Write((ConfirmPurchaseView)value, stream);
         }
     }
 }
@@ -18177,6 +19741,68 @@ class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerV
         } else {
             stream.WriteByte(1);
             FfiConverterTypeLiveBannerView.INSTANCE.Write((LiveBannerView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypePlanView: FfiConverterRustBuffer<PlanView?> {
+    public static FfiConverterOptionalTypePlanView INSTANCE = new FfiConverterOptionalTypePlanView();
+
+    public override PlanView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypePlanView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(PlanView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypePlanView.INSTANCE.AllocationSize((PlanView)value);
+        }
+    }
+
+    public override void Write(PlanView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypePlanView.INSTANCE.Write((PlanView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypePurchaseView: FfiConverterRustBuffer<PurchaseView?> {
+    public static FfiConverterOptionalTypePurchaseView INSTANCE = new FfiConverterOptionalTypePurchaseView();
+
+    public override PurchaseView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypePurchaseView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(PurchaseView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypePurchaseView.INSTANCE.AllocationSize((PurchaseView)value);
+        }
+    }
+
+    public override void Write(PurchaseView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypePurchaseView.INSTANCE.Write((PurchaseView)value, stream);
         }
     }
 }
@@ -18999,6 +20625,52 @@ class FfiConverterSequenceTypeHistoryMonthView: FfiConverterRustBuffer<HistoryMo
 
 
 
+class FfiConverterSequenceTypeInvoiceRowView: FfiConverterRustBuffer<InvoiceRowView[]> {
+    public static FfiConverterSequenceTypeInvoiceRowView INSTANCE = new FfiConverterSequenceTypeInvoiceRowView();
+
+    public override InvoiceRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new InvoiceRowView[length];
+        var readFn = FfiConverterTypeInvoiceRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(InvoiceRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeInvoiceRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(InvoiceRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeInvoiceRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeNavEntryView: FfiConverterRustBuffer<NavEntryView[]> {
     public static FfiConverterSequenceTypeNavEntryView INSTANCE = new FfiConverterSequenceTypeNavEntryView();
 
@@ -19183,6 +20855,52 @@ class FfiConverterSequenceTypePeriodChoiceView: FfiConverterRustBuffer<PeriodCho
 
 
 
+class FfiConverterSequenceTypePlanOptionView: FfiConverterRustBuffer<PlanOptionView[]> {
+    public static FfiConverterSequenceTypePlanOptionView INSTANCE = new FfiConverterSequenceTypePlanOptionView();
+
+    public override PlanOptionView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new PlanOptionView[length];
+        var readFn = FfiConverterTypePlanOptionView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(PlanOptionView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypePlanOptionView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(PlanOptionView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypePlanOptionView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeRichRun: FfiConverterRustBuffer<RichRun[]> {
     public static FfiConverterSequenceTypeRichRun INSTANCE = new FfiConverterSequenceTypeRichRun();
 
@@ -19321,6 +21039,52 @@ class FfiConverterSequenceTypeSentimentBandView: FfiConverterRustBuffer<Sentimen
 
 
 
+class FfiConverterSequenceTypeSubscriptionRowView: FfiConverterRustBuffer<SubscriptionRowView[]> {
+    public static FfiConverterSequenceTypeSubscriptionRowView INSTANCE = new FfiConverterSequenceTypeSubscriptionRowView();
+
+    public override SubscriptionRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SubscriptionRowView[length];
+        var readFn = FfiConverterTypeSubscriptionRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SubscriptionRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSubscriptionRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SubscriptionRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSubscriptionRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeSupportKindView: FfiConverterRustBuffer<SupportKindView[]> {
     public static FfiConverterSequenceTypeSupportKindView INSTANCE = new FfiConverterSequenceTypeSupportKindView();
 
@@ -19452,6 +21216,52 @@ class FfiConverterSequenceTypeSupportRowView: FfiConverterRustBuffer<SupportRowV
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeSupportRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeTermOptionView: FfiConverterRustBuffer<TermOptionView[]> {
+    public static FfiConverterSequenceTypeTermOptionView INSTANCE = new FfiConverterSequenceTypeTermOptionView();
+
+    public override TermOptionView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new TermOptionView[length];
+        var readFn = FfiConverterTypeTermOptionView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(TermOptionView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeTermOptionView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(TermOptionView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeTermOptionView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

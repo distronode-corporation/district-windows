@@ -15,6 +15,7 @@ public sealed partial class AccountViewModel : ObservableObject
     private bool _startupCanChange;
     private bool _startupBusy;
     private bool _writingRing;
+    private bool _writingPurchases;
 
     /// <summary>An account page that reads and changes start at sign-in through <paramref name="startup"/>.</summary>
     public AccountViewModel(IStartupTask startup)
@@ -109,6 +110,36 @@ public sealed partial class AccountViewModel : ObservableObject
     [ObservableProperty]
     public partial bool HasRingMessage { get; set; }
 
+    /// <summary>
+    /// Whether "Purchases on this computer" is shown: once the core has read
+    /// the setting, which only an app that buys in the app does.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool PurchasesVisible { get; set; }
+
+    /// <summary>
+    /// Whether purchases are on ("Sign in every time"). The switch writes it,
+    /// which sends the change to the core; the core's answer writes it back.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool PurchasesOn { get; set; }
+
+    /// <summary>The setting's label, "Purchases on this computer".</summary>
+    [ObservableProperty]
+    public partial string PurchasesLabel { get; set; } = string.Empty;
+
+    /// <summary>What the setting does.</summary>
+    [ObservableProperty]
+    public partial string PurchasesBody { get; set; } = string.Empty;
+
+    /// <summary>The "on" choice's name, "Sign in every time".</summary>
+    [ObservableProperty]
+    public partial string PurchasesOnLabel { get; set; } = string.Empty;
+
+    /// <summary>The "off" choice's name, "Off".</summary>
+    [ObservableProperty]
+    public partial string PurchasesOffLabel { get; set; } = string.Empty;
+
     internal void Attach(PageContext context) => _context = context;
 
     internal void Show(AccountView view)
@@ -137,6 +168,28 @@ public sealed partial class AccountViewModel : ObservableObject
         RingBody = view.RingSettingBody;
         RingMessage = view.RingSettingMessage ?? string.Empty;
         HasRingMessage = RingMessage.Length > 0;
+        PurchasesVisible = view.PurchasesOn is not null;
+        _writingPurchases = true;
+        try
+        {
+            PurchasesOn = view.PurchasesOn ?? false;
+        }
+        finally
+        {
+            _writingPurchases = false;
+        }
+        PurchasesLabel = view.PurchasesLabel;
+        PurchasesBody = view.PurchasesBody;
+        PurchasesOnLabel = view.PurchasesOnLabel;
+        PurchasesOffLabel = view.PurchasesOffLabel;
+    }
+
+    partial void OnPurchasesOnChanged(bool value)
+    {
+        if (!_writingPurchases)
+        {
+            _context?.Send(new UiEvent.Billing(new BillingAction.SetPurchases(value)));
+        }
     }
 
     partial void OnRingOnChanged(bool value)
