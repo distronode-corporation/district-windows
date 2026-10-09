@@ -88,7 +88,7 @@
                 Severity="Error" />
 
             <Grid>
-                <views:StatusPanel x:Name="Status" />
+                <views:StatusPanel x:Name="ListStatus" />
                 <!--
                     One flat list: each workflow, followed by its runs and their end
                     while they are open (one at a time). One template, whose parts
@@ -153,28 +153,28 @@
                                         VerticalAlignment="Center"
                                         Foreground="{ThemeResource SystemFillColorSuccessBrush}"
                                         Style="{StaticResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind Status}"
+                                        Text="{x:Bind RunStatus}"
                                         Visibility="{x:Bind IsSuccess}" />
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
                                         Foreground="{ThemeResource SystemFillColorCautionBrush}"
                                         Style="{StaticResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind Status}"
+                                        Text="{x:Bind RunStatus}"
                                         Visibility="{x:Bind IsWarning}" />
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
                                         Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                         Style="{StaticResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind Status}"
+                                        Text="{x:Bind RunStatus}"
                                         Visibility="{x:Bind IsDanger}" />
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Style="{StaticResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind Status}"
+                                        Text="{x:Bind RunStatus}"
                                         Visibility="{x:Bind IsNeutral}" />
                                 </Grid>
                                 <StackPanel

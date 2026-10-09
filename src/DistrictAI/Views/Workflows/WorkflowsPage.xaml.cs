@@ -22,7 +22,7 @@ public sealed partial class WorkflowsPage : UserControl
     public WorkflowsPage()
     {
         InitializeComponent();
-        Status.Attach(ViewModel.Load);
+        ListStatus.Attach(ViewModel.Load);
         CampaignStatus.Attach(ViewModel.CampaignLoad);
         Loaded += (_, _) => Ask();
         // A question never outlives its screen: leaving the page, or signing

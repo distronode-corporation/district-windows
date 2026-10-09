@@ -31,7 +31,7 @@ public enum WorkflowEntryKind
 /// <param name="Switching">Whether the workflow is being turned on or off now.</param>
 /// <param name="SwitchName">The switch's accessible name, "Turn on" and the name.</param>
 /// <param name="Expanded">Whether the workflow's runs are open.</param>
-/// <param name="Status">A run's status, as a word.</param>
+/// <param name="RunStatus">A run's status, as a word.</param>
 /// <param name="Tone">How a run's status reads.</param>
 /// <param name="When">When a run started, in this computer's zone.</param>
 /// <param name="RunsLoading">Whether a page of runs is on its way.</param>
@@ -51,7 +51,7 @@ public sealed record WorkflowEntry(
     bool Switching,
     string SwitchName,
     bool Expanded,
-    string Status,
+    string RunStatus,
     RunTone Tone,
     string When,
     bool RunsLoading,
@@ -98,7 +98,7 @@ public sealed record WorkflowEntry(
     public string AccessibleName => Kind switch
     {
         WorkflowEntryKind.Workflow => Name + ", " + (Active ? "on" : "off") + ", " + Detail,
-        WorkflowEntryKind.Run => string.Join(", ", new[] { Status, When, Detail }.Where(part => part.Length > 0)),
+        WorkflowEntryKind.Run => string.Join(", ", new[] { RunStatus, When, Detail }.Where(part => part.Length > 0)),
         _ => string.Join(", ", new[] { RunsNote, RunsFailure }.Where(part => part.Length > 0)),
     };
 
@@ -138,7 +138,7 @@ public sealed record WorkflowEntry(
                 Key = "run:" + row.WorkflowId + ":" + run.RunId,
                 Kind = WorkflowEntryKind.Run,
                 Detail = run.Detail,
-                Status = run.Status,
+                RunStatus = run.Status,
                 Tone = run.Tone,
                 When = Display.When(run.StartedAt),
             };
