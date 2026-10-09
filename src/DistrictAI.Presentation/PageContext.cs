@@ -37,6 +37,38 @@ public sealed class PageContext
     /// </summary>
     internal bool CallsAvailable { get; set; }
 
+    /// <summary>
+    /// Why a Report would be refused now (<see cref="ShellView.ReportRefusal"/>:
+    /// a support request is being written in Support), or null. The report
+    /// dialog says it and does not send, so the draft is not touched.
+    /// </summary>
+    internal string? ReportRefusal { get; set; }
+
+    /// <summary>The note of a report the dialog could not send, and what it was about.</summary>
+    private (ReportTarget Target, string Note)? _keptReportNote;
+
+    /// <summary>
+    /// Keeps <paramref name="note"/>, written for a report about
+    /// <paramref name="target"/> that was refused, for the next time a report
+    /// about it is started. An empty note keeps nothing.
+    /// </summary>
+    internal void KeepReportNote(ReportTarget target, string note) =>
+        _keptReportNote = note.Length > 0 ? (target, note) : null;
+
+    /// <summary>
+    /// The note kept for a report about <paramref name="target"/>, handed over
+    /// once, or empty. A note kept for anything else is left where it is.
+    /// </summary>
+    internal string TakeReportNote(ReportTarget target)
+    {
+        if (_keptReportNote is not { } kept || !kept.Target.Equals(target))
+        {
+            return string.Empty;
+        }
+        _keptReportNote = null;
+        return kept.Note;
+    }
+
     /// <summary>Forwards something the user did.</summary>
     internal void Send(UiEvent uiEvent) => _core.Send(uiEvent);
 

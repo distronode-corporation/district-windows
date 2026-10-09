@@ -44,6 +44,8 @@ public sealed class SceneWalkTests
         ("Contacts", "Contacts"),
         ("Account", "Account"),
         ("Analytics", "Analytics"),
+        ("Support", "Support"),
+        ("District HQ", "District HQ"),
     ];
 
     /// <summary>
@@ -67,10 +69,6 @@ public sealed class SceneWalkTests
         using var app = InstalledApp.Launch(SceneArgument);
         var window = app.MainWindow(_startTimeout);
         var handle = window.Properties.NativeWindowHandle.Value;
-        if (shots is { Length: > 0 })
-        {
-            SizeClient(handle, 1920, 1080);
-        }
 
         // Signed in by the scene, on the overview.
         _ = Heading(app, WorkspaceName, _startTimeout);
@@ -83,7 +81,9 @@ public sealed class SceneWalkTests
 
         if (shots is { Length: > 0 })
         {
+            // The whole window once, title bar included, then the pages.
             Save(handle, Path.Combine(shots, "00-window.png"), clientOnly: false);
+            SizeClient(handle, 1920, 1080);
         }
 
         var problems = new List<string>();
@@ -220,23 +220,20 @@ public sealed class SceneWalkTests
     }
 
     /// <summary>
-    /// Sizes the window so its client area is <paramref name="width"/> by
-    /// <paramref name="height"/>, and waits until it is. The window is larger
-    /// than that by its title bar and frame, so the display must be too.
+    /// Makes the window's client area <paramref name="width"/> by
+    /// <paramref name="height"/>, and waits until it is. A window with its
+    /// title bar and frame would not fit a display of that size (the hosted
+    /// runner's largest), so the frame is taken off first.
     /// </summary>
     private static void SizeClient(nint handle, int width, int height)
     {
-        _ = Native.GetWindowRect(handle, out var outer);
-        _ = Native.GetClientRect(handle, out var client);
-        var extraWidth = outer.Width - client.Width;
-        var extraHeight = outer.Height - client.Height;
-        _ = Native.MoveWindow(handle, 0, 0, width + extraWidth, height + extraHeight, repaint: true);
+        Native.Frameless(handle, width, height);
         var sized = Wait.Until(
             () => Native.GetClientRect(handle, out var now) && now.Width == width && now.Height == height,
             TimeSpan.FromSeconds(10));
         _ = Native.GetClientRect(handle, out var actual);
-        InstalledApp.Log(FormattableString.Invariant($"client area {actual.Width}x{actual.Height} (asked for {width}x{height}; the frame adds {extraWidth}x{extraHeight})"));
-        Assert.True(sized, FormattableString.Invariant($"the client area is {actual.Width}x{actual.Height}, not {width}x{height}: is the display smaller than the window?"));
+        InstalledApp.Log(FormattableString.Invariant($"client area {actual.Width}x{actual.Height} (asked for {width}x{height})"));
+        Assert.True(sized, FormattableString.Invariant($"the client area is {actual.Width}x{actual.Height}, not {width}x{height}: is the display smaller?"));
     }
 
     /// <summary>

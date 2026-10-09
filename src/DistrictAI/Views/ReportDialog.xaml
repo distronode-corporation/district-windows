@@ -9,6 +9,12 @@
     PrimaryButtonText="Send"
     Style="{StaticResource DefaultContentDialogStyle}">
     <StackPanel MinWidth="360" Spacing="12">
+        <!-- Why the report cannot be sent now; the note is kept for next time. -->
+        <InfoBar
+            x:Name="Refusal"
+            AutomationProperties.Name="Report not sent"
+            IsClosable="False"
+            Severity="Warning" />
         <TextBlock Text="Tell us what is wrong with this AI-generated content. We will review it." TextWrapping="Wrap" />
         <TextBox
             x:Name="Note"

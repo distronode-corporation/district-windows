@@ -24,6 +24,7 @@ use crate::events::UiEvent;
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
 use crate::link::{LinkKind, link_kind};
+use crate::report::ui_events;
 use crate::screen::{ScreenView, screen_view, session_view};
 use crate::shell::{ShellView, shell_for, shell_view};
 
@@ -604,13 +605,9 @@ impl<X: Effects> Actor<X> {
                     self.dispatch(next);
                 }
                 Message::Ui(action) => {
-                    match &action {
-                        UiEvent::Report { .. } => self.reporting = true,
-                        UiEvent::DismissReport => self.reporting = false,
-                        _ => {}
-                    }
                     let mut next = Vec::new();
-                    for event in action.events() {
+                    let events = ui_events(&self.model, &mut self.reporting, action);
+                    for event in events {
                         next.extend(self.model.update(event));
                     }
                     self.publish();

@@ -2,7 +2,183 @@
 <UserControl
     x:Class="DistrictAI.Views.Support.SupportPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels.Support">
+    <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="Support" />
+            <Button
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                AutomationProperties.Name="New support request"
+                Command="{x:Bind ViewModel.StartRequestCommand}"
+                Content="New request"
+                Style="{StaticResource AccentButtonStyle}"
+                Visibility="{x:Bind ViewModel.CanStart, Mode=OneWay}" />
+        </Grid>
+
+        <!-- The confirmation of a request raised, until put away. -->
+        <InfoBar
+            Grid.Row="1"
+            AutomationProperties.Name="Request sent"
+            CloseButtonCommand="{x:Bind ViewModel.DismissSubmittedCommand}"
+            IsClosable="True"
+            IsOpen="{x:Bind ViewModel.HasSubmitted, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Submitted, Mode=OneWay}"
+            Severity="Success" />
+
+        <!-- The form raising a request, while it is open. -->
+        <Border
+            Grid.Row="2"
+            MaxWidth="{StaticResource ReadingWidth}"
+            HorizontalAlignment="Left"
+            Style="{StaticResource CardStyle}"
+            Visibility="{x:Bind ViewModel.Composing, Mode=OneWay}">
+            <StackPanel Spacing="12">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.ComposeTitle, Mode=OneWay}" />
+                <ComboBox
+                    MinWidth="240"
+                    AutomationProperties.Name="What it is about"
+                    Header="What it is about"
+                    IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
+                    ItemsSource="{x:Bind ViewModel.KindLabels}"
+                    SelectedIndex="{x:Bind ViewModel.KindIndex, Mode=TwoWay}" />
+                <TextBox
+                    AutomationProperties.Name="Subject"
+                    Header="Subject"
+                    IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
+                    MaxLength="{x:Bind ViewModel.SubjectMax, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.Subject, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox
+                    MinHeight="120"
+                    AcceptsReturn="True"
+                    AutomationProperties.Name="What is happening"
+                    Header="What is happening"
+                    IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
+                    MaxLength="{x:Bind ViewModel.MessageMax, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.Message, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Needs, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasNeeds, Mode=OneWay}" />
+                <InfoBar
+                    AutomationProperties.Name="Request not sent"
+                    IsClosable="False"
+                    IsOpen="{x:Bind ViewModel.HasComposeFailure, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.ComposeFailure, Mode=OneWay}"
+                    Severity="Error" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button
+                        AutomationProperties.Name="Send the support request"
+                        Command="{x:Bind ViewModel.SubmitRequestCommand}"
+                        Content="Send"
+                        Style="{StaticResource AccentButtonStyle}" />
+                    <Button
+                        AutomationProperties.Name="Discard the support request"
+                        Command="{x:Bind ViewModel.CancelRequestCommand}"
+                        Content="Discard" />
+                    <ProgressRing
+                        Width="20"
+                        Height="20"
+                        AutomationProperties.Name="Sending the support request"
+                        IsActive="{x:Bind ViewModel.Submitting, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Submitting, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <views:RefreshStrip x:Name="Refresh" Grid.Row="3" />
+
+        <ScrollViewer Grid.Row="4" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+            <StackPanel Spacing="4">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="Open"
+                    Visibility="{x:Bind ViewModel.HasOpen, Mode=OneWay}" />
+                <ListView
+                    AutomationProperties.Name="Open requests"
+                    IsItemClickEnabled="True"
+                    ItemClick="OnRequestClick"
+                    ItemsSource="{x:Bind ViewModel.Open}"
+                    SelectionMode="None"
+                    Visibility="{x:Bind ViewModel.HasOpen, Mode=OneWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SupportRowItem">
+                            <StackPanel
+                                Padding="0,8"
+                                AutomationProperties.Name="{x:Bind AccessibleName}"
+                                Spacing="2">
+                                <TextBlock
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind Subject}"
+                                    TextTrimming="CharacterEllipsis" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind Line}"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="Resolved"
+                    Visibility="{x:Bind ViewModel.HasResolved, Mode=OneWay}" />
+                <ListView
+                    AutomationProperties.Name="Resolved requests"
+                    IsItemClickEnabled="True"
+                    ItemClick="OnRequestClick"
+                    ItemsSource="{x:Bind ViewModel.Resolved}"
+                    SelectionMode="None"
+                    Visibility="{x:Bind ViewModel.HasResolved, Mode=OneWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SupportRowItem">
+                            <StackPanel
+                                Padding="0,8"
+                                AutomationProperties.Name="{x:Bind AccessibleName}"
+                                Spacing="2">
+                                <TextBlock
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind Subject}"
+                                    TextTrimming="CharacterEllipsis" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind Line}"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.CappedNote, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasCappedNote, Mode=OneWay}" />
+            </StackPanel>
+        </ScrollViewer>
+        <views:StatusPanel x:Name="Status" Grid.Row="4" />
+    </Grid>
 </UserControl>

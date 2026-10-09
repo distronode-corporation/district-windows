@@ -2,7 +2,249 @@
 <UserControl
     x:Class="DistrictAI.Views.Hq.HqPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:hq="using:DistrictAI.Views.Hq"
+    xmlns:vm="using:DistrictAI.ViewModels.Hq">
+    <Grid
+        MaxWidth="{StaticResource ReadingWidth}"
+        Padding="{StaticResource PagePadding}"
+        RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock
+            AutomationProperties.HeadingLevel="Level1"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+
+        <!-- Nothing asked yet. -->
+        <StackPanel
+            Grid.Row="1"
+            MaxWidth="480"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Spacing="4"
+            Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay}">
+            <TextBlock
+                HorizontalAlignment="Center"
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SubtitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.EmptyTitle, Mode=OneWay}"
+                TextAlignment="Center"
+                TextWrapping="Wrap" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.EmptyBody, Mode=OneWay}"
+                TextAlignment="Center" />
+        </StackPanel>
+
+        <!-- The conversation, oldest first, the newest kept in view. -->
+        <ListView
+            x:Name="Conversation"
+            Grid.Row="1"
+            AutomationProperties.Name="Conversation with District HQ"
+            ItemsSource="{x:Bind ViewModel.Messages}"
+            SelectionMode="None"
+            Visibility="{x:Bind ViewModel.HasMessages, Mode=OneWay}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsStackPanel ItemsUpdatingScrollMode="KeepLastItemInView" />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemContainerStyle>
+                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="vm:HqMessageItem">
+                    <StackPanel
+                        Padding="0,6"
+                        AutomationProperties.Name="{x:Bind AccessibleName}"
+                        Spacing="4">
+                        <!-- The member's question. -->
+                        <Border
+                            MaxWidth="560"
+                            Padding="12,8"
+                            HorizontalAlignment="Right"
+                            Background="{ThemeResource AccentFillColorDefaultBrush}"
+                            CornerRadius="{StaticResource OverlayCornerRadius}"
+                            Visibility="{x:Bind IsQuestion}">
+                            <TextBlock
+                                Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                IsTextSelectionEnabled="True"
+                                Text="{x:Bind Text}"
+                                TextWrapping="Wrap" />
+                        </Border>
+                        <!-- District HQ's answer, drawn from the core's runs, and Report on it. -->
+                        <Border
+                            MaxWidth="640"
+                            Padding="12,8"
+                            HorizontalAlignment="Left"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource OverlayCornerRadius}"
+                            Visibility="{x:Bind IsAnswer}">
+                            <StackPanel Spacing="4">
+                                <RichTextBlock
+                                    hq:HqPage.Answer="{x:Bind}"
+                                    AutomationProperties.Name="{x:Bind AccessibleName}"
+                                    IsTextSelectionEnabled="True"
+                                    TextWrapping="Wrap" />
+                                <HyperlinkButton
+                                    Padding="4,2"
+                                    AutomationProperties.Name="{x:Bind ReportLabel}"
+                                    Click="OnReportClick"
+                                    Content="{x:Bind ReportLabel}"
+                                    IsEnabled="{x:Bind ReportEnabled}"
+                                    Visibility="{x:Bind ReportVisible}" />
+                            </StackPanel>
+                        </Border>
+                        <!-- What became of a confirmed change. -->
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind Text}"
+                            TextAlignment="Center"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind IsAppliedNote}" />
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind Text}"
+                            TextAlignment="Center"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind IsWarningNote}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- The answer on its way, or why the last question went unanswered. -->
+        <StackPanel Grid.Row="2" Spacing="4">
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="8"
+                Visibility="{x:Bind ViewModel.IsThinking, Mode=OneWay}">
+                <ProgressRing
+                    Width="16"
+                    Height="16"
+                    AutomationProperties.Name="{x:Bind ViewModel.ThinkingText, Mode=OneWay}"
+                    IsActive="{x:Bind ViewModel.IsThinking, Mode=OneWay}" />
+                <TextBlock
+                    AutomationProperties.LiveSetting="Polite"
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.ThinkingText, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="8"
+                Visibility="{x:Bind ViewModel.HasFailure, Mode=OneWay}">
+                <TextBlock
+                    VerticalAlignment="Center"
+                    AutomationProperties.LiveSetting="Assertive"
+                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Text="{x:Bind ViewModel.FailureText, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.Name="Ask the question again"
+                    Command="{x:Bind ViewModel.RetryCommand}"
+                    Content="{x:Bind ViewModel.RetryLabel, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.CanRetry, Mode=OneWay}" />
+            </StackPanel>
+        </StackPanel>
+
+        <!-- The card in front of a proposed change. -->
+        <Border
+            Grid.Row="3"
+            Style="{StaticResource CardStyle}"
+            Visibility="{x:Bind ViewModel.HasCard, Mode=OneWay}">
+            <StackPanel Spacing="8">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{x:Bind ViewModel.CardTitle, Mode=OneWay}" />
+                <TextBlock
+                    IsTextSelectionEnabled="True"
+                    Text="{x:Bind ViewModel.CardSummary, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.CardNote, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasCardNote, Mode=OneWay}" />
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    Visibility="{x:Bind ViewModel.IsApplying, Mode=OneWay}">
+                    <ProgressRing
+                        Width="16"
+                        Height="16"
+                        AutomationProperties.Name="{x:Bind ViewModel.ApplyingText, Mode=OneWay}"
+                        IsActive="{x:Bind ViewModel.IsApplying, Mode=OneWay}" />
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Polite"
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.ApplyingText, Mode=OneWay}" />
+                </StackPanel>
+                <TextBlock
+                    AutomationProperties.LiveSetting="Assertive"
+                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Text="{x:Bind ViewModel.CardFailure, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasCardFailure, Mode=OneWay}" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button
+                        AutomationProperties.Name="{x:Bind ViewModel.ConfirmLabel, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.ConfirmCommand}"
+                        Content="{x:Bind ViewModel.ConfirmLabel, Mode=OneWay}"
+                        Style="{StaticResource AccentButtonStyle}" />
+                    <Button
+                        AutomationProperties.Name="{x:Bind ViewModel.DismissLabel, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.DismissCommand}"
+                        Content="{x:Bind ViewModel.DismissLabel, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- The prompt: Enter sends, Shift+Enter starts a new line. -->
+        <Grid Grid.Row="4" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox
+                x:Name="Prompt"
+                MaxHeight="200"
+                AcceptsReturn="True"
+                AutomationProperties.HelpText="Enter sends. Shift+Enter starts a new line."
+                AutomationProperties.Name="{x:Bind ViewModel.PromptPlaceholder, Mode=OneWay}"
+                IsSpellCheckEnabled="True"
+                PlaceholderText="{x:Bind ViewModel.PromptPlaceholder, Mode=OneWay}"
+                PreviewKeyDown="OnPromptPreviewKeyDown"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                Text="{x:Bind ViewModel.Draft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap" />
+            <Button
+                Grid.Column="1"
+                VerticalAlignment="Bottom"
+                AutomationProperties.Name="{x:Bind ViewModel.AskLabel, Mode=OneWay}"
+                Command="{x:Bind ViewModel.AskCommand}"
+                Content="{x:Bind ViewModel.AskLabel, Mode=OneWay}"
+                Style="{StaticResource AccentButtonStyle}" />
+        </Grid>
+
+        <TextBlock
+            Grid.Row="5"
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.Footnote, Mode=OneWay}" />
+    </Grid>
 </UserControl>

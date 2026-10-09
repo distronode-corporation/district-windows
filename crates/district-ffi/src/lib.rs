@@ -106,7 +106,9 @@ pub use crate::inbox::{
 pub use crate::link::{LinkKind, link_kind};
 pub use crate::nav::{NavDestination, NavEntryView, NavGroupView, NavSection, NavView};
 pub use crate::overview::{FinishSetupView, NO_RECENT_CALLS, OVERVIEW_FAILED_TITLE, OverviewView};
-pub use crate::report::{NO_NOTE, NOTE_LIMIT, PREAMBLE, REPORT_SUBJECT, ReportStatus};
+pub use crate::report::{
+    DRAFT_OPEN, NO_NOTE, NOTE_LIMIT, PREAMBLE, REPORT_SUBJECT, ReportStatus, ui_events,
+};
 pub use crate::screen::{
     ScreenView, SessionScreen, UNAVAILABLE_BODY, UNAVAILABLE_TITLE, screen_view,
 };
