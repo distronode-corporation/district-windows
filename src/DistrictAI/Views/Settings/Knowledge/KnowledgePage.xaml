@@ -2,7 +2,229 @@
 <UserControl
     x:Class="DistrictAI.Views.Settings.Knowledge.KnowledgePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:knowledge="using:DistrictAI.ViewModels.Settings.Knowledge"
+    xmlns:page="using:DistrictAI.Views.Settings.Knowledge">
+    <Grid>
+        <ScrollViewer>
+            <StackPanel
+                MaxWidth="{StaticResource ReadingWidth}"
+                Padding="{StaticResource PagePadding}"
+                Spacing="8">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level1"
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.ViewerNote, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasViewerNote, Mode=OneWay}" />
+
+                <!-- How the last add, delete or change of mode ended. -->
+                <InfoBar
+                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.NoticeText, Mode=OneWay}"
+                    Severity="{x:Bind page:KnowledgePage.SeverityFor(ViewModel.NoticeSaved), Mode=OneWay}" />
+
+                <!-- Where answers come from. -->
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind ViewModel.ModeHeading, Mode=OneWay}" />
+                <ProgressRing
+                    Width="20"
+                    Height="20"
+                    HorizontalAlignment="Left"
+                    AutomationProperties.Name="Reading where answers come from"
+                    IsActive="{x:Bind ViewModel.ModeLoading, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.ModeLoading, Mode=OneWay}" />
+                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasModeUnavailable, Mode=OneWay}">
+                    <TextBlock Text="{x:Bind ViewModel.ModeUnavailable, Mode=OneWay}" TextWrapping="Wrap" />
+                    <Button
+                        AutomationProperties.Name="Read where answers come from again"
+                        Command="{x:Bind ViewModel.RetryCommand}"
+                        Content="Try again"
+                        Visibility="{x:Bind ViewModel.CanRetryMode, Mode=OneWay}" />
+                </StackPanel>
+                <RadioButtons
+                    AutomationProperties.Name="{x:Bind ViewModel.ModeHeading, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.CanChangeMode, Mode=OneWay}"
+                    ItemsSource="{x:Bind ViewModel.Modes}"
+                    SelectedIndex="{x:Bind ViewModel.SelectedModeIndex, Mode=TwoWay}"
+                    Visibility="{x:Bind ViewModel.HasModes, Mode=OneWay}">
+                    <RadioButtons.ItemTemplate>
+                        <DataTemplate x:DataType="knowledge:ModeItem">
+                            <RadioButton AutomationProperties.HelpText="{x:Bind Body}" AutomationProperties.Name="{x:Bind Label}">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
+                                    <TextBlock
+                                        Style="{StaticResource QuietTextStyle}"
+                                        Text="{x:Bind Body}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </RadioButton>
+                        </DataTemplate>
+                    </RadioButtons.ItemTemplate>
+                </RadioButtons>
+                <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasModeUnknown, Mode=OneWay}">
+                    <TextBlock Text="{x:Bind ViewModel.ModeUnknownTitle, Mode=OneWay}" TextWrapping="Wrap" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.ModeUnknown, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+
+                <!-- Adding a document: billed by its length, sent once by Add. -->
+                <StackPanel
+                    Margin="0,16,0,0"
+                    Spacing="8"
+                    Visibility="{x:Bind ViewModel.ShowAdd, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="{x:Bind ViewModel.AddHeading, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.AddBilled, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <TextBox
+                        AutomationProperties.Name="{x:Bind ViewModel.TitleLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.TitleLabel, Mode=OneWay}"
+                        IsEnabled="{x:Bind ViewModel.DraftEditable, Mode=OneWay}"
+                        MaxLength="200"
+                        Text="{x:Bind ViewModel.DraftTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        MinHeight="160"
+                        MaxHeight="400"
+                        AcceptsReturn="True"
+                        AutomationProperties.Name="{x:Bind ViewModel.ContentLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.ContentLabel, Mode=OneWay}"
+                        IsEnabled="{x:Bind ViewModel.DraftEditable, Mode=OneWay}"
+                        IsSpellCheckEnabled="True"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        Text="{x:Bind ViewModel.DraftContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Assertive"
+                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                        Text="{x:Bind ViewModel.AddRejected, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.HasAddRejected, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.FileHint, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Assertive"
+                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                        Text="{x:Bind ViewModel.FileRefusal, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.HasFileRefusal, Mode=OneWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button
+                            AutomationProperties.Name="{x:Bind ViewModel.AddLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.AddCommand}"
+                            Content="{x:Bind ViewModel.AddLabel, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <Button
+                            AutomationProperties.HelpText="{x:Bind ViewModel.FileHint, Mode=OneWay}"
+                            AutomationProperties.Name="{x:Bind ViewModel.FileLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.ChooseFileCommand}"
+                            Content="{x:Bind ViewModel.FileLabel, Mode=OneWay}" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            AutomationProperties.Name="Adding"
+                            IsActive="{x:Bind ViewModel.Adding, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.Adding, Mode=OneWay}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- The documents, newest first. -->
+                <TextBlock
+                    Margin="0,16,0,0"
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind ViewModel.DocumentsHeading, Mode=OneWay}" />
+                <ProgressRing
+                    Width="20"
+                    Height="20"
+                    HorizontalAlignment="Left"
+                    AutomationProperties.Name="Reading the documents"
+                    IsActive="{x:Bind ViewModel.DocumentsLoading, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.DocumentsLoading, Mode=OneWay}" />
+                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasDocumentsFailure, Mode=OneWay}">
+                    <TextBlock
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Text="{x:Bind ViewModel.DocumentsFailedTitle, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.DocumentsFailure, Mode=OneWay}" TextWrapping="Wrap" />
+                    <Button
+                        AutomationProperties.Name="Read the documents again"
+                        Command="{x:Bind ViewModel.RetryCommand}"
+                        Content="Try again"
+                        Visibility="{x:Bind ViewModel.CanRetryDocuments, Mode=OneWay}" />
+                </StackPanel>
+                <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.IsEmpty, Mode=OneWay}">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.EmptyTitle, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.EmptyBody, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+                <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.Documents}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="knowledge:DocumentItem">
+                            <Grid
+                                Padding="0,8"
+                                AutomationProperties.Name="{x:Bind Title}"
+                                ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        Text="{x:Bind Title}"
+                                        TextWrapping="Wrap" />
+                                    <TextBlock
+                                        IsTextSelectionEnabled="True"
+                                        Style="{StaticResource QuietTextStyle}"
+                                        Text="{x:Bind Line}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Button
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.Name="{x:Bind DeleteName}"
+                                    Click="OnDeleteClick"
+                                    Content="Delete"
+                                    IsEnabled="{x:Bind CanDelete}"
+                                    ToolTipService.ToolTip="{x:Bind DeleteName}"
+                                    Visibility="{x:Bind ShowDelete}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- The question before a delete or a switch to the linked mode, in the core's words. -->
+        <ContentDialog
+            x:Name="Question"
+            CloseButtonText="{x:Bind ViewModel.ConfirmCancel, Mode=OneWay}"
+            DefaultButton="Close"
+            PrimaryButtonText="{x:Bind ViewModel.ConfirmAction, Mode=OneWay}"
+            Style="{StaticResource DefaultContentDialogStyle}"
+            Title="{x:Bind ViewModel.ConfirmTitle, Mode=OneWay}">
+            <TextBlock
+                MaxWidth="440"
+                Text="{x:Bind ViewModel.ConfirmBody, Mode=OneWay}"
+                TextWrapping="Wrap" />
+        </ContentDialog>
+    </Grid>
 </UserControl>

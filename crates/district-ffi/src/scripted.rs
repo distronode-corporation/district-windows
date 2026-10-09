@@ -99,6 +99,17 @@ fn decode<T: DeserializeOwned>(text: &str) -> Result<T, ApiError> {
     serde_json::from_value(value).map_err(|_| broken())
 }
 
+/// A write's answer `text`, whose answer holds nothing worth keeping: landed
+/// when it says `success`, else a server error.
+fn written(text: &str) -> Result<(), ApiError> {
+    let answer: Value = decode(text)?;
+    if answer["success"] == json!(true) {
+        Ok(())
+    } else {
+        Err(broken())
+    }
+}
+
 fn broken() -> ApiError {
     ApiError::Server {
         status: 500,
@@ -297,6 +308,29 @@ fn signed_in(effect: Effect) -> Option<Event> {
         Effect::LoadKnowledgeMode { ticket, .. } => Event::KnowledgeModeLoaded {
             ticket,
             result: decode(fixture!("district-knowledge-mode.json")),
+        },
+        // The writes of the Skills and Knowledge sections land, as the
+        // service answers them: each settings write is followed by the read
+        // the core asks for, answered above.
+        Effect::SaveTools { ticket, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(fixture!("district-tools-patch.json")),
+        },
+        Effect::SavePersona { ticket, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(fixture!("district-persona-patch.json")),
+        },
+        Effect::AddKnowledgeDocument { ticket, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(fixture!("district-knowledge-create.json")),
+        },
+        Effect::DeleteKnowledgeDocument { ticket, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(fixture!("district-knowledge-delete.json")),
+        },
+        Effect::SetKnowledgeMode { ticket, .. } => Event::KnowledgeModeLoaded {
+            ticket,
+            result: decode(fixture!("district-knowledge-mode-patch.json")),
         },
         Effect::LoadMessaging { ticket, .. } => Event::MessagingLoaded {
             ticket,
@@ -631,6 +665,7 @@ mod tests {
         }
     }
 
+<<<<<<< HEAD
     /// Each settings section the walk opens from the hub fills in, and each
     /// of their saves is answered: the screen is left saved, not saving.
     #[test]
@@ -726,6 +761,53 @@ mod tests {
             panic!("the directory shows");
         };
         assert!(view.notice.as_ref().is_some_and(|n| n.saved), "{view:?}");
+=======
+    /// The Skills and Knowledge sections' writes are answered: each save
+    /// lands and is read back, an added document is listed again, and a
+    /// change of mode is the mode stored. Nothing is left on its way.
+    #[test]
+    fn the_skills_and_knowledge_writes_land() {
+        use district_core::{KnowledgeEvent, ToolsEvent, WorkspaceSection as S};
+        use district_model::KnowledgeMode;
+        let mut model = started();
+        let _ = after(&mut model, Event::Navigate(Route::Workspace(S::Tools)));
+        for event in [
+            Event::Tools(ToolsEvent::Toggle {
+                id: "send_sms".to_owned(),
+                enabled: true,
+            }),
+            Event::Tools(ToolsEvent::SaveTools),
+            Event::Tools(ToolsEvent::SetEnrichment(false)),
+            Event::Tools(ToolsEvent::SaveEnrichment),
+        ] {
+            let screen = after(&mut model, event);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let json = serde_json::to_value(&screen).unwrap();
+            assert_eq!(json["Tools"]["view"]["tools_saving"], json!(false));
+            assert_eq!(json["Tools"]["view"]["research_saving"], json!(false));
+        }
+        let _ = after(&mut model, Event::Navigate(Route::Workspace(S::Knowledge)));
+        for event in [
+            Event::Knowledge(KnowledgeEvent::EditTitle("Parking".to_owned())),
+            Event::Knowledge(KnowledgeEvent::EditContent("Behind the clinic.".to_owned())),
+            Event::Knowledge(KnowledgeEvent::Add),
+            Event::Knowledge(KnowledgeEvent::AskDelete {
+                document_id: "doc_contract_ready".to_owned(),
+            }),
+            Event::Knowledge(KnowledgeEvent::Confirm),
+            Event::Knowledge(KnowledgeEvent::SelectMode(KnowledgeMode::Internal)),
+        ] {
+            let screen = after(&mut model, event);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let view = &serde_json::to_value(&screen).unwrap()["Knowledge"]["view"];
+            assert_eq!(view["adding"], json!(false), "{view}");
+            assert_eq!(view["add_enabled"], json!(true), "{view}");
+        }
+        let screen = serde_json::to_value(screen_view(&model)).unwrap();
+        let view = &screen["Knowledge"]["view"];
+        assert_eq!(view["notice"]["saved"], json!(true), "{view}");
+        assert_eq!(view["modes"][0]["selected"], json!(true), "{view}");
+>>>>>>> origin/skills-knowledge
     }
 
     /// The walk's one step past the pane: the inbox's first conversation

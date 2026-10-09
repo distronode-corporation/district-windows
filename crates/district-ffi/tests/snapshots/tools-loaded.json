@@ -1,0 +1,151 @@
+{
+  "screen": {
+    "Tools": {
+      "view": {
+        "can_save_research": false,
+        "can_save_tools": false,
+        "editable": true,
+        "research_body": "When on, contacts can be researched with business details from licensed providers and public web search. Off unless someone turns it on; calls and contacts work normally without it.",
+        "research_enabled": true,
+        "research_heading": "Research contacts",
+        "research_notice": null,
+        "research_saving": false,
+        "research_title": "Outside research on contacts",
+        "save_research_label": "Save research setting",
+        "save_tools_label": "Save skills",
+        "status": "Ready",
+        "title": "Skills",
+        "tools": [
+          {
+            "enabled": false,
+            "id": "transfer_to_person",
+            "known": true,
+            "label": "Transfer to a person",
+            "note": null
+          },
+          {
+            "enabled": true,
+            "id": "transfer_to_agent",
+            "known": true,
+            "label": "Transfer to a person (fallback)",
+            "note": null
+          },
+          {
+            "enabled": true,
+            "id": "dispatch_email",
+            "known": true,
+            "label": "Email dispatcher",
+            "note": null
+          },
+          {
+            "enabled": false,
+            "id": "check_availability",
+            "known": true,
+            "label": "Check availability",
+            "note": null
+          },
+          {
+            "enabled": true,
+            "id": "book_appointment",
+            "known": true,
+            "label": "Book appointments",
+            "note": null
+          },
+          {
+            "enabled": false,
+            "id": "create_or_update_contact",
+            "known": true,
+            "label": "Update contacts",
+            "note": null
+          },
+          {
+            "enabled": true,
+            "id": "leave_message",
+            "known": true,
+            "label": "Take a message",
+            "note": null
+          },
+          {
+            "enabled": true,
+            "id": "search_knowledge_base",
+            "known": true,
+            "label": "Knowledge base",
+            "note": null
+          },
+          {
+            "enabled": false,
+            "id": "send_sms",
+            "known": true,
+            "label": "Text the caller",
+            "note": null
+          },
+          {
+            "enabled": false,
+            "id": "list_event_types",
+            "known": true,
+            "label": "List appointment types",
+            "note": null
+          },
+          {
+            "enabled": false,
+            "id": "list_appointments",
+            "known": true,
+            "label": "Read back appointments",
+            "note": null
+          },
+          {
+            "enabled": false,
+            "id": "cancel_appointment",
+            "known": true,
+            "label": "Cancel appointments",
+            "note": null
+          },
+          {
+            "enabled": false,
+            "id": "reschedule_appointment",
+            "known": true,
+            "label": "Reschedule appointments",
+            "note": null
+          },
+          {
+            "enabled": true,
+            "id": "transfer_to_creator",
+            "known": false,
+            "label": "transfer_to_creator",
+            "note": "Stored for this workspace. This version of the app has no name for it, and leaving it on keeps it."
+          }
+        ],
+        "tools_heading": "On a call",
+        "tools_note": "What the receptionist may do. Saving replaces the stored list with these switches.",
+        "tools_notice": null,
+        "tools_saving": false
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

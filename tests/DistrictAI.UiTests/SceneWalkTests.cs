@@ -69,6 +69,8 @@ public sealed class SceneWalkTests
         "Call handling",
         "Call routing rules",
         "Transfer directory",
+        "Skills",
+        "Knowledge",
     ];
 
     /// <summary>
