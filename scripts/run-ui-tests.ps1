@@ -8,10 +8,10 @@ Used by CI (ci.yml, windows-app) on windows-2025, and by hand on Windows, from
 PowerShell 7 run as administrator (trusting the test certificate needs it).
 
 -Packages is a directory holding one DistrictAI_*.msix and the .cer of the
-throwaway certificate that signed it (one or more copies), as CI's AppPackages directory (and its
-district-ai-test-msix artifact) does; the framework packages it depends on are
-installed from its Dependencies\x64 when there is one, and stay installed (they
-are shared with other apps). The certificate is trusted for the run only, and
+throwaway certificate that signed it (one or more copies), as CI's AppPackages
+directory (and its district-ai-test-msix artifact) does; the framework packages
+it depends on are installed from its Dependencies\x64 when there is one, and
+stay installed (they are shared with other apps). The certificate is trusted for the run only, and
 the package is always removed afterwards, pass or fail. A copy of the package
 that was already installed is refused rather than replaced.
 

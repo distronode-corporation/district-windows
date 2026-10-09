@@ -1,5 +1,7 @@
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Input;
+using FlaUI.Core.WindowsAPI;
 using Xunit;
 
 // One app per user: two tests at once would drive the same instance.
@@ -153,34 +155,51 @@ public sealed class SmokeTests
     }
 
     /// <summary>
-    /// Whether the icon itself can be reached in the notification area by UI
-    /// Automation on this machine. Reported, never asserted: on a hosted runner
-    /// the icon is usually in the overflow flyout, which only a click on the
-    /// taskbar opens.
+    /// Whether the icon itself can be reached and right-clicked on this
+    /// machine: the taskbar's "Show Hidden Icons" flyout opened, the icon
+    /// looked for by its tooltip, right-clicked, and the menu that opens (if
+    /// one does) closed again. Reported, never asserted: it depends on the
+    /// shell's flyout, real mouse input and the foreground, none of which the
+    /// app controls.
     /// </summary>
     private static void ReportTheNotificationArea(InstalledApp app)
     {
+        AutomationElement? Menu() =>
+            app.Automation.GetDesktop().FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Menu)));
         try
         {
-            var taskbar = app.Automation.GetDesktop().FindFirstChild(cf => cf.ByClassName("Shell_TrayWnd"));
-            if (taskbar is null)
+            var desktop = app.Automation.GetDesktop();
+            var taskbar = desktop.FindFirstChild(cf => cf.ByClassName("Shell_TrayWnd"));
+            var chevron = taskbar?.FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName("Show Hidden Icons")));
+            if (chevron is null)
             {
-                InstalledApp.Log("notification area: no taskbar (Shell_TrayWnd) in UI Automation");
+                InstalledApp.Log($"notification area: {(taskbar is null ? "no taskbar" : "no \"Show Hidden Icons\" button")} in UI Automation");
                 return;
             }
-            AutomationElement[] icons = [];
+            chevron.Click();
+            AutomationElement? icon = null;
             var found = Wait.Until(
-                () =>
-                {
-                    icons = taskbar.FindAllDescendants(cf => cf.ByControlType(ControlType.Button));
-                    return icons.Any(icon => icon.Name.StartsWith(InstalledApp.WindowTitle, StringComparison.Ordinal));
-                },
+                () => (icon = app.Automation.GetDesktop().FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName(InstalledApp.WindowTitle)))) is not null,
                 TimeSpan.FromSeconds(5));
-            InstalledApp.Log($"notification area: District AI icon {(found ? "found" : "not found")} on the taskbar; its buttons: [{string.Join(", ", icons.Select(icon => $"\"{icon.Name}\""))}]");
+            if (!found || icon is null)
+            {
+                InstalledApp.Log("notification area: the District AI icon was not found by its tooltip, on the taskbar or in the flyout");
+                Keyboard.Type(VirtualKeyShort.ESCAPE);
+                return;
+            }
+            InstalledApp.Log($"notification area: icon found (class {icon.ClassName}, parent window {icon.Parent?.ClassName}); right-clicking it");
+            icon.RightClick();
+            var menu = Wait.Until(() => Menu() is not null, TimeSpan.FromSeconds(5));
+            var items = menu ? string.Join(", ", Menu()?.FindAllDescendants(cf => cf.ByControlType(ControlType.MenuItem)).Select(item => item.Name) ?? []) : string.Empty;
+            InstalledApp.Log(menu ? $"notification area: the right click opened the app's menu: [{items}]" : "notification area: the right click opened no menu within 5 s");
+            Keyboard.Type(VirtualKeyShort.ESCAPE);
+            var closed = Wait.Until(() => Menu() is null, TimeSpan.FromSeconds(5));
+            Keyboard.Type(VirtualKeyShort.ESCAPE);
+            InstalledApp.Log($"notification area: menu {(closed ? "closed" : "STILL OPEN")} after Escape");
         }
         catch (Exception error) when (error is not OutOfMemoryException)
         {
-            InstalledApp.Log($"notification area: reading it failed: {error.GetType().Name}: {error.Message}");
+            InstalledApp.Log($"notification area: driving it failed: {error.GetType().Name}: {error.Message}");
         }
     }
 
