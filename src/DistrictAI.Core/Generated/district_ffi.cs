@@ -12939,7 +12939,9 @@ class FfiConverterTypeNumberTypeView: FfiConverterRustBuffer<NumberTypeView> {
 /// <param name="Status">
 /// Where the read stands. With no workspace open, `Failed` carries the
 /// workspace list's own heading and words (no workspace, billing, a list
-/// that could not be read).
+/// that could not be read); for an account with no workspace that is
+/// offered the plans, the words say to choose one, and after checkout,
+/// while its workspace is waited for, that it is being set up.
 /// </param>
 /// <param name="WorkspaceName">
 /// The open workspace's name, once the overview is read.
@@ -12967,11 +12969,18 @@ class FfiConverterTypeNumberTypeView: FfiConverterRustBuffer<NumberTypeView> {
 /// with core 2.0.0, where a failed reload replaces the overview with its
 /// failure (`status`); kept so a core that keeps the content can say so.
 /// </param>
+/// <param name="Purchase">
+/// The billing screen's plan chooser, for an account with no workspace
+/// while the core offers it the plans: checkout is what makes the first
+/// workspace. `None` in every other state.
+/// </param>
 public record OverviewView (
     /// <summary>
     /// Where the read stands. With no workspace open, `Failed` carries the
     /// workspace list's own heading and words (no workspace, billing, a list
-    /// that could not be read).
+    /// that could not be read); for an account with no workspace that is
+    /// offered the plans, the words say to choose one, and after checkout,
+    /// while its workspace is waited for, that it is being set up.
     /// </summary>
     LoadStatus Status, 
     /// <summary>
@@ -13007,7 +13016,13 @@ public record OverviewView (
     /// with core 2.0.0, where a failed reload replaces the overview with its
     /// failure (`status`); kept so a core that keeps the content can say so.
     /// </summary>
-    FailureView? RefreshFailure
+    FailureView? RefreshFailure, 
+    /// <summary>
+    /// The billing screen's plan chooser, for an account with no workspace
+    /// while the core offers it the plans: checkout is what makes the first
+    /// workspace. `None` in every other state.
+    /// </summary>
+    PurchaseView? Purchase
 ) {
 }
 
@@ -13024,7 +13039,8 @@ class FfiConverterTypeOverviewView: FfiConverterRustBuffer<OverviewView> {
             ReadOnlyBadge: FfiConverterOptionalString.INSTANCE.Read(stream),
             FinishSetup: FfiConverterOptionalTypeFinishSetupView.INSTANCE.Read(stream),
             Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
-            RefreshFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+            RefreshFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Purchase: FfiConverterOptionalTypePurchaseView.INSTANCE.Read(stream)
         );
     }
 
@@ -13038,7 +13054,8 @@ class FfiConverterTypeOverviewView: FfiConverterRustBuffer<OverviewView> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReadOnlyBadge)
             + FfiConverterOptionalTypeFinishSetupView.INSTANCE.AllocationSize(value.FinishSetup)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
-            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RefreshFailure);
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RefreshFailure)
+            + FfiConverterOptionalTypePurchaseView.INSTANCE.AllocationSize(value.Purchase);
     }
 
     public override void Write(OverviewView value, BigEndianStream stream) {
@@ -13051,6 +13068,7 @@ class FfiConverterTypeOverviewView: FfiConverterRustBuffer<OverviewView> {
             FfiConverterOptionalTypeFinishSetupView.INSTANCE.Write(value.FinishSetup, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.RefreshFailure, stream);
+            FfiConverterOptionalTypePurchaseView.INSTANCE.Write(value.Purchase, stream);
     }
 }
 

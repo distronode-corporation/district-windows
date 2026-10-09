@@ -32,7 +32,7 @@ public sealed class BillingViewModelTests
         NoInvoices: null,
         InvoicesTruncated: "Showing your most recent invoices. Older ones are on the website.");
 
-    private static PurchaseView Purchase(
+    internal static PurchaseView Purchase(
         ConfirmPurchaseView? confirming = null,
         bool opening = false,
         bool enabled = true,
@@ -60,7 +60,7 @@ public sealed class BillingViewModelTests
             Notice: notice,
             InBrowserNote: inBrowser);
 
-    private static ConfirmPurchaseView Confirm() => new(
+    internal static ConfirmPurchaseView Confirm() => new(
         Title: "Continue to checkout with Stripe",
         Body: ConfirmBody,
         Plan: "Voice Pro",
@@ -152,23 +152,23 @@ public sealed class BillingViewModelTests
     {
         var (model, sink) = Attached();
         model.Show(View(purchase: null, offersWeb: true));
-        Assert.False(model.OffersPurchase);
-        Assert.False(model.ChooserVisible);
-        Assert.False(model.Confirming);
-        Assert.False(model.OffersManage);
+        Assert.False(model.Purchase.OffersPurchase);
+        Assert.False(model.Purchase.ChooserVisible);
+        Assert.False(model.Purchase.Confirming);
+        Assert.False(model.Purchase.OffersManage);
         Assert.True(model.OffersWeb);
-        Assert.False(model.ContinueCommand.CanExecute(null));
-        Assert.False(model.ManageInAppCommand.CanExecute(null));
+        Assert.False(model.Purchase.ContinueCommand.CanExecute(null));
+        Assert.False(model.Purchase.ManageInAppCommand.CanExecute(null));
         model.ManageOnWebCommand.Execute(null);
         Assert.Equal([new UiEvent.Billing(new BillingAction.ManageOnWeb())], sink.Sent);
 
         // Turned off while the chooser was open: it closes.
         model.Show(View(Purchase()));
-        model.OpenChooserCommand.Execute(null);
-        Assert.True(model.ChooserVisible);
+        model.Purchase.OpenChooserCommand.Execute(null);
+        Assert.True(model.Purchase.ChooserVisible);
         model.Show(View(purchase: null, offersWeb: true));
-        Assert.False(model.ChooserOpen);
-        Assert.False(model.ChooserVisible);
+        Assert.False(model.Purchase.ChooserOpen);
+        Assert.False(model.Purchase.ChooserVisible);
     }
 
     [Fact]
@@ -176,23 +176,23 @@ public sealed class BillingViewModelTests
     {
         var (model, sink) = Attached();
         model.Show(View(Purchase()));
-        Assert.True(model.OffersPurchase);
-        Assert.Equal(["Voice Solo", "Voice Starter", "Voice Pro", "Voice Studio"], model.PlanNames);
-        Assert.Equal(["Monthly", "Annual"], model.TermNames);
-        Assert.False(model.ChooserVisible);
-        model.OpenChooserCommand.Execute(null);
-        Assert.True(model.ChooserVisible);
-        Assert.False(model.ContinueCommand.CanExecute(null), "no plan chosen yet");
+        Assert.True(model.Purchase.OffersPurchase);
+        Assert.Equal(["Voice Solo", "Voice Starter", "Voice Pro", "Voice Studio"], model.Purchase.PlanNames);
+        Assert.Equal(["Monthly", "Annual"], model.Purchase.TermNames);
+        Assert.False(model.Purchase.ChooserVisible);
+        model.Purchase.OpenChooserCommand.Execute(null);
+        Assert.True(model.Purchase.ChooserVisible);
+        Assert.False(model.Purchase.ContinueCommand.CanExecute(null), "no plan chosen yet");
 
-        model.SelectedPlan = 2;
-        model.SelectedTerm = 1;
-        model.PromoText = " save-100 ";
-        Assert.False(model.HasPromoError);
-        Assert.True(model.ContinueCommand.CanExecute(null));
-        model.ContinueCommand.Execute(null);
+        model.Purchase.SelectedPlan = 2;
+        model.Purchase.SelectedTerm = 1;
+        model.Purchase.PromoText = " save-100 ";
+        Assert.False(model.Purchase.HasPromoError);
+        Assert.True(model.Purchase.ContinueCommand.CanExecute(null));
+        model.Purchase.ContinueCommand.Execute(null);
 
-        model.PromoText = "   ";
-        model.ContinueCommand.Execute(null);
+        model.Purchase.PromoText = "   ";
+        model.Purchase.ContinueCommand.Execute(null);
         Assert.Equal(
             [
                 new UiEvent.Billing(new BillingAction.ChoosePlan(PlanTierView.VoicePro, PlanTermView.Annual, "save-100")),
@@ -200,8 +200,8 @@ public sealed class BillingViewModelTests
             ],
             sink.Sent);
 
-        model.CloseChooserCommand.Execute(null);
-        Assert.False(model.ChooserVisible);
+        model.Purchase.CloseChooserCommand.Execute(null);
+        Assert.False(model.Purchase.ChooserVisible);
     }
 
     [Theory]
@@ -215,12 +215,12 @@ public sealed class BillingViewModelTests
     {
         var (model, sink) = Attached();
         model.Show(View(Purchase()));
-        model.OpenChooserCommand.Execute(null);
-        model.SelectedPlan = 0;
-        model.PromoText = typed;
-        Assert.True(model.HasPromoError);
-        Assert.False(model.ContinueCommand.CanExecute(null));
-        model.ContinueCommand.Execute(null);
+        model.Purchase.OpenChooserCommand.Execute(null);
+        model.Purchase.SelectedPlan = 0;
+        model.Purchase.PromoText = typed;
+        Assert.True(model.Purchase.HasPromoError);
+        Assert.False(model.Purchase.ContinueCommand.CanExecute(null));
+        model.Purchase.ContinueCommand.Execute(null);
         Assert.Empty(sink.Sent);
     }
 
@@ -233,31 +233,31 @@ public sealed class BillingViewModelTests
     [InlineData("12345678901234567890123456789012345678901", false)]
     [InlineData("SAVE.1", false)]
     public void ThePromotionCodeRuleIsTheCores(string typed, bool valid) =>
-        Assert.Equal(valid, BillingViewModel.PromoIsValid(typed, 40));
+        Assert.Equal(valid, PlanChooserViewModel.PromoIsValid(typed, 40));
 
     [Fact]
     public void TheConfirmationNamesStripeAndContinuesOrCancels()
     {
         var (model, sink) = Attached();
         model.Show(View(Purchase()));
-        model.OpenChooserCommand.Execute(null);
+        model.Purchase.OpenChooserCommand.Execute(null);
         model.Show(View(Purchase(confirming: Confirm())));
-        Assert.True(model.Confirming);
-        Assert.False(model.ChooserVisible, "the step shows in place of the chooser");
-        Assert.Contains("Stripe", model.ConfirmTitle, StringComparison.Ordinal);
-        Assert.Equal(ConfirmBody, model.ConfirmBody);
-        Assert.Equal("Voice Pro, Annual, SAVE-100", model.ConfirmChoice);
-        Assert.True(model.ConfirmCommand.CanExecute(null));
-        model.ConfirmCommand.Execute(null);
-        model.CancelCommand.Execute(null);
+        Assert.True(model.Purchase.Confirming);
+        Assert.False(model.Purchase.ChooserVisible, "the step shows in place of the chooser");
+        Assert.Contains("Stripe", model.Purchase.ConfirmTitle, StringComparison.Ordinal);
+        Assert.Equal(ConfirmBody, model.Purchase.ConfirmBody);
+        Assert.Equal("Voice Pro, Annual, SAVE-100", model.Purchase.ConfirmChoice);
+        Assert.True(model.Purchase.ConfirmCommand.CanExecute(null));
+        model.Purchase.ConfirmCommand.Execute(null);
+        model.Purchase.CancelCommand.Execute(null);
         Assert.Equal(
             [new UiEvent.Billing(new BillingAction.ConfirmPurchase()), new UiEvent.Billing(new BillingAction.CancelPurchase())],
             sink.Sent);
 
         model.Show(View(Purchase(confirming: Confirm() with { Promo = null })));
-        Assert.Equal("Voice Pro, Annual", model.ConfirmChoice);
+        Assert.Equal("Voice Pro, Annual", model.Purchase.ConfirmChoice);
         model.Show(View(Purchase()));
-        Assert.True(model.ChooserVisible, "back to the chooser after Cancel");
+        Assert.True(model.Purchase.ChooserVisible, "back to the chooser after Cancel");
     }
 
     [Fact]
@@ -265,12 +265,12 @@ public sealed class BillingViewModelTests
     {
         var (model, sink) = Attached();
         model.Show(View(Purchase(confirming: Confirm(), opening: true, enabled: false)));
-        Assert.True(model.Opening);
-        Assert.False(model.ConfirmCommand.CanExecute(null));
-        Assert.False(model.ManageInAppCommand.CanExecute(null));
+        Assert.True(model.Purchase.Opening);
+        Assert.False(model.Purchase.ConfirmCommand.CanExecute(null));
+        Assert.False(model.Purchase.ManageInAppCommand.CanExecute(null));
         model.Show(View(Purchase(opening: true)));
-        Assert.True(model.ManageInAppCommand.CanExecute(null));
-        model.ManageInAppCommand.Execute(null);
+        Assert.True(model.Purchase.ManageInAppCommand.CanExecute(null));
+        model.Purchase.ManageInAppCommand.Execute(null);
         Assert.Equal([new UiEvent.Billing(new BillingAction.ManageInApp())], sink.Sent);
     }
 
@@ -281,11 +281,11 @@ public sealed class BillingViewModelTests
         model.Show(View(Purchase(
             notice: new FailureView("Updating the app should fix it.", null, false),
             inBrowser: "This computer cannot show checkout inside District AI, so it opens in your browser.")));
-        Assert.True(model.HasNotice);
-        Assert.Contains("Updating the app", model.Notice, StringComparison.Ordinal);
-        Assert.True(model.HasInBrowserNote);
-        Assert.Contains("browser", model.InBrowserNote, StringComparison.Ordinal);
-        model.DismissNoticeCommand.Execute(null);
+        Assert.True(model.Purchase.HasNotice);
+        Assert.Contains("Updating the app", model.Purchase.Notice, StringComparison.Ordinal);
+        Assert.True(model.Purchase.HasInBrowserNote);
+        Assert.Contains("browser", model.Purchase.InBrowserNote, StringComparison.Ordinal);
+        model.Purchase.DismissNoticeCommand.Execute(null);
         model.OpenInvoiceCommand.Execute("in_paid");
         model.OpenInvoiceCommand.Execute(null);
         Assert.Equal(
@@ -299,6 +299,7 @@ public sealed class BillingViewModelTests
         var model = new BillingViewModel();
         model.Show(View(Purchase()));
         model.Send(new BillingAction.ConfirmPurchase());
+        model.Purchase.Send(new BillingAction.ConfirmPurchase());
         Assert.Same(model.View, model.View);
     }
 }

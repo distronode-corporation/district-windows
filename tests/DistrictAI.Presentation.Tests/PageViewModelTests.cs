@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.Presentation.Tests.Billing;
 using DistrictAI.ViewModels;
 using Xunit;
 
@@ -11,8 +12,12 @@ public sealed class OverviewViewModelTests
         CallRowView[]? recent = null,
         string? recentEmpty = null,
         string? badge = null,
-        FinishSetupView? finishSetup = null) =>
-        new(status ?? V.Ready, "Bravo", [new FactView("Calls", "12")], recent ?? [], recentEmpty, badge, finishSetup, false, null);
+        FinishSetupView? finishSetup = null,
+        PurchaseView? purchase = null) =>
+        new(status ?? V.Ready, "Bravo", [new FactView("Calls", "12")], recent ?? [], recentEmpty, badge, finishSetup, false, null, purchase);
+
+    private static LoadStatus.Failed NoWorkspace(string message) =>
+        new LoadStatus.Failed(new FailureView(message, null, false), "No workspace found");
 
     [Fact]
     public void ItShowsTheWorkspaceItsNumbersAndTheFinishSetupCard()
@@ -59,6 +64,55 @@ public sealed class OverviewViewModelTests
         overview.Show(View());
         Assert.Equal(string.Empty, overview.RecentCallsEmpty);
         Assert.False(overview.NoRecentCalls);
+    }
+
+    [Fact]
+    public void AnAccountWithNoWorkspaceIsOfferedThePlans()
+    {
+        var overview = new OverviewViewModel();
+        var (context, sink) = Pages.Context();
+        overview.Attach(context);
+        Assert.True(overview.StatusShown);
+        Assert.False(overview.OffersPlans);
+
+        overview.Show(View(status: NoWorkspace("Choose a plan to set one up."), purchase: BillingViewModelTests.Purchase() with { OffersManage = false }));
+        Assert.True(overview.OffersPlans);
+        Assert.False(overview.StatusShown, "the page with the plans shows in its place");
+        Assert.Equal("No workspace found", overview.Load.FailureTitle);
+        Assert.Equal("Choose a plan to set one up.", overview.Load.FailureMessage);
+        Assert.True(overview.Purchase.OffersPurchase);
+        Assert.False(overview.Purchase.OffersManage);
+
+        // The billing screen's chooser and its actions, as they are there.
+        overview.Purchase.OpenChooserCommand.Execute(null);
+        overview.Purchase.SelectedPlan = 0;
+        overview.Purchase.ContinueCommand.Execute(null);
+        overview.Show(View(status: NoWorkspace("Choose a plan to set one up."), purchase: BillingViewModelTests.Purchase(confirming: BillingViewModelTests.Confirm())));
+        Assert.True(overview.Purchase.Confirming);
+        Assert.Contains("Stripe", overview.Purchase.ConfirmTitle, StringComparison.Ordinal);
+        overview.Purchase.ConfirmCommand.Execute(null);
+        Assert.Equal(
+            [
+                new UiEvent.Billing(new BillingAction.ChoosePlan(PlanTierView.VoiceSolo, PlanTermView.Monthly, null)),
+                new UiEvent.Billing(new BillingAction.ConfirmPurchase()),
+            ],
+            sink.Sent);
+
+        // The workspace checkout made opens: the plans go.
+        overview.Show(View());
+        Assert.False(overview.OffersPlans);
+        Assert.True(overview.StatusShown);
+        Assert.False(overview.Purchase.OffersPurchase);
+    }
+
+    [Fact]
+    public void WithPurchasesOffTheStatusPageStays()
+    {
+        var overview = new OverviewViewModel();
+        overview.Show(View(status: NoWorkspace("Please contact support.")));
+        Assert.False(overview.OffersPlans);
+        Assert.True(overview.StatusShown);
+        Assert.True(overview.Load.Failed);
     }
 
     [Fact]

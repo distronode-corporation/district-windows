@@ -4,6 +4,7 @@
       "view": {
         "finish_setup": null,
         "metrics": [],
+        "purchase": null,
         "read_only_badge": null,
         "recent_calls": [],
         "recent_calls_empty": null,

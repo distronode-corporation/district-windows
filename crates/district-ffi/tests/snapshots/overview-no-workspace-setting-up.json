@@ -10,7 +10,16 @@
         "recent_calls_empty": null,
         "refresh_failure": null,
         "refreshing": false,
-        "status": "Loading",
+        "status": {
+          "Failed": {
+            "failure": {
+              "message": "If you completed checkout, your workspace is being set up. It appears here in a moment.",
+              "regions_line": null,
+              "retryable": false
+            },
+            "title": "Setting up your workspace"
+          }
+        },
         "workspace_name": ""
       }
     }
@@ -27,18 +36,12 @@
     "ring": null,
     "unread": 0,
     "workspaces": {
-      "active_id": "ws-1",
+      "active_id": null,
       "can_switch": false,
-      "entries": [
-        {
-          "id": "ws-1",
-          "name": "Example Dental",
-          "role_label": "Agency"
-        }
-      ],
-      "message": null,
+      "entries": [],
+      "message": "If you completed checkout, your workspace is being set up. It appears here in a moment.",
       "partial_warning": null,
-      "title": null
+      "title": "Setting up your workspace"
     }
   }
 }

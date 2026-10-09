@@ -16,7 +16,12 @@ them, and refused everywhere else. Case-insensitively and as whole words:
                                    price (pricing)
 
 ALLOWED_SCREENS are the billing, checkout and phone numbers (marketplace)
-screens and the welcome screen (`Session`, the sign-in page). A snapshot value
+screens and the welcome screen (`Session`, the sign-in page). One part of
+another screen is allowed too, by its JSON path in the snapshots
+(ALLOWED_PARTS): the overview's plan chooser (`$.screen.Overview.view.purchase`),
+which the core projects only for an account with no workspace yet, since
+checkout makes the first one. Its words are the billing screen's, from the same
+Rust and view model files, so no source file is added for it. A snapshot value
 belongs to the screen it is projected for; a source file belongs to a screen
 when SCREEN_SOURCES lists it (each screen's own Rust module, view folder and
 view model); any other source file belongs to no screen and keeps the full rule.
@@ -120,6 +125,22 @@ SCREEN_SOURCES: dict[str, tuple[str, ...]] = {
     ),
 }
 assert set(SCREEN_SOURCES) == ALLOWED_SCREENS
+
+# Parts of other screens that may say SCREEN_WORDS, by the JSON path of the
+# snapshot value that holds them (the value itself, or anything under it).
+ALLOWED_PARTS = (
+    # The overview of an account with no workspace offers the billing
+    # screen's plan chooser (crates/district-ffi/src/overview.rs).
+    "$.screen.Overview.view.purchase",
+)
+
+
+def in_allowed_part(pointer: str) -> bool:
+    """Whether the snapshot value at `pointer` is in one of ALLOWED_PARTS."""
+    return any(
+        pointer == part or pointer.startswith(part + ".") or pointer.startswith(part + "[")
+        for part in ALLOWED_PARTS
+    )
 
 
 def screen_of_source(path: str) -> str | None:
@@ -456,7 +477,8 @@ def scan_snapshot(path: str, text: str) -> list[Finding]:
     found: list[Finding] = []
     for pointer, value in json_strings(document):
         screen = _screen_of(document, pointer)
-        for m in phrases_for_screen(screen).finditer(value):
+        phrases = NEVER if in_allowed_part(pointer) else phrases_for_screen(screen)
+        for m in phrases.finditer(value):
             found.append(Finding(path, 1, m.group(0), "a projection snapshot", pointer, value, screen))
     return found
 
@@ -698,6 +720,19 @@ def self_test() -> int:
     ]:
         got = scan_rust(path, 'let s = "Sign up";\n') if path.endswith(".rs") else scan_csharp(path, 'var s = "Sign up";\n')
         expect(f"{path} is no screen's and refuses 'Sign up'", got, 1)
+    # The overview's plan chooser may say the allowed words, and nothing else
+    # of the overview may; the words refused everywhere stay refused in it.
+    for pointer_doc, want in [
+        ({"screen": {"Overview": {"view": {"purchase": {"prices_note": "Prices here"}}}}}, 0),
+        ({"screen": {"Overview": {"view": {"purchase": {"plans": [{"label": "Subscription"}]}}}}}, 0),
+        ({"screen": {"Overview": {"view": {"purchase": "Price"}}}}, 0),
+        ({"screen": {"Overview": {"view": {"purchase": {"note": "Buy now"}}}}}, 1),
+        ({"screen": {"Overview": {"view": {"purchased": "Price"}}}}, 1),
+        ({"screen": {"Overview": {"view": {"status": {"message": "Price"}}}}}, 1),
+        ({"screen": {"Account": {"view": {"purchase": "Price"}}}}, 1),
+        ({"shell": {"purchase": "Price"}}, 1),
+    ]:
+        expect(f"overview part {pointer_doc}", scan_snapshot("s.json", json.dumps(pointer_doc)), want)
     expect(".resw stays on the full rule", scan_resw("src/DistrictAI/Strings/en-US/Resources.resw", "<root><data name=\"a\"><value>Price</value></data></root>\n"), 1)
 
     if failed:
