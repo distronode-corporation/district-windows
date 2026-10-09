@@ -25,7 +25,11 @@ name: CI
 #   an MSIX signed with a throwaway certificate made in the job (never
 #   committed, never kept), installs that package and runs the UI smoke tests
 #   against it (tests/DistrictAI.UiTests), then builds and packages the GitHub
-#   flavour (Package.GitHub.appxmanifest) unsigned, as a release does. Last, it
+#   flavour (Package.GitHub.appxmanifest) unsigned, as a release does, and
+#   again signed with a second throwaway certificate (artifact
+#   district-ai-github-test-msix, for the live walk's two-copies check), and
+#   publishes the UI tests self-contained (artifact district-ai-ui-tests, the
+#   live walk's exe), checking that the live walk skips outside it. Last, it
 #   builds district_ffi.dll with the `scripted` feature into a separate
 #   scripted test MSIX, never uploaded, and walks every area the pane offers in
 #   its signed-in scene, saving a 1920x1080 screenshot of each page. Every DLL
@@ -525,6 +529,79 @@ jobs:
             if ($identity.$field -ne $want.$field) { throw "GitHub flavour Identity/@$field is '$($identity.$field)', Package.GitHub.appxmanifest says '$($want.$field)'" }
           }
           Write-Host "GitHub flavour: $($identity.Name) $($identity.Version), unsigned"
+
+      # The GitHub flavour again, signed this time with a second throwaway
+      # certificate (its subject the GitHub manifest's Publisher, made and
+      # removed as the test MSIX's is), so the live walk's two-copies check
+      # can install it beside the test MSIX on the win-smoke VM. Built here,
+      # before the scripted build below rewrites target/release. A CI
+      # artifact only (district-ai-github-test-msix): never a release asset.
+      - name: Package the GitHub flavour signed, for the two-copies check
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $publisher = ([xml](Get-Content src/DistrictAI/Package.GitHub.appxmanifest)).Package.Identity.Publisher
+          if (-not $publisher) { throw 'no Identity/@Publisher in the GitHub manifest' }
+          $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher `
+            -KeyUsage DigitalSignature -FriendlyName 'District AI CI GitHub-flavour test package' `
+            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1) `
+            -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
+          $out = Join-Path $env:RUNNER_TEMP 'GitHubTestPackage'
+          try {
+            dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+              -p:DistrictFfiProfile=release -warnaserror -p:DistrictFlavour=GitHub `
+              -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=SideloadOnly `
+              -p:AppxPackageSigningEnabled=true -p:DebugType=none `
+              "-p:PackageCertificateThumbprint=$($cert.Thumbprint)" "-p:AppxPackageDir=$out\"
+            if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
+            Export-Certificate -Cert $cert -FilePath (Join-Path $out 'District-AI-CI-github-test.cer') | Out-Null
+          } finally {
+            Remove-Item -Path "Cert:\CurrentUser\My\$($cert.Thumbprint)" -DeleteKey
+          }
+          $msix = @(Get-ChildItem -Recurse $out -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
+          if ($msix.Count -ne 1) { throw "expected one GitHub flavour MSIX, found $($msix.Count)" }
+          $signature = Get-AuthenticodeSignature $msix[0].FullName
+          if ($signature.SignerCertificate.Subject -ne $publisher) { throw "unexpected signer: $($signature.SignerCertificate.Subject)" }
+          python scripts/check-scripted.py --absent $msix[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw 'the GitHub flavour test package carries scripted scenes' }
+          Write-Host "GitHub flavour test package: $($msix[0].Name), signed by $publisher"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: district-ai-github-test-msix
+          path: ${{ runner.temp }}/GitHubTestPackage
+          retention-days: 7
+          if-no-files-found: error
+
+      # The UI tests as one self-contained win-x64 folder (no .NET needed),
+      # for the live walk (LiveWalkTests) on the win-smoke VM, which runs
+      # DistrictAI.UiTests.exe from it. Then that exe, run here as the VM
+      # runs it but without DISTRICTAI_UI_LIVE: it must find both live tests
+      # and skip them, and exit 0. The live walk never runs in CI.
+      - name: Publish the UI tests for the live walk, and check they skip here
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'ui-tests'
+          dotnet publish tests/DistrictAI.UiTests -c Release -r win-x64 --self-contained -o $out
+          if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed with $LASTEXITCODE" }
+          $exe = Join-Path $out 'DistrictAI.UiTests.exe'
+          if (-not (Test-Path $exe)) { throw 'the publish made no DistrictAI.UiTests.exe' }
+          if (-not (Test-Path (Join-Path $out 'coreclr.dll'))) { throw 'the published UI tests are not self-contained' }
+          Remove-Item Env:DISTRICTAI_UI_LIVE -ErrorAction SilentlyContinue
+          $output = & $exe -class DistrictAI.UiTests.LiveWalkTests 2>&1 | Out-String
+          $code = $LASTEXITCODE
+          Write-Host $output
+          if ($code -ne 0) { throw "DistrictAI.UiTests.exe exited $code" }
+          if ($output -notmatch 'Total: 2, Errors: 0, Failed: 0, Skipped: 2') { throw 'the live walk did not report its two tests skipped' }
+          if ($output -notmatch 'DISTRICTAI_UI_LIVE=1') { throw 'the skip did not say why (DISTRICTAI_UI_LIVE=1)' }
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: district-ai-ui-tests
+          path: ${{ runner.temp }}/ui-tests
+          retention-days: 7
+          if-no-files-found: error
 
       - name: dotnet format, the whole solution
         run: dotnet format DistrictAI.slnx --verify-no-changes --no-restore

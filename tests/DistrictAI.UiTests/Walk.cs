@@ -137,10 +137,62 @@ internal static class Walk
     }
 
     /// <summary>
+    /// What a walk never presses unless that one press says why it may: what
+    /// sends, buys, confirms, places a call, runs a billed job or ends more
+    /// than this session. Compared with the whole name, ignoring case.
+    /// </summary>
+    public static readonly string[] Denied =
+    [
+        "Send",
+        "Confirm",
+        "Enable",
+        "Buy",
+        "Pay",
+        "Continue to checkout",
+        "Place a call",
+        "Call",
+        "Run research",
+        "Sign out of every device",
+        "Delete account",
+        "Delete workspace",
+    ];
+
+    /// <summary>
+    /// Presses <paramref name="element"/> (a button, a menu item, a row), as
+    /// a click does, unless its name is <see cref="Denied"/> and no
+    /// <paramref name="allow"/> reason is given: then nothing is pressed and
+    /// <see cref="RefusedPressException"/> is thrown.
+    /// </summary>
+    public static void Press(AutomationElement element, string? allow = null)
+    {
+        var name = NameOf(element).Trim();
+        if (Denied.Any(denied => string.Equals(denied, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            if (allow is not { Length: > 0 })
+            {
+                throw new RefusedPressException(name);
+            }
+            InstalledApp.Log($"pressing \"{name}\", allowed: {allow}");
+        }
+        Invoke(element);
+    }
+
+    /// <summary>
     /// Invokes a list row or an item as a click on it does: its Invoke
-    /// pattern when it has one, else a click.
+    /// pattern when it has one, else a click. Denied names are refused here
+    /// too; <see cref="Press"/> is the way to allow one.
     /// </summary>
     public static void Activate(AutomationElement element)
+    {
+        var name = NameOf(element).Trim();
+        if (Denied.Any(denied => string.Equals(denied, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new RefusedPressException(name);
+        }
+        Invoke(element);
+    }
+
+    private static void Invoke(AutomationElement element)
     {
         if (element.Patterns.Invoke.IsSupported)
         {
@@ -258,4 +310,12 @@ internal static class Walk
     /// <summary>A file name made of <paramref name="entry"/>: letters and digits, the rest dashes.</summary>
     public static string FileName(string entry) =>
         new([.. entry.Select(c => char.IsLetterOrDigit(c) ? char.ToLowerInvariant(c) : '-')]);
+}
+
+/// <summary>A press the walk refused: the element's name is on <see cref="Walk.Denied"/> and nothing allowed it.</summary>
+internal sealed class RefusedPressException(string name)
+    : InvalidOperationException($"refused to press \"{name}\": it is on the walk's denylist and this press gave no reason")
+{
+    /// <summary>The refused element's name.</summary>
+    public string Name { get; } = name;
 }

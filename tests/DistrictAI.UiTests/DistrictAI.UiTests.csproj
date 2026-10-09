@@ -19,6 +19,13 @@
     <RootNamespace>DistrictAI.UiTests</RootNamespace>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!--
+      The live walk (LiveWalkTests) runs as a self-contained win-x64 exe on a
+      VM with no .NET: CI publishes it (`dotnet publish -r win-x64
+      self-contained`, the district-ai-ui-tests artifact), and the lock file
+      carries the win-x64 section that needs.
+    -->
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
