@@ -306,6 +306,38 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             result: decode(fixture!("district-members.json")),
         },
+        // The core has no fixture for call handling or availability: the
+        // smallest answers of the shapes it decodes (district-model's
+        // CallHandlingResponse and AvailabilityResponse), a workspace that
+        // never chose (the receptionist answers, a 20 second ring) and a
+        // member who is rung. A save is answered as stored; the scene keeps
+        // nothing, so the next read is the first answer again.
+        Effect::LoadCallHandling { ticket, .. } => Event::CallHandlingLoaded {
+            ticket,
+            result: call_handling(None, None),
+        },
+        Effect::SaveCallHandling { ticket, patch, .. } => Event::CallHandlingLoaded {
+            ticket,
+            result: call_handling(patch.call_handling, patch.app_ring_seconds),
+        },
+        Effect::LoadAvailability { ticket, .. } => Event::AvailabilityLoaded {
+            ticket,
+            result: availability(true),
+        },
+        Effect::SetAvailability {
+            ticket, available, ..
+        } => Event::AvailabilityLoaded {
+            ticket,
+            result: availability(available),
+        },
+        // The transfer directory's and the routing rules' saves land; the
+        // read that follows is answered with the settings fixture above.
+        Effect::SaveDirectory { ticket, .. } | Effect::SaveRoutingRules { ticket, .. } => {
+            Event::SettingsWritten {
+                ticket,
+                result: Ok(()),
+            }
+        }
         Effect::ReadRingSetting { ticket } => Event::RingSettingRead {
             ticket,
             ring_here: true,
@@ -328,6 +360,30 @@ fn signed_in(effect: Effect) -> Option<Event> {
         // for. Unanswered, as with no network.
         _ => return None,
     })
+}
+
+/// Call handling as stored: `mode` and `ring` where a save names them, else
+/// what a workspace that never chose has.
+fn call_handling(
+    mode: Option<district_model::CallHandlingMode>,
+    ring: Option<i64>,
+) -> Result<district_model::CallHandlingResponse, ApiError> {
+    serde_json::from_value(json!({
+        "success": true,
+        "callHandling": mode.map_or("ai_first", district_model::CallHandlingMode::as_str),
+        "appRingSeconds": ring.unwrap_or(district_model::DEFAULT_APP_RING_SECONDS),
+    }))
+    .map_err(|_| broken())
+}
+
+/// The member's availability as stored: `available`, with nothing against it.
+fn availability(available: bool) -> Result<district_model::AvailabilityResponse, ApiError> {
+    serde_json::from_value(json!({
+        "success": true,
+        "availableForCalls": available,
+        "reason": null,
+    }))
+    .map_err(|_| broken())
 }
 
 /// The recorded transcript snapshot, for `call_id` in the scripted
@@ -544,6 +600,7 @@ mod tests {
             Route::Workspace(S::Hub),
             Route::Workspace(S::Persona),
             Route::Workspace(S::VoiceStudio),
+            Route::Workspace(S::CallHandling),
             Route::Workspace(S::Routing),
             Route::Workspace(S::Directory),
             Route::Workspace(S::Tools),
@@ -566,6 +623,99 @@ mod tests {
             let screen = after(&mut model, Event::Navigate(route.clone()));
             assert_eq!(unsettled(&screen), None, "{route:?}: {screen:?}");
         }
+    }
+
+    /// Each settings section the walk opens from the hub fills in, and each
+    /// of their saves is answered: the screen is left saved, not saving.
+    #[test]
+    fn each_call_handling_section_opens_from_the_hub_and_saves() {
+        use crate::events::UiEvent;
+        use crate::settings::call_handling::{CallHandlingAction, CallHandlingChoice};
+        use crate::settings::directory::DirectoryAction;
+        use crate::settings::routing::RoutingAction;
+        use crate::settings::{SettingsAction, SettingsSection};
+
+        let mut model = started();
+        let run = |model: &mut Model, action: UiEvent| {
+            let mut pending = Vec::new();
+            for event in action.events() {
+                pending.extend(model.update(event));
+            }
+            settle(model, pending);
+            screen_view(model)
+        };
+        for (section, title) in [
+            (SettingsSection::CallHandling, "Call handling"),
+            (SettingsSection::Routing, "Call routing rules"),
+            (SettingsSection::Directory, "Transfer directory"),
+        ] {
+            let _ = run(
+                &mut model,
+                UiEvent::Settings {
+                    action: SettingsAction::Open,
+                },
+            );
+            let screen = run(
+                &mut model,
+                UiEvent::Settings {
+                    action: SettingsAction::OpenSection { section },
+                },
+            );
+            assert_eq!(unsettled(&screen), None, "{section:?}: {screen:?}");
+            let json = serde_json::to_value(&screen).unwrap();
+            let page = json.as_object().unwrap().values().next().unwrap();
+            assert_eq!(page["view"]["title"], title);
+        }
+
+        let call_handling = |action| UiEvent::CallHandling { action };
+        let _ = run(&mut model, call_handling(CallHandlingAction::Open));
+        let _ = run(
+            &mut model,
+            call_handling(CallHandlingAction::SelectMode {
+                mode: CallHandlingChoice::AppFirst,
+            }),
+        );
+        let _ = run(
+            &mut model,
+            call_handling(CallHandlingAction::SetRingSeconds { seconds: 12 }),
+        );
+        let ScreenView::CallHandling { view } =
+            run(&mut model, call_handling(CallHandlingAction::Save))
+        else {
+            panic!("call handling shows");
+        };
+        assert!(view.save.saved.is_some(), "{view:?}");
+        assert_eq!(view.ring_seconds, 12);
+        assert!(view.modes.iter().any(|m| m.selected && m.mode == CallHandlingChoice::AppFirst));
+        let ScreenView::CallHandling { view } = run(
+            &mut model,
+            call_handling(CallHandlingAction::SetAvailable { available: false }),
+        ) else {
+            panic!("call handling shows");
+        };
+        assert!(!view.availability.available);
+        assert!(view.availability.save.saved.is_some());
+
+        let routing = |action| UiEvent::Routing { action };
+        let _ = run(&mut model, routing(RoutingAction::Open));
+        let _ = run(&mut model, routing(RoutingAction::Add));
+        let _ = run(&mut model, routing(RoutingAction::Save));
+        let ScreenView::Routing { view } = run(&mut model, routing(RoutingAction::ConfirmSave))
+        else {
+            panic!("the routing rules show");
+        };
+        assert!(view.save.saved.is_some(), "{view:?}");
+
+        let directory = |action| UiEvent::Directory { action };
+        let _ = run(&mut model, directory(DirectoryAction::Open));
+        let _ = run(&mut model, directory(DirectoryAction::Remove { index: 0 }));
+        let _ = run(&mut model, directory(DirectoryAction::Save));
+        let ScreenView::Directory { view } =
+            run(&mut model, directory(DirectoryAction::ConfirmSave))
+        else {
+            panic!("the directory shows");
+        };
+        assert!(view.save.saved.is_some(), "{view:?}");
     }
 
     /// The walk's one step past the pane: the inbox's first conversation
