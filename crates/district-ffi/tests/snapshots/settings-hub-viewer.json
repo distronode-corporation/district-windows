@@ -1,0 +1,73 @@
+{
+  "screen": {
+    "WorkspaceSettings": {
+      "view": {
+        "groups": [
+          {
+            "heading": "District Studio",
+            "rows": [
+              {
+                "section": "CallHandling",
+                "subtitle": "Who answers first, how long your devices ring, and whether you are rung.",
+                "title": "Call handling"
+              },
+              {
+                "section": "Knowledge",
+                "subtitle": "The documents it answers from, and where answers come from.",
+                "title": "Knowledge"
+              }
+            ]
+          },
+          {
+            "heading": "Workspace",
+            "rows": [
+              {
+                "section": "Messaging",
+                "subtitle": "The carrier accounts this workspace sends from.",
+                "title": "Messaging accounts"
+              }
+            ]
+          }
+        ],
+        "note": "You have read-only access to this workspace. These are the settings you may read; an agency or client member can change them.",
+        "title": "Workspace settings"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
