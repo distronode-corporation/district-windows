@@ -8837,6 +8837,278 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
 
 
 /// <summary>
+/// A meeting's record, over the lobby.
+/// </summary>
+/// <param name="MeetingId">
+/// The meeting, for Report.
+/// </param>
+/// <param name="Title">
+/// Its title, once read.
+/// </param>
+/// <param name="Status">
+/// Where the read stands.
+/// </param>
+/// <param name="Facts">
+/// Its facts: status, length, people.
+/// </param>
+/// <param name="StartedAt">
+/// When it started and ended, ISO 8601, for C# to show in local time.
+/// </param>
+/// <param name="EndedAt">
+/// When it ended.
+/// </param>
+/// <param name="MinutesTitle">
+/// "Minutes".
+/// </param>
+/// <param name="Minutes">
+/// The minutes, or why there are none.
+/// </param>
+/// <param name="MinutesReport">
+/// How to offer Report on the minutes: only on minutes the Companion
+/// wrote.
+/// </param>
+/// <param name="ActionItemsTitle">
+/// "Action items".
+/// </param>
+/// <param name="ActionItems">
+/// The action items, each with whose it is where the record says.
+/// </param>
+/// <param name="ActionItemsReport">
+/// How to offer Report on the action items.
+/// </param>
+/// <param name="TranscriptTitle">
+/// "Transcript".
+/// </param>
+/// <param name="Transcript">
+/// The meeting's whole transcript, when it has one.
+/// </param>
+public record MeetingRecordView (
+    /// <summary>
+    /// The meeting, for Report.
+    /// </summary>
+    string MeetingId, 
+    /// <summary>
+    /// Its title, once read.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// Where the read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Its facts: status, length, people.
+    /// </summary>
+    FactView[] Facts, 
+    /// <summary>
+    /// When it started and ended, ISO 8601, for C# to show in local time.
+    /// </summary>
+    string? StartedAt, 
+    /// <summary>
+    /// When it ended.
+    /// </summary>
+    string? EndedAt, 
+    /// <summary>
+    /// "Minutes".
+    /// </summary>
+    string MinutesTitle, 
+    /// <summary>
+    /// The minutes, or why there are none.
+    /// </summary>
+    string Minutes, 
+    /// <summary>
+    /// How to offer Report on the minutes: only on minutes the Companion
+    /// wrote.
+    /// </summary>
+    ReportAvailability MinutesReport, 
+    /// <summary>
+    /// "Action items".
+    /// </summary>
+    string ActionItemsTitle, 
+    /// <summary>
+    /// The action items, each with whose it is where the record says.
+    /// </summary>
+    string[] ActionItems, 
+    /// <summary>
+    /// How to offer Report on the action items.
+    /// </summary>
+    ReportAvailability ActionItemsReport, 
+    /// <summary>
+    /// "Transcript".
+    /// </summary>
+    string TranscriptTitle, 
+    /// <summary>
+    /// The meeting's whole transcript, when it has one.
+    /// </summary>
+    string? Transcript
+) {
+}
+
+class FfiConverterTypeMeetingRecordView: FfiConverterRustBuffer<MeetingRecordView> {
+    public static FfiConverterTypeMeetingRecordView INSTANCE = new FfiConverterTypeMeetingRecordView();
+
+    public override MeetingRecordView Read(BigEndianStream stream) {
+        return new MeetingRecordView(
+            MeetingId: FfiConverterString.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Facts: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            StartedAt: FfiConverterOptionalString.INSTANCE.Read(stream),
+            EndedAt: FfiConverterOptionalString.INSTANCE.Read(stream),
+            MinutesTitle: FfiConverterString.INSTANCE.Read(stream),
+            Minutes: FfiConverterString.INSTANCE.Read(stream),
+            MinutesReport: FfiConverterTypeReportAvailability.INSTANCE.Read(stream),
+            ActionItemsTitle: FfiConverterString.INSTANCE.Read(stream),
+            ActionItems: FfiConverterSequenceString.INSTANCE.Read(stream),
+            ActionItemsReport: FfiConverterTypeReportAvailability.INSTANCE.Read(stream),
+            TranscriptTitle: FfiConverterString.INSTANCE.Read(stream),
+            Transcript: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(MeetingRecordView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.MeetingId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Facts)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.StartedAt)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.EndedAt)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MinutesTitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Minutes)
+            + FfiConverterTypeReportAvailability.INSTANCE.AllocationSize(value.MinutesReport)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ActionItemsTitle)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.ActionItems)
+            + FfiConverterTypeReportAvailability.INSTANCE.AllocationSize(value.ActionItemsReport)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TranscriptTitle)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Transcript);
+    }
+
+    public override void Write(MeetingRecordView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.MeetingId, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Facts, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.StartedAt, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.EndedAt, stream);
+            FfiConverterString.INSTANCE.Write(value.MinutesTitle, stream);
+            FfiConverterString.INSTANCE.Write(value.Minutes, stream);
+            FfiConverterTypeReportAvailability.INSTANCE.Write(value.MinutesReport, stream);
+            FfiConverterString.INSTANCE.Write(value.ActionItemsTitle, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.ActionItems, stream);
+            FfiConverterTypeReportAvailability.INSTANCE.Write(value.ActionItemsReport, stream);
+            FfiConverterString.INSTANCE.Write(value.TranscriptTitle, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Transcript, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One meeting in the list.
+/// </summary>
+/// <param name="MeetingId">
+/// The meeting, for its record and for Rejoin.
+/// </param>
+/// <param name="Title">
+/// Its title, or the name its room was joined by.
+/// </param>
+/// <param name="StartedAt">
+/// When it started, ISO 8601, for C# to show in local time.
+/// </param>
+/// <param name="Detail">
+/// How long it was ("42m 0s") and how many were there ("2 people").
+/// </param>
+/// <param name="Minutes">
+/// The start of its minutes, or that they come when it ends.
+/// </param>
+/// <param name="InProgress">
+/// "In progress", for a meeting still running.
+/// </param>
+/// <param name="CanRejoin">
+/// Whether Rejoin is offered: running, and nothing holds the microphone.
+/// </param>
+/// <param name="RejoinLabel">
+/// Rejoin's words.
+/// </param>
+public record MeetingRowView (
+    /// <summary>
+    /// The meeting, for its record and for Rejoin.
+    /// </summary>
+    string MeetingId, 
+    /// <summary>
+    /// Its title, or the name its room was joined by.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// When it started, ISO 8601, for C# to show in local time.
+    /// </summary>
+    string StartedAt, 
+    /// <summary>
+    /// How long it was ("42m 0s") and how many were there ("2 people").
+    /// </summary>
+    string Detail, 
+    /// <summary>
+    /// The start of its minutes, or that they come when it ends.
+    /// </summary>
+    string? Minutes, 
+    /// <summary>
+    /// "In progress", for a meeting still running.
+    /// </summary>
+    string? InProgress, 
+    /// <summary>
+    /// Whether Rejoin is offered: running, and nothing holds the microphone.
+    /// </summary>
+    bool CanRejoin, 
+    /// <summary>
+    /// Rejoin's words.
+    /// </summary>
+    string RejoinLabel
+) {
+}
+
+class FfiConverterTypeMeetingRowView: FfiConverterRustBuffer<MeetingRowView> {
+    public static FfiConverterTypeMeetingRowView INSTANCE = new FfiConverterTypeMeetingRowView();
+
+    public override MeetingRowView Read(BigEndianStream stream) {
+        return new MeetingRowView(
+            MeetingId: FfiConverterString.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            StartedAt: FfiConverterString.INSTANCE.Read(stream),
+            Detail: FfiConverterString.INSTANCE.Read(stream),
+            Minutes: FfiConverterOptionalString.INSTANCE.Read(stream),
+            InProgress: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanRejoin: FfiConverterBoolean.INSTANCE.Read(stream),
+            RejoinLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(MeetingRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.MeetingId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartedAt)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Detail)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Minutes)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.InProgress)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanRejoin)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RejoinLabel);
+    }
+
+    public override void Write(MeetingRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.MeetingId, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.StartedAt, stream);
+            FfiConverterString.INSTANCE.Write(value.Detail, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Minutes, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.InProgress, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanRejoin, stream);
+            FfiConverterString.INSTANCE.Write(value.RejoinLabel, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The the members section.
 /// </summary>
 /// <param name="Title">
@@ -10100,16 +10372,311 @@ class FfiConverterTypeRichTextView: FfiConverterRustBuffer<RichTextView> {
 
 
 /// <summary>
+/// The room joined.
+/// </summary>
+/// <param name="Title">
+/// "Room \"weekly-review\"".
+/// </param>
+/// <param name="State">
+/// Where the connection stands, in words: joining, in the room,
+/// reconnecting.
+/// </param>
+/// <param name="People">
+/// The people in the room, by name ("A guest" for one with none): never
+/// the services, which are a line of their own.
+/// </param>
+/// <param name="PeopleLine">
+/// Who else is here, in a sentence, and that the Companion is when it is.
+/// </param>
+/// <param name="Notice">
+/// The room's notice: the microphone could not be used, or someone's audio
+/// could not be decrypted.
+/// </param>
+/// <param name="CanSpeak">
+/// Whether the member may speak: Mute is offered. A viewer listens.
+/// </param>
+/// <param name="Muted">
+/// Whether the microphone is off.
+/// </param>
+/// <param name="CanMute">
+/// Whether Mute works: the room's audio is up.
+/// </param>
+/// <param name="GuestLink">
+/// The link that lets someone without an account join, when the service
+/// minted one (never for a viewer).
+/// </param>
+/// <param name="CopyLinkLabel">
+/// The copy button's words.
+/// </param>
+/// <param name="CopyLinkHint">
+/// What the guest link is for.
+/// </param>
+/// <param name="CopiedNote">
+/// What shows once it is copied.
+/// </param>
+/// <param name="LeaveLabel">
+/// The leave button's words.
+/// </param>
+public record RoomView (
+    /// <summary>
+    /// "Room \"weekly-review\"".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// Where the connection stands, in words: joining, in the room,
+    /// reconnecting.
+    /// </summary>
+    string State, 
+    /// <summary>
+    /// The people in the room, by name ("A guest" for one with none): never
+    /// the services, which are a line of their own.
+    /// </summary>
+    string[] People, 
+    /// <summary>
+    /// Who else is here, in a sentence, and that the Companion is when it is.
+    /// </summary>
+    string PeopleLine, 
+    /// <summary>
+    /// The room's notice: the microphone could not be used, or someone's audio
+    /// could not be decrypted.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// Whether the member may speak: Mute is offered. A viewer listens.
+    /// </summary>
+    bool CanSpeak, 
+    /// <summary>
+    /// Whether the microphone is off.
+    /// </summary>
+    bool Muted, 
+    /// <summary>
+    /// Whether Mute works: the room's audio is up.
+    /// </summary>
+    bool CanMute, 
+    /// <summary>
+    /// The link that lets someone without an account join, when the service
+    /// minted one (never for a viewer).
+    /// </summary>
+    string? GuestLink, 
+    /// <summary>
+    /// The copy button's words.
+    /// </summary>
+    string CopyLinkLabel, 
+    /// <summary>
+    /// What the guest link is for.
+    /// </summary>
+    string CopyLinkHint, 
+    /// <summary>
+    /// What shows once it is copied.
+    /// </summary>
+    string CopiedNote, 
+    /// <summary>
+    /// The leave button's words.
+    /// </summary>
+    string LeaveLabel
+) {
+}
+
+class FfiConverterTypeRoomView: FfiConverterRustBuffer<RoomView> {
+    public static FfiConverterTypeRoomView INSTANCE = new FfiConverterTypeRoomView();
+
+    public override RoomView Read(BigEndianStream stream) {
+        return new RoomView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            State: FfiConverterString.INSTANCE.Read(stream),
+            People: FfiConverterSequenceString.INSTANCE.Read(stream),
+            PeopleLine: FfiConverterString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanSpeak: FfiConverterBoolean.INSTANCE.Read(stream),
+            Muted: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanMute: FfiConverterBoolean.INSTANCE.Read(stream),
+            GuestLink: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CopyLinkLabel: FfiConverterString.INSTANCE.Read(stream),
+            CopyLinkHint: FfiConverterString.INSTANCE.Read(stream),
+            CopiedNote: FfiConverterString.INSTANCE.Read(stream),
+            LeaveLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RoomView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.State)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.People)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PeopleLine)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSpeak)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Muted)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanMute)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.GuestLink)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopyLinkLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopyLinkHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopiedNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LeaveLabel);
+    }
+
+    public override void Write(RoomView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.State, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.People, stream);
+            FfiConverterString.INSTANCE.Write(value.PeopleLine, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSpeak, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Muted, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanMute, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.GuestLink, stream);
+            FfiConverterString.INSTANCE.Write(value.CopyLinkLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.CopyLinkHint, stream);
+            FfiConverterString.INSTANCE.Write(value.CopiedNote, stream);
+            FfiConverterString.INSTANCE.Write(value.LeaveLabel, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The meeting rooms screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading: "Meeting rooms".
+/// </param>
+/// <param name="StartTitle">
+/// The form's heading: "Start or join a room".
+/// </param>
+/// <param name="RoomNameLabel">
+/// The name box's label: "Room name".
+/// </param>
+/// <param name="RoomName">
+/// The name as the core holds it, which C# writes into the box only when
+/// it is not what the box sent (a name cleared, say).
+/// </param>
+/// <param name="NameNote">
+/// The line under the box: which room the name leads to, or what to type.
+/// </param>
+/// <param name="RoleNote">
+/// The note under the form: the Companion takes the minutes; or, for a
+/// viewer, that they join to listen.
+/// </param>
+/// <param name="BusyNote">
+/// Why Join does not work while a call holds the microphone, when it does.
+/// </param>
+/// <param name="JoinLabel">
+/// The Join button's words.
+/// </param>
+/// <param name="CanJoin">
+/// Whether Join works.
+/// </param>
+/// <param name="Joining">
+/// Whether the credential for a room is being asked for.
+/// </param>
+/// <param name="Failure">
+/// Why the last join failed, or why the last room ended under the member.
+/// Dismissible ([`RoomsAction::DismissFailure`]).
+/// </param>
+/// <param name="Room">
+/// The room joined.
+/// </param>
+/// <param name="MeetingsTitle">
+/// The meetings' heading.
+/// </param>
+/// <param name="MeetingsDescription">
+/// What the meetings are.
+/// </param>
+/// <param name="MeetingsStatus">
+/// Where the meetings' read stands.
+/// </param>
+/// <param name="MeetingsEmpty">
+/// What to say when no meeting has been held yet.
+/// </param>
+/// <param name="Meetings">
+/// The meetings, newest first.
+/// </param>
+/// <param name="MeetingsRefreshing">
+/// Whether the meetings are being read again, with these still showing.
+/// </param>
+/// <param name="Record">
+/// The meeting record open over the lobby.
 /// </param>
 public record RoomsView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading: "Meeting rooms".
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// The form's heading: "Start or join a room".
+    /// </summary>
+    string StartTitle, 
+    /// <summary>
+    /// The name box's label: "Room name".
+    /// </summary>
+    string RoomNameLabel, 
+    /// <summary>
+    /// The name as the core holds it, which C# writes into the box only when
+    /// it is not what the box sent (a name cleared, say).
+    /// </summary>
+    string RoomName, 
+    /// <summary>
+    /// The line under the box: which room the name leads to, or what to type.
+    /// </summary>
+    string NameNote, 
+    /// <summary>
+    /// The note under the form: the Companion takes the minutes; or, for a
+    /// viewer, that they join to listen.
+    /// </summary>
+    string RoleNote, 
+    /// <summary>
+    /// Why Join does not work while a call holds the microphone, when it does.
+    /// </summary>
+    string? BusyNote, 
+    /// <summary>
+    /// The Join button's words.
+    /// </summary>
+    string JoinLabel, 
+    /// <summary>
+    /// Whether Join works.
+    /// </summary>
+    bool CanJoin, 
+    /// <summary>
+    /// Whether the credential for a room is being asked for.
+    /// </summary>
+    bool Joining, 
+    /// <summary>
+    /// Why the last join failed, or why the last room ended under the member.
+    /// Dismissible ([`RoomsAction::DismissFailure`]).
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// The room joined.
+    /// </summary>
+    RoomView? Room, 
+    /// <summary>
+    /// The meetings' heading.
+    /// </summary>
+    string MeetingsTitle, 
+    /// <summary>
+    /// What the meetings are.
+    /// </summary>
+    string MeetingsDescription, 
+    /// <summary>
+    /// Where the meetings' read stands.
+    /// </summary>
+    LoadStatus MeetingsStatus, 
+    /// <summary>
+    /// What to say when no meeting has been held yet.
+    /// </summary>
+    EmptyView? MeetingsEmpty, 
+    /// <summary>
+    /// The meetings, newest first.
+    /// </summary>
+    MeetingRowView[] Meetings, 
+    /// <summary>
+    /// Whether the meetings are being read again, with these still showing.
+    /// </summary>
+    bool MeetingsRefreshing, 
+    /// <summary>
+    /// The meeting record open over the lobby.
+    /// </summary>
+    MeetingRecordView? Record
 ) {
 }
 
@@ -10118,17 +10685,71 @@ class FfiConverterTypeRoomsView: FfiConverterRustBuffer<RoomsView> {
 
     public override RoomsView Read(BigEndianStream stream) {
         return new RoomsView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            StartTitle: FfiConverterString.INSTANCE.Read(stream),
+            RoomNameLabel: FfiConverterString.INSTANCE.Read(stream),
+            RoomName: FfiConverterString.INSTANCE.Read(stream),
+            NameNote: FfiConverterString.INSTANCE.Read(stream),
+            RoleNote: FfiConverterString.INSTANCE.Read(stream),
+            BusyNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            JoinLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanJoin: FfiConverterBoolean.INSTANCE.Read(stream),
+            Joining: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Room: FfiConverterOptionalTypeRoomView.INSTANCE.Read(stream),
+            MeetingsTitle: FfiConverterString.INSTANCE.Read(stream),
+            MeetingsDescription: FfiConverterString.INSTANCE.Read(stream),
+            MeetingsStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            MeetingsEmpty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Meetings: FfiConverterSequenceTypeMeetingRowView.INSTANCE.Read(stream),
+            MeetingsRefreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Record: FfiConverterOptionalTypeMeetingRecordView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(RoomsView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartTitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RoomNameLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RoomName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NameNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RoleNote)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.BusyNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.JoinLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanJoin)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Joining)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterOptionalTypeRoomView.INSTANCE.AllocationSize(value.Room)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MeetingsTitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MeetingsDescription)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.MeetingsStatus)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.MeetingsEmpty)
+            + FfiConverterSequenceTypeMeetingRowView.INSTANCE.AllocationSize(value.Meetings)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.MeetingsRefreshing)
+            + FfiConverterOptionalTypeMeetingRecordView.INSTANCE.AllocationSize(value.Record);
     }
 
     public override void Write(RoomsView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.StartTitle, stream);
+            FfiConverterString.INSTANCE.Write(value.RoomNameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RoomName, stream);
+            FfiConverterString.INSTANCE.Write(value.NameNote, stream);
+            FfiConverterString.INSTANCE.Write(value.RoleNote, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.BusyNote, stream);
+            FfiConverterString.INSTANCE.Write(value.JoinLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanJoin, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Joining, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterOptionalTypeRoomView.INSTANCE.Write(value.Room, stream);
+            FfiConverterString.INSTANCE.Write(value.MeetingsTitle, stream);
+            FfiConverterString.INSTANCE.Write(value.MeetingsDescription, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.MeetingsStatus, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.MeetingsEmpty, stream);
+            FfiConverterSequenceTypeMeetingRowView.INSTANCE.Write(value.Meetings, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.MeetingsRefreshing, stream);
+            FfiConverterOptionalTypeMeetingRecordView.INSTANCE.Write(value.Record, stream);
     }
 }
 
@@ -15875,6 +16496,20 @@ public record ReportTarget {
     public record HqAnswer: ReportTarget {}
     
     
+    /// <summary>
+    /// The minutes the Companion wrote for a meeting.
+    /// </summary>
+    public record MeetingMinutes (
+        string MeetingId
+    ) : ReportTarget {}
+    
+    /// <summary>
+    /// The action items the Companion wrote for a meeting.
+    /// </summary>
+    public record MeetingActionItems (
+        string MeetingId
+    ) : ReportTarget {}
+    
 
     
 }
@@ -15905,6 +16540,14 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
             case 5:
                 return new ReportTarget.HqAnswer(
                 );
+            case 6:
+                return new ReportTarget.MeetingMinutes(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new ReportTarget.MeetingActionItems(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Read()", value));
         }
@@ -15927,6 +16570,12 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.ThreadKey);
             case ReportTarget.HqAnswer variant_value:
                 return 4;
+            case ReportTarget.MeetingMinutes variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.MeetingId);
+            case ReportTarget.MeetingActionItems variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.MeetingId);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.AllocationSize()", value));
         }
@@ -15953,6 +16602,14 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                 break;
             case ReportTarget.HqAnswer variant_value:
                 stream.WriteInt(5);
+                break;
+            case ReportTarget.MeetingMinutes variant_value:
+                stream.WriteInt(6);
+                FfiConverterString.INSTANCE.Write(variant_value.MeetingId, stream);
+                break;
+            case ReportTarget.MeetingActionItems variant_value:
+                stream.WriteInt(7);
+                FfiConverterString.INSTANCE.Write(variant_value.MeetingId, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Write()", value));
@@ -16091,38 +16748,190 @@ class FfiConverterTypeRichBlock : FfiConverterRustBuffer<RichBlock>{
 /// <summary>
 /// Something the member did in the rooms lobby.
 /// </summary>
-public enum RoomsAction: int {
+public record RoomsAction {
+    
     /// <summary>
     /// Open the meeting rooms.
     /// </summary>
-    Open,
+    public record Open: RoomsAction {}
+    
+    
     /// <summary>
     /// Leave the room the member is in.
     /// </summary>
-    Leave
+    public record Leave: RoomsAction {}
+    
+    
+    /// <summary>
+    /// The room name box changed.
+    /// </summary>
+    public record EditRoomName (
+        string Name
+    ) : RoomsAction {}
+    
+    /// <summary>
+    /// Join the room named.
+    /// </summary>
+    public record Join: RoomsAction {}
+    
+    
+    /// <summary>
+    /// Join the room of a meeting still running.
+    /// </summary>
+    public record Rejoin (
+        string MeetingId
+    ) : RoomsAction {}
+    
+    /// <summary>
+    /// Turn the microphone on or off in the room.
+    /// </summary>
+    public record Microphone (
+        bool On
+    ) : RoomsAction {}
+    
+    /// <summary>
+    /// Open a meeting's record.
+    /// </summary>
+    public record OpenRecord (
+        string MeetingId
+    ) : RoomsAction {}
+    
+    /// <summary>
+    /// Close the record.
+    /// </summary>
+    public record CloseRecord: RoomsAction {}
+    
+    
+    /// <summary>
+    /// Put away the last join's failure.
+    /// </summary>
+    public record DismissFailure: RoomsAction {}
+    
+    
+    /// <summary>
+    /// Read the meetings again: Try again.
+    /// </summary>
+    public record Retry: RoomsAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeRoomsAction: FfiConverterRustBuffer<RoomsAction> {
-    public static FfiConverterTypeRoomsAction INSTANCE = new FfiConverterTypeRoomsAction();
+class FfiConverterTypeRoomsAction : FfiConverterRustBuffer<RoomsAction>{
+    public static FfiConverterRustBuffer<RoomsAction> INSTANCE = new FfiConverterTypeRoomsAction();
 
     public override RoomsAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return RoomsAction.Open;
-            case 2: return RoomsAction.Leave;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoomsAction.Read()", value));
+            case 1:
+                return new RoomsAction.Open(
+                );
+            case 2:
+                return new RoomsAction.Leave(
+                );
+            case 3:
+                return new RoomsAction.EditRoomName(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new RoomsAction.Join(
+                );
+            case 5:
+                return new RoomsAction.Rejoin(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new RoomsAction.Microphone(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new RoomsAction.OpenRecord(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new RoomsAction.CloseRecord(
+                );
+            case 9:
+                return new RoomsAction.DismissFailure(
+                );
+            case 10:
+                return new RoomsAction.Retry(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoomsAction.Read()", value));
         }
     }
 
     public override int AllocationSize(RoomsAction value) {
-        return 4;
+        switch (value) {
+            case RoomsAction.Open variant_value:
+                return 4;
+            case RoomsAction.Leave variant_value:
+                return 4;
+            case RoomsAction.EditRoomName variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name);
+            case RoomsAction.Join variant_value:
+                return 4;
+            case RoomsAction.Rejoin variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.MeetingId);
+            case RoomsAction.Microphone variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case RoomsAction.OpenRecord variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.MeetingId);
+            case RoomsAction.CloseRecord variant_value:
+                return 4;
+            case RoomsAction.DismissFailure variant_value:
+                return 4;
+            case RoomsAction.Retry variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoomsAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(RoomsAction value, BigEndianStream stream) {
         switch (value) {
-            case RoomsAction.Open: stream.WriteInt(1); break;
-            case RoomsAction.Leave: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoomsAction.Write()", value));
+            case RoomsAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case RoomsAction.Leave variant_value:
+                stream.WriteInt(2);
+                break;
+            case RoomsAction.EditRoomName variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
+                break;
+            case RoomsAction.Join variant_value:
+                stream.WriteInt(4);
+                break;
+            case RoomsAction.Rejoin variant_value:
+                stream.WriteInt(5);
+                FfiConverterString.INSTANCE.Write(variant_value.MeetingId, stream);
+                break;
+            case RoomsAction.Microphone variant_value:
+                stream.WriteInt(6);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case RoomsAction.OpenRecord variant_value:
+                stream.WriteInt(7);
+                FfiConverterString.INSTANCE.Write(variant_value.MeetingId, stream);
+                break;
+            case RoomsAction.CloseRecord variant_value:
+                stream.WriteInt(8);
+                break;
+            case RoomsAction.DismissFailure variant_value:
+                stream.WriteInt(9);
+                break;
+            case RoomsAction.Retry variant_value:
+                stream.WriteInt(10);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoomsAction.Write()", value));
         }
     }
 }
@@ -20170,6 +20979,68 @@ class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerV
 
 
 
+class FfiConverterOptionalTypeMeetingRecordView: FfiConverterRustBuffer<MeetingRecordView?> {
+    public static FfiConverterOptionalTypeMeetingRecordView INSTANCE = new FfiConverterOptionalTypeMeetingRecordView();
+
+    public override MeetingRecordView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeMeetingRecordView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(MeetingRecordView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeMeetingRecordView.INSTANCE.AllocationSize((MeetingRecordView)value);
+        }
+    }
+
+    public override void Write(MeetingRecordView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeMeetingRecordView.INSTANCE.Write((MeetingRecordView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeRoomView: FfiConverterRustBuffer<RoomView?> {
+    public static FfiConverterOptionalTypeRoomView INSTANCE = new FfiConverterOptionalTypeRoomView();
+
+    public override RoomView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeRoomView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(RoomView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeRoomView.INSTANCE.AllocationSize((RoomView)value);
+        }
+    }
+
+    public override void Write(RoomView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeRoomView.INSTANCE.Write((RoomView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeRunsView: FfiConverterRustBuffer<RunsView?> {
     public static FfiConverterOptionalTypeRunsView INSTANCE = new FfiConverterOptionalTypeRunsView();
 
@@ -21009,6 +21880,52 @@ class FfiConverterSequenceTypeHistoryMonthView: FfiConverterRustBuffer<HistoryMo
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeHistoryMonthView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeMeetingRowView: FfiConverterRustBuffer<MeetingRowView[]> {
+    public static FfiConverterSequenceTypeMeetingRowView INSTANCE = new FfiConverterSequenceTypeMeetingRowView();
+
+    public override MeetingRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new MeetingRowView[length];
+        var readFn = FfiConverterTypeMeetingRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(MeetingRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeMeetingRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(MeetingRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeMeetingRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

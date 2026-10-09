@@ -1,0 +1,62 @@
+{
+  "screen": {
+    "Rooms": {
+      "view": {
+        "busy_note": null,
+        "can_join": false,
+        "failure": null,
+        "join_label": "Join",
+        "joining": false,
+        "meetings": [],
+        "meetings_description": "The most recent meetings held in this workspace's rooms. Open one to read its minutes and transcript.",
+        "meetings_empty": null,
+        "meetings_refreshing": false,
+        "meetings_status": {
+          "Failed": {
+            "failure": {
+              "message": "Something went wrong on our side. Please try again shortly.",
+              "regions_line": null,
+              "retryable": true
+            },
+            "title": "Could not load meetings"
+          }
+        },
+        "meetings_title": "Meetings",
+        "name_note": "Name the room. Anyone in this workspace who types the same name joins you.",
+        "record": null,
+        "role_note": "The Companion joins every room and writes up the minutes.",
+        "room": null,
+        "room_name": "",
+        "room_name_label": "Room name",
+        "start_title": "Start or join a room",
+        "title": "Meeting rooms"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": true,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Rooms",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

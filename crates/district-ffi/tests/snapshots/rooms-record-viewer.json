@@ -1,0 +1,115 @@
+{
+  "screen": {
+    "Rooms": {
+      "view": {
+        "busy_note": null,
+        "can_join": false,
+        "failure": null,
+        "join_label": "Join",
+        "joining": false,
+        "meetings": [
+          {
+            "can_rejoin": false,
+            "detail": "",
+            "in_progress": "In progress",
+            "meeting_id": "meeting_contract_live",
+            "minutes": "Minutes are written when the meeting ends.",
+            "rejoin_label": "Rejoin",
+            "started_at": "2026-08-15T14:30:00.000Z",
+            "title": "standup"
+          },
+          {
+            "can_rejoin": false,
+            "detail": "42m 0s, 2 people",
+            "in_progress": null,
+            "meeting_id": "meeting_contract_completed",
+            "minutes": "The team reviewed Thursday's inbound volume and agreed to move the after-hours overflow onto the second attendant. Ada took the carrier follow-up, Grace is rewriting the greeting, and the routing change lands before the…",
+            "rejoin_label": "Rejoin",
+            "started_at": "2026-08-14T15:00:00.000Z",
+            "title": "Weekly review"
+          }
+        ],
+        "meetings_description": "The most recent meetings held in this workspace's rooms. Open one to read its minutes and transcript.",
+        "meetings_empty": null,
+        "meetings_refreshing": false,
+        "meetings_status": "Ready",
+        "meetings_title": "Meetings",
+        "name_note": "Name the room. Anyone in this workspace who types the same name joins you.",
+        "record": {
+          "action_items": [
+            "Move after-hours overflow to the second attendant (Ada)",
+            "Rewrite the greeting (Grace)"
+          ],
+          "action_items_report": "OnWeb",
+          "action_items_title": "Action items",
+          "ended_at": "2026-08-14T15:42:00.000Z",
+          "facts": [
+            {
+              "label": "Status",
+              "value": "Completed"
+            },
+            {
+              "label": "Length",
+              "value": "42m 0s"
+            },
+            {
+              "label": "People",
+              "value": "Ada, Grace"
+            }
+          ],
+          "meeting_id": "meeting_contract_completed",
+          "minutes": "The team reviewed Thursday's inbound volume and agreed to move the after-hours overflow onto the second attendant. Ada took the carrier follow-up, Grace is rewriting the greeting, and the routing change lands before the end of the week. A second pass on the transfer directory was deferred to the next session.",
+          "minutes_report": "OnWeb",
+          "minutes_title": "Minutes",
+          "started_at": "2026-08-14T15:00:00.000Z",
+          "status": "Ready",
+          "title": "Weekly review",
+          "transcript": "Ada: Inbound is up about a third on Thursdays.\nGrace: The greeting is the part callers stumble on.\nAda: I will take the carrier follow-up.",
+          "transcript_title": "Transcript"
+        },
+        "role_note": "You are in this workspace as a viewer, so you join rooms to listen.",
+        "room": null,
+        "room_name": "",
+        "room_name_label": "Room name",
+        "start_title": "Start or join a room",
+        "title": "Meeting rooms"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": true,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Rooms",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

@@ -218,6 +218,16 @@ pub enum ReportTarget {
     /// an answer no id, so the report names its kind, and the member's note
     /// says the rest.
     HqAnswer,
+    /// The minutes the Companion wrote for a meeting.
+    MeetingMinutes {
+        /// The meeting.
+        meeting_id: String,
+    },
+    /// The action items the Companion wrote for a meeting.
+    MeetingActionItems {
+        /// The meeting.
+        meeting_id: String,
+    },
 }
 
 /// What the service writes in a call's summary field when there is no summary:
