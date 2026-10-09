@@ -1,0 +1,106 @@
+{
+  "screen": {
+    "Members": {
+      "view": {
+        "add": {
+          "add_label": "Add",
+          "can_add": false,
+          "editable": true,
+          "email": "",
+          "email_label": "Email address",
+          "heading": "Add a member",
+          "note": "Adding someone sends no invitation. They get access when they sign in with this address.",
+          "rejected": null,
+          "role": "Client",
+          "role_label": "Role"
+        },
+        "changing": false,
+        "confirm_remove": null,
+        "members": [
+          {
+            "can_change": true,
+            "email": "founder@example.com",
+            "remove_label": "Remove from this workspace",
+            "role": "Agency",
+            "role_line": "Agency · Full access, including who belongs here and what each member may do."
+          },
+          {
+            "can_change": true,
+            "email": "operator@example.com",
+            "remove_label": "Remove from this workspace",
+            "role": "Client",
+            "role_line": "Client · Everyday use: calls, contacts, messages and the workspace's settings."
+          },
+          {
+            "can_change": true,
+            "email": "auditor@example.com",
+            "remove_label": "Remove from this workspace",
+            "role": "Viewer",
+            "role_line": "Viewer · Read only: sees calls, contacts and messages, and changes nothing."
+          }
+        ],
+        "notice": {
+          "message": "Cannot demote the last agency member - the workspace would have no administrator",
+          "saved": false
+        },
+        "read_only_note": null,
+        "rename": {
+          "can_rename": false,
+          "current": "Example Dental",
+          "current_label": "Now",
+          "editable": true,
+          "heading": "The workspace's name",
+          "new_label": "New name",
+          "new_name": "",
+          "rename_label": "Rename the workspace",
+          "renaming": false
+        },
+        "roles": [
+          {
+            "description": "Full access, including who belongs here and what each member may do.",
+            "label": "Agency",
+            "role": "Agency"
+          },
+          {
+            "description": "Everyday use: calls, contacts, messages and the workspace's settings.",
+            "label": "Client",
+            "role": "Client"
+          },
+          {
+            "description": "Read only: sees calls, contacts and messages, and changes nothing.",
+            "label": "Viewer",
+            "role": "Viewer"
+          }
+        ],
+        "status": "Ready",
+        "title": "Members"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
