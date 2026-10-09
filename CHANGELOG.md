@@ -7,6 +7,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Keyboard shortcuts in a call, from anywhere in the window: Ctrl+D turns the microphone
+  off or on, and Ctrl+Shift+H hangs up. The buttons' tooltips name them.
+
 ## [1.1.0] - 2026-10-08
 
 ### Fixed
