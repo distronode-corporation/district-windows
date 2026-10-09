@@ -797,8 +797,35 @@ public sealed class InboxViewModelTests
 
 public sealed class AccountViewModelTests
 {
-    private static AccountView View(string? name = null, string? email = null, bool? ring = null, string? ringMessage = null) =>
-        new("1.2.0", "dev-1", "user-1", email, name, "Sign out of this computer.", "Every signed-in device.", "On the web.", ring, "Ring on this computer", "Calls ring here.", ringMessage);
+    private static AccountView View(string? name = null, string? email = null, bool? ring = null, string? ringMessage = null, bool? purchases = null) =>
+        new("1.2.0", "dev-1", "user-1", email, name, "Sign out of this computer.", "Every signed-in device.", "On the web.", ring, "Ring on this computer", "Calls ring here.", ringMessage,
+            purchases, "Purchases on this computer", "Signs you in afresh each time.", "Sign in every time", "Off");
+
+    [Fact]
+    public void ThePurchasesRowShowsOnceReadAndSendsOnlyWhatTheUserChanges()
+    {
+        var account = new AccountViewModel(new FakeStartupTask());
+        var (context, sink) = Pages.Context();
+        account.Attach(context);
+        account.Show(View());
+        Assert.False(account.PurchasesVisible);
+
+        // The core's value, written back: not a change to send.
+        account.Show(View(purchases: true));
+        Assert.True(account.PurchasesVisible);
+        Assert.True(account.PurchasesOn);
+        Assert.Equal("Purchases on this computer", account.PurchasesLabel);
+        Assert.Equal("Signs you in afresh each time.", account.PurchasesBody);
+        Assert.Equal("Sign in every time", account.PurchasesOnLabel);
+        Assert.Equal("Off", account.PurchasesOffLabel);
+        account.PurchasesOn = false;
+        account.Show(View(purchases: false));
+        account.PurchasesOn = true;
+
+        Assert.Equal(
+            [new UiEvent.Billing(new BillingAction.SetPurchases(false)), new UiEvent.Billing(new BillingAction.SetPurchases(true))],
+            sink.Sent);
+    }
 
     [Fact]
     public void ItNeedsAStartupTask()

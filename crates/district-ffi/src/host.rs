@@ -5,8 +5,8 @@ use std::future::Future;
 use std::sync::{Arc, Mutex, PoisonError};
 
 use district_core::{
-    Event, Notification, NotificationAction, NotificationTarget, Notifier, RingSurface, Urgency,
-    UrlOpener,
+    EmbeddedView, Event, Notification, NotificationAction, NotificationTarget, Notifier,
+    RingSurface, Urgency, UrlOpener,
 };
 
 /// The C# side of the boundary, implemented by `CoreHost`.
@@ -26,6 +26,21 @@ pub trait UiHost: Send + Sync {
     /// and answers whether a browser took it.
     async fn open_url(&self, url: String) -> bool;
 
+    /// Opens `url` in the checkout window, a view inside the app, and answers
+    /// whether it did. Asked only for the service's hand-off start page and
+    /// the one-time link after it (district-core's `UrlOpener::open_embedded`).
+    ///
+    /// [`EmbeddedViewKind::NewPrivate`] opens a new private view, replacing
+    /// any earlier one, with nothing from it or from the browser and nothing
+    /// kept once it closes; [`EmbeddedViewKind::Same`] navigates that view,
+    /// answering false when it is gone. While it shows, a navigation to
+    /// `districtai://handoff` is cancelled in the view and handed to
+    /// [`Core::open_link`](crate::Core::open_link), and the window closing is
+    /// `BillingAction::CheckoutClosed`. Answer false when the view cannot be
+    /// shown at all (no WebView2 runtime): the core then opens the pages in
+    /// the browser instead, and says so.
+    async fn open_embedded(&self, url: String, view: EmbeddedViewKind) -> bool;
+
     /// Shows `notification` as a toast, replacing any shown with the same id.
     /// An [`urgent`](NotificationView::urgent) one (a call ringing now) stays
     /// on screen until it is dealt with. Clicking it, or one of its actions,
@@ -44,6 +59,25 @@ pub trait UiHost: Send + Sync {
 
     /// Brings the main window forward: shown, restored, raised and focused.
     fn present_window(&self);
+}
+
+/// Which view [`UiHost::open_embedded`] opens a page in: the core's
+/// `EmbeddedView`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, uniffi::Enum)]
+pub enum EmbeddedViewKind {
+    /// A new private view.
+    NewPrivate,
+    /// The view the last new one opened.
+    Same,
+}
+
+impl From<EmbeddedView> for EmbeddedViewKind {
+    fn from(view: EmbeddedView) -> Self {
+        match view {
+            EmbeddedView::NewPrivate => Self::NewPrivate,
+            EmbeddedView::Same => Self::Same,
+        }
+    }
 }
 
 /// A notification, as the host shows it: the core's `Notification` with its
@@ -192,6 +226,12 @@ impl UrlOpener for HostOpener {
         let url = url.to_owned();
         async move { host.open_url(url).await }
     }
+
+    fn open_embedded(&self, url: &str, view: EmbeddedView) -> impl Future<Output = bool> + Send {
+        let host = Arc::clone(&self.0);
+        let url = url.to_owned();
+        async move { host.open_embedded(url, view.into()).await }
+    }
 }
 
 /// [`Notifier`] over the host: each notification the core decides to give (a
@@ -282,6 +322,11 @@ pub(crate) mod tests {
             !self.refuse
         }
 
+        async fn open_embedded(&self, url: String, view: EmbeddedViewKind) -> bool {
+            self.opened.lock().unwrap().push(format!("{view:?} {url}"));
+            !self.refuse
+        }
+
         fn notify(&self, notification: NotificationView) {
             self.tell(Told::Notify(notification));
         }
@@ -317,6 +362,38 @@ pub(crate) mod tests {
             ..RecordingHost::default()
         }));
         assert!(!refusing.open("https://www.distronode.com/y").await);
+    }
+
+    #[tokio::test]
+    async fn a_page_inside_the_app_is_the_hosts_checkout_window() {
+        let host = Arc::new(RecordingHost::default());
+        let opener = HostOpener(host.clone());
+        assert!(
+            opener
+                .open_embedded("https://www.distronode.com/a", EmbeddedView::NewPrivate)
+                .await
+        );
+        assert!(
+            opener
+                .open_embedded("https://www.distronode.com/b", EmbeddedView::Same)
+                .await
+        );
+        assert_eq!(
+            *host.opened.lock().unwrap(),
+            [
+                "NewPrivate https://www.distronode.com/a",
+                "Same https://www.distronode.com/b"
+            ]
+        );
+        let refusing = HostOpener(Arc::new(RecordingHost {
+            refuse: true,
+            ..RecordingHost::default()
+        }));
+        assert!(
+            !refusing
+                .open_embedded("https://www.distronode.com/c", EmbeddedView::Same)
+                .await
+        );
     }
 
     /// A ringing call's notification, as the core makes it.

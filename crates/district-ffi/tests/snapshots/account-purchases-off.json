@@ -11,7 +11,7 @@
         "purchases_body": "With Sign in every time, choosing a plan or managing billing signs you in afresh, in a private window inside District AI that keeps nothing once it closes. Off hides plans and billing actions on this computer.",
         "purchases_label": "Purchases on this computer",
         "purchases_off_label": "Off",
-        "purchases_on": null,
+        "purchases_on": false,
         "purchases_on_label": "Sign in every time",
         "ring_on_this_computer": null,
         "ring_setting_body": "Calls handed to you ring here while District AI is running and you are signed in. Your availability for calls is set in Call handling.",

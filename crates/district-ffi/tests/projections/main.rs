@@ -232,6 +232,8 @@ fn config() -> CoreConfig {
         web_base_url: "https://www.distronode.com".to_owned(),
         app_version: "0.1.0".to_owned(),
         calls_available: false,
+        // As the app builds it: Windows buys in the app.
+        in_app_purchases: true,
     }
 }
 

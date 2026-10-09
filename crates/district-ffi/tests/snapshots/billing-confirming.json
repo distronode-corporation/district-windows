@@ -1,0 +1,145 @@
+{
+  "screen": {
+    "Billing": {
+      "view": {
+        "account": {
+          "body": null,
+          "failure": null,
+          "invoices": [
+            {
+              "amount": "$249.00",
+              "can_open": true,
+              "created": 1754231400,
+              "id": "in_contract_paid",
+              "status": "paid"
+            },
+            {
+              "amount": "$15.00",
+              "can_open": false,
+              "created": 1756909800,
+              "id": "in_contract_open",
+              "status": "open"
+            }
+          ],
+          "invoices_truncated": "Showing your most recent invoices. Older ones are on the website.",
+          "no_invoices": null,
+          "no_subscriptions": null,
+          "state": "Ready",
+          "subscriptions": [
+            {
+              "amount": "$249.00",
+              "coupon": "Founding customer",
+              "ends_at": null,
+              "id": "sub_contract_pro",
+              "name": "District AI Voice Pro",
+              "renews_at": 1756909800,
+              "status": "active"
+            },
+            {
+              "amount": "$15.00",
+              "coupon": null,
+              "ends_at": 1757514600,
+              "id": "sub_contract_legacy",
+              "name": "Legacy Add-on",
+              "renews_at": null,
+              "status": "active"
+            }
+          ],
+          "title": null
+        },
+        "note": "Choose or change your plan here. Checkout and payment are handled by Stripe, and open inside District AI.",
+        "offers_web": false,
+        "plan": {
+          "included_minutes": 1500,
+          "meter_percent": 100,
+          "minutes_used": 1523,
+          "name": "VoicePro",
+          "overage_note": "Minutes beyond your plan are billed automatically.",
+          "status": "Active",
+          "status_caption": null
+        },
+        "purchase": {
+          "choose_action": "Choose a plan",
+          "confirming": {
+            "action": "Continue to checkout",
+            "body": "Payment is handled by Stripe, District AI's payment processor. Checkout opens in a private window inside District AI, signed in for this purchase only. Your card details go to Stripe, not to District AI, and the price is shown before you pay.",
+            "cancel": "Cancel",
+            "plan": "Voice Pro",
+            "promo": "SAVE-100",
+            "term": "Annual",
+            "title": "Continue to checkout with Stripe"
+          },
+          "enabled": true,
+          "in_browser_note": null,
+          "manage_action": "Manage billing",
+          "notice": null,
+          "offers_manage": true,
+          "opening": false,
+          "opening_label": "Opening a secure page",
+          "plans": [
+            {
+              "label": "Voice Solo",
+              "tier": "VoiceSolo"
+            },
+            {
+              "label": "Voice Starter",
+              "tier": "VoiceStarter"
+            },
+            {
+              "label": "Voice Pro",
+              "tier": "VoicePro"
+            },
+            {
+              "label": "Voice Studio",
+              "tier": "VoiceStudio"
+            }
+          ],
+          "prices_note": "Prices, and any promotion, are shown at checkout before you pay.",
+          "promo_invalid": "A promotion code has only letters, digits, hyphens and underscores, up to 40 of them.",
+          "promo_label": "Promotion code (optional)",
+          "promo_max_len": 40,
+          "terms": [
+            {
+              "label": "Monthly",
+              "term": "Monthly"
+            },
+            {
+              "label": "Annual",
+              "term": "Annual"
+            }
+          ]
+        },
+        "refreshing": false,
+        "status": "Ready",
+        "title": "Billing",
+        "web_action": "Manage billing on the web"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Billing",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

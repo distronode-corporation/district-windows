@@ -560,9 +560,7 @@ mod tests {
                 },
             },
             ScreenView::Billing {
-                view: crate::billing::BillingView {
-                    title: "Billing".to_owned(),
-                },
+                view: crate::billing::sample(),
             },
             ScreenView::Workflows {
                 view: crate::workflows::sample_view(),

@@ -33,6 +33,21 @@ public interface IBrowser
     Task<bool> OpenAsync(string url);
 }
 
+/// <summary>
+/// Shows a page inside the app: the checkout window, which District AI for
+/// Windows opens the service's checkout and billing pages in.
+/// </summary>
+public interface IEmbeddedBrowser
+{
+    /// <summary>
+    /// Opens <paramref name="url"/> in the checkout window, in a new private
+    /// view or the current one as <paramref name="view"/> says, and answers
+    /// whether it did. False when it cannot be shown at all (no WebView2
+    /// runtime), so the core opens the pages in the browser instead.
+    /// </summary>
+    Task<bool> OpenAsync(string url, EmbeddedViewKind view);
+}
+
 /// <summary>What the window shows, as of one revision of the core's snapshot.</summary>
 /// <param name="Revision">The snapshot's revision.</param>
 /// <param name="Shell">The window's frame.</param>
@@ -54,17 +69,23 @@ public sealed class CoreHost : UiHost, ICoreSink, IAsyncDisposable
     private readonly FfiCore _core = new();
     private readonly IUiDispatcher _dispatcher;
     private readonly IBrowser _browser;
+    private readonly IEmbeddedBrowser? _embedded;
     private int _queued;
     private ulong _rendered;
     private int _disposed;
 
-    /// <summary>A host that renders on <paramref name="dispatcher"/> and opens pages with <paramref name="browser"/>.</summary>
-    public CoreHost(IUiDispatcher dispatcher, IBrowser browser)
+    /// <summary>
+    /// A host that renders on <paramref name="dispatcher"/>, opens pages with
+    /// <paramref name="browser"/>, and shows the checkout pages in
+    /// <paramref name="embedded"/> (none: the core opens them in the browser).
+    /// </summary>
+    public CoreHost(IUiDispatcher dispatcher, IBrowser browser, IEmbeddedBrowser? embedded = null)
     {
         ArgumentNullException.ThrowIfNull(dispatcher);
         ArgumentNullException.ThrowIfNull(browser);
         _dispatcher = dispatcher;
         _browser = browser;
+        _embedded = embedded;
     }
 
     /// <summary>Raised on the UI thread with each new snapshot.</summary>
@@ -174,6 +195,10 @@ public sealed class CoreHost : UiHost, ICoreSink, IAsyncDisposable
 
     /// <inheritdoc/>
     public Task<bool> OpenUrl(string url) => _browser.OpenAsync(url);
+
+    /// <inheritdoc/>
+    public Task<bool> OpenEmbedded(string url, EmbeddedViewKind view) =>
+        _embedded?.OpenAsync(url, view) ?? Task.FromResult(false);
 
     /// <inheritdoc/>
     public void Notify(NotificationView notification) =>

@@ -2,7 +2,254 @@
 <UserControl
     x:Class="DistrictAI.Views.Billing.BillingPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels.Billing">
+    <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock
+            AutomationProperties.HeadingLevel="Level1"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Text="Billing" />
+        <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
+
+        <ScrollViewer Grid.Row="2" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+            <StackPanel
+                MaxWidth="{StaticResource ReadingWidth}"
+                HorizontalAlignment="Left"
+                Spacing="12">
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Note, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+
+                <!--  The workspace's plan.  -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="Your plan" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Text="{x:Bind ViewModel.PlanName, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.Name="Plan status"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Text="{x:Bind ViewModel.PlanStatus, Mode=OneWay}"
+                                VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock
+                            Text="{x:Bind ViewModel.PlanCaption, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind ViewModel.HasPlanCaption, Mode=OneWay}" />
+                        <TextBlock
+                            Text="{x:Bind ViewModel.MinutesLine, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.HasMinutes, Mode=OneWay}" />
+                        <ProgressBar
+                            AutomationProperties.Name="Minutes used"
+                            Maximum="100"
+                            Value="{x:Bind ViewModel.MeterPercent, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.HasMeter, Mode=OneWay}" />
+                        <TextBlock
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.OverageNote, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind ViewModel.HasOverageNote, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+
+                <!--  Choosing a plan and managing billing, in the app.  -->
+                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.OffersPurchase, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            AutomationProperties.Name="{x:Bind ViewModel.ChooseAction, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenChooserCommand}"
+                            Content="{x:Bind ViewModel.ChooseAction, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <Button
+                            AutomationProperties.Name="{x:Bind ViewModel.ManageAction, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.ManageInAppCommand}"
+                            Content="{x:Bind ViewModel.ManageAction, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.OffersManage, Mode=OneWay}" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            AutomationProperties.Name="{x:Bind ViewModel.OpeningLabel, Mode=OneWay}"
+                            IsActive="{x:Bind ViewModel.Opening, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.Opening, Mode=OneWay}" />
+                    </StackPanel>
+                    <InfoBar
+                        AutomationProperties.Name="Checkout in the browser"
+                        IsClosable="False"
+                        IsOpen="{x:Bind ViewModel.HasInBrowserNote, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.InBrowserNote, Mode=OneWay}"
+                        Severity="Informational" />
+                    <InfoBar
+                        AutomationProperties.Name="Billing problem"
+                        CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+                        IsClosable="True"
+                        IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+                        Severity="Warning" />
+
+                    <!--  The chooser.  -->
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.ChooserVisible, Mode=OneWay}">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.ChooseAction, Mode=OneWay}" />
+                            <RadioButtons
+                                AutomationProperties.Name="Plan"
+                                Header="Plan"
+                                ItemsSource="{x:Bind ViewModel.PlanNames, Mode=OneWay}"
+                                SelectedIndex="{x:Bind ViewModel.SelectedPlan, Mode=TwoWay}" />
+                            <ComboBox
+                                AutomationProperties.Name="Billed"
+                                Header="Billed"
+                                ItemsSource="{x:Bind ViewModel.TermNames, Mode=OneWay}"
+                                SelectedIndex="{x:Bind ViewModel.SelectedTerm, Mode=TwoWay}" />
+                            <TextBox
+                                AutomationProperties.Name="Promotion code"
+                                Header="{x:Bind ViewModel.PromoLabel, Mode=OneWay}"
+                                MaxLength="64"
+                                Text="{x:Bind ViewModel.PromoText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Text="{x:Bind ViewModel.PromoError, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.HasPromoError, Mode=OneWay}" />
+                            <TextBlock
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.PricesNote, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Button
+                                    AutomationProperties.Name="Continue"
+                                    Command="{x:Bind ViewModel.ContinueCommand}"
+                                    Content="Continue"
+                                    Style="{StaticResource AccentButtonStyle}" />
+                                <Button
+                                    AutomationProperties.Name="Close the plans"
+                                    Command="{x:Bind ViewModel.CloseChooserCommand}"
+                                    Content="Close" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!--  The step that names Stripe before checkout opens.  -->
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.Confirming, Mode=OneWay}">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.ConfirmTitle, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Text="{x:Bind ViewModel.ConfirmChoice, Mode=OneWay}" />
+                            <TextBlock Text="{x:Bind ViewModel.ConfirmBody, Mode=OneWay}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Button
+                                    AutomationProperties.Name="{x:Bind ViewModel.ConfirmAction, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.ConfirmCommand}"
+                                    Content="{x:Bind ViewModel.ConfirmAction, Mode=OneWay}"
+                                    Style="{StaticResource AccentButtonStyle}" />
+                                <Button
+                                    AutomationProperties.Name="{x:Bind ViewModel.CancelAction, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.CancelCommand}"
+                                    Content="{x:Bind ViewModel.CancelAction, Mode=OneWay}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="12" Visibility="{x:Bind ViewModel.OffersWeb, Mode=OneWay}">
+                    <Button
+                        AutomationProperties.Name="{x:Bind ViewModel.WebAction, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.ManageOnWebCommand}"
+                        Content="{x:Bind ViewModel.WebAction, Mode=OneWay}" />
+                </StackPanel>
+
+                <!--  The account's plans and invoices.  -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="On this account" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.Name="Reading the account"
+                            IsActive="{x:Bind ViewModel.AccountLoading, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.AccountLoading, Mode=OneWay}" />
+                        <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasAccountProblem, Mode=OneWay}">
+                            <TextBlock
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Text="{x:Bind ViewModel.AccountProblemTitle, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind ViewModel.AccountProblem, Mode=OneWay}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.AccountReady, Mode=OneWay}">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.Plans}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BillingLine">
+                                        <StackPanel Padding="0,4" Spacing="2">
+                                            <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Name}" />
+                                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Detail}" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.NoPlans, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.HasNoPlans, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level3"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Text="Invoices" />
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.Invoices}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BillingLine">
+                                        <Grid Padding="0,4" ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Spacing="2">
+                                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Name}" />
+                                                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Detail}" />
+                                            </StackPanel>
+                                            <Button
+                                                Grid.Column="1"
+                                                AutomationProperties.Name="Open invoice"
+                                                Click="OnOpenInvoice"
+                                                Content="Open"
+                                                Tag="{x:Bind InvoiceId}"
+                                                Visibility="{x:Bind CanOpen}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.InvoicesNote, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.HasInvoicesNote, Mode=OneWay}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+        <views:StatusPanel x:Name="Status" Grid.Row="2" />
+    </Grid>
 </UserControl>

@@ -289,10 +289,36 @@ public sealed class CoreHostTests : IDisposable
         Assert.Throws<ArgumentNullException>(() => new CoreHost(new ManualDispatcher(), null!));
     }
 
+    [Fact]
+    public async Task APageInsideTheAppGoesToTheCheckoutWindowOrIsRefused()
+    {
+        await using var without = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
+        Assert.False(await without.OpenEmbedded("https://www.distronode.com/a", EmbeddedViewKind.NewPrivate));
+
+        var embedded = new RecordingEmbedded();
+        await using var with = new CoreHost(new ManualDispatcher(), new RecordingBrowser(), embedded);
+        Assert.True(await with.OpenEmbedded("https://www.distronode.com/a", EmbeddedViewKind.NewPrivate));
+        Assert.True(await with.OpenEmbedded("https://www.distronode.com/b", EmbeddedViewKind.Same));
+        Assert.Equal(
+            [("https://www.distronode.com/a", EmbeddedViewKind.NewPrivate), ("https://www.distronode.com/b", EmbeddedViewKind.Same)],
+            embedded.Opened);
+    }
+
     [Theory]
     [InlineData("districtai://auth?code=c&state=s", LinkKind.Auth)]
     [InlineData("districtai://handoff", LinkKind.Handoff)]
     [InlineData("districtai://elsewhere", LinkKind.Unknown)]
     public void TheLinkKindIsTheCores(string uri, LinkKind kind) =>
         Assert.Equal(kind, DistrictFfi.LinkKind(uri));
+}
+
+internal sealed class RecordingEmbedded : IEmbeddedBrowser
+{
+    public List<(string Url, EmbeddedViewKind View)> Opened { get; } = [];
+
+    public Task<bool> OpenAsync(string url, EmbeddedViewKind view)
+    {
+        Opened.Add((url, view));
+        return Task.FromResult(true);
+    }
 }

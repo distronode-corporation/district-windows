@@ -127,6 +127,7 @@ mod tests {
             web_base_url: "https://www.distronode.com".to_owned(),
             app_version: "0.1.0".to_owned(),
             calls_available: false,
+            in_app_purchases: true,
         });
         assert!(!leaves_unsaved(&model, &Event::Back));
         let mut held = Held::default();

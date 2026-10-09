@@ -7,11 +7,25 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Billing: the workspace's plan with its minutes, and the account's plans and invoices,
+  read only, as District AI for Linux shows them. And, for a member whose role can change
+  the plan, choosing a plan (Voice Solo, Starter, Pro or Studio, monthly or annual, with
+  an optional promotion code) and managing billing inside the app: a confirmation step
+  names Stripe before checkout opens, and the service's own checkout and billing pages
+  open in a checkout window of their own, signed in afresh each time through a one-time
+  link, in a WebView2 profile that starts empty and is deleted afterwards. A computer
+  without the WebView2 runtime opens them in the browser instead, and the page says so.
+- Account: "Purchases on this computer", "Sign in every time" (the default) or "Off",
+  which hides every purchase action.
+
 ### Changed
 
-- The shared core is district-core-rust 2.0.0: the live transcript of a call, the app's
-  platform at sign-in (so the sign-in page can offer to create an account), and a reply
-  still waiting to be saved is saved when the app quits.
+- The shared core is district-core-rust 3.0.0, which adds buying in the app (on only in
+  this app), after 2.0.0's live transcript of a call, the app's platform at sign-in (so
+  the sign-in page can offer to create an account), and saving a reply still waiting to
+  be saved when the app quits.
 
 ## [1.1.0] - 2026-10-08
 
