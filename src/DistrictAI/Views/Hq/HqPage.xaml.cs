@@ -30,7 +30,7 @@ public sealed partial class HqPage : UserControl
         new PropertyMetadata(null, OnAnswerChanged));
 
     /// <summary>The fixed-width font of code, which Windows always has.</summary>
-    private static readonly FontFamily CodeFont = new("Consolas");
+    private static readonly FontFamily _codeFont = new("Consolas");
 
     private PageContext? _context;
 
@@ -142,7 +142,7 @@ public sealed partial class HqPage : UserControl
         }
         if (source.Kind == RichParagraphKind.Code)
         {
-            paragraph.FontFamily = CodeFont;
+            paragraph.FontFamily = _codeFont;
         }
         foreach (var inline in source.Inlines)
         {
@@ -168,7 +168,7 @@ public sealed partial class HqPage : UserControl
         }
         if (source.Code)
         {
-            run.FontFamily = CodeFont;
+            run.FontFamily = _codeFont;
         }
         if (source.Link is not { } url)
         {
