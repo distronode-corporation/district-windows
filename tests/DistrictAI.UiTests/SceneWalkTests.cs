@@ -237,12 +237,20 @@ public sealed class SceneWalkTests
                 .FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Window)))
                 ?.FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
                 .FirstOrDefault(text =>
-                    !text.IsOffscreen
+                    !text.Properties.IsOffscreen.ValueOrDefault
                     && text.Properties.HeadingLevel.ValueOrDefault == HeadingLevel.Level1
-                    && (expected is null ? text.Name.Length > 0 : text.Name == expected)),
+                    && NameOf(text) is { Length: > 0 } name
+                    && (expected is null || name == expected)),
             timeout,
             expected is null ? "a level-one heading" : $"the heading \"{expected}\"",
             app.Describe);
+
+    /// <summary>
+    /// The element's name, or empty when UI Automation has none for it: a text
+    /// element can be gone, or never named, between being listed and being
+    /// read (seen as PropertyNotSupportedException on the Inbox).
+    /// </summary>
+    private static string NameOf(AutomationElement element) => element.Properties.Name.ValueOrDefault ?? string.Empty;
 
     /// <summary>What shows that the page failed, or null.</summary>
     private static string? Failure(InstalledApp app)
@@ -258,8 +266,8 @@ public sealed class SceneWalkTests
             return "Try again";
         }
         return window.FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
-            .Where(text => !text.IsOffscreen)
-            .Select(text => text.Name)
+            .Where(text => !text.Properties.IsOffscreen.ValueOrDefault)
+            .Select(NameOf)
             .FirstOrDefault(name => _failureTexts.Any(failure => name.StartsWith(failure, StringComparison.Ordinal)));
     }
 
