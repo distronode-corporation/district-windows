@@ -611,9 +611,7 @@ mod tests {
                 view: crate::settings::persona::PersonaView::sample(),
             },
             ScreenView::VoiceStudio {
-                view: crate::settings::voice_studio::VoiceStudioView {
-                    title: "VoiceStudio".to_owned(),
-                },
+                view: crate::settings::voice_studio::sample(),
             },
             ScreenView::CallHandling {
                 view: crate::settings::call_handling::CallHandlingView {

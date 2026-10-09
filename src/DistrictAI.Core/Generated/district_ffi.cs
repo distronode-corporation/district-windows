@@ -16615,6 +16615,798 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
 
 
 /// <summary>
+/// One leg of the signal chain.
+/// </summary>
+/// <param name="Leg">
+/// The leg (`stt`, `turn`, `llm`, `tts` or `realtime`), to open the
+/// editor on it by (`VoiceStudioAction::SelectLeg`).
+/// </param>
+/// <param name="Title">
+/// The leg's name and its model: "Ear: Deepgram Flux (English)".
+/// </param>
+/// <param name="Detail">
+/// What it does, where it is processed, its number, its channel and any
+/// note, joined by middle dots.
+/// </param>
+/// <param name="Open">
+/// Whether the editor is open on it.
+/// </param>
+public record StudioBlockView (
+    /// <summary>
+    /// The leg (`stt`, `turn`, `llm`, `tts` or `realtime`), to open the
+    /// editor on it by (`VoiceStudioAction::SelectLeg`).
+    /// </summary>
+    string Leg, 
+    /// <summary>
+    /// The leg's name and its model: "Ear: Deepgram Flux (English)".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What it does, where it is processed, its number, its channel and any
+    /// note, joined by middle dots.
+    /// </summary>
+    string Detail, 
+    /// <summary>
+    /// Whether the editor is open on it.
+    /// </summary>
+    bool Open
+) {
+}
+
+class FfiConverterTypeStudioBlockView: FfiConverterRustBuffer<StudioBlockView> {
+    public static FfiConverterTypeStudioBlockView INSTANCE = new FfiConverterTypeStudioBlockView();
+
+    public override StudioBlockView Read(BigEndianStream stream) {
+        return new StudioBlockView(
+            Leg: FfiConverterString.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Detail: FfiConverterString.INSTANCE.Read(stream),
+            Open: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(StudioBlockView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Leg)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Detail)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Open);
+    }
+
+    public override void Write(StudioBlockView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Leg, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Detail, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Open, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The editor of the leg the chain is open on.
+/// </summary>
+/// <param name="Title">
+/// The leg's name, or "Part to edit".
+/// </param>
+/// <param name="Pickers">
+/// The leg's pickers (vendor, model, location, then the voice), as the
+/// leg has them; none for turn-taking.
+/// </param>
+/// <param name="Controls">
+/// The leg's tuning, in the read's order.
+/// </param>
+/// <param name="AdvancedLabel">
+/// The disclosure's label, "Advanced".
+/// </param>
+/// <param name="HasAdvanced">
+/// Whether any control is behind it.
+/// </param>
+public record StudioEditorView (
+    /// <summary>
+    /// The leg's name, or "Part to edit".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The leg's pickers (vendor, model, location, then the voice), as the
+    /// leg has them; none for turn-taking.
+    /// </summary>
+    StudioPickerView[] Pickers, 
+    /// <summary>
+    /// The leg's tuning, in the read's order.
+    /// </summary>
+    StudioTuningView[] Controls, 
+    /// <summary>
+    /// The disclosure's label, "Advanced".
+    /// </summary>
+    string AdvancedLabel, 
+    /// <summary>
+    /// Whether any control is behind it.
+    /// </summary>
+    bool HasAdvanced
+) {
+}
+
+class FfiConverterTypeStudioEditorView: FfiConverterRustBuffer<StudioEditorView> {
+    public static FfiConverterTypeStudioEditorView INSTANCE = new FfiConverterTypeStudioEditorView();
+
+    public override StudioEditorView Read(BigEndianStream stream) {
+        return new StudioEditorView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Pickers: FfiConverterSequenceTypeStudioPickerView.INSTANCE.Read(stream),
+            Controls: FfiConverterSequenceTypeStudioTuningView.INSTANCE.Read(stream),
+            AdvancedLabel: FfiConverterString.INSTANCE.Read(stream),
+            HasAdvanced: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(StudioEditorView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterSequenceTypeStudioPickerView.INSTANCE.AllocationSize(value.Pickers)
+            + FfiConverterSequenceTypeStudioTuningView.INSTANCE.AllocationSize(value.Controls)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AdvancedLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.HasAdvanced);
+    }
+
+    public override void Write(StudioEditorView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterSequenceTypeStudioPickerView.INSTANCE.Write(value.Pickers, stream);
+            FfiConverterSequenceTypeStudioTuningView.INSTANCE.Write(value.Controls, stream);
+            FfiConverterString.INSTANCE.Write(value.AdvancedLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.HasAdvanced, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The Studio, read: what it holds and what can be done with it.
+/// </summary>
+/// <param name="Description">
+/// The line under the heading.
+/// </param>
+/// <param name="Editable">
+/// Whether the controls work: read, no save on its way, and a role that
+/// may change the workspace.
+/// </param>
+/// <param name="CanChange">
+/// Whether the member's role may change the workspace; `false` is the
+/// read-only view.
+/// </param>
+/// <param name="TierLabel">
+/// The tier switch's label, "Models".
+/// </param>
+/// <param name="TierDescription">
+/// What the tiers mean.
+/// </param>
+/// <param name="Tiers">
+/// Stable and Latest, in order.
+/// </param>
+/// <param name="Tier">
+/// The tier shown (`stable` or `latest`).
+/// </param>
+/// <param name="RecipesLabel">
+/// The recipes' heading, "Starting point".
+/// </param>
+/// <param name="Recipes">
+/// This tier's recipes, in tile order.
+/// </param>
+/// <param name="DefaultBadge">
+/// The badge on the default recipe, "Default".
+/// </param>
+/// <param name="BasedOn">
+/// "Based on Fastest, 2 changes.", once the held engine has moved from its
+/// recipe; `None` before.
+/// </param>
+/// <param name="ResetLabel">
+/// The button that goes back to the recipe's engine, "Reset".
+/// </param>
+/// <param name="ChainLabel">
+/// The chain's heading, "Signal chain".
+/// </param>
+/// <param name="Blocks">
+/// Each leg of the held engine, in call order.
+/// </param>
+/// <param name="Editor">
+/// The editor of the open leg.
+/// </param>
+/// <param name="Meter">
+/// The time-to-first-word meter.
+/// </param>
+/// <param name="Residency">
+/// Where the call is processed.
+/// </param>
+/// <param name="Notice">
+/// How the last save went, until an edit or "Dismiss": saved, or not
+/// saved (refused, or not held by the workspace), in the read's words.
+/// </param>
+/// <param name="Pending">
+/// "Unsaved changes" or "All changes saved".
+/// </param>
+/// <param name="Dirty">
+/// Whether there are changes to save.
+/// </param>
+/// <param name="SaveLabel">
+/// The save button's label, "Save voice settings".
+/// </param>
+/// <param name="CanSave">
+/// Whether Save works: changes, nothing on its way, and the role.
+/// </param>
+/// <param name="Saving">
+/// Whether a save is on its way, with the read after it (show a progress
+/// ring; nothing moves meanwhile).
+/// </param>
+public record StudioFormView (
+    /// <summary>
+    /// The line under the heading.
+    /// </summary>
+    string Description, 
+    /// <summary>
+    /// Whether the controls work: read, no save on its way, and a role that
+    /// may change the workspace.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// Whether the member's role may change the workspace; `false` is the
+    /// read-only view.
+    /// </summary>
+    bool CanChange, 
+    /// <summary>
+    /// The tier switch's label, "Models".
+    /// </summary>
+    string TierLabel, 
+    /// <summary>
+    /// What the tiers mean.
+    /// </summary>
+    string TierDescription, 
+    /// <summary>
+    /// Stable and Latest, in order.
+    /// </summary>
+    ChoiceView[] Tiers, 
+    /// <summary>
+    /// The tier shown (`stable` or `latest`).
+    /// </summary>
+    string Tier, 
+    /// <summary>
+    /// The recipes' heading, "Starting point".
+    /// </summary>
+    string RecipesLabel, 
+    /// <summary>
+    /// This tier's recipes, in tile order.
+    /// </summary>
+    StudioRecipeView[] Recipes, 
+    /// <summary>
+    /// The badge on the default recipe, "Default".
+    /// </summary>
+    string DefaultBadge, 
+    /// <summary>
+    /// "Based on Fastest, 2 changes.", once the held engine has moved from its
+    /// recipe; `None` before.
+    /// </summary>
+    string? BasedOn, 
+    /// <summary>
+    /// The button that goes back to the recipe's engine, "Reset".
+    /// </summary>
+    string ResetLabel, 
+    /// <summary>
+    /// The chain's heading, "Signal chain".
+    /// </summary>
+    string ChainLabel, 
+    /// <summary>
+    /// Each leg of the held engine, in call order.
+    /// </summary>
+    StudioBlockView[] Blocks, 
+    /// <summary>
+    /// The editor of the open leg.
+    /// </summary>
+    StudioEditorView Editor, 
+    /// <summary>
+    /// The time-to-first-word meter.
+    /// </summary>
+    StudioMeterView Meter, 
+    /// <summary>
+    /// Where the call is processed.
+    /// </summary>
+    StudioResidencyView Residency, 
+    /// <summary>
+    /// How the last save went, until an edit or "Dismiss": saved, or not
+    /// saved (refused, or not held by the workspace), in the read's words.
+    /// </summary>
+    SaveNoticeView? Notice, 
+    /// <summary>
+    /// "Unsaved changes" or "All changes saved".
+    /// </summary>
+    string Pending, 
+    /// <summary>
+    /// Whether there are changes to save.
+    /// </summary>
+    bool Dirty, 
+    /// <summary>
+    /// The save button's label, "Save voice settings".
+    /// </summary>
+    string SaveLabel, 
+    /// <summary>
+    /// Whether Save works: changes, nothing on its way, and the role.
+    /// </summary>
+    bool CanSave, 
+    /// <summary>
+    /// Whether a save is on its way, with the read after it (show a progress
+    /// ring; nothing moves meanwhile).
+    /// </summary>
+    bool Saving
+) {
+}
+
+class FfiConverterTypeStudioFormView: FfiConverterRustBuffer<StudioFormView> {
+    public static FfiConverterTypeStudioFormView INSTANCE = new FfiConverterTypeStudioFormView();
+
+    public override StudioFormView Read(BigEndianStream stream) {
+        return new StudioFormView(
+            Description: FfiConverterString.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanChange: FfiConverterBoolean.INSTANCE.Read(stream),
+            TierLabel: FfiConverterString.INSTANCE.Read(stream),
+            TierDescription: FfiConverterString.INSTANCE.Read(stream),
+            Tiers: FfiConverterSequenceTypeChoiceView.INSTANCE.Read(stream),
+            Tier: FfiConverterString.INSTANCE.Read(stream),
+            RecipesLabel: FfiConverterString.INSTANCE.Read(stream),
+            Recipes: FfiConverterSequenceTypeStudioRecipeView.INSTANCE.Read(stream),
+            DefaultBadge: FfiConverterString.INSTANCE.Read(stream),
+            BasedOn: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ResetLabel: FfiConverterString.INSTANCE.Read(stream),
+            ChainLabel: FfiConverterString.INSTANCE.Read(stream),
+            Blocks: FfiConverterSequenceTypeStudioBlockView.INSTANCE.Read(stream),
+            Editor: FfiConverterTypeStudioEditorView.INSTANCE.Read(stream),
+            Meter: FfiConverterTypeStudioMeterView.INSTANCE.Read(stream),
+            Residency: FfiConverterTypeStudioResidencyView.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Read(stream),
+            Pending: FfiConverterString.INSTANCE.Read(stream),
+            Dirty: FfiConverterBoolean.INSTANCE.Read(stream),
+            SaveLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
+            Saving: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(StudioFormView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Description)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChange)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TierLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TierDescription)
+            + FfiConverterSequenceTypeChoiceView.INSTANCE.AllocationSize(value.Tiers)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Tier)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RecipesLabel)
+            + FfiConverterSequenceTypeStudioRecipeView.INSTANCE.AllocationSize(value.Recipes)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DefaultBadge)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.BasedOn)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ResetLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ChainLabel)
+            + FfiConverterSequenceTypeStudioBlockView.INSTANCE.AllocationSize(value.Blocks)
+            + FfiConverterTypeStudioEditorView.INSTANCE.AllocationSize(value.Editor)
+            + FfiConverterTypeStudioMeterView.INSTANCE.AllocationSize(value.Meter)
+            + FfiConverterTypeStudioResidencyView.INSTANCE.AllocationSize(value.Residency)
+            + FfiConverterOptionalTypeSaveNoticeView.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Pending)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Dirty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SaveLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving);
+    }
+
+    public override void Write(StudioFormView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Description, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanChange, stream);
+            FfiConverterString.INSTANCE.Write(value.TierLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.TierDescription, stream);
+            FfiConverterSequenceTypeChoiceView.INSTANCE.Write(value.Tiers, stream);
+            FfiConverterString.INSTANCE.Write(value.Tier, stream);
+            FfiConverterString.INSTANCE.Write(value.RecipesLabel, stream);
+            FfiConverterSequenceTypeStudioRecipeView.INSTANCE.Write(value.Recipes, stream);
+            FfiConverterString.INSTANCE.Write(value.DefaultBadge, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.BasedOn, stream);
+            FfiConverterString.INSTANCE.Write(value.ResetLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ChainLabel, stream);
+            FfiConverterSequenceTypeStudioBlockView.INSTANCE.Write(value.Blocks, stream);
+            FfiConverterTypeStudioEditorView.INSTANCE.Write(value.Editor, stream);
+            FfiConverterTypeStudioMeterView.INSTANCE.Write(value.Meter, stream);
+            FfiConverterTypeStudioResidencyView.INSTANCE.Write(value.Residency, stream);
+            FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Write(value.Notice, stream);
+            FfiConverterString.INSTANCE.Write(value.Pending, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Dirty, stream);
+            FfiConverterString.INSTANCE.Write(value.SaveLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The time-to-first-word meter.
+/// </summary>
+/// <param name="Heading">
+/// "Time to first word".
+/// </param>
+/// <param name="Description">
+/// What it measures.
+/// </param>
+/// <param name="Headline">
+/// "About 970 ms", or that nothing is measured yet.
+/// </param>
+/// <param name="Note">
+/// Why the sum is "at least", when it is.
+/// </param>
+/// <param name="Stages">
+/// Each stage in call order, with its number.
+/// </param>
+/// <param name="Source">
+/// Where the numbers come from.
+/// </param>
+public record StudioMeterView (
+    /// <summary>
+    /// "Time to first word".
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// What it measures.
+    /// </summary>
+    string Description, 
+    /// <summary>
+    /// "About 970 ms", or that nothing is measured yet.
+    /// </summary>
+    string Headline, 
+    /// <summary>
+    /// Why the sum is "at least", when it is.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// Each stage in call order, with its number.
+    /// </summary>
+    FactView[] Stages, 
+    /// <summary>
+    /// Where the numbers come from.
+    /// </summary>
+    string Source
+) {
+}
+
+class FfiConverterTypeStudioMeterView: FfiConverterRustBuffer<StudioMeterView> {
+    public static FfiConverterTypeStudioMeterView INSTANCE = new FfiConverterTypeStudioMeterView();
+
+    public override StudioMeterView Read(BigEndianStream stream) {
+        return new StudioMeterView(
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            Description: FfiConverterString.INSTANCE.Read(stream),
+            Headline: FfiConverterString.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Stages: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            Source: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(StudioMeterView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Description)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Headline)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Stages)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Source);
+    }
+
+    public override void Write(StudioMeterView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterString.INSTANCE.Write(value.Description, stream);
+            FfiConverterString.INSTANCE.Write(value.Headline, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Stages, stream);
+            FfiConverterString.INSTANCE.Write(value.Source, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One picker of the editor.
+/// </summary>
+/// <param name="Picker">
+/// Which, to send a choice by (`VoiceStudioAction::Pick`).
+/// </param>
+/// <param name="Label">
+/// Its label.
+/// </param>
+/// <param name="Choices">
+/// Its choices and the value held. A held value the choices lack reads
+/// as itself, or for a voice as the read's "Choose a voice"; choosing it
+/// changes nothing.
+/// </param>
+public record StudioPickerView (
+    /// <summary>
+    /// Which, to send a choice by (`VoiceStudioAction::Pick`).
+    /// </summary>
+    StudioPicker Picker, 
+    /// <summary>
+    /// Its label.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Its choices and the value held. A held value the choices lack reads
+    /// as itself, or for a voice as the read's "Choose a voice"; choosing it
+    /// changes nothing.
+    /// </summary>
+    PickerView Choices
+) {
+}
+
+class FfiConverterTypeStudioPickerView: FfiConverterRustBuffer<StudioPickerView> {
+    public static FfiConverterTypeStudioPickerView INSTANCE = new FfiConverterTypeStudioPickerView();
+
+    public override StudioPickerView Read(BigEndianStream stream) {
+        return new StudioPickerView(
+            Picker: FfiConverterTypeStudioPicker.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Choices: FfiConverterTypePickerView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(StudioPickerView value) {
+        return 0
+            + FfiConverterTypeStudioPicker.INSTANCE.AllocationSize(value.Picker)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterTypePickerView.INSTANCE.AllocationSize(value.Choices);
+    }
+
+    public override void Write(StudioPickerView value, BigEndianStream stream) {
+            FfiConverterTypeStudioPicker.INSTANCE.Write(value.Picker, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterTypePickerView.INSTANCE.Write(value.Choices, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One recipe of the tier.
+/// </summary>
+/// <param name="RecipeId">
+/// The recipe, to apply it by (`VoiceStudioAction::ApplyRecipe`).
+/// </param>
+/// <param name="Name">
+/// Its name.
+/// </param>
+/// <param name="Description">
+/// What it is for.
+/// </param>
+/// <param name="Facts">
+/// Its time to first word, where it is processed, its channel and any
+/// note, joined by middle dots.
+/// </param>
+/// <param name="IsDefault">
+/// Whether it is the service's default (show the badge).
+/// </param>
+/// <param name="Selected">
+/// Whether the held engine started from it.
+/// </param>
+public record StudioRecipeView (
+    /// <summary>
+    /// The recipe, to apply it by (`VoiceStudioAction::ApplyRecipe`).
+    /// </summary>
+    string RecipeId, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// What it is for.
+    /// </summary>
+    string Description, 
+    /// <summary>
+    /// Its time to first word, where it is processed, its channel and any
+    /// note, joined by middle dots.
+    /// </summary>
+    string Facts, 
+    /// <summary>
+    /// Whether it is the service's default (show the badge).
+    /// </summary>
+    bool IsDefault, 
+    /// <summary>
+    /// Whether the held engine started from it.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeStudioRecipeView: FfiConverterRustBuffer<StudioRecipeView> {
+    public static FfiConverterTypeStudioRecipeView INSTANCE = new FfiConverterTypeStudioRecipeView();
+
+    public override StudioRecipeView Read(BigEndianStream stream) {
+        return new StudioRecipeView(
+            RecipeId: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Description: FfiConverterString.INSTANCE.Read(stream),
+            Facts: FfiConverterString.INSTANCE.Read(stream),
+            IsDefault: FfiConverterBoolean.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(StudioRecipeView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.RecipeId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Description)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Facts)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IsDefault)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(StudioRecipeView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.RecipeId, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Description, stream);
+            FfiConverterString.INSTANCE.Write(value.Facts, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IsDefault, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Where the call is processed.
+/// </summary>
+/// <param name="Heading">
+/// "Where the call is processed".
+/// </param>
+/// <param name="InRegion">
+/// Whether every leg is in the region.
+/// </param>
+/// <param name="Text">
+/// The sentence.
+/// </param>
+/// <param name="LegsOut">
+/// One line per leg that leaves it.
+/// </param>
+public record StudioResidencyView (
+    /// <summary>
+    /// "Where the call is processed".
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// Whether every leg is in the region.
+    /// </summary>
+    bool InRegion, 
+    /// <summary>
+    /// The sentence.
+    /// </summary>
+    string Text, 
+    /// <summary>
+    /// One line per leg that leaves it.
+    /// </summary>
+    string[] LegsOut
+) {
+}
+
+class FfiConverterTypeStudioResidencyView: FfiConverterRustBuffer<StudioResidencyView> {
+    public static FfiConverterTypeStudioResidencyView INSTANCE = new FfiConverterTypeStudioResidencyView();
+
+    public override StudioResidencyView Read(BigEndianStream stream) {
+        return new StudioResidencyView(
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            InRegion: FfiConverterBoolean.INSTANCE.Read(stream),
+            Text: FfiConverterString.INSTANCE.Read(stream),
+            LegsOut: FfiConverterSequenceString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(StudioResidencyView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.InRegion)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Text)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.LegsOut);
+    }
+
+    public override void Write(StudioResidencyView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.InRegion, stream);
+            FfiConverterString.INSTANCE.Write(value.Text, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.LegsOut, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One tuning control of the open leg.
+/// </summary>
+/// <param name="Key">
+/// The key it writes, to send a change by.
+/// </param>
+/// <param name="Label">
+/// Its label.
+/// </param>
+/// <param name="Description">
+/// What it does, when the read says.
+/// </param>
+/// <param name="Advanced">
+/// Whether it is behind Advanced.
+/// </param>
+/// <param name="Heading">
+/// A heading to show above it ("Interruptions"), for the first of a group.
+/// </param>
+/// <param name="Control">
+/// The control itself.
+/// </param>
+public record StudioTuningView (
+    /// <summary>
+    /// The key it writes, to send a change by.
+    /// </summary>
+    string Key, 
+    /// <summary>
+    /// Its label.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// What it does, when the read says.
+    /// </summary>
+    string? Description, 
+    /// <summary>
+    /// Whether it is behind Advanced.
+    /// </summary>
+    bool Advanced, 
+    /// <summary>
+    /// A heading to show above it ("Interruptions"), for the first of a group.
+    /// </summary>
+    string? Heading, 
+    /// <summary>
+    /// The control itself.
+    /// </summary>
+    StudioControlView Control
+) {
+}
+
+class FfiConverterTypeStudioTuningView: FfiConverterRustBuffer<StudioTuningView> {
+    public static FfiConverterTypeStudioTuningView INSTANCE = new FfiConverterTypeStudioTuningView();
+
+    public override StudioTuningView Read(BigEndianStream stream) {
+        return new StudioTuningView(
+            Key: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Description: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Advanced: FfiConverterBoolean.INSTANCE.Read(stream),
+            Heading: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Control: FfiConverterTypeStudioControlView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(StudioTuningView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Key)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Description)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Advanced)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterTypeStudioControlView.INSTANCE.AllocationSize(value.Control);
+    }
+
+    public override void Write(StudioTuningView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Key, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Description, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Advanced, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterTypeStudioControlView.INSTANCE.Write(value.Control, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One subscription.
 /// </summary>
 /// <param name="Id">
@@ -18395,13 +19187,31 @@ class FfiConverterTypeUsageCardView: FfiConverterRustBuffer<UsageCardView> {
 /// The Voice section.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`VOICE_STUDIO_TITLE`].
+/// </param>
+/// <param name="Status">
+/// Where the page stands (the settings kit's): being read, failed
+/// ("Could not load Voice Studio", with "Try again" when the core says it
+/// may work), saved but not read back (a read, never a save), or the form.
+/// </param>
+/// <param name="Studio">
+/// The Studio, when the form shows.
 /// </param>
 public record VoiceStudioView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`VOICE_STUDIO_TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// Where the page stands (the settings kit's): being read, failed
+    /// ("Could not load Voice Studio", with "Try again" when the core says it
+    /// may work), saved but not read back (a read, never a save), or the form.
+    /// </summary>
+    SectionStatus Status, 
+    /// <summary>
+    /// The Studio, when the form shows.
+    /// </summary>
+    StudioFormView? Studio
 ) {
 }
 
@@ -18410,17 +19220,23 @@ class FfiConverterTypeVoiceStudioView: FfiConverterRustBuffer<VoiceStudioView> {
 
     public override VoiceStudioView Read(BigEndianStream stream) {
         return new VoiceStudioView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeSectionStatus.INSTANCE.Read(stream),
+            Studio: FfiConverterOptionalTypeStudioFormView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(VoiceStudioView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeSectionStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalTypeStudioFormView.INSTANCE.AllocationSize(value.Studio);
     }
 
     public override void Write(VoiceStudioView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeSectionStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalTypeStudioFormView.INSTANCE.Write(value.Studio, stream);
     }
 }
 
@@ -25724,6 +26540,204 @@ class FfiConverterTypeStartError : FfiConverterRustBuffer<StartException>, CallS
 
 
 /// <summary>
+/// A tuning control, as drawn.
+/// </summary>
+public record StudioControlView {
+    
+    /// <summary>
+    /// A slider. Numbers are in thousandths ([`SLIDER_SCALE`]).
+    /// </summary>
+    public record Slider (
+        long Min,
+        long Max,
+        long Step,
+        long? Value,
+        long Start,
+        string ValueText,
+        string? DefaultLabel
+    ) : StudioControlView {}
+    
+    /// <summary>
+    /// A select.
+    /// </summary>
+    public record Select (
+        ChoiceView[] Options,
+        string Selected
+    ) : StudioControlView {}
+    
+    /// <summary>
+    /// A switch.
+    /// </summary>
+    public record Switch (
+        bool On
+    ) : StudioControlView {}
+    
+    /// <summary>
+    /// Lines of text: key terms, one per line.
+    /// </summary>
+    public record Lines (
+        string Text
+    ) : StudioControlView {}
+    
+
+    
+}
+
+class FfiConverterTypeStudioControlView : FfiConverterRustBuffer<StudioControlView>{
+    public static FfiConverterRustBuffer<StudioControlView> INSTANCE = new FfiConverterTypeStudioControlView();
+
+    public override StudioControlView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new StudioControlView.Slider(
+                    FfiConverterInt64.INSTANCE.Read(stream),
+                    FfiConverterInt64.INSTANCE.Read(stream),
+                    FfiConverterInt64.INSTANCE.Read(stream),
+                    FfiConverterOptionalInt64.INSTANCE.Read(stream),
+                    FfiConverterInt64.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new StudioControlView.Select(
+                    FfiConverterSequenceTypeChoiceView.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new StudioControlView.Switch(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new StudioControlView.Lines(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeStudioControlView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(StudioControlView value) {
+        switch (value) {
+            case StudioControlView.Slider variant_value:
+                return 4
+                    + FfiConverterInt64.INSTANCE.AllocationSize(variant_value.Min)
+                    + FfiConverterInt64.INSTANCE.AllocationSize(variant_value.Max)
+                    + FfiConverterInt64.INSTANCE.AllocationSize(variant_value.Step)
+                    + FfiConverterOptionalInt64.INSTANCE.AllocationSize(variant_value.Value)
+                    + FfiConverterInt64.INSTANCE.AllocationSize(variant_value.Start)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ValueText)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.DefaultLabel);
+            case StudioControlView.Select variant_value:
+                return 4
+                    + FfiConverterSequenceTypeChoiceView.INSTANCE.AllocationSize(variant_value.Options)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Selected);
+            case StudioControlView.Switch variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case StudioControlView.Lines variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeStudioControlView.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(StudioControlView value, BigEndianStream stream) {
+        switch (value) {
+            case StudioControlView.Slider variant_value:
+                stream.WriteInt(1);
+                FfiConverterInt64.INSTANCE.Write(variant_value.Min, stream);
+                FfiConverterInt64.INSTANCE.Write(variant_value.Max, stream);
+                FfiConverterInt64.INSTANCE.Write(variant_value.Step, stream);
+                FfiConverterOptionalInt64.INSTANCE.Write(variant_value.Value, stream);
+                FfiConverterInt64.INSTANCE.Write(variant_value.Start, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.ValueText, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.DefaultLabel, stream);
+                break;
+            case StudioControlView.Select variant_value:
+                stream.WriteInt(2);
+                FfiConverterSequenceTypeChoiceView.INSTANCE.Write(variant_value.Options, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Selected, stream);
+                break;
+            case StudioControlView.Switch variant_value:
+                stream.WriteInt(3);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case StudioControlView.Lines variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeStudioControlView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Which picker of the editor.
+/// </summary>
+public enum StudioPicker: int {
+    /// <summary>
+    /// The vendor.
+    /// </summary>
+    Vendor,
+    /// <summary>
+    /// The model.
+    /// </summary>
+    Model,
+    /// <summary>
+    /// Where it runs.
+    /// </summary>
+    Location,
+    /// <summary>
+    /// The voice.
+    /// </summary>
+    Voice
+}
+
+class FfiConverterTypeStudioPicker: FfiConverterRustBuffer<StudioPicker> {
+    public static FfiConverterTypeStudioPicker INSTANCE = new FfiConverterTypeStudioPicker();
+
+    public override StudioPicker Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return StudioPicker.Vendor;
+            case 2: return StudioPicker.Model;
+            case 3: return StudioPicker.Location;
+            case 4: return StudioPicker.Voice;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeStudioPicker.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(StudioPicker value) {
+        return 4;
+    }
+
+    public override void Write(StudioPicker value, BigEndianStream stream) {
+        switch (value) {
+            case StudioPicker.Vendor: stream.WriteInt(1); break;
+            case StudioPicker.Model: stream.WriteInt(2); break;
+            case StudioPicker.Location: stream.WriteInt(3); break;
+            case StudioPicker.Voice: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeStudioPicker.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the member did on the support screens.
 /// </summary>
 public record SupportAction {
@@ -27670,34 +28684,258 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
 
 
 /// <summary>
-/// Something the member did on the Voice section.
+/// Something the member did on the Voice section. Reading it again (and so
+/// dropping what was not saved) is `UiEvent::Refresh`.
 /// </summary>
-public enum VoiceStudioAction: int {
+public record VoiceStudioAction {
+    
     /// <summary>
     /// Open the Voice section.
     /// </summary>
-    Open
+    public record Open: VoiceStudioAction {}
+    
+    
+    /// <summary>
+    /// Show the recipes of a tier, applying the chosen recipe again from it.
+    /// </summary>
+    public record SelectTier (
+        string Tier
+    ) : VoiceStudioAction {}
+    
+    /// <summary>
+    /// Apply one of the tier's recipes.
+    /// </summary>
+    public record ApplyRecipe (
+        string RecipeId
+    ) : VoiceStudioAction {}
+    
+    /// <summary>
+    /// Go back to the engine the recipe applied.
+    /// </summary>
+    public record Reset: VoiceStudioAction {}
+    
+    
+    /// <summary>
+    /// Open the editor on a leg of the chain.
+    /// </summary>
+    public record SelectLeg (
+        string Leg
+    ) : VoiceStudioAction {}
+    
+    /// <summary>
+    /// A choice in one of the editor's pickers.
+    /// </summary>
+    public record Pick (
+        StudioPicker Picker,
+        string Value
+    ) : VoiceStudioAction {}
+    
+    /// <summary>
+    /// A slider moved (`Some`, in thousandths), or its "use the default" box
+    /// ticked (`None`).
+    /// </summary>
+    public record SetNumber (
+        string Key,
+        long? Value
+    ) : VoiceStudioAction {}
+    
+    /// <summary>
+    /// A select's choice.
+    /// </summary>
+    public record SetChoice (
+        string Key,
+        string Value
+    ) : VoiceStudioAction {}
+    
+    /// <summary>
+    /// A switch.
+    /// </summary>
+    public record SetFlag (
+        string Key,
+        bool On
+    ) : VoiceStudioAction {}
+    
+    /// <summary>
+    /// Key terms as typed.
+    /// </summary>
+    public record SetLines (
+        string Key,
+        string Text
+    ) : VoiceStudioAction {}
+    
+    /// <summary>
+    /// Save what changed.
+    /// </summary>
+    public record Save: VoiceStudioAction {}
+    
+    
+    /// <summary>
+    /// Put away the save's notice.
+    /// </summary>
+    public record DismissNotice: VoiceStudioAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeVoiceStudioAction: FfiConverterRustBuffer<VoiceStudioAction> {
-    public static FfiConverterTypeVoiceStudioAction INSTANCE = new FfiConverterTypeVoiceStudioAction();
+class FfiConverterTypeVoiceStudioAction : FfiConverterRustBuffer<VoiceStudioAction>{
+    public static FfiConverterRustBuffer<VoiceStudioAction> INSTANCE = new FfiConverterTypeVoiceStudioAction();
 
     public override VoiceStudioAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return VoiceStudioAction.Open;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeVoiceStudioAction.Read()", value));
+            case 1:
+                return new VoiceStudioAction.Open(
+                );
+            case 2:
+                return new VoiceStudioAction.SelectTier(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new VoiceStudioAction.ApplyRecipe(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new VoiceStudioAction.Reset(
+                );
+            case 5:
+                return new VoiceStudioAction.SelectLeg(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new VoiceStudioAction.Pick(
+                    FfiConverterTypeStudioPicker.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new VoiceStudioAction.SetNumber(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalInt64.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new VoiceStudioAction.SetChoice(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new VoiceStudioAction.SetFlag(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 10:
+                return new VoiceStudioAction.SetLines(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 11:
+                return new VoiceStudioAction.Save(
+                );
+            case 12:
+                return new VoiceStudioAction.DismissNotice(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeVoiceStudioAction.Read()", value));
         }
     }
 
     public override int AllocationSize(VoiceStudioAction value) {
-        return 4;
+        switch (value) {
+            case VoiceStudioAction.Open variant_value:
+                return 4;
+            case VoiceStudioAction.SelectTier variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Tier);
+            case VoiceStudioAction.ApplyRecipe variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.RecipeId);
+            case VoiceStudioAction.Reset variant_value:
+                return 4;
+            case VoiceStudioAction.SelectLeg variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Leg);
+            case VoiceStudioAction.Pick variant_value:
+                return 4
+                    + FfiConverterTypeStudioPicker.INSTANCE.AllocationSize(variant_value.Picker)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case VoiceStudioAction.SetNumber variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Key)
+                    + FfiConverterOptionalInt64.INSTANCE.AllocationSize(variant_value.Value);
+            case VoiceStudioAction.SetChoice variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Key)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case VoiceStudioAction.SetFlag variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Key)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case VoiceStudioAction.SetLines variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Key)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case VoiceStudioAction.Save variant_value:
+                return 4;
+            case VoiceStudioAction.DismissNotice variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeVoiceStudioAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(VoiceStudioAction value, BigEndianStream stream) {
         switch (value) {
-            case VoiceStudioAction.Open: stream.WriteInt(1); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeVoiceStudioAction.Write()", value));
+            case VoiceStudioAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case VoiceStudioAction.SelectTier variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Tier, stream);
+                break;
+            case VoiceStudioAction.ApplyRecipe variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.RecipeId, stream);
+                break;
+            case VoiceStudioAction.Reset variant_value:
+                stream.WriteInt(4);
+                break;
+            case VoiceStudioAction.SelectLeg variant_value:
+                stream.WriteInt(5);
+                FfiConverterString.INSTANCE.Write(variant_value.Leg, stream);
+                break;
+            case VoiceStudioAction.Pick variant_value:
+                stream.WriteInt(6);
+                FfiConverterTypeStudioPicker.INSTANCE.Write(variant_value.Picker, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case VoiceStudioAction.SetNumber variant_value:
+                stream.WriteInt(7);
+                FfiConverterString.INSTANCE.Write(variant_value.Key, stream);
+                FfiConverterOptionalInt64.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case VoiceStudioAction.SetChoice variant_value:
+                stream.WriteInt(8);
+                FfiConverterString.INSTANCE.Write(variant_value.Key, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case VoiceStudioAction.SetFlag variant_value:
+                stream.WriteInt(9);
+                FfiConverterString.INSTANCE.Write(variant_value.Key, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case VoiceStudioAction.SetLines variant_value:
+                stream.WriteInt(10);
+                FfiConverterString.INSTANCE.Write(variant_value.Key, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case VoiceStudioAction.Save variant_value:
+                stream.WriteInt(11);
+                break;
+            case VoiceStudioAction.DismissNotice variant_value:
+                stream.WriteInt(12);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeVoiceStudioAction.Write()", value));
         }
     }
 }
@@ -29269,6 +30507,37 @@ class FfiConverterOptionalTypeSentimentChartView: FfiConverterRustBuffer<Sentime
         } else {
             stream.WriteByte(1);
             FfiConverterTypeSentimentChartView.INSTANCE.Write((SentimentChartView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeStudioFormView: FfiConverterRustBuffer<StudioFormView?> {
+    public static FfiConverterOptionalTypeStudioFormView INSTANCE = new FfiConverterOptionalTypeStudioFormView();
+
+    public override StudioFormView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeStudioFormView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(StudioFormView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeStudioFormView.INSTANCE.AllocationSize((StudioFormView)value);
+        }
+    }
+
+    public override void Write(StudioFormView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeStudioFormView.INSTANCE.Write((StudioFormView)value, stream);
         }
     }
 }
@@ -31372,6 +32641,190 @@ class FfiConverterSequenceTypeSourceChoiceView: FfiConverterRustBuffer<SourceCho
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeSourceChoiceView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeStudioBlockView: FfiConverterRustBuffer<StudioBlockView[]> {
+    public static FfiConverterSequenceTypeStudioBlockView INSTANCE = new FfiConverterSequenceTypeStudioBlockView();
+
+    public override StudioBlockView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new StudioBlockView[length];
+        var readFn = FfiConverterTypeStudioBlockView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(StudioBlockView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeStudioBlockView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(StudioBlockView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeStudioBlockView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeStudioPickerView: FfiConverterRustBuffer<StudioPickerView[]> {
+    public static FfiConverterSequenceTypeStudioPickerView INSTANCE = new FfiConverterSequenceTypeStudioPickerView();
+
+    public override StudioPickerView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new StudioPickerView[length];
+        var readFn = FfiConverterTypeStudioPickerView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(StudioPickerView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeStudioPickerView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(StudioPickerView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeStudioPickerView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeStudioRecipeView: FfiConverterRustBuffer<StudioRecipeView[]> {
+    public static FfiConverterSequenceTypeStudioRecipeView INSTANCE = new FfiConverterSequenceTypeStudioRecipeView();
+
+    public override StudioRecipeView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new StudioRecipeView[length];
+        var readFn = FfiConverterTypeStudioRecipeView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(StudioRecipeView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeStudioRecipeView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(StudioRecipeView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeStudioRecipeView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeStudioTuningView: FfiConverterRustBuffer<StudioTuningView[]> {
+    public static FfiConverterSequenceTypeStudioTuningView INSTANCE = new FfiConverterSequenceTypeStudioTuningView();
+
+    public override StudioTuningView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new StudioTuningView[length];
+        var readFn = FfiConverterTypeStudioTuningView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(StudioTuningView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeStudioTuningView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(StudioTuningView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeStudioTuningView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

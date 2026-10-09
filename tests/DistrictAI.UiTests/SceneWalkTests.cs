@@ -64,6 +64,7 @@ public sealed class SceneWalkTests
     private static readonly string[] _settingsSections =
     [
         "Persona",
+        "Voice",
         "Messaging accounts",
         "Members",
         "Call handling",

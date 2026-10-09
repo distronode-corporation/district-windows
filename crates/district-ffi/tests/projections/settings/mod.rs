@@ -63,21 +63,28 @@ fn built_the_hub_is_offered_and_its_rows_open_their_sections() {
         assert!(!view.groups.is_empty());
         assert!(!view.note.is_empty());
     }
-    // The directory is still unbuilt; a built section shows its own page
-    // (persona.rs, tools.rs, knowledge.rs).
-    let directory = hub(signed_in()).ui(UiEvent::Settings {
-        action: SettingsAction::OpenSection {
-            section: SettingsSection::Directory,
-        },
-    });
-    assert_eq!(
-        route(&directory),
-        Route::Workspace(WorkspaceSection::Directory)
-    );
-    assert!(matches!(
-        screen_view(&directory.model),
-        ScreenView::Unavailable { .. }
-    ));
+    // Every section the hub lists is built: each row opens its own page,
+    // never "Not in this version yet".
+    for session in [hub(signed_in()), hub(viewer())] {
+        let ScreenView::WorkspaceSettings { view } = screen_view(&session.model) else {
+            panic!("the hub shows");
+        };
+        let sections: Vec<SettingsSection> = view
+            .groups
+            .iter()
+            .flat_map(|group| group.rows.iter().map(|row| row.section))
+            .collect();
+        assert!(!sections.is_empty());
+        for section in sections {
+            let opened = hub(signed_in()).ui(UiEvent::Settings {
+                action: SettingsAction::OpenSection { section },
+            });
+            assert!(
+                !matches!(screen_view(&opened.model), ScreenView::Unavailable { .. }),
+                "{section:?} opens \"Not in this version yet\""
+            );
+        }
+    }
 }
 
 #[test]

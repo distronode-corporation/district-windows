@@ -316,6 +316,10 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             result: written(fixture!("district-tools-patch.json")),
         },
+        // A persona save (Voice Studio's too) is accepted. The scene keeps
+        // nothing, so the read after it is the recorded one again, and Voice
+        // Studio says the workspace does not hold what was sent, as the core
+        // does when the service stores something else.
         Effect::SavePersona { ticket, .. } => Event::SettingsWritten {
             ticket,
             result: written(fixture!("district-persona-patch.json")),
@@ -807,6 +811,47 @@ mod tests {
         let view = &screen["Knowledge"]["view"];
         assert_eq!(view["notice"]["saved"], json!(true), "{view}");
         assert_eq!(view["modes"][0]["selected"], json!(true), "{view}");
+    }
+
+    /// Voice Studio opens from the hub filled in, and a save in the scene is
+    /// answered: written, read back, and the notice shown.
+    #[test]
+    fn voice_studio_opens_and_its_save_is_answered() {
+        use crate::settings::voice_studio::{StudioPicker, VoiceStudioAction};
+        let mut model = started();
+        let _ = after(
+            &mut model,
+            Event::Navigate(Route::Workspace(district_core::WorkspaceSection::Hub)),
+        );
+        let screen = after(
+            &mut model,
+            Event::Navigate(Route::Workspace(
+                district_core::WorkspaceSection::VoiceStudio,
+            )),
+        );
+        assert_eq!(unsettled(&screen), None, "{screen:?}");
+        for action in [
+            VoiceStudioAction::SelectLeg {
+                leg: "tts".to_owned(),
+            },
+            VoiceStudioAction::Pick {
+                picker: StudioPicker::Voice,
+                value: "aura-2-luna-en".to_owned(),
+            },
+            VoiceStudioAction::Save,
+        ] {
+            let mut pending = Vec::new();
+            for event in (crate::events::UiEvent::VoiceStudio { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+        }
+        let ScreenView::VoiceStudio { view } = screen_view(&model) else {
+            panic!("Voice Studio stays open");
+        };
+        let studio = view.studio.expect("read back");
+        assert!(!studio.saving);
+        assert!(studio.notice.is_some(), "{studio:?}");
     }
 
     /// The walk's one step past the pane: the inbox's first conversation
