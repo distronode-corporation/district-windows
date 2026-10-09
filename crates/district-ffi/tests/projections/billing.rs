@@ -21,18 +21,18 @@ pub(crate) fn cases() -> Vec<Case> {
         ("billing-ready", ready(buying(signed_in()))),
         (
             "billing-account-unavailable",
-            answer_account(
+            processor_read(
                 plan_read(opened(buying(signed_in()))),
                 Ok(contracts::json("district-billing-unavailable.json")),
             ),
         ),
         (
             "billing-account-failed",
-            answer_account(plan_read(opened(buying(signed_in()))), Err(server_error())),
+            processor_read(plan_read(opened(buying(signed_in()))), Err(server_error())),
         ),
         (
             "billing-no-customer",
-            answer_account(
+            processor_read(
                 plan_read(opened(buying(signed_in()))),
                 Ok(contracts::json("district-billing-no-customer.json")),
             ),
@@ -92,7 +92,7 @@ fn plan_read(session: Session) -> Session {
     )
 }
 
-fn answer_account(session: Session, result: Result<Value, ApiError>) -> Session {
+fn processor_read(session: Session, result: Result<Value, ApiError>) -> Session {
     session.answer(
         |e| matches!(e, Effect::LoadAccountBilling { .. }),
         |ticket| Event::AccountBillingLoaded {
@@ -104,7 +104,7 @@ fn answer_account(session: Session, result: Result<Value, ApiError>) -> Session 
 
 /// Both halves read from the fixtures.
 fn ready(session: Session) -> Session {
-    answer_account(
+    processor_read(
         plan_read(opened(session)),
         Ok(contracts::json("district-billing.json")),
     )
@@ -349,14 +349,14 @@ fn a_viewer_is_offered_no_purchase() {
 /// The account half's states, each told apart.
 #[test]
 fn the_account_half_never_shows_an_outage_as_none() {
-    let unavailable = view(&answer_account(
+    let unavailable = view(&processor_read(
         plan_read(opened(buying(signed_in()))),
         Ok(contracts::json("district-billing-unavailable.json")),
     ))
     .account;
     assert_eq!(unavailable.state, AccountBillingState::Unavailable);
     assert!(unavailable.no_subscriptions.is_none() && unavailable.body.is_some());
-    let none = view(&answer_account(
+    let none = view(&processor_read(
         plan_read(opened(buying(signed_in()))),
         Ok(contracts::json("district-billing-no-customer.json")),
     ))
