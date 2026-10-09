@@ -5,6 +5,10 @@
         "body": "Your session ended. Signing in again will restore it.",
         "busy": false,
         "cancel": false,
+        "create_account": {
+          "label": "Create an account",
+          "note": "Your browser opens the District AI sign-in page, which offers Create an account. When the account is made, you come back here signed in."
+        },
         "error": null,
         "retry": false,
         "retry_sign_out": false,
