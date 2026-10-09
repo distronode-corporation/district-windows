@@ -140,7 +140,7 @@ public sealed class SceneWalkTests
         Open(app, "Calls");
         app.Find(ControlType.Button, "Place a call", _pageTimeout).AsButton().Invoke();
         app.Find(ControlType.Edit, "Number to call", _pageTimeout).AsTextBox().Text = "+12125550142";
-        _ = Wait.For(
+        Wait.For(
             () => app.TryFind(ControlType.Button, "Call") is { IsEnabled: true } call ? call : null,
             _pageTimeout,
             "Call to work",
