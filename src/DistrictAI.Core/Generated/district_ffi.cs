@@ -843,6 +843,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1113,6 +1115,17 @@ static class _UniFFILib {
     public static extern
 #endif
      RustBuffer uniffi_district_ffi_fn_func_composer_pick(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_copies_view(RustBuffer @thisFamily,RustBuffer @schemeHandlers,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -1794,6 +1807,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_copies_view(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_desk_logo_problem(
     );
 
@@ -2096,6 +2120,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_composer_pick();
             if (checksum != 1022) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_composer_pick` checksum `1022`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_copies_view();
+            if (checksum != 21668) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_copies_view` checksum `21668`, library returned `{checksum}`");
             }
         }
         {
@@ -5532,6 +5562,105 @@ class FfiConverterTypeContactsView: FfiConverterRustBuffer<ContactsView> {
             FfiConverterTypePagingView.INSTANCE.Write(value.Paging, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanCreate, stream);
             FfiConverterOptionalTypeContactFormView.INSTANCE.Write(value.Create, stream);
+    }
+}
+
+
+
+/// <summary>
+/// What the window says about the copies installed.
+/// </summary>
+/// <param name="ThisCopy">
+/// Which copy this is.
+/// </param>
+/// <param name="BothInstalled">
+/// Whether another copy of the app is installed for this user, so the two
+/// share the sign-in scheme.
+/// </param>
+/// <param name="SignInHeld">
+/// Whether browser sign-in is held.
+/// </param>
+/// <param name="Title">
+/// The explanation's heading, while sign-in is held.
+/// </param>
+/// <param name="Message">
+/// The explanation, while sign-in is held.
+/// </param>
+/// <param name="ThisCopyLine">
+/// The line saying which copy this is, while another is installed.
+/// </param>
+/// <param name="WindowTitle">
+/// The window's title: "District AI", naming the copy while another is
+/// installed.
+/// </param>
+public record CopiesView (
+    /// <summary>
+    /// Which copy this is.
+    /// </summary>
+    CopyFlavour ThisCopy, 
+    /// <summary>
+    /// Whether another copy of the app is installed for this user, so the two
+    /// share the sign-in scheme.
+    /// </summary>
+    bool BothInstalled, 
+    /// <summary>
+    /// Whether browser sign-in is held.
+    /// </summary>
+    bool SignInHeld, 
+    /// <summary>
+    /// The explanation's heading, while sign-in is held.
+    /// </summary>
+    string? Title, 
+    /// <summary>
+    /// The explanation, while sign-in is held.
+    /// </summary>
+    string? Message, 
+    /// <summary>
+    /// The line saying which copy this is, while another is installed.
+    /// </summary>
+    string? ThisCopyLine, 
+    /// <summary>
+    /// The window's title: "District AI", naming the copy while another is
+    /// installed.
+    /// </summary>
+    string WindowTitle
+) {
+}
+
+class FfiConverterTypeCopiesView: FfiConverterRustBuffer<CopiesView> {
+    public static FfiConverterTypeCopiesView INSTANCE = new FfiConverterTypeCopiesView();
+
+    public override CopiesView Read(BigEndianStream stream) {
+        return new CopiesView(
+            ThisCopy: FfiConverterTypeCopyFlavour.INSTANCE.Read(stream),
+            BothInstalled: FfiConverterBoolean.INSTANCE.Read(stream),
+            SignInHeld: FfiConverterBoolean.INSTANCE.Read(stream),
+            Title: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Message: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ThisCopyLine: FfiConverterOptionalString.INSTANCE.Read(stream),
+            WindowTitle: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CopiesView value) {
+        return 0
+            + FfiConverterTypeCopyFlavour.INSTANCE.AllocationSize(value.ThisCopy)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.BothInstalled)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.SignInHeld)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Message)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ThisCopyLine)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WindowTitle);
+    }
+
+    public override void Write(CopiesView value, BigEndianStream stream) {
+            FfiConverterTypeCopyFlavour.INSTANCE.Write(value.ThisCopy, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.BothInstalled, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.SignInHeld, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Title, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Message, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ThisCopyLine, stream);
+            FfiConverterString.INSTANCE.Write(value.WindowTitle, stream);
     }
 }
 
@@ -12603,6 +12732,57 @@ class FfiConverterTypeContactsAction : FfiConverterRustBuffer<ContactsAction>{
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeContactsAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Which copy of the app a package is.
+/// </summary>
+public enum CopyFlavour: int {
+    /// <summary>
+    /// The Microsoft Store's copy.
+    /// </summary>
+    Store,
+    /// <summary>
+    /// The GitHub copy.
+    /// </summary>
+    GitHub,
+    /// <summary>
+    /// Neither: a development build, or a package this build does not know.
+    /// </summary>
+    Other
+}
+
+class FfiConverterTypeCopyFlavour: FfiConverterRustBuffer<CopyFlavour> {
+    public static FfiConverterTypeCopyFlavour INSTANCE = new FfiConverterTypeCopyFlavour();
+
+    public override CopyFlavour Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return CopyFlavour.Store;
+            case 2: return CopyFlavour.GitHub;
+            case 3: return CopyFlavour.Other;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCopyFlavour.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(CopyFlavour value) {
+        return 4;
+    }
+
+    public override void Write(CopyFlavour value, BigEndianStream stream) {
+        switch (value) {
+            case CopyFlavour.Store: stream.WriteInt(1); break;
+            case CopyFlavour.GitHub: stream.WriteInt(2); break;
+            case CopyFlavour.Other: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCopyFlavour.Write()", value));
         }
     }
 }
@@ -19871,6 +20051,22 @@ public static class DistrictFfi {
         return FfiConverterTypeFilePickView.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_district_ffi_fn_func_composer_pick( ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// What the window says, for this copy (`this_family`, its package family
+    /// name) and the packages that handle the `districtai:` scheme for this user
+    /// (`scheme_handlers`, package family names, this copy's own included or
+    /// not). A handler that is another copy of this app, of either flavour,
+    /// holds browser sign-in; anything else that handles the scheme is not a copy
+    /// of this app and is left alone.
+    /// </summary>
+    public static CopiesView CopiesView(string @thisFamily, string[] @schemeHandlers) {
+        return FfiConverterTypeCopiesView.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_copies_view(FfiConverterString.INSTANCE.Lower(@thisFamily), FfiConverterSequenceString.INSTANCE.Lower(@schemeHandlers), ref _status)
 ));
     }
 
