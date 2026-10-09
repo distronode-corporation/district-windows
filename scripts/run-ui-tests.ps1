@@ -8,7 +8,7 @@ Used by CI (ci.yml, windows-app) on windows-2025, and by hand on Windows, from
 PowerShell 7 run as administrator (trusting the test certificate needs it).
 
 -Packages is a directory holding one DistrictAI_*.msix and the .cer of the
-throwaway certificate that signed it, as CI's AppPackages directory (and its
+throwaway certificate that signed it (one or more copies), as CI's AppPackages directory (and its
 district-ai-test-msix artifact) does; the framework packages it depends on are
 installed from its Dependencies\x64 when there is one, and stay installed (they
 are shared with other apps). The certificate is trusted for the run only, and
@@ -30,8 +30,11 @@ $project = Join-Path $PSScriptRoot '..' 'tests' 'DistrictAI.UiTests'
 $msix = @(Get-ChildItem -Recurse $Packages -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
 if ($msix.Count -ne 1) { throw "expected one DistrictAI MSIX under $Packages, found $($msix.Count)" }
 $msix = $msix[0]
+# The packaging writes the certificate next to the package as well as CI's
+# District-AI-CI-test.cer: any number of copies, so long as they are one certificate.
 $cer = @(Get-ChildItem -Recurse $Packages -Filter '*.cer')
-if ($cer.Count -ne 1) { throw "expected one .cer under $Packages, found $($cer.Count)" }
+$thumbprints = @($cer | ForEach-Object { [Security.Cryptography.X509Certificates.X509Certificate2]::new($_.FullName).Thumbprint } | Sort-Object -Unique)
+if ($thumbprints.Count -ne 1) { throw "expected one certificate under $Packages, found $($thumbprints.Count) in $($cer.Count) .cer file(s)" }
 
 # The identity the package installs under, from its own manifest.
 Add-Type -AssemblyName System.IO.Compression.FileSystem
