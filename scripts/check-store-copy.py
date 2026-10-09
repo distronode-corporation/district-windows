@@ -19,6 +19,8 @@ Where the scan looks, and what counts as a user-facing string there:
                                     below) and the text inside an element
     src/DistrictAI/**/*.cs          C# string literals (regular, verbatim,
                                     interpolated and raw); comments are skipped
+    src/DistrictAI.Presentation/**/*.cs
+                                    the same, in the view models
     **/*.resw                       every <value> of a resource file
     crates/district-ffi/src/**/*.rs Rust string literals, which become the
                                     projections' text; comments are skipped
@@ -428,6 +430,7 @@ def scan_tree(root: Path) -> tuple[int, list[Finding]]:
     plan = [
         ("src/DistrictAI/**/*.xaml", scan_xaml),
         ("src/DistrictAI/**/*.cs", scan_csharp),
+        ("src/DistrictAI.Presentation/**/*.cs", scan_csharp),
         ("**/*.resw", scan_resw),
         ("crates/district-ffi/src/**/*.rs", scan_rust),
         (SNAPSHOTS, scan_snapshot),
@@ -571,13 +574,15 @@ def self_test() -> int:
         failed += 1
         print(f"self-test: a key that is not an identifier should be quoted in the JSON path, got {[f.key for f in got]}")
 
-    # The tree walk reads the five places and nothing else, and ALLOW excuses by
+    # The tree walk reads the six places and nothing else, and ALLOW excuses by
     # exact path:line and reports a stale entry.
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         for rel, body in {
             "src/DistrictAI/Views/P.xaml": '<Page xmlns="urn:x"><Button Content="Buy" /></Page>\n',
             "src/DistrictAI/A.cs": 'var s = "Sign up";\n',
+            "src/DistrictAI.Presentation/Billing/BillingViewModel.cs": 'var s = "Free trial";\n',
+            "src/DistrictAI.Presentation/obj/Generated.cs": 'var s = "Sign up";\n',
             "src/DistrictAI/Strings/en-US/Resources.resw": "<root><data name=\"a\"><value>Pricing</value></data></root>\n",
             "crates/district-ffi/src/screen.rs": 'const S: &str = "Subscribe";\n',
             "src/DistrictAI/obj/Generated.cs": 'var s = "Sign up";\n',
@@ -591,17 +596,17 @@ def self_test() -> int:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(body, encoding="utf-8")
         scanned, found = scan_tree(root)
-        expect("tree", found, 5)
-        if scanned != 5:
+        expect("tree", found, 6)
+        if scanned != 6:
             failed += 1
-            print(f"self-test: the tree walk should read 5 files, read {scanned}")
+            print(f"self-test: the tree walk should read 6 files, read {scanned}")
         left, stale = verdict(found, {
             "src/DistrictAI/A.cs:1": "test",
             "crates/district-ffi/tests/snapshots/billing.json:$.screen.Billing.view.cta": "test",
             "src/DistrictAI/A.cs:2": "stale",
         })
         total += 1
-        if len(left) != 3 or stale != ["src/DistrictAI/A.cs:2"]:
+        if len(left) != 4 or stale != ["src/DistrictAI/A.cs:2"]:
             failed += 1
             print(f"self-test: ALLOW should excuse one finding and report one stale key, got {left} {stale}")
 

@@ -12,7 +12,7 @@ namespace DistrictAI.ViewModels;
 /// </summary>
 public sealed partial class SignInViewModel : ObservableObject
 {
-    private CoreHost? _core;
+    private ICoreSink? _core;
 
     /// <summary>The heading.</summary>
     [ObservableProperty]
@@ -50,7 +50,7 @@ public sealed partial class SignInViewModel : ObservableObject
     [ObservableProperty]
     public partial bool CanCancel { get; set; }
 
-    internal void Attach(CoreHost core) => _core = core;
+    internal void Attach(ICoreSink core) => _core = core;
 
     internal void Show(SessionScreen screen)
     {

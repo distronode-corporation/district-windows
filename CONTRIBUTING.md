@@ -8,10 +8,22 @@ Thanks for looking. 1.0.0 is released (see the README's
 ```
 crates/district-ffi/          Rust: the boundary the C# app calls (state per screen, events in)
 src/DistrictAI.Core/          C#: the generated bindings and the host that feeds the UI thread
-src/DistrictAI/               C#: the WinUI 3 app and its MSIX package
+src/DistrictAI.Presentation/  C#: the view models, OS-neutral, one folder per area
+src/DistrictAI/               C#: the WinUI 3 app (pages, platform services) and its MSIX package
 tests/                        C# tests; the core's own tests live with the core
 scripts/                      Repository checks
 ```
+
+`DistrictAI.Presentation` holds what each page shows and what its buttons send, in the
+namespace `DistrictAI.ViewModels`: it copies the core's view records into bindable
+properties and forwards the user's actions to the core as events. It references
+`DistrictAI.Core` and CommunityToolkit.Mvvm and nothing from WinUI or the Windows App SDK,
+so it builds and tests on Linux. What only Windows has reaches it through a small seam the
+app fills: `ICoreSink` (the core, `CoreHost`), `IBrowser`, `IStartupTask` (start at
+sign-in, `StartupRegistration`) and `TimeProvider` (the call bar's clock). Anything that is
+only XAML (an alignment, a brush) stays in the page. `tests/DistrictAI.Presentation.Tests`
+tests the view models against the core's generated records directly, with no native
+library.
 
 The core itself (the model, the API client, sign-in, live updates and the call engine) is
 not in this repository. It is
@@ -22,8 +34,8 @@ decides belongs there.
 ## Building
 
 The app builds on Windows only, because the XAML compiler runs only on Windows. CI builds
-every pull request on GitHub's Windows runners. The OS-neutral parts (the Rust boundary and
-`DistrictAI.Core`) also build and test on Linux and macOS.
+every pull request on GitHub's Windows runners. The OS-neutral parts (the Rust boundary,
+`DistrictAI.Core` and `DistrictAI.Presentation`) also build and test on Linux and macOS.
 
 You need Rust (stable; the floor is `rust-version` in `Cargo.toml`) and the .NET SDK that
 `global.json` names.
@@ -32,6 +44,7 @@ You need Rust (stable; the floor is `rust-version` in `Cargo.toml`) and the .NET
 cargo test -p district-ffi                        # the boundary, its snapshot tests included
 cargo build -p district-ffi                       # the native library DistrictAI.Core loads
 dotnet test tests/DistrictAI.Core.Tests           # the C# library against it
+dotnet test tests/DistrictAI.Presentation.Tests   # the view models (no native library)
 ```
 
 On Windows, the app itself (x64):
@@ -228,9 +241,10 @@ changes only these:
   each action is, and the projection of its screens;
 - `crates/district-ffi/tests/projections/<area>.rs` (or `settings/<section>.rs`), and the
   snapshots its cases write under `tests/snapshots/`;
-- `src/DistrictAI/Views/<Area>/**` and `src/DistrictAI/ViewModels/<Area>/**` (a settings
-  section's are under `Views/Settings/<Section>/` and `ViewModels/Settings/<Section>/`), and
-  their tests.
+- `src/DistrictAI/Views/<Area>/**` (a settings section's under `Views/Settings/<Section>/`);
+- `src/DistrictAI.Presentation/<Area>/**` and `tests/DistrictAI.Presentation.Tests/<Area>/**`,
+  its view models and their tests (a settings section's under `Settings/<Section>/` in
+  each).
 
 Until then an area's screens are the "Not in this version yet" page and the navigation pane
 does not offer it. It goes live when its pull request sets `BUILT = true` in its module:

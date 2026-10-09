@@ -16,6 +16,16 @@ public interface IUiDispatcher
     bool TryEnqueue(Action work);
 }
 
+/// <summary>
+/// Where the window's pages send what the user did: the core, in the app
+/// (<see cref="CoreHost"/>); a recorder, in the view models' tests.
+/// </summary>
+public interface ICoreSink
+{
+    /// <summary>Forwards something the user did.</summary>
+    void Send(UiEvent uiEvent);
+}
+
 /// <summary>Opens a page in the user's own browser.</summary>
 public interface IBrowser
 {
@@ -39,7 +49,7 @@ public sealed record CoreSnapshot(ulong Revision, ShellView Shell, ScreenView Sc
 /// its model changes. Only the first call since the last render queues one; the
 /// render reads the snapshot once, so a burst of changes costs one redraw.
 /// </remarks>
-public sealed class CoreHost : UiHost, IAsyncDisposable
+public sealed class CoreHost : UiHost, ICoreSink, IAsyncDisposable
 {
     private readonly FfiCore _core = new();
     private readonly IUiDispatcher _dispatcher;

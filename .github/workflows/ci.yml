@@ -6,8 +6,9 @@ name: CI
 #   tests included) and holds its line coverage to coverage-floors.toml;
 # - `msrv` compiles it at the declared minimum Rust version;
 # - `bindings` regenerates the C# bindings and fails if the committed ones differ;
-# - `dotnet` tests DistrictAI.Core against the Linux build of district-ffi and
-#   checks the C# formatting;
+# - `dotnet` tests DistrictAI.Core against the Linux build of district-ffi,
+#   tests the view models in DistrictAI.Presentation, and checks the C#
+#   formatting;
 # - `repo` runs the repository checks under scripts/;
 # - `cargo-deny`, `dependency-review` (pull requests only) and `zizmor` are the
 #   supply chain.
@@ -17,13 +18,13 @@ name: CI
 # - `windows-rust` runs district-ffi's tests on MSVC, the Credential Manager
 #   ones included, with the LiveKit call engine linked against the audio-only
 #   libwebrtc scripts/fetch-libwebrtc.ps1 pins;
-# - `windows-app` tests DistrictAI.Core against district_ffi.dll, checks the
-#   formatting of the whole solution, builds the WinUI app with warnings as
-#   errors and packages it as an MSIX signed with a throwaway certificate made
-#   in the job (never committed, never kept), installs that package and runs
-#   the UI smoke tests against it (tests/DistrictAI.UiTests), then builds and
-#   packages the GitHub flavour (Package.GitHub.appxmanifest) unsigned, as a
-#   release does.
+# - `windows-app` tests DistrictAI.Core against district_ffi.dll, tests the
+#   view models in DistrictAI.Presentation, checks the formatting of the whole
+#   solution, builds the WinUI app with warnings as errors and packages it as
+#   an MSIX signed with a throwaway certificate made in the job (never
+#   committed, never kept), installs that package and runs the UI smoke tests
+#   against it (tests/DistrictAI.UiTests), then builds and packages the GitHub
+#   flavour (Package.GitHub.appxmanifest) unsigned, as a release does.
 #
 # Any job on a Windows runner carries `if: ${{ !github.event.repository.private }}`:
 # private Windows minutes are metered, public ones are not.
@@ -194,10 +195,16 @@ jobs:
       - name: dotnet test
         run: dotnet test tests/DistrictAI.Core.Tests --nologo
 
+      # The view models, OS-neutral, against the core's generated records.
+      - name: dotnet test, the view models
+        run: dotnet test tests/DistrictAI.Presentation.Tests --nologo
+
       - name: dotnet format
         run: |
           dotnet format src/DistrictAI.Core/DistrictAI.Core.csproj --verify-no-changes
           dotnet format tests/DistrictAI.Core.Tests/DistrictAI.Core.Tests.csproj --verify-no-changes
+          dotnet format src/DistrictAI.Presentation/DistrictAI.Presentation.csproj --verify-no-changes
+          dotnet format tests/DistrictAI.Presentation.Tests/DistrictAI.Presentation.Tests.csproj --verify-no-changes
 
   # Seconds of runtime.
   repo:
@@ -335,6 +342,9 @@ jobs:
 
       - name: dotnet test against district_ffi.dll
         run: dotnet test tests/DistrictAI.Core.Tests --nologo -p:DistrictFfiProfile=release
+
+      - name: dotnet test, the view models
+        run: dotnet test tests/DistrictAI.Presentation.Tests --nologo -p:DistrictFfiProfile=release
 
       # On its own, so a lock file that disagrees with Windows says so here.
       - name: dotnet restore (locked)
