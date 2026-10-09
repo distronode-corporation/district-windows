@@ -4,7 +4,7 @@
       "view": {
         "empty": null,
         "partial_note": null,
-        "read_only_note": "Replies are sent from the web dashboard or the District AI phone apps.",
+        "read_only_note": "",
         "refresh_failure": null,
         "refreshing": false,
         "search": {

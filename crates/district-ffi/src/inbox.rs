@@ -1,5 +1,5 @@
-//! The inbox, its search, and one conversation, read-only: what the Linux inbox
-//! page and thread view show, without the reply box.
+//! The inbox, its search, and one conversation: what the Linux inbox page and
+//! thread view show. The reply box under a conversation is crate::composer's.
 
 use district_core::{
     Capabilities, ConversationList, Conversations, InboxScreen, SearchState, ThreadHistory,
@@ -11,13 +11,14 @@ use district_model::{
 };
 use serde::Serialize;
 
-use crate::composer::{ComposerView, composer};
+use crate::composer::{ComposerView, composer, read_only_note};
 use crate::views::{
     AI_SUMMARY, AiTextView, EmptyView, FailureView, LoadStatus, ReportAvailability, ai_summary,
     failure, humanize,
 };
 
-/// Why this build shows conversations without a reply box.
+/// Why 1.0 showed conversations without a reply box. Not shown since the reply
+/// box was built: a thread without one says why in the core's words.
 pub const READ_ONLY_NOTE: &str =
     "Replies are sent from the web dashboard or the District AI phone apps.";
 /// The heading of a conversation that could not be read, as the Linux app words it.
@@ -40,7 +41,8 @@ pub struct InboxView {
     pub refresh_failure: Option<FailureView>,
     /// The search.
     pub search: SearchView,
-    /// Why there is no reply box.
+    /// Why there is no reply box: empty since the reply box was built (each
+    /// thread says why it has none).
     pub read_only_note: String,
 }
 
@@ -124,10 +126,11 @@ pub struct ThreadView {
     pub refreshing: bool,
     /// Why the last read again failed.
     pub refresh_failure: Option<FailureView>,
-    /// Why there is no reply box.
+    /// Why there is no reply box, in the core's words ("You have read-only
+    /// access..."), or empty when there is one.
     pub read_only_note: String,
-    /// The reply box: `None` until the composer packet builds it
-    /// (crate::composer), and then for a member who may not reply.
+    /// The reply box (crate::composer): `None` for a member who may not reply
+    /// here, and on a thread with nowhere to reply to.
     pub composer: Option<ComposerView>,
 }
 
@@ -279,7 +282,7 @@ pub(crate) fn inbox_view(inbox: &InboxScreen) -> InboxView {
         refreshing: false,
         refresh_failure: None,
         search: search_view(&inbox.search),
-        read_only_note: READ_ONLY_NOTE.to_owned(),
+        read_only_note: String::new(),
     };
     match &inbox.list {
         ConversationList::NotLoaded | ConversationList::Loading => {}
@@ -421,7 +424,7 @@ pub(crate) fn thread_view(
         older_failure: None,
         refreshing: false,
         refresh_failure: None,
-        read_only_note: READ_ONLY_NOTE.to_owned(),
+        read_only_note: read_only_note(screen, capabilities),
         composer: composer(screen, capabilities),
     };
     match screen.map(|screen| &screen.history) {

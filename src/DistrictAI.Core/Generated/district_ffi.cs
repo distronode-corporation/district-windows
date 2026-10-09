@@ -839,6 +839,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1098,6 +1100,17 @@ static class _UniFFILib {
     public static extern
 #endif
      void uniffi_district_ffi_fn_method_uihost_present_window(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_composer_pick(ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -1757,6 +1770,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_composer_pick(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_attachment_pick(
     );
 
@@ -2044,6 +2068,12 @@ static class _UniFFILib {
         }
     }
     static void uniffiCheckApiChecksums() {
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_composer_pick();
+            if (checksum != 1022) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_composer_pick` checksum `1022`, library returned `{checksum}`");
+            }
+        }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_attachment_pick();
             if (checksum != 17750) {
@@ -3624,6 +3654,75 @@ class FfiConverterTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView> {
 
 
 /// <summary>
+/// The AI button, and what goes with a reply the model wrote.
+/// </summary>
+/// <param name="Label">
+/// The button: "Draft a reply with AI".
+/// </param>
+/// <param name="BillingNote">
+/// What it does and that each press is billed, beside the button.
+/// </param>
+/// <param name="DraftLabel">
+/// The heading over the box while it holds what the model wrote.
+/// </param>
+/// <param name="Report">
+/// How to offer Report on what the model wrote (a
+/// [`ReportTarget::AiDraft`](crate::ReportTarget::AiDraft)), once it is in
+/// the box: in the app, or on the web for a member support refuses.
+/// </param>
+public record AiDraftOfferView (
+    /// <summary>
+    /// The button: "Draft a reply with AI".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// What it does and that each press is billed, beside the button.
+    /// </summary>
+    string BillingNote, 
+    /// <summary>
+    /// The heading over the box while it holds what the model wrote.
+    /// </summary>
+    string DraftLabel, 
+    /// <summary>
+    /// How to offer Report on what the model wrote (a
+    /// [`ReportTarget::AiDraft`](crate::ReportTarget::AiDraft)), once it is in
+    /// the box: in the app, or on the web for a member support refuses.
+    /// </summary>
+    ReportAvailability Report
+) {
+}
+
+class FfiConverterTypeAiDraftOfferView: FfiConverterRustBuffer<AiDraftOfferView> {
+    public static FfiConverterTypeAiDraftOfferView INSTANCE = new FfiConverterTypeAiDraftOfferView();
+
+    public override AiDraftOfferView Read(BigEndianStream stream) {
+        return new AiDraftOfferView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            BillingNote: FfiConverterString.INSTANCE.Read(stream),
+            DraftLabel: FfiConverterString.INSTANCE.Read(stream),
+            Report: FfiConverterTypeReportAvailability.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(AiDraftOfferView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BillingNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DraftLabel)
+            + FfiConverterTypeReportAvailability.INSTANCE.AllocationSize(value.Report);
+    }
+
+    public override void Write(AiDraftOfferView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.BillingNote, stream);
+            FfiConverterString.INSTANCE.Write(value.DraftLabel, stream);
+            FfiConverterTypeReportAvailability.INSTANCE.Write(value.Report, stream);
+    }
+}
+
+
+
+/// <summary>
 /// Text written by AI, under a heading that says so.
 /// </summary>
 /// <param name="Label">
@@ -3698,6 +3797,51 @@ class FfiConverterTypeAnalyticsView: FfiConverterRustBuffer<AnalyticsView> {
 
     public override void Write(AnalyticsView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One image waiting to go with the next message.
+/// </summary>
+/// <param name="Url">
+/// The address the service answered the upload with, to remove it by.
+/// </param>
+/// <param name="Name">
+/// Its name on the chip: "Image 1", "Image 2", in the order picked.
+/// </param>
+public record AttachmentView (
+    /// <summary>
+    /// The address the service answered the upload with, to remove it by.
+    /// </summary>
+    string Url, 
+    /// <summary>
+    /// Its name on the chip: "Image 1", "Image 2", in the order picked.
+    /// </summary>
+    string Name
+) {
+}
+
+class FfiConverterTypeAttachmentView: FfiConverterRustBuffer<AttachmentView> {
+    public static FfiConverterTypeAttachmentView INSTANCE = new FfiConverterTypeAttachmentView();
+
+    public override AttachmentView Read(BigEndianStream stream) {
+        return new AttachmentView(
+            Url: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(AttachmentView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Url)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name);
+    }
+
+    public override void Write(AttachmentView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Url, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
     }
 }
 
@@ -4126,16 +4270,103 @@ class FfiConverterTypeCallsView: FfiConverterRustBuffer<CallsView> {
 
 
 /// <summary>
-/// The reply box under a conversation.
+/// The reply box under a conversation, for a member who may reply there.
 /// </summary>
 /// <param name="Text">
-/// What the box holds. A placeholder, until the reply box is built.
+/// What the box holds, as the core holds it: what was typed, a saved
+/// draft restored, or a reply the model wrote.
+/// </param>
+/// <param name="Attachments">
+/// The images uploaded to go with the next message, in the order picked.
+/// </param>
+/// <param name="ShowAttach">
+/// Whether to offer Attach at all: a text message thread. An email thread
+/// takes no attachments (the service would drop them).
+/// </param>
+/// <param name="CanAttach">
+/// Whether Attach works now.
+/// </param>
+/// <param name="CanSend">
+/// Whether Send works now. False while a message or an image is on its
+/// way, and while the box is blank.
+/// </param>
+/// <param name="CanDraftReply">
+/// Whether the AI button works now. False while a reply is being written.
+/// </param>
+/// <param name="Sending">
+/// Whether a message is on its way (the box is not to be edited).
+/// </param>
+/// <param name="Attaching">
+/// Whether an image is uploading.
+/// </param>
+/// <param name="Generating">
+/// Whether the model is writing a reply.
+/// </param>
+/// <param name="Busy">
+/// What the box is waiting for, when anything: "Sending", "Uploading the
+/// image", "Writing a reply".
+/// </param>
+/// <param name="Failure">
+/// Why the last send, upload or written reply failed, or why a picked
+/// file was refused, in the core's words. What was typed stays.
+/// </param>
+/// <param name="AiDraft">
+/// The AI button and what goes with a reply it wrote.
 /// </param>
 public record ComposerView (
     /// <summary>
-    /// What the box holds. A placeholder, until the reply box is built.
+    /// What the box holds, as the core holds it: what was typed, a saved
+    /// draft restored, or a reply the model wrote.
     /// </summary>
-    string Text
+    string Text, 
+    /// <summary>
+    /// The images uploaded to go with the next message, in the order picked.
+    /// </summary>
+    AttachmentView[] Attachments, 
+    /// <summary>
+    /// Whether to offer Attach at all: a text message thread. An email thread
+    /// takes no attachments (the service would drop them).
+    /// </summary>
+    bool ShowAttach, 
+    /// <summary>
+    /// Whether Attach works now.
+    /// </summary>
+    bool CanAttach, 
+    /// <summary>
+    /// Whether Send works now. False while a message or an image is on its
+    /// way, and while the box is blank.
+    /// </summary>
+    bool CanSend, 
+    /// <summary>
+    /// Whether the AI button works now. False while a reply is being written.
+    /// </summary>
+    bool CanDraftReply, 
+    /// <summary>
+    /// Whether a message is on its way (the box is not to be edited).
+    /// </summary>
+    bool Sending, 
+    /// <summary>
+    /// Whether an image is uploading.
+    /// </summary>
+    bool Attaching, 
+    /// <summary>
+    /// Whether the model is writing a reply.
+    /// </summary>
+    bool Generating, 
+    /// <summary>
+    /// What the box is waiting for, when anything: "Sending", "Uploading the
+    /// image", "Writing a reply".
+    /// </summary>
+    string? Busy, 
+    /// <summary>
+    /// Why the last send, upload or written reply failed, or why a picked
+    /// file was refused, in the core's words. What was typed stays.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// The AI button and what goes with a reply it wrote.
+    /// </summary>
+    AiDraftOfferView AiDraft
 ) {
 }
 
@@ -4144,17 +4375,50 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
 
     public override ComposerView Read(BigEndianStream stream) {
         return new ComposerView(
-            Text: FfiConverterString.INSTANCE.Read(stream)
+            Text: FfiConverterString.INSTANCE.Read(stream),
+            Attachments: FfiConverterSequenceTypeAttachmentView.INSTANCE.Read(stream),
+            ShowAttach: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanAttach: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSend: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanDraftReply: FfiConverterBoolean.INSTANCE.Read(stream),
+            Sending: FfiConverterBoolean.INSTANCE.Read(stream),
+            Attaching: FfiConverterBoolean.INSTANCE.Read(stream),
+            Generating: FfiConverterBoolean.INSTANCE.Read(stream),
+            Busy: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            AiDraft: FfiConverterTypeAiDraftOfferView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(ComposerView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Text);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Text)
+            + FfiConverterSequenceTypeAttachmentView.INSTANCE.AllocationSize(value.Attachments)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowAttach)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAttach)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSend)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDraftReply)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Sending)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Attaching)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Generating)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Busy)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterTypeAiDraftOfferView.INSTANCE.AllocationSize(value.AiDraft);
     }
 
     public override void Write(ComposerView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Text, stream);
+            FfiConverterSequenceTypeAttachmentView.INSTANCE.Write(value.Attachments, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowAttach, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanAttach, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSend, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDraftReply, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Sending, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Attaching, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Generating, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Busy, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterTypeAiDraftOfferView.INSTANCE.Write(value.AiDraft, stream);
     }
 }
 
@@ -5264,7 +5528,8 @@ class FfiConverterTypeHqView: FfiConverterRustBuffer<HqView> {
 /// The search.
 /// </param>
 /// <param name="ReadOnlyNote">
-/// Why there is no reply box.
+/// Why there is no reply box: empty since the reply box was built (each
+/// thread says why it has none).
 /// </param>
 public record InboxView (
     /// <summary>
@@ -5296,7 +5561,8 @@ public record InboxView (
     /// </summary>
     SearchView Search, 
     /// <summary>
-    /// Why there is no reply box.
+    /// Why there is no reply box: empty since the reply box was built (each
+    /// thread says why it has none).
     /// </summary>
     string ReadOnlyNote
 ) {
@@ -7220,11 +7486,12 @@ class FfiConverterTypeThreadRowView: FfiConverterRustBuffer<ThreadRowView> {
 /// Why the last read again failed.
 /// </param>
 /// <param name="ReadOnlyNote">
-/// Why there is no reply box.
+/// Why there is no reply box, in the core's words ("You have read-only
+/// access..."), or empty when there is one.
 /// </param>
 /// <param name="Composer">
-/// The reply box: `None` until the composer packet builds it
-/// (crate::composer), and then for a member who may not reply.
+/// The reply box (crate::composer): `None` for a member who may not reply
+/// here, and on a thread with nowhere to reply to.
 /// </param>
 public record ThreadView (
     /// <summary>
@@ -7264,12 +7531,13 @@ public record ThreadView (
     /// </summary>
     FailureView? RefreshFailure, 
     /// <summary>
-    /// Why there is no reply box.
+    /// Why there is no reply box, in the core's words ("You have read-only
+    /// access..."), or empty when there is one.
     /// </summary>
     string ReadOnlyNote, 
     /// <summary>
-    /// The reply box: `None` until the composer packet builds it
-    /// (crate::composer), and then for a member who may not reply.
+    /// The reply box (crate::composer): `None` for a member who may not reply
+    /// here, and on a thread with nowhere to reply to.
     /// </summary>
     ComposerView? Composer
 ) {
@@ -7808,14 +8076,47 @@ public record ComposerAction {
     /// <summary>
     /// The box changed: what it holds now.
     /// </summary>
-    public record Edit (
+    public record Compose (
         string Text
     ) : ComposerAction {}
     
     /// <summary>
-    /// Send what the box holds.
+    /// Send what the box holds, with the attachments.
     /// </summary>
     public record Send: ComposerAction {}
+    
+    
+    /// <summary>
+    /// Attach a picked image. The core checks it (its type sniffed from its
+    /// bytes, its size, how many are held) and uploads it, or says why not.
+    /// </summary>
+    public record Attach (
+        PickedFileView File
+    ) : ComposerAction {}
+    
+    /// <summary>
+    /// A picked file could not be read at all.
+    /// </summary>
+    public record AttachFailed: ComposerAction {}
+    
+    
+    /// <summary>
+    /// Take an image off the message.
+    /// </summary>
+    public record RemoveAttachment (
+        string Url
+    ) : ComposerAction {}
+    
+    /// <summary>
+    /// Have the model write a reply into the box. Billed, every press.
+    /// </summary>
+    public record DraftReply: ComposerAction {}
+    
+    
+    /// <summary>
+    /// Put away the failure line.
+    /// </summary>
+    public record DismissFailure: ComposerAction {}
     
     
 
@@ -7829,11 +8130,28 @@ class FfiConverterTypeComposerAction : FfiConverterRustBuffer<ComposerAction>{
         var value = stream.ReadInt();
         switch (value) {
             case 1:
-                return new ComposerAction.Edit(
+                return new ComposerAction.Compose(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
             case 2:
                 return new ComposerAction.Send(
+                );
+            case 3:
+                return new ComposerAction.Attach(
+                    FfiConverterTypePickedFileView.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new ComposerAction.AttachFailed(
+                );
+            case 5:
+                return new ComposerAction.RemoveAttachment(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new ComposerAction.DraftReply(
+                );
+            case 7:
+                return new ComposerAction.DismissFailure(
                 );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposerAction.Read()", value));
@@ -7842,10 +8160,22 @@ class FfiConverterTypeComposerAction : FfiConverterRustBuffer<ComposerAction>{
 
     public override int AllocationSize(ComposerAction value) {
         switch (value) {
-            case ComposerAction.Edit variant_value:
+            case ComposerAction.Compose variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
             case ComposerAction.Send variant_value:
+                return 4;
+            case ComposerAction.Attach variant_value:
+                return 4
+                    + FfiConverterTypePickedFileView.INSTANCE.AllocationSize(variant_value.File);
+            case ComposerAction.AttachFailed variant_value:
+                return 4;
+            case ComposerAction.RemoveAttachment variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Url);
+            case ComposerAction.DraftReply variant_value:
+                return 4;
+            case ComposerAction.DismissFailure variant_value:
                 return 4;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposerAction.AllocationSize()", value));
@@ -7854,12 +8184,29 @@ class FfiConverterTypeComposerAction : FfiConverterRustBuffer<ComposerAction>{
 
     public override void Write(ComposerAction value, BigEndianStream stream) {
         switch (value) {
-            case ComposerAction.Edit variant_value:
+            case ComposerAction.Compose variant_value:
                 stream.WriteInt(1);
                 FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
                 break;
             case ComposerAction.Send variant_value:
                 stream.WriteInt(2);
+                break;
+            case ComposerAction.Attach variant_value:
+                stream.WriteInt(3);
+                FfiConverterTypePickedFileView.INSTANCE.Write(variant_value.File, stream);
+                break;
+            case ComposerAction.AttachFailed variant_value:
+                stream.WriteInt(4);
+                break;
+            case ComposerAction.RemoveAttachment variant_value:
+                stream.WriteInt(5);
+                FfiConverterString.INSTANCE.Write(variant_value.Url, stream);
+                break;
+            case ComposerAction.DraftReply variant_value:
+                stream.WriteInt(6);
+                break;
+            case ComposerAction.DismissFailure variant_value:
+                stream.WriteInt(7);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposerAction.Write()", value));
@@ -8860,6 +9207,15 @@ public record ReportTarget {
         string EventId
     ) : ReportTarget {}
     
+    /// <summary>
+    /// A reply the model wrote into a conversation's reply box. The service
+    /// gives a written reply no id, so the report names its kind and the
+    /// conversation's contact, and the member's note says the rest.
+    /// </summary>
+    public record AiDraft (
+        string ThreadKey
+    ) : ReportTarget {}
+    
 
     
 }
@@ -8883,6 +9239,10 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                     FfiConverterString.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
                 );
+            case 4:
+                return new ReportTarget.AiDraft(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Read()", value));
         }
@@ -8900,6 +9260,9 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.ThreadKey)
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.EventId);
+            case ReportTarget.AiDraft variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ThreadKey);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.AllocationSize()", value));
         }
@@ -8919,6 +9282,10 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                 stream.WriteInt(3);
                 FfiConverterString.INSTANCE.Write(variant_value.ThreadKey, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.EventId, stream);
+                break;
+            case ReportTarget.AiDraft variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.ThreadKey, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Write()", value));
@@ -11954,6 +12321,52 @@ class FfiConverterSequenceString: FfiConverterRustBuffer<string[]> {
 
 
 
+class FfiConverterSequenceTypeAttachmentView: FfiConverterRustBuffer<AttachmentView[]> {
+    public static FfiConverterSequenceTypeAttachmentView INSTANCE = new FfiConverterSequenceTypeAttachmentView();
+
+    public override AttachmentView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new AttachmentView[length];
+        var readFn = FfiConverterTypeAttachmentView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(AttachmentView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeAttachmentView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(AttachmentView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeAttachmentView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeCallRowView: FfiConverterRustBuffer<CallRowView[]> {
     public static FfiConverterSequenceTypeCallRowView INSTANCE = new FfiConverterSequenceTypeCallRowView();
 
@@ -12587,6 +13000,19 @@ internal static class _UniFFIAsync {
 }
 #pragma warning restore 8625
 public static class DistrictFfi {
+    /// <summary>
+    /// The file chooser for an attachment: the core's image types, one file at a
+    /// time. The core takes one upload at a time and drops an image picked while
+    /// another uploads, so a pick of several would lose all but the first.
+    /// </summary>
+    public static FilePickView ComposerPick() {
+        return FfiConverterTypeFilePickView.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_composer_pick( ref _status)
+));
+    }
+
+
     /// <summary>
     /// The pick for a reply's attachments: the core's image types, as many files
     /// as one message may carry.

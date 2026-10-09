@@ -2,7 +2,25 @@
   "screen": {
     "Thread": {
       "view": {
-        "composer": null,
+        "composer": {
+          "ai_draft": {
+            "billing_note": "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed.",
+            "draft_label": "AI draft",
+            "label": "Draft a reply with AI",
+            "report": "InApp"
+          },
+          "attaching": true,
+          "attachments": [],
+          "busy": "Uploading the image",
+          "can_attach": false,
+          "can_draft_reply": true,
+          "can_send": false,
+          "failure": null,
+          "generating": false,
+          "sending": false,
+          "show_attach": true,
+          "text": "Roof:"
+        },
         "has_more": false,
         "items": [
           {
@@ -32,7 +50,7 @@
                 "title": "Incoming call, 01:05"
               }
             },
-            "report": "OnWeb"
+            "report": "InApp"
           },
           {
             "at": "2026-08-15T14:05:00.000Z",
@@ -93,7 +111,7 @@
         ],
         "loading_older": false,
         "older_failure": null,
-        "read_only_note": "You have read-only access to this workspace, so you cannot reply here.",
+        "read_only_note": "",
         "refresh_failure": null,
         "refreshing": false,
         "status": "Ready",
@@ -112,25 +130,15 @@
     "phase": "SignedIn",
     "report": null,
     "ring": null,
-    "unread": 0,
+    "unread": 1,
     "workspaces": {
-      "active_id": "ws-contract-viewer",
-      "can_switch": true,
+      "active_id": "ws-1",
+      "can_switch": false,
       "entries": [
         {
-          "id": "ws-contract-active",
-          "name": "Zulu Agency",
+          "id": "ws-1",
+          "name": "Example Dental",
           "role_label": "Agency"
-        },
-        {
-          "id": "ws-contract-viewer",
-          "name": "Alpha Client",
-          "role_label": "Viewer"
-        },
-        {
-          "id": "ws-contract-client",
-          "name": "Bravo Client",
-          "role_label": "Client"
         }
       ],
       "message": null,
