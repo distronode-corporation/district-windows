@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Composer.ComposerBox"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:composer="using:DistrictAI.ViewModels.Composer">
+    <!-- The reply box under a conversation: shown only to a member who may reply there. -->
+    <StackPanel
+        AutomationProperties.Name="Reply"
+        Spacing="8"
+        Visibility="{x:Bind ViewModel.Visible, Mode=OneWay}">
+
+        <!-- Why the last send, upload or AI draft failed, or why a picked file was refused. -->
+        <Grid
+            Padding="12,8"
+            Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
+            ColumnSpacing="8"
+            CornerRadius="{StaticResource ControlCornerRadius}"
+            Visibility="{x:Bind ViewModel.HasFailure, Mode=OneWay}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                VerticalAlignment="Center"
+                AutomationProperties.LiveSetting="Assertive"
+                Text="{x:Bind ViewModel.Failure, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <Button
+                Grid.Column="1"
+                AutomationProperties.Name="Dismiss the error"
+                Command="{x:Bind ViewModel.DismissFailureCommand}"
+                Content="Dismiss" />
+        </Grid>
+
+        <!-- A reply the model wrote, in the box for the member to read and edit before sending. -->
+        <StackPanel
+            Orientation="Horizontal"
+            Spacing="8"
+            Visibility="{x:Bind ViewModel.HasAiDraft, Mode=OneWay}">
+            <TextBlock
+                VerticalAlignment="Center"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind ViewModel.DraftLabel, Mode=OneWay}" />
+            <HyperlinkButton
+                Padding="4,2"
+                AutomationProperties.Name="{x:Bind ViewModel.DraftReportLabel, Mode=OneWay}"
+                Click="OnReportDraftClick"
+                Content="{x:Bind ViewModel.DraftReportLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.DraftReportEnabled, Mode=OneWay}" />
+        </StackPanel>
+
+        <!-- The images waiting to go with the message. -->
+        <ItemsControl ItemsSource="{x:Bind ViewModel.Attachments}" Visibility="{x:Bind ViewModel.HasAttachments, Mode=OneWay}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="8" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="composer:AttachmentChip">
+                    <Border
+                        Padding="8,2,2,2"
+                        AutomationProperties.Name="{x:Bind Name}"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource ControlCornerRadius}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon
+                                VerticalAlignment="Center"
+                                AutomationProperties.AccessibilityView="Raw"
+                                FontSize="14"
+                                Glyph="&#xEB9F;" />
+                            <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
+                            <Button
+                                Padding="6,2"
+                                AutomationProperties.Name="{x:Bind RemoveLabel}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="OnRemoveAttachmentClick"
+                                ToolTipService.ToolTip="{x:Bind RemoveLabel}">
+                                <FontIcon FontSize="12" Glyph="&#xE711;" />
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Enter is a new line; Ctrl+Enter sends. -->
+        <TextBox
+            x:Name="Box"
+            MaxHeight="200"
+            AcceptsReturn="True"
+            AutomationProperties.HelpText="Ctrl+Enter sends."
+            AutomationProperties.Name="Reply"
+            IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
+            IsSpellCheckEnabled="True"
+            PlaceholderText="Write a reply"
+            PreviewKeyDown="OnBoxPreviewKeyDown"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            Text="{x:Bind ViewModel.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            TextWrapping="Wrap" />
+
+        <Grid ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button
+                AutomationProperties.Name="Attach an image"
+                Click="OnAttachClick"
+                IsEnabled="{x:Bind ViewModel.CanAttach, Mode=OneWay}"
+                ToolTipService.ToolTip="Attach an image"
+                Visibility="{x:Bind ViewModel.ShowAttach, Mode=OneWay}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon FontSize="14" Glyph="&#xE723;" />
+                    <TextBlock Text="Attach" />
+                </StackPanel>
+            </Button>
+            <Button
+                Grid.Column="1"
+                AutomationProperties.HelpText="{x:Bind ViewModel.DraftReplyNote, Mode=OneWay}"
+                AutomationProperties.Name="{x:Bind ViewModel.DraftReplyLabel, Mode=OneWay}"
+                Command="{x:Bind ViewModel.DraftReplyCommand}"
+                Content="{x:Bind ViewModel.DraftReplyLabel, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind ViewModel.DraftReplyNote, Mode=OneWay}" />
+            <StackPanel
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8"
+                Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay}">
+                <ProgressRing
+                    Width="16"
+                    Height="16"
+                    AutomationProperties.AccessibilityView="Raw"
+                    IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" />
+                <TextBlock
+                    AutomationProperties.LiveSetting="Polite"
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Busy, Mode=OneWay}" />
+            </StackPanel>
+            <Button
+                Grid.Column="3"
+                AutomationProperties.Name="Send"
+                Command="{x:Bind ViewModel.SendCommand}"
+                Content="Send"
+                Style="{StaticResource AccentButtonStyle}"
+                ToolTipService.ToolTip="Send (Ctrl+Enter)" />
+        </Grid>
+
+        <!-- The AI button's note: what it does, and that each press is billed. -->
+        <TextBlock
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.DraftReplyNote, Mode=OneWay}"
+            TextWrapping="Wrap" />
+    </StackPanel>
+</UserControl>
