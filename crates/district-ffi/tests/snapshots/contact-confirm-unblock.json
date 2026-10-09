@@ -1,0 +1,103 @@
+{
+  "screen": {
+    "ContactDetail": {
+      "view": {
+        "blocked": true,
+        "busy": null,
+        "confirming": {
+          "action": "Unblock",
+          "destructive": false,
+          "question": "Unblock this caller? Their conversations and calls start appearing in this workspace again."
+        },
+        "contact_id": "contact_contract_1",
+        "created_at": "2026-08-15T14:30:00.000Z",
+        "dossier": {
+          "label": "AI dossier",
+          "text": "Summary: Interested in Thursday."
+        },
+        "editing": null,
+        "facts": [
+          {
+            "label": "Phone number",
+            "value": "+1 416 555 0142"
+          },
+          {
+            "label": "Email address",
+            "value": "ada@example.com"
+          },
+          {
+            "label": "Company",
+            "value": "Analytical Engines"
+          },
+          {
+            "label": "Industry",
+            "value": "compute"
+          },
+          {
+            "label": "Website",
+            "value": "https://engines.test"
+          },
+          {
+            "label": "Budget",
+            "value": "10k"
+          },
+          {
+            "label": "Timeline",
+            "value": "Q4"
+          },
+          {
+            "label": "Latest context",
+            "value": "Booked an appointment."
+          }
+        ],
+        "failure": null,
+        "name": "Contract Test Caller",
+        "number_facts": [
+          {
+            "label": "Location",
+            "value": "Ontario, Canada"
+          }
+        ],
+        "phone_number": "+14165550142",
+        "reach": "+1 416 555 0142 · ada@example.com",
+        "report": "InApp",
+        "research_status": "Complete",
+        "status": "Ready",
+        "updated_at": "2026-08-15T14:30:00.000Z",
+        "writes": {
+          "can_block": true,
+          "can_clear_research": true,
+          "can_delete": true,
+          "can_edit": true,
+          "can_enrich": false
+        }
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Contacts",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

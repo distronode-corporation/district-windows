@@ -4,16 +4,16 @@ use district_core::{Event, ThreadEvent};
 use district_ffi::composer::ComposerAction;
 use district_ffi::{ScreenView, UiEvent, screen_view};
 
+use super::Case;
 use super::inbox::{inbox_loaded, open_thread};
-use super::{Case, offered};
 
 /// This area's snapshot cases: none until it is built.
 pub(crate) fn cases() -> Vec<Case> {
     Vec::new()
 }
 
-/// Until its packet builds it, a conversation has no reply box, and the
-/// navigation pane is 1.0's.
+/// Until its packet builds it, a conversation has no reply box. (The reply
+/// box has no navigation entry, so the pane is not its to pin: nav.rs's.)
 #[test]
 fn unbuilt_a_thread_has_no_reply_box() {
     let session = open_thread(inbox_loaded());
@@ -21,7 +21,6 @@ fn unbuilt_a_thread_has_no_reply_box() {
         panic!("a thread opens");
     };
     assert_eq!(view.composer, None);
-    assert_eq!(offered(&session).len(), 5);
 }
 
 #[test]

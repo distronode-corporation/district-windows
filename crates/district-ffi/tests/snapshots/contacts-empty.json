@@ -2,6 +2,8 @@
   "screen": {
     "Contacts": {
       "view": {
+        "can_create": true,
+        "create": null,
         "empty": {
           "body": "Callers are added automatically as they come in.",
           "title": "No contacts yet"
