@@ -7,9 +7,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-09
+
 ### Added
 
-<!-- manager: add the no-workspace plan chooser entry when that PR lands -->
 - The window offers every area of District AI: District HQ, Analytics, Workflows, Booking
   pages, Help desk, Support, Meeting rooms, Phone numbers, Billing and Workspace settings
   join Overview, Inbox, Calls, Contacts and Account. Each area is offered only to the
@@ -124,7 +125,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   which hides every purchase action.
 - Create an account from the welcome screen: the browser opens the District AI sign-in
   page, which offers to create one, and the new account comes back to the app signed in.
-  Until it has a workspace, the overview says so.
+  While it has no workspace, the overview offers the plans, as Billing does: choosing
+  one opens checkout, and once the checkout window closes the app looks for the new
+  workspace for about half a minute, offering no plans meanwhile so nobody pays twice,
+  and opens it without a restart. A workspace that takes longer appears when the
+  overview is opened again.
 - With both the Microsoft Store copy and the GitHub copy installed, the sign-in page
   holds browser sign-in and account creation and explains why (the browser could hand
   the sign-in back to the other copy), and the window title names which copy this is.
@@ -133,10 +138,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- The shared core is district-core-rust 3.0.0, which adds buying in the app (on only in
-  this app), after 2.0.0's live transcript of a call, the app's platform at sign-in (so
-  the sign-in page can offer to create an account), and saving a reply still waiting to
-  be saved when the app quits.
+- The shared core is district-core-rust 3.1.0: 3.1.0 sets up a new account's first
+  workspace through checkout, 3.0.0 adds buying in the app (on only in this app), and
+  2.0.0 brings the live transcript of a call, the app's platform at sign-in (so the
+  sign-in page can offer to create an account), and saving a reply still waiting to be
+  saved when the app quits.
 
 ### Fixed
 
