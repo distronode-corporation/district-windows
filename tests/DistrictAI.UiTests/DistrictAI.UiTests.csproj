@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    UI smoke tests of the INSTALLED app, driven through UI Automation with
+    FlaUI. They start the package by its application user model ID, never the
+    loose exe, so they need the test MSIX installed first (CONTRIBUTING.md, "UI
+    smoke tests"); CI's windows-app job installs the one it just built.
+
+    FlaUI is Windows-only, so the project targets net10.0-windows. It builds on
+    any OS (EnableWindowsTargeting), but only Windows can run it: elsewhere it
+    is not a test project, so `dotnet test` passes over it.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <IsTestProject Condition="!$([MSBuild]::IsOSPlatform('Windows'))">false</IsTestProject>
+    <RootNamespace>DistrictAI.UiTests</RootNamespace>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="FlaUI.UIA3" />
+  </ItemGroup>
+</Project>
