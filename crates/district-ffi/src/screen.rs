@@ -563,6 +563,7 @@ mod tests {
             ScreenView::Scheduling {
                 view: crate::scheduling::SchedulingView {
                     title: "Scheduling".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Desk {

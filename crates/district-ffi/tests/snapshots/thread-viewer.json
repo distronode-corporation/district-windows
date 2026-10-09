@@ -93,7 +93,7 @@
         ],
         "loading_older": false,
         "older_failure": null,
-        "read_only_note": "Replies are sent from the web dashboard or the District AI phone apps.",
+        "read_only_note": "You have read-only access to this workspace, so you cannot reply here.",
         "refresh_failure": null,
         "refreshing": false,
         "status": "Ready",

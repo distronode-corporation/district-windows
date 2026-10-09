@@ -1,0 +1,149 @@
+{
+  "screen": {
+    "Thread": {
+      "view": {
+        "composer": {
+          "ai_draft": {
+            "billing_note": "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed.",
+            "draft_label": "AI draft",
+            "label": "Draft a reply with AI",
+            "report": "InApp"
+          },
+          "attaching": false,
+          "attachments": [],
+          "busy": null,
+          "can_attach": true,
+          "can_draft_reply": true,
+          "can_send": true,
+          "failure": null,
+          "generating": false,
+          "sending": false,
+          "show_attach": true,
+          "text": "Thanks for waiting - Thursday at 2pm is confirmed. See you then."
+        },
+        "has_more": false,
+        "items": [
+          {
+            "at": "2026-08-15T13:10:00.000Z",
+            "id": "call_contract_missed",
+            "kind": {
+              "CallEvent": {
+                "call_id": "call_contract_missed",
+                "missed": true,
+                "summary": null,
+                "title": "Missed call"
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T13:40:00.000Z",
+            "id": "call_contract_answered",
+            "kind": {
+              "CallEvent": {
+                "call_id": "call_contract_answered",
+                "missed": false,
+                "summary": {
+                  "label": "AI summary",
+                  "text": "Caller booked an appointment for Thursday."
+                },
+                "title": "Incoming call, 01:05"
+              }
+            },
+            "report": "InApp"
+          },
+          {
+            "at": "2026-08-15T14:05:00.000Z",
+            "id": "msg_timeline_sms_out",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Confirmed for Thursday at 2pm.",
+                "channel_label": "Text message",
+                "delivery": "Delivered",
+                "delivery_failed": false,
+                "outbound": true,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T14:10:00.000Z",
+            "id": "msg_timeline_mms",
+            "kind": {
+              "Message": {
+                "attachments": [
+                  "roof.jpg"
+                ],
+                "attachments_label": "1 image attached",
+                "author": null,
+                "body": "Here is the photo of the roof.",
+                "channel_label": "Text message",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
+            "at": "2026-08-15T14:20:00.000Z",
+            "id": "msg_timeline_email",
+            "kind": {
+              "Message": {
+                "attachments": [],
+                "attachments_label": null,
+                "author": null,
+                "body": "Following up by email - could we move Thursday to Friday?",
+                "channel_label": "Email",
+                "delivery": null,
+                "delivery_failed": false,
+                "outbound": false,
+                "subject": "Re: Thursday appointment"
+              }
+            },
+            "report": "Hidden"
+          }
+        ],
+        "loading_older": false,
+        "older_failure": null,
+        "read_only_note": "",
+        "refresh_failure": null,
+        "refreshing": false,
+        "status": "Ready",
+        "thread_key": "contact:contact_contract_1",
+        "title": "Contract Test Caller"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Inbox",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 1,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

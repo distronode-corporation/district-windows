@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace DistrictAI.Views;
 
-/// <summary>One conversation, oldest first. Replies are sent from the web dashboard or the phone apps.</summary>
+/// <summary>One conversation, oldest first, and the reply box under it for a member who may reply.</summary>
 public sealed partial class ThreadPage : UserControl
 {
     private PageContext? _context;
@@ -25,6 +25,7 @@ public sealed partial class ThreadPage : UserControl
     {
         _context = context;
         ViewModel.Attach(context);
+        ReplyBox.Attach(ViewModel.Composer, context);
     }
 
     internal void Show(ThreadView view) => ViewModel.Show(view, _context?.ReportSending ?? false);

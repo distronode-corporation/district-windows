@@ -501,4 +501,29 @@ mod tests {
             assert_eq!(unsettled(&screen), None, "{route:?}: {screen:?}");
         }
     }
+
+    /// The walk's one step past the pane: the inbox's first conversation
+    /// opens from the fixtures with its reply box, settled.
+    #[test]
+    fn the_first_conversation_opens_with_its_reply_box() {
+        let mut model = started();
+        let ScreenView::Inbox { view } = after(&mut model, Event::Navigate(Route::Inbox)) else {
+            panic!("the inbox opens");
+        };
+        let first = view
+            .threads
+            .first()
+            .expect("the fixtures hold a conversation");
+        let screen = after(
+            &mut model,
+            Event::Navigate(Route::Thread {
+                thread_key: first.thread_key.clone(),
+            }),
+        );
+        let ScreenView::Thread { view } = &screen else {
+            panic!("the conversation opens: {screen:?}");
+        };
+        assert!(view.composer.is_some(), "no reply box: {view:?}");
+        assert_eq!(unsettled(&screen), None, "{screen:?}");
+    }
 }
