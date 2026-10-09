@@ -217,12 +217,7 @@ pub(crate) fn sentiment(bands: &[SentimentShare]) -> SentimentChartView {
             .iter()
             .map(|band| SentimentBandView {
                 label: band.label.clone(),
-                legend: format!(
-                    "{}: {} ({})",
-                    band.label,
-                    band.value,
-                    percent(band.share)
-                ),
+                legend: format!("{}: {} ({})", band.label, band.value, percent(band.share)),
                 per_mille: per_mille(band.share),
                 tone: SentimentTone::of(&band.label),
             })
@@ -312,8 +307,14 @@ mod tests {
             (trend.scale_top.as_str(), trend.scale_bottom.as_str()),
             ("0", "0")
         );
-        assert_eq!((trend.axis_start.as_str(), trend.axis_end.as_str()), ("", ""));
-        assert_eq!(rows("Call funnel", &[]).summary, "Call funnel: nothing to show.");
+        assert_eq!(
+            (trend.axis_start.as_str(), trend.axis_end.as_str()),
+            ("", "")
+        );
+        assert_eq!(
+            rows("Call funnel", &[]).summary,
+            "Call funnel: nothing to show."
+        );
         assert_eq!(sentiment(&[]).summary, "Caller sentiment: nothing to show.");
         let history = history(&[]);
         assert_eq!(history.summary, "Recent months: nothing to show.");
@@ -325,7 +326,10 @@ mod tests {
         let trend = columns("Calls per day", &bars(&["Aug 9"], &[9]));
         assert_eq!(lengths(&trend), [FULL]);
         assert_eq!(trend.scale_top, "9");
-        assert_eq!((trend.axis_start.as_str(), trend.axis_end.as_str()), ("Aug 9", ""));
+        assert_eq!(
+            (trend.axis_start.as_str(), trend.axis_end.as_str()),
+            ("Aug 9", "")
+        );
         assert_eq!(
             trend.summary,
             "Calls per day: Aug 9 9. The most was 9, on Aug 9."
@@ -366,8 +370,14 @@ mod tests {
             (trend.axis_start.as_str(), trend.axis_end.as_str()),
             ("Aug 9", "Aug 15")
         );
-        let funnel = rows("Call funnel", &bars(&["Total Dials", "Connected Calls"], &[48, 35]));
-        assert_eq!(funnel.summary, "Call funnel: Total Dials 48, Connected Calls 35.");
+        let funnel = rows(
+            "Call funnel",
+            &bars(&["Total Dials", "Connected Calls"], &[48, 35]),
+        );
+        assert_eq!(
+            funnel.summary,
+            "Call funnel: Total Dials 48, Connected Calls 35."
+        );
         assert_eq!(lengths(&funnel), [FULL, 729]);
     }
 

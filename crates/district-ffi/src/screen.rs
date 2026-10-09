@@ -38,6 +38,10 @@ pub const UNAVAILABLE_BODY: &str = "Use the web dashboard or the District AI pho
 
 /// What the screen inside the frame shows.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
+#[allow(
+    clippy::large_enum_variant,
+    reason = "one screen is made per state change and lowered to C# at once; UniFFI cannot carry a Box, so a page as large as the analytics stays inline"
+)]
 pub enum ScreenView {
     /// Everything outside a session: looking for a stored one, signed out,
     /// signing in through the browser, and signing out.
@@ -539,9 +543,7 @@ mod tests {
                 },
             },
             ScreenView::Analytics {
-                view: crate::analytics::AnalyticsView {
-                    title: "Analytics".to_owned(),
-                },
+                view: crate::analytics::sample(),
             },
             ScreenView::Marketplace {
                 view: crate::marketplace::MarketplaceView {

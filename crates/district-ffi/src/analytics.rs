@@ -19,13 +19,13 @@ use district_core::{
 use district_model::AnalyticsRange;
 use serde::Serialize;
 
+use crate::chart;
 pub use crate::chart::{
     BarChartView, ChartBarView, HistoryChartView, HistoryMonthView, SentimentBandView,
     SentimentChartView, SentimentTone,
 };
-use crate::chart;
 use crate::screen::ScreenView;
-use crate::views::{FactView, FailureView, LoadStatus};
+use crate::views::{FactView, LoadStatus};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
@@ -390,6 +390,7 @@ mod tests {
     use district_core::FailureText;
 
     use super::*;
+    use crate::views::FailureView;
 
     fn failed(message: &str) -> FailureText {
         FailureText {
@@ -430,7 +431,10 @@ mod tests {
         assert_eq!(trend_title(AnalyticsRange::SevenDays), "Calls per day");
         assert_eq!(trend_title(AnalyticsRange::ThirtyDays), "Calls per day");
         assert_eq!(trend_title(AnalyticsRange::NinetyDays), "Calls per week");
-        assert_eq!(report_title(AnalyticsRange::ThirtyDays), "Calls over 30 days");
+        assert_eq!(
+            report_title(AnalyticsRange::ThirtyDays),
+            "Calls over 30 days"
+        );
     }
 
     #[test]
