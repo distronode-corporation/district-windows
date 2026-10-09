@@ -173,14 +173,19 @@ fn offered(session: &Session) -> Vec<NavDestination> {
         .collect()
 }
 
-/// The 2.0 areas built so far, which the pane offers beside 1.0's five. The
-/// pull request that builds an area adds it here.
-const BUILT: [NavDestination; 1] = [NavDestination::Support];
-
 /// An area whose packet has not built it: `session` shows `expected`, as
-/// [`ScreenView::Unavailable`], and the navigation pane offers 1.0's five
-/// destinations and the areas [`BUILT`], and nothing else.
+/// [`ScreenView::Unavailable`], the navigation pane offers 1.0's five
+/// destinations, and no entry of 2.0's is highlighted for it. Which of 2.0's
+/// the pane offers is nav.rs's to pin (only those built), so building one
+/// area changes no other area's checks.
 fn assert_unbuilt(session: &Session, expected: Route) {
+    const FIRST_FIVE: [NavDestination; 5] = [
+        NavDestination::Overview,
+        NavDestination::Inbox,
+        NavDestination::Calls,
+        NavDestination::Contacts,
+        NavDestination::Account,
+    ];
     assert_eq!(route(session), expected);
     assert!(
         matches!(screen_view(&session.model), ScreenView::Unavailable { .. }),
@@ -188,21 +193,13 @@ fn assert_unbuilt(session: &Session, expected: Route) {
     );
     let offered = offered(session);
     assert!(
-        BUILT.iter().all(|built| offered.contains(built)),
-        "{offered:?}"
+        FIRST_FIVE.iter().all(|five| offered.contains(five)),
+        "{expected:?}: {offered:?}"
     );
-    assert_eq!(
-        offered
-            .into_iter()
-            .filter(|destination| !BUILT.contains(destination))
-            .collect::<Vec<_>>(),
-        [
-            NavDestination::Overview,
-            NavDestination::Inbox,
-            NavDestination::Calls,
-            NavDestination::Contacts,
-            NavDestination::Account,
-        ]
+    let selected = shell_json(session)["nav_selected"].clone();
+    assert!(
+        selected.is_null() || FIRST_FIVE.iter().any(|five| json!(five) == selected),
+        "{expected:?}: {selected}"
     );
 }
 

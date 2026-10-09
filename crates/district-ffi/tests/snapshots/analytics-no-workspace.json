@@ -1,0 +1,46 @@
+{
+  "screen": {
+    "Overview": {
+      "view": {
+        "finish_setup": null,
+        "metrics": [],
+        "read_only_badge": null,
+        "recent_calls": [],
+        "recent_calls_empty": null,
+        "refresh_failure": null,
+        "refreshing": false,
+        "status": {
+          "Failed": {
+            "failure": {
+              "message": "This account is not linked to a District workspace yet. Please contact support.",
+              "regions_line": null,
+              "retryable": false
+            },
+            "title": "No workspace found"
+          }
+        },
+        "workspace_name": ""
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": false,
+    "live": null,
+    "nav_selected": "Overview",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": null,
+      "can_switch": false,
+      "entries": [],
+      "message": "This account is not linked to a District workspace yet. Please contact support.",
+      "partial_warning": null,
+      "title": "No workspace found"
+    }
+  }
+}

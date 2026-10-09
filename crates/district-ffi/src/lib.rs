@@ -91,7 +91,10 @@ pub use crate::calls::{
 pub use crate::calls_live::{
     ActiveCallView, DialerView, IncomingRingView, active_call_view, dialer_view, incoming_ring_view,
 };
-pub use crate::contacts::{CONTACT_FAILED_TITLE, ContactDetailView, ContactRowView, ContactsView};
+pub use crate::contacts::{
+    CONTACT_FAILED_TITLE, ContactDetailView, ContactFormInput, ContactFormView,
+    ContactQuestionView, ContactRowView, ContactWritesView, ContactsAction, ContactsView,
+};
 pub use crate::core::{Core, StartConfig, StartError};
 pub use crate::events::UiEvent;
 pub use crate::host::{NotificationActionView, NotificationView, UiHost};
