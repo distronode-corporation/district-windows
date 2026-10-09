@@ -2234,6 +2234,32 @@ static class _UniFFILib {
 
 
 
+class FfiConverterUInt16: FfiConverter<ushort, ushort> {
+    public static FfiConverterUInt16 INSTANCE = new FfiConverterUInt16();
+
+    public override ushort Lift(ushort value) {
+        return value;
+    }
+
+    public override ushort Read(BigEndianStream stream) {
+        return stream.ReadUShort();
+    }
+
+    public override ushort Lower(ushort value) {
+        return value;
+    }
+
+    public override int AllocationSize(ushort value) {
+        return 2;
+    }
+
+    public override void Write(ushort value, BigEndianStream stream) {
+        stream.WriteUShort(value);
+    }
+}
+
+
+
 class FfiConverterUInt32: FfiConverter<uint, uint> {
     public static FfiConverterUInt32 INSTANCE = new FfiConverterUInt32();
 
@@ -3702,13 +3728,66 @@ class FfiConverterTypeAiTextView: FfiConverterRustBuffer<AiTextView> {
 /// The analytics screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading: "Analytics".
+/// </param>
+/// <param name="Status">
+/// `Failed` (a status page, with Try again when it may help) only when
+/// every read failed; `Ready` otherwise, each card saying where its own
+/// read stands.
+/// </param>
+/// <param name="PeriodLabel">
+/// The period chooser's label: "Period".
+/// </param>
+/// <param name="Periods">
+/// The periods, in order, the one selected marked.
+/// </param>
+/// <param name="Refreshing">
+/// Whether anything showing is being read again.
+/// </param>
+/// <param name="Report">
+/// The calls over the period.
+/// </param>
+/// <param name="Usage">
+/// This month's metered usage.
+/// </param>
+/// <param name="History">
+/// The last few months of metered usage.
 /// </param>
 public record AnalyticsView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading: "Analytics".
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// `Failed` (a status page, with Try again when it may help) only when
+    /// every read failed; `Ready` otherwise, each card saying where its own
+    /// read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The period chooser's label: "Period".
+    /// </summary>
+    string PeriodLabel, 
+    /// <summary>
+    /// The periods, in order, the one selected marked.
+    /// </summary>
+    PeriodChoiceView[] Periods, 
+    /// <summary>
+    /// Whether anything showing is being read again.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// The calls over the period.
+    /// </summary>
+    ReportCardView Report, 
+    /// <summary>
+    /// This month's metered usage.
+    /// </summary>
+    UsageCardView Usage, 
+    /// <summary>
+    /// The last few months of metered usage.
+    /// </summary>
+    HistoryCardView History
 ) {
 }
 
@@ -3717,17 +3796,123 @@ class FfiConverterTypeAnalyticsView: FfiConverterRustBuffer<AnalyticsView> {
 
     public override AnalyticsView Read(BigEndianStream stream) {
         return new AnalyticsView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            PeriodLabel: FfiConverterString.INSTANCE.Read(stream),
+            Periods: FfiConverterSequenceTypePeriodChoiceView.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Report: FfiConverterTypeReportCardView.INSTANCE.Read(stream),
+            Usage: FfiConverterTypeUsageCardView.INSTANCE.Read(stream),
+            History: FfiConverterTypeHistoryCardView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(AnalyticsView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PeriodLabel)
+            + FfiConverterSequenceTypePeriodChoiceView.INSTANCE.AllocationSize(value.Periods)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterTypeReportCardView.INSTANCE.AllocationSize(value.Report)
+            + FfiConverterTypeUsageCardView.INSTANCE.AllocationSize(value.Usage)
+            + FfiConverterTypeHistoryCardView.INSTANCE.AllocationSize(value.History);
     }
 
     public override void Write(AnalyticsView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.PeriodLabel, stream);
+            FfiConverterSequenceTypePeriodChoiceView.INSTANCE.Write(value.Periods, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterTypeReportCardView.INSTANCE.Write(value.Report, stream);
+            FfiConverterTypeUsageCardView.INSTANCE.Write(value.Usage, stream);
+            FfiConverterTypeHistoryCardView.INSTANCE.Write(value.History, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A bar chart: the trend's columns, or the funnel's rows.
+/// </summary>
+/// <param name="Summary">
+/// What the chart shows, in one sentence: the chart's name for Narrator.
+/// </param>
+/// <param name="Bars">
+/// The bars, in the order the service sent them.
+/// </param>
+/// <param name="ScaleTop">
+/// The top of the scale, the largest value: "11".
+/// </param>
+/// <param name="ScaleBottom">
+/// The bottom of the scale: "0".
+/// </param>
+/// <param name="AxisStart">
+/// The first bar's label, under the start of the axis.
+/// </param>
+/// <param name="AxisEnd">
+/// The last bar's label, under its end. Empty for one bar.
+/// </param>
+public record BarChartView (
+    /// <summary>
+    /// What the chart shows, in one sentence: the chart's name for Narrator.
+    /// </summary>
+    string Summary, 
+    /// <summary>
+    /// The bars, in the order the service sent them.
+    /// </summary>
+    ChartBarView[] Bars, 
+    /// <summary>
+    /// The top of the scale, the largest value: "11".
+    /// </summary>
+    string ScaleTop, 
+    /// <summary>
+    /// The bottom of the scale: "0".
+    /// </summary>
+    string ScaleBottom, 
+    /// <summary>
+    /// The first bar's label, under the start of the axis.
+    /// </summary>
+    string AxisStart, 
+    /// <summary>
+    /// The last bar's label, under its end. Empty for one bar.
+    /// </summary>
+    string AxisEnd
+) {
+}
+
+class FfiConverterTypeBarChartView: FfiConverterRustBuffer<BarChartView> {
+    public static FfiConverterTypeBarChartView INSTANCE = new FfiConverterTypeBarChartView();
+
+    public override BarChartView Read(BigEndianStream stream) {
+        return new BarChartView(
+            Summary: FfiConverterString.INSTANCE.Read(stream),
+            Bars: FfiConverterSequenceTypeChartBarView.INSTANCE.Read(stream),
+            ScaleTop: FfiConverterString.INSTANCE.Read(stream),
+            ScaleBottom: FfiConverterString.INSTANCE.Read(stream),
+            AxisStart: FfiConverterString.INSTANCE.Read(stream),
+            AxisEnd: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(BarChartView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterSequenceTypeChartBarView.INSTANCE.AllocationSize(value.Bars)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ScaleTop)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ScaleBottom)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AxisStart)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AxisEnd);
+    }
+
+    public override void Write(BarChartView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Summary, stream);
+            FfiConverterSequenceTypeChartBarView.INSTANCE.Write(value.Bars, stream);
+            FfiConverterString.INSTANCE.Write(value.ScaleTop, stream);
+            FfiConverterString.INSTANCE.Write(value.ScaleBottom, stream);
+            FfiConverterString.INSTANCE.Write(value.AxisStart, stream);
+            FfiConverterString.INSTANCE.Write(value.AxisEnd, stream);
     }
 }
 
@@ -4285,6 +4470,61 @@ class FfiConverterTypeCallsView: FfiConverterRustBuffer<CallsView> {
             FfiConverterSequenceTypeCallRowView.INSTANCE.Write(value.Rows, stream);
             FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
             FfiConverterTypePagingView.INSTANCE.Write(value.Paging, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One bar.
+/// </summary>
+/// <param name="Label">
+/// Its label: "Aug 9", "Connected Calls".
+/// </param>
+/// <param name="Value">
+/// Its value, as the service sent it.
+/// </param>
+/// <param name="PerMille">
+/// Its length in thousandths of the longest bar's, 0 to [`FULL`].
+/// </param>
+public record ChartBarView (
+    /// <summary>
+    /// Its label: "Aug 9", "Connected Calls".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Its value, as the service sent it.
+    /// </summary>
+    string Value, 
+    /// <summary>
+    /// Its length in thousandths of the longest bar's, 0 to [`FULL`].
+    /// </summary>
+    ushort PerMille
+) {
+}
+
+class FfiConverterTypeChartBarView: FfiConverterRustBuffer<ChartBarView> {
+    public static FfiConverterTypeChartBarView INSTANCE = new FfiConverterTypeChartBarView();
+
+    public override ChartBarView Read(BigEndianStream stream) {
+        return new ChartBarView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Value: FfiConverterString.INSTANCE.Read(stream),
+            PerMille: FfiConverterUInt16.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ChartBarView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
+            + FfiConverterUInt16.INSTANCE.AllocationSize(value.PerMille);
+    }
+
+    public override void Write(ChartBarView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+            FfiConverterUInt16.INSTANCE.Write(value.PerMille, stream);
     }
 }
 
@@ -6823,16 +7063,426 @@ class FfiConverterTypeFinishSetupView: FfiConverterRustBuffer<FinishSetupView> {
 
 
 /// <summary>
+/// The last few months of metered usage.
+/// </summary>
+/// <param name="Title">
+/// "Recent months".
+/// </param>
+/// <param name="Caption">
+/// What the bars compare, under the heading.
+/// </param>
+/// <param name="Status">
+/// Where the read stands.
+/// </param>
+/// <param name="Refreshing">
+/// Whether it is being read again, with this still showing.
+/// </param>
+/// <param name="Chart">
+/// The months, or `None` when nothing has been metered in any of them.
+/// </param>
+/// <param name="Empty">
+/// What to say when nothing has been metered in any of them.
+/// </param>
+public record HistoryCardView (
+    /// <summary>
+    /// "Recent months".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What the bars compare, under the heading.
+    /// </summary>
+    string Caption, 
+    /// <summary>
+    /// Where the read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Whether it is being read again, with this still showing.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// The months, or `None` when nothing has been metered in any of them.
+    /// </summary>
+    HistoryChartView? Chart, 
+    /// <summary>
+    /// What to say when nothing has been metered in any of them.
+    /// </summary>
+    string? Empty
+) {
+}
+
+class FfiConverterTypeHistoryCardView: FfiConverterRustBuffer<HistoryCardView> {
+    public static FfiConverterTypeHistoryCardView INSTANCE = new FfiConverterTypeHistoryCardView();
+
+    public override HistoryCardView Read(BigEndianStream stream) {
+        return new HistoryCardView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Caption: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Chart: FfiConverterOptionalTypeHistoryChartView.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HistoryCardView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Caption)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterOptionalTypeHistoryChartView.INSTANCE.AllocationSize(value.Chart)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Empty);
+    }
+
+    public override void Write(HistoryCardView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Caption, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterOptionalTypeHistoryChartView.INSTANCE.Write(value.Chart, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Empty, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The usage history: each month's call minutes as a bar against the busiest
+/// month's, with its minutes and messages as the service counted them.
+/// </summary>
+/// <param name="Summary">
+/// What the chart shows, in one sentence: the chart's name for Narrator.
+/// </param>
+/// <param name="Headings">
+/// The column headings: month, the bar's (empty), call minutes, messages.
+/// </param>
+/// <param name="Months">
+/// The months, newest first, as the service ordered them.
+/// </param>
+public record HistoryChartView (
+    /// <summary>
+    /// What the chart shows, in one sentence: the chart's name for Narrator.
+    /// </summary>
+    string Summary, 
+    /// <summary>
+    /// The column headings: month, the bar's (empty), call minutes, messages.
+    /// </summary>
+    string[] Headings, 
+    /// <summary>
+    /// The months, newest first, as the service ordered them.
+    /// </summary>
+    HistoryMonthView[] Months
+) {
+}
+
+class FfiConverterTypeHistoryChartView: FfiConverterRustBuffer<HistoryChartView> {
+    public static FfiConverterTypeHistoryChartView INSTANCE = new FfiConverterTypeHistoryChartView();
+
+    public override HistoryChartView Read(BigEndianStream stream) {
+        return new HistoryChartView(
+            Summary: FfiConverterString.INSTANCE.Read(stream),
+            Headings: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Months: FfiConverterSequenceTypeHistoryMonthView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HistoryChartView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Headings)
+            + FfiConverterSequenceTypeHistoryMonthView.INSTANCE.AllocationSize(value.Months);
+    }
+
+    public override void Write(HistoryChartView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Summary, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.Headings, stream);
+            FfiConverterSequenceTypeHistoryMonthView.INSTANCE.Write(value.Months, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One month of the usage history.
+/// </summary>
+/// <param name="Month">
+/// The month: "Aug 2026".
+/// </param>
+/// <param name="Minutes">
+/// Its call minutes, or "Not recorded".
+/// </param>
+/// <param name="Messages">
+/// Its messages, or "Not recorded".
+/// </param>
+/// <param name="PerMille">
+/// Its minutes bar in thousandths of the busiest month's, 0 to [`FULL`].
+/// </param>
+public record HistoryMonthView (
+    /// <summary>
+    /// The month: "Aug 2026".
+    /// </summary>
+    string Month, 
+    /// <summary>
+    /// Its call minutes, or "Not recorded".
+    /// </summary>
+    string Minutes, 
+    /// <summary>
+    /// Its messages, or "Not recorded".
+    /// </summary>
+    string Messages, 
+    /// <summary>
+    /// Its minutes bar in thousandths of the busiest month's, 0 to [`FULL`].
+    /// </summary>
+    ushort PerMille
+) {
+}
+
+class FfiConverterTypeHistoryMonthView: FfiConverterRustBuffer<HistoryMonthView> {
+    public static FfiConverterTypeHistoryMonthView INSTANCE = new FfiConverterTypeHistoryMonthView();
+
+    public override HistoryMonthView Read(BigEndianStream stream) {
+        return new HistoryMonthView(
+            Month: FfiConverterString.INSTANCE.Read(stream),
+            Minutes: FfiConverterString.INSTANCE.Read(stream),
+            Messages: FfiConverterString.INSTANCE.Read(stream),
+            PerMille: FfiConverterUInt16.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HistoryMonthView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Month)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Minutes)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Messages)
+            + FfiConverterUInt16.INSTANCE.AllocationSize(value.PerMille);
+    }
+
+    public override void Write(HistoryMonthView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Month, stream);
+            FfiConverterString.INSTANCE.Write(value.Minutes, stream);
+            FfiConverterString.INSTANCE.Write(value.Messages, stream);
+            FfiConverterUInt16.INSTANCE.Write(value.PerMille, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The card in front of a change the assistant proposed.
+/// </summary>
+/// <param name="Title">
+/// The heading.
+/// </param>
+/// <param name="Summary">
+/// The service's one sentence saying exactly what the change would do.
+/// </param>
+/// <param name="Note">
+/// The note under it: nothing has changed yet, only certain roles can
+/// confirm, or the change may have been made.
+/// </param>
+/// <param name="Applying">
+/// The line while the confirmed change is being applied (show a progress
+/// ring).
+/// </param>
+/// <param name="Failure">
+/// Why the confirmation failed. Confirm stays, as the member's decision.
+/// </param>
+/// <param name="ConfirmLabel">
+/// The confirming button's label.
+/// </param>
+/// <param name="DismissLabel">
+/// The declining button's label.
+/// </param>
+/// <param name="CanConfirm">
+/// Whether Confirm works now.
+/// </param>
+/// <param name="CanDismiss">
+/// Whether Dismiss works now.
+/// </param>
+public record HqCardView (
+    /// <summary>
+    /// The heading.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The service's one sentence saying exactly what the change would do.
+    /// </summary>
+    string Summary, 
+    /// <summary>
+    /// The note under it: nothing has changed yet, only certain roles can
+    /// confirm, or the change may have been made.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// The line while the confirmed change is being applied (show a progress
+    /// ring).
+    /// </summary>
+    string? Applying, 
+    /// <summary>
+    /// Why the confirmation failed. Confirm stays, as the member's decision.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// The confirming button's label.
+    /// </summary>
+    string ConfirmLabel, 
+    /// <summary>
+    /// The declining button's label.
+    /// </summary>
+    string DismissLabel, 
+    /// <summary>
+    /// Whether Confirm works now.
+    /// </summary>
+    bool CanConfirm, 
+    /// <summary>
+    /// Whether Dismiss works now.
+    /// </summary>
+    bool CanDismiss
+) {
+}
+
+class FfiConverterTypeHqCardView: FfiConverterRustBuffer<HqCardView> {
+    public static FfiConverterTypeHqCardView INSTANCE = new FfiConverterTypeHqCardView();
+
+    public override HqCardView Read(BigEndianStream stream) {
+        return new HqCardView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Summary: FfiConverterString.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Applying: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            ConfirmLabel: FfiConverterString.INSTANCE.Read(stream),
+            DismissLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanConfirm: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanDismiss: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HqCardView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Applying)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConfirmLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DismissLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanConfirm)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDismiss);
+    }
+
+    public override void Write(HqCardView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Summary, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Applying, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterString.INSTANCE.Write(value.ConfirmLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DismissLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanConfirm, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDismiss, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The District HQ screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`TITLE`].
+/// </param>
+/// <param name="Empty">
+/// What an empty conversation says, while nothing has been asked.
+/// </param>
+/// <param name="Messages">
+/// The conversation, oldest first. It only grows while the workspace is
+/// open, so a page may keep what it drew and add the rest.
+/// </param>
+/// <param name="Thinking">
+/// The line while a prompt is being answered (show a progress ring).
+/// </param>
+/// <param name="Failure">
+/// Why the last prompt went unanswered. The question stays in the
+/// conversation.
+/// </param>
+/// <param name="CanRetry">
+/// Whether "Try again" is offered for [`failure`](Self::failure): only when
+/// trying again could help.
+/// </param>
+/// <param name="Card">
+/// The card of a change the assistant proposed, while there is one.
+/// </param>
+/// <param name="CanAsk">
+/// Whether a prompt can be sent now: not while one is being answered or a
+/// change applied.
+/// </param>
+/// <param name="PromptPlaceholder">
+/// The prompt box's placeholder, [`PROMPT_PLACEHOLDER`].
+/// </param>
+/// <param name="AskLabel">
+/// The send button's label, [`ASK_ACTION`].
+/// </param>
+/// <param name="RetryLabel">
+/// The "Try again" button's label, [`RETRY_ACTION`].
+/// </param>
+/// <param name="Footnote">
+/// The line under the prompt box, [`FOOTNOTE`].
 /// </param>
 public record HqView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// What an empty conversation says, while nothing has been asked.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// The conversation, oldest first. It only grows while the workspace is
+    /// open, so a page may keep what it drew and add the rest.
+    /// </summary>
+    HqMessageView[] Messages, 
+    /// <summary>
+    /// The line while a prompt is being answered (show a progress ring).
+    /// </summary>
+    string? Thinking, 
+    /// <summary>
+    /// Why the last prompt went unanswered. The question stays in the
+    /// conversation.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// Whether "Try again" is offered for [`failure`](Self::failure): only when
+    /// trying again could help.
+    /// </summary>
+    bool CanRetry, 
+    /// <summary>
+    /// The card of a change the assistant proposed, while there is one.
+    /// </summary>
+    HqCardView? Card, 
+    /// <summary>
+    /// Whether a prompt can be sent now: not while one is being answered or a
+    /// change applied.
+    /// </summary>
+    bool CanAsk, 
+    /// <summary>
+    /// The prompt box's placeholder, [`PROMPT_PLACEHOLDER`].
+    /// </summary>
+    string PromptPlaceholder, 
+    /// <summary>
+    /// The send button's label, [`ASK_ACTION`].
+    /// </summary>
+    string AskLabel, 
+    /// <summary>
+    /// The "Try again" button's label, [`RETRY_ACTION`].
+    /// </summary>
+    string RetryLabel, 
+    /// <summary>
+    /// The line under the prompt box, [`FOOTNOTE`].
+    /// </summary>
+    string Footnote
 ) {
 }
 
@@ -6841,17 +7491,50 @@ class FfiConverterTypeHqView: FfiConverterRustBuffer<HqView> {
 
     public override HqView Read(BigEndianStream stream) {
         return new HqView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Messages: FfiConverterSequenceTypeHqMessageView.INSTANCE.Read(stream),
+            Thinking: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            CanRetry: FfiConverterBoolean.INSTANCE.Read(stream),
+            Card: FfiConverterOptionalTypeHqCardView.INSTANCE.Read(stream),
+            CanAsk: FfiConverterBoolean.INSTANCE.Read(stream),
+            PromptPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            AskLabel: FfiConverterString.INSTANCE.Read(stream),
+            RetryLabel: FfiConverterString.INSTANCE.Read(stream),
+            Footnote: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(HqView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterSequenceTypeHqMessageView.INSTANCE.AllocationSize(value.Messages)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Thinking)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanRetry)
+            + FfiConverterOptionalTypeHqCardView.INSTANCE.AllocationSize(value.Card)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAsk)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PromptPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AskLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RetryLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Footnote);
     }
 
     public override void Write(HqView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterSequenceTypeHqMessageView.INSTANCE.Write(value.Messages, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Thinking, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanRetry, stream);
+            FfiConverterOptionalTypeHqCardView.INSTANCE.Write(value.Card, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanAsk, stream);
+            FfiConverterString.INSTANCE.Write(value.PromptPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.AskLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RetryLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Footnote, stream);
     }
 }
 
@@ -7881,6 +8564,63 @@ class FfiConverterTypePaletteView: FfiConverterRustBuffer<PaletteView> {
 
 
 /// <summary>
+/// One button of the period chooser.
+/// </summary>
+/// <param name="Period">
+/// The period it selects (send [`AnalyticsAction::SelectPeriod`]).
+/// </param>
+/// <param name="Label">
+/// What it says: "7 days".
+/// </param>
+/// <param name="Selected">
+/// Whether it is the period selected. It moves when the member picks
+/// another, before that period's figures arrive.
+/// </param>
+public record PeriodChoiceView (
+    /// <summary>
+    /// The period it selects (send [`AnalyticsAction::SelectPeriod`]).
+    /// </summary>
+    AnalyticsPeriod Period, 
+    /// <summary>
+    /// What it says: "7 days".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether it is the period selected. It moves when the member picks
+    /// another, before that period's figures arrive.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypePeriodChoiceView: FfiConverterRustBuffer<PeriodChoiceView> {
+    public static FfiConverterTypePeriodChoiceView INSTANCE = new FfiConverterTypePeriodChoiceView();
+
+    public override PeriodChoiceView Read(BigEndianStream stream) {
+        return new PeriodChoiceView(
+            Period: FfiConverterTypeAnalyticsPeriod.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PeriodChoiceView value) {
+        return 0
+            + FfiConverterTypeAnalyticsPeriod.INSTANCE.AllocationSize(value.Period)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(PeriodChoiceView value, BigEndianStream stream) {
+            FfiConverterTypeAnalyticsPeriod.INSTANCE.Write(value.Period, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The the persona section.
 /// </summary>
 /// <param name="Title">
@@ -7967,6 +8707,279 @@ class FfiConverterTypePickedFileView: FfiConverterRustBuffer<PickedFileView> {
             FfiConverterString.INSTANCE.Write(value.FileName, stream);
             FfiConverterUInt64.INSTANCE.Write(value.Size, stream);
             FfiConverterByteArray.INSTANCE.Write(value.Bytes, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The calls over the period: the figures and their charts.
+/// </summary>
+/// <param name="Title">
+/// "Calls", then which period the figures on screen are for: "Calls over
+/// 7 days" (not the period picked while its figures are on their way).
+/// </param>
+/// <param name="Status">
+/// Where the read stands: a progress ring, the failure (under the core's
+/// heading, "Could not load call analytics"), or the figures.
+/// </param>
+/// <param name="Refreshing">
+/// Whether the figures are being read again, with these still showing.
+/// </param>
+/// <param name="Figures">
+/// The five figures: calls, average call, converted, missed, abandoned.
+/// </param>
+/// <param name="Change">
+/// How call volume moved against the period before, in a sentence.
+/// </param>
+/// <param name="TrendTitle">
+/// What a bar of the trend stands for: "Calls per day", "Calls per week".
+/// </param>
+/// <param name="Trend">
+/// The trend as columns, or `None` when it has no calls at all.
+/// </param>
+/// <param name="TrendEmpty">
+/// What to say instead of a trend with no calls.
+/// </param>
+/// <param name="FunnelTitle">
+/// The funnel's heading: "Call funnel".
+/// </param>
+/// <param name="Funnel">
+/// The funnel's stages as rows.
+/// </param>
+/// <param name="SentimentTitle">
+/// The sentiment breakdown's heading: "Caller sentiment".
+/// </param>
+/// <param name="Sentiment">
+/// The sentiment breakdown, or `None` with no calls to analyse: never an
+/// even split of nothing.
+/// </param>
+/// <param name="SentimentEmpty">
+/// What to say instead of a breakdown of no calls.
+/// </param>
+public record ReportCardView (
+    /// <summary>
+    /// "Calls", then which period the figures on screen are for: "Calls over
+    /// 7 days" (not the period picked while its figures are on their way).
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// Where the read stands: a progress ring, the failure (under the core's
+    /// heading, "Could not load call analytics"), or the figures.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Whether the figures are being read again, with these still showing.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// The five figures: calls, average call, converted, missed, abandoned.
+    /// </summary>
+    FactView[] Figures, 
+    /// <summary>
+    /// How call volume moved against the period before, in a sentence.
+    /// </summary>
+    string Change, 
+    /// <summary>
+    /// What a bar of the trend stands for: "Calls per day", "Calls per week".
+    /// </summary>
+    string TrendTitle, 
+    /// <summary>
+    /// The trend as columns, or `None` when it has no calls at all.
+    /// </summary>
+    BarChartView? Trend, 
+    /// <summary>
+    /// What to say instead of a trend with no calls.
+    /// </summary>
+    string? TrendEmpty, 
+    /// <summary>
+    /// The funnel's heading: "Call funnel".
+    /// </summary>
+    string FunnelTitle, 
+    /// <summary>
+    /// The funnel's stages as rows.
+    /// </summary>
+    BarChartView Funnel, 
+    /// <summary>
+    /// The sentiment breakdown's heading: "Caller sentiment".
+    /// </summary>
+    string SentimentTitle, 
+    /// <summary>
+    /// The sentiment breakdown, or `None` with no calls to analyse: never an
+    /// even split of nothing.
+    /// </summary>
+    SentimentChartView? Sentiment, 
+    /// <summary>
+    /// What to say instead of a breakdown of no calls.
+    /// </summary>
+    string? SentimentEmpty
+) {
+}
+
+class FfiConverterTypeReportCardView: FfiConverterRustBuffer<ReportCardView> {
+    public static FfiConverterTypeReportCardView INSTANCE = new FfiConverterTypeReportCardView();
+
+    public override ReportCardView Read(BigEndianStream stream) {
+        return new ReportCardView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Figures: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            Change: FfiConverterString.INSTANCE.Read(stream),
+            TrendTitle: FfiConverterString.INSTANCE.Read(stream),
+            Trend: FfiConverterOptionalTypeBarChartView.INSTANCE.Read(stream),
+            TrendEmpty: FfiConverterOptionalString.INSTANCE.Read(stream),
+            FunnelTitle: FfiConverterString.INSTANCE.Read(stream),
+            Funnel: FfiConverterTypeBarChartView.INSTANCE.Read(stream),
+            SentimentTitle: FfiConverterString.INSTANCE.Read(stream),
+            Sentiment: FfiConverterOptionalTypeSentimentChartView.INSTANCE.Read(stream),
+            SentimentEmpty: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ReportCardView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Figures)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Change)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TrendTitle)
+            + FfiConverterOptionalTypeBarChartView.INSTANCE.AllocationSize(value.Trend)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.TrendEmpty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.FunnelTitle)
+            + FfiConverterTypeBarChartView.INSTANCE.AllocationSize(value.Funnel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SentimentTitle)
+            + FfiConverterOptionalTypeSentimentChartView.INSTANCE.AllocationSize(value.Sentiment)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.SentimentEmpty);
+    }
+
+    public override void Write(ReportCardView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Figures, stream);
+            FfiConverterString.INSTANCE.Write(value.Change, stream);
+            FfiConverterString.INSTANCE.Write(value.TrendTitle, stream);
+            FfiConverterOptionalTypeBarChartView.INSTANCE.Write(value.Trend, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.TrendEmpty, stream);
+            FfiConverterString.INSTANCE.Write(value.FunnelTitle, stream);
+            FfiConverterTypeBarChartView.INSTANCE.Write(value.Funnel, stream);
+            FfiConverterString.INSTANCE.Write(value.SentimentTitle, stream);
+            FfiConverterOptionalTypeSentimentChartView.INSTANCE.Write(value.Sentiment, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.SentimentEmpty, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A stretch of text in one style.
+/// </summary>
+/// <param name="Text">
+/// The text, shown exactly as it is.
+/// </param>
+/// <param name="Bold">
+/// Strong emphasis.
+/// </param>
+/// <param name="Italic">
+/// Emphasis.
+/// </param>
+/// <param name="Code">
+/// Inline code, in a fixed-width font.
+/// </param>
+/// <param name="Link">
+/// The web page the run links to, when it is a link: always `https://` or
+/// `http://` ([`is_web_link`]). Opening it goes back through the core.
+/// </param>
+public record RichRun (
+    /// <summary>
+    /// The text, shown exactly as it is.
+    /// </summary>
+    string Text, 
+    /// <summary>
+    /// Strong emphasis.
+    /// </summary>
+    bool Bold, 
+    /// <summary>
+    /// Emphasis.
+    /// </summary>
+    bool Italic, 
+    /// <summary>
+    /// Inline code, in a fixed-width font.
+    /// </summary>
+    bool Code, 
+    /// <summary>
+    /// The web page the run links to, when it is a link: always `https://` or
+    /// `http://` ([`is_web_link`]). Opening it goes back through the core.
+    /// </summary>
+    string? Link
+) {
+}
+
+class FfiConverterTypeRichRun: FfiConverterRustBuffer<RichRun> {
+    public static FfiConverterTypeRichRun INSTANCE = new FfiConverterTypeRichRun();
+
+    public override RichRun Read(BigEndianStream stream) {
+        return new RichRun(
+            Text: FfiConverterString.INSTANCE.Read(stream),
+            Bold: FfiConverterBoolean.INSTANCE.Read(stream),
+            Italic: FfiConverterBoolean.INSTANCE.Read(stream),
+            Code: FfiConverterBoolean.INSTANCE.Read(stream),
+            Link: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RichRun value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Text)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Bold)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Italic)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Code)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Link);
+    }
+
+    public override void Write(RichRun value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Text, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Bold, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Italic, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Code, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Link, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Text written in the subset, as blocks.
+/// </summary>
+/// <param name="Blocks">
+/// The blocks, in reading order.
+/// </param>
+public record RichTextView (
+    /// <summary>
+    /// The blocks, in reading order.
+    /// </summary>
+    RichBlock[] Blocks
+) {
+}
+
+class FfiConverterTypeRichTextView: FfiConverterRustBuffer<RichTextView> {
+    public static FfiConverterTypeRichTextView INSTANCE = new FfiConverterTypeRichTextView();
+
+    public override RichTextView Read(BigEndianStream stream) {
+        return new RichTextView(
+            Blocks: FfiConverterSequenceTypeRichBlock.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RichTextView value) {
+        return 0
+            + FfiConverterSequenceTypeRichBlock.INSTANCE.AllocationSize(value.Blocks);
+    }
+
+    public override void Write(RichTextView value, BigEndianStream stream) {
+            FfiConverterSequenceTypeRichBlock.INSTANCE.Write(value.Blocks, stream);
     }
 }
 
@@ -8270,6 +9283,118 @@ class FfiConverterTypeSearchView: FfiConverterRustBuffer<SearchView> {
 
 
 /// <summary>
+/// One band of the sentiment breakdown.
+/// </summary>
+/// <param name="Label">
+/// Its label, as the service named it: "Positive Sentiment".
+/// </param>
+/// <param name="Legend">
+/// Its legend line: "Positive Sentiment: 21 (44%)".
+/// </param>
+/// <param name="PerMille">
+/// Its share of all the calls in thousandths, 0 to [`FULL`].
+/// </param>
+/// <param name="Tone">
+/// Which band it is, for its fill: told apart by pattern as well as
+/// colour, so it reads under high contrast.
+/// </param>
+public record SentimentBandView (
+    /// <summary>
+    /// Its label, as the service named it: "Positive Sentiment".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Its legend line: "Positive Sentiment: 21 (44%)".
+    /// </summary>
+    string Legend, 
+    /// <summary>
+    /// Its share of all the calls in thousandths, 0 to [`FULL`].
+    /// </summary>
+    ushort PerMille, 
+    /// <summary>
+    /// Which band it is, for its fill: told apart by pattern as well as
+    /// colour, so it reads under high contrast.
+    /// </summary>
+    SentimentTone Tone
+) {
+}
+
+class FfiConverterTypeSentimentBandView: FfiConverterRustBuffer<SentimentBandView> {
+    public static FfiConverterTypeSentimentBandView INSTANCE = new FfiConverterTypeSentimentBandView();
+
+    public override SentimentBandView Read(BigEndianStream stream) {
+        return new SentimentBandView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Legend: FfiConverterString.INSTANCE.Read(stream),
+            PerMille: FfiConverterUInt16.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeSentimentTone.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SentimentBandView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Legend)
+            + FfiConverterUInt16.INSTANCE.AllocationSize(value.PerMille)
+            + FfiConverterTypeSentimentTone.INSTANCE.AllocationSize(value.Tone);
+    }
+
+    public override void Write(SentimentBandView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Legend, stream);
+            FfiConverterUInt16.INSTANCE.Write(value.PerMille, stream);
+            FfiConverterTypeSentimentTone.INSTANCE.Write(value.Tone, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The sentiment breakdown: each band's share of the calls.
+/// </summary>
+/// <param name="Summary">
+/// What the chart shows, in one sentence: the chart's name for Narrator.
+/// </param>
+/// <param name="Bands">
+/// The bands, in the order the service sent them.
+/// </param>
+public record SentimentChartView (
+    /// <summary>
+    /// What the chart shows, in one sentence: the chart's name for Narrator.
+    /// </summary>
+    string Summary, 
+    /// <summary>
+    /// The bands, in the order the service sent them.
+    /// </summary>
+    SentimentBandView[] Bands
+) {
+}
+
+class FfiConverterTypeSentimentChartView: FfiConverterRustBuffer<SentimentChartView> {
+    public static FfiConverterTypeSentimentChartView INSTANCE = new FfiConverterTypeSentimentChartView();
+
+    public override SentimentChartView Read(BigEndianStream stream) {
+        return new SentimentChartView(
+            Summary: FfiConverterString.INSTANCE.Read(stream),
+            Bands: FfiConverterSequenceTypeSentimentBandView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SentimentChartView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterSequenceTypeSentimentBandView.INSTANCE.AllocationSize(value.Bands);
+    }
+
+    public override void Write(SentimentChartView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Summary, stream);
+            FfiConverterSequenceTypeSentimentBandView.INSTANCE.Write(value.Bands, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The sign-in page, for every session state but signed in. The same fields,
 /// words and buttons as the Linux app's session page.
 /// </summary>
@@ -8442,6 +9567,11 @@ class FfiConverterTypeSettingsHubView: FfiConverterRustBuffer<SettingsHubView> {
 /// The report this session started, while it is under way or until its
 /// outcome is dismissed (`UiEvent::DismissReport`).
 /// </param>
+/// <param name="ReportRefusal">
+/// Why a Report would be refused now (a support request is being written
+/// in Support), for the report dialog to say before it sends, keeping the
+/// note. Left out of the snapshots while there is none.
+/// </param>
 /// <param name="Call">
 /// The phone call on this desktop, placed or answered, until its summary
 /// is put away (`UiEvent::DismissCall`). It outlives a change of screen and
@@ -8495,6 +9625,12 @@ public record ShellView (
     /// </summary>
     ReportStatus? Report, 
     /// <summary>
+    /// Why a Report would be refused now (a support request is being written
+    /// in Support), for the report dialog to say before it sends, keeping the
+    /// note. Left out of the snapshots while there is none.
+    /// </summary>
+    string? ReportRefusal, 
+    /// <summary>
     /// The phone call on this desktop, placed or answered, until its summary
     /// is put away (`UiEvent::DismissCall`). It outlives a change of screen and
     /// of workspace, so the window shows it over every screen.
@@ -8527,6 +9663,7 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             Unread: FfiConverterUInt32.INSTANCE.Read(stream),
             Live: FfiConverterOptionalTypeLiveBannerView.INSTANCE.Read(stream),
             Report: FfiConverterOptionalTypeReportStatus.INSTANCE.Read(stream),
+            ReportRefusal: FfiConverterOptionalString.INSTANCE.Read(stream),
             Call: FfiConverterOptionalTypeActiveCallView.INSTANCE.Read(stream),
             Ring: FfiConverterOptionalTypeIncomingRingView.INSTANCE.Read(stream),
             CallsAvailable: FfiConverterBoolean.INSTANCE.Read(stream)
@@ -8543,6 +9680,7 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.Unread)
             + FfiConverterOptionalTypeLiveBannerView.INSTANCE.AllocationSize(value.Live)
             + FfiConverterOptionalTypeReportStatus.INSTANCE.AllocationSize(value.Report)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReportRefusal)
             + FfiConverterOptionalTypeActiveCallView.INSTANCE.AllocationSize(value.Call)
             + FfiConverterOptionalTypeIncomingRingView.INSTANCE.AllocationSize(value.Ring)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CallsAvailable);
@@ -8557,6 +9695,7 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             FfiConverterUInt32.INSTANCE.Write(value.Unread, stream);
             FfiConverterOptionalTypeLiveBannerView.INSTANCE.Write(value.Live, stream);
             FfiConverterOptionalTypeReportStatus.INSTANCE.Write(value.Report, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ReportRefusal, stream);
             FfiConverterOptionalTypeActiveCallView.INSTANCE.Write(value.Call, stream);
             FfiConverterOptionalTypeIncomingRingView.INSTANCE.Write(value.Ring, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CallsAvailable, stream);
@@ -8641,16 +9780,417 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
 
 
 /// <summary>
+/// The form raising a request.
+/// </summary>
+/// <param name="Title">
+/// The form's heading.
+/// </param>
+/// <param name="Kinds">
+/// The kinds to choose from, in the core's order.
+/// </param>
+/// <param name="Kind">
+/// The kind chosen.
+/// </param>
+/// <param name="Subject">
+/// The subject, as typed.
+/// </param>
+/// <param name="Message">
+/// The message, as typed.
+/// </param>
+/// <param name="SubjectMax">
+/// The longest subject the service takes, for the box's limit.
+/// </param>
+/// <param name="MessageMax">
+/// The longest message the service takes, for the box's limit.
+/// </param>
+/// <param name="Needs">
+/// What the form needs before it can be sent, while it cannot be.
+/// </param>
+/// <param name="CanSubmit">
+/// Whether "Send" works, by the service's own bounds.
+/// </param>
+/// <param name="Submitting">
+/// Whether the request is on its way. The form cannot be changed or
+/// discarded meanwhile.
+/// </param>
+/// <param name="Failure">
+/// Why the last attempt failed. Sending again sends the same draft, which
+/// the service recognises.
+/// </param>
+public record SupportComposeView (
+    /// <summary>
+    /// The form's heading.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The kinds to choose from, in the core's order.
+    /// </summary>
+    SupportKindView[] Kinds, 
+    /// <summary>
+    /// The kind chosen.
+    /// </summary>
+    SupportKind Kind, 
+    /// <summary>
+    /// The subject, as typed.
+    /// </summary>
+    string Subject, 
+    /// <summary>
+    /// The message, as typed.
+    /// </summary>
+    string Message, 
+    /// <summary>
+    /// The longest subject the service takes, for the box's limit.
+    /// </summary>
+    uint SubjectMax, 
+    /// <summary>
+    /// The longest message the service takes, for the box's limit.
+    /// </summary>
+    uint MessageMax, 
+    /// <summary>
+    /// What the form needs before it can be sent, while it cannot be.
+    /// </summary>
+    string? Needs, 
+    /// <summary>
+    /// Whether "Send" works, by the service's own bounds.
+    /// </summary>
+    bool CanSubmit, 
+    /// <summary>
+    /// Whether the request is on its way. The form cannot be changed or
+    /// discarded meanwhile.
+    /// </summary>
+    bool Submitting, 
+    /// <summary>
+    /// Why the last attempt failed. Sending again sends the same draft, which
+    /// the service recognises.
+    /// </summary>
+    FailureView? Failure
+) {
+}
+
+class FfiConverterTypeSupportComposeView: FfiConverterRustBuffer<SupportComposeView> {
+    public static FfiConverterTypeSupportComposeView INSTANCE = new FfiConverterTypeSupportComposeView();
+
+    public override SupportComposeView Read(BigEndianStream stream) {
+        return new SupportComposeView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Kinds: FfiConverterSequenceTypeSupportKindView.INSTANCE.Read(stream),
+            Kind: FfiConverterTypeSupportKind.INSTANCE.Read(stream),
+            Subject: FfiConverterString.INSTANCE.Read(stream),
+            Message: FfiConverterString.INSTANCE.Read(stream),
+            SubjectMax: FfiConverterUInt32.INSTANCE.Read(stream),
+            MessageMax: FfiConverterUInt32.INSTANCE.Read(stream),
+            Needs: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanSubmit: FfiConverterBoolean.INSTANCE.Read(stream),
+            Submitting: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SupportComposeView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterSequenceTypeSupportKindView.INSTANCE.AllocationSize(value.Kinds)
+            + FfiConverterTypeSupportKind.INSTANCE.AllocationSize(value.Kind)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subject)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Message)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.SubjectMax)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.MessageMax)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Needs)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSubmit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Submitting)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
+    }
+
+    public override void Write(SupportComposeView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterSequenceTypeSupportKindView.INSTANCE.Write(value.Kinds, stream);
+            FfiConverterTypeSupportKind.INSTANCE.Write(value.Kind, stream);
+            FfiConverterString.INSTANCE.Write(value.Subject, stream);
+            FfiConverterString.INSTANCE.Write(value.Message, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.SubjectMax, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.MessageMax, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Needs, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSubmit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Submitting, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One choice of what a request is about.
+/// </summary>
+/// <param name="Kind">
+/// The kind.
+/// </param>
+/// <param name="Label">
+/// Its label, in the core's words.
+/// </param>
+public record SupportKindView (
+    /// <summary>
+    /// The kind.
+    /// </summary>
+    SupportKind Kind, 
+    /// <summary>
+    /// Its label, in the core's words.
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeSupportKindView: FfiConverterRustBuffer<SupportKindView> {
+    public static FfiConverterTypeSupportKindView INSTANCE = new FfiConverterTypeSupportKindView();
+
+    public override SupportKindView Read(BigEndianStream stream) {
+        return new SupportKindView(
+            Kind: FfiConverterTypeSupportKind.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SupportKindView value) {
+        return 0
+            + FfiConverterTypeSupportKind.INSTANCE.AllocationSize(value.Kind)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(SupportKindView value, BigEndianStream stream) {
+            FfiConverterTypeSupportKind.INSTANCE.Write(value.Kind, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One message of a request's conversation.
+/// </summary>
+/// <param name="Id">
+/// The message's id.
+/// </param>
+/// <param name="Author">
+/// Who wrote it, as the service labels them (`You`, `Distronode Support`).
+/// </param>
+/// <param name="Body">
+/// The text.
+/// </param>
+/// <param name="CreatedAt">
+/// When it was written, as an ISO 8601 instant.
+/// </param>
+/// <param name="FromWorkspace">
+/// Whether the workspace wrote it (shown on the workspace's side).
+/// </param>
+public record SupportMessageView (
+    /// <summary>
+    /// The message's id.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Who wrote it, as the service labels them (`You`, `Distronode Support`).
+    /// </summary>
+    string Author, 
+    /// <summary>
+    /// The text.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// When it was written, as an ISO 8601 instant.
+    /// </summary>
+    string CreatedAt, 
+    /// <summary>
+    /// Whether the workspace wrote it (shown on the workspace's side).
+    /// </summary>
+    bool FromWorkspace
+) {
+}
+
+class FfiConverterTypeSupportMessageView: FfiConverterRustBuffer<SupportMessageView> {
+    public static FfiConverterTypeSupportMessageView INSTANCE = new FfiConverterTypeSupportMessageView();
+
+    public override SupportMessageView Read(BigEndianStream stream) {
+        return new SupportMessageView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Author: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            CreatedAt: FfiConverterString.INSTANCE.Read(stream),
+            FromWorkspace: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SupportMessageView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Author)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CreatedAt)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.FromWorkspace);
+    }
+
+    public override void Write(SupportMessageView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Author, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.CreatedAt, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.FromWorkspace, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One support request.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading: the subject once read, [`REQUEST_TITLE`] before.
+/// </param>
+/// <param name="Key">
+/// The key the page was opened by.
+/// </param>
+/// <param name="Status">
+/// Where the read stands.
+/// </param>
+/// <param name="Reference">
+/// Its support desk key (`DA-42`), or [`NOT_FILED_YET`]. Empty until read.
+/// </param>
+/// <param name="StatusName">
+/// Where it stands, in the support desk's own word. Empty until read.
+/// </param>
+/// <param name="Resolved">
+/// Whether it is resolved.
+/// </param>
+/// <param name="CreatedAt">
+/// When it was raised, as an ISO 8601 instant. Empty until read.
+/// </param>
+/// <param name="Messages">
+/// The conversation, oldest first.
+/// </param>
+/// <param name="RefreshFailure">
+/// Why the last read again failed, shown beside the request.
+/// </param>
+/// <param name="Reply">
+/// The reply being written.
+/// </param>
+/// <param name="CanReply">
+/// Whether "Send" works for the reply.
+/// </param>
+/// <param name="Sending">
+/// Whether the reply is on its way.
+/// </param>
+/// <param name="SendFailure">
+/// Why the last reply failed. What was written stays.
+/// </param>
+/// <param name="CloseOffered">
+/// Whether "Mark as resolved" shows: it can be closed, or a close is on
+/// its way.
+/// </param>
+/// <param name="CanClose">
+/// Whether "Mark as resolved" works.
+/// </param>
+/// <param name="Closing">
+/// Whether the close is on its way.
+/// </param>
+/// <param name="ConfirmingClose">
+/// Whether the question before closing is showing.
+/// </param>
+/// <param name="CloseQuestion">
+/// The question before closing.
+/// </param>
+/// <param name="CloseAction">
+/// The closing button's label, and the question's yes.
+/// </param>
+/// <param name="CloseFailure">
+/// Why the last close failed.
+/// </param>
+/// <param name="ClosedMessage">
+/// The confirmation of a close, until dismissed.
 /// </param>
 public record SupportRequestView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading: the subject once read, [`REQUEST_TITLE`] before.
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// The key the page was opened by.
+    /// </summary>
+    string Key, 
+    /// <summary>
+    /// Where the read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Its support desk key (`DA-42`), or [`NOT_FILED_YET`]. Empty until read.
+    /// </summary>
+    string Reference, 
+    /// <summary>
+    /// Where it stands, in the support desk's own word. Empty until read.
+    /// </summary>
+    string StatusName, 
+    /// <summary>
+    /// Whether it is resolved.
+    /// </summary>
+    bool Resolved, 
+    /// <summary>
+    /// When it was raised, as an ISO 8601 instant. Empty until read.
+    /// </summary>
+    string CreatedAt, 
+    /// <summary>
+    /// The conversation, oldest first.
+    /// </summary>
+    SupportMessageView[] Messages, 
+    /// <summary>
+    /// Why the last read again failed, shown beside the request.
+    /// </summary>
+    FailureView? RefreshFailure, 
+    /// <summary>
+    /// The reply being written.
+    /// </summary>
+    string Reply, 
+    /// <summary>
+    /// Whether "Send" works for the reply.
+    /// </summary>
+    bool CanReply, 
+    /// <summary>
+    /// Whether the reply is on its way.
+    /// </summary>
+    bool Sending, 
+    /// <summary>
+    /// Why the last reply failed. What was written stays.
+    /// </summary>
+    FailureView? SendFailure, 
+    /// <summary>
+    /// Whether "Mark as resolved" shows: it can be closed, or a close is on
+    /// its way.
+    /// </summary>
+    bool CloseOffered, 
+    /// <summary>
+    /// Whether "Mark as resolved" works.
+    /// </summary>
+    bool CanClose, 
+    /// <summary>
+    /// Whether the close is on its way.
+    /// </summary>
+    bool Closing, 
+    /// <summary>
+    /// Whether the question before closing is showing.
+    /// </summary>
+    bool ConfirmingClose, 
+    /// <summary>
+    /// The question before closing.
+    /// </summary>
+    string CloseQuestion, 
+    /// <summary>
+    /// The closing button's label, and the question's yes.
+    /// </summary>
+    string CloseAction, 
+    /// <summary>
+    /// Why the last close failed.
+    /// </summary>
+    FailureView? CloseFailure, 
+    /// <summary>
+    /// The confirmation of a close, until dismissed.
+    /// </summary>
+    string? ClosedMessage
 ) {
 }
 
@@ -8659,33 +10199,244 @@ class FfiConverterTypeSupportRequestView: FfiConverterRustBuffer<SupportRequestV
 
     public override SupportRequestView Read(BigEndianStream stream) {
         return new SupportRequestView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Key: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Reference: FfiConverterString.INSTANCE.Read(stream),
+            StatusName: FfiConverterString.INSTANCE.Read(stream),
+            Resolved: FfiConverterBoolean.INSTANCE.Read(stream),
+            CreatedAt: FfiConverterString.INSTANCE.Read(stream),
+            Messages: FfiConverterSequenceTypeSupportMessageView.INSTANCE.Read(stream),
+            RefreshFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Reply: FfiConverterString.INSTANCE.Read(stream),
+            CanReply: FfiConverterBoolean.INSTANCE.Read(stream),
+            Sending: FfiConverterBoolean.INSTANCE.Read(stream),
+            SendFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            CloseOffered: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanClose: FfiConverterBoolean.INSTANCE.Read(stream),
+            Closing: FfiConverterBoolean.INSTANCE.Read(stream),
+            ConfirmingClose: FfiConverterBoolean.INSTANCE.Read(stream),
+            CloseQuestion: FfiConverterString.INSTANCE.Read(stream),
+            CloseAction: FfiConverterString.INSTANCE.Read(stream),
+            CloseFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            ClosedMessage: FfiConverterOptionalString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(SupportRequestView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Key)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Reference)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StatusName)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Resolved)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CreatedAt)
+            + FfiConverterSequenceTypeSupportMessageView.INSTANCE.AllocationSize(value.Messages)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RefreshFailure)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Reply)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanReply)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Sending)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.SendFailure)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CloseOffered)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanClose)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Closing)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ConfirmingClose)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CloseQuestion)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CloseAction)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.CloseFailure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ClosedMessage);
     }
 
     public override void Write(SupportRequestView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Key, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.Reference, stream);
+            FfiConverterString.INSTANCE.Write(value.StatusName, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Resolved, stream);
+            FfiConverterString.INSTANCE.Write(value.CreatedAt, stream);
+            FfiConverterSequenceTypeSupportMessageView.INSTANCE.Write(value.Messages, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.RefreshFailure, stream);
+            FfiConverterString.INSTANCE.Write(value.Reply, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanReply, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Sending, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.SendFailure, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CloseOffered, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanClose, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Closing, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ConfirmingClose, stream);
+            FfiConverterString.INSTANCE.Write(value.CloseQuestion, stream);
+            FfiConverterString.INSTANCE.Write(value.CloseAction, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.CloseFailure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ClosedMessage, stream);
     }
 }
 
 
 
 /// <summary>
-/// The support requests.
+/// One request in the list.
+/// </summary>
+/// <param name="Key">
+/// What opens it ([`SupportAction::OpenRequest`]): its support desk key, or
+/// the service's own id before it has one.
+/// </param>
+/// <param name="Subject">
+/// The subject.
+/// </param>
+/// <param name="Reference">
+/// Its support desk key (`DA-42`), or [`NOT_FILED_YET`].
+/// </param>
+/// <param name="Status">
+/// Where it stands, in the support desk's own word, shown as it is.
+/// </param>
+/// <param name="UpdatedAt">
+/// When it last changed, as an ISO 8601 instant.
+/// </param>
+public record SupportRowView (
+    /// <summary>
+    /// What opens it ([`SupportAction::OpenRequest`]): its support desk key, or
+    /// the service's own id before it has one.
+    /// </summary>
+    string Key, 
+    /// <summary>
+    /// The subject.
+    /// </summary>
+    string Subject, 
+    /// <summary>
+    /// Its support desk key (`DA-42`), or [`NOT_FILED_YET`].
+    /// </summary>
+    string Reference, 
+    /// <summary>
+    /// Where it stands, in the support desk's own word, shown as it is.
+    /// </summary>
+    string Status, 
+    /// <summary>
+    /// When it last changed, as an ISO 8601 instant.
+    /// </summary>
+    string UpdatedAt
+) {
+}
+
+class FfiConverterTypeSupportRowView: FfiConverterRustBuffer<SupportRowView> {
+    public static FfiConverterTypeSupportRowView INSTANCE = new FfiConverterTypeSupportRowView();
+
+    public override SupportRowView Read(BigEndianStream stream) {
+        return new SupportRowView(
+            Key: FfiConverterString.INSTANCE.Read(stream),
+            Subject: FfiConverterString.INSTANCE.Read(stream),
+            Reference: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterString.INSTANCE.Read(stream),
+            UpdatedAt: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SupportRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Key)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subject)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Reference)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.UpdatedAt);
+    }
+
+    public override void Write(SupportRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Key, stream);
+            FfiConverterString.INSTANCE.Write(value.Subject, stream);
+            FfiConverterString.INSTANCE.Write(value.Reference, stream);
+            FfiConverterString.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.UpdatedAt, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The support requests, and the form raising one.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading.
+/// </param>
+/// <param name="Status">
+/// Where the list's first read stands.
+/// </param>
+/// <param name="Empty">
+/// What to say when the list is read and empty.
+/// </param>
+/// <param name="Open">
+/// The requests still open, as the service orders them.
+/// </param>
+/// <param name="Resolved">
+/// The requests resolved.
+/// </param>
+/// <param name="CappedNote">
+/// A note that the list is at the service's cap and may be missing older
+/// requests.
+/// </param>
+/// <param name="Refreshing">
+/// Whether the list is being read again, with these still showing.
+/// </param>
+/// <param name="RefreshFailure">
+/// Why the last read again failed, shown beside the list.
+/// </param>
+/// <param name="Submitted">
+/// The confirmation of a request raised, until dismissed
+/// ([`SupportAction::DismissSubmitted`]).
+/// </param>
+/// <param name="CanStart">
+/// Whether "New request" is offered: no form is open.
+/// </param>
+/// <param name="Compose">
+/// The form raising a request, while it is open.
 /// </param>
 public record SupportView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading.
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// Where the list's first read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// What to say when the list is read and empty.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// The requests still open, as the service orders them.
+    /// </summary>
+    SupportRowView[] Open, 
+    /// <summary>
+    /// The requests resolved.
+    /// </summary>
+    SupportRowView[] Resolved, 
+    /// <summary>
+    /// A note that the list is at the service's cap and may be missing older
+    /// requests.
+    /// </summary>
+    string? CappedNote, 
+    /// <summary>
+    /// Whether the list is being read again, with these still showing.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// Why the last read again failed, shown beside the list.
+    /// </summary>
+    FailureView? RefreshFailure, 
+    /// <summary>
+    /// The confirmation of a request raised, until dismissed
+    /// ([`SupportAction::DismissSubmitted`]).
+    /// </summary>
+    string? Submitted, 
+    /// <summary>
+    /// Whether "New request" is offered: no form is open.
+    /// </summary>
+    bool CanStart, 
+    /// <summary>
+    /// The form raising a request, while it is open.
+    /// </summary>
+    SupportComposeView? Compose
 ) {
 }
 
@@ -8694,17 +10445,47 @@ class FfiConverterTypeSupportView: FfiConverterRustBuffer<SupportView> {
 
     public override SupportView Read(BigEndianStream stream) {
         return new SupportView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Open: FfiConverterSequenceTypeSupportRowView.INSTANCE.Read(stream),
+            Resolved: FfiConverterSequenceTypeSupportRowView.INSTANCE.Read(stream),
+            CappedNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            RefreshFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Submitted: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanStart: FfiConverterBoolean.INSTANCE.Read(stream),
+            Compose: FfiConverterOptionalTypeSupportComposeView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(SupportView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterSequenceTypeSupportRowView.INSTANCE.AllocationSize(value.Open)
+            + FfiConverterSequenceTypeSupportRowView.INSTANCE.AllocationSize(value.Resolved)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.CappedNote)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RefreshFailure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Submitted)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanStart)
+            + FfiConverterOptionalTypeSupportComposeView.INSTANCE.AllocationSize(value.Compose);
     }
 
     public override void Write(SupportView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterSequenceTypeSupportRowView.INSTANCE.Write(value.Open, stream);
+            FfiConverterSequenceTypeSupportRowView.INSTANCE.Write(value.Resolved, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.CappedNote, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.RefreshFailure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Submitted, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanStart, stream);
+            FfiConverterOptionalTypeSupportComposeView.INSTANCE.Write(value.Compose, stream);
     }
 }
 
@@ -9110,6 +10891,93 @@ class FfiConverterTypeUnblockQuestionView: FfiConverterRustBuffer<UnblockQuestio
 
 
 /// <summary>
+/// This month's metered usage.
+/// </summary>
+/// <param name="Title">
+/// "This month's usage".
+/// </param>
+/// <param name="Month">
+/// The month: "Aug 2026", once read and metered.
+/// </param>
+/// <param name="Status">
+/// Where the read stands.
+/// </param>
+/// <param name="Refreshing">
+/// Whether it is being read again, with this still showing.
+/// </param>
+/// <param name="Lines">
+/// Each measure metered this month and its amount. Measures never metered
+/// are left out, not shown as zero.
+/// </param>
+/// <param name="Empty">
+/// What to say when nothing has been metered this month yet.
+/// </param>
+public record UsageCardView (
+    /// <summary>
+    /// "This month's usage".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The month: "Aug 2026", once read and metered.
+    /// </summary>
+    string? Month, 
+    /// <summary>
+    /// Where the read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Whether it is being read again, with this still showing.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// Each measure metered this month and its amount. Measures never metered
+    /// are left out, not shown as zero.
+    /// </summary>
+    FactView[] Lines, 
+    /// <summary>
+    /// What to say when nothing has been metered this month yet.
+    /// </summary>
+    string? Empty
+) {
+}
+
+class FfiConverterTypeUsageCardView: FfiConverterRustBuffer<UsageCardView> {
+    public static FfiConverterTypeUsageCardView INSTANCE = new FfiConverterTypeUsageCardView();
+
+    public override UsageCardView Read(BigEndianStream stream) {
+        return new UsageCardView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Month: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Lines: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(UsageCardView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Month)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Lines)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Empty);
+    }
+
+    public override void Write(UsageCardView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Month, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Lines, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Empty, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The Voice section.
 /// </summary>
 /// <param name="Title">
@@ -9324,32 +11192,131 @@ class FfiConverterTypeWorkspaceSwitcherView: FfiConverterRustBuffer<WorkspaceSwi
 /// <summary>
 /// Something the member did on the analytics screen.
 /// </summary>
-public enum AnalyticsAction: int {
+public record AnalyticsAction {
+    
     /// <summary>
     /// Open the analytics.
     /// </summary>
-    Open
+    public record Open: AnalyticsAction {}
+    
+    
+    /// <summary>
+    /// Show the figures for `period`. Picking the period selected does nothing.
+    /// </summary>
+    public record SelectPeriod (
+        AnalyticsPeriod Period
+    ) : AnalyticsAction {}
+    
+    /// <summary>
+    /// Read everything again: Try again, after a failure.
+    /// </summary>
+    public record Retry: AnalyticsAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeAnalyticsAction: FfiConverterRustBuffer<AnalyticsAction> {
-    public static FfiConverterTypeAnalyticsAction INSTANCE = new FfiConverterTypeAnalyticsAction();
+class FfiConverterTypeAnalyticsAction : FfiConverterRustBuffer<AnalyticsAction>{
+    public static FfiConverterRustBuffer<AnalyticsAction> INSTANCE = new FfiConverterTypeAnalyticsAction();
 
     public override AnalyticsAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return AnalyticsAction.Open;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAnalyticsAction.Read()", value));
+            case 1:
+                return new AnalyticsAction.Open(
+                );
+            case 2:
+                return new AnalyticsAction.SelectPeriod(
+                    FfiConverterTypeAnalyticsPeriod.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new AnalyticsAction.Retry(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAnalyticsAction.Read()", value));
         }
     }
 
     public override int AllocationSize(AnalyticsAction value) {
-        return 4;
+        switch (value) {
+            case AnalyticsAction.Open variant_value:
+                return 4;
+            case AnalyticsAction.SelectPeriod variant_value:
+                return 4
+                    + FfiConverterTypeAnalyticsPeriod.INSTANCE.AllocationSize(variant_value.Period);
+            case AnalyticsAction.Retry variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAnalyticsAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(AnalyticsAction value, BigEndianStream stream) {
         switch (value) {
-            case AnalyticsAction.Open: stream.WriteInt(1); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAnalyticsAction.Write()", value));
+            case AnalyticsAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case AnalyticsAction.SelectPeriod variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypeAnalyticsPeriod.INSTANCE.Write(variant_value.Period, stream);
+                break;
+            case AnalyticsAction.Retry variant_value:
+                stream.WriteInt(3);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAnalyticsAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A period the call figures cover.
+/// </summary>
+public enum AnalyticsPeriod: int {
+    /// <summary>
+    /// The last 7 days, a bar per day.
+    /// </summary>
+    SevenDays,
+    /// <summary>
+    /// The last 30 days, a bar per day.
+    /// </summary>
+    ThirtyDays,
+    /// <summary>
+    /// The last 90 days, a bar per week.
+    /// </summary>
+    NinetyDays
+}
+
+class FfiConverterTypeAnalyticsPeriod: FfiConverterRustBuffer<AnalyticsPeriod> {
+    public static FfiConverterTypeAnalyticsPeriod INSTANCE = new FfiConverterTypeAnalyticsPeriod();
+
+    public override AnalyticsPeriod Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return AnalyticsPeriod.SevenDays;
+            case 2: return AnalyticsPeriod.ThirtyDays;
+            case 3: return AnalyticsPeriod.NinetyDays;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAnalyticsPeriod.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(AnalyticsPeriod value) {
+        return 4;
+    }
+
+    public override void Write(AnalyticsPeriod value, BigEndianStream stream) {
+        switch (value) {
+            case AnalyticsPeriod.SevenDays: stream.WriteInt(1); break;
+            case AnalyticsPeriod.ThirtyDays: stream.WriteInt(2); break;
+            case AnalyticsPeriod.NinetyDays: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAnalyticsPeriod.Write()", value));
         }
     }
 }
@@ -10529,38 +12496,242 @@ class FfiConverterTypeFileKind: FfiConverterRustBuffer<FileKind> {
 /// <summary>
 /// Something the member did on District HQ.
 /// </summary>
-public enum HqAction: int {
+public record HqAction {
+    
     /// <summary>
     /// Open District HQ.
     /// </summary>
-    Open,
+    public record Open: HqAction {}
+    
+    
+    /// <summary>
+    /// Send a prompt. A blank one is not sent.
+    /// </summary>
+    public record Ask (
+        string Prompt
+    ) : HqAction {}
+    
     /// <summary>
     /// Ask again, after a question that failed.
     /// </summary>
-    Retry
+    public record Retry: HqAction {}
+    
+    
+    /// <summary>
+    /// Apply the proposed change.
+    /// </summary>
+    public record Confirm: HqAction {}
+    
+    
+    /// <summary>
+    /// Set the proposed change aside. Nothing is sent to the service.
+    /// </summary>
+    public record Dismiss: HqAction {}
+    
+    
+    /// <summary>
+    /// A link in an answer was clicked: the core opens it in the browser when
+    /// it is a web page, and does nothing otherwise.
+    /// </summary>
+    public record OpenLink (
+        string Url
+    ) : HqAction {}
+    
+
+    
 }
 
-class FfiConverterTypeHqAction: FfiConverterRustBuffer<HqAction> {
-    public static FfiConverterTypeHqAction INSTANCE = new FfiConverterTypeHqAction();
+class FfiConverterTypeHqAction : FfiConverterRustBuffer<HqAction>{
+    public static FfiConverterRustBuffer<HqAction> INSTANCE = new FfiConverterTypeHqAction();
 
     public override HqAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return HqAction.Open;
-            case 2: return HqAction.Retry;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Read()", value));
+            case 1:
+                return new HqAction.Open(
+                );
+            case 2:
+                return new HqAction.Ask(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new HqAction.Retry(
+                );
+            case 4:
+                return new HqAction.Confirm(
+                );
+            case 5:
+                return new HqAction.Dismiss(
+                );
+            case 6:
+                return new HqAction.OpenLink(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Read()", value));
         }
     }
 
     public override int AllocationSize(HqAction value) {
-        return 4;
+        switch (value) {
+            case HqAction.Open variant_value:
+                return 4;
+            case HqAction.Ask variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Prompt);
+            case HqAction.Retry variant_value:
+                return 4;
+            case HqAction.Confirm variant_value:
+                return 4;
+            case HqAction.Dismiss variant_value:
+                return 4;
+            case HqAction.OpenLink variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Url);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(HqAction value, BigEndianStream stream) {
         switch (value) {
-            case HqAction.Open: stream.WriteInt(1); break;
-            case HqAction.Retry: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Write()", value));
+            case HqAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case HqAction.Ask variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Prompt, stream);
+                break;
+            case HqAction.Retry variant_value:
+                stream.WriteInt(3);
+                break;
+            case HqAction.Confirm variant_value:
+                stream.WriteInt(4);
+                break;
+            case HqAction.Dismiss variant_value:
+                stream.WriteInt(5);
+                break;
+            case HqAction.OpenLink variant_value:
+                stream.WriteInt(6);
+                FfiConverterString.INSTANCE.Write(variant_value.Url, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// One line of the conversation.
+/// </summary>
+public record HqMessageView {
+    
+    /// <summary>
+    /// What the member asked, as they typed it.
+    /// </summary>
+    public record Question (
+        uint Index,
+        string Text
+    ) : HqMessageView {}
+    
+    /// <summary>
+    /// What District HQ answered: AI-generated, so Report is offered on it.
+    /// </summary>
+    public record Answer (
+        uint Index,
+        RichTextView Text,
+        ReportAvailability Report
+    ) : HqMessageView {}
+    
+    /// <summary>
+    /// What became of a confirmed change, written by the app.
+    /// </summary>
+    public record Note (
+        uint Index,
+        string Text,
+        bool Applied
+    ) : HqMessageView {}
+    
+
+    
+}
+
+class FfiConverterTypeHqMessageView : FfiConverterRustBuffer<HqMessageView>{
+    public static FfiConverterRustBuffer<HqMessageView> INSTANCE = new FfiConverterTypeHqMessageView();
+
+    public override HqMessageView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new HqMessageView.Question(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new HqMessageView.Answer(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterTypeRichTextView.INSTANCE.Read(stream),
+                    FfiConverterTypeReportAvailability.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new HqMessageView.Note(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(HqMessageView value) {
+        switch (value) {
+            case HqMessageView.Question variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case HqMessageView.Answer variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterTypeRichTextView.INSTANCE.AllocationSize(variant_value.Text)
+                    + FfiConverterTypeReportAvailability.INSTANCE.AllocationSize(variant_value.Report);
+            case HqMessageView.Note variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Applied);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(HqMessageView value, BigEndianStream stream) {
+        switch (value) {
+            case HqMessageView.Question variant_value:
+                stream.WriteInt(1);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case HqMessageView.Answer variant_value:
+                stream.WriteInt(2);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterTypeRichTextView.INSTANCE.Write(variant_value.Text, stream);
+                FfiConverterTypeReportAvailability.INSTANCE.Write(variant_value.Report, stream);
+                break;
+            case HqMessageView.Note variant_value:
+                stream.WriteInt(3);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Applied, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.Write()", value));
         }
     }
 }
@@ -11303,6 +13474,14 @@ public record ReportTarget {
         string EventId
     ) : ReportTarget {}
     
+    /// <summary>
+    /// An answer District HQ gave. The service keeps no conversation and gives
+    /// an answer no id, so the report names its kind, and the member's note
+    /// says the rest.
+    /// </summary>
+    public record HqAnswer: ReportTarget {}
+    
+    
 
     
 }
@@ -11326,6 +13505,9 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                     FfiConverterString.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
                 );
+            case 4:
+                return new ReportTarget.HqAnswer(
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Read()", value));
         }
@@ -11343,6 +13525,8 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.ThreadKey)
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.EventId);
+            case ReportTarget.HqAnswer variant_value:
+                return 4;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.AllocationSize()", value));
         }
@@ -11363,8 +13547,133 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                 FfiConverterString.INSTANCE.Write(variant_value.ThreadKey, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.EventId, stream);
                 break;
+            case ReportTarget.HqAnswer variant_value:
+                stream.WriteInt(4);
+                break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// One block of rich text. Consecutive list items sit on lines of their own
+/// with no gap between them; every other block has a gap before it.
+/// </summary>
+public record RichBlock {
+    
+    /// <summary>
+    /// A paragraph. A line break inside it is a `\n` in a run's text.
+    /// </summary>
+    public record Paragraph (
+        RichRun[] Runs
+    ) : RichBlock {}
+    
+    /// <summary>
+    /// A heading, of any level: shown as a strong line.
+    /// </summary>
+    public record Heading (
+        RichRun[] Runs
+    ) : RichBlock {}
+    
+    /// <summary>
+    /// An item of a bulleted or numbered list.
+    /// </summary>
+    public record ListItem (
+        string Marker,
+        uint Depth,
+        RichRun[] Runs
+    ) : RichBlock {}
+    
+    /// <summary>
+    /// A code block, shown as it is in a fixed-width font.
+    /// </summary>
+    public record Code (
+        string Text
+    ) : RichBlock {}
+    
+
+    
+}
+
+class FfiConverterTypeRichBlock : FfiConverterRustBuffer<RichBlock>{
+    public static FfiConverterRustBuffer<RichBlock> INSTANCE = new FfiConverterTypeRichBlock();
+
+    public override RichBlock Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new RichBlock.Paragraph(
+                    FfiConverterSequenceTypeRichRun.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new RichBlock.Heading(
+                    FfiConverterSequenceTypeRichRun.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new RichBlock.ListItem(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterSequenceTypeRichRun.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new RichBlock.Code(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRichBlock.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(RichBlock value) {
+        switch (value) {
+            case RichBlock.Paragraph variant_value:
+                return 4
+                    + FfiConverterSequenceTypeRichRun.INSTANCE.AllocationSize(variant_value.Runs);
+            case RichBlock.Heading variant_value:
+                return 4
+                    + FfiConverterSequenceTypeRichRun.INSTANCE.AllocationSize(variant_value.Runs);
+            case RichBlock.ListItem variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Marker)
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Depth)
+                    + FfiConverterSequenceTypeRichRun.INSTANCE.AllocationSize(variant_value.Runs);
+            case RichBlock.Code variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRichBlock.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(RichBlock value, BigEndianStream stream) {
+        switch (value) {
+            case RichBlock.Paragraph variant_value:
+                stream.WriteInt(1);
+                FfiConverterSequenceTypeRichRun.INSTANCE.Write(variant_value.Runs, stream);
+                break;
+            case RichBlock.Heading variant_value:
+                stream.WriteInt(2);
+                FfiConverterSequenceTypeRichRun.INSTANCE.Write(variant_value.Runs, stream);
+                break;
+            case RichBlock.ListItem variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Marker, stream);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Depth, stream);
+                FfiConverterSequenceTypeRichRun.INSTANCE.Write(variant_value.Runs, stream);
+                break;
+            case RichBlock.Code variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRichBlock.Write()", value));
         }
     }
 }
@@ -12182,6 +14491,58 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
 
 
 /// <summary>
+/// Which band of the sentiment breakdown, by its label: the service always
+/// sends positive, neutral and friction, and names them.
+/// </summary>
+public enum SentimentTone: int {
+    /// <summary>
+    /// Positive.
+    /// </summary>
+    Positive,
+    /// <summary>
+    /// Neutral.
+    /// </summary>
+    Neutral,
+    /// <summary>
+    /// Friction, and any band named otherwise.
+    /// </summary>
+    Friction
+}
+
+class FfiConverterTypeSentimentTone: FfiConverterRustBuffer<SentimentTone> {
+    public static FfiConverterTypeSentimentTone INSTANCE = new FfiConverterTypeSentimentTone();
+
+    public override SentimentTone Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return SentimentTone.Positive;
+            case 2: return SentimentTone.Neutral;
+            case 3: return SentimentTone.Friction;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSentimentTone.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SentimentTone value) {
+        return 4;
+    }
+
+    public override void Write(SentimentTone value, BigEndianStream stream) {
+        switch (value) {
+            case SentimentTone.Positive: stream.WriteInt(1); break;
+            case SentimentTone.Neutral: stream.WriteInt(2); break;
+            case SentimentTone.Friction: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSentimentTone.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Where the session is. One variant per [`SessionState`] variant.
 /// </summary>
 public enum SessionPhase: int {
@@ -12404,6 +14765,76 @@ public record SupportAction {
         string Key
     ) : SupportAction {}
     
+    /// <summary>
+    /// Open the form raising a request, with a new draft.
+    /// </summary>
+    public record StartRequest: SupportAction {}
+    
+    
+    /// <summary>
+    /// The form changed: the whole form as it now reads.
+    /// </summary>
+    public record EditRequest (
+        SupportKind Kind,
+        string Subject,
+        string Message
+    ) : SupportAction {}
+    
+    /// <summary>
+    /// Send the request, or try again with the same draft.
+    /// </summary>
+    public record SubmitRequest: SupportAction {}
+    
+    
+    /// <summary>
+    /// Discard the draft and close the form.
+    /// </summary>
+    public record CancelRequest: SupportAction {}
+    
+    
+    /// <summary>
+    /// Put away the confirmation of a request raised.
+    /// </summary>
+    public record DismissSubmitted: SupportAction {}
+    
+    
+    /// <summary>
+    /// The open request's reply changed.
+    /// </summary>
+    public record EditReply (
+        string Text
+    ) : SupportAction {}
+    
+    /// <summary>
+    /// Send the reply.
+    /// </summary>
+    public record SendReply: SupportAction {}
+    
+    
+    /// <summary>
+    /// Ask before marking the open request resolved.
+    /// </summary>
+    public record AskClose: SupportAction {}
+    
+    
+    /// <summary>
+    /// Answer the question yes.
+    /// </summary>
+    public record ConfirmClose: SupportAction {}
+    
+    
+    /// <summary>
+    /// Answer it no.
+    /// </summary>
+    public record CancelClose: SupportAction {}
+    
+    
+    /// <summary>
+    /// Put away the open request's failures and its closing confirmation.
+    /// </summary>
+    public record DismissFailures: SupportAction {}
+    
+    
 
     
 }
@@ -12421,6 +14852,43 @@ class FfiConverterTypeSupportAction : FfiConverterRustBuffer<SupportAction>{
                 return new SupportAction.OpenRequest(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
+            case 3:
+                return new SupportAction.StartRequest(
+                );
+            case 4:
+                return new SupportAction.EditRequest(
+                    FfiConverterTypeSupportKind.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new SupportAction.SubmitRequest(
+                );
+            case 6:
+                return new SupportAction.CancelRequest(
+                );
+            case 7:
+                return new SupportAction.DismissSubmitted(
+                );
+            case 8:
+                return new SupportAction.EditReply(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new SupportAction.SendReply(
+                );
+            case 10:
+                return new SupportAction.AskClose(
+                );
+            case 11:
+                return new SupportAction.ConfirmClose(
+                );
+            case 12:
+                return new SupportAction.CancelClose(
+                );
+            case 13:
+                return new SupportAction.DismissFailures(
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSupportAction.Read()", value));
         }
@@ -12433,6 +14901,32 @@ class FfiConverterTypeSupportAction : FfiConverterRustBuffer<SupportAction>{
             case SupportAction.OpenRequest variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Key);
+            case SupportAction.StartRequest variant_value:
+                return 4;
+            case SupportAction.EditRequest variant_value:
+                return 4
+                    + FfiConverterTypeSupportKind.INSTANCE.AllocationSize(variant_value.Kind)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Subject)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Message);
+            case SupportAction.SubmitRequest variant_value:
+                return 4;
+            case SupportAction.CancelRequest variant_value:
+                return 4;
+            case SupportAction.DismissSubmitted variant_value:
+                return 4;
+            case SupportAction.EditReply variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case SupportAction.SendReply variant_value:
+                return 4;
+            case SupportAction.AskClose variant_value:
+                return 4;
+            case SupportAction.ConfirmClose variant_value:
+                return 4;
+            case SupportAction.CancelClose variant_value:
+                return 4;
+            case SupportAction.DismissFailures variant_value:
+                return 4;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSupportAction.AllocationSize()", value));
         }
@@ -12447,8 +14941,96 @@ class FfiConverterTypeSupportAction : FfiConverterRustBuffer<SupportAction>{
                 stream.WriteInt(2);
                 FfiConverterString.INSTANCE.Write(variant_value.Key, stream);
                 break;
+            case SupportAction.StartRequest variant_value:
+                stream.WriteInt(3);
+                break;
+            case SupportAction.EditRequest variant_value:
+                stream.WriteInt(4);
+                FfiConverterTypeSupportKind.INSTANCE.Write(variant_value.Kind, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Subject, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Message, stream);
+                break;
+            case SupportAction.SubmitRequest variant_value:
+                stream.WriteInt(5);
+                break;
+            case SupportAction.CancelRequest variant_value:
+                stream.WriteInt(6);
+                break;
+            case SupportAction.DismissSubmitted variant_value:
+                stream.WriteInt(7);
+                break;
+            case SupportAction.EditReply variant_value:
+                stream.WriteInt(8);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case SupportAction.SendReply variant_value:
+                stream.WriteInt(9);
+                break;
+            case SupportAction.AskClose variant_value:
+                stream.WriteInt(10);
+                break;
+            case SupportAction.ConfirmClose variant_value:
+                stream.WriteInt(11);
+                break;
+            case SupportAction.CancelClose variant_value:
+                stream.WriteInt(12);
+                break;
+            case SupportAction.DismissFailures variant_value:
+                stream.WriteInt(13);
+                break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSupportAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// What a request is about, as the form offers it.
+/// </summary>
+public enum SupportKind: int {
+    /// <summary>
+    /// Something is broken.
+    /// </summary>
+    Problem,
+    /// <summary>
+    /// A question.
+    /// </summary>
+    Question,
+    /// <summary>
+    /// A suggestion.
+    /// </summary>
+    Suggestion
+}
+
+class FfiConverterTypeSupportKind: FfiConverterRustBuffer<SupportKind> {
+    public static FfiConverterTypeSupportKind INSTANCE = new FfiConverterTypeSupportKind();
+
+    public override SupportKind Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return SupportKind.Problem;
+            case 2: return SupportKind.Question;
+            case 3: return SupportKind.Suggestion;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSupportKind.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SupportKind value) {
+        return 4;
+    }
+
+    public override void Write(SupportKind value, BigEndianStream stream) {
+        switch (value) {
+            case SupportKind.Problem: stream.WriteInt(1); break;
+            case SupportKind.Question: stream.WriteInt(2); break;
+            case SupportKind.Suggestion: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSupportKind.Write()", value));
         }
     }
 }
@@ -14122,6 +16704,37 @@ class FfiConverterOptionalTypeAiTextView: FfiConverterRustBuffer<AiTextView?> {
 
 
 
+class FfiConverterOptionalTypeBarChartView: FfiConverterRustBuffer<BarChartView?> {
+    public static FfiConverterOptionalTypeBarChartView INSTANCE = new FfiConverterOptionalTypeBarChartView();
+
+    public override BarChartView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeBarChartView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(BarChartView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeBarChartView.INSTANCE.AllocationSize((BarChartView)value);
+        }
+    }
+
+    public override void Write(BarChartView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeBarChartView.INSTANCE.Write((BarChartView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeComposerView: FfiConverterRustBuffer<ComposerView?> {
     public static FfiConverterOptionalTypeComposerView INSTANCE = new FfiConverterOptionalTypeComposerView();
 
@@ -14432,6 +17045,68 @@ class FfiConverterOptionalTypeFinishSetupView: FfiConverterRustBuffer<FinishSetu
 
 
 
+class FfiConverterOptionalTypeHistoryChartView: FfiConverterRustBuffer<HistoryChartView?> {
+    public static FfiConverterOptionalTypeHistoryChartView INSTANCE = new FfiConverterOptionalTypeHistoryChartView();
+
+    public override HistoryChartView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeHistoryChartView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(HistoryChartView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeHistoryChartView.INSTANCE.AllocationSize((HistoryChartView)value);
+        }
+    }
+
+    public override void Write(HistoryChartView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeHistoryChartView.INSTANCE.Write((HistoryChartView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeHqCardView: FfiConverterRustBuffer<HqCardView?> {
+    public static FfiConverterOptionalTypeHqCardView INSTANCE = new FfiConverterOptionalTypeHqCardView();
+
+    public override HqCardView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeHqCardView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(HqCardView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeHqCardView.INSTANCE.AllocationSize((HqCardView)value);
+        }
+    }
+
+    public override void Write(HqCardView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeHqCardView.INSTANCE.Write((HqCardView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeIncomingRingView: FfiConverterRustBuffer<IncomingRingView?> {
     public static FfiConverterOptionalTypeIncomingRingView INSTANCE = new FfiConverterOptionalTypeIncomingRingView();
 
@@ -14487,6 +17162,68 @@ class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerV
         } else {
             stream.WriteByte(1);
             FfiConverterTypeLiveBannerView.INSTANCE.Write((LiveBannerView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeSentimentChartView: FfiConverterRustBuffer<SentimentChartView?> {
+    public static FfiConverterOptionalTypeSentimentChartView INSTANCE = new FfiConverterOptionalTypeSentimentChartView();
+
+    public override SentimentChartView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSentimentChartView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SentimentChartView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSentimentChartView.INSTANCE.AllocationSize((SentimentChartView)value);
+        }
+    }
+
+    public override void Write(SentimentChartView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSentimentChartView.INSTANCE.Write((SentimentChartView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeSupportComposeView: FfiConverterRustBuffer<SupportComposeView?> {
+    public static FfiConverterOptionalTypeSupportComposeView INSTANCE = new FfiConverterOptionalTypeSupportComposeView();
+
+    public override SupportComposeView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSupportComposeView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SupportComposeView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSupportComposeView.INSTANCE.AllocationSize((SupportComposeView)value);
+        }
+    }
+
+    public override void Write(SupportComposeView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSupportComposeView.INSTANCE.Write((SupportComposeView)value, stream);
         }
     }
 }
@@ -14718,6 +17455,52 @@ class FfiConverterSequenceTypeCallRowView: FfiConverterRustBuffer<CallRowView[]>
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeCallRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeChartBarView: FfiConverterRustBuffer<ChartBarView[]> {
+    public static FfiConverterSequenceTypeChartBarView INSTANCE = new FfiConverterSequenceTypeChartBarView();
+
+    public override ChartBarView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ChartBarView[length];
+        var readFn = FfiConverterTypeChartBarView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ChartBarView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeChartBarView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ChartBarView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeChartBarView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -15047,6 +17830,52 @@ class FfiConverterSequenceTypeFactView: FfiConverterRustBuffer<FactView[]> {
 
 
 
+class FfiConverterSequenceTypeHistoryMonthView: FfiConverterRustBuffer<HistoryMonthView[]> {
+    public static FfiConverterSequenceTypeHistoryMonthView INSTANCE = new FfiConverterSequenceTypeHistoryMonthView();
+
+    public override HistoryMonthView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new HistoryMonthView[length];
+        var readFn = FfiConverterTypeHistoryMonthView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(HistoryMonthView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeHistoryMonthView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(HistoryMonthView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeHistoryMonthView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeNavEntryView: FfiConverterRustBuffer<NavEntryView[]> {
     public static FfiConverterSequenceTypeNavEntryView INSTANCE = new FfiConverterSequenceTypeNavEntryView();
 
@@ -15185,6 +18014,98 @@ class FfiConverterSequenceTypeNotificationActionView: FfiConverterRustBuffer<Not
 
 
 
+class FfiConverterSequenceTypePeriodChoiceView: FfiConverterRustBuffer<PeriodChoiceView[]> {
+    public static FfiConverterSequenceTypePeriodChoiceView INSTANCE = new FfiConverterSequenceTypePeriodChoiceView();
+
+    public override PeriodChoiceView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new PeriodChoiceView[length];
+        var readFn = FfiConverterTypePeriodChoiceView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(PeriodChoiceView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypePeriodChoiceView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(PeriodChoiceView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypePeriodChoiceView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeRichRun: FfiConverterRustBuffer<RichRun[]> {
+    public static FfiConverterSequenceTypeRichRun INSTANCE = new FfiConverterSequenceTypeRichRun();
+
+    public override RichRun[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new RichRun[length];
+        var readFn = FfiConverterTypeRichRun.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(RichRun[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeRichRun.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(RichRun[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeRichRun.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeSearchHitView: FfiConverterRustBuffer<SearchHitView[]> {
     public static FfiConverterSequenceTypeSearchHitView INSTANCE = new FfiConverterSequenceTypeSearchHitView();
 
@@ -15224,6 +18145,190 @@ class FfiConverterSequenceTypeSearchHitView: FfiConverterRustBuffer<SearchHitVie
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeSearchHitView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSentimentBandView: FfiConverterRustBuffer<SentimentBandView[]> {
+    public static FfiConverterSequenceTypeSentimentBandView INSTANCE = new FfiConverterSequenceTypeSentimentBandView();
+
+    public override SentimentBandView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SentimentBandView[length];
+        var readFn = FfiConverterTypeSentimentBandView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SentimentBandView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSentimentBandView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SentimentBandView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSentimentBandView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSupportKindView: FfiConverterRustBuffer<SupportKindView[]> {
+    public static FfiConverterSequenceTypeSupportKindView INSTANCE = new FfiConverterSequenceTypeSupportKindView();
+
+    public override SupportKindView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SupportKindView[length];
+        var readFn = FfiConverterTypeSupportKindView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SupportKindView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSupportKindView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SupportKindView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSupportKindView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSupportMessageView: FfiConverterRustBuffer<SupportMessageView[]> {
+    public static FfiConverterSequenceTypeSupportMessageView INSTANCE = new FfiConverterSequenceTypeSupportMessageView();
+
+    public override SupportMessageView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SupportMessageView[length];
+        var readFn = FfiConverterTypeSupportMessageView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SupportMessageView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSupportMessageView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SupportMessageView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSupportMessageView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSupportRowView: FfiConverterRustBuffer<SupportRowView[]> {
+    public static FfiConverterSequenceTypeSupportRowView INSTANCE = new FfiConverterSequenceTypeSupportRowView();
+
+    public override SupportRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SupportRowView[length];
+        var readFn = FfiConverterTypeSupportRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SupportRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSupportRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SupportRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSupportRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -15362,6 +18467,98 @@ class FfiConverterSequenceTypeWorkspaceEntryView: FfiConverterRustBuffer<Workspa
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeWorkspaceEntryView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeHqMessageView: FfiConverterRustBuffer<HqMessageView[]> {
+    public static FfiConverterSequenceTypeHqMessageView INSTANCE = new FfiConverterSequenceTypeHqMessageView();
+
+    public override HqMessageView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new HqMessageView[length];
+        var readFn = FfiConverterTypeHqMessageView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(HqMessageView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeHqMessageView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(HqMessageView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeHqMessageView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeRichBlock: FfiConverterRustBuffer<RichBlock[]> {
+    public static FfiConverterSequenceTypeRichBlock INSTANCE = new FfiConverterSequenceTypeRichBlock();
+
+    public override RichBlock[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new RichBlock[length];
+        var readFn = FfiConverterTypeRichBlock.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(RichBlock[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeRichBlock.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(RichBlock[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeRichBlock.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

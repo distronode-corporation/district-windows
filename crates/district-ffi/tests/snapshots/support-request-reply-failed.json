@@ -1,0 +1,74 @@
+{
+  "screen": {
+    "SupportRequest": {
+      "view": {
+        "can_close": true,
+        "can_reply": true,
+        "close_action": "Mark as resolved",
+        "close_failure": null,
+        "close_offered": true,
+        "close_question": "Mark this request as resolved? Our team is told, and it cannot be reopened from here. You can still reply to take it up again.",
+        "closed_message": null,
+        "closing": false,
+        "confirming_close": false,
+        "created_at": "2026-09-05T08:00:00.000Z",
+        "key": "DA-42",
+        "messages": [
+          {
+            "author": "You",
+            "body": "Every outbound call from the +1 416 number fails immediately.",
+            "created_at": "2026-09-05T08:00:00.000Z",
+            "from_workspace": true,
+            "id": "support_msg_customer"
+          },
+          {
+            "author": "Distronode Support",
+            "body": "We are looking at the trunk configuration now.",
+            "created_at": "2026-09-06T12:30:00.000Z",
+            "from_workspace": false,
+            "id": "support_msg_agent"
+          }
+        ],
+        "reference": "DA-42",
+        "refresh_failure": null,
+        "reply": "Still failing as of this morning.",
+        "resolved": false,
+        "send_failure": {
+          "message": "Something went wrong on our side. Please try again shortly.",
+          "regions_line": null,
+          "retryable": true
+        },
+        "sending": false,
+        "status": "Ready",
+        "status_name": "In Progress",
+        "title": "Outbound calls failing on the Toronto number"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Support",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

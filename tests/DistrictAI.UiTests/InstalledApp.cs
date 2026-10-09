@@ -50,13 +50,14 @@ internal sealed class InstalledApp : IDisposable
 
     /// <summary>
     /// Ends any running copy, then starts the package by its application user
-    /// model ID (IApplicationActivationManager, as the shell does).
+    /// model ID (IApplicationActivationManager, as the shell does), with
+    /// <paramref name="arguments"/> on its command line.
     /// </summary>
-    public static InstalledApp Launch()
+    public static InstalledApp Launch(string? arguments = null)
     {
         StopAll();
-        using var app = Application.LaunchStoreApp(Aumid);
-        Log($"launched {Aumid}: process {app.ProcessId}");
+        using var app = Application.LaunchStoreApp(Aumid, arguments ?? string.Empty);
+        Log($"launched {Aumid}{(arguments is null ? string.Empty : $" {arguments}")}: process {app.ProcessId}");
         return new InstalledApp(app.ProcessId);
     }
 

@@ -24,8 +24,14 @@ use crate::events::UiEvent;
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
 use crate::link::{LinkKind, link_kind};
+use crate::report::ui_events;
 use crate::screen::{ScreenView, screen_view, session_view};
 use crate::shell::{ShellView, shell_for, shell_view};
+
+// Declared here, not in lib.rs: the scenes are this file's backend.
+#[cfg(feature = "scripted")]
+#[path = "scripted.rs"]
+mod scripted;
 
 /// How long the work the model asks for at shutdown (saving the session,
 /// unregistering this desktop's presence) may take before the runtime stops
@@ -235,6 +241,15 @@ impl Core {
             .thread_name("district-core")
             .build()
             .map_err(|error| setup("the runtime could not start")(error.to_string()))?;
+        // A scripted build runs the scene its command line names, if any.
+        #[cfg(feature = "scripted")]
+        if let Some(scene) =
+            scripted::scene(std::env::args()).map_err(setup("the scripted scene"))?
+        {
+            let sender = start_scripted(&runtime, scene, &config, host, &self.snapshot);
+            *lifecycle = Lifecycle::Running { runtime, sender };
+            return Ok(());
+        }
         let sender = match start_real(
             &runtime,
             config,
@@ -488,6 +503,31 @@ fn start_real(
     Ok(sender)
 }
 
+/// A scripted scene (src/scripted.rs): the model over made-up answers, with no
+/// network, no credential store and nothing written to the data directory.
+#[cfg(feature = "scripted")]
+fn start_scripted(
+    runtime: &Runtime,
+    scene: scripted::Scene,
+    config: &StartConfig,
+    host: Arc<dyn UiHost>,
+    snapshot: &Arc<SnapshotCell>,
+) -> UnboundedSender<Message> {
+    let (model, first) = Model::new(CoreConfig {
+        web_base_url: "https://www.distronode.com".to_owned(),
+        app_version: config.app_version.clone(),
+        calls_available: district_call::CALLS_AVAILABLE,
+    });
+    launch(
+        runtime,
+        model,
+        first,
+        Arc::new(scripted::Scripted::new(scene)),
+        host,
+        Arc::clone(snapshot),
+    )
+}
+
 /// The session store: Credential Manager on Windows.
 #[cfg(windows)]
 fn platform_store(
@@ -565,13 +605,9 @@ impl<X: Effects> Actor<X> {
                     self.dispatch(next);
                 }
                 Message::Ui(action) => {
-                    match &action {
-                        UiEvent::Report { .. } => self.reporting = true,
-                        UiEvent::DismissReport => self.reporting = false,
-                        _ => {}
-                    }
                     let mut next = Vec::new();
-                    for event in action.events() {
+                    let events = ui_events(&self.model, &mut self.reporting, action);
+                    for event in events {
                         next.extend(self.model.update(event));
                     }
                     self.publish();

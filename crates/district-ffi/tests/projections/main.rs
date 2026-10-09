@@ -49,7 +49,7 @@ use std::path::PathBuf;
 use district_api::{ApiError, ErrorDetail, ReauthReason, TokenError};
 use district_auth::AccessClaims;
 use district_core::{CoreConfig, Effect, Event, Model, RestoreError, Route, SessionState, Ticket};
-use district_ffi::{NavDestination, ScreenView, UiEvent, screen_view, shell_view};
+use district_ffi::{NavDestination, ScreenView, UiEvent, screen_view, shell_view, ui_events};
 use district_model::WorkspaceListResponse;
 use serde_json::{Value, json};
 
@@ -78,12 +78,7 @@ impl Session {
 
     /// Applies what the user did, as the actor does.
     fn ui(mut self, action: UiEvent) -> Self {
-        match &action {
-            UiEvent::Report { .. } => self.reporting = true,
-            UiEvent::DismissReport => self.reporting = false,
-            _ => {}
-        }
-        for event in action.events() {
+        for event in ui_events(&self.model, &mut self.reporting, action) {
             self = self.send(event);
         }
         self
@@ -178,14 +173,19 @@ fn offered(session: &Session) -> Vec<NavDestination> {
         .collect()
 }
 
-/// The 2.0 areas built so far, which the pane offers beside 1.0's five. The
-/// pull request that builds an area adds it here.
-const BUILT: [NavDestination; 1] = [NavDestination::Desk];
-
 /// An area whose packet has not built it: `session` shows `expected`, as
-/// [`ScreenView::Unavailable`], and the navigation pane offers 1.0's five
-/// destinations and the areas [`BUILT`], and nothing else.
+/// [`ScreenView::Unavailable`], the navigation pane offers 1.0's five
+/// destinations, and no entry of 2.0's is highlighted for it. Which of 2.0's
+/// the pane offers is nav.rs's to pin (only those built), so building one
+/// area changes no other area's checks.
 fn assert_unbuilt(session: &Session, expected: Route) {
+    const FIRST_FIVE: [NavDestination; 5] = [
+        NavDestination::Overview,
+        NavDestination::Inbox,
+        NavDestination::Calls,
+        NavDestination::Contacts,
+        NavDestination::Account,
+    ];
     assert_eq!(route(session), expected);
     assert!(
         matches!(screen_view(&session.model), ScreenView::Unavailable { .. }),
@@ -193,21 +193,13 @@ fn assert_unbuilt(session: &Session, expected: Route) {
     );
     let offered = offered(session);
     assert!(
-        BUILT.iter().all(|built| offered.contains(built)),
-        "{offered:?}"
+        FIRST_FIVE.iter().all(|five| offered.contains(five)),
+        "{expected:?}: {offered:?}"
     );
-    assert_eq!(
-        offered
-            .into_iter()
-            .filter(|destination| !BUILT.contains(destination))
-            .collect::<Vec<_>>(),
-        [
-            NavDestination::Overview,
-            NavDestination::Inbox,
-            NavDestination::Calls,
-            NavDestination::Contacts,
-            NavDestination::Account,
-        ]
+    let selected = shell_json(session)["nav_selected"].clone();
+    assert!(
+        selected.is_null() || FIRST_FIVE.iter().any(|five| json!(five) == selected),
+        "{expected:?}: {selected}"
     );
 }
 
