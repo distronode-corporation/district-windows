@@ -32,24 +32,15 @@ public sealed class SceneWalkTests
     private static readonly TimeSpan _pageTimeout = TimeSpan.FromSeconds(30);
 
     /// <summary>
-    /// The heading each 1.0 page shows, by the start of its entry's name (the
-    /// inbox's name carries its unread count). An area of 2.0 that is not
-    /// listed must still show a level-one heading; add it here once built.
+    /// The pages whose heading is not their pane entry's own name, by the start
+    /// of the entry's name (the inbox's name carries its unread count). Every
+    /// other entry's page must show its entry's name as its level-one heading,
+    /// so building an area adds nothing here.
     /// </summary>
     private static readonly (string Entry, string Heading)[] _headings =
     [
         ("Overview", WorkspaceName),
         ("Inbox", "Conversations"),
-        ("Calls", "Calls"),
-        ("Contacts", "Contacts"),
-        ("Account", "Account"),
-        ("Analytics", "Analytics"),
-        ("Support", "Support"),
-        ("District HQ", "District HQ"),
-        ("Booking pages", "Booking pages"),
-        ("Phone numbers", "Phone numbers"),
-        ("Help desk", "Help desk"),
-        ("Workflows", "Workflows"),
     ];
 
     /// <summary>
@@ -63,6 +54,17 @@ public sealed class SceneWalkTests
         ("Contacts", "Blocked callers", "Blocked callers", null),
         // The plan chooser opens on the billing page itself; nothing is bought.
         ("Billing", "Choose a plan", "Billing", "Promotion code"),
+    ];
+
+    /// <summary>
+    /// The settings sections built so far, by their hub row's title: each is
+    /// opened from the Workspace settings hub, and its page's level-one
+    /// heading must be that title. A section's packet adds its row here.
+    /// </summary>
+    private static readonly string[] _settingsSections =
+    [
+        "Persona",
+        "Messaging accounts",
     ];
 
     /// <summary>
@@ -109,7 +111,7 @@ public sealed class SceneWalkTests
         var index = 0;
         foreach (var entry in entries)
         {
-            var expected = _headings.FirstOrDefault(known => entry.StartsWith(known.Entry, StringComparison.Ordinal)).Heading;
+            var expected = _headings.FirstOrDefault(known => entry.StartsWith(known.Entry, StringComparison.Ordinal)).Heading ?? entry;
             if (!Visit(app, handle, entry, () => Open(app, entry), expected, shots, ++index, problems))
             {
                 break;
@@ -121,6 +123,19 @@ public sealed class SceneWalkTests
                 && !Visit(app, handle, "Conversation", () => OpenFirstConversation(app), ConversationTitle, shots, ++index, problems, ReplyBoxName))
             {
                 break;
+            }
+            // The built settings sections, each from the hub's row, and back to
+            // the hub for the next.
+            if (entry.StartsWith("Workspace settings", StringComparison.Ordinal))
+            {
+                foreach (var section in _settingsSections)
+                {
+                    if (!Visit(app, handle, section, () => OpenSettingsRow(app, section), section, shots, ++index, problems)
+                        || !Visit(app, handle, entry, () => Open(app, entry), entry, null, index, problems))
+                    {
+                        break;
+                    }
+                }
             }
             foreach (var sub in _subPages.Where(sub => entry.StartsWith(sub.Entry, StringComparison.Ordinal)))
             {
@@ -242,6 +257,31 @@ public sealed class SceneWalkTests
             .Select(item => item.Name)
             .Where(name => name.Length > 0)
             .Distinct()];
+
+    /// <summary>
+    /// Opens the hub's row for <paramref name="title"/>, as a click on it does.
+    /// A row's name is its title, then what the section holds.
+    /// </summary>
+    private static void OpenSettingsRow(InstalledApp app, string title)
+    {
+        var row = Wait.For(
+            () => app.Automation.GetDesktop()
+                .FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Window)))
+                ?.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
+                .FirstOrDefault(item => !item.Properties.IsOffscreen.ValueOrDefault
+                    && NameOf(item).StartsWith(title + ". ", StringComparison.Ordinal)),
+            _pageTimeout,
+            $"the settings row \"{title}\"",
+            app.Describe);
+        if (row.Patterns.Invoke.IsSupported)
+        {
+            row.Patterns.Invoke.Pattern.Invoke();
+        }
+        else
+        {
+            row.Click();
+        }
+    }
 
     /// <summary>Opens the Inbox's first conversation, as a click on it does.</summary>
     private static void OpenFirstConversation(InstalledApp app)

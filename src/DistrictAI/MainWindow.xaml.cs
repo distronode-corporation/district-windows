@@ -111,6 +111,7 @@ public sealed partial class MainWindow : Window
         LiveRefresh.IsEnabled = true;
 
         RenderReport(shell.Report);
+        RenderDiscard(shell.Discard);
     }
 
     private void RenderWorkspaces(WorkspaceSwitcherView workspaces)

@@ -71,6 +71,7 @@ mod palette;
 mod push;
 mod rich_text;
 mod transcript;
+mod welcome;
 
 // The boundary itself.
 mod core;
@@ -97,6 +98,9 @@ pub use crate::contacts::{
 };
 pub use crate::core::{Core, StartConfig, StartError};
 pub use crate::events::UiEvent;
+pub use crate::guard::{
+    DISCARD_ACTION, DISCARD_BODY, DISCARD_TITLE, DiscardView, Held, KEEP_EDITING, leaves_unsaved,
+};
 pub use crate::host::{NotificationActionView, NotificationView, UiHost};
 pub use crate::identity::{PRODUCT, client_identity};
 pub use crate::inbox::{

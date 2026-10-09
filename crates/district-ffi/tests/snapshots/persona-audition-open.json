@@ -1,0 +1,124 @@
+{
+  "screen": {
+    "Persona": {
+      "view": {
+        "audition": {
+          "billed_note": "This places a real call to your receptionist, with the settings on screen whether or not they are saved. It is billed like any call.",
+          "can_start": true,
+          "cooling": null,
+          "failure": null,
+          "show_start": true,
+          "show_stop": false,
+          "start_label": "Start",
+          "state": null,
+          "stop_label": "Stop",
+          "title": "Try this receptionist",
+          "waiting": false
+        },
+        "can_preview": true,
+        "can_retry_options": false,
+        "can_save": false,
+        "clear_hint": "Clearing a box saves it as empty. Anything you do not change is kept as it is.",
+        "engine": {
+          "engine_label": "Deepgram Pipeline - US (processed in your region)",
+          "language": {
+            "choices": [
+              {
+                "label": "English (US)",
+                "value": "en-US"
+              },
+              {
+                "label": "Spanish (Spain)",
+                "value": "es-ES"
+              },
+              {
+                "label": "German",
+                "value": "de-DE"
+              },
+              {
+                "label": "French (Canada)",
+                "value": "fr-CA"
+              },
+              {
+                "label": "French (France)",
+                "value": "fr-FR"
+              },
+              {
+                "label": "Dutch",
+                "value": "nl-NL"
+              },
+              {
+                "label": "Italian",
+                "value": "it-IT"
+              }
+            ],
+            "selected": "en-US",
+            "selected_label": "English (US)"
+          },
+          "response_length": {
+            "choices": [
+              {
+                "label": "Concise (1-2 sentences, under 30 words)",
+                "value": "concise"
+              },
+              {
+                "label": "Balanced (up to 3 sentences, under 60 words)",
+                "value": "balanced"
+              },
+              {
+                "label": "Detailed (answer first, then as much as it takes)",
+                "value": "detailed"
+              }
+            ],
+            "selected": "concise",
+            "selected_label": "Concise (1-2 sentences, under 30 words)"
+          },
+          "studio_hint": "The voice, the engine and how it is tuned are changed in Voice Studio.",
+          "studio_label": "Open Voice Studio"
+        },
+        "engine_editable": true,
+        "engine_heading": "Language and answers",
+        "engine_note": null,
+        "greeting": "Thanks for calling Contract Test. How can I help?",
+        "name": "Ada",
+        "notice": null,
+        "personality": "Warm, concise, and never oversells.",
+        "preview_enabled": false,
+        "preview_label": "Try this receptionist",
+        "refit_line": null,
+        "save_label": "Save",
+        "saving": false,
+        "status": "Ready",
+        "text_editable": true,
+        "texts_heading": "What it says",
+        "title": "Persona"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

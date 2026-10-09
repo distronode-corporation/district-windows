@@ -253,6 +253,10 @@ pub struct SessionScreen {
     pub cancel: bool,
     /// Why the last sign-in failed, if it did.
     pub error: Option<String>,
+    /// "Create an account", beside "Sign in with your browser" (welcome.rs).
+    /// Left out of the snapshots while it is not offered.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub create_account: Option<crate::welcome::CreateAccountView>,
 }
 
 /// The page of the route showing, for a signed-in `model`.
@@ -393,6 +397,7 @@ pub(crate) fn session_view(
         retry_sign_out: false,
         cancel: false,
         error: None,
+        create_account: None,
     };
     let view = match session {
         SessionState::SignedIn(state) => return signed_in(state),
@@ -431,6 +436,7 @@ pub(crate) fn session_view(
                     .sign_in_error
                     .as_ref()
                     .map(|error| error.message()),
+                create_account: crate::welcome::create_account(true),
                 ..nothing
             }
         }
@@ -601,14 +607,10 @@ mod tests {
                 },
             },
             ScreenView::WorkspaceSettings {
-                view: crate::settings::SettingsHubView {
-                    title: "WorkspaceSettings".to_owned(),
-                },
+                view: crate::settings::SettingsHubView::sample(),
             },
             ScreenView::Persona {
-                view: crate::settings::persona::PersonaView {
-                    title: "Persona".to_owned(),
-                },
+                view: crate::settings::persona::PersonaView::sample(),
             },
             ScreenView::VoiceStudio {
                 view: crate::settings::voice_studio::VoiceStudioView {
@@ -643,6 +645,7 @@ mod tests {
             ScreenView::Messaging {
                 view: crate::settings::messaging::MessagingView {
                     title: "Messaging".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Members {

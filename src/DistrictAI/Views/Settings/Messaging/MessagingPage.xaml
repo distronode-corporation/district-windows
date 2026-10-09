@@ -2,7 +2,346 @@
 <UserControl
     x:Class="DistrictAI.Views.Settings.Messaging.MessagingPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:DistrictAI.ViewModels.Settings.Messaging">
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="{StaticResource ReadingWidth}"
+            Padding="{StaticResource PagePadding}"
+            Spacing="8">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level1"
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+                <Button
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="Add a carrier account"
+                    Command="{x:Bind ViewModel.AddCommand}"
+                    Content="Add an account"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Visibility="{x:Bind ViewModel.OffersAdd, Mode=OneWay}" />
+            </Grid>
+
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.ViewerNote, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind ViewModel.HasViewerNote, Mode=OneWay}" />
+
+            <InfoBar
+                AutomationProperties.Name="Saved"
+                CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+                IsClosable="True"
+                IsOpen="{x:Bind ViewModel.NoticeSaved, Mode=OneWay}"
+                Message="{x:Bind ViewModel.NoticeText, Mode=OneWay}"
+                Severity="Success" />
+            <InfoBar
+                AutomationProperties.Name="Not saved"
+                CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+                IsClosable="True"
+                IsOpen="{x:Bind ViewModel.NoticeFailed, Mode=OneWay}"
+                Message="{x:Bind ViewModel.NoticeText, Mode=OneWay}"
+                Severity="Error" />
+
+            <ProgressRing
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Loading"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+            <!-- The read failed: why, and Try again when it may help. -->
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasStatus, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.StatusTitle, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind ViewModel.StatusBody, Mode=OneWay}" TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.Name="Try again"
+                    Command="{x:Bind ViewModel.RetryCommand}"
+                    Content="Try again"
+                    Visibility="{x:Bind ViewModel.CanRetry, Mode=OneWay}" />
+            </StackPanel>
+
+            <!-- The question before removing an account. -->
+            <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.Confirming, Mode=OneWay}">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.ConfirmTitle, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.ConfirmBody, Mode=OneWay}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            AutomationProperties.Name="{x:Bind ViewModel.ConfirmAction, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.ConfirmRemoveCommand}"
+                            Content="{x:Bind ViewModel.ConfirmAction, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <Button
+                            AutomationProperties.Name="Keep the account"
+                            Command="{x:Bind ViewModel.CancelRemoveCommand}"
+                            Content="Cancel" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- The form adding or editing an account. Keys go in password boxes and never come back. -->
+            <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.FormOpen, Mode=OneWay}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.FormTitle, Mode=OneWay}" />
+                    <ComboBox
+                        MinWidth="200"
+                        AutomationProperties.Name="Carrier"
+                        Header="Carrier"
+                        IsEnabled="{x:Bind ViewModel.FormEditable, Mode=OneWay}"
+                        ItemsSource="{x:Bind ViewModel.CarrierLabels}"
+                        SelectedIndex="{x:Bind ViewModel.CarrierIndex, Mode=TwoWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.CarrierSwitch, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.HasCarrierSwitch, Mode=OneWay}" />
+                    <ComboBox
+                        MinWidth="200"
+                        AutomationProperties.Name="Whose account"
+                        Header="Whose account"
+                        IsEnabled="{x:Bind ViewModel.FormEditable, Mode=OneWay}"
+                        ItemsSource="{x:Bind ViewModel.SourceLabels}"
+                        SelectedIndex="{x:Bind ViewModel.SourceIndex, Mode=TwoWay}" />
+                    <TextBox
+                        AutomationProperties.Name="Name"
+                        Header="Name"
+                        IsEnabled="{x:Bind ViewModel.FormEditable, Mode=OneWay}"
+                        Text="{x:Bind ViewModel.AccountName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level3"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="Keys" />
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Keys}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Spacing="8" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="vm:KeyItem">
+                                <Grid>
+                                    <PasswordBox
+                                        AutomationProperties.Name="{x:Bind Label}"
+                                        Header="{x:Bind Label}"
+                                        Password="{x:Bind SecretValue, Mode=TwoWay}"
+                                        Visibility="{x:Bind Secret}" />
+                                    <TextBox
+                                        AutomationProperties.Name="{x:Bind Label}"
+                                        Header="{x:Bind Label}"
+                                        IsSpellCheckEnabled="False"
+                                        Text="{x:Bind PlainValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Visibility="{x:Bind Plain}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.KeysNote, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            AutomationProperties.Name="Check these keys"
+                            Command="{x:Bind ViewModel.CheckKeysCommand}"
+                            Content="Check these keys" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.CheckHint, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.HasCheckHint, Mode=OneWay}" />
+                    </StackPanel>
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Polite"
+                        Text="{x:Bind ViewModel.CheckResult, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.HasCheckResult, Mode=OneWay}" />
+                    <TextBox
+                        MinHeight="80"
+                        AcceptsReturn="True"
+                        AutomationProperties.Name="Phone numbers, one per line"
+                        Header="Phone numbers, one per line"
+                        IsEnabled="{x:Bind ViewModel.FormEditable, Mode=OneWay}"
+                        Text="{x:Bind ViewModel.PhoneNumbers, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.NumbersHelp, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <CheckBox
+                        AutomationProperties.Name="Make it the default sender"
+                        Content="Make it the default sender"
+                        IsChecked="{x:Bind ViewModel.MakeDefault, Mode=TwoWay}"
+                        IsEnabled="{x:Bind ViewModel.FormEditable, Mode=OneWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            AutomationProperties.Name="Save the carrier account"
+                            Command="{x:Bind ViewModel.SaveCommand}"
+                            Content="Save"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <Button
+                            AutomationProperties.Name="Close the form"
+                            Command="{x:Bind ViewModel.CloseFormCommand}"
+                            Content="Cancel" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            AutomationProperties.Name="Saving"
+                            IsActive="{x:Bind ViewModel.Busy, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.Busy, Mode=OneWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.IsReady, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="Carrier accounts" />
+                <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasEmpty, Mode=OneWay}">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.EmptyTitle, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.EmptyBody, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Accounts}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="8" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:MessagingAccountItem">
+                            <Border AutomationProperties.Name="{x:Bind AccessibleName}" Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Label}" />
+                                        <TextBlock
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            Text="Default"
+                                            Visibility="{x:Bind IsDefault}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Style="{StaticResource QuietTextStyle}"
+                                        Text="{x:Bind Line}"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button
+                                            AutomationProperties.Name="Make this the default sender"
+                                            Click="OnMakeDefault"
+                                            Content="Make default"
+                                            IsEnabled="{x:Bind Enabled}"
+                                            Visibility="{x:Bind OffersMakeDefault}" />
+                                        <Button
+                                            AutomationProperties.Name="Edit this account"
+                                            Click="OnEditAccount"
+                                            Content="Edit"
+                                            IsEnabled="{x:Bind Enabled}"
+                                            Visibility="{x:Bind OffersEdit}" />
+                                        <Button
+                                            AutomationProperties.Name="Remove this account"
+                                            Click="OnRemoveAccount"
+                                            Content="Remove"
+                                            IsEnabled="{x:Bind Enabled}"
+                                            Visibility="{x:Bind OffersRemove}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasManaged, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="{x:Bind ViewModel.ManagedHeading, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.ManagedBody, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.ManagedLine, Mode=OneWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasChannels, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="Sender for each channel" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="A channel without a sender of its own sends from the default account."
+                        TextWrapping="Wrap" />
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Channels}" Visibility="{x:Bind ViewModel.ChannelsEditable, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Spacing="8" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ChannelSenderItem">
+                                <ComboBox
+                                    MinWidth="240"
+                                    AutomationProperties.Name="{x:Bind Label}"
+                                    Header="{x:Bind Label}"
+                                    ItemsSource="{x:Bind AccountLabels}"
+                                    PlaceholderText="{x:Bind SelectedLabel}"
+                                    SelectedIndex="{x:Bind SelectedIndex}"
+                                    SelectionChanged="OnSenderChosen" />
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Channels}" Visibility="{x:Bind ViewModel.ChannelsReadOnly, Mode=OneWay}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ChannelSenderItem">
+                                <TextBlock Text="{x:Bind Line}" />
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </StackPanel>
+
+                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasCreator, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="{x:Bind ViewModel.CreatorHeading, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.CreatorHelp, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBox
+                            MinWidth="220"
+                            AutomationProperties.Name="Mobile number"
+                            Header="Mobile number"
+                            InputScope="TelephoneNumber"
+                            Text="{x:Bind ViewModel.OwnerNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button
+                            VerticalAlignment="Bottom"
+                            AutomationProperties.Name="Save number"
+                            Command="{x:Bind ViewModel.SaveOwnerNumberCommand}"
+                            Content="Save number" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            VerticalAlignment="Bottom"
+                            AutomationProperties.Name="Saving the number"
+                            IsActive="{x:Bind ViewModel.SavingOwnerNumber, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.SavingOwnerNumber, Mode=OneWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

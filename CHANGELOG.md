@@ -26,8 +26,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   this app), after 2.0.0's live transcript of a call, the app's platform at sign-in (so
   the sign-in page can offer to create an account), and saving a reply still waiting to
   be saved when the app quits.
-- The store-copy check lets the Billing screen say "price" and "subscription", in the
-  core's words; every other screen and every source string keeps the full rule.
 
 ## [1.1.0] - 2026-10-08
 
