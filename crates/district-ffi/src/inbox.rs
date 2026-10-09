@@ -151,7 +151,7 @@ pub enum TimelineKind {
     Message {
         /// Whether the workspace sent it.
         outbound: bool,
-        /// Who wrote it. Always `None` with core 1.2.0, whose timeline does not
+        /// Who wrote it. Always `None` with core 2.0.0, whose timeline does not
         /// say; the side it is on says whose it is.
         author: Option<String>,
         /// Its text.
@@ -181,7 +181,7 @@ pub enum TimelineKind {
         /// Whether nobody answered it.
         missed: bool,
     },
-    /// Anything else, as one readable line. Not produced with core 1.2.0,
+    /// Anything else, as one readable line. Not produced with core 2.0.0,
     /// whose timeline holds only messages and calls.
     Note {
         /// The line.
@@ -404,7 +404,7 @@ fn timeline_item(event: &TimelineEvent, capabilities: &Capabilities) -> Timeline
 
 /// The conversation `thread_key`, read-only, from the core's `screen` of it.
 /// The core opens the screen as it shows the route, so `screen` is `None`
-/// only for a route without one, which core 1.2.0 never shows: the page then
+/// only for a route without one, which core 2.0.0 never shows: the page then
 /// waits, as for a thread being read.
 pub(crate) fn thread_view(
     thread_key: &str,

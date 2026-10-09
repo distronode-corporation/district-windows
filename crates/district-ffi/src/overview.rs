@@ -37,7 +37,7 @@ pub struct OverviewView {
     /// Whether a reload is under way with the overview still showing.
     pub refreshing: bool,
     /// Why the last reload failed, shown beside the overview. Always `None`
-    /// with core 1.2.0, where a failed reload replaces the overview with its
+    /// with core 2.0.0, where a failed reload replaces the overview with its
     /// failure (`status`); kept so a core that keeps the content can say so.
     pub refresh_failure: Option<FailureView>,
 }
