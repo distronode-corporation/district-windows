@@ -224,7 +224,8 @@ public sealed class CoreHostTests : IDisposable
         // As the core calls them, from its own threads.
         var ringing = new NotificationView(
             "call:call-1", "Incoming call", "Transferred from your AI receptionist.", true,
-            [new NotificationActionView("Answer", "answer"), new NotificationActionView("Decline", "decline")]);
+            [new NotificationActionView("Answer", "answer"), new NotificationActionView("Decline", "decline")],
+            NotificationKind.IncomingCall);
         await Task.Run(() =>
         {
             host.Notify(ringing);
@@ -253,7 +254,7 @@ public sealed class CoreHostTests : IDisposable
     {
         var dispatcher = new ManualDispatcher();
         await using var host = new CoreHost(dispatcher, new RecordingBrowser());
-        host.Notify(new NotificationView("message:m-1", "New message", "Open District AI to read it.", false, []));
+        host.Notify(new NotificationView("message:m-1", "New message", "Open District AI to read it.", false, [], NotificationKind.Message));
         host.Withdraw("message:m-1");
         host.StartRingtone();
         host.StopRingtone();

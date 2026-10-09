@@ -7092,7 +7092,10 @@ class FfiConverterTypeNotificationActionView: FfiConverterRustBuffer<Notificatio
 /// and kept until it is dealt with.
 /// </param>
 /// <param name="Actions">
-/// Its buttons, in order.
+/// Its buttons, in order. Always none for a message.
+/// </param>
+/// <param name="Kind">
+/// What it is about, which picks the toast's style.
 /// </param>
 public record NotificationView (
     /// <summary>
@@ -7114,9 +7117,13 @@ public record NotificationView (
     /// </summary>
     bool Urgent, 
     /// <summary>
-    /// Its buttons, in order.
+    /// Its buttons, in order. Always none for a message.
     /// </summary>
-    NotificationActionView[] Actions
+    NotificationActionView[] Actions, 
+    /// <summary>
+    /// What it is about, which picks the toast's style.
+    /// </summary>
+    NotificationKind Kind
 ) {
 }
 
@@ -7129,7 +7136,8 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
             Title: FfiConverterString.INSTANCE.Read(stream),
             Body: FfiConverterString.INSTANCE.Read(stream),
             Urgent: FfiConverterBoolean.INSTANCE.Read(stream),
-            Actions: FfiConverterSequenceTypeNotificationActionView.INSTANCE.Read(stream)
+            Actions: FfiConverterSequenceTypeNotificationActionView.INSTANCE.Read(stream),
+            Kind: FfiConverterTypeNotificationKind.INSTANCE.Read(stream)
         );
     }
 
@@ -7139,7 +7147,8 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
             + FfiConverterString.INSTANCE.AllocationSize(value.Title)
             + FfiConverterString.INSTANCE.AllocationSize(value.Body)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Urgent)
-            + FfiConverterSequenceTypeNotificationActionView.INSTANCE.AllocationSize(value.Actions);
+            + FfiConverterSequenceTypeNotificationActionView.INSTANCE.AllocationSize(value.Actions)
+            + FfiConverterTypeNotificationKind.INSTANCE.AllocationSize(value.Kind);
     }
 
     public override void Write(NotificationView value, BigEndianStream stream) {
@@ -7148,6 +7157,7 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
             FfiConverterString.INSTANCE.Write(value.Body, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Urgent, stream);
             FfiConverterSequenceTypeNotificationActionView.INSTANCE.Write(value.Actions, stream);
+            FfiConverterTypeNotificationKind.INSTANCE.Write(value.Kind, stream);
     }
 }
 
@@ -11673,6 +11683,57 @@ class FfiConverterTypeNavSection: FfiConverterRustBuffer<NavSection> {
             case NavSection.Workspace: stream.WriteInt(2); break;
             case NavSection.Account: stream.WriteInt(3); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNavSection.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// What a notification is about, from the core's target.
+/// </summary>
+public enum NotificationKind: int {
+    /// <summary>
+    /// A call ringing here now, or one waiting behind another.
+    /// </summary>
+    IncomingCall,
+    /// <summary>
+    /// A call over, such as one missed.
+    /// </summary>
+    Call,
+    /// <summary>
+    /// A new message: no buttons, and its body opens the conversation.
+    /// </summary>
+    Message
+}
+
+class FfiConverterTypeNotificationKind: FfiConverterRustBuffer<NotificationKind> {
+    public static FfiConverterTypeNotificationKind INSTANCE = new FfiConverterTypeNotificationKind();
+
+    public override NotificationKind Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return NotificationKind.IncomingCall;
+            case 2: return NotificationKind.Call;
+            case 3: return NotificationKind.Message;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNotificationKind.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(NotificationKind value) {
+        return 4;
+    }
+
+    public override void Write(NotificationKind value, BigEndianStream stream) {
+        switch (value) {
+            case NotificationKind.IncomingCall: stream.WriteInt(1); break;
+            case NotificationKind.Call: stream.WriteInt(2); break;
+            case NotificationKind.Message: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNotificationKind.Write()", value));
         }
     }
 }

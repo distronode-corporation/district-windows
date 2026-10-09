@@ -1,22 +1,19 @@
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels.Notifications;
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
 
 namespace DistrictAI.Platform.Calls;
 
 /// <summary>
-/// The core's notifications as Windows toasts, and a toast's activation back as
-/// the notification and button it names.
+/// The core's notifications (calls and new messages) as Windows toasts, and a
+/// toast's activation back as the notification and button it names.
 /// </summary>
 /// <remarks>
-/// A toast outlives the moment it was shown (Action Center keeps it, and can
-/// start the app with it after a restart), so what pressing it does is carried
-/// in the toast itself, as arguments: the notification's id and the button's
-/// action id, never the content of a message or who is calling. The core keeps
-/// the table that turns them back into what they were for.
+/// What a toast carries is decided by <see cref="ToastLayout"/>, which is
+/// tested on every platform; this class only hands it to Windows. A message's
+/// toast has no buttons, and its body opens the conversation through the core.
 /// <para>
 /// Needs <see cref="AppNotificationManager.Register()"/> to have run, which
 /// <c>App.OnLaunched</c> does before anything can be shown.
@@ -24,40 +21,38 @@ namespace DistrictAI.Platform.Calls;
 /// </remarks>
 internal static class ToastNotifier
 {
-    /// <summary>The argument holding the notification's id.</summary>
-    internal const string IdArgument = "notification-id";
-
-    /// <summary>The argument holding the button's action id. Absent for the toast's body.</summary>
-    internal const string ActionArgument = "notification-action";
-
     /// <summary>
     /// Shows <paramref name="notification"/>, replacing any toast already shown
-    /// for the same id. An urgent one with buttons is an incoming call: it uses
-    /// Windows' incoming-call toast, which stays on screen until it is answered
-    /// or dismissed, and is silent, because the app plays its own ringtone.
+    /// for the same id, in the style <see cref="ToastLayout.For"/> picks.
     /// </summary>
     /// <returns>Whether Windows took it. False when notifications are off or unavailable.</returns>
     public static bool Show(NotificationView notification)
     {
         ArgumentNullException.ThrowIfNull(notification);
+        var layout = ToastLayout.For(notification, AppNotificationBuilder.IsUrgentScenarioSupported);
         var builder = new AppNotificationBuilder()
-            .SetTag(TagFor(notification.Id))
-            .AddArgument(IdArgument, notification.Id)
-            .AddText(notification.Title)
-            .AddText(notification.Body);
-        if (notification.Urgent && notification.Actions.Length > 0)
+            .SetTag(layout.Tag)
+            .AddArgument(ToastLayout.IdArgument, layout.Id)
+            .AddText(layout.Title)
+            .AddText(layout.Body);
+        switch (layout.Style)
         {
-            builder.SetScenario(AppNotificationScenario.IncomingCall).MuteAudio();
+            case ToastStyle.IncomingCall:
+                builder.SetScenario(AppNotificationScenario.IncomingCall).MuteAudio();
+                break;
+            case ToastStyle.Urgent:
+                builder.SetScenario(AppNotificationScenario.Urgent);
+                break;
+            case ToastStyle.Message:
+            case ToastStyle.Plain:
+            default:
+                break;
         }
-        else if (notification.Urgent && AppNotificationBuilder.IsUrgentScenarioSupported())
+        foreach (var button in layout.Buttons)
         {
-            builder.SetScenario(AppNotificationScenario.Urgent);
-        }
-        foreach (var action in notification.Actions)
-        {
-            builder.AddButton(new AppNotificationButton(action.Label)
-                .AddArgument(IdArgument, notification.Id)
-                .AddArgument(ActionArgument, action.ActionId));
+            builder.AddButton(new AppNotificationButton(button.Label)
+                .AddArgument(ToastLayout.IdArgument, layout.Id)
+                .AddArgument(ToastLayout.ActionArgument, button.ActionId));
         }
         try
         {
@@ -72,14 +67,15 @@ internal static class ToastNotifier
         catch (Exception error) when (error is COMException or InvalidOperationException or UnauthorizedAccessException)
         {
             // Notifications turned off for the app, or the platform has none:
-            // the window's own banner still shows the call.
+            // the window still shows the call, and the inbox the message.
             return false;
         }
     }
 
     /// <summary>
     /// Takes away the toast shown for <paramref name="id"/>, from the screen and
-    /// from Action Center. Nothing happens if there is none.
+    /// from Action Center, when the core withdraws it. Nothing happens if there
+    /// is none.
     /// </summary>
     public static async Task WithdrawAsync(string id)
     {
@@ -88,7 +84,7 @@ internal static class ToastNotifier
         {
             if (AppNotificationManager.IsSupported())
             {
-                await AppNotificationManager.Default.RemoveByTagAsync(TagFor(id));
+                await AppNotificationManager.Default.RemoveByTagAsync(ToastLayout.TagFor(id));
             }
         }
         catch (Exception error) when (error is COMException or InvalidOperationException or UnauthorizedAccessException)
@@ -97,30 +93,7 @@ internal static class ToastNotifier
         }
     }
 
-    /// <summary>
-    /// Reads the notification id, and the button's action id (null for the
-    /// toast's body), out of a toast activation's <paramref name="arguments"/>.
-    /// </summary>
-    /// <returns>False for arguments this class did not write.</returns>
-    public static bool TryReadActivation(IDictionary<string, string> arguments, out string id, out string? actionId)
-    {
-        ArgumentNullException.ThrowIfNull(arguments);
-        actionId = arguments.TryGetValue(ActionArgument, out var action) && action.Length > 0 ? action : null;
-        if (arguments.TryGetValue(IdArgument, out var found) && found.Length > 0)
-        {
-            id = found;
-            return true;
-        }
-        id = string.Empty;
-        actionId = null;
-        return false;
-    }
-
-    /// <summary>
-    /// The toast's tag for the notification <paramref name="id"/>: Windows caps
-    /// a tag's length, and an id has no stated limit, so it is a hash of the
-    /// id, 16 hexadecimal digits, the same for the same id in every process.
-    /// </summary>
-    internal static string TagFor(string id) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(id)), 0, 8);
+    /// <inheritdoc cref="ToastLayout.TryReadActivation"/>
+    public static bool TryReadActivation(IDictionary<string, string> arguments, out string id, out string? actionId) =>
+        ToastLayout.TryReadActivation(arguments, out id, out actionId);
 }
