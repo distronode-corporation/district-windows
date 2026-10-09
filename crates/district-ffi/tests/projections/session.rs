@@ -75,7 +75,7 @@ fn the_welcome_screen_offers_an_account_beside_sign_in() {
     assert!(view.sign_in);
     let offer = view.create_account.expect("offered beside sign-in");
     assert_eq!(offer.label, "Create an account");
-    assert!(offer.note.contains("sign-in page"), "{}", offer.note);
+    assert!(offer.note.contains("sign-in page"));
 
     let (model, _) = start();
     let ScreenView::Session { view } = screen_view(&model) else {
