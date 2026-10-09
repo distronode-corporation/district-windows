@@ -205,8 +205,8 @@ public sealed class SceneWalkTests
 
     /// <summary>
     /// The call shortcuts (MainWindow.xaml's accelerators) during a placed
-    /// call: Ctrl+D turns the microphone off (the call bar's Mute pressed)
-    /// and on again, and Ctrl+Shift+H ends the call.
+    /// call: Ctrl+D turns the microphone the other way (the call bar's Mute
+    /// toggled) and back again, and Ctrl+Shift+H ends the call.
     /// </summary>
     /// <remarks>
     /// The reply box's draft surviving a quit is not walked here: the scene
@@ -236,19 +236,23 @@ public sealed class SceneWalkTests
             PageTimeout,
             "the call bar's Mute, enabled",
             app.Describe);
-        Assert.Equal(ToggleState.Off, mute.Patterns.Toggle.Pattern.ToggleState.Value);
+        // Whichever way the call starts (the scene's may start muted), Ctrl+D
+        // turns it the other way, and Ctrl+D again back.
+        var start = mute.Patterns.Toggle.Pattern.ToggleState.Value;
+        var other = start == ToggleState.On ? ToggleState.Off : ToggleState.On;
+        InstalledApp.Log($"the call starts with Mute {start}");
 
         // The shortcuts go to the window, as a person's keys do.
         Shortcut(handle, VirtualKeyShort.KEY_D, VirtualKeyShort.CONTROL);
         Assert.True(
-            Wait.Until(() => MuteState(app) == ToggleState.On, PageTimeout),
-            $"Ctrl+D did not turn the microphone off.{Environment.NewLine}{app.Describe()}");
-        InstalledApp.Log("Ctrl+D: microphone off");
+            Wait.Until(() => MuteState(app) == other, PageTimeout),
+            $"Ctrl+D did not turn Mute {other}.{Environment.NewLine}{app.Describe()}");
+        InstalledApp.Log($"Ctrl+D: Mute {other}");
         Shortcut(handle, VirtualKeyShort.KEY_D, VirtualKeyShort.CONTROL);
         Assert.True(
-            Wait.Until(() => MuteState(app) == ToggleState.Off, PageTimeout),
-            $"Ctrl+D again did not turn the microphone on.{Environment.NewLine}{app.Describe()}");
-        InstalledApp.Log("Ctrl+D: microphone on");
+            Wait.Until(() => MuteState(app) == start, PageTimeout),
+            $"Ctrl+D again did not turn Mute back {start}.{Environment.NewLine}{app.Describe()}");
+        InstalledApp.Log($"Ctrl+D: Mute {start}");
 
         Shortcut(handle, VirtualKeyShort.KEY_H, VirtualKeyShort.CONTROL, VirtualKeyShort.SHIFT);
         _ = app.Find(ControlType.Text, "Call ended", PageTimeout);
