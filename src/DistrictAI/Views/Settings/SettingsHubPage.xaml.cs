@@ -6,8 +6,8 @@ using Microsoft.UI.Xaml.Controls;
 namespace DistrictAI.Views.Settings;
 
 /// <summary>
-/// The workspace settings hub. A stub until the area's packet builds it: until then the core
-/// shows the unavailable page instead, so this one is never on screen.
+/// The workspace settings hub: the core's sections for the member's role, in
+/// its groups, each row opening its section, and the core's note under them.
 /// </summary>
 public sealed partial class SettingsHubPage : UserControl
 {
@@ -23,4 +23,12 @@ public sealed partial class SettingsHubPage : UserControl
     internal void Attach(PageContext context) => ViewModel.Attach(context);
 
     internal void Show(SettingsHubView view) => ViewModel.Show(view);
+
+    private void OnRowClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is SettingsRowItem row)
+        {
+            ViewModel.Open(row);
+        }
+    }
 }

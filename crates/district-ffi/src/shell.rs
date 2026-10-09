@@ -12,6 +12,7 @@ use district_model::WorkspaceEntry;
 use serde::Serialize;
 
 use crate::calls_live::{ActiveCallView, IncomingRingView, active_call_view, incoming_ring_view};
+use crate::guard::DiscardView;
 use crate::nav::{NavView, nav_view};
 use crate::report::{ReportStatus, refusal, report_status};
 use crate::views::humanize;
@@ -56,6 +57,12 @@ pub struct ShellView {
     /// which links the LiveKit engine. Without it the dialler, Call buttons and
     /// "Ring on this computer" are not offered.
     pub calls_available: bool,
+    /// "Discard your changes?", while a move away from a settings section with
+    /// unsaved changes is held (crate::guard): answered with
+    /// `UiEvent::DiscardChanges` or `UiEvent::KeepEditing`. The actor sets it;
+    /// left out of the snapshots while there is none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub discard: Option<DiscardView>,
 }
 
 /// The workspaces the member can open, and the open one.
@@ -183,6 +190,7 @@ pub(crate) fn shell_for(
         call: None,
         ring: None,
         calls_available,
+        discard: None,
     };
     match session {
         SessionState::Restoring(_) => outside(SessionPhase::Restoring),
@@ -206,6 +214,7 @@ pub(crate) fn shell_for(
                 call: active_call_view(signed_in, now),
                 ring: incoming_ring_view(signed_in),
                 calls_available,
+                discard: None,
             }
         }
     }
