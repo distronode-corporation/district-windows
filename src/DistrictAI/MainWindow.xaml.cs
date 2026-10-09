@@ -30,6 +30,9 @@ public sealed partial class MainWindow : Window
     {
         _core = core;
         InitializeComponent();
+        // The District icon in the title bar (and the window's taskbar button):
+        // a WinUI window does not take it from the exe's ApplicationIcon.
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "TrayIcon.ico"));
         // Mica on Windows 11; Windows 10 keeps the default background.
         if (MicaController.IsSupported())
         {

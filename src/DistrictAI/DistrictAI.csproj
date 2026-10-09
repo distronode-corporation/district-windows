@@ -15,8 +15,9 @@
     <AssemblyName>DistrictAI</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!--
-      The exe's icon, which the window's title bar and the taskbar show: the
-      District icon at every size from 16 to 256, the same file as the tray's.
+      The exe's icon (Explorer, the Start menu's file views): the District icon
+      at every size from 16 to 256, the same file as the tray's. The window's
+      title bar takes it from MainWindow's AppWindow.SetIcon, not from here.
     -->
     <ApplicationIcon>Assets\TrayIcon.ico</ApplicationIcon>
     <!-- x64 only for 1.0: Windows 11 on ARM runs it emulated. -->
