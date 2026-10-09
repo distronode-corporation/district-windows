@@ -601,9 +601,7 @@ mod tests {
                 },
             },
             ScreenView::WorkspaceSettings {
-                view: crate::settings::SettingsHubView {
-                    title: "WorkspaceSettings".to_owned(),
-                },
+                view: crate::settings::SettingsHubView::sample(),
             },
             ScreenView::Persona {
                 view: crate::settings::persona::PersonaView {

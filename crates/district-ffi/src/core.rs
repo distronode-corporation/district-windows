@@ -21,6 +21,7 @@ use tokio::sync::oneshot;
 use tokio::task::JoinHandle;
 
 use crate::events::UiEvent;
+use crate::guard::{DiscardView, Held};
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
 use crate::link::{LinkKind, link_kind};
@@ -172,9 +173,17 @@ impl SnapshotCell {
 
     /// Projects `model`, and when anything the window shows changed, bumps the
     /// revision and tells the host. `reporting` says whether this session
-    /// started a report that has not been dismissed.
-    fn publish(&self, model: &Model, reporting: bool, host: &dyn UiHost) {
-        let shell = shell_view(model, reporting);
+    /// started a report that has not been dismissed, and `discard` is the
+    /// question asked while a move is held (crate::guard).
+    fn publish(
+        &self,
+        model: &Model,
+        reporting: bool,
+        discard: Option<DiscardView>,
+        host: &dyn UiHost,
+    ) {
+        let mut shell = shell_view(model, reporting);
+        shell.discard = discard;
         let screen = screen_view(model);
         let revision = {
             let mut snapshot = self.lock();
@@ -572,6 +581,7 @@ fn launch<X: Effects>(
         snapshot,
         sender: sender.clone(),
         reporting: false,
+        held: Held::default(),
     };
     runtime.spawn(actor.run(first, inbox));
     sender
@@ -586,12 +596,19 @@ struct Actor<X> {
     /// Whether this session started a report that has not been dismissed. The
     /// support form's state says how it went; this says it was ours.
     reporting: bool,
+    /// A move away from a settings section with unsaved changes, held while
+    /// "Discard your changes?" is asked (crate::guard).
+    held: Held,
 }
 
 impl<X: Effects> Actor<X> {
     fn publish(&self) {
-        self.snapshot
-            .publish(&self.model, self.reporting, &*self.host);
+        self.snapshot.publish(
+            &self.model,
+            self.reporting,
+            self.held.question(),
+            &*self.host,
+        );
     }
 
     async fn run(mut self, first: Vec<Effect>, mut inbox: UnboundedReceiver<Message>) {
@@ -600,13 +617,29 @@ impl<X: Effects> Actor<X> {
         while let Some(message) = inbox.recv().await {
             match message {
                 Message::Event(event) => {
-                    let next = self.model.update(*event);
+                    // An effect's answer never leaves a screen; a
+                    // notification's target, arriving here, does, and is held
+                    // like the member's own moves.
+                    let mut next = Vec::new();
+                    for event in self.held.pass(&self.model, vec![*event]) {
+                        next.extend(self.model.update(event));
+                    }
                     self.publish();
                     self.dispatch(next);
                 }
                 Message::Ui(action) => {
                     let mut next = Vec::new();
-                    let events = ui_events(&self.model, &mut self.reporting, action);
+                    let events = match action {
+                        UiEvent::DiscardChanges => self.held.discard(),
+                        UiEvent::KeepEditing => {
+                            self.held.keep();
+                            Vec::new()
+                        }
+                        action => {
+                            let events = ui_events(&self.model, &mut self.reporting, action);
+                            self.held.pass(&self.model, events)
+                        }
+                    };
                     for event in events {
                         next.extend(self.model.update(event));
                     }
@@ -723,6 +756,8 @@ mod tests {
         unregistered: AtomicBool,
         /// How long saving the session takes, at quitting.
         save_takes: Duration,
+        /// Whether the workspace list is answered, with one agency workspace.
+        workspace: bool,
     }
 
     impl Effects for Arc<FakeEffects> {
@@ -767,6 +802,48 @@ mod tests {
                         result: Ok(()),
                     })
                 }
+                Effect::LoadWorkspaces { ticket } if self.workspace => {
+                    Some(Event::WorkspacesLoaded {
+                        ticket,
+                        remembered: None,
+                        result: Ok(serde_json::from_value(serde_json::json!({
+                            "success": true,
+                            "workspaces": [{
+                                "id": "ws-1",
+                                "name": "Example Dental",
+                                "region": "us",
+                                "role": "agency",
+                                "subscriptionTier": "VoicePro"
+                            }],
+                            "total": 1,
+                            "limit": 100,
+                            "offset": 0,
+                            "degradedRegions": [],
+                            "inactiveCount": 0,
+                            "defaultWorkspaceId": "ws-1"
+                        }))
+                        .expect("a workspace list")),
+                    })
+                }
+                Effect::LoadWorkspaceConfig { ticket, .. } => Some(Event::WorkspaceConfigLoaded {
+                    ticket,
+                    result: Ok(serde_json::from_value(serde_json::json!({
+                        "success": true,
+                        "config": {
+                            "aiPersona": null,
+                            "toolConfig": null,
+                            "routingRules": null,
+                            "callDirectory": null,
+                            "messagingConfig": null,
+                            "campaignSettings": null,
+                            "creatorCellNumber": null,
+                            "plan": null,
+                            "subscriptionTier": null,
+                            "updatedAt": null
+                        }
+                    }))
+                    .expect("a workspace config")),
+                }),
                 Effect::SaveSession => {
                     tokio::time::sleep(self.save_takes).await;
                     None
@@ -1043,6 +1120,117 @@ mod tests {
         assert!(effects.ran(|effect| matches!(effect, Effect::SaveSession)));
         assert!(waited >= QUIT_BUDGET, "{waited:?}");
         assert!(waited < QUIT_BUDGET + Duration::from_secs(1), "{waited:?}");
+    }
+
+    /// Signed in to one agency workspace, on its persona section, read.
+    async fn on_persona() -> (Arc<Core>, Arc<FakeEffects>) {
+        let core = Core::new();
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            workspace: true,
+            ..FakeEffects::default()
+        });
+        core.start_with(
+            config(),
+            Arc::clone(&effects),
+            Arc::new(RecordingHost::default()),
+        );
+        eventually("a workspace open", || !core.shell().nav.groups.is_empty()).await;
+        core.send(UiEvent::Settings {
+            action: crate::settings::SettingsAction::OpenSection {
+                section: crate::settings::SettingsSection::Persona,
+            },
+        });
+        eventually("the persona read", || {
+            effects.ran(|effect| matches!(effect, Effect::LoadWorkspaceConfig { .. }))
+        })
+        .await;
+        (core, effects)
+    }
+
+    /// The route the actor's model is on, from the pane's highlight and the
+    /// screen.
+    fn on_settings_section(core: &Core) -> bool {
+        matches!(core.screen(), ScreenView::Unavailable { .. })
+            && core
+                .shell()
+                .nav
+                .groups
+                .iter()
+                .flat_map(|group| group.entries.iter())
+                .any(|entry| entry.selected && entry.destination == crate::NavDestination::Settings)
+    }
+
+    /// The actor holds a move away from a section with unsaved changes and
+    /// asks; Keep editing drops it, Discard hands it to the core. A move with
+    /// nothing unsaved is never held.
+    #[tokio::test]
+    async fn a_move_away_from_unsaved_changes_is_held_until_answered() {
+        let (core, _effects) = on_persona().await;
+        assert!(on_settings_section(&core));
+        // Nothing changed: Back goes at once, to the hub.
+        core.send(UiEvent::Back);
+        eventually("the hub", || {
+            matches!(core.screen(), ScreenView::WorkspaceSettings { .. })
+        })
+        .await;
+        assert_eq!(core.shell().discard, None);
+
+        // Back to the section, with an edit not saved.
+        core.send(UiEvent::Settings {
+            action: crate::settings::SettingsAction::OpenSection {
+                section: crate::settings::SettingsSection::Persona,
+            },
+        });
+        eventually("the section", || on_settings_section(&core)).await;
+        core.deliver(Message::event(Event::Persona(
+            district_core::PersonaEvent::EditText {
+                field: district_core::PersonaText::Name,
+                value: "Grace".to_owned(),
+            },
+        )));
+        for leave in [
+            UiEvent::Back,
+            UiEvent::Refresh,
+            UiEvent::Navigate {
+                destination: crate::NavDestination::Overview,
+            },
+        ] {
+            core.send(leave);
+            eventually("the question", || core.shell().discard.is_some()).await;
+            assert_eq!(core.shell().discard, Some(crate::guard::DiscardView::new()));
+            assert!(on_settings_section(&core), "held, not moved");
+            core.send(UiEvent::KeepEditing);
+            eventually("the question gone", || core.shell().discard.is_none()).await;
+            assert!(on_settings_section(&core), "kept");
+        }
+
+        // A notification's target arrives as an event, and is held too.
+        core.deliver(Message::event(Event::OpenNotification(
+            district_core::NotificationTarget::Message {
+                workspace_id: "ws-1".to_owned(),
+                message_id: "m-1".to_owned(),
+            },
+        )));
+        eventually("the question", || core.shell().discard.is_some()).await;
+        assert!(on_settings_section(&core), "held, not moved");
+        core.send(UiEvent::KeepEditing);
+        eventually("the question gone", || core.shell().discard.is_none()).await;
+
+        core.send(UiEvent::Navigate {
+            destination: crate::NavDestination::Overview,
+        });
+        eventually("the question", || core.shell().discard.is_some()).await;
+        core.send(UiEvent::DiscardChanges);
+        eventually("the overview", || {
+            matches!(core.screen(), ScreenView::Overview { .. })
+        })
+        .await;
+        assert_eq!(core.shell().discard, None);
+        // Answering again with nothing held does nothing.
+        core.send(UiEvent::DiscardChanges);
+        core.send(UiEvent::KeepEditing);
+        core.shutdown().await;
     }
 
     /// A report's three events reach the model, and a dismissal its two; with
