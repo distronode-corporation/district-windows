@@ -3305,11 +3305,11 @@ class FfiConverterTypeUiHost: FfiConverter<UiHost, ulong> {
 /// The signed-in user's id.
 /// </param>
 /// <param name="Email">
-/// The account's email address. Always `None` with core 1.2.0, whose
+/// The account's email address. Always `None` with core 2.0.0, whose
 /// session holds only the user and device ids.
 /// </param>
 /// <param name="Name">
-/// The account holder's name. Always `None` with core 1.2.0, for the same
+/// The account holder's name. Always `None` with core 2.0.0, for the same
 /// reason.
 /// </param>
 /// <param name="SignOutCaption">
@@ -3349,12 +3349,12 @@ public record AccountView (
     /// </summary>
     string UserId, 
     /// <summary>
-    /// The account's email address. Always `None` with core 1.2.0, whose
+    /// The account's email address. Always `None` with core 2.0.0, whose
     /// session holds only the user and device ids.
     /// </summary>
     string? Email, 
     /// <summary>
-    /// The account holder's name. Always `None` with core 1.2.0, for the same
+    /// The account holder's name. Always `None` with core 2.0.0, for the same
     /// reason.
     /// </summary>
     string? Name, 
@@ -3450,7 +3450,7 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
 /// put away.
 /// </summary>
 /// <param name="CallId">
-/// The call's id. Always `None` in this version: core 1.2.0 keeps it
+/// The call's id. Always `None` in this version: core 2.0.0 keeps it
 /// private to the call, and nothing on screen needs it (hanging up and
 /// putting the summary away name no call).
 /// </param>
@@ -3501,7 +3501,7 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
 /// </param>
 public record ActiveCallView (
     /// <summary>
-    /// The call's id. Always `None` in this version: core 1.2.0 keeps it
+    /// The call's id. Always `None` in this version: core 2.0.0 keeps it
     /// private to the call, and nothing on screen needs it (hanging up and
     /// putting the summary away name no call).
     /// </summary>
@@ -6000,7 +6000,7 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
 /// </param>
 /// <param name="RefreshFailure">
 /// Why the last reload failed, shown beside the overview. Always `None`
-/// with core 1.2.0, where a failed reload replaces the overview with its
+/// with core 2.0.0, where a failed reload replaces the overview with its
 /// failure (`status`); kept so a core that keeps the content can say so.
 /// </param>
 public record OverviewView (
@@ -6040,7 +6040,7 @@ public record OverviewView (
     bool Refreshing, 
     /// <summary>
     /// Why the last reload failed, shown beside the overview. Always `None`
-    /// with core 1.2.0, where a failed reload replaces the overview with its
+    /// with core 2.0.0, where a failed reload replaces the overview with its
     /// failure (`status`); kept so a core that keeps the content can say so.
     /// </summary>
     FailureView? RefreshFailure
@@ -10111,7 +10111,7 @@ public record TimelineKind {
     ) : TimelineKind {}
     
     /// <summary>
-    /// Anything else, as one readable line. Not produced with core 1.2.0,
+    /// Anything else, as one readable line. Not produced with core 2.0.0,
     /// whose timeline holds only messages and calls.
     /// </summary>
     public record Note (
