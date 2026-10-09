@@ -1,0 +1,53 @@
+{
+  "screen": {
+    "Overview": {
+      "view": {
+        "finish_setup": null,
+        "metrics": [],
+        "read_only_badge": null,
+        "recent_calls": [],
+        "recent_calls_empty": null,
+        "refresh_failure": null,
+        "refreshing": false,
+        "status": "Loading",
+        "workspace_name": ""
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": false,
+    "live": null,
+    "nav_selected": "Overview",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

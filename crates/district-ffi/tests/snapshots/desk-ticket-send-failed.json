@@ -1,0 +1,112 @@
+{
+  "screen": {
+    "DeskTicket": {
+      "view": {
+        "can_change_status": true,
+        "can_reply": true,
+        "can_write_reply": true,
+        "created_at": "2026-09-04T09:15:00.000Z",
+        "details": [
+          {
+            "label": "Name",
+            "value": "Contract Test Caller"
+          },
+          {
+            "label": "Email address",
+            "value": "caller@example.com"
+          },
+          {
+            "label": "Phone number",
+            "value": "+1 416 555 0142"
+          },
+          {
+            "label": "Came in by",
+            "value": "Manual"
+          }
+        ],
+        "messages": [
+          {
+            "author": "Customer",
+            "body": "I need to move Thursday's appointment to next week.",
+            "created_at": "2026-09-04T09:15:00.000Z",
+            "from_team": false,
+            "id": "desk_msg_customer"
+          },
+          {
+            "author": "Receptionist",
+            "body": "Raised from a call the assistant could not complete.",
+            "created_at": "2026-09-04T09:15:00.000Z",
+            "from_team": false,
+            "id": "desk_msg_assistant"
+          },
+          {
+            "author": "Your team",
+            "body": "Moved to Tuesday at 10am. Anything else?",
+            "created_at": "2026-09-06T16:40:00.000Z",
+            "from_team": true,
+            "id": "desk_msg_team"
+          }
+        ],
+        "notified_note": null,
+        "reference_line": "T-41 · Open",
+        "refresh_failure": null,
+        "reply": "Moved to Tuesday at 10am. Anything else?",
+        "resolved_at": null,
+        "send_failure": {
+          "message": "Something went wrong on our side. Please try again shortly.",
+          "regions_line": null,
+          "retryable": true
+        },
+        "sending": false,
+        "status": "Ready",
+        "status_changing": false,
+        "status_failure": null,
+        "statuses": [
+          {
+            "label": "Open",
+            "selected": true,
+            "status": "Open"
+          },
+          {
+            "label": "Waiting on the customer",
+            "selected": false,
+            "status": "Waiting"
+          },
+          {
+            "label": "Resolved",
+            "selected": false,
+            "status": "Resolved"
+          }
+        ],
+        "ticket_id": "desk_ticket_open",
+        "title": "Reschedule Thursday's appointment"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Desk",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
