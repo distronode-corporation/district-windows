@@ -684,9 +684,13 @@ mod tests {
         else {
             panic!("call handling shows");
         };
-        assert!(view.save.saved.is_some(), "{view:?}");
+        assert!(view.notice.as_ref().is_some_and(|n| n.saved), "{view:?}");
         assert_eq!(view.ring_seconds, 12);
-        assert!(view.modes.iter().any(|m| m.selected && m.mode == CallHandlingChoice::AppFirst));
+        assert!(
+            view.modes
+                .iter()
+                .any(|m| m.selected && m.mode == CallHandlingChoice::AppFirst)
+        );
         let ScreenView::CallHandling { view } = run(
             &mut model,
             call_handling(CallHandlingAction::SetAvailable { available: false }),
@@ -694,7 +698,7 @@ mod tests {
             panic!("call handling shows");
         };
         assert!(!view.availability.available);
-        assert!(view.availability.save.saved.is_some());
+        assert!(view.availability.notice.as_ref().is_some_and(|n| n.saved));
 
         let routing = |action| UiEvent::Routing { action };
         let _ = run(&mut model, routing(RoutingAction::Open));
@@ -704,7 +708,7 @@ mod tests {
         else {
             panic!("the routing rules show");
         };
-        assert!(view.save.saved.is_some(), "{view:?}");
+        assert!(view.notice.as_ref().is_some_and(|n| n.saved), "{view:?}");
 
         let directory = |action| UiEvent::Directory { action };
         let _ = run(&mut model, directory(DirectoryAction::Open));
@@ -715,7 +719,7 @@ mod tests {
         else {
             panic!("the directory shows");
         };
-        assert!(view.save.saved.is_some(), "{view:?}");
+        assert!(view.notice.as_ref().is_some_and(|n| n.saved), "{view:?}");
     }
 
     /// The walk's one step past the pane: the inbox's first conversation

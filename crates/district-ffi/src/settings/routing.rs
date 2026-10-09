@@ -3,7 +3,7 @@
 //!
 //! Each stored rule is a card of its own, edited one key at a time with the web
 //! console's choices; a stored value those choices do not list is shown as it
-//! is stored, and choosing it again sends nothing. A rule's engine is shown and
+//! is stored (the settings kit's picker). A rule's engine is shown and
 //! not changed here. The save replaces every rule, so the core asks first.
 
 use district_core::{
@@ -15,9 +15,12 @@ use district_model::{
 };
 use serde::Serialize;
 
-use super::call_handling::{QuestionView, SaveView, config_status};
+use super::call_handling::QuestionView;
+use super::{
+    ChoiceView, PickerView, SaveNoticeView, SectionStatus, save_notice, section_status, unlisted,
+};
 use crate::screen::ScreenView;
-use crate::views::{EmptyView, LoadStatus};
+use crate::views::EmptyView;
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
@@ -28,8 +31,6 @@ pub const ROUTING_TITLE: &str = "Call routing rules";
 /// What the section says under its heading.
 pub const ROUTING_INTRO: &str = "Which callers get which voice and instruction. Rules are \
     checked in this order, and saving replaces every rule stored.";
-/// What a picker shows for a stored value that is empty.
-pub const NOT_CHOSEN: &str = "Not chosen";
 
 /// The keys of a rule the builder reads and writes. Any other key a stored
 /// rule holds goes back as it came.
@@ -133,26 +134,14 @@ impl RoutingField {
     }
 }
 
-/// One choice of a picker.
+/// One of a rule's pickers, under its label.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
-pub struct ChoiceView {
-    /// The value it sends; `None` for a stored value the choices do not list,
-    /// shown as stored, which sends nothing.
-    pub value: Option<String>,
-    /// What it shows.
+pub struct RulePickerView {
+    /// Its label ("Caller detail", "Compared by", "Voice").
     pub label: String,
-}
-
-/// A picker of one of a rule's keys.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
-pub struct PickerView {
-    /// Its label.
-    pub label: String,
-    /// Its choices, in order: the web console's, then the stored value when
-    /// they do not list it.
-    pub choices: Vec<ChoiceView>,
-    /// The position of the choice the rule holds.
-    pub selected: u32,
+    /// The web console's choices, with the rule's value chosen; a stored
+    /// value they do not list is shown as stored.
+    pub picker: PickerView,
 }
 
 /// One rule, as its card shows it.
@@ -165,13 +154,13 @@ pub struct RoutingRuleView {
     /// What it matches, and the voice it gives.
     pub summary: String,
     /// What about the caller is compared ("Caller detail").
-    pub field: PickerView,
+    pub field: RulePickerView,
     /// How ("Compared by").
-    pub operator: PickerView,
+    pub operator: RulePickerView,
     /// What it is compared with.
     pub value: String,
     /// The voice ("Voice").
-    pub voice: PickerView,
+    pub voice: RulePickerView,
     /// What the receptionist is told.
     pub instruction: String,
     /// The engine, in words: shown, and not changed here.
@@ -187,9 +176,9 @@ pub struct RoutingView {
     pub title: String,
     /// What it says under the heading, [`ROUTING_INTRO`].
     pub intro: String,
-    /// Where the read stands. No list is offered before the settings are
+    /// Where the page stands. No list is offered before the settings are
     /// read: a list not built from them could only save over them.
-    pub status: LoadStatus,
+    pub status: SectionStatus,
     /// Rules stored in a shape this app cannot change whole: said in place of
     /// the list, with no control. Not a failure, and a retry cannot help.
     pub unmodellable: Option<EmptyView>,
@@ -203,8 +192,10 @@ pub struct RoutingView {
     pub can_edit: bool,
     /// Whether "Save" works: the list differs from the stored one.
     pub can_save: bool,
-    /// How the last save ended.
-    pub save: SaveView,
+    /// Whether a save is on its way (show a progress ring).
+    pub saving: bool,
+    /// How the last save ended, until dismissed or the list changes.
+    pub notice: Option<SaveNoticeView>,
     /// The core's question before the save, while it asks.
     pub confirming: Option<QuestionView>,
 }
@@ -215,13 +206,14 @@ impl Default for RoutingView {
         Self {
             title: ROUTING_TITLE.to_owned(),
             intro: ROUTING_INTRO.to_owned(),
-            status: LoadStatus::Loading,
+            status: SectionStatus::Loading,
             unmodellable: None,
             rules: Vec::new(),
             empty: None,
             can_edit: false,
             can_save: false,
-            save: SaveView::default(),
+            saving: false,
+            notice: None,
             confirming: None,
         }
     }
@@ -283,33 +275,25 @@ pub(crate) fn events(action: RoutingAction) -> Vec<Event> {
 }
 
 /// A picker labelled `label` over `values` (each shown as `words` says), with
-/// the rule's `stored` value chosen, listed last when they do not have it.
-fn picker(label: &str, values: &[&str], words: fn(&str) -> String, stored: &str) -> PickerView {
-    let mut choices: Vec<ChoiceView> = values
-        .iter()
-        .map(|value| ChoiceView {
-            value: Some((*value).to_owned()),
-            label: words(value),
-        })
-        .collect();
-    let selected = match values.iter().position(|value| *value == stored) {
-        Some(at) => at,
-        None => {
-            choices.push(ChoiceView {
-                value: None,
-                label: if stored.trim().is_empty() {
-                    NOT_CHOSEN.to_owned()
-                } else {
-                    stored.to_owned()
-                },
-            });
-            values.len()
-        }
-    };
-    PickerView {
+/// the rule's `stored` value chosen.
+fn picker(label: &str, values: &[&str], words: fn(&str) -> String, stored: &str) -> RulePickerView {
+    RulePickerView {
         label: label.to_owned(),
-        choices,
-        selected: u32::try_from(selected).unwrap_or(u32::MAX),
+        picker: PickerView {
+            choices: values
+                .iter()
+                .map(|value| ChoiceView {
+                    value: (*value).to_owned(),
+                    label: words(value),
+                })
+                .collect(),
+            selected: stored.to_owned(),
+            selected_label: if values.contains(&stored) {
+                words(stored)
+            } else {
+                unlisted(stored)
+            },
+        },
     }
 }
 
@@ -349,7 +333,7 @@ pub(crate) fn routing_view(
     capabilities: &Capabilities,
 ) -> RoutingView {
     let mut view = RoutingView {
-        status: config_status(&section.config, &section.save),
+        status: section_status(&section.config, &section.save),
         confirming: section.confirmation().map(|confirm| QuestionView {
             title: confirm.title().to_owned(),
             body: confirm.body(),
@@ -358,7 +342,7 @@ pub(crate) fn routing_view(
         }),
         ..RoutingView::default()
     };
-    if view.status != LoadStatus::Ready {
+    if view.status != SectionStatus::Ready {
         return view;
     }
     if section.unmodellable() {
@@ -382,7 +366,8 @@ pub(crate) fn routing_view(
     });
     view.can_edit = capabilities.can_change && section.editable();
     view.can_save = capabilities.can_change && section.can_save();
-    view.save = SaveView::of(&section.save);
+    view.saving = section.save.is_busy();
+    view.notice = save_notice(&section.save);
     view
 }
 
@@ -421,20 +406,14 @@ mod tests {
     }
 
     #[test]
-    fn a_stored_value_the_choices_lack_is_listed_last_and_sends_nothing() {
-        let listed = picker("Voice", ROUTING_VOICES, str::to_owned, "Fenrir");
-        assert_eq!(listed.selected, 1);
-        assert_eq!(listed.choices.len(), ROUTING_VOICES.len());
-        let unlisted = picker("Voice", ROUTING_VOICES, str::to_owned, "Orpheus");
-        assert_eq!(unlisted.selected as usize, ROUTING_VOICES.len());
-        assert_eq!(
-            unlisted.choices.last(),
-            Some(&ChoiceView {
-                value: None,
-                label: "Orpheus".to_owned()
-            })
-        );
+    fn a_stored_value_the_choices_lack_is_shown_as_stored() {
+        let listed = picker("Caller detail", ROUTING_FIELDS, key_words, "estimatedValue");
+        assert_eq!(listed.picker.selected_label, "Estimated value");
+        assert_eq!(listed.picker.choices.len(), ROUTING_FIELDS.len());
+        let other = picker("Voice", ROUTING_VOICES, str::to_owned, "Orpheus");
+        assert_eq!(other.picker.selected, "Orpheus");
+        assert_eq!(other.picker.selected_label, "Orpheus");
         let blank = picker("Voice", ROUTING_VOICES, str::to_owned, " ");
-        assert_eq!(blank.choices.last().unwrap().label, NOT_CHOSEN);
+        assert_eq!(blank.picker.selected_label, super::super::NOT_CHOSEN);
     }
 }

@@ -17,9 +17,10 @@ use district_core::{
 use district_model::DirectoryEntry;
 use serde::Serialize;
 
-use super::call_handling::{QuestionView, SaveView, config_status};
+use super::call_handling::QuestionView;
+use super::{SaveNoticeView, SectionStatus, save_notice, section_status};
 use crate::screen::ScreenView;
-use crate::views::{EmptyView, LoadStatus};
+use crate::views::EmptyView;
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
@@ -105,9 +106,9 @@ pub struct DirectoryView {
     pub title: String,
     /// What it says under the heading, [`DIRECTORY_INTRO`].
     pub intro: String,
-    /// Where the read stands. No list is offered before the settings are
+    /// Where the page stands. No list is offered before the settings are
     /// read: a list not built from them could only save over them.
-    pub status: LoadStatus,
+    pub status: SectionStatus,
     /// A directory stored in a shape this app cannot change whole: said in
     /// place of the list, with no control. Not a failure, and a retry cannot
     /// help.
@@ -129,8 +130,10 @@ pub struct DirectoryView {
     pub can_edit: bool,
     /// Whether "Save" works: the list differs from the stored one.
     pub can_save: bool,
-    /// How the last save ended.
-    pub save: SaveView,
+    /// Whether a save is on its way (show a progress ring).
+    pub saving: bool,
+    /// How the last save ended, until dismissed or the list changes.
+    pub notice: Option<SaveNoticeView>,
     /// The core's question before the save, while it asks.
     pub confirming: Option<QuestionView>,
 }
@@ -141,7 +144,7 @@ impl Default for DirectoryView {
         Self {
             title: DIRECTORY_TITLE.to_owned(),
             intro: DIRECTORY_INTRO.to_owned(),
-            status: LoadStatus::Loading,
+            status: SectionStatus::Loading,
             unmodellable: None,
             entries: Vec::new(),
             empty: None,
@@ -151,7 +154,8 @@ impl Default for DirectoryView {
             add_rejected: None,
             can_edit: false,
             can_save: false,
-            save: SaveView::default(),
+            saving: false,
+            notice: None,
             confirming: None,
         }
     }
@@ -234,7 +238,7 @@ pub(crate) fn directory_view(
     capabilities: &Capabilities,
 ) -> DirectoryView {
     let mut view = DirectoryView {
-        status: config_status(&section.config, &section.save),
+        status: section_status(&section.config, &section.save),
         confirming: section.confirmation().map(|confirm| QuestionView {
             title: confirm.title().to_owned(),
             body: confirm.body(),
@@ -243,7 +247,7 @@ pub(crate) fn directory_view(
         }),
         ..DirectoryView::default()
     };
-    if view.status != LoadStatus::Ready {
+    if view.status != SectionStatus::Ready {
         return view;
     }
     if section.unmodellable() {
@@ -276,7 +280,8 @@ pub(crate) fn directory_view(
         .then(|| DirectorySection::ADD_REJECTED.to_owned());
     view.can_edit = capabilities.can_change && section.editable();
     view.can_save = capabilities.can_change && section.can_save();
-    view.save = SaveView::of(&section.save);
+    view.saving = section.save.is_busy();
+    view.notice = save_notice(&section.save);
     view
 }
 

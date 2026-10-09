@@ -8,21 +8,22 @@
 //! and the switch sends at once. Each is read on its own and fails on its own.
 //! A viewer reads both and is offered no control.
 //!
-//! The saves' notices and the question before a save that replaces a list are
-//! shared by this packet's three sections ([`SaveView`], [`QuestionView`],
-//! [`config_status`]), so the routing rules and the transfer directory use them
-//! from here.
+//! The question the core asks before a save that replaces a list
+//! ([`QuestionView`]) is shared with the routing rules and the transfer
+//! directory, which use it from here; the rest of what the sections share is
+//! the settings kit's (`settings/mod.rs`).
 
 use district_core::{
     AvailabilityView as AvailabilityRead, CallHandlingEvent, CallHandlingSection,
-    CallHandlingView as HandlingRead, Capabilities, ConfigLoad, Event, Model, Route, SaveState,
-    SignedIn, WorkspaceSection, call_handling_mode_body, call_handling_mode_label,
+    CallHandlingView as HandlingRead, Capabilities, ConfigLoad, Event, Model, Route, SignedIn,
+    WorkspaceSection, call_handling_mode_body, call_handling_mode_label,
 };
 use district_model::{CallHandlingMode, MAX_APP_RING_SECONDS, MIN_APP_RING_SECONDS};
 use serde::Serialize;
 
+use super::{SaveNoticeView, save_notice};
 use crate::screen::ScreenView;
-use crate::views::{FailureView, LoadStatus, failure};
+use crate::views::LoadStatus;
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
@@ -47,8 +48,6 @@ pub const AVAILABILITY_NOTE: &str =
 pub const AVAILABILITY_LABEL: &str = "Ring me for calls";
 /// The heading of a failed availability read.
 pub const AVAILABILITY_FAILED_TITLE: &str = "Could not read whether you are rung";
-/// The heading of a save that landed when the settings could not be read back.
-pub const STALE_TITLE: &str = "Saved";
 
 /// The modes, in the order they are offered.
 const MODES: [CallHandlingMode; 3] = [
@@ -60,41 +59,6 @@ const MODES: [CallHandlingMode; 3] = [
 /// A ring, in words.
 pub(crate) fn ring_words(seconds: i64) -> String {
     format!("{seconds} seconds")
-}
-
-/// How the last save of a section ended: on its way, saved, or failed with the
-/// member's edits kept, each until it is dismissed or the form changes.
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, uniffi::Record)]
-pub struct SaveView {
-    /// Whether the save (and the read that follows it) is on its way.
-    pub saving: bool,
-    /// "Saved.", once what is shown is what the service stored.
-    pub saved: Option<String>,
-    /// Why nothing was written. The edits are still there.
-    pub save_failure: Option<FailureView>,
-}
-
-impl SaveView {
-    /// The notice for `save`. A save that landed and could not be read back is
-    /// not drawn here: the section has no form then, and its status page says
-    /// so ([`config_status`]).
-    pub(crate) fn of(save: &SaveState) -> Self {
-        match save {
-            SaveState::Idle | SaveState::SavedButStale(_) => Self::default(),
-            SaveState::Saving => Self {
-                saving: true,
-                ..Self::default()
-            },
-            SaveState::Saved => Self {
-                saved: Some(SaveState::SAVED.to_owned()),
-                ..Self::default()
-            },
-            SaveState::Failed(why) => Self {
-                save_failure: failure(Some(why)),
-                ..Self::default()
-            },
-        }
-    }
 }
 
 /// The question the core asks before a save that replaces a whole list.
@@ -109,25 +73,6 @@ pub struct QuestionView {
     /// Whether saving removes everything (the confirming button is then not
     /// the default).
     pub destructive: bool,
-}
-
-/// Where the read of the settings row stands for a section built on it: the
-/// read, a read that failed, or a save that landed whose read back failed,
-/// which offers a read and never a save.
-pub(crate) fn config_status(load: &ConfigLoad, save: &SaveState) -> LoadStatus {
-    match (load, save) {
-        (ConfigLoad::Loading, _) => LoadStatus::Loading,
-        (ConfigLoad::Failed(why), SaveState::SavedButStale(_)) => LoadStatus::Failed {
-            failure: FailureView {
-                message: SaveState::SAVED_STALE.to_owned(),
-                regions_line: why.regions_line(),
-                retryable: true,
-            },
-            title: STALE_TITLE.to_owned(),
-        },
-        (ConfigLoad::Failed(why), _) => LoadStatus::failed(ConfigLoad::FAILED_TITLE, why),
-        (ConfigLoad::Ready(_), _) => LoadStatus::Ready,
-    }
 }
 
 /// Who answers, as the member chooses it.
@@ -195,8 +140,10 @@ pub struct AvailabilityPanelView {
     /// Why the member cannot be made available, in the core's words, in place
     /// of the switch.
     pub blocked: Option<String>,
-    /// How the last change ended.
-    pub save: SaveView,
+    /// Whether a change is on its way (show a progress ring).
+    pub changing: bool,
+    /// How the last change ended, until dismissed.
+    pub notice: Option<SaveNoticeView>,
 }
 
 /// The call handling section.
@@ -236,8 +183,10 @@ pub struct CallHandlingView {
     pub can_edit: bool,
     /// Whether "Save" works: something changed and nothing is on its way.
     pub can_save: bool,
-    /// How the last save ended.
-    pub save: SaveView,
+    /// Whether a save is on its way (show a progress ring).
+    pub saving: bool,
+    /// How the last save ended, until dismissed or the form changes.
+    pub notice: Option<SaveNoticeView>,
     /// What a viewer is told, in place of the controls.
     pub viewer_note: Option<String>,
     /// The member's own availability.
@@ -263,7 +212,8 @@ impl Default for CallHandlingView {
             can_change: false,
             can_edit: false,
             can_save: false,
-            save: SaveView::default(),
+            saving: false,
+            notice: None,
             viewer_note: None,
             availability: AvailabilityPanelView {
                 heading: AVAILABILITY_HEADING.to_owned(),
@@ -274,7 +224,8 @@ impl Default for CallHandlingView {
                 show_switch: false,
                 can_toggle: false,
                 blocked: None,
-                save: SaveView::default(),
+                changing: false,
+                notice: None,
             },
         }
     }
@@ -367,7 +318,8 @@ pub(crate) fn call_handling_view(
             view.ring_words = ring_words(seconds);
             view.can_edit = can_change && section.editable();
             view.can_save = can_change && section.can_save();
-            view.save = SaveView::of(&section.save);
+            view.saving = section.save.is_busy();
+            view.notice = save_notice(&section.save);
         }
     }
     view
@@ -387,7 +339,8 @@ fn availability_view(section: &CallHandlingSection, can_change: bool) -> Availab
             view.show_switch = blocked.is_none();
             view.can_toggle = can_change && section.can_toggle_availability();
             view.blocked = blocked.map(str::to_owned);
-            view.save = SaveView::of(&section.availability_save);
+            view.changing = section.availability_save.is_busy();
+            view.notice = save_notice(&section.availability_save);
         }
     }
     view
@@ -397,17 +350,17 @@ fn availability_view(section: &CallHandlingSection, can_change: bool) -> Availab
 /// core has opened the section, it is being read.
 pub(crate) fn screen(_model: &Model, signed_in: &SignedIn) -> ScreenView {
     ScreenView::CallHandling {
-        view: signed_in.call_handling.as_ref().map_or_else(
-            CallHandlingView::default,
-            |section| call_handling_view(section, &signed_in.capabilities()),
-        ),
+        view: signed_in
+            .call_handling
+            .as_ref()
+            .map_or_else(CallHandlingView::default, |section| {
+                call_handling_view(section, &signed_in.capabilities())
+            }),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use district_core::FailureText;
-
     use super::*;
 
     #[test]
@@ -416,48 +369,5 @@ mod tests {
         for mode in MODES {
             assert_eq!(CallHandlingChoice::of(mode).mode(), mode);
         }
-    }
-
-    #[test]
-    fn each_save_state_is_its_notice() {
-        assert_eq!(SaveView::of(&SaveState::Idle), SaveView::default());
-        assert!(SaveView::of(&SaveState::Saving).saving);
-        assert_eq!(
-            SaveView::of(&SaveState::Saved).saved.as_deref(),
-            Some(SaveState::SAVED)
-        );
-        let why = FailureText {
-            message: "The service refused it.".to_owned(),
-            degraded_regions: Vec::new(),
-            session_ended: None,
-            retryable: true,
-        };
-        assert_eq!(
-            SaveView::of(&SaveState::Failed(why.clone()))
-                .save_failure
-                .map(|f| f.message),
-            Some(why.message.clone())
-        );
-        assert_eq!(
-            SaveView::of(&SaveState::SavedButStale(why.clone())),
-            SaveView::default()
-        );
-        assert_eq!(
-            config_status(&ConfigLoad::Loading, &SaveState::Idle),
-            LoadStatus::Loading
-        );
-        let LoadStatus::Failed { title, failure } = config_status(
-            &ConfigLoad::Failed(why.clone()),
-            &SaveState::SavedButStale(why.clone()),
-        ) else {
-            panic!("a stale save is a status page");
-        };
-        assert_eq!(title, STALE_TITLE);
-        assert_eq!(failure.message, SaveState::SAVED_STALE);
-        assert!(failure.retryable);
-        assert_eq!(
-            config_status(&ConfigLoad::Failed(why.clone()), &SaveState::Idle),
-            LoadStatus::failed(ConfigLoad::FAILED_TITLE, &why)
-        );
     }
 }
