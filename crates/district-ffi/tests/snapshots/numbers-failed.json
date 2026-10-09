@@ -1,0 +1,74 @@
+{
+  "screen": {
+    "Marketplace": {
+      "view": {
+        "form": {
+          "area_code": "",
+          "country": "US",
+          "number_type": "local",
+          "number_types": [
+            {
+              "label": "Local",
+              "value": "local"
+            },
+            {
+              "label": "Toll-free",
+              "value": "tollFree"
+            },
+            {
+              "label": "Mobile",
+              "value": "mobile"
+            }
+          ]
+        },
+        "offers_web": true,
+        "owned": [],
+        "owned_empty": null,
+        "owned_status": {
+          "Failed": {
+            "failure": {
+              "message": "Something went wrong on our side. Please try again shortly.",
+              "regions_line": null,
+              "retryable": true
+            },
+            "title": "Could not load this workspace's numbers"
+          }
+        },
+        "partial_note": null,
+        "read_only_note": "Numbers cannot be bought, released or changed in this app, so this screen is read only.",
+        "refreshing": false,
+        "search": "Idle",
+        "tab": "Owned",
+        "title": "Phone numbers",
+        "web_action": "Open the number marketplace on the web",
+        "web_caption": "Numbers are bought on the District AI website. This opens it in your browser."
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Marketplace",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

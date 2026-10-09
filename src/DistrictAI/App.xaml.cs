@@ -81,6 +81,9 @@ public sealed partial class App : Application, IDisposable
             AppVersion(),
             Environment.MachineName,
             Package.Current.Id.FamilyName);
+        // Whether the other copy of the app is installed too, asked once: both
+        // answer the browser's sign-in, so with both, sign-in is held.
+        _ = CheckCopiesAsync(queue);
         // After Start: a sleep holds the machine until the core has stopped
         // this computer ringing, and a wake has it ring again.
         _power = PowerWatch.Start(_core);
@@ -108,6 +111,17 @@ public sealed partial class App : Application, IDisposable
         {
             ShowWindow();
         }
+    }
+
+    /// <summary>
+    /// Asks Windows which packages handle the sign-in scheme, and shows what
+    /// that means on the window (OtherCopy, and the core's copies view). A
+    /// failure to ask holds nothing.
+    /// </summary>
+    private async Task CheckCopiesAsync(DispatcherQueue queue)
+    {
+        var copies = await OtherCopy.CheckAsync(Package.Current.Id.FamilyName).ConfigureAwait(false);
+        queue.TryEnqueue(() => _window?.ShowCopies(copies));
     }
 
     /// <summary>The package's version, as the service sees it: major.minor.build.</summary>

@@ -48,6 +48,17 @@ public sealed partial class MainWindow : Window
         Render(core.Current);
     }
 
+    /// <summary>
+    /// What the core says about the copies installed: the title names this
+    /// copy while another is installed, and the sign-in page holds browser
+    /// sign-in with the explanation.
+    /// </summary>
+    internal void ShowCopies(CopiesView copies)
+    {
+        Title = copies.WindowTitle;
+        SignIn.ShowCopies(copies);
+    }
+
     private void Render(CoreSnapshot snapshot)
     {
         _shown = snapshot;

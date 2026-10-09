@@ -7,9 +7,9 @@
 
 use district_core::{Event, Route, WorkspaceSection};
 
-/// Whether this version has the section, which is the phone numbers screen.
-/// Until it is set, [`crate::nav::built`] says no for its route.
-pub(crate) const BUILT: bool = false;
+/// Whether this version has the section, which is the phone numbers screen:
+/// built with it (marketplace.rs).
+pub(crate) const BUILT: bool = crate::marketplace::BUILT;
 
 /// Something the member did towards the phone numbers section.
 #[derive(Clone, Debug, PartialEq, Eq, uniffi::Enum)]

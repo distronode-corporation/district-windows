@@ -550,15 +550,14 @@ mod tests {
             ScreenView::Marketplace {
                 view: crate::marketplace::MarketplaceView {
                     title: "Marketplace".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Billing {
                 view: crate::billing::sample(),
             },
             ScreenView::Workflows {
-                view: crate::workflows::WorkflowsView {
-                    title: "Workflows".to_owned(),
-                },
+                view: crate::workflows::sample_view(),
             },
             ScreenView::Scheduling {
                 view: crate::scheduling::SchedulingView {
