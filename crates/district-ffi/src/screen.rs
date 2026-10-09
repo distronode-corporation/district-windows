@@ -629,14 +629,10 @@ mod tests {
                 },
             },
             ScreenView::Tools {
-                view: crate::settings::tools::ToolsView {
-                    title: "Tools".to_owned(),
-                },
+                view: crate::settings::tools::ToolsView::sample(),
             },
             ScreenView::Knowledge {
-                view: crate::settings::knowledge::KnowledgeView {
-                    title: "Knowledge".to_owned(),
-                },
+                view: crate::settings::knowledge::KnowledgeView::sample(),
             },
             ScreenView::Messaging {
                 view: crate::settings::messaging::MessagingView {

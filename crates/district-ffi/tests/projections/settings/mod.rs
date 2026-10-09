@@ -63,15 +63,19 @@ fn built_the_hub_is_offered_and_its_rows_open_their_sections() {
         assert!(!view.groups.is_empty());
         assert!(!view.note.is_empty());
     }
-    // Tools is still unbuilt; a built section shows its own page (persona.rs).
-    let tools = hub(signed_in()).ui(UiEvent::Settings {
+    // The directory is still unbuilt; a built section shows its own page
+    // (persona.rs, tools.rs, knowledge.rs).
+    let directory = hub(signed_in()).ui(UiEvent::Settings {
         action: SettingsAction::OpenSection {
-            section: SettingsSection::Tools,
+            section: SettingsSection::Directory,
         },
     });
-    assert_eq!(route(&tools), Route::Workspace(WorkspaceSection::Tools));
+    assert_eq!(
+        route(&directory),
+        Route::Workspace(WorkspaceSection::Directory)
+    );
     assert!(matches!(
-        screen_view(&tools.model),
+        screen_view(&directory.model),
         ScreenView::Unavailable { .. }
     ));
 }

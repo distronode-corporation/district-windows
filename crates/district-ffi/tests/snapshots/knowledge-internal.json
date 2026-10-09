@@ -1,0 +1,101 @@
+{
+  "screen": {
+    "Knowledge": {
+      "view": {
+        "add_billed": "Adding a document is billed by its length. It is added once, when you press Add.",
+        "add_enabled": true,
+        "add_heading": "Add a document",
+        "add_label": "Add document",
+        "add_rejected": null,
+        "adding": false,
+        "can_change_mode": true,
+        "can_delete": true,
+        "confirm": null,
+        "content_label": "The document's text",
+        "delete_label": "Delete this document",
+        "documents": [
+          {
+            "created_at": "2026-08-15T14:30:00.000Z",
+            "id": "doc_contract_ready",
+            "pieces": "4 pieces",
+            "source_url": null,
+            "state": "Ready",
+            "state_label": "Ready",
+            "title": "Refund policy"
+          },
+          {
+            "created_at": "2026-08-15T14:30:00.000Z",
+            "id": "doc_contract_processing",
+            "pieces": null,
+            "source_url": "https://contract.test/service-area",
+            "state": "Processing",
+            "state_label": "Processing",
+            "title": "Service area"
+          }
+        ],
+        "documents_failed_title": null,
+        "documents_failure": null,
+        "documents_heading": "Documents",
+        "documents_loading": false,
+        "draft_content": "",
+        "draft_editable": true,
+        "draft_title": "",
+        "empty": null,
+        "file_hint": "A plain text file (.txt or .md) of up to 1 MB fills the title and the text. Nothing is added until you press Add document.",
+        "file_label": "Read a text file",
+        "mode_failure": null,
+        "mode_heading": "Where answers come from",
+        "mode_loading": false,
+        "mode_unavailable": null,
+        "mode_unknown": null,
+        "mode_unknown_title": "A setting this app does not know",
+        "modes": [
+          {
+            "body": "Answers come only from the documents added here, searched in this workspace's own region.",
+            "label": "Your own knowledge base",
+            "mode": "Internal",
+            "selected": true
+          },
+          {
+            "body": "Callers' questions are sent to Atlassian, whose assistant writes the answers.",
+            "label": "Linked support knowledge base",
+            "mode": "Linked",
+            "selected": false
+          }
+        ],
+        "notice": null,
+        "show_add": true,
+        "show_delete": true,
+        "title": "Knowledge",
+        "title_label": "Title",
+        "viewer_note": null
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
