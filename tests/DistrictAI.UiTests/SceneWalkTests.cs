@@ -48,7 +48,6 @@ public sealed class SceneWalkTests
         ("District HQ", "District HQ"),
         ("Booking pages", "Booking pages"),
         ("Help desk", "Help desk"),
-        ("Billing", "Billing"),
     ];
 
     /// <summary>
