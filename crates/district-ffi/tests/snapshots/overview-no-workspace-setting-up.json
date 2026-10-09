@@ -1,0 +1,47 @@
+{
+  "screen": {
+    "Overview": {
+      "view": {
+        "finish_setup": null,
+        "metrics": [],
+        "purchase": null,
+        "read_only_badge": null,
+        "recent_calls": [],
+        "recent_calls_empty": null,
+        "refresh_failure": null,
+        "refreshing": false,
+        "status": {
+          "Failed": {
+            "failure": {
+              "message": "If you completed checkout, your workspace is being set up. It appears here in a moment.",
+              "regions_line": null,
+              "retryable": false
+            },
+            "title": "Setting up your workspace"
+          }
+        },
+        "workspace_name": ""
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": false,
+    "live": null,
+    "nav_selected": "Overview",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": null,
+      "can_switch": false,
+      "entries": [],
+      "message": "If you completed checkout, your workspace is being set up. It appears here in a moment.",
+      "partial_warning": null,
+      "title": "Setting up your workspace"
+    }
+  }
+}

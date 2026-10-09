@@ -84,6 +84,10 @@ pub(crate) fn overview_cases() -> Vec<Case> {
         ),
         ("overview-no-workspace", no_workspace(buying)),
         (
+            "overview-no-workspace-setting-up",
+            setting_up(closed_after_checkout()),
+        ),
+        (
             "overview-no-workspace-purchases-off",
             no_workspace(not_buying),
         ),
@@ -232,10 +236,15 @@ fn checkout_from_the_overview_makes_and_opens_the_first_workspace() {
         },
     );
 
-    // Paid, the window closes: the workspaces are listed again, and the one
-    // checkout made opens.
-    let session = session.ui(action(BillingAction::CheckoutClosed));
-    assert_eq!(overview_of(&session).status, LoadStatus::Loading);
+    // Paid, the window closes before the workspace is made: the page says it
+    // is being set up, offers no plan, and lists again after a wait.
+    let session = setting_up(session.ui(action(BillingAction::CheckoutClosed)));
+    assert_setting_up(&session);
+    let session = session.answer(
+        |e| matches!(e, Effect::Wait { .. }),
+        |ticket| Event::WaitOver { ticket },
+    );
+    // Now it is there, and opens.
     let session = overview_loaded(session.answer(
         |e| matches!(e, Effect::LoadWorkspaces { .. }),
         |ticket| Event::WorkspacesLoaded {
@@ -275,4 +284,83 @@ fn the_overview_chooser_is_the_billing_screens() {
         .ui(choose(None))
         .ui(action(BillingAction::CancelPurchase));
     assert!(overview_of(&session).purchase.unwrap().confirming.is_none());
+}
+
+/// An account with no workspace whose checkout window has just closed.
+fn closed_after_checkout() -> Session {
+    no_workspace(buying)
+        .ui(choose(None))
+        .ui(action(BillingAction::ConfirmPurchase))
+        .ui(action(BillingAction::CheckoutClosed))
+}
+
+/// The list after checkout answered with still no workspace.
+fn setting_up(session: Session) -> Session {
+    session.answer(
+        |e| matches!(e, Effect::LoadWorkspaces { .. }),
+        |ticket| Event::WorkspacesLoaded {
+            ticket,
+            remembered: None,
+            result: Ok(no_workspaces(&[])),
+        },
+    )
+}
+
+/// While the workspace checkout paid for is waited for: its own heading and
+/// words, on the page and in the shell's bar, and no plans, so nobody pays
+/// twice.
+fn assert_setting_up(session: &Session) {
+    let view = overview_of(session);
+    assert_eq!(
+        status_of(&view),
+        (
+            WorkspacesState::SETTING_UP_TITLE.to_owned(),
+            WorkspacesState::SETTING_UP_MESSAGE.to_owned()
+        )
+    );
+    assert_eq!(view.purchase, None);
+    let shell = shell_json(session);
+    assert_eq!(
+        shell["workspaces"]["message"],
+        WorkspacesState::SETTING_UP_MESSAGE
+    );
+    assert_eq!(
+        shell["workspaces"]["title"],
+        WorkspacesState::SETTING_UP_TITLE
+    );
+    assert!(
+        session
+            .pending
+            .iter()
+            .any(|e| matches!(e, Effect::Wait { .. }))
+    );
+}
+
+/// With still no workspace after the waits, the plans come back, with a word
+/// that a paid workspace can take a few minutes; the shell's bar says the same,
+/// never "contact support".
+#[test]
+fn no_workspace_after_the_waits_offers_the_plans_again() {
+    let mut session = setting_up(closed_after_checkout());
+    for _ in district_core::WORKSPACE_SETUP_WAITS {
+        assert_setting_up(&session);
+        session = setting_up(session.answer(
+            |e| matches!(e, Effect::Wait { .. }),
+            |ticket| Event::WaitOver { ticket },
+        ));
+    }
+    let view = overview_of(&session);
+    assert!(view.purchase.is_some(), "the plans again");
+    let (title, message) = status_of(&view);
+    assert_eq!(title, "No workspace found");
+    assert_eq!(message, WorkspacesState::CHOOSE_PLAN_AFTER_CHECKOUT_MESSAGE);
+    assert_eq!(
+        shell_json(&session)["workspaces"]["message"],
+        WorkspacesState::CHOOSE_PLAN_AFTER_CHECKOUT_MESSAGE
+    );
+    let fresh = shell_json(&no_workspace(buying));
+    assert_eq!(
+        fresh["workspaces"]["message"],
+        WorkspacesState::CHOOSE_PLAN_MESSAGE
+    );
 }

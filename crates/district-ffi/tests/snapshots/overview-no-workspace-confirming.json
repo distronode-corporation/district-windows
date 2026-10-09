@@ -89,7 +89,7 @@
       "active_id": null,
       "can_switch": false,
       "entries": [],
-      "message": "This account is not linked to a District workspace yet. Please contact support.",
+      "message": "This account does not have a District workspace yet. Choose a plan to set one up.",
       "partial_warning": null,
       "title": "No workspace found"
     }

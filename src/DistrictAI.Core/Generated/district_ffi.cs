@@ -12940,7 +12940,8 @@ class FfiConverterTypeNumberTypeView: FfiConverterRustBuffer<NumberTypeView> {
 /// Where the read stands. With no workspace open, `Failed` carries the
 /// workspace list's own heading and words (no workspace, billing, a list
 /// that could not be read); for an account with no workspace that is
-/// offered the plans, the words say to choose one.
+/// offered the plans, the words say to choose one, and after checkout,
+/// while its workspace is waited for, that it is being set up.
 /// </param>
 /// <param name="WorkspaceName">
 /// The open workspace's name, once the overview is read.
@@ -12978,7 +12979,8 @@ public record OverviewView (
     /// Where the read stands. With no workspace open, `Failed` carries the
     /// workspace list's own heading and words (no workspace, billing, a list
     /// that could not be read); for an account with no workspace that is
-    /// offered the plans, the words say to choose one.
+    /// offered the plans, the words say to choose one, and after checkout,
+    /// while its workspace is waited for, that it is being set up.
     /// </summary>
     LoadStatus Status, 
     /// <summary>

@@ -22,7 +22,8 @@ pub struct OverviewView {
     /// Where the read stands. With no workspace open, `Failed` carries the
     /// workspace list's own heading and words (no workspace, billing, a list
     /// that could not be read); for an account with no workspace that is
-    /// offered the plans, the words say to choose one.
+    /// offered the plans, the words say to choose one, and after checkout,
+    /// while its workspace is waited for, that it is being set up.
     pub status: LoadStatus,
     /// The open workspace's name, once the overview is read.
     pub workspace_name: String,
@@ -91,10 +92,14 @@ pub(crate) fn overview_view(signed_in: &SignedIn) -> OverviewView {
                     regions_line,
                     retryable,
                 },
-                title: other.title().unwrap_or_default().to_owned(),
+                title: signed_in
+                    .no_workspace_title()
+                    .unwrap_or_default()
+                    .to_owned(),
             };
-            // Offered only with no workspace at all: never for billing or a
-            // list that could not be read.
+            // Offered only with no workspace at all: never for billing, a list
+            // that could not be read, or while the workspace a checkout paid
+            // for is being set up.
             view.purchase = purchase_view(signed_in);
             return view;
         }
