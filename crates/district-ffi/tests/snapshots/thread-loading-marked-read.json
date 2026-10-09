@@ -2,12 +2,30 @@
   "screen": {
     "Thread": {
       "view": {
-        "composer": null,
+        "composer": {
+          "ai_draft": {
+            "billing_note": "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed.",
+            "draft_label": "AI draft",
+            "label": "Draft a reply with AI",
+            "report": "InApp"
+          },
+          "attaching": false,
+          "attachments": [],
+          "busy": null,
+          "can_attach": false,
+          "can_draft_reply": false,
+          "can_send": false,
+          "failure": null,
+          "generating": false,
+          "sending": false,
+          "show_attach": true,
+          "text": ""
+        },
         "has_more": false,
         "items": [],
         "loading_older": false,
         "older_failure": null,
-        "read_only_note": "Replies are sent from the web dashboard or the District AI phone apps.",
+        "read_only_note": "",
         "refresh_failure": null,
         "refreshing": false,
         "status": "Loading",

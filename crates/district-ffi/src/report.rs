@@ -72,9 +72,21 @@ fn reference(target: &ReportTarget) -> String {
             }
             Some(ThreadRef::Address(_)) | None => format!("Conversation event: {event_id}"),
         },
+        // The same rule: a contact's thread names the contact, an address's
+        // thread nothing but the kind.
+        ReportTarget::AiDraft { thread_key } => match ThreadRef::from_thread_key(thread_key) {
+            Some(ThreadRef::Contact(contact_id)) => {
+                format!("{AI_DRAFT_REFERENCE}\nContact: {contact_id}")
+            }
+            Some(ThreadRef::Address(_)) | None => AI_DRAFT_REFERENCE.to_owned(),
+        },
         ReportTarget::HqAnswer => HQ_ANSWER_REFERENCE.to_owned(),
     }
 }
+
+/// What the support desk receives about a reply the model wrote: its kind. The
+/// service keeps no id for one, and the report quotes none of it.
+const AI_DRAFT_REFERENCE: &str = "Conversation reply drafted with AI";
 
 /// What the support desk receives about a District HQ answer: its kind. The
 /// service keeps no id for one, and the report quotes none of it.
@@ -278,6 +290,34 @@ mod tests {
             );
             assert!(!sent.contains(address), "{sent}");
             assert!(!sent.contains("addr:"), "{sent}");
+        }
+    }
+
+    /// A reply the model wrote is reported by its kind, with the contact of
+    /// a contact's thread, and never the address of any other.
+    #[test]
+    fn an_ai_draft_is_reported_by_its_kind_and_contact() {
+        let draft = |key: &str| ReportTarget::AiDraft {
+            thread_key: key.to_owned(),
+        };
+        assert_eq!(
+            message(&draft("contact:c-1"), "named the wrong day"),
+            format!("{PREAMBLE}\n{AI_DRAFT_REFERENCE}\nContact: c-1\n\nnamed the wrong day")
+        );
+        for key in [
+            "addr:ada@example.com",
+            "addr:+14165550181",
+            "fax:4165550181",
+        ] {
+            let sent = message(&draft(key), "");
+            assert_eq!(
+                sent,
+                format!("{PREAMBLE}\n{AI_DRAFT_REFERENCE}\n\n{NO_NOTE}")
+            );
+            assert!(
+                !sent.contains("4165550181") && !sent.contains("ada@"),
+                "{sent}"
+            );
         }
     }
 

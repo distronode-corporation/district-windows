@@ -207,6 +207,13 @@ pub enum ReportTarget {
         /// The timeline event.
         event_id: String,
     },
+    /// A reply the model wrote into a conversation's reply box. The service
+    /// gives a written reply no id, so the report names its kind and the
+    /// conversation's contact, and the member's note says the rest.
+    AiDraft {
+        /// The conversation. Never sent, as for [`ReportTarget::ThreadEvent`].
+        thread_key: String,
+    },
     /// An answer District HQ gave. The service keeps no conversation and gives
     /// an answer no id, so the report names its kind, and the member's note
     /// says the rest.

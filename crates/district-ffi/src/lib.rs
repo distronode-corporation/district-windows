@@ -100,8 +100,8 @@ pub use crate::events::UiEvent;
 pub use crate::host::{NotificationActionView, NotificationView, UiHost};
 pub use crate::identity::{PRODUCT, client_identity};
 pub use crate::inbox::{
-    InboxView, READ_ONLY_NOTE, SearchHitView, SearchView, THREAD_FAILED_TITLE, ThreadRowView,
-    ThreadView, TimelineItemView, TimelineKind,
+    InboxView, SearchHitView, SearchView, THREAD_FAILED_TITLE, ThreadRowView, ThreadView,
+    TimelineItemView, TimelineKind,
 };
 pub use crate::link::{LinkKind, link_kind};
 pub use crate::nav::{NavDestination, NavEntryView, NavGroupView, NavSection, NavView};

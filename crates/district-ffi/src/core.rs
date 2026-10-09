@@ -721,6 +721,8 @@ mod tests {
         unregister_takes: Duration,
         /// Set once an unregistration has finished.
         unregistered: AtomicBool,
+        /// How long saving the session takes, at quitting.
+        save_takes: Duration,
     }
 
     impl Effects for Arc<FakeEffects> {
@@ -764,6 +766,10 @@ mod tests {
                         ticket,
                         result: Ok(()),
                     })
+                }
+                Effect::SaveSession => {
+                    tokio::time::sleep(self.save_takes).await;
+                    None
                 }
                 _ => None,
             }
@@ -1011,6 +1017,32 @@ mod tests {
         assert_eq!(session_screen(&core), None);
         core.shutdown().await;
         assert!(effects.ran(|effect| matches!(effect, Effect::SaveSession)));
+    }
+
+    /// The work Quitting asks for (saving the session, and from
+    /// district-core-rust 2.0.0 a reply still waiting to be saved) gets
+    /// [`QUIT_BUDGET`] and no longer: quitting waits for it, and returns at
+    /// the budget when it hangs.
+    #[tokio::test]
+    async fn shutting_down_waits_for_the_last_effects_up_to_the_budget() {
+        let core = Core::new();
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            save_takes: Duration::from_secs(30),
+            ..FakeEffects::default()
+        });
+        core.start_with(
+            config(),
+            Arc::clone(&effects),
+            Arc::new(RecordingHost::default()),
+        );
+        eventually("signed in", || phase(&core) == SessionPhase::SignedIn).await;
+        let started = std::time::Instant::now();
+        core.shutdown().await;
+        let waited = started.elapsed();
+        assert!(effects.ran(|effect| matches!(effect, Effect::SaveSession)));
+        assert!(waited >= QUIT_BUDGET, "{waited:?}");
+        assert!(waited < QUIT_BUDGET + Duration::from_secs(1), "{waited:?}");
     }
 
     /// A report's three events reach the model, and a dismissal its two; with

@@ -2,10 +2,11 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels.Composer;
 
 namespace DistrictAI.ViewModels;
 
-/// <summary>One conversation, oldest first, read-only in this build.</summary>
+/// <summary>One conversation, oldest first, and the reply box under it.</summary>
 public sealed partial class ThreadViewModel : ObservableObject
 {
     private static readonly EmptyView _noMessages = new("No messages in this conversation yet.", string.Empty);
@@ -25,9 +26,16 @@ public sealed partial class ThreadViewModel : ObservableObject
     [ObservableProperty]
     public partial string Title { get; set; } = string.Empty;
 
-    /// <summary>That replies are sent elsewhere.</summary>
+    /// <summary>Why there is no reply box, in the core's words, or empty when there is one.</summary>
     [ObservableProperty]
     public partial string ReadOnlyNote { get; set; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="ReadOnlyNote"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasReadOnlyNote { get; set; }
+
+    /// <summary>The reply box.</summary>
+    public ComposerViewModel Composer { get; } = new();
 
     /// <summary>Whether "Older messages" is offered.</summary>
     [ObservableProperty]
@@ -53,6 +61,7 @@ public sealed partial class ThreadViewModel : ObservableObject
     {
         _context = context;
         Load.Attach(context);
+        Composer.Attach(context);
     }
 
     internal void Show(ThreadView view, bool reportSending)
@@ -60,6 +69,8 @@ public sealed partial class ThreadViewModel : ObservableObject
         ThreadKey = view.ThreadKey;
         Title = view.Title;
         ReadOnlyNote = view.ReadOnlyNote;
+        HasReadOnlyNote = view.ReadOnlyNote.Length > 0;
+        Composer.Show(view.ThreadKey, view.Composer, reportSending);
         Load.Show(view.Status, view.Items.Length > 0, _noMessages, view.Refreshing, view.RefreshFailure);
         Display.Sync(Items, [.. view.Items.Select(item => TimelineItem.From(item, !reportSending))]);
         HasMore = Load.Ready && view.HasMore;

@@ -58,6 +58,18 @@ public sealed class SceneWalkTests
         ("Contacts", "Blocked callers", "Blocked callers"),
     ];
 
+    /// <summary>
+    /// The conversation the Inbox opens first: the scene answers the inbox with
+    /// the core's district-conversations.json, whose first thread is this
+    /// contact's (the thread page's heading), and its timeline and draft from
+    /// fixtures too, so the reply box shows (scripted.rs,
+    /// the_first_conversation_opens_with_its_reply_box).
+    /// </summary>
+    public const string ConversationTitle = "Contract Test Caller";
+
+    /// <summary>The reply box's UI Automation name (Views/Composer/ComposerBox.xaml).</summary>
+    public const string ReplyBoxName = "Reply";
+
     /// <summary>What a page that failed shows (StatusPanel, UnavailablePage, the core's failure titles).</summary>
     private static readonly string[] _failureTexts = ["Something went wrong", "Could not load", "Not in this version yet"];
 
@@ -95,6 +107,14 @@ public sealed class SceneWalkTests
             {
                 break;
             }
+            // The reply box lives in a conversation, not behind a pane entry:
+            // from the Inbox, the first conversation is opened and its box
+            // waited for by name.
+            if (entry.StartsWith("Inbox", StringComparison.Ordinal)
+                && !Visit(app, handle, "Conversation", () => OpenFirstConversation(app), ConversationTitle, shots, ++index, problems, ReplyBoxName))
+            {
+                break;
+            }
             foreach (var sub in _subPages.Where(sub => entry.StartsWith(sub.Entry, StringComparison.Ordinal)))
             {
                 if (app.TryFind(ControlType.Button, sub.Button) is null)
@@ -119,10 +139,11 @@ public sealed class SceneWalkTests
     /// <summary>
     /// Opens a page with <paramref name="open"/> and checks it: its heading
     /// (<paramref name="expected"/>, or any), loaded, no failure, then saves
-    /// it when screenshots are on. Problems go in <paramref name="problems"/>;
-    /// false when the app has ended.
+    /// it when screenshots are on. With <paramref name="editName"/>, the
+    /// page is ready only once a text box of that name shows. Problems go in
+    /// <paramref name="problems"/>; false when the app has ended.
     /// </summary>
-    private static bool Visit(InstalledApp app, nint handle, string name, Action open, string? expected, string? shots, int index, List<string> problems)
+    private static bool Visit(InstalledApp app, nint handle, string name, Action open, string? expected, string? shots, int index, List<string> problems, string? editName = null)
     {
         var clock = Stopwatch.StartNew();
         try
@@ -136,6 +157,10 @@ public sealed class SceneWalkTests
                 _pageTimeout,
                 $"\"{name}\" to finish loading",
                 app.Describe);
+            if (editName is not null)
+            {
+                _ = app.Find(ControlType.Edit, editName, _pageTimeout);
+            }
             if (Failure(app) is { } failure)
             {
                 problems.Add($"\"{name}\" shows \"{failure}\".{Environment.NewLine}{app.Describe()}");
@@ -169,6 +194,25 @@ public sealed class SceneWalkTests
             .Where(name => name.Length > 0)
             .Distinct()];
 
+    /// <summary>Opens the Inbox's first conversation, as a click on it does.</summary>
+    private static void OpenFirstConversation(InstalledApp app)
+    {
+        var list = app.Find(ControlType.List, "Conversations", _pageTimeout);
+        var first = Wait.For(
+            () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
+            _pageTimeout,
+            "a conversation in the Inbox",
+            app.Describe);
+        if (first.Patterns.Invoke.IsSupported)
+        {
+            first.Patterns.Invoke.Pattern.Invoke();
+        }
+        else
+        {
+            first.Click();
+        }
+    }
+
     /// <summary>Chooses the entry named <paramref name="entry"/>, as a click does.</summary>
     private static void Open(InstalledApp app, string entry)
     {
@@ -193,12 +237,20 @@ public sealed class SceneWalkTests
                 .FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Window)))
                 ?.FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
                 .FirstOrDefault(text =>
-                    !text.IsOffscreen
+                    !text.Properties.IsOffscreen.ValueOrDefault
                     && text.Properties.HeadingLevel.ValueOrDefault == HeadingLevel.Level1
-                    && (expected is null ? text.Name.Length > 0 : text.Name == expected)),
+                    && NameOf(text) is { Length: > 0 } name
+                    && (expected is null || name == expected)),
             timeout,
             expected is null ? "a level-one heading" : $"the heading \"{expected}\"",
             app.Describe);
+
+    /// <summary>
+    /// The element's name, or empty when UI Automation has none for it: a text
+    /// element can be gone, or never named, between being listed and being
+    /// read (seen as PropertyNotSupportedException on the Inbox).
+    /// </summary>
+    private static string NameOf(AutomationElement element) => element.Properties.Name.ValueOrDefault ?? string.Empty;
 
     /// <summary>What shows that the page failed, or null.</summary>
     private static string? Failure(InstalledApp app)
@@ -214,8 +266,8 @@ public sealed class SceneWalkTests
             return "Try again";
         }
         return window.FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
-            .Where(text => !text.IsOffscreen)
-            .Select(text => text.Name)
+            .Where(text => !text.Properties.IsOffscreen.ValueOrDefault)
+            .Select(NameOf)
             .FirstOrDefault(name => _failureTexts.Any(failure => name.StartsWith(failure, StringComparison.Ordinal)));
     }
 
