@@ -79,6 +79,7 @@ public sealed partial class MainWindow : Window
     {
         // Before the page: the pages read it to enable their Report buttons.
         _context.ReportSending = shell.Report is ReportStatus.Sending;
+        _context.ReportRefusal = shell.ReportRefusal;
         RenderCalls(shell);
 
         RenderNav(shell.Nav, shell.Unread);

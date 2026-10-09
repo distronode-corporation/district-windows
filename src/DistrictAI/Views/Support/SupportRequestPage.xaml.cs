@@ -6,8 +6,8 @@ using Microsoft.UI.Xaml.Controls;
 namespace DistrictAI.Views.Support;
 
 /// <summary>
-/// One support request. A stub until the area's packet builds it: until then the core
-/// shows the unavailable page instead, so this one is never on screen.
+/// One support request: where it stands, the conversation with Distronode,
+/// the reply, and marking it resolved, which asks first.
 /// </summary>
 public sealed partial class SupportRequestPage : UserControl
 {
@@ -15,6 +15,8 @@ public sealed partial class SupportRequestPage : UserControl
     public SupportRequestPage()
     {
         InitializeComponent();
+        Status.Attach(ViewModel.Load);
+        Refresh.Attach(ViewModel.Load);
     }
 
     /// <summary>What the page shows, and its actions.</summary>

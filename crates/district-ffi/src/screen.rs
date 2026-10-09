@@ -581,11 +581,13 @@ mod tests {
             ScreenView::Support {
                 view: crate::support::SupportView {
                     title: "Support".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::SupportRequest {
                 view: crate::support::SupportRequestView {
                     title: "SupportRequest".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Rooms {
