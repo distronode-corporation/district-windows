@@ -1,38 +1,36 @@
 {
   "screen": {
-    "Contacts": {
+    "BlockedContacts": {
       "view": {
-        "can_create": true,
-        "create": null,
+        "can_unblock": true,
+        "confirming": null,
         "empty": null,
-        "paging": {
-          "can_load_more": false,
-          "loading_more": false,
-          "more_failure": null,
-          "refresh_failure": null,
-          "refreshing": false
-        },
+        "failure": null,
         "rows": [
           {
+            "blocked_at": "2026-09-01T09:00:00.000Z",
             "contact_id": "contact_contract_1",
-            "detail": "+1 416 555 0142 · ada@example.com",
-            "name": "Contract Test Caller"
+            "name": "Contract Test Caller",
+            "phone_number": "+1 416 555 0142",
+            "unblocking": true
           },
           {
+            "blocked_at": "2026-08-20T16:30:00.000Z",
             "contact_id": "contact_contract_2",
-            "detail": "sparse@example.com",
-            "name": "Sparse Contact"
+            "name": "+1 416 555 0181",
+            "phone_number": null,
+            "unblocking": false
           }
         ],
         "status": "Ready",
-        "total_label": "2 contacts"
+        "title": "Blocked callers"
       }
     }
   },
   "shell": {
     "call": null,
     "calls_available": false,
-    "can_go_back": false,
+    "can_go_back": true,
     "live": null,
     "nav_selected": "Contacts",
     "notice": null,

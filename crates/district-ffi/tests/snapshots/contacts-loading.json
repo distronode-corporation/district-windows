@@ -2,6 +2,8 @@
   "screen": {
     "Contacts": {
       "view": {
+        "can_create": true,
+        "create": null,
         "empty": null,
         "paging": {
           "can_load_more": false,

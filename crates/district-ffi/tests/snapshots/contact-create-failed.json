@@ -3,7 +3,23 @@
     "Contacts": {
       "view": {
         "can_create": true,
-        "create": null,
+        "create": {
+          "can_submit": true,
+          "failure": {
+            "message": "A contact with this phone number already exists.",
+            "regions_line": null,
+            "retryable": true
+          },
+          "form": {
+            "email": "",
+            "name": "Grace Hopper",
+            "phone_number": "+1 416 555 0181"
+          },
+          "hint": null,
+          "saving": false,
+          "submit_label": "Add",
+          "title": "Add contact"
+        },
         "empty": null,
         "paging": {
           "can_load_more": false,

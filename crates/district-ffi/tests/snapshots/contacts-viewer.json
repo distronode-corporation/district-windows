@@ -2,7 +2,7 @@
   "screen": {
     "Contacts": {
       "view": {
-        "can_create": true,
+        "can_create": false,
         "create": null,
         "empty": null,
         "paging": {
@@ -41,13 +41,23 @@
     "ring": null,
     "unread": 0,
     "workspaces": {
-      "active_id": "ws-1",
-      "can_switch": false,
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
       "entries": [
         {
-          "id": "ws-1",
-          "name": "Example Dental",
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
           "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
         }
       ],
       "message": null,

@@ -2,7 +2,7 @@
   "screen": {
     "ContactDetail": {
       "view": {
-        "blocked": false,
+        "blocked": true,
         "busy": null,
         "confirming": null,
         "contact_id": "contact_contract_1",
@@ -56,11 +56,17 @@
         ],
         "phone_number": "+14165550142",
         "reach": "+1 416 555 0142 · ada@example.com",
-        "report": "OnWeb",
+        "report": "InApp",
         "research_status": "Complete",
         "status": "Ready",
         "updated_at": "2026-08-15T14:30:00.000Z",
-        "writes": null
+        "writes": {
+          "can_block": true,
+          "can_clear_research": true,
+          "can_delete": true,
+          "can_edit": true,
+          "can_enrich": false
+        }
       }
     }
   },
@@ -76,23 +82,13 @@
     "ring": null,
     "unread": 0,
     "workspaces": {
-      "active_id": "ws-contract-viewer",
-      "can_switch": true,
+      "active_id": "ws-1",
+      "can_switch": false,
       "entries": [
         {
-          "id": "ws-contract-active",
-          "name": "Zulu Agency",
+          "id": "ws-1",
+          "name": "Example Dental",
           "role_label": "Agency"
-        },
-        {
-          "id": "ws-contract-viewer",
-          "name": "Alpha Client",
-          "role_label": "Viewer"
-        },
-        {
-          "id": "ws-contract-client",
-          "name": "Bravo Client",
-          "role_label": "Client"
         }
       ],
       "message": null,

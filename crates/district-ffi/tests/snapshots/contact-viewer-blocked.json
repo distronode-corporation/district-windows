@@ -2,7 +2,7 @@
   "screen": {
     "ContactDetail": {
       "view": {
-        "blocked": false,
+        "blocked": true,
         "busy": null,
         "confirming": null,
         "contact_id": "contact_contract_1",

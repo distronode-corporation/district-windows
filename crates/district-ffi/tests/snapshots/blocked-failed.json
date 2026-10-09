@@ -1,31 +1,23 @@
 {
   "screen": {
-    "ContactDetail": {
+    "BlockedContacts": {
       "view": {
-        "blocked": false,
-        "busy": null,
+        "can_unblock": true,
         "confirming": null,
-        "contact_id": "contact_contract_1",
-        "created_at": null,
-        "dossier": null,
-        "editing": null,
-        "facts": [],
+        "empty": null,
         "failure": null,
-        "name": "",
-        "number_facts": [],
-        "phone_number": null,
-        "reach": "",
-        "report": "Hidden",
-        "research_status": null,
-        "status": "Loading",
-        "updated_at": null,
-        "writes": {
-          "can_block": false,
-          "can_clear_research": false,
-          "can_delete": false,
-          "can_edit": false,
-          "can_enrich": false
-        }
+        "rows": [],
+        "status": {
+          "Failed": {
+            "failure": {
+              "message": "Something went wrong on our side. Please try again shortly.",
+              "regions_line": null,
+              "retryable": true
+            },
+            "title": "Could not load blocked callers"
+          }
+        },
+        "title": "Blocked callers"
       }
     }
   },

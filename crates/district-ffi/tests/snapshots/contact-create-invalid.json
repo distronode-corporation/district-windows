@@ -3,7 +3,19 @@
     "Contacts": {
       "view": {
         "can_create": true,
-        "create": null,
+        "create": {
+          "can_submit": false,
+          "failure": null,
+          "form": {
+            "email": "",
+            "name": "Grace Hopper",
+            "phone_number": " "
+          },
+          "hint": "Enter a phone number or an email address.",
+          "saving": false,
+          "submit_label": "Add",
+          "title": "Add contact"
+        },
         "empty": null,
         "paging": {
           "can_load_more": false,
@@ -12,18 +24,20 @@
           "refresh_failure": null,
           "refreshing": false
         },
-        "rows": [],
-        "status": {
-          "Failed": {
-            "failure": {
-              "message": "Something went wrong on our side. Please try again shortly.",
-              "regions_line": null,
-              "retryable": true
-            },
-            "title": "Could not load contacts"
+        "rows": [
+          {
+            "contact_id": "contact_contract_1",
+            "detail": "+1 416 555 0142 · ada@example.com",
+            "name": "Contract Test Caller"
+          },
+          {
+            "contact_id": "contact_contract_2",
+            "detail": "sparse@example.com",
+            "name": "Sparse Contact"
           }
-        },
-        "total_label": null
+        ],
+        "status": "Ready",
+        "total_label": "2 contacts"
       }
     }
   },
