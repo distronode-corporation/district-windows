@@ -14,6 +14,11 @@
     <RootNamespace>DistrictAI</RootNamespace>
     <AssemblyName>DistrictAI</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!--
+      The exe's icon, which the window's title bar and the taskbar show: the
+      District icon at every size from 16 to 256, the same file as the tray's.
+    -->
+    <ApplicationIcon>Assets\TrayIcon.ico</ApplicationIcon>
     <!-- x64 only for 1.0: Windows 11 on ARM runs it emulated. -->
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
@@ -95,6 +100,24 @@
 
   <Target Name="RequireLibwebrtcLicence" BeforeTargets="Build" Condition="'$(OS)' == 'Windows_NT' and ('$(Configuration)' == 'Release' or '$(GenerateAppxPackageOnBuild)' == 'true')">
     <Error Condition="'$(LK_CUSTOM_WEBRTC)' == '' or !Exists('$(LK_CUSTOM_WEBRTC)\LICENSE.md')" Text="libwebrtc's LICENSE.md is not in LK_CUSTOM_WEBRTC ('$(LK_CUSTOM_WEBRTC)'), and a release or a package must ship it. Run scripts/fetch-libwebrtc.ps1 and set LK_CUSTOM_WEBRTC to the directory it prints." />
+  </Target>
+
+  <!--
+    The version, from one place: the package manifest's Identity/@Version
+    (the flavour's, which check-flavours.py holds equal to the other). It
+    becomes the assembly's and the exe's FileVersion, so the file Windows
+    shows matches the package; ci.yml checks that it does.
+  -->
+  <Target Name="VersionFromManifest" BeforeTargets="GetAssemblyVersion;GenerateAssemblyInfo">
+    <XmlPeek XmlInputPath="@(AppxManifest)" Query="/m:Package/m:Identity/@Version" Namespaces="&lt;Namespace Prefix='m' Uri='http://schemas.microsoft.com/appx/manifest/foundation/windows10' /&gt;">
+      <Output TaskParameter="Result" PropertyName="ManifestVersion" />
+    </XmlPeek>
+    <Error Condition="'$(ManifestVersion)' == ''" Text="@(AppxManifest) has no Identity/@Version." />
+    <PropertyGroup>
+      <AssemblyVersion>$(ManifestVersion)</AssemblyVersion>
+      <FileVersion>$(ManifestVersion)</FileVersion>
+      <InformationalVersion>$(ManifestVersion)</InformationalVersion>
+    </PropertyGroup>
   </Target>
 
   <Target Name="RequireOneManifest" BeforeTargets="Build">

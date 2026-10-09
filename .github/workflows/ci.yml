@@ -463,6 +463,28 @@ jobs:
             Write-Host "ThirdPartyNotices/libwebrtc-LICENSE.md: $($entry.Length) bytes"
           } finally { $zip.Dispose() }
 
+      # One version: DistrictAI.csproj stamps the assembly and the exe from the
+      # manifest's Identity/@Version, so Windows shows the package's version on
+      # the file too (1.1.0 shipped an exe that said 1.0.0.0).
+      - name: The exe's FileVersion is the package's version
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $msix = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'AppPackages') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
+          if ($msix.Count -ne 1) { throw "expected one DistrictAI MSIX, found $($msix.Count)" }
+          $exe = Join-Path $env:RUNNER_TEMP 'version-check-DistrictAI.exe'
+          $zip = [IO.Compression.ZipFile]::OpenRead($msix[0].FullName)
+          try {
+            $reader = [IO.StreamReader]::new($zip.GetEntry('AppxManifest.xml').Open())
+            $version = ([xml]$reader.ReadToEnd()).Package.Identity.Version
+            $reader.Dispose()
+            [IO.Compression.ZipFileExtensions]::ExtractToFile($zip.GetEntry('DistrictAI.exe'), $exe, $true)
+          } finally { $zip.Dispose() }
+          $info = (Get-Item $exe).VersionInfo
+          Write-Host "package $version; DistrictAI.exe FileVersion $($info.FileVersion), ProductVersion $($info.ProductVersion)"
+          if ($info.FileVersion -ne $version) { throw "DistrictAI.exe's FileVersion is $($info.FileVersion), the package's version is $version" }
+
       # The test MSIX installed as a user installs it and driven through UI
       # Automation (tests/DistrictAI.UiTests, FlaUI): it starts and shows the
       # sign-in page, a districtai:// link while it runs reaches the one
