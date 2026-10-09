@@ -1,0 +1,95 @@
+{
+  "screen": {
+    "Workflows": {
+      "view": {
+        "campaign": {
+          "active": true,
+          "badge": "Active",
+          "batch": "25",
+          "batch_label": "Batch size",
+          "can_change": false,
+          "can_pause": false,
+          "can_resume": false,
+          "failure": null,
+          "goal": "Book demos with lapsed trials",
+          "goal_label": "Goal",
+          "note": "You are a viewer in this workspace. Ask an agency or client member to change the campaign.",
+          "pause_label": "Pause campaign",
+          "pending": false,
+          "resume_label": "Resume campaign",
+          "show_pause": false,
+          "show_resume": false,
+          "status": "Ready",
+          "title": "Outbound campaign"
+        },
+        "confirming": null,
+        "empty": null,
+        "rows": [
+          {
+            "active": true,
+            "can_switch": false,
+            "detail": "After a missed call · Last run success",
+            "expanded": false,
+            "last_run_at": "2026-08-18T11:30:00.000Z",
+            "name": "Missed-call follow-up",
+            "runs": null,
+            "switch_name": "Turn on Missed-call follow-up",
+            "switching": false,
+            "workflow_id": "wf_contract_active"
+          },
+          {
+            "active": false,
+            "can_switch": false,
+            "detail": "New contact · Not run yet",
+            "expanded": false,
+            "last_run_at": null,
+            "name": "New contact welcome",
+            "runs": null,
+            "switch_name": "Turn on New contact welcome",
+            "switching": false,
+            "workflow_id": "wf_contract_paused"
+          }
+        ],
+        "status": "Ready",
+        "title": "Workflows",
+        "toggle_failure": null
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Workflows",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
