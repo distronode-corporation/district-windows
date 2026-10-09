@@ -3739,16 +3739,133 @@ class FfiConverterTypeBillingView: FfiConverterRustBuffer<BillingView> {
 
 
 /// <summary>
+/// One blocked caller.
+/// </summary>
+/// <param name="ContactId">
+/// The caller's contact id, to unblock them by.
+/// </param>
+/// <param name="Name">
+/// The name, or else the number (the core's `blocked_label`).
+/// </param>
+/// <param name="PhoneNumber">
+/// The number, when the name is not the number already.
+/// </param>
+/// <param name="BlockedAt">
+/// When they were blocked, ISO 8601, for the app to say in local time.
+/// </param>
+/// <param name="Unblocking">
+/// Whether their unblock is on its way (show progress, not the button).
+/// </param>
+public record BlockedRowView (
+    /// <summary>
+    /// The caller's contact id, to unblock them by.
+    /// </summary>
+    string ContactId, 
+    /// <summary>
+    /// The name, or else the number (the core's `blocked_label`).
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The number, when the name is not the number already.
+    /// </summary>
+    string? PhoneNumber, 
+    /// <summary>
+    /// When they were blocked, ISO 8601, for the app to say in local time.
+    /// </summary>
+    string? BlockedAt, 
+    /// <summary>
+    /// Whether their unblock is on its way (show progress, not the button).
+    /// </summary>
+    bool Unblocking
+) {
+}
+
+class FfiConverterTypeBlockedRowView: FfiConverterRustBuffer<BlockedRowView> {
+    public static FfiConverterTypeBlockedRowView INSTANCE = new FfiConverterTypeBlockedRowView();
+
+    public override BlockedRowView Read(BigEndianStream stream) {
+        return new BlockedRowView(
+            ContactId: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            PhoneNumber: FfiConverterOptionalString.INSTANCE.Read(stream),
+            BlockedAt: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Unblocking: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(BlockedRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.ContactId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.PhoneNumber)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.BlockedAt)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Unblocking);
+    }
+
+    public override void Write(BlockedRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.ContactId, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.PhoneNumber, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.BlockedAt, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Unblocking, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The blocked callers screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`BLOCKED_TITLE`].
+/// </param>
+/// <param name="Status">
+/// Where the read stands.
+/// </param>
+/// <param name="Rows">
+/// The callers blocked now, most recently blocked first.
+/// </param>
+/// <param name="Empty">
+/// What to say when the list is read and has none.
+/// </param>
+/// <param name="CanUnblock">
+/// Whether "Unblock" is offered: the member's role may change contacts.
+/// </param>
+/// <param name="Confirming">
+/// The question the core is asking before an unblock, while it asks.
+/// </param>
+/// <param name="Failure">
+/// Why the last unblock failed, shown beside the list.
 /// </param>
 public record BlockedView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`BLOCKED_TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// Where the read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The callers blocked now, most recently blocked first.
+    /// </summary>
+    BlockedRowView[] Rows, 
+    /// <summary>
+    /// What to say when the list is read and has none.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// Whether "Unblock" is offered: the member's role may change contacts.
+    /// </summary>
+    bool CanUnblock, 
+    /// <summary>
+    /// The question the core is asking before an unblock, while it asks.
+    /// </summary>
+    UnblockQuestionView? Confirming, 
+    /// <summary>
+    /// Why the last unblock failed, shown beside the list.
+    /// </summary>
+    FailureView? Failure
 ) {
 }
 
@@ -3757,17 +3874,35 @@ class FfiConverterTypeBlockedView: FfiConverterRustBuffer<BlockedView> {
 
     public override BlockedView Read(BigEndianStream stream) {
         return new BlockedView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeBlockedRowView.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            CanUnblock: FfiConverterBoolean.INSTANCE.Read(stream),
+            Confirming: FfiConverterOptionalTypeUnblockQuestionView.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(BlockedView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeBlockedRowView.INSTANCE.AllocationSize(value.Rows)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanUnblock)
+            + FfiConverterOptionalTypeUnblockQuestionView.INSTANCE.AllocationSize(value.Confirming)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
     }
 
     public override void Write(BlockedView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeBlockedRowView.INSTANCE.Write(value.Rows, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanUnblock, stream);
+            FfiConverterOptionalTypeUnblockQuestionView.INSTANCE.Write(value.Confirming, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
     }
 }
 
@@ -4247,6 +4382,23 @@ class FfiConverterTypeConfirmView: FfiConverterRustBuffer<ConfirmView> {
 /// <param name="PhoneNumber">
 /// The number to call, in E.164, when the contact has one.
 /// </param>
+/// <param name="Blocked">
+/// Whether the caller is known to be blocked (say "Blocked" by the name).
+/// </param>
+/// <param name="Writes">
+/// The changes the member may make now; `None` for a role that may change
+/// nothing, which sees no controls at all.
+/// </param>
+/// <param name="Busy">
+/// What is on its way ("Deleting the contact"), while a change is.
+/// </param>
+/// <param name="Confirming">
+/// The question the core is asking before a change, while it asks.
+/// </param>
+/// <param name="Editing">
+/// The form changing the contact, while it is open. A failure while it
+/// is open is shown on the form, not in [`ContactDetailView::failure`].
+/// </param>
 public record ContactDetailView (
     /// <summary>
     /// The contact's id, as the route carries it.
@@ -4299,7 +4451,29 @@ public record ContactDetailView (
     /// <summary>
     /// The number to call, in E.164, when the contact has one.
     /// </summary>
-    string? PhoneNumber
+    string? PhoneNumber, 
+    /// <summary>
+    /// Whether the caller is known to be blocked (say "Blocked" by the name).
+    /// </summary>
+    bool Blocked, 
+    /// <summary>
+    /// The changes the member may make now; `None` for a role that may change
+    /// nothing, which sees no controls at all.
+    /// </summary>
+    ContactWritesView? Writes, 
+    /// <summary>
+    /// What is on its way ("Deleting the contact"), while a change is.
+    /// </summary>
+    string? Busy, 
+    /// <summary>
+    /// The question the core is asking before a change, while it asks.
+    /// </summary>
+    ContactQuestionView? Confirming, 
+    /// <summary>
+    /// The form changing the contact, while it is open. A failure while it
+    /// is open is shown on the form, not in [`ContactDetailView::failure`].
+    /// </summary>
+    ContactFormView? Editing
 ) {
 }
 
@@ -4320,7 +4494,12 @@ class FfiConverterTypeContactDetailView: FfiConverterRustBuffer<ContactDetailVie
             Dossier: FfiConverterOptionalTypeAiTextView.INSTANCE.Read(stream),
             Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
             Report: FfiConverterTypeReportAvailability.INSTANCE.Read(stream),
-            PhoneNumber: FfiConverterOptionalString.INSTANCE.Read(stream)
+            PhoneNumber: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Blocked: FfiConverterBoolean.INSTANCE.Read(stream),
+            Writes: FfiConverterOptionalTypeContactWritesView.INSTANCE.Read(stream),
+            Busy: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Confirming: FfiConverterOptionalTypeContactQuestionView.INSTANCE.Read(stream),
+            Editing: FfiConverterOptionalTypeContactFormView.INSTANCE.Read(stream)
         );
     }
 
@@ -4338,7 +4517,12 @@ class FfiConverterTypeContactDetailView: FfiConverterRustBuffer<ContactDetailVie
             + FfiConverterOptionalTypeAiTextView.INSTANCE.AllocationSize(value.Dossier)
             + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
             + FfiConverterTypeReportAvailability.INSTANCE.AllocationSize(value.Report)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.PhoneNumber);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.PhoneNumber)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Blocked)
+            + FfiConverterOptionalTypeContactWritesView.INSTANCE.AllocationSize(value.Writes)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Busy)
+            + FfiConverterOptionalTypeContactQuestionView.INSTANCE.AllocationSize(value.Confirming)
+            + FfiConverterOptionalTypeContactFormView.INSTANCE.AllocationSize(value.Editing);
     }
 
     public override void Write(ContactDetailView value, BigEndianStream stream) {
@@ -4355,6 +4539,223 @@ class FfiConverterTypeContactDetailView: FfiConverterRustBuffer<ContactDetailVie
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
             FfiConverterTypeReportAvailability.INSTANCE.Write(value.Report, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.PhoneNumber, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Blocked, stream);
+            FfiConverterOptionalTypeContactWritesView.INSTANCE.Write(value.Writes, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Busy, stream);
+            FfiConverterOptionalTypeContactQuestionView.INSTANCE.Write(value.Confirming, stream);
+            FfiConverterOptionalTypeContactFormView.INSTANCE.Write(value.Editing, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A contact's name, phone number and email address as the form holds them,
+/// sent whole at every change (the core's `ContactForm`).
+/// </summary>
+/// <param name="Name">
+/// The name.
+/// </param>
+/// <param name="PhoneNumber">
+/// The phone number, as typed.
+/// </param>
+/// <param name="Email">
+/// The email address.
+/// </param>
+public record ContactFormInput (
+    /// <summary>
+    /// The name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The phone number, as typed.
+    /// </summary>
+    string PhoneNumber, 
+    /// <summary>
+    /// The email address.
+    /// </summary>
+    string Email
+) {
+}
+
+class FfiConverterTypeContactFormInput: FfiConverterRustBuffer<ContactFormInput> {
+    public static FfiConverterTypeContactFormInput INSTANCE = new FfiConverterTypeContactFormInput();
+
+    public override ContactFormInput Read(BigEndianStream stream) {
+        return new ContactFormInput(
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            PhoneNumber: FfiConverterString.INSTANCE.Read(stream),
+            Email: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ContactFormInput value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PhoneNumber)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Email);
+    }
+
+    public override void Write(ContactFormInput value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.PhoneNumber, stream);
+            FfiConverterString.INSTANCE.Write(value.Email, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The form adding a contact, or changing the open one.
+/// </summary>
+/// <param name="Title">
+/// The dialog's heading: "Add contact" or "Edit contact".
+/// </param>
+/// <param name="SubmitLabel">
+/// The sending button's label: "Add" or "Save".
+/// </param>
+/// <param name="Form">
+/// What is typed, as the core holds it.
+/// </param>
+/// <param name="Hint">
+/// The core's guidance under the form ("Enter a phone number or an email
+/// address."), or `None`.
+/// </param>
+/// <param name="CanSubmit">
+/// Whether the sending button works: the core would send this form, and
+/// nothing is on its way.
+/// </param>
+/// <param name="Saving">
+/// Whether the form is on its way (disable the fields and both buttons).
+/// </param>
+/// <param name="Failure">
+/// Why the last attempt failed, in the core's (or the service's) words.
+/// </param>
+public record ContactFormView (
+    /// <summary>
+    /// The dialog's heading: "Add contact" or "Edit contact".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The sending button's label: "Add" or "Save".
+    /// </summary>
+    string SubmitLabel, 
+    /// <summary>
+    /// What is typed, as the core holds it.
+    /// </summary>
+    ContactFormInput Form, 
+    /// <summary>
+    /// The core's guidance under the form ("Enter a phone number or an email
+    /// address."), or `None`.
+    /// </summary>
+    string? Hint, 
+    /// <summary>
+    /// Whether the sending button works: the core would send this form, and
+    /// nothing is on its way.
+    /// </summary>
+    bool CanSubmit, 
+    /// <summary>
+    /// Whether the form is on its way (disable the fields and both buttons).
+    /// </summary>
+    bool Saving, 
+    /// <summary>
+    /// Why the last attempt failed, in the core's (or the service's) words.
+    /// </summary>
+    FailureView? Failure
+) {
+}
+
+class FfiConverterTypeContactFormView: FfiConverterRustBuffer<ContactFormView> {
+    public static FfiConverterTypeContactFormView INSTANCE = new FfiConverterTypeContactFormView();
+
+    public override ContactFormView Read(BigEndianStream stream) {
+        return new ContactFormView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            SubmitLabel: FfiConverterString.INSTANCE.Read(stream),
+            Form: FfiConverterTypeContactFormInput.INSTANCE.Read(stream),
+            Hint: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanSubmit: FfiConverterBoolean.INSTANCE.Read(stream),
+            Saving: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ContactFormView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SubmitLabel)
+            + FfiConverterTypeContactFormInput.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Hint)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSubmit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
+    }
+
+    public override void Write(ContactFormView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.SubmitLabel, stream);
+            FfiConverterTypeContactFormInput.INSTANCE.Write(value.Form, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Hint, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSubmit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The question the core asks before a change to a contact.
+/// </summary>
+/// <param name="Question">
+/// The question, in the core's words.
+/// </param>
+/// <param name="Action">
+/// The confirming button's label, in the core's words.
+/// </param>
+/// <param name="Destructive">
+/// Whether answering yes removes or hides something (every question but
+/// unblocking): the dialog's default button is then Cancel.
+/// </param>
+public record ContactQuestionView (
+    /// <summary>
+    /// The question, in the core's words.
+    /// </summary>
+    string Question, 
+    /// <summary>
+    /// The confirming button's label, in the core's words.
+    /// </summary>
+    string Action, 
+    /// <summary>
+    /// Whether answering yes removes or hides something (every question but
+    /// unblocking): the dialog's default button is then Cancel.
+    /// </summary>
+    bool Destructive
+) {
+}
+
+class FfiConverterTypeContactQuestionView: FfiConverterRustBuffer<ContactQuestionView> {
+    public static FfiConverterTypeContactQuestionView INSTANCE = new FfiConverterTypeContactQuestionView();
+
+    public override ContactQuestionView Read(BigEndianStream stream) {
+        return new ContactQuestionView(
+            Question: FfiConverterString.INSTANCE.Read(stream),
+            Action: FfiConverterString.INSTANCE.Read(stream),
+            Destructive: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ContactQuestionView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Question)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Action)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Destructive);
+    }
+
+    public override void Write(ContactQuestionView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Question, stream);
+            FfiConverterString.INSTANCE.Write(value.Action, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Destructive, stream);
     }
 }
 
@@ -4416,6 +4817,86 @@ class FfiConverterTypeContactRowView: FfiConverterRustBuffer<ContactRowView> {
 
 
 /// <summary>
+/// The changes a member may make to the open contact now, from the core's
+/// `ContactControls`. Absent altogether for a role that may change nothing,
+/// which reads that its access is read-only instead.
+///
+/// The controls' own words are fixed and live in the page, as 1.0's do; the
+/// block control reads "Unblock" when [`ContactDetailView::blocked`].
+/// </summary>
+/// <param name="CanEdit">
+/// Whether "Edit" works.
+/// </param>
+/// <param name="CanDelete">
+/// Whether "Delete" works.
+/// </param>
+/// <param name="CanEnrich">
+/// Whether "Run research" works (billed).
+/// </param>
+/// <param name="CanClearResearch">
+/// Whether "Clear research" is offered: there is research to clear.
+/// </param>
+/// <param name="CanBlock">
+/// Whether the block control works.
+/// </param>
+public record ContactWritesView (
+    /// <summary>
+    /// Whether "Edit" works.
+    /// </summary>
+    bool CanEdit, 
+    /// <summary>
+    /// Whether "Delete" works.
+    /// </summary>
+    bool CanDelete, 
+    /// <summary>
+    /// Whether "Run research" works (billed).
+    /// </summary>
+    bool CanEnrich, 
+    /// <summary>
+    /// Whether "Clear research" is offered: there is research to clear.
+    /// </summary>
+    bool CanClearResearch, 
+    /// <summary>
+    /// Whether the block control works.
+    /// </summary>
+    bool CanBlock
+) {
+}
+
+class FfiConverterTypeContactWritesView: FfiConverterRustBuffer<ContactWritesView> {
+    public static FfiConverterTypeContactWritesView INSTANCE = new FfiConverterTypeContactWritesView();
+
+    public override ContactWritesView Read(BigEndianStream stream) {
+        return new ContactWritesView(
+            CanEdit: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanDelete: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanEnrich: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanClearResearch: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanBlock: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ContactWritesView value) {
+        return 0
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanEdit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDelete)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanEnrich)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanClearResearch)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanBlock);
+    }
+
+    public override void Write(ContactWritesView value, BigEndianStream stream) {
+            FfiConverterBoolean.INSTANCE.Write(value.CanEdit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDelete, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanEnrich, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanClearResearch, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanBlock, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The contacts list.
 /// </summary>
 /// <param name="Status">
@@ -4432,6 +4913,12 @@ class FfiConverterTypeContactRowView: FfiConverterRustBuffer<ContactRowView> {
 /// </param>
 /// <param name="Paging">
 /// The next page, and the first page read again.
+/// </param>
+/// <param name="CanCreate">
+/// Whether "Add contact" is offered: the member's role may change contacts.
+/// </param>
+/// <param name="Create">
+/// The form adding a contact, while it is open.
 /// </param>
 public record ContactsView (
     /// <summary>
@@ -4453,7 +4940,15 @@ public record ContactsView (
     /// <summary>
     /// The next page, and the first page read again.
     /// </summary>
-    PagingView Paging
+    PagingView Paging, 
+    /// <summary>
+    /// Whether "Add contact" is offered: the member's role may change contacts.
+    /// </summary>
+    bool CanCreate, 
+    /// <summary>
+    /// The form adding a contact, while it is open.
+    /// </summary>
+    ContactFormView? Create
 ) {
 }
 
@@ -4466,7 +4961,9 @@ class FfiConverterTypeContactsView: FfiConverterRustBuffer<ContactsView> {
             Rows: FfiConverterSequenceTypeContactRowView.INSTANCE.Read(stream),
             Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
             TotalLabel: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Paging: FfiConverterTypePagingView.INSTANCE.Read(stream)
+            Paging: FfiConverterTypePagingView.INSTANCE.Read(stream),
+            CanCreate: FfiConverterBoolean.INSTANCE.Read(stream),
+            Create: FfiConverterOptionalTypeContactFormView.INSTANCE.Read(stream)
         );
     }
 
@@ -4476,7 +4973,9 @@ class FfiConverterTypeContactsView: FfiConverterRustBuffer<ContactsView> {
             + FfiConverterSequenceTypeContactRowView.INSTANCE.AllocationSize(value.Rows)
             + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.TotalLabel)
-            + FfiConverterTypePagingView.INSTANCE.AllocationSize(value.Paging);
+            + FfiConverterTypePagingView.INSTANCE.AllocationSize(value.Paging)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanCreate)
+            + FfiConverterOptionalTypeContactFormView.INSTANCE.AllocationSize(value.Create);
     }
 
     public override void Write(ContactsView value, BigEndianStream stream) {
@@ -4485,6 +4984,8 @@ class FfiConverterTypeContactsView: FfiConverterRustBuffer<ContactsView> {
             FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.TotalLabel, stream);
             FfiConverterTypePagingView.INSTANCE.Write(value.Paging, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanCreate, stream);
+            FfiConverterOptionalTypeContactFormView.INSTANCE.Write(value.Create, stream);
     }
 }
 
@@ -7427,6 +7928,71 @@ class FfiConverterTypeToolsView: FfiConverterRustBuffer<ToolsView> {
 
 
 /// <summary>
+/// The question before an unblock.
+/// </summary>
+/// <param name="ContactId">
+/// The caller asked about.
+/// </param>
+/// <param name="Name">
+/// What they are called, for the dialog's heading.
+/// </param>
+/// <param name="Question">
+/// The question, in the core's words.
+/// </param>
+/// <param name="Action">
+/// The confirming button's label, in the core's words.
+/// </param>
+public record UnblockQuestionView (
+    /// <summary>
+    /// The caller asked about.
+    /// </summary>
+    string ContactId, 
+    /// <summary>
+    /// What they are called, for the dialog's heading.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The question, in the core's words.
+    /// </summary>
+    string Question, 
+    /// <summary>
+    /// The confirming button's label, in the core's words.
+    /// </summary>
+    string Action
+) {
+}
+
+class FfiConverterTypeUnblockQuestionView: FfiConverterRustBuffer<UnblockQuestionView> {
+    public static FfiConverterTypeUnblockQuestionView INSTANCE = new FfiConverterTypeUnblockQuestionView();
+
+    public override UnblockQuestionView Read(BigEndianStream stream) {
+        return new UnblockQuestionView(
+            ContactId: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Question: FfiConverterString.INSTANCE.Read(stream),
+            Action: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(UnblockQuestionView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.ContactId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Question)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Action);
+    }
+
+    public override void Write(UnblockQuestionView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.ContactId, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Question, stream);
+            FfiConverterString.INSTANCE.Write(value.Action, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The Voice section.
 /// </summary>
 /// <param name="Title">
@@ -7725,32 +8291,108 @@ class FfiConverterTypeBillingAction: FfiConverterRustBuffer<BillingAction> {
 /// <summary>
 /// Something the member did on the blocked callers screen.
 /// </summary>
-public enum BlockedAction: int {
+public record BlockedAction {
+    
     /// <summary>
     /// Open the blocked callers.
     /// </summary>
-    Open
+    public record Open: BlockedAction {}
+    
+    
+    /// <summary>
+    /// "Unblock" on a caller: the core asks first.
+    /// </summary>
+    public record AskUnblock (
+        string ContactId
+    ) : BlockedAction {}
+    
+    /// <summary>
+    /// Answer the question yes.
+    /// </summary>
+    public record ConfirmUnblock: BlockedAction {}
+    
+    
+    /// <summary>
+    /// Answer it no.
+    /// </summary>
+    public record CancelUnblock: BlockedAction {}
+    
+    
+    /// <summary>
+    /// Put away the last unblock's failure.
+    /// </summary>
+    public record DismissFailure: BlockedAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeBlockedAction: FfiConverterRustBuffer<BlockedAction> {
-    public static FfiConverterTypeBlockedAction INSTANCE = new FfiConverterTypeBlockedAction();
+class FfiConverterTypeBlockedAction : FfiConverterRustBuffer<BlockedAction>{
+    public static FfiConverterRustBuffer<BlockedAction> INSTANCE = new FfiConverterTypeBlockedAction();
 
     public override BlockedAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return BlockedAction.Open;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBlockedAction.Read()", value));
+            case 1:
+                return new BlockedAction.Open(
+                );
+            case 2:
+                return new BlockedAction.AskUnblock(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new BlockedAction.ConfirmUnblock(
+                );
+            case 4:
+                return new BlockedAction.CancelUnblock(
+                );
+            case 5:
+                return new BlockedAction.DismissFailure(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBlockedAction.Read()", value));
         }
     }
 
     public override int AllocationSize(BlockedAction value) {
-        return 4;
+        switch (value) {
+            case BlockedAction.Open variant_value:
+                return 4;
+            case BlockedAction.AskUnblock variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ContactId);
+            case BlockedAction.ConfirmUnblock variant_value:
+                return 4;
+            case BlockedAction.CancelUnblock variant_value:
+                return 4;
+            case BlockedAction.DismissFailure variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBlockedAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(BlockedAction value, BigEndianStream stream) {
         switch (value) {
-            case BlockedAction.Open: stream.WriteInt(1); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBlockedAction.Write()", value));
+            case BlockedAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case BlockedAction.AskUnblock variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.ContactId, stream);
+                break;
+            case BlockedAction.ConfirmUnblock variant_value:
+                stream.WriteInt(3);
+                break;
+            case BlockedAction.CancelUnblock variant_value:
+                stream.WriteInt(4);
+                break;
+            case BlockedAction.DismissFailure variant_value:
+                stream.WriteInt(5);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBlockedAction.Write()", value));
         }
     }
 }
@@ -7863,6 +8505,266 @@ class FfiConverterTypeComposerAction : FfiConverterRustBuffer<ComposerAction>{
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposerAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did on the contacts or a contact.
+/// </summary>
+public record ContactsAction {
+    
+    /// <summary>
+    /// "Add contact": open the form.
+    /// </summary>
+    public record StartCreate: ContactsAction {}
+    
+    
+    /// <summary>
+    /// The form adding a contact changed: what it holds now.
+    /// </summary>
+    public record EditCreate (
+        ContactFormInput Form
+    ) : ContactsAction {}
+    
+    /// <summary>
+    /// "Add", or Enter in the form.
+    /// </summary>
+    public record SubmitCreate: ContactsAction {}
+    
+    
+    /// <summary>
+    /// Close the form adding a contact. The core refuses while it is saving.
+    /// </summary>
+    public record CancelCreate: ContactsAction {}
+    
+    
+    /// <summary>
+    /// "Edit", on the open contact.
+    /// </summary>
+    public record StartEdit: ContactsAction {}
+    
+    
+    /// <summary>
+    /// The form changing the contact changed: what it holds now.
+    /// </summary>
+    public record Edit (
+        ContactFormInput Form
+    ) : ContactsAction {}
+    
+    /// <summary>
+    /// "Save", or Enter in the form.
+    /// </summary>
+    public record SaveEdit: ContactsAction {}
+    
+    
+    /// <summary>
+    /// Close the form changing the contact. The core refuses while it is
+    /// saving.
+    /// </summary>
+    public record CancelEdit: ContactsAction {}
+    
+    
+    /// <summary>
+    /// "Delete": the core asks first.
+    /// </summary>
+    public record AskDelete: ContactsAction {}
+    
+    
+    /// <summary>
+    /// "Clear research": the core asks first.
+    /// </summary>
+    public record AskClearResearch: ContactsAction {}
+    
+    
+    /// <summary>
+    /// "Block" or "Unblock": the core asks first.
+    /// </summary>
+    public record AskBlock: ContactsAction {}
+    
+    
+    /// <summary>
+    /// "Run research". Billed; the core does not ask first.
+    /// </summary>
+    public record Enrich: ContactsAction {}
+    
+    
+    /// <summary>
+    /// Answer the open contact's question yes.
+    /// </summary>
+    public record Confirm: ContactsAction {}
+    
+    
+    /// <summary>
+    /// Answer it no.
+    /// </summary>
+    public record Cancel: ContactsAction {}
+    
+    
+    /// <summary>
+    /// Put away the open contact's failure.
+    /// </summary>
+    public record DismissFailure: ContactsAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeContactsAction : FfiConverterRustBuffer<ContactsAction>{
+    public static FfiConverterRustBuffer<ContactsAction> INSTANCE = new FfiConverterTypeContactsAction();
+
+    public override ContactsAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new ContactsAction.StartCreate(
+                );
+            case 2:
+                return new ContactsAction.EditCreate(
+                    FfiConverterTypeContactFormInput.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new ContactsAction.SubmitCreate(
+                );
+            case 4:
+                return new ContactsAction.CancelCreate(
+                );
+            case 5:
+                return new ContactsAction.StartEdit(
+                );
+            case 6:
+                return new ContactsAction.Edit(
+                    FfiConverterTypeContactFormInput.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new ContactsAction.SaveEdit(
+                );
+            case 8:
+                return new ContactsAction.CancelEdit(
+                );
+            case 9:
+                return new ContactsAction.AskDelete(
+                );
+            case 10:
+                return new ContactsAction.AskClearResearch(
+                );
+            case 11:
+                return new ContactsAction.AskBlock(
+                );
+            case 12:
+                return new ContactsAction.Enrich(
+                );
+            case 13:
+                return new ContactsAction.Confirm(
+                );
+            case 14:
+                return new ContactsAction.Cancel(
+                );
+            case 15:
+                return new ContactsAction.DismissFailure(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeContactsAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(ContactsAction value) {
+        switch (value) {
+            case ContactsAction.StartCreate variant_value:
+                return 4;
+            case ContactsAction.EditCreate variant_value:
+                return 4
+                    + FfiConverterTypeContactFormInput.INSTANCE.AllocationSize(variant_value.Form);
+            case ContactsAction.SubmitCreate variant_value:
+                return 4;
+            case ContactsAction.CancelCreate variant_value:
+                return 4;
+            case ContactsAction.StartEdit variant_value:
+                return 4;
+            case ContactsAction.Edit variant_value:
+                return 4
+                    + FfiConverterTypeContactFormInput.INSTANCE.AllocationSize(variant_value.Form);
+            case ContactsAction.SaveEdit variant_value:
+                return 4;
+            case ContactsAction.CancelEdit variant_value:
+                return 4;
+            case ContactsAction.AskDelete variant_value:
+                return 4;
+            case ContactsAction.AskClearResearch variant_value:
+                return 4;
+            case ContactsAction.AskBlock variant_value:
+                return 4;
+            case ContactsAction.Enrich variant_value:
+                return 4;
+            case ContactsAction.Confirm variant_value:
+                return 4;
+            case ContactsAction.Cancel variant_value:
+                return 4;
+            case ContactsAction.DismissFailure variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeContactsAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(ContactsAction value, BigEndianStream stream) {
+        switch (value) {
+            case ContactsAction.StartCreate variant_value:
+                stream.WriteInt(1);
+                break;
+            case ContactsAction.EditCreate variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypeContactFormInput.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case ContactsAction.SubmitCreate variant_value:
+                stream.WriteInt(3);
+                break;
+            case ContactsAction.CancelCreate variant_value:
+                stream.WriteInt(4);
+                break;
+            case ContactsAction.StartEdit variant_value:
+                stream.WriteInt(5);
+                break;
+            case ContactsAction.Edit variant_value:
+                stream.WriteInt(6);
+                FfiConverterTypeContactFormInput.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case ContactsAction.SaveEdit variant_value:
+                stream.WriteInt(7);
+                break;
+            case ContactsAction.CancelEdit variant_value:
+                stream.WriteInt(8);
+                break;
+            case ContactsAction.AskDelete variant_value:
+                stream.WriteInt(9);
+                break;
+            case ContactsAction.AskClearResearch variant_value:
+                stream.WriteInt(10);
+                break;
+            case ContactsAction.AskBlock variant_value:
+                stream.WriteInt(11);
+                break;
+            case ContactsAction.Enrich variant_value:
+                stream.WriteInt(12);
+                break;
+            case ContactsAction.Confirm variant_value:
+                stream.WriteInt(13);
+                break;
+            case ContactsAction.Cancel variant_value:
+                stream.WriteInt(14);
+                break;
+            case ContactsAction.DismissFailure variant_value:
+                stream.WriteInt(15);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeContactsAction.Write()", value));
         }
     }
 }
@@ -10643,6 +11545,14 @@ public record UiEvent {
     ) : UiEvent {}
     
     /// <summary>
+    /// Something done on the contacts or a contact: adding, editing,
+    /// deleting, research, blocking.
+    /// </summary>
+    public record Contacts (
+        ContactsAction Action
+    ) : UiEvent {}
+    
+    /// <summary>
     /// Something done on the blocked callers.
     /// </summary>
     public record Blocked (
@@ -10947,90 +11857,94 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
             case 42:
+                return new UiEvent.Contacts(
+                    FfiConverterTypeContactsAction.INSTANCE.Read(stream)
+                );
+            case 43:
                 return new UiEvent.Blocked(
                     FfiConverterTypeBlockedAction.INSTANCE.Read(stream)
                 );
-            case 43:
+            case 44:
                 return new UiEvent.Hq(
                     FfiConverterTypeHqAction.INSTANCE.Read(stream)
                 );
-            case 44:
+            case 45:
                 return new UiEvent.Analytics(
                     FfiConverterTypeAnalyticsAction.INSTANCE.Read(stream)
                 );
-            case 45:
+            case 46:
                 return new UiEvent.Marketplace(
                     FfiConverterTypeMarketplaceAction.INSTANCE.Read(stream)
                 );
-            case 46:
+            case 47:
                 return new UiEvent.Billing(
                     FfiConverterTypeBillingAction.INSTANCE.Read(stream)
                 );
-            case 47:
+            case 48:
                 return new UiEvent.Workflows(
                     FfiConverterTypeWorkflowsAction.INSTANCE.Read(stream)
                 );
-            case 48:
+            case 49:
                 return new UiEvent.Scheduling(
                     FfiConverterTypeSchedulingAction.INSTANCE.Read(stream)
                 );
-            case 49:
+            case 50:
                 return new UiEvent.Desk(
                     FfiConverterTypeDeskAction.INSTANCE.Read(stream)
                 );
-            case 50:
+            case 51:
                 return new UiEvent.Support(
                     FfiConverterTypeSupportAction.INSTANCE.Read(stream)
                 );
-            case 51:
+            case 52:
                 return new UiEvent.Rooms(
                     FfiConverterTypeRoomsAction.INSTANCE.Read(stream)
                 );
-            case 52:
+            case 53:
                 return new UiEvent.Composer(
                     FfiConverterTypeComposerAction.INSTANCE.Read(stream)
                 );
-            case 53:
+            case 54:
                 return new UiEvent.Settings(
                     FfiConverterTypeSettingsAction.INSTANCE.Read(stream)
                 );
-            case 54:
+            case 55:
                 return new UiEvent.Persona(
                     FfiConverterTypePersonaAction.INSTANCE.Read(stream)
                 );
-            case 55:
+            case 56:
                 return new UiEvent.VoiceStudio(
                     FfiConverterTypeVoiceStudioAction.INSTANCE.Read(stream)
                 );
-            case 56:
+            case 57:
                 return new UiEvent.CallHandling(
                     FfiConverterTypeCallHandlingAction.INSTANCE.Read(stream)
                 );
-            case 57:
+            case 58:
                 return new UiEvent.Routing(
                     FfiConverterTypeRoutingAction.INSTANCE.Read(stream)
                 );
-            case 58:
+            case 59:
                 return new UiEvent.Directory(
                     FfiConverterTypeDirectoryAction.INSTANCE.Read(stream)
                 );
-            case 59:
+            case 60:
                 return new UiEvent.Tools(
                     FfiConverterTypeToolsAction.INSTANCE.Read(stream)
                 );
-            case 60:
+            case 61:
                 return new UiEvent.Knowledge(
                     FfiConverterTypeKnowledgeAction.INSTANCE.Read(stream)
                 );
-            case 61:
+            case 62:
                 return new UiEvent.Messaging(
                     FfiConverterTypeMessagingAction.INSTANCE.Read(stream)
                 );
-            case 62:
+            case 63:
                 return new UiEvent.Members(
                     FfiConverterTypeMembersAction.INSTANCE.Read(stream)
                 );
-            case 63:
+            case 64:
                 return new UiEvent.Numbers(
                     FfiConverterTypeNumbersAction.INSTANCE.Read(stream)
                 );
@@ -11140,6 +12054,9 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case UiEvent.SetRingOnThisComputer variant_value:
                 return 4
                     + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case UiEvent.Contacts variant_value:
+                return 4
+                    + FfiConverterTypeContactsAction.INSTANCE.AllocationSize(variant_value.Action);
             case UiEvent.Blocked variant_value:
                 return 4
                     + FfiConverterTypeBlockedAction.INSTANCE.AllocationSize(variant_value.Action);
@@ -11353,92 +12270,96 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                 stream.WriteInt(41);
                 FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
                 break;
-            case UiEvent.Blocked variant_value:
+            case UiEvent.Contacts variant_value:
                 stream.WriteInt(42);
+                FfiConverterTypeContactsAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case UiEvent.Blocked variant_value:
+                stream.WriteInt(43);
                 FfiConverterTypeBlockedAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Hq variant_value:
-                stream.WriteInt(43);
+                stream.WriteInt(44);
                 FfiConverterTypeHqAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Analytics variant_value:
-                stream.WriteInt(44);
+                stream.WriteInt(45);
                 FfiConverterTypeAnalyticsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Marketplace variant_value:
-                stream.WriteInt(45);
+                stream.WriteInt(46);
                 FfiConverterTypeMarketplaceAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Billing variant_value:
-                stream.WriteInt(46);
+                stream.WriteInt(47);
                 FfiConverterTypeBillingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Workflows variant_value:
-                stream.WriteInt(47);
+                stream.WriteInt(48);
                 FfiConverterTypeWorkflowsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Scheduling variant_value:
-                stream.WriteInt(48);
+                stream.WriteInt(49);
                 FfiConverterTypeSchedulingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Desk variant_value:
-                stream.WriteInt(49);
+                stream.WriteInt(50);
                 FfiConverterTypeDeskAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Support variant_value:
-                stream.WriteInt(50);
+                stream.WriteInt(51);
                 FfiConverterTypeSupportAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Rooms variant_value:
-                stream.WriteInt(51);
+                stream.WriteInt(52);
                 FfiConverterTypeRoomsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Composer variant_value:
-                stream.WriteInt(52);
+                stream.WriteInt(53);
                 FfiConverterTypeComposerAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Settings variant_value:
-                stream.WriteInt(53);
+                stream.WriteInt(54);
                 FfiConverterTypeSettingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Persona variant_value:
-                stream.WriteInt(54);
+                stream.WriteInt(55);
                 FfiConverterTypePersonaAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.VoiceStudio variant_value:
-                stream.WriteInt(55);
+                stream.WriteInt(56);
                 FfiConverterTypeVoiceStudioAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.CallHandling variant_value:
-                stream.WriteInt(56);
+                stream.WriteInt(57);
                 FfiConverterTypeCallHandlingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Routing variant_value:
-                stream.WriteInt(57);
+                stream.WriteInt(58);
                 FfiConverterTypeRoutingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Directory variant_value:
-                stream.WriteInt(58);
+                stream.WriteInt(59);
                 FfiConverterTypeDirectoryAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Tools variant_value:
-                stream.WriteInt(59);
+                stream.WriteInt(60);
                 FfiConverterTypeToolsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Knowledge variant_value:
-                stream.WriteInt(60);
+                stream.WriteInt(61);
                 FfiConverterTypeKnowledgeAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Messaging variant_value:
-                stream.WriteInt(61);
+                stream.WriteInt(62);
                 FfiConverterTypeMessagingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Members variant_value:
-                stream.WriteInt(62);
+                stream.WriteInt(63);
                 FfiConverterTypeMembersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Numbers variant_value:
-                stream.WriteInt(63);
+                stream.WriteInt(64);
                 FfiConverterTypeNumbersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -11722,6 +12643,99 @@ class FfiConverterOptionalTypeConfirmView: FfiConverterRustBuffer<ConfirmView?> 
 
 
 
+class FfiConverterOptionalTypeContactFormView: FfiConverterRustBuffer<ContactFormView?> {
+    public static FfiConverterOptionalTypeContactFormView INSTANCE = new FfiConverterOptionalTypeContactFormView();
+
+    public override ContactFormView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeContactFormView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(ContactFormView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeContactFormView.INSTANCE.AllocationSize((ContactFormView)value);
+        }
+    }
+
+    public override void Write(ContactFormView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeContactFormView.INSTANCE.Write((ContactFormView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeContactQuestionView: FfiConverterRustBuffer<ContactQuestionView?> {
+    public static FfiConverterOptionalTypeContactQuestionView INSTANCE = new FfiConverterOptionalTypeContactQuestionView();
+
+    public override ContactQuestionView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeContactQuestionView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(ContactQuestionView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeContactQuestionView.INSTANCE.AllocationSize((ContactQuestionView)value);
+        }
+    }
+
+    public override void Write(ContactQuestionView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeContactQuestionView.INSTANCE.Write((ContactQuestionView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeContactWritesView: FfiConverterRustBuffer<ContactWritesView?> {
+    public static FfiConverterOptionalTypeContactWritesView INSTANCE = new FfiConverterOptionalTypeContactWritesView();
+
+    public override ContactWritesView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeContactWritesView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(ContactWritesView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeContactWritesView.INSTANCE.AllocationSize((ContactWritesView)value);
+        }
+    }
+
+    public override void Write(ContactWritesView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeContactWritesView.INSTANCE.Write((ContactWritesView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeEmptyView: FfiConverterRustBuffer<EmptyView?> {
     public static FfiConverterOptionalTypeEmptyView INSTANCE = new FfiConverterOptionalTypeEmptyView();
 
@@ -11877,6 +12891,37 @@ class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerV
 
 
 
+class FfiConverterOptionalTypeUnblockQuestionView: FfiConverterRustBuffer<UnblockQuestionView?> {
+    public static FfiConverterOptionalTypeUnblockQuestionView INSTANCE = new FfiConverterOptionalTypeUnblockQuestionView();
+
+    public override UnblockQuestionView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeUnblockQuestionView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(UnblockQuestionView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeUnblockQuestionView.INSTANCE.AllocationSize((UnblockQuestionView)value);
+        }
+    }
+
+    public override void Write(UnblockQuestionView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeUnblockQuestionView.INSTANCE.Write((UnblockQuestionView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeReportStatus: FfiConverterRustBuffer<ReportStatus?> {
     public static FfiConverterOptionalTypeReportStatus INSTANCE = new FfiConverterOptionalTypeReportStatus();
 
@@ -11947,6 +12992,52 @@ class FfiConverterSequenceString: FfiConverterRustBuffer<string[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterString.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeBlockedRowView: FfiConverterRustBuffer<BlockedRowView[]> {
+    public static FfiConverterSequenceTypeBlockedRowView INSTANCE = new FfiConverterSequenceTypeBlockedRowView();
+
+    public override BlockedRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new BlockedRowView[length];
+        var readFn = FfiConverterTypeBlockedRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(BlockedRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeBlockedRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(BlockedRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeBlockedRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

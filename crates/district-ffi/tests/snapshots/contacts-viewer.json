@@ -1,0 +1,68 @@
+{
+  "screen": {
+    "Contacts": {
+      "view": {
+        "can_create": false,
+        "create": null,
+        "empty": null,
+        "paging": {
+          "can_load_more": false,
+          "loading_more": false,
+          "more_failure": null,
+          "refresh_failure": null,
+          "refreshing": false
+        },
+        "rows": [
+          {
+            "contact_id": "contact_contract_1",
+            "detail": "+1 416 555 0142 · ada@example.com",
+            "name": "Contract Test Caller"
+          },
+          {
+            "contact_id": "contact_contract_2",
+            "detail": "sparse@example.com",
+            "name": "Sparse Contact"
+          }
+        ],
+        "status": "Ready",
+        "total_label": "2 contacts"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": false,
+    "live": null,
+    "nav_selected": "Contacts",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

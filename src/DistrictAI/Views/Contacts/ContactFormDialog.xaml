@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="DistrictAI.Views.Contacts.ContactFormDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+    <!-- The core holds the form: each field sends the whole form as it changes, and the core says when it can be sent. -->
+    <StackPanel MinWidth="360" Spacing="12">
+        <TextBox
+            AutomationProperties.Name="Name"
+            Header="Name"
+            IsEnabled="{x:Bind Form.Editable, Mode=OneWay}"
+            Text="{x:Bind Form.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox
+            AutomationProperties.Name="Phone number"
+            Header="Phone number"
+            InputScope="TelephoneNumber"
+            IsEnabled="{x:Bind Form.Editable, Mode=OneWay}"
+            Text="{x:Bind Form.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox
+            AutomationProperties.Name="Email address"
+            Header="Email address"
+            InputScope="EmailNameOrAddress"
+            IsEnabled="{x:Bind Form.Editable, Mode=OneWay}"
+            Text="{x:Bind Form.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock
+            AutomationProperties.LiveSetting="Polite"
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind Form.Hint, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind Form.HasHint, Mode=OneWay}" />
+        <ProgressBar
+            AutomationProperties.Name="Saving"
+            IsIndeterminate="True"
+            Visibility="{x:Bind Form.Saving, Mode=OneWay}" />
+        <InfoBar
+            AutomationProperties.Name="Problem"
+            IsClosable="False"
+            IsOpen="{x:Bind Form.HasFailure, Mode=OneWay}"
+            Message="{x:Bind Form.Failure, Mode=OneWay}"
+            Severity="Error" />
+    </StackPanel>
+</ContentDialog>
