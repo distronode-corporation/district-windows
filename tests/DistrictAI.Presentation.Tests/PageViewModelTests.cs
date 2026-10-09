@@ -16,7 +16,7 @@ public sealed class OverviewViewModelTests
         PurchaseView? purchase = null) =>
         new(status ?? V.Ready, "Bravo", [new FactView("Calls", "12")], recent ?? [], recentEmpty, badge, finishSetup, false, null, purchase);
 
-    private static LoadStatus NoWorkspace(string message) =>
+    private static LoadStatus.Failed NoWorkspace(string message) =>
         new LoadStatus.Failed(new FailureView(message, null, false), "No workspace found");
 
     [Fact]
