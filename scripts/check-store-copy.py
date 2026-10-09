@@ -4,13 +4,22 @@
     python3 scripts/check-store-copy.py              # scan the app
     python3 scripts/check-store-copy.py --self-test  # prove the rule works
 
-District AI 1.0 for Windows is listed in the Microsoft Store as a client for an
-existing District AI account: nobody signs up in the app and nothing is bought
-in it. The listing has to stay true, so the app's strings may not offer either.
-These phrases are refused, case-insensitively and as whole words:
+District AI 1.0 for Windows was listed in the Microsoft Store as a client for an
+existing District AI account. From 2.0 a person may create an account from the
+welcome screen (in the browser) and buy a plan through District AI's own
+checkout, so the words for those are allowed on exactly the screens that offer
+them, and refused everywhere else. Case-insensitively and as whole words:
 
-    sign up, sign-up, signup, create an account, create account,
-    buy, pricing, price, subscribe (subscription), free trial
+    refused everywhere:            buy (buying, buyer), free trial
+    refused except on the screens  sign up, sign-up, signup, create an account,
+    in ALLOWED_SCREENS:            create account, subscribe (subscription),
+                                   price (pricing)
+
+ALLOWED_SCREENS are the billing, checkout and phone numbers (marketplace)
+screens and the welcome screen (`Session`, the sign-in page). A snapshot value
+belongs to the screen it is projected for; a source file belongs to a screen
+when SCREEN_SOURCES lists it (each screen's own Rust module, view folder and
+view model); any other source file belongs to no screen and keeps the full rule.
 
 Where the scan looks, and what counts as a user-facing string there:
 
@@ -43,14 +52,10 @@ is itself a finding, so the list cannot outlive what it excuses.
 must not trip it (comments, code, words that merely contain a phrase), and
 fails unless every case answers as expected.
 
-Per-screen rules (packet K4, not built yet): today every screen gets the same
-rule, `phrases_for_screen` returns PHRASES whatever the screen. When 2.0 adds
-billing, checkout, marketplace and welcome screens that may say "sign up" or
-"price", K4 splits PHRASES into the words those screens may use and the rest,
-and has `phrases_for_screen` return the narrower pattern for a screen in a set
-of allowed names. Snapshot findings already carry their screen, so nothing else
-in the snapshot scan changes; source literals have no screen (`None`) and keep
-the full rule.
+`--self-test` also proves the per-screen rule: each allowed word passes on each
+allowed screen, in a snapshot and in each kind of source file listed for it,
+and is still refused on any other screen and in an unlisted file; the words
+refused everywhere stay refused on the allowed screens.
 """
 
 from __future__ import annotations
@@ -68,25 +73,67 @@ ROOT = Path(__file__).resolve().parent.parent
 # Whole words, so "buyer's" is a finding but "buoyant", "priceless" or
 # "unsubscribed" are not: the word boundary on both sides holds the match to the
 # listed forms.
-PHRASES = re.compile(
-    r"\b(?:"
+#
+# The words a screen that signs people up or sells a plan may use.
+SCREEN_WORDS = (
     r"sign[\s\-]*up"
     r"|create\s+(?:an\s+)?account"
-    r"|buy(?:s|ing|er|ers)?"
     r"|pric(?:e|es|ed|ing)"
     r"|subscri(?:be|bes|bed|bing|ber|bers|ption|ptions)"
-    r"|free\s+trials?"
-    r")\b",
-    re.IGNORECASE,
 )
+# The words no screen may use: nothing is bought in the app by that word, and
+# nothing is offered free for a time.
+NEVER_WORDS = (
+    r"buy(?:s|ing|er|ers)?"
+    r"|free\s+trials?"
+)
+PHRASES = re.compile(rf"\b(?:{SCREEN_WORDS}|{NEVER_WORDS})\b", re.IGNORECASE)
+NEVER = re.compile(rf"\b(?:{NEVER_WORDS})\b", re.IGNORECASE)
+
+# The screens that may say SCREEN_WORDS: a snapshot's `screen` variant names.
+ALLOWED_SCREENS = frozenset({"Billing", "Checkout", "Marketplace", "Session"})
+
+# The source files that are each allowed screen's own: a path, or a folder
+# ending in `/`. Shared files (screen.rs, views.rs, MainWindow) are no screen's.
+SCREEN_SOURCES: dict[str, tuple[str, ...]] = {
+    "Billing": (
+        "crates/district-ffi/src/billing.rs",
+        "src/DistrictAI/Views/Billing/",
+        "src/DistrictAI.Presentation/Billing/",
+    ),
+    "Checkout": (
+        "crates/district-ffi/src/checkout.rs",
+        "src/DistrictAI/Views/Checkout/",
+        "src/DistrictAI.Presentation/Checkout/",
+    ),
+    "Marketplace": (
+        "crates/district-ffi/src/marketplace.rs",
+        "src/DistrictAI/Views/Marketplace/",
+        "src/DistrictAI.Presentation/Marketplace/",
+    ),
+    # The welcome screen: the sign-in page and its way to a new account.
+    "Session": (
+        "crates/district-ffi/src/welcome.rs",
+        "src/DistrictAI/Views/SignInPage.xaml",
+        "src/DistrictAI/Views/SignInPage.xaml.cs",
+        "src/DistrictAI.Presentation/SignInViewModel.cs",
+    ),
+}
+assert set(SCREEN_SOURCES) == ALLOWED_SCREENS
+
+
+def screen_of_source(path: str) -> str | None:
+    """The allowed screen whose own file `path` is, or None."""
+    for screen, sources in SCREEN_SOURCES.items():
+        for source in sources:
+            if path == source or (source.endswith("/") and path.startswith(source)):
+                return screen
+    return None
 
 
 def phrases_for_screen(screen: str | None) -> re.Pattern[str]:
-    """The refused wording for text shown on `screen` (None: not tied to one).
-
-    One rule for every screen today; K4 narrows it per screen (module docstring).
-    """
-    return PHRASES
+    """The refused wording for text shown on `screen` (None: not tied to one)."""
+    return NEVER if screen in ALLOWED_SCREENS else PHRASES
 
 # `path:line` (forward slashes, relative to the repository root) to the reason
 # the line is fine. None is expected for 1.0.
@@ -145,7 +192,7 @@ def _phrases(path: str, text: str, start: int, body: str, where: str) -> list[Fi
     """Findings in `body`, which begins at `start` in the file's `text`."""
     return [
         Finding(path, _line_at(text, start + m.start()), m.group(0), where)
-        for m in PHRASES.finditer(body)
+        for m in phrases_for_screen(screen_of_source(path)).finditer(body)
     ]
 
 
@@ -342,6 +389,7 @@ def _local(name: str) -> str:
 
 def scan_xaml(path: str, text: str) -> list[Finding]:
     root, lines = _xml_lines(text)
+    phrases = phrases_for_screen(screen_of_source(path))
     found: list[Finding] = []
     for element in root.iter():
         line = lines.get(id(element), 1)
@@ -350,10 +398,10 @@ def scan_xaml(path: str, text: str) -> list[Finding]:
             if name not in TEXT_ATTRIBUTES or value.lstrip().startswith("{"):
                 continue
             at = _attribute_line(text, line, name, value)
-            for m in PHRASES.finditer(value):
+            for m in phrases.finditer(value):
                 found.append(Finding(path, at, m.group(0), f"XAML {name}"))
         if element.text and element.text.strip() and not element.text.strip().startswith("{"):
-            for m in PHRASES.finditer(element.text):
+            for m in phrases.finditer(element.text):
                 found.append(Finding(path, line, m.group(0), f"XAML <{_local(element.tag)}> text"))
     return found
 
@@ -364,7 +412,7 @@ def scan_resw(path: str, text: str) -> list[Finding]:
     for element in root.iter():
         if _local(element.tag) != "value" or not element.text:
             continue
-        for m in PHRASES.finditer(element.text):
+        for m in phrases_for_screen(screen_of_source(path)).finditer(element.text):
             found.append(Finding(path, lines.get(id(element), 1), m.group(0), "a .resw value"))
     return found
 
@@ -588,7 +636,7 @@ def self_test() -> int:
             "src/DistrictAI/obj/Generated.cs": 'var s = "Sign up";\n',
             "src/DistrictAI.Core/Generated/x.cs": 'var s = "Sign up";\n',
             "crates/other/src/lib.rs": 'const S: &str = "Buy";\n',
-            "crates/district-ffi/tests/snapshots/billing.json": '{"screen": {"Billing": {"view": {"cta": "Subscribe"}}}}\n',
+            "crates/district-ffi/tests/snapshots/billing.json": '{"screen": {"Billing": {"view": {"cta": "Subscribe", "x": "Buy"}}}}\n',
             "crates/district-ffi/tests/snapshots/nested/x.json": '{"t": "Buy"}\n',
             "crates/district-ffi/tests/fixtures/x.json": '{"t": "Buy"}\n',
         }.items():
@@ -602,13 +650,55 @@ def self_test() -> int:
             print(f"self-test: the tree walk should read 6 files, read {scanned}")
         left, stale = verdict(found, {
             "src/DistrictAI/A.cs:1": "test",
-            "crates/district-ffi/tests/snapshots/billing.json:$.screen.Billing.view.cta": "test",
+            "crates/district-ffi/tests/snapshots/billing.json:$.screen.Billing.view.x": "test",
             "src/DistrictAI/A.cs:2": "stale",
         })
         total += 1
         if len(left) != 4 or stale != ["src/DistrictAI/A.cs:2"]:
             failed += 1
             print(f"self-test: ALLOW should excuse one finding and report one stale key, got {left} {stale}")
+
+    # Per screen: the allowed words pass on each allowed screen, in a snapshot
+    # and in each kind of source file listed for it, and are refused elsewhere;
+    # the words refused everywhere stay refused on the allowed screens.
+    allowed_words = ["Sign up", "Create an account", "Subscription", "Price", "pricing"]
+    for screen in sorted(ALLOWED_SCREENS):
+        for word in allowed_words:
+            doc = json.dumps({"screen": {screen: {"view": {"t": f"{word} here"}}}})
+            expect(f"snapshot {screen} allows {word!r}", scan_snapshot("s.json", doc), 0)
+        for word in ["Buy", "free trial"]:
+            doc = json.dumps({"screen": {screen: {"view": {"t": f"{word} here"}}}})
+            expect(f"snapshot {screen} refuses {word!r}", scan_snapshot("s.json", doc), 1)
+        for source in SCREEN_SOURCES[screen]:
+            target = source + "X.cs" if source.endswith("/") else source
+            for word in allowed_words:
+                if target.endswith(".rs"):
+                    got = scan_rust(target, f'let s = "{word}";\n')
+                elif target.endswith(".xaml"):
+                    got = scan_xaml(target, f'<Page xmlns="urn:x"><Button Content="{word}" /></Page>\n')
+                else:
+                    got = scan_csharp(target, f'var s = "{word}";\n')
+                expect(f"{target} allows {word!r}", got, 0)
+            refused = (
+                scan_rust(target, 'let s = "Buy";\n') if target.endswith(".rs")
+                else scan_xaml(target, '<Page xmlns="urn:x"><Button Content="Buy" /></Page>\n') if target.endswith(".xaml")
+                else scan_csharp(target, 'var s = "Buy";\n')
+            )
+            expect(f"{target} refuses 'Buy'", refused, 1)
+    for screen in ["Overview", "Account", "shell", None]:
+        doc = {"screen": {screen: {"t": "Price"}}} if screen not in ("shell", None) else (
+            {"shell": {"t": "Price"}} if screen == "shell" else {"t": "Price"})
+        expect(f"snapshot {screen} refuses 'Price'", scan_snapshot("s.json", json.dumps(doc)), 1)
+    for path in [
+        "crates/district-ffi/src/screen.rs",
+        "crates/district-ffi/src/billing_extra.rs",
+        "src/DistrictAI/Views/BillingPage.xaml.cs",
+        "src/DistrictAI/Views/SignInPage.xaml.cs.bak",
+        "src/DistrictAI.Presentation/SignInViewModelHelper.cs",
+    ]:
+        got = scan_rust(path, 'let s = "Sign up";\n') if path.endswith(".rs") else scan_csharp(path, 'var s = "Sign up";\n')
+        expect(f"{path} is no screen's and refuses 'Sign up'", got, 1)
+    expect(".resw stays on the full rule", scan_resw("src/DistrictAI/Strings/en-US/Resources.resw", "<root><data name=\"a\"><value>Price</value></data></root>\n"), 1)
 
     if failed:
         print(f"self-test FAILED: {failed} of {total} cases")
@@ -631,8 +721,9 @@ def main() -> int:
         print(f"{key}: ALLOW entry matches nothing any more; remove it")
     if left or stale:
         print(
-            "District AI 1.0 offers no sign-up and no purchase in the app, and its Store "
-            "listing says so. Reword the string, or, if it is genuinely fine, add its "
+            "Sign-up and plan wording belongs only on the billing, checkout, phone numbers "
+            "and welcome screens (ALLOWED_SCREENS), and nothing is bought by that word or "
+            "offered as a free trial anywhere. Reword the string, or, if it is genuinely fine, add its "
             "path:line (a snapshot's path:$.json.path) to ALLOW in scripts/check-store-copy.py "
             "with the reason. A snapshot finding is text the core projects: reword it where the "
             "core writes it, then refresh the snapshot."

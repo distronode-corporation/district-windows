@@ -46,6 +46,12 @@
                 Style="{StaticResource AccentButtonStyle}"
                 Visibility="{x:Bind ViewModel.CanSignIn, Mode=OneWay}" />
             <Button
+                AutomationProperties.Name="{x:Bind ViewModel.CreateAccountLabel, Mode=OneWay}"
+                Command="{x:Bind ViewModel.CreateAccountCommand}"
+                Content="{x:Bind ViewModel.CreateAccountLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.CanCreateAccount, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.OffersCreateAccount, Mode=OneWay}" />
+            <Button
                 AutomationProperties.Name="Try again"
                 Command="{x:Bind ViewModel.RetryCommand}"
                 Content="Try again"
@@ -61,5 +67,10 @@
                 Content="Cancel"
                 Visibility="{x:Bind ViewModel.CanCancel, Mode=OneWay}" />
         </StackPanel>
+        <TextBlock
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.CreateAccountNote, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.OffersCreateAccount, Mode=OneWay}" />
     </StackPanel>
 </UserControl>

@@ -194,14 +194,17 @@ public website, and email addresses other than the project's contacts and exampl
 
 ## Store copy
 
-District AI 1.0 is listed in the Microsoft Store as a client for an existing account: nobody
-signs up in the app and nothing is bought in it. `scripts/check-store-copy.py` keeps the
-app's strings honest to that listing. It refuses "sign up", "create an account", "buy",
-"price", "pricing", "subscribe" and "free trial" in the app's XAML text, its C# strings, any
-`.resw` and `district-ffi`'s Rust strings (comments are not read). It also reads every string
-value in `crates/district-ffi/tests/snapshots/*.json`, the text the core projects for each
-screen state (plan names, prices), and reports a hit by file and JSON path. CI runs it on
-every push and pull request:
+District AI is listed in the Microsoft Store. From 2.0 a person may create an account from
+the welcome screen (in the browser) and buy a plan through District AI's own checkout, so
+`scripts/check-store-copy.py` keeps that wording to the screens that offer it. It refuses
+"buy" and "free trial" everywhere, and "sign up", "create an account", "subscribe" and
+"price" (with their other forms) everywhere except the billing, checkout, phone numbers and
+welcome screens (`ALLOWED_SCREENS`). It reads the app's XAML text, its C# strings, any
+`.resw`, `district-ffi`'s Rust strings (comments are not read) and every string value in
+`crates/district-ffi/tests/snapshots/*.json`, the text the core projects for each screen
+state. A snapshot value belongs to the screen it is projected for; a source file belongs to
+a screen only when `SCREEN_SOURCES` lists it (the screen's own Rust module, view folder and
+view model). CI runs it on every push and pull request:
 
 ```
 python3 scripts/check-store-copy.py --self-test
@@ -209,7 +212,7 @@ python3 scripts/check-store-copy.py
 ```
 
 A string that is genuinely fine goes in its `ALLOW` list by exact `path:line`, with the
-reason.
+reason. The Store listing's purchase disclosure is in `docs/store-listing.md`.
 
 ## Releasing
 

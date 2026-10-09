@@ -61,3 +61,26 @@ pub(crate) fn cases() -> Vec<Case> {
     cases.push(("signing-out", signed_in().send(Event::SignOut)));
     cases
 }
+
+/// The welcome screen offers "Create an account" beside browser sign-in, and
+/// only there: not while signing in. Whether both are held (another copy of
+/// the app installed) is the sign-in page's, from `copies_view`.
+#[test]
+fn the_welcome_screen_offers_an_account_beside_sign_in() {
+    use district_ffi::{ScreenView, screen_view};
+
+    let ScreenView::Session { view } = screen_view(&signed_out()) else {
+        panic!("the sign-in page");
+    };
+    assert!(view.sign_in);
+    let offer = view.create_account.expect("offered beside sign-in");
+    assert_eq!(offer.label, "Create an account");
+    assert!(offer.note.contains("sign-in page"), "{}", offer.note);
+
+    let (model, _) = start();
+    let ScreenView::Session { view } = screen_view(&model) else {
+        panic!("the sign-in page");
+    };
+    assert!(!view.sign_in);
+    assert_eq!(view.create_account, None);
+}

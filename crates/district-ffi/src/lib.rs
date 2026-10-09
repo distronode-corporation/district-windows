@@ -71,6 +71,7 @@ mod palette;
 mod push;
 mod rich_text;
 mod transcript;
+mod welcome;
 
 // The boundary itself.
 mod core;
