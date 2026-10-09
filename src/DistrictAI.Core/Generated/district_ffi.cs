@@ -4126,6 +4126,287 @@ class FfiConverterTypeCallsView: FfiConverterRustBuffer<CallsView> {
 
 
 /// <summary>
+/// The question before pausing or resuming the campaign, in the core's words:
+/// the devices' `ConfirmView`, with the heading and the body apart.
+/// </summary>
+/// <param name="Title">
+/// The question's heading: "Pause the outbound campaign?".
+/// </param>
+/// <param name="Body">
+/// What it would do.
+/// </param>
+/// <param name="Action">
+/// The confirming button's label: "Pause campaign" or "Resume campaign".
+/// </param>
+/// <param name="Enable">
+/// Whether answering yes resumes (`true`) or pauses.
+/// </param>
+public record CampaignConfirmView (
+    /// <summary>
+    /// The question's heading: "Pause the outbound campaign?".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What it would do.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The confirming button's label: "Pause campaign" or "Resume campaign".
+    /// </summary>
+    string Action, 
+    /// <summary>
+    /// Whether answering yes resumes (`true`) or pauses.
+    /// </summary>
+    bool Enable
+) {
+}
+
+class FfiConverterTypeCampaignConfirmView: FfiConverterRustBuffer<CampaignConfirmView> {
+    public static FfiConverterTypeCampaignConfirmView INSTANCE = new FfiConverterTypeCampaignConfirmView();
+
+    public override CampaignConfirmView Read(BigEndianStream stream) {
+        return new CampaignConfirmView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Action: FfiConverterString.INSTANCE.Read(stream),
+            Enable: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CampaignConfirmView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Action)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enable);
+    }
+
+    public override void Write(CampaignConfirmView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.Action, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Enable, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The outbound campaign's card.
+/// </summary>
+/// <param name="Title">
+/// The heading, "Outbound campaign".
+/// </param>
+/// <param name="Status">
+/// Where the read stands. `Failed` carries "Could not load the campaign".
+/// </param>
+/// <param name="Active">
+/// Whether the campaign is calling, once read.
+/// </param>
+/// <param name="Badge">
+/// "Active" or "Paused", once read; `None` before.
+/// </param>
+/// <param name="BatchLabel">
+/// The batch size row's label, "Batch size".
+/// </param>
+/// <param name="Batch">
+/// The batch size, or "No batch size set yet.".
+/// </param>
+/// <param name="GoalLabel">
+/// The goal row's label, "Goal".
+/// </param>
+/// <param name="Goal">
+/// The goal, or "No goal set yet.".
+/// </param>
+/// <param name="ShowPause">
+/// Whether to show "Pause campaign": the campaign is calling and the role
+/// may change it.
+/// </param>
+/// <param name="CanPause">
+/// Whether "Pause campaign" works now (not while a change is on its way).
+/// </param>
+/// <param name="ShowResume">
+/// Whether to show "Resume campaign": the campaign is not calling and the
+/// role may change it.
+/// </param>
+/// <param name="CanResume">
+/// Whether "Resume campaign" works now.
+/// </param>
+/// <param name="PauseLabel">
+/// "Pause campaign".
+/// </param>
+/// <param name="ResumeLabel">
+/// "Resume campaign".
+/// </param>
+/// <param name="Pending">
+/// Whether a pause or resume is on its way (show a progress ring).
+/// </param>
+/// <param name="Failure">
+/// Why the last pause or resume failed, beside the last state the service
+/// sent.
+/// </param>
+/// <param name="Note">
+/// What is still changed on the web or, for a role that may not change the
+/// campaign, why the buttons are not there.
+/// </param>
+/// <param name="CanChange">
+/// Whether the member may change the campaign and the workflows; `false`
+/// is the read-only view.
+/// </param>
+public record CampaignView (
+    /// <summary>
+    /// The heading, "Outbound campaign".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// Where the read stands. `Failed` carries "Could not load the campaign".
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Whether the campaign is calling, once read.
+    /// </summary>
+    bool Active, 
+    /// <summary>
+    /// "Active" or "Paused", once read; `None` before.
+    /// </summary>
+    string? Badge, 
+    /// <summary>
+    /// The batch size row's label, "Batch size".
+    /// </summary>
+    string BatchLabel, 
+    /// <summary>
+    /// The batch size, or "No batch size set yet.".
+    /// </summary>
+    string Batch, 
+    /// <summary>
+    /// The goal row's label, "Goal".
+    /// </summary>
+    string GoalLabel, 
+    /// <summary>
+    /// The goal, or "No goal set yet.".
+    /// </summary>
+    string Goal, 
+    /// <summary>
+    /// Whether to show "Pause campaign": the campaign is calling and the role
+    /// may change it.
+    /// </summary>
+    bool ShowPause, 
+    /// <summary>
+    /// Whether "Pause campaign" works now (not while a change is on its way).
+    /// </summary>
+    bool CanPause, 
+    /// <summary>
+    /// Whether to show "Resume campaign": the campaign is not calling and the
+    /// role may change it.
+    /// </summary>
+    bool ShowResume, 
+    /// <summary>
+    /// Whether "Resume campaign" works now.
+    /// </summary>
+    bool CanResume, 
+    /// <summary>
+    /// "Pause campaign".
+    /// </summary>
+    string PauseLabel, 
+    /// <summary>
+    /// "Resume campaign".
+    /// </summary>
+    string ResumeLabel, 
+    /// <summary>
+    /// Whether a pause or resume is on its way (show a progress ring).
+    /// </summary>
+    bool Pending, 
+    /// <summary>
+    /// Why the last pause or resume failed, beside the last state the service
+    /// sent.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// What is still changed on the web or, for a role that may not change the
+    /// campaign, why the buttons are not there.
+    /// </summary>
+    string Note, 
+    /// <summary>
+    /// Whether the member may change the campaign and the workflows; `false`
+    /// is the read-only view.
+    /// </summary>
+    bool CanChange
+) {
+}
+
+class FfiConverterTypeCampaignView: FfiConverterRustBuffer<CampaignView> {
+    public static FfiConverterTypeCampaignView INSTANCE = new FfiConverterTypeCampaignView();
+
+    public override CampaignView Read(BigEndianStream stream) {
+        return new CampaignView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Active: FfiConverterBoolean.INSTANCE.Read(stream),
+            Badge: FfiConverterOptionalString.INSTANCE.Read(stream),
+            BatchLabel: FfiConverterString.INSTANCE.Read(stream),
+            Batch: FfiConverterString.INSTANCE.Read(stream),
+            GoalLabel: FfiConverterString.INSTANCE.Read(stream),
+            Goal: FfiConverterString.INSTANCE.Read(stream),
+            ShowPause: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanPause: FfiConverterBoolean.INSTANCE.Read(stream),
+            ShowResume: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanResume: FfiConverterBoolean.INSTANCE.Read(stream),
+            PauseLabel: FfiConverterString.INSTANCE.Read(stream),
+            ResumeLabel: FfiConverterString.INSTANCE.Read(stream),
+            Pending: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Note: FfiConverterString.INSTANCE.Read(stream),
+            CanChange: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CampaignView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Active)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Badge)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BatchLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Batch)
+            + FfiConverterString.INSTANCE.AllocationSize(value.GoalLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Goal)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowPause)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanPause)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowResume)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanResume)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PauseLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ResumeLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Pending)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChange);
+    }
+
+    public override void Write(CampaignView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Active, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Badge, stream);
+            FfiConverterString.INSTANCE.Write(value.BatchLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Batch, stream);
+            FfiConverterString.INSTANCE.Write(value.GoalLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Goal, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowPause, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanPause, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowResume, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanResume, stream);
+            FfiConverterString.INSTANCE.Write(value.PauseLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ResumeLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Pending, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterString.INSTANCE.Write(value.Note, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanChange, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The reply box under a conversation.
 /// </summary>
 /// <param name="Text">
@@ -6425,6 +6706,182 @@ class FfiConverterTypeRoutingView: FfiConverterRustBuffer<RoutingView> {
 
 
 /// <summary>
+/// One run of a workflow.
+/// </summary>
+/// <param name="RunId">
+/// The run's id.
+/// </param>
+/// <param name="Status">
+/// How it went, as a word: "Success", "Partial", "Failed", "Skipped".
+/// </param>
+/// <param name="Tone">
+/// How the status reads.
+/// </param>
+/// <param name="StartedAt">
+/// When it started, ISO 8601, for the app to say in local time.
+/// </param>
+/// <param name="Detail">
+/// What each action did, and why the run failed ("Send sms: ok", "Send
+/// email: skipped (contact has no email address)", joined by middle dots).
+/// </param>
+public record RunView (
+    /// <summary>
+    /// The run's id.
+    /// </summary>
+    string RunId, 
+    /// <summary>
+    /// How it went, as a word: "Success", "Partial", "Failed", "Skipped".
+    /// </summary>
+    string Status, 
+    /// <summary>
+    /// How the status reads.
+    /// </summary>
+    RunTone Tone, 
+    /// <summary>
+    /// When it started, ISO 8601, for the app to say in local time.
+    /// </summary>
+    string StartedAt, 
+    /// <summary>
+    /// What each action did, and why the run failed ("Send sms: ok", "Send
+    /// email: skipped (contact has no email address)", joined by middle dots).
+    /// </summary>
+    string Detail
+) {
+}
+
+class FfiConverterTypeRunView: FfiConverterRustBuffer<RunView> {
+    public static FfiConverterTypeRunView INSTANCE = new FfiConverterTypeRunView();
+
+    public override RunView Read(BigEndianStream stream) {
+        return new RunView(
+            RunId: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterString.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeRunTone.INSTANCE.Read(stream),
+            StartedAt: FfiConverterString.INSTANCE.Read(stream),
+            Detail: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RunView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.RunId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterTypeRunTone.INSTANCE.AllocationSize(value.Tone)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartedAt)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Detail);
+    }
+
+    public override void Write(RunView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.RunId, stream);
+            FfiConverterString.INSTANCE.Write(value.Status, stream);
+            FfiConverterTypeRunTone.INSTANCE.Write(value.Tone, stream);
+            FfiConverterString.INSTANCE.Write(value.StartedAt, stream);
+            FfiConverterString.INSTANCE.Write(value.Detail, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A workflow's runs, as far as they have been read.
+/// </summary>
+/// <param name="Runs">
+/// The runs read, newest first.
+/// </param>
+/// <param name="Loading">
+/// Whether a page is on its way (show a progress ring).
+/// </param>
+/// <param name="Note">
+/// "Reading runs." while a page is on its way, or "This workflow has not
+/// run yet." when it has none.
+/// </param>
+/// <param name="Failure">
+/// Why the last page failed, beside the runs already read.
+/// </param>
+/// <param name="CanLoadMore">
+/// Whether to offer "More runs" (`WorkflowsAction::LoadMoreRuns`).
+/// </param>
+/// <param name="MoreLabel">
+/// "More runs".
+/// </param>
+/// <param name="CanRetry">
+/// Whether to offer "Try again" for a first page that failed, which only
+/// reading the whole screen again does (`UiEvent::Refresh`).
+/// </param>
+public record RunsView (
+    /// <summary>
+    /// The runs read, newest first.
+    /// </summary>
+    RunView[] Runs, 
+    /// <summary>
+    /// Whether a page is on its way (show a progress ring).
+    /// </summary>
+    bool Loading, 
+    /// <summary>
+    /// "Reading runs." while a page is on its way, or "This workflow has not
+    /// run yet." when it has none.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// Why the last page failed, beside the runs already read.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// Whether to offer "More runs" (`WorkflowsAction::LoadMoreRuns`).
+    /// </summary>
+    bool CanLoadMore, 
+    /// <summary>
+    /// "More runs".
+    /// </summary>
+    string MoreLabel, 
+    /// <summary>
+    /// Whether to offer "Try again" for a first page that failed, which only
+    /// reading the whole screen again does (`UiEvent::Refresh`).
+    /// </summary>
+    bool CanRetry
+) {
+}
+
+class FfiConverterTypeRunsView: FfiConverterRustBuffer<RunsView> {
+    public static FfiConverterTypeRunsView INSTANCE = new FfiConverterTypeRunsView();
+
+    public override RunsView Read(BigEndianStream stream) {
+        return new RunsView(
+            Runs: FfiConverterSequenceTypeRunView.INSTANCE.Read(stream),
+            Loading: FfiConverterBoolean.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            CanLoadMore: FfiConverterBoolean.INSTANCE.Read(stream),
+            MoreLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanRetry: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RunsView value) {
+        return 0
+            + FfiConverterSequenceTypeRunView.INSTANCE.AllocationSize(value.Runs)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Loading)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanLoadMore)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MoreLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanRetry);
+    }
+
+    public override void Write(RunsView value, BigEndianStream stream) {
+            FfiConverterSequenceTypeRunView.INSTANCE.Write(value.Runs, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Loading, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanLoadMore, stream);
+            FfiConverterString.INSTANCE.Write(value.MoreLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanRetry, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The booking pages screen.
 /// </summary>
 /// <param name="Title">
@@ -7462,16 +7919,195 @@ class FfiConverterTypeVoiceStudioView: FfiConverterRustBuffer<VoiceStudioView> {
 
 
 /// <summary>
+/// One workflow.
+/// </summary>
+/// <param name="WorkflowId">
+/// The workflow, to act on it by.
+/// </param>
+/// <param name="Name">
+/// Its name.
+/// </param>
+/// <param name="Active">
+/// Whether it is on, or the value asked for while a change is on its way.
+/// </param>
+/// <param name="Detail">
+/// What starts it and how its last run went, joined by a middle dot:
+/// "After a missed call" and "Last run success", or "Not run yet". The
+/// app adds the time of [`WorkflowRowView::last_run_at`] in local time
+/// when there is one.
+/// </param>
+/// <param name="LastRunAt">
+/// When its last run started, ISO 8601, or `None` when it never ran.
+/// </param>
+/// <param name="Switching">
+/// Whether it is being turned on or off now.
+/// </param>
+/// <param name="CanSwitch">
+/// Whether its switch works: the role may change workflows and no change
+/// of it is on its way.
+/// </param>
+/// <param name="SwitchName">
+/// The switch's accessible name, "Turn on " and the workflow's name.
+/// </param>
+/// <param name="Expanded">
+/// Whether its runs are open.
+/// </param>
+/// <param name="Runs">
+/// Its runs, while they are open.
+/// </param>
+public record WorkflowRowView (
+    /// <summary>
+    /// The workflow, to act on it by.
+    /// </summary>
+    string WorkflowId, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Whether it is on, or the value asked for while a change is on its way.
+    /// </summary>
+    bool Active, 
+    /// <summary>
+    /// What starts it and how its last run went, joined by a middle dot:
+    /// "After a missed call" and "Last run success", or "Not run yet". The
+    /// app adds the time of [`WorkflowRowView::last_run_at`] in local time
+    /// when there is one.
+    /// </summary>
+    string Detail, 
+    /// <summary>
+    /// When its last run started, ISO 8601, or `None` when it never ran.
+    /// </summary>
+    string? LastRunAt, 
+    /// <summary>
+    /// Whether it is being turned on or off now.
+    /// </summary>
+    bool Switching, 
+    /// <summary>
+    /// Whether its switch works: the role may change workflows and no change
+    /// of it is on its way.
+    /// </summary>
+    bool CanSwitch, 
+    /// <summary>
+    /// The switch's accessible name, "Turn on " and the workflow's name.
+    /// </summary>
+    string SwitchName, 
+    /// <summary>
+    /// Whether its runs are open.
+    /// </summary>
+    bool Expanded, 
+    /// <summary>
+    /// Its runs, while they are open.
+    /// </summary>
+    RunsView? Runs
+) {
+}
+
+class FfiConverterTypeWorkflowRowView: FfiConverterRustBuffer<WorkflowRowView> {
+    public static FfiConverterTypeWorkflowRowView INSTANCE = new FfiConverterTypeWorkflowRowView();
+
+    public override WorkflowRowView Read(BigEndianStream stream) {
+        return new WorkflowRowView(
+            WorkflowId: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Active: FfiConverterBoolean.INSTANCE.Read(stream),
+            Detail: FfiConverterString.INSTANCE.Read(stream),
+            LastRunAt: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Switching: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSwitch: FfiConverterBoolean.INSTANCE.Read(stream),
+            SwitchName: FfiConverterString.INSTANCE.Read(stream),
+            Expanded: FfiConverterBoolean.INSTANCE.Read(stream),
+            Runs: FfiConverterOptionalTypeRunsView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WorkflowRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.WorkflowId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Active)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Detail)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LastRunAt)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Switching)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSwitch)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SwitchName)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Expanded)
+            + FfiConverterOptionalTypeRunsView.INSTANCE.AllocationSize(value.Runs);
+    }
+
+    public override void Write(WorkflowRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.WorkflowId, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Active, stream);
+            FfiConverterString.INSTANCE.Write(value.Detail, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.LastRunAt, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Switching, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSwitch, stream);
+            FfiConverterString.INSTANCE.Write(value.SwitchName, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Expanded, stream);
+            FfiConverterOptionalTypeRunsView.INSTANCE.Write(value.Runs, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The workflows screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, "Workflows".
+/// </param>
+/// <param name="Campaign">
+/// The outbound campaign's card.
+/// </param>
+/// <param name="Status">
+/// Where the read of the workflows stands. `Failed` carries "Could not
+/// load workflows", with "Try again" when the core says it may work.
+/// </param>
+/// <param name="Empty">
+/// What to say when the read is ready and there are no workflows.
+/// </param>
+/// <param name="Rows">
+/// The workflows, newest first.
+/// </param>
+/// <param name="ToggleFailure">
+/// Why the last change of a workflow failed, shown above the list with
+/// "Dismiss" (`WorkflowsAction::DismissToggleFailure`).
+/// </param>
+/// <param name="Confirming">
+/// The question before pausing or resuming the campaign, while it is asked.
 /// </param>
 public record WorkflowsView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, "Workflows".
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// The outbound campaign's card.
+    /// </summary>
+    CampaignView Campaign, 
+    /// <summary>
+    /// Where the read of the workflows stands. `Failed` carries "Could not
+    /// load workflows", with "Try again" when the core says it may work.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// What to say when the read is ready and there are no workflows.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// The workflows, newest first.
+    /// </summary>
+    WorkflowRowView[] Rows, 
+    /// <summary>
+    /// Why the last change of a workflow failed, shown above the list with
+    /// "Dismiss" (`WorkflowsAction::DismissToggleFailure`).
+    /// </summary>
+    FailureView? ToggleFailure, 
+    /// <summary>
+    /// The question before pausing or resuming the campaign, while it is asked.
+    /// </summary>
+    CampaignConfirmView? Confirming
 ) {
 }
 
@@ -7480,17 +8116,35 @@ class FfiConverterTypeWorkflowsView: FfiConverterRustBuffer<WorkflowsView> {
 
     public override WorkflowsView Read(BigEndianStream stream) {
         return new WorkflowsView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Campaign: FfiConverterTypeCampaignView.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeWorkflowRowView.INSTANCE.Read(stream),
+            ToggleFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Confirming: FfiConverterOptionalTypeCampaignConfirmView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(WorkflowsView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeCampaignView.INSTANCE.AllocationSize(value.Campaign)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterSequenceTypeWorkflowRowView.INSTANCE.AllocationSize(value.Rows)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.ToggleFailure)
+            + FfiConverterOptionalTypeCampaignConfirmView.INSTANCE.AllocationSize(value.Confirming);
     }
 
     public override void Write(WorkflowsView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeCampaignView.INSTANCE.Write(value.Campaign, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterSequenceTypeWorkflowRowView.INSTANCE.Write(value.Rows, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.ToggleFailure, stream);
+            FfiConverterOptionalTypeCampaignConfirmView.INSTANCE.Write(value.Confirming, stream);
     }
 }
 
@@ -9006,6 +9660,63 @@ class FfiConverterTypeRoutingAction: FfiConverterRustBuffer<RoutingAction> {
         switch (value) {
             case RoutingAction.Open: stream.WriteInt(1); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoutingAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// How a run's status reads, the core's `Tone`.
+/// </summary>
+public enum RunTone: int {
+    /// <summary>
+    /// It worked.
+    /// </summary>
+    Success,
+    /// <summary>
+    /// Some of it worked.
+    /// </summary>
+    Warning,
+    /// <summary>
+    /// It failed.
+    /// </summary>
+    Danger,
+    /// <summary>
+    /// Skipped, or a word this build does not know.
+    /// </summary>
+    Neutral
+}
+
+class FfiConverterTypeRunTone: FfiConverterRustBuffer<RunTone> {
+    public static FfiConverterTypeRunTone INSTANCE = new FfiConverterTypeRunTone();
+
+    public override RunTone Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return RunTone.Success;
+            case 2: return RunTone.Warning;
+            case 3: return RunTone.Danger;
+            case 4: return RunTone.Neutral;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRunTone.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(RunTone value) {
+        return 4;
+    }
+
+    public override void Write(RunTone value, BigEndianStream stream) {
+        switch (value) {
+            case RunTone.Success: stream.WriteInt(1); break;
+            case RunTone.Warning: stream.WriteInt(2); break;
+            case RunTone.Danger: stream.WriteInt(3); break;
+            case RunTone.Neutral: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRunTone.Write()", value));
         }
     }
 }
@@ -11493,40 +12204,169 @@ class FfiConverterTypeVoiceStudioAction: FfiConverterRustBuffer<VoiceStudioActio
 
 
 /// <summary>
-/// Something the member did on the workflows screen.
+/// Something the member did on the workflows screen. Reading it all again is
+/// `UiEvent::Refresh`.
 /// </summary>
-public enum WorkflowsAction: int {
+public record WorkflowsAction {
+    
     /// <summary>
     /// Open the workflows.
     /// </summary>
-    Open,
+    public record Open: WorkflowsAction {}
+    
+    
+    /// <summary>
+    /// Open this workflow's runs, or close them when they are open.
+    /// </summary>
+    public record ToggleExpanded (
+        string WorkflowId
+    ) : WorkflowsAction {}
+    
+    /// <summary>
+    /// Read the next page of this workflow's runs.
+    /// </summary>
+    public record LoadMoreRuns (
+        string WorkflowId
+    ) : WorkflowsAction {}
+    
+    /// <summary>
+    /// Turn this workflow on or off.
+    /// </summary>
+    public record SetActive (
+        string WorkflowId,
+        bool Active
+    ) : WorkflowsAction {}
+    
     /// <summary>
     /// Put away why turning a workflow on or off failed.
     /// </summary>
-    DismissToggleFailure
+    public record DismissToggleFailure: WorkflowsAction {}
+    
+    
+    /// <summary>
+    /// Ask before pausing (`false`) or resuming (`true`) the campaign.
+    /// </summary>
+    public record AskCampaign (
+        bool Enable
+    ) : WorkflowsAction {}
+    
+    /// <summary>
+    /// Answer the campaign's question yes.
+    /// </summary>
+    public record ConfirmCampaign: WorkflowsAction {}
+    
+    
+    /// <summary>
+    /// Answer it no.
+    /// </summary>
+    public record CancelCampaign: WorkflowsAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeWorkflowsAction: FfiConverterRustBuffer<WorkflowsAction> {
-    public static FfiConverterTypeWorkflowsAction INSTANCE = new FfiConverterTypeWorkflowsAction();
+class FfiConverterTypeWorkflowsAction : FfiConverterRustBuffer<WorkflowsAction>{
+    public static FfiConverterRustBuffer<WorkflowsAction> INSTANCE = new FfiConverterTypeWorkflowsAction();
 
     public override WorkflowsAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return WorkflowsAction.Open;
-            case 2: return WorkflowsAction.DismissToggleFailure;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeWorkflowsAction.Read()", value));
+            case 1:
+                return new WorkflowsAction.Open(
+                );
+            case 2:
+                return new WorkflowsAction.ToggleExpanded(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new WorkflowsAction.LoadMoreRuns(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new WorkflowsAction.SetActive(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new WorkflowsAction.DismissToggleFailure(
+                );
+            case 6:
+                return new WorkflowsAction.AskCampaign(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new WorkflowsAction.ConfirmCampaign(
+                );
+            case 8:
+                return new WorkflowsAction.CancelCampaign(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeWorkflowsAction.Read()", value));
         }
     }
 
     public override int AllocationSize(WorkflowsAction value) {
-        return 4;
+        switch (value) {
+            case WorkflowsAction.Open variant_value:
+                return 4;
+            case WorkflowsAction.ToggleExpanded variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkflowId);
+            case WorkflowsAction.LoadMoreRuns variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkflowId);
+            case WorkflowsAction.SetActive variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkflowId)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Active);
+            case WorkflowsAction.DismissToggleFailure variant_value:
+                return 4;
+            case WorkflowsAction.AskCampaign variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Enable);
+            case WorkflowsAction.ConfirmCampaign variant_value:
+                return 4;
+            case WorkflowsAction.CancelCampaign variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeWorkflowsAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(WorkflowsAction value, BigEndianStream stream) {
         switch (value) {
-            case WorkflowsAction.Open: stream.WriteInt(1); break;
-            case WorkflowsAction.DismissToggleFailure: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeWorkflowsAction.Write()", value));
+            case WorkflowsAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case WorkflowsAction.ToggleExpanded variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.WorkflowId, stream);
+                break;
+            case WorkflowsAction.LoadMoreRuns variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.WorkflowId, stream);
+                break;
+            case WorkflowsAction.SetActive variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.WorkflowId, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Active, stream);
+                break;
+            case WorkflowsAction.DismissToggleFailure variant_value:
+                stream.WriteInt(5);
+                break;
+            case WorkflowsAction.AskCampaign variant_value:
+                stream.WriteInt(6);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Enable, stream);
+                break;
+            case WorkflowsAction.ConfirmCampaign variant_value:
+                stream.WriteInt(7);
+                break;
+            case WorkflowsAction.CancelCampaign variant_value:
+                stream.WriteInt(8);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeWorkflowsAction.Write()", value));
         }
     }
 }
@@ -11653,6 +12493,37 @@ class FfiConverterOptionalTypeAiTextView: FfiConverterRustBuffer<AiTextView?> {
         } else {
             stream.WriteByte(1);
             FfiConverterTypeAiTextView.INSTANCE.Write((AiTextView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeCampaignConfirmView: FfiConverterRustBuffer<CampaignConfirmView?> {
+    public static FfiConverterOptionalTypeCampaignConfirmView INSTANCE = new FfiConverterOptionalTypeCampaignConfirmView();
+
+    public override CampaignConfirmView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeCampaignConfirmView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(CampaignConfirmView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeCampaignConfirmView.INSTANCE.AllocationSize((CampaignConfirmView)value);
+        }
+    }
+
+    public override void Write(CampaignConfirmView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeCampaignConfirmView.INSTANCE.Write((CampaignConfirmView)value, stream);
         }
     }
 }
@@ -11870,6 +12741,37 @@ class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerV
         } else {
             stream.WriteByte(1);
             FfiConverterTypeLiveBannerView.INSTANCE.Write((LiveBannerView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeRunsView: FfiConverterRustBuffer<RunsView?> {
+    public static FfiConverterOptionalTypeRunsView INSTANCE = new FfiConverterOptionalTypeRunsView();
+
+    public override RunsView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeRunsView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(RunsView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeRunsView.INSTANCE.AllocationSize((RunsView)value);
+        }
+    }
+
+    public override void Write(RunsView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeRunsView.INSTANCE.Write((RunsView)value, stream);
         }
     }
 }
@@ -12276,6 +13178,52 @@ class FfiConverterSequenceTypeNotificationActionView: FfiConverterRustBuffer<Not
 
 
 
+class FfiConverterSequenceTypeRunView: FfiConverterRustBuffer<RunView[]> {
+    public static FfiConverterSequenceTypeRunView INSTANCE = new FfiConverterSequenceTypeRunView();
+
+    public override RunView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new RunView[length];
+        var readFn = FfiConverterTypeRunView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(RunView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeRunView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(RunView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeRunView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeSearchHitView: FfiConverterRustBuffer<SearchHitView[]> {
     public static FfiConverterSequenceTypeSearchHitView INSTANCE = new FfiConverterSequenceTypeSearchHitView();
 
@@ -12407,6 +13355,52 @@ class FfiConverterSequenceTypeTimelineItemView: FfiConverterRustBuffer<TimelineI
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeTimelineItemView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeWorkflowRowView: FfiConverterRustBuffer<WorkflowRowView[]> {
+    public static FfiConverterSequenceTypeWorkflowRowView INSTANCE = new FfiConverterSequenceTypeWorkflowRowView();
+
+    public override WorkflowRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new WorkflowRowView[length];
+        var readFn = FfiConverterTypeWorkflowRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(WorkflowRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeWorkflowRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(WorkflowRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeWorkflowRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
