@@ -65,9 +65,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   is never shown), and leave. Joining waits while a call holds the microphone. The
   Companion joins every room and writes up the minutes. The meetings list, newest first,
   with Rejoin for one still running, and each meeting's record: its minutes, action items
-  and whole transcript, with Report on the minutes and on the action items. A room the
-  service sets up with an encryption key is encrypted end to end between the District AI
-  apps in it. A viewer joins to listen and gets no guest link. Nothing is recorded.
+  and whole transcript, with Report on the minutes and on the action items. A viewer
+  joins to listen and gets no guest link. The audio is not recorded; the transcript and
+  the minutes are kept with the meeting.
 - Phone numbers: the workspace's numbers, and a search of the numbers for sale with what
   each can do and its monthly charge as the carrier quotes it. Read only: buying,
   releasing or changing a number is done on the web, which "Open the number marketplace
@@ -117,7 +117,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   key. A viewer reads the accounts and changes nothing.
 - Members: who belongs to the workspace and what each role may do. An agency member can
   add a member by email address with a role, change a role and remove a member (asked
-  first); adding someone sends no invitation, they get access when they sign in with that
+  first); adding someone sends no invitation; they get access when they sign in with that
   address. The service refuses a change that would leave no agency member. Agency and
   client members can rename the workspace. Not offered to a viewer.
 - Account: "Purchases on this computer", "Sign in every time" (the default) or "Off",
