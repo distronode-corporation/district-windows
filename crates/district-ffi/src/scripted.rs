@@ -665,7 +665,6 @@ mod tests {
         }
     }
 
-<<<<<<< HEAD
     /// Each settings section the walk opens from the hub fills in, and each
     /// of their saves is answered: the screen is left saved, not saving.
     #[test]
@@ -761,7 +760,8 @@ mod tests {
             panic!("the directory shows");
         };
         assert!(view.notice.as_ref().is_some_and(|n| n.saved), "{view:?}");
-=======
+    }
+
     /// The Skills and Knowledge sections' writes are answered: each save
     /// lands and is read back, an added document is listed again, and a
     /// change of mode is the mode stored. Nothing is left on its way.
@@ -807,7 +807,6 @@ mod tests {
         let view = &screen["Knowledge"]["view"];
         assert_eq!(view["notice"]["saved"], json!(true), "{view}");
         assert_eq!(view["modes"][0]["selected"], json!(true), "{view}");
->>>>>>> origin/skills-knowledge
     }
 
     /// The walk's one step past the pane: the inbox's first conversation
