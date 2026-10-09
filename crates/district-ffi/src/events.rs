@@ -115,6 +115,14 @@ pub enum UiEvent {
     },
     /// Put away a report's outcome.
     DismissReport,
+    /// "Discard" in answer to "Discard your changes?"
+    /// ([`ShellView::discard`](crate::ShellView::discard)): the move that was
+    /// held goes to the core as it was. The actor handles it; it is no core
+    /// event of its own.
+    DiscardChanges,
+    /// "Keep editing" in answer to it: the held move is dropped. The actor
+    /// handles it; it is no core event of its own.
+    KeepEditing,
     /// Open the dialler.
     OpenDialer,
     /// The dialler's number changed: what the box holds now, exactly as typed.
@@ -312,6 +320,8 @@ impl UiEvent {
             UiEvent::DeleteAccount => Event::DeleteAccount,
             UiEvent::Report { target, note } => return report::events(&target, &note),
             UiEvent::DismissReport => return report::dismiss(),
+            // The actor's (crate::guard::Held): no core event of their own.
+            UiEvent::DiscardChanges | UiEvent::KeepEditing => return Vec::new(),
             UiEvent::OpenDialer => Event::Navigate(Route::Dialer),
             UiEvent::DialerEdit { number } => Event::Dialer(DialerEvent::Edit(number)),
             UiEvent::Dial => Event::Dialer(DialerEvent::Dial),
