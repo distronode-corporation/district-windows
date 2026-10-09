@@ -310,6 +310,11 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             ring_here: true,
         },
+        // Never set on this computer: "Sign in every time", the default.
+        Effect::ReadPurchaseSetting { ticket } => Event::PurchaseSettingRead {
+            ticket,
+            setting: None,
+        },
         // A call placed from the dialler is accepted by the service, so it
         // has an id and its live transcript is asked for. Its media is never
         // connected: the call stays "Connecting.", with no audio anywhere.
@@ -405,6 +410,7 @@ mod tests {
             web_base_url: "https://www.distronode.com".to_owned(),
             app_version: "0.1.0".to_owned(),
             calls_available,
+            in_app_purchases: true,
         });
         settle(&mut model, first);
         model

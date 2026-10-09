@@ -305,6 +305,7 @@ mod tests {
             web_base_url: "https://www.distronode.com".to_owned(),
             app_version: "0.1.0".to_owned(),
             calls_available: true,
+            in_app_purchases: true,
         });
         let ticket = ticket_in(effects);
         let effects = model.update(Event::SessionRestored {
@@ -592,6 +593,7 @@ mod tests {
             web_base_url: "https://www.distronode.com".to_owned(),
             app_version: "0.1.0".to_owned(),
             calls_available: true,
+            in_app_purchases: true,
         });
         signed_in(&model);
     }

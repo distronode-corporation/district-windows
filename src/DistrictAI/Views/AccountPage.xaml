@@ -69,6 +69,19 @@
                     TextWrapping="Wrap"
                     Visibility="{x:Bind ViewModel.HasRingMessage, Mode=OneWay}" />
             </StackPanel>
+            <StackPanel Visibility="{x:Bind ViewModel.PurchasesVisible, Mode=OneWay}">
+                <ToggleSwitch
+                    AutomationProperties.FullDescription="{x:Bind ViewModel.PurchasesBody, Mode=OneWay}"
+                    AutomationProperties.Name="{x:Bind ViewModel.PurchasesLabel, Mode=OneWay}"
+                    Header="{x:Bind ViewModel.PurchasesLabel, Mode=OneWay}"
+                    IsOn="{x:Bind ViewModel.PurchasesOn, Mode=TwoWay}"
+                    OffContent="{x:Bind ViewModel.PurchasesOffLabel, Mode=OneWay}"
+                    OnContent="{x:Bind ViewModel.PurchasesOnLabel, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.PurchasesBody, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
 
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"

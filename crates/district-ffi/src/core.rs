@@ -497,6 +497,9 @@ fn start_real(
         web_base_url: api_config.base_url.to_string(),
         app_version: config.app_version,
         calls_available: district_call::CALLS_AVAILABLE,
+        // District AI for Windows buys in the app: checkout in a view inside
+        // the window (district-core's `purchase`, src/billing.rs).
+        in_app_purchases: true,
     };
     let (model, first) = Model::new(core_config);
     let sender = launch(
@@ -526,6 +529,7 @@ fn start_scripted(
         web_base_url: "https://www.distronode.com".to_owned(),
         app_version: config.app_version.clone(),
         calls_available: district_call::CALLS_AVAILABLE,
+        in_app_purchases: true,
     });
     launch(
         runtime,
@@ -880,6 +884,7 @@ mod tests {
             web_base_url: "https://www.distronode.com".to_owned(),
             app_version: "0.1.0".to_owned(),
             calls_available: false,
+            in_app_purchases: true,
         }
     }
 

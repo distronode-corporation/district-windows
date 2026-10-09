@@ -1,13 +1,15 @@
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Billing;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace DistrictAI.Views.Billing;
 
 /// <summary>
-/// Billing. A stub until the area's packet builds it: until then the core
-/// shows the unavailable page instead, so this one is never on screen.
+/// Billing: the plan and the account's invoices, and, where the core offers
+/// them, choosing a plan (with the step that names Stripe) and managing
+/// billing, both in the checkout window.
 /// </summary>
 public sealed partial class BillingPage : UserControl
 {
@@ -15,6 +17,8 @@ public sealed partial class BillingPage : UserControl
     public BillingPage()
     {
         InitializeComponent();
+        Status.Attach(ViewModel.Load);
+        Refresh.Attach(ViewModel.Load);
     }
 
     /// <summary>What the page shows, and its actions.</summary>
@@ -23,4 +27,7 @@ public sealed partial class BillingPage : UserControl
     internal void Attach(PageContext context) => ViewModel.Attach(context);
 
     internal void Show(BillingView view) => ViewModel.Show(view);
+
+    private void OnOpenInvoice(object sender, RoutedEventArgs e) =>
+        ViewModel.OpenInvoiceCommand.Execute((sender as FrameworkElement)?.Tag as string);
 }

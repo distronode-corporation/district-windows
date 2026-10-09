@@ -3,6 +3,7 @@ using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
 using DistrictAI.Platform;
 using DistrictAI.Platform.Calls;
+using DistrictAI.Platform.Checkout;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -52,7 +53,17 @@ public sealed partial class App : Application, IDisposable
         AppInstance.GetCurrent().Activated += OnRedirected;
 
         var queue = DispatcherQueue.GetForCurrentThread();
-        _core = new CoreHost(new QueueDispatcher(queue), new LauncherBrowser(queue));
+        var browser = new LauncherBrowser(queue);
+        // The checkout window (Platform/Checkout): the start page's answer goes
+        // to the core as a link from the browser does, and its closing as
+        // Billing's CheckoutClosed.
+        var checkout = new CheckoutHost(
+            queue,
+            Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "Checkout"),
+            link => _core?.OpenLink(link),
+            () => _core?.Send(new UiEvent.Billing(new BillingAction.CheckoutClosed())),
+            browser);
+        _core = new CoreHost(new QueueDispatcher(queue), browser, checkout);
         _window = new MainWindow(_core);
         _window.Closed += OnClosed;
         _window.AppWindow.Closing += OnClosing;

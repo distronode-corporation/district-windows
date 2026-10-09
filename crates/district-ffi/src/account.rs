@@ -2,7 +2,7 @@
 
 use district_core::{
     AccountView as CoreAccount, Confirmation, DeviceRow, DevicesList, DevicesScreen, PresenceState,
-    SignedIn,
+    PurchaseSetting, SignedIn,
 };
 use serde::Serialize;
 
@@ -40,6 +40,18 @@ pub struct AccountView {
     pub ring_setting_body: String,
     /// The line under the setting when calls cannot ring here right now.
     pub ring_setting_message: Option<String>,
+    /// "Purchases on this computer": on ("Sign in every time") or off, once
+    /// the core has read it; `None` until then, and then the row is not
+    /// shown. Changed with `BillingAction::SetPurchases`.
+    pub purchases_on: Option<bool>,
+    /// The row's label, "Purchases on this computer".
+    pub purchases_label: String,
+    /// What the row does.
+    pub purchases_body: String,
+    /// The "on" choice's name, "Sign in every time".
+    pub purchases_on_label: String,
+    /// The "off" choice's name, "Off".
+    pub purchases_off_label: String,
 }
 
 impl From<CoreAccount> for AccountView {
@@ -57,6 +69,11 @@ impl From<CoreAccount> for AccountView {
             ring_setting_label: PresenceState::SETTING_LABEL.to_owned(),
             ring_setting_body: PresenceState::SETTING_BODY.to_owned(),
             ring_setting_message: None,
+            purchases_on: None,
+            purchases_label: PurchaseSetting::LABEL.to_owned(),
+            purchases_body: PurchaseSetting::BODY.to_owned(),
+            purchases_on_label: PurchaseSetting::SignInEveryTime.label().to_owned(),
+            purchases_off_label: PurchaseSetting::Off.label().to_owned(),
         }
     }
 }
@@ -72,6 +89,10 @@ pub(crate) fn account_view(
     AccountView {
         ring_on_this_computer: presence.ring_here.filter(|_| calls_available),
         ring_setting_message: presence.message().filter(|_| calls_available),
+        purchases_on: signed_in
+            .purchase
+            .setting
+            .map(|setting| setting == PurchaseSetting::SignInEveryTime),
         ..account.into()
     }
 }
