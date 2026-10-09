@@ -5,11 +5,19 @@
 //! The message names what was reported by kind and id and quotes none of it: a
 //! support request is a ticket at a vendor, and the content stays in the
 //! workspace, where an agent can read it under the workspace's own rules.
+//!
+//! The support form is also the one the Support area writes a request in, and
+//! the core holds one draft. So a Report is refused while that draft is a
+//! member's with anything typed in it ([`refusal`]): filling the form would
+//! wipe what they wrote. With no such draft a Report works as it always has.
 
-use district_core::{Event, SignedIn, SupportEvent, SupportForm, SupportScreen};
+use district_core::{
+    Event, Model, SessionState, SignedIn, SupportEvent, SupportForm, SupportScreen,
+};
 use district_model::{SupportRequestFiling, SupportRequestKind, ThreadRef};
 use serde::Serialize;
 
+use crate::events::UiEvent;
 use crate::views::ReportTarget;
 
 /// The subject every report is raised under, which the support desk sorts on.
@@ -23,6 +31,11 @@ pub const PREAMBLE: &str = "AI-generated content was reported from the District 
 /// What the message says when no note was added, so an absent note does not
 /// read as a lost one.
 pub const NO_NOTE: &str = "No note was added.";
+
+/// Why a Report is refused while a support request is being written. One
+/// sentence, which the report dialog shows over the note it keeps.
+pub const DRAFT_OPEN: &str =
+    "Send or discard the support request you are writing in Support, then report this.";
 
 /// The report this session started, while it is under way or until its outcome
 /// is dismissed.
@@ -104,6 +117,66 @@ pub(crate) fn dismiss() -> Vec<Event> {
     ]
 }
 
+/// Whether `form` is a report's own draft, as [`events`] fills it, rather than
+/// one a member wrote in the Support area.
+fn is_report(form: &SupportForm) -> bool {
+    form.subject == REPORT_SUBJECT && form.message.starts_with(PREAMBLE)
+}
+
+/// Whether the support form holds a member's draft with anything typed in it:
+/// a subject or a message that is more than spaces. The kind alone is not
+/// typed (it has a default), and a report's own draft is not a member's.
+fn member_draft_typed(support: &SupportScreen) -> bool {
+    support.compose.as_ref().is_some_and(|compose| {
+        let form = &compose.form;
+        !is_report(form) && !(form.subject.trim().is_empty() && form.message.trim().is_empty())
+    })
+}
+
+/// Why a Report would be refused now ([`DRAFT_OPEN`]), or `None` when it
+/// would be sent.
+pub(crate) fn refusal(signed_in: &SignedIn) -> Option<String> {
+    member_draft_typed(&signed_in.support).then(|| DRAFT_OPEN.to_owned())
+}
+
+/// The core events `action` is, as the actor sends them, given the model they
+/// are about to reach; `reporting` is whether this session has a report to
+/// show, which a Report sets and its dismissal clears.
+///
+/// Every event but the two of a report is [`UiEvent::events`]. A Report while
+/// [`refusal`] says so is nothing at all: the member's draft is not touched and
+/// no report is started (the dialog has kept the note and said why). Putting a
+/// report away closes the support form only when it holds the report's own
+/// draft, never a member's.
+pub fn ui_events(model: &Model, reporting: &mut bool, action: UiEvent) -> Vec<Event> {
+    let support = match model.session() {
+        SessionState::SignedIn(signed_in) => Some(&signed_in.support),
+        _ => None,
+    };
+    let member_draft = support.is_some_and(|support| {
+        support
+            .compose
+            .as_ref()
+            .is_some_and(|compose| !is_report(&compose.form))
+    });
+    match action {
+        UiEvent::Report { .. } if support.is_some_and(member_draft_typed) => Vec::new(),
+        UiEvent::Report { target, note } => {
+            *reporting = true;
+            events(&target, &note)
+        }
+        UiEvent::DismissReport => {
+            *reporting = false;
+            if member_draft {
+                vec![Event::Support(SupportEvent::DismissSubmitted)]
+            } else {
+                dismiss()
+            }
+        }
+        action => action.events(),
+    }
+}
+
 /// The confirmation of a report raised, as the iOS app words it.
 fn confirmation(filing: &SupportRequestFiling) -> &'static str {
     match filing {
@@ -115,13 +188,18 @@ fn confirmation(filing: &SupportRequestFiling) -> &'static str {
 
 /// Where the report this session started stands, from the support form's
 /// state. `None` when no report was started (`reporting` is false), and when
-/// the core refused to start one.
+/// the core refused to start one. A draft the member is writing in the Support
+/// area is theirs, not the report's: it never reads as a report on its way.
 pub(crate) fn report_status(signed_in: &SignedIn, reporting: bool) -> Option<ReportStatus> {
     if !reporting {
         return None;
     }
     let support: &SupportScreen = &signed_in.support;
-    match (&support.compose, &support.submitted) {
+    let compose = support
+        .compose
+        .as_ref()
+        .filter(|compose| is_report(&compose.form));
+    match (compose, &support.submitted) {
         (Some(compose), _) => Some(match &compose.failure {
             Some(failure) if !compose.submitting => ReportStatus::Failed {
                 message: failure.message.clone(),

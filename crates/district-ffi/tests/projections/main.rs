@@ -49,7 +49,7 @@ use std::path::PathBuf;
 use district_api::{ApiError, ErrorDetail, ReauthReason, TokenError};
 use district_auth::AccessClaims;
 use district_core::{CoreConfig, Effect, Event, Model, RestoreError, Route, SessionState, Ticket};
-use district_ffi::{NavDestination, ScreenView, UiEvent, screen_view, shell_view};
+use district_ffi::{NavDestination, ScreenView, UiEvent, screen_view, shell_view, ui_events};
 use district_model::WorkspaceListResponse;
 use serde_json::{Value, json};
 
@@ -78,12 +78,7 @@ impl Session {
 
     /// Applies what the user did, as the actor does.
     fn ui(mut self, action: UiEvent) -> Self {
-        match &action {
-            UiEvent::Report { .. } => self.reporting = true,
-            UiEvent::DismissReport => self.reporting = false,
-            _ => {}
-        }
-        for event in action.events() {
+        for event in ui_events(&self.model, &mut self.reporting, action) {
             self = self.send(event);
         }
         self
