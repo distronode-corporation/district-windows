@@ -17,6 +17,7 @@ public sealed partial class CallBar : UserControl
     public CallBar()
     {
         InitializeComponent();
+        Transcript.Attach(ViewModel.Transcript);
     }
 
     /// <summary>What the strip shows, and its buttons' commands.</summary>

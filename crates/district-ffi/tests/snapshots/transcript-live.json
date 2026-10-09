@@ -17,23 +17,49 @@
   "shell": {
     "call": {
       "call_id": null,
-      "can_hang_up": false,
-      "can_mute": false,
+      "can_hang_up": true,
+      "can_mute": true,
       "connected_at": null,
-      "ended": "Something went wrong on our side. Please try again shortly.",
+      "ended": null,
       "ended_note": null,
-      "failure": {
-        "message": "Something went wrong on our side. Please try again shortly.",
-        "regions_line": null,
-        "retryable": true
-      },
+      "failure": null,
       "media_notice": null,
       "microphone_denied": false,
       "muted": true,
       "outbound": true,
       "peer": "+1 212 555 0142",
-      "state_label": "Something went wrong on our side. Please try again shortly.",
-      "transcript": null
+      "state_label": "Connecting.",
+      "transcript": {
+        "full": null,
+        "heading": "Live transcript",
+        "incomplete": null,
+        "lines": [
+          {
+            "id": "item_a1",
+            "is_final": true,
+            "note": "Interrupted",
+            "speaker": "Ava",
+            "text": "Good afternoon, Northside Dental. How can I help?"
+          },
+          {
+            "id": "item_b2",
+            "is_final": true,
+            "note": null,
+            "speaker": "Caller",
+            "text": "I'd like to book a cleaning on Thursday."
+          },
+          {
+            "id": "item_c3",
+            "is_final": false,
+            "note": null,
+            "speaker": "Ava",
+            "text": "Of course. Morning or"
+          }
+        ],
+        "phase": "Live",
+        "status": "Live",
+        "waiting": null
+      }
     },
     "calls_available": true,
     "can_go_back": false,

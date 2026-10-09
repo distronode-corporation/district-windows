@@ -14,6 +14,7 @@ use district_core::{
     MediaSession, MicrophoneState, Notification, RingEnd, RingPhase, SignedIn, WorkspacesState,
 };
 
+use crate::transcript::{TranscriptView, transcript_view};
 use crate::views::FailureView;
 
 /// The dialler: the number typed, how it reads, and whether Call works.
@@ -81,6 +82,9 @@ pub struct ActiveCallView {
     /// The call's connection notice: reconnecting, audio that could not be
     /// decrypted, or a microphone that could not be used.
     pub media_notice: Option<String>,
+    /// The call's live transcript, once the call has an id and the core has
+    /// asked for it.
+    pub transcript: Option<TranscriptView>,
 }
 
 /// A call ringing here, or the last ring's ending until it is put away.
@@ -188,6 +192,7 @@ fn call_view(call: &ActiveCall, session: Option<&MediaSession>, now: SystemTime)
         can_mute: !over && session.is_some(),
         ended_note: (over && call.was_answered()).then(|| ActiveCall::ENDED_NOTE.to_owned()),
         media_notice: session.and_then(MediaSession::notice).map(str::to_owned),
+        transcript: call.transcript().map(transcript_view),
     }
 }
 
@@ -440,6 +445,7 @@ mod tests {
                 can_mute: false,
                 ended_note: None,
                 media_notice: None,
+                transcript: None,
             }
         );
 
