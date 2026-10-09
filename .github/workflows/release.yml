@@ -49,6 +49,7 @@ on:
       - global.json
       - scripts/run-wack.ps1
       - scripts/check-wack-report.py
+      - scripts/check-scripted.py
 
 permissions:
   contents: read
@@ -366,6 +367,24 @@ jobs:
           if ($githubMsix.Count -ne 1) { throw "expected one GitHub flavour MSIX, found $($githubMsix.Count)" }
           Test-Msix $githubMsix[0].FullName 'github' $github
           if ((Get-AuthenticodeSignature $githubMsix[0].FullName).SignerCertificate) { throw 'the GitHub flavour package is signed; this release carries it unsigned' }
+
+      # district-ffi's `scripted` feature (made-up data for the UI walk and the
+      # Store screenshots) never ships: not in the DLL this job built, nor in
+      # any package it made from it.
+      - name: No package carries the scripted scenes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python scripts/check-scripted.py --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'check-scripted.py failed its self-test' }
+          $packages = @(
+            (Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'StorePackage') -Filter '*.msixupload')
+            (Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'SideloadPackage') -Filter 'DistrictAI_*.msix')
+            (Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'GitHubPackage') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
+          ) | ForEach-Object { $_.FullName }
+          if ($packages.Count -ne 3) { throw "expected three packages, found $($packages.Count)" }
+          python scripts/check-scripted.py --absent target/release/district_ffi.dll @packages
+          if ($LASTEXITCODE -ne 0) { throw 'a release build carries the scripted scenes' }
 
       - name: The WACK report reader still catches what it claims to
         run: python scripts/check-wack-report.py --self-test
