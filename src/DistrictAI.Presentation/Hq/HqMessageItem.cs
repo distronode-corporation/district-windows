@@ -9,7 +9,7 @@ namespace DistrictAI.ViewModels.Hq;
 public sealed record HqMessageItem
 {
     /// <summary>Where it is in the conversation, from 0.</summary>
-    public required int Index { get; init; }
+    public int Index { get; init; }
 
     /// <summary>The member's question.</summary>
     public bool IsQuestion { get; init; }
