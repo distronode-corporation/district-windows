@@ -61,6 +61,7 @@ public sealed class SceneWalkTests
     private static readonly string[] _settingsSections =
     [
         "Persona",
+        "Members",
     ];
 
     /// <summary>
