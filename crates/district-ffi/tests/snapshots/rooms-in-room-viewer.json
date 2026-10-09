@@ -1,0 +1,98 @@
+{
+  "screen": {
+    "Rooms": {
+      "view": {
+        "busy_note": null,
+        "can_join": false,
+        "failure": null,
+        "join_label": "Join",
+        "joining": false,
+        "meetings": [
+          {
+            "can_rejoin": false,
+            "detail": "",
+            "in_progress": "In progress",
+            "meeting_id": "meeting_contract_live",
+            "minutes": "Minutes are written when the meeting ends.",
+            "rejoin_label": "Rejoin",
+            "started_at": "2026-08-15T14:30:00.000Z",
+            "title": "standup"
+          },
+          {
+            "can_rejoin": false,
+            "detail": "42m 0s, 2 people",
+            "in_progress": null,
+            "meeting_id": "meeting_contract_completed",
+            "minutes": "The team reviewed Thursday's inbound volume and agreed to move the after-hours overflow onto the second attendant. Ada took the carrier follow-up, Grace is rewriting the greeting, and the routing change lands before the…",
+            "rejoin_label": "Rejoin",
+            "started_at": "2026-08-14T15:00:00.000Z",
+            "title": "Weekly review"
+          }
+        ],
+        "meetings_description": "The most recent meetings held in this workspace's rooms. Open one to read its minutes and transcript.",
+        "meetings_empty": null,
+        "meetings_refreshing": false,
+        "meetings_status": "Ready",
+        "meetings_title": "Meetings",
+        "name_note": "Everyone who joins \"weekly-review\" meets in the same room.",
+        "record": null,
+        "role_note": "You are in this workspace as a viewer, so you join rooms to listen.",
+        "room": {
+          "can_mute": false,
+          "can_speak": false,
+          "copied_note": "Guest link copied.",
+          "copy_link_hint": "Copy a link that lets someone without an account join this room",
+          "copy_link_label": "Copy guest link",
+          "guest_link": null,
+          "leave_label": "Leave the room",
+          "muted": true,
+          "notice": null,
+          "people": [],
+          "people_line": "Nobody else is here yet.",
+          "state": "In the room.",
+          "title": "Room \"weekly-review\""
+        },
+        "room_name": "Weekly review",
+        "room_name_label": "Room name",
+        "start_title": "Start or join a room",
+        "title": "Meeting rooms"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": true,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Rooms",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

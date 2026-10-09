@@ -81,6 +81,10 @@ fn reference(target: &ReportTarget) -> String {
             Some(ThreadRef::Address(_)) | None => AI_DRAFT_REFERENCE.to_owned(),
         },
         ReportTarget::HqAnswer => HQ_ANSWER_REFERENCE.to_owned(),
+        ReportTarget::MeetingMinutes { meeting_id } => format!("Meeting minutes: {meeting_id}"),
+        ReportTarget::MeetingActionItems { meeting_id } => {
+            format!("Meeting action items: {meeting_id}")
+        }
     }
 }
 
@@ -327,6 +331,23 @@ mod tests {
         assert_eq!(
             message(&ReportTarget::HqAnswer, " made up a number "),
             format!("{PREAMBLE}\n{HQ_ANSWER_REFERENCE}\n\nmade up a number")
+        );
+    }
+
+    /// A meeting's minutes and action items are reported by the meeting's id.
+    #[test]
+    fn a_meeting_record_is_reported_by_its_meeting() {
+        let id = || "meeting_1".to_owned();
+        assert_eq!(
+            message(&ReportTarget::MeetingMinutes { meeting_id: id() }, ""),
+            format!("{PREAMBLE}\nMeeting minutes: meeting_1\n\n{NO_NOTE}")
+        );
+        assert_eq!(
+            message(
+                &ReportTarget::MeetingActionItems { meeting_id: id() },
+                "wrong owner"
+            ),
+            format!("{PREAMBLE}\nMeeting action items: meeting_1\n\nwrong owner")
         );
     }
 

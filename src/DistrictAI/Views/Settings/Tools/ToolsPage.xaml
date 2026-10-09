@@ -2,7 +2,125 @@
 <UserControl
     x:Class="DistrictAI.Views.Settings.Tools.ToolsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:skills="using:DistrictAI.Views.Settings.Tools"
+    xmlns:tools="using:DistrictAI.ViewModels.Settings.Tools">
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="{StaticResource ReadingWidth}"
+            Padding="{StaticResource PagePadding}"
+            Spacing="8">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+
+            <ProgressRing
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Loading"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+            <!-- A failed read, or a save that landed and was not read back: no form. -->
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasStatus, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.StatusTitle, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind ViewModel.StatusBody, Mode=OneWay}" TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.Name="{x:Bind ViewModel.StatusAction, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.RetryCommand}"
+                    Content="{x:Bind ViewModel.StatusAction, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasStatusAction, Mode=OneWay}" />
+            </StackPanel>
+
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.IsReady, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind ViewModel.ToolsHeading, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.ToolsNote, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+
+                <!-- A switch per tool: each a tab stop, named by the tool. -->
+                <ItemsControl IsTabStop="False" ItemsSource="{x:Bind ViewModel.Tools}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="tools:ToolItem">
+                            <StackPanel Padding="0,4" Spacing="2">
+                                <ToggleSwitch
+                                    AutomationProperties.HelpText="{x:Bind Note, Mode=OneWay}"
+                                    AutomationProperties.Name="{x:Bind Label, Mode=OneWay}"
+                                    Header="{x:Bind Label, Mode=OneWay}"
+                                    IsEnabled="{x:Bind IsEnabled, Mode=OneWay}"
+                                    IsOn="{x:Bind IsOn, Mode=TwoWay}" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind Note, Mode=OneWay}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{x:Bind HasNote, Mode=OneWay}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <InfoBar
+                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticesCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasToolsNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.ToolsNoticeText, Mode=OneWay}"
+                    Severity="{x:Bind skills:ToolsPage.SeverityFor(ViewModel.ToolsNoticeSaved), Mode=OneWay}" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button
+                        AutomationProperties.Name="{x:Bind ViewModel.SaveToolsLabel, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.SaveToolsCommand}"
+                        Content="{x:Bind ViewModel.SaveToolsLabel, Mode=OneWay}"
+                        Style="{StaticResource AccentButtonStyle}" />
+                    <ProgressRing
+                        Width="20"
+                        Height="20"
+                        AutomationProperties.Name="Saving"
+                        IsActive="{x:Bind ViewModel.ToolsSaving, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.ToolsSaving, Mode=OneWay}" />
+                </StackPanel>
+
+                <TextBlock
+                    Margin="0,16,0,0"
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind ViewModel.ResearchHeading, Mode=OneWay}" />
+                <ToggleSwitch
+                    AutomationProperties.HelpText="{x:Bind ViewModel.ResearchBody, Mode=OneWay}"
+                    AutomationProperties.Name="{x:Bind ViewModel.ResearchTitle, Mode=OneWay}"
+                    Header="{x:Bind ViewModel.ResearchTitle, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+                    IsOn="{x:Bind ViewModel.ResearchOn, Mode=TwoWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.ResearchBody, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <InfoBar
+                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticesCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasResearchNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.ResearchNoticeText, Mode=OneWay}"
+                    Severity="{x:Bind skills:ToolsPage.SeverityFor(ViewModel.ResearchNoticeSaved), Mode=OneWay}" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button
+                        AutomationProperties.Name="{x:Bind ViewModel.SaveResearchLabel, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.SaveResearchCommand}"
+                        Content="{x:Bind ViewModel.SaveResearchLabel, Mode=OneWay}" />
+                    <ProgressRing
+                        Width="20"
+                        Height="20"
+                        AutomationProperties.Name="Saving"
+                        IsActive="{x:Bind ViewModel.ResearchSaving, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.ResearchSaving, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

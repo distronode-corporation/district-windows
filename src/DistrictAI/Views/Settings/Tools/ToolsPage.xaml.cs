@@ -6,8 +6,10 @@ using Microsoft.UI.Xaml.Controls;
 namespace DistrictAI.Views.Settings.Tools;
 
 /// <summary>
-/// The Skills section. A stub until the area's packet builds it: until then the core
-/// shows the unavailable page instead, so this one is never on screen.
+/// District Studio's Skills: a switch for every tool the core lists, saved
+/// together, and outside research on contacts, saved alone. Leaving with a
+/// switch moved and not saved asks "Discard your changes?" (the window asks,
+/// from the core's <see cref="ShellView.Discard"/>).
 /// </summary>
 public sealed partial class ToolsPage : UserControl
 {
@@ -19,6 +21,9 @@ public sealed partial class ToolsPage : UserControl
 
     /// <summary>What the page shows, and its actions.</summary>
     public ToolsViewModel ViewModel { get; } = new();
+
+    /// <summary>A save notice's look: a save, or a failure.</summary>
+    public static InfoBarSeverity SeverityFor(bool saved) => saved ? InfoBarSeverity.Success : InfoBarSeverity.Error;
 
     internal void Attach(PageContext context) => ViewModel.Attach(context);
 

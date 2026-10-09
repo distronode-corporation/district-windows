@@ -602,9 +602,7 @@ mod tests {
                 },
             },
             ScreenView::Rooms {
-                view: crate::rooms::RoomsView {
-                    title: "Rooms".to_owned(),
-                },
+                view: crate::rooms::sample(),
             },
             ScreenView::WorkspaceSettings {
                 view: crate::settings::SettingsHubView::sample(),
@@ -613,34 +611,31 @@ mod tests {
                 view: crate::settings::persona::PersonaView::sample(),
             },
             ScreenView::VoiceStudio {
-                view: crate::settings::voice_studio::VoiceStudioView {
-                    title: "VoiceStudio".to_owned(),
-                },
+                view: crate::settings::voice_studio::sample(),
             },
             ScreenView::CallHandling {
                 view: crate::settings::call_handling::CallHandlingView {
                     title: "CallHandling".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Routing {
                 view: crate::settings::routing::RoutingView {
                     title: "Routing".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Directory {
                 view: crate::settings::directory::DirectoryView {
                     title: "Directory".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Tools {
-                view: crate::settings::tools::ToolsView {
-                    title: "Tools".to_owned(),
-                },
+                view: crate::settings::tools::ToolsView::sample(),
             },
             ScreenView::Knowledge {
-                view: crate::settings::knowledge::KnowledgeView {
-                    title: "Knowledge".to_owned(),
-                },
+                view: crate::settings::knowledge::KnowledgeView::sample(),
             },
             ScreenView::Messaging {
                 view: crate::settings::messaging::MessagingView {

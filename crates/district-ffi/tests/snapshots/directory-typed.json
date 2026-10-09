@@ -1,0 +1,64 @@
+{
+  "screen": {
+    "Directory": {
+      "view": {
+        "add_rejected": null,
+        "can_edit": true,
+        "can_save": false,
+        "confirming": null,
+        "empty": null,
+        "entries": [
+          {
+            "index": 0,
+            "line": "+1 416 555 0177",
+            "name": "Ops desk",
+            "phone_number": "+14165550177",
+            "title": "Ops desk"
+          },
+          {
+            "index": 1,
+            "line": "+1 416 555 0166",
+            "name": "On-call engineer",
+            "phone_number": "+14165550166",
+            "title": "On-call engineer"
+          }
+        ],
+        "incomplete": null,
+        "intro": "Who the receptionist can put a live caller through to. Saving replaces the whole directory.",
+        "new_name": "Front desk",
+        "new_phone_number": "+14165550155",
+        "notice": null,
+        "saving": false,
+        "status": "Ready",
+        "title": "Transfer directory",
+        "unmodellable": null
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

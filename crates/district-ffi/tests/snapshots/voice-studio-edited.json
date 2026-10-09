@@ -1,0 +1,401 @@
+{
+  "screen": {
+    "VoiceStudio": {
+      "view": {
+        "status": "Ready",
+        "studio": {
+          "based_on": "Based on Fastest, 1 change.",
+          "blocks": [
+            {
+              "detail": "Speech recognition · Processed in the United States · Lab: 150 ms · Stable",
+              "leg": "stt",
+              "open": false,
+              "title": "Ear: Deepgram Flux (English)"
+            },
+            {
+              "detail": "When to reply · Processed in the United States · Median 400 ms over 200 calls · Stable",
+              "leg": "turn",
+              "open": false,
+              "title": "Turn-taking: Flux end of turn"
+            },
+            {
+              "detail": "Reasoning · Processed in the United States · Median 450 ms over 300 calls · Stable",
+              "leg": "llm",
+              "open": false,
+              "title": "Brain: Gemini 2.5 Flash"
+            },
+            {
+              "detail": "Speech synthesis · Processed in the United States · Not measured yet · Stable",
+              "leg": "tts",
+              "open": true,
+              "title": "Voice: Deepgram Aura-2"
+            }
+          ],
+          "can_change": true,
+          "can_save": true,
+          "chain_label": "Signal chain",
+          "default_badge": "Default",
+          "description": "Pick a starting point, then fine-tune any part of the call.",
+          "dirty": true,
+          "editable": true,
+          "editor": {
+            "advanced_label": "Advanced",
+            "controls": [
+              {
+                "advanced": true,
+                "control": {
+                  "Slider": {
+                    "default_label": "Use the default (1.00)",
+                    "max": 1500,
+                    "min": 700,
+                    "start": 1000,
+                    "step": 50,
+                    "value": null,
+                    "value_text": "1.00"
+                  }
+                },
+                "description": null,
+                "heading": null,
+                "key": "engineMix.tts.speed",
+                "label": "Speed"
+              }
+            ],
+            "has_advanced": true,
+            "pickers": [
+              {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Deepgram",
+                      "value": "deepgram"
+                    },
+                    {
+                      "label": "Cartesia",
+                      "value": "cartesia"
+                    },
+                    {
+                      "label": "Amazon Polly",
+                      "value": "aws-polly"
+                    },
+                    {
+                      "label": "Google Chirp 3 HD",
+                      "value": "google-tts"
+                    }
+                  ],
+                  "selected": "deepgram",
+                  "selected_label": "Deepgram"
+                },
+                "label": "Vendor",
+                "picker": "Vendor"
+              },
+              {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Aura-2 · Stable",
+                      "value": "aura-2"
+                    },
+                    {
+                      "label": "Flux TTS · Latest",
+                      "value": "flux-tts"
+                    }
+                  ],
+                  "selected": "aura-2",
+                  "selected_label": "Aura-2 · Stable"
+                },
+                "label": "Model",
+                "picker": "Model"
+              },
+              {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Asteria (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-asteria-en"
+                    },
+                    {
+                      "label": "Luna (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-luna-en"
+                    },
+                    {
+                      "label": "Athena (UK English - Feminine) (English (Feminine))",
+                      "value": "aura-2-athena-en"
+                    },
+                    {
+                      "label": "Hera (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-hera-en"
+                    },
+                    {
+                      "label": "Harmonia (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-harmonia-en"
+                    },
+                    {
+                      "label": "Callista (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-callista-en"
+                    },
+                    {
+                      "label": "Ophelia (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-ophelia-en"
+                    },
+                    {
+                      "label": "Andromeda (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-andromeda-en"
+                    },
+                    {
+                      "label": "Juno (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-juno-en"
+                    },
+                    {
+                      "label": "Cora (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-cora-en"
+                    },
+                    {
+                      "label": "Cordelia (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-cordelia-en"
+                    },
+                    {
+                      "label": "Helena (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-helena-en"
+                    },
+                    {
+                      "label": "Minerva (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-minerva-en"
+                    },
+                    {
+                      "label": "Pandora (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-pandora-en"
+                    },
+                    {
+                      "label": "Orion (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-orion-en"
+                    },
+                    {
+                      "label": "Arcas (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-arcas-en"
+                    },
+                    {
+                      "label": "Orpheus (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-orpheus-en"
+                    },
+                    {
+                      "label": "Zeus (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-zeus-en"
+                    },
+                    {
+                      "label": "Hermes (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-hermes-en"
+                    },
+                    {
+                      "label": "Neptune (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-neptune-en"
+                    },
+                    {
+                      "label": "Apollo (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-apollo-en"
+                    },
+                    {
+                      "label": "Mars (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-mars-en"
+                    },
+                    {
+                      "label": "Aries (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-aries-en"
+                    },
+                    {
+                      "label": "Jupiter (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-jupiter-en"
+                    },
+                    {
+                      "label": "Saturn (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-saturn-en"
+                    },
+                    {
+                      "label": "Draco (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-draco-en"
+                    },
+                    {
+                      "label": "Janus (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-janus-en"
+                    },
+                    {
+                      "label": "Odysseus (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-odysseus-en"
+                    },
+                    {
+                      "label": "Sirio (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-sirio-es"
+                    },
+                    {
+                      "label": "Carina (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-carina-es"
+                    },
+                    {
+                      "label": "Selena (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-selena-es"
+                    },
+                    {
+                      "label": "Javier (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-javier-es"
+                    },
+                    {
+                      "label": "Diana (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-diana-es"
+                    },
+                    {
+                      "label": "Nestor (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-nestor-es"
+                    },
+                    {
+                      "label": "Celeste (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-celeste-es"
+                    },
+                    {
+                      "label": "Alvaro (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-alvaro-es"
+                    },
+                    {
+                      "label": "Aquila (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-aquila-es"
+                    },
+                    {
+                      "label": "Estrella (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-estrella-es"
+                    }
+                  ],
+                  "selected": "aura-2-luna-en",
+                  "selected_label": "Luna (US English - Feminine)"
+                },
+                "label": "Voice",
+                "picker": "Voice"
+              }
+            ],
+            "title": "Voice"
+          },
+          "meter": {
+            "description": "From the caller's last word to the first sound of the reply, at the median.",
+            "heading": "Time to first word",
+            "headline": "At least 850 ms",
+            "note": "Some steps are not measured yet, so the real time is longer.",
+            "source": "Measured on live calls over 30 days, to Oct 3, 2026. A sum of medians: a guide, not a promise.",
+            "stages": [
+              {
+                "label": "End of turn",
+                "value": "Median 400 ms over 200 calls"
+              },
+              {
+                "label": "Brain, first word",
+                "value": "Median 450 ms over 300 calls"
+              },
+              {
+                "label": "Voice, first sound",
+                "value": "Not measured yet"
+              }
+            ]
+          },
+          "notice": null,
+          "pending": "Unsaved changes",
+          "recipes": [
+            {
+              "description": "Every part of the call is processed in your region.",
+              "facts": "About 970 ms · Processed in the United States · Stable",
+              "is_default": false,
+              "name": "Stays in the United States",
+              "recipe_id": "in-region",
+              "selected": false
+            },
+            {
+              "description": "The quickest reply we have measured.",
+              "facts": "About 970 ms · Processed in the United States · Stable",
+              "is_default": false,
+              "name": "Fastest",
+              "recipe_id": "fastest",
+              "selected": true
+            },
+            {
+              "description": "The most lifelike voices.",
+              "facts": "At least 850 ms · Processed in the United States · Stable",
+              "is_default": false,
+              "name": "Most natural",
+              "recipe_id": "natural",
+              "selected": false
+            },
+            {
+              "description": "Answers in English or French, and switches when the caller does.",
+              "facts": "Not measured yet · Leaves your region: global (Google) · Preview · Preview: processed globally by Google",
+              "is_default": false,
+              "name": "Bilingual EN/FR",
+              "recipe_id": "bilingual",
+              "selected": false
+            },
+            {
+              "description": "One model listens, thinks and speaks.",
+              "facts": "At least 300 ms · Processed in the United States · Stable",
+              "is_default": true,
+              "name": "All-in-one realtime",
+              "recipe_id": "realtime",
+              "selected": false
+            },
+            {
+              "description": "The chain saved on this persona.",
+              "facts": "About 970 ms · Processed in the United States · Stable",
+              "is_default": false,
+              "name": "Your chain",
+              "recipe_id": "custom",
+              "selected": false
+            }
+          ],
+          "recipes_label": "Starting point",
+          "reset_label": "Reset",
+          "residency": {
+            "heading": "Where the call is processed",
+            "in_region": true,
+            "legs_out": [],
+            "text": "Every part of this call stays in the United States."
+          },
+          "save_label": "Save voice settings",
+          "saving": false,
+          "tier": "stable",
+          "tier_description": "Stable models are proven on live calls. Latest models are newer and still settling.",
+          "tier_label": "Models",
+          "tiers": [
+            {
+              "label": "Stable",
+              "value": "stable"
+            },
+            {
+              "label": "Latest",
+              "value": "latest"
+            }
+          ]
+        },
+        "title": "Voice"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
