@@ -202,6 +202,44 @@ public sealed class CallBarViewModelTests
             sink.Sent);
     }
 
+    [Fact]
+    public void TheShortcutsWorkOnlyWhenTheirButtonsWould()
+    {
+        var bar = new CallBarViewModel(new ManualTime(_answered));
+        var (context, sink) = Pages.Context();
+        bar.Attach(context);
+
+        // No call: both keys stay with the focused control.
+        Assert.False(bar.ToggleMute());
+        Assert.False(bar.HangUpByKey());
+
+        // A call whose audio is not up yet can be hung up but not muted.
+        bar.Show(V.Call(canMute: false));
+        Assert.False(bar.ToggleMute());
+        Assert.True(bar.HangUpByKey());
+
+        bar.Show(V.Call(muted: false));
+        Assert.True(bar.ToggleMute());
+        Assert.True(bar.Muted);
+        Assert.True(bar.ToggleMute());
+        Assert.False(bar.Muted);
+
+        // An ended call: the buttons are gone, and so are the keys.
+        bar.Show(V.Call(state: "Call ended", canHangUp: false, ended: "Call ended"));
+        Assert.False(bar.ToggleMute());
+        Assert.False(bar.HangUpByKey());
+
+        // A call that went away keeps its last flags but is not shown.
+        bar.Show(V.Call());
+        bar.Show(null);
+        Assert.False(bar.ToggleMute());
+        Assert.False(bar.HangUpByKey());
+
+        Assert.Equal(
+            [new UiEvent.HangUp(), new UiEvent.Microphone(false), new UiEvent.Microphone(true)],
+            sink.Sent);
+    }
+
     private static void WithNoContext(Action body)
     {
         var previous = SynchronizationContext.Current;

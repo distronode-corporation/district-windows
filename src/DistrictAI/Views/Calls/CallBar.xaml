@@ -65,16 +65,19 @@
                 Orientation="Horizontal"
                 Spacing="8">
                 <ToggleButton
+                    AutomationProperties.AcceleratorKey="Control+D"
                     AutomationProperties.Name="Mute"
                     IsChecked="{x:Bind ViewModel.Muted, Mode=TwoWay}"
                     IsEnabled="{x:Bind ViewModel.CanMute, Mode=OneWay}"
-                    ToolTipService.ToolTip="Mute"
+                    ToolTipService.ToolTip="Mute (Ctrl+D)"
                     Visibility="{x:Bind ViewModel.CanHangUp, Mode=OneWay}">
                     <SymbolIcon Symbol="Microphone" />
                 </ToggleButton>
                 <Button
+                    AutomationProperties.AcceleratorKey="Control+Shift+H"
                     AutomationProperties.Name="Hang up"
                     Command="{x:Bind ViewModel.HangUpCommand}"
+                    ToolTipService.ToolTip="Hang up (Ctrl+Shift+H)"
                     Visibility="{x:Bind ViewModel.CanHangUp, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="HangUp" />
