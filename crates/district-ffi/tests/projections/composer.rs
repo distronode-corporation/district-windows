@@ -21,7 +21,7 @@ fn unbuilt_a_thread_has_no_reply_box() {
         panic!("a thread opens");
     };
     assert_eq!(view.composer, None);
-    assert_eq!(offered(&session).len(), 5);
+    assert_eq!(offered(&session).len(), 5 + super::BUILT.len());
 }
 
 #[test]

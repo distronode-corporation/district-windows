@@ -839,6 +839,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1098,6 +1100,17 @@ static class _UniFFILib {
     public static extern
 #endif
      void uniffi_district_ffi_fn_method_uihost_present_window(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_desk_logo_problem(RustBuffer @file,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -1757,6 +1770,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_desk_logo_problem(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_attachment_pick(
     );
 
@@ -2044,6 +2068,12 @@ static class _UniFFILib {
         }
     }
     static void uniffiCheckApiChecksums() {
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_desk_logo_problem();
+            if (checksum != 16779) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_desk_logo_problem` checksum `16779`, library returned `{checksum}`");
+            }
+        }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_attachment_pick();
             if (checksum != 17750) {
@@ -4992,16 +5022,668 @@ class FfiConverterTypeContactsView: FfiConverterRustBuffer<ContactsView> {
 
 
 /// <summary>
-/// The help desk's settings and logo.
+/// The form raising a ticket for a customer.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The form's heading, [`COMPOSE_TITLE`].
+/// </param>
+/// <param name="SubmitLabel">
+/// The button that raises it, [`COMPOSE_SUBMIT`].
+/// </param>
+/// <param name="Subject">
+/// The subject, as typed.
+/// </param>
+/// <param name="Message">
+/// The customer's problem, as typed: it is recorded as theirs.
+/// </param>
+/// <param name="RequesterName">
+/// The customer's name, as typed.
+/// </param>
+/// <param name="RequesterEmail">
+/// The customer's email address, as typed.
+/// </param>
+/// <param name="RequesterPhone">
+/// The customer's phone number, as typed.
+/// </param>
+/// <param name="CustomerNote">
+/// What the form says about the customer's details, [`CUSTOMER_NOTE`].
+/// </param>
+/// <param name="SubjectMax">
+/// The longest subject the service takes, for the box's limit.
+/// </param>
+/// <param name="MessageMax">
+/// The longest message the service takes, for the box's limit.
+/// </param>
+/// <param name="Needs">
+/// What the form needs before it can be sent, while it cannot be.
+/// </param>
+/// <param name="CanSubmit">
+/// Whether the raise button works: the service's own bounds are met and
+/// nothing is on its way.
+/// </param>
+/// <param name="Submitting">
+/// Whether the ticket is on its way. The form cannot be changed or
+/// discarded meanwhile.
+/// </param>
+/// <param name="Failure">
+/// Why the last attempt failed. What was typed stays.
+/// </param>
+public record DeskComposeView (
+    /// <summary>
+    /// The form's heading, [`COMPOSE_TITLE`].
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The button that raises it, [`COMPOSE_SUBMIT`].
+    /// </summary>
+    string SubmitLabel, 
+    /// <summary>
+    /// The subject, as typed.
+    /// </summary>
+    string Subject, 
+    /// <summary>
+    /// The customer's problem, as typed: it is recorded as theirs.
+    /// </summary>
+    string Message, 
+    /// <summary>
+    /// The customer's name, as typed.
+    /// </summary>
+    string RequesterName, 
+    /// <summary>
+    /// The customer's email address, as typed.
+    /// </summary>
+    string RequesterEmail, 
+    /// <summary>
+    /// The customer's phone number, as typed.
+    /// </summary>
+    string RequesterPhone, 
+    /// <summary>
+    /// What the form says about the customer's details, [`CUSTOMER_NOTE`].
+    /// </summary>
+    string CustomerNote, 
+    /// <summary>
+    /// The longest subject the service takes, for the box's limit.
+    /// </summary>
+    uint SubjectMax, 
+    /// <summary>
+    /// The longest message the service takes, for the box's limit.
+    /// </summary>
+    uint MessageMax, 
+    /// <summary>
+    /// What the form needs before it can be sent, while it cannot be.
+    /// </summary>
+    string? Needs, 
+    /// <summary>
+    /// Whether the raise button works: the service's own bounds are met and
+    /// nothing is on its way.
+    /// </summary>
+    bool CanSubmit, 
+    /// <summary>
+    /// Whether the ticket is on its way. The form cannot be changed or
+    /// discarded meanwhile.
+    /// </summary>
+    bool Submitting, 
+    /// <summary>
+    /// Why the last attempt failed. What was typed stays.
+    /// </summary>
+    FailureView? Failure
+) {
+}
+
+class FfiConverterTypeDeskComposeView: FfiConverterRustBuffer<DeskComposeView> {
+    public static FfiConverterTypeDeskComposeView INSTANCE = new FfiConverterTypeDeskComposeView();
+
+    public override DeskComposeView Read(BigEndianStream stream) {
+        return new DeskComposeView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            SubmitLabel: FfiConverterString.INSTANCE.Read(stream),
+            Subject: FfiConverterString.INSTANCE.Read(stream),
+            Message: FfiConverterString.INSTANCE.Read(stream),
+            RequesterName: FfiConverterString.INSTANCE.Read(stream),
+            RequesterEmail: FfiConverterString.INSTANCE.Read(stream),
+            RequesterPhone: FfiConverterString.INSTANCE.Read(stream),
+            CustomerNote: FfiConverterString.INSTANCE.Read(stream),
+            SubjectMax: FfiConverterUInt32.INSTANCE.Read(stream),
+            MessageMax: FfiConverterUInt32.INSTANCE.Read(stream),
+            Needs: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanSubmit: FfiConverterBoolean.INSTANCE.Read(stream),
+            Submitting: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeskComposeView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SubmitLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subject)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Message)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RequesterName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RequesterEmail)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RequesterPhone)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CustomerNote)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.SubjectMax)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.MessageMax)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Needs)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSubmit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Submitting)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
+    }
+
+    public override void Write(DeskComposeView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.SubmitLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Subject, stream);
+            FfiConverterString.INSTANCE.Write(value.Message, stream);
+            FfiConverterString.INSTANCE.Write(value.RequesterName, stream);
+            FfiConverterString.INSTANCE.Write(value.RequesterEmail, stream);
+            FfiConverterString.INSTANCE.Write(value.RequesterPhone, stream);
+            FfiConverterString.INSTANCE.Write(value.CustomerNote, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.SubjectMax, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.MessageMax, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Needs, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSubmit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Submitting, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One of the filter's choices, as the filter shows it.
+/// </summary>
+/// <param name="Filter">
+/// The choice.
+/// </param>
+/// <param name="Label">
+/// Its label, with how many tickets it shows once the queue is read
+/// ("Open (2)"), as the Linux app words it.
+/// </param>
+/// <param name="Selected">
+/// Whether it is the one chosen.
+/// </param>
+public record DeskFilterView (
+    /// <summary>
+    /// The choice.
+    /// </summary>
+    DeskFilter Filter, 
+    /// <summary>
+    /// Its label, with how many tickets it shows once the queue is read
+    /// ("Open (2)"), as the Linux app words it.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether it is the one chosen.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeDeskFilterView: FfiConverterRustBuffer<DeskFilterView> {
+    public static FfiConverterTypeDeskFilterView INSTANCE = new FfiConverterTypeDeskFilterView();
+
+    public override DeskFilterView Read(BigEndianStream stream) {
+        return new DeskFilterView(
+            Filter: FfiConverterTypeDeskFilter.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeskFilterView value) {
+        return 0
+            + FfiConverterTypeDeskFilter.INSTANCE.AllocationSize(value.Filter)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(DeskFilterView value, BigEndianStream stream) {
+            FfiConverterTypeDeskFilter.INSTANCE.Write(value.Filter, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One message of a ticket's conversation.
+/// </summary>
+/// <param name="Id">
+/// The message's id.
+/// </param>
+/// <param name="Author">
+/// Who wrote it, in the core's words ("Your team", "Receptionist",
+/// "Customer").
+/// </param>
+/// <param name="Body">
+/// The text.
+/// </param>
+/// <param name="CreatedAt">
+/// When it was written, as an ISO 8601 instant.
+/// </param>
+/// <param name="FromTeam">
+/// Whether the workspace's team wrote it (shown on the workspace's side).
+/// </param>
+public record DeskMessageView (
+    /// <summary>
+    /// The message's id.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Who wrote it, in the core's words ("Your team", "Receptionist",
+    /// "Customer").
+    /// </summary>
+    string Author, 
+    /// <summary>
+    /// The text.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// When it was written, as an ISO 8601 instant.
+    /// </summary>
+    string CreatedAt, 
+    /// <summary>
+    /// Whether the workspace's team wrote it (shown on the workspace's side).
+    /// </summary>
+    bool FromTeam
+) {
+}
+
+class FfiConverterTypeDeskMessageView: FfiConverterRustBuffer<DeskMessageView> {
+    public static FfiConverterTypeDeskMessageView INSTANCE = new FfiConverterTypeDeskMessageView();
+
+    public override DeskMessageView Read(BigEndianStream stream) {
+        return new DeskMessageView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Author: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            CreatedAt: FfiConverterString.INSTANCE.Read(stream),
+            FromTeam: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeskMessageView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Author)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CreatedAt)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.FromTeam);
+    }
+
+    public override void Write(DeskMessageView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Author, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.CreatedAt, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.FromTeam, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A desk that is switched off: nothing is being recorded, so there is no
+/// queue to show, only the offer to turn it on.
+/// </summary>
+/// <param name="Title">
+/// The heading, in the core's words.
+/// </param>
+/// <param name="Body">
+/// The body, in the core's words.
+/// </param>
+/// <param name="TurnOn">
+/// The button that turns it on, in the core's words.
+/// </param>
+/// <param name="CanTurnOn">
+/// Whether the button works: the member may use the desk and it is not
+/// already being turned on.
+/// </param>
+/// <param name="Enabling">
+/// Whether turning it on is on its way.
+/// </param>
+/// <param name="Failure">
+/// Why turning it on failed.
+/// </param>
+public record DeskOffView (
+    /// <summary>
+    /// The heading, in the core's words.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The body, in the core's words.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The button that turns it on, in the core's words.
+    /// </summary>
+    string TurnOn, 
+    /// <summary>
+    /// Whether the button works: the member may use the desk and it is not
+    /// already being turned on.
+    /// </summary>
+    bool CanTurnOn, 
+    /// <summary>
+    /// Whether turning it on is on its way.
+    /// </summary>
+    bool Enabling, 
+    /// <summary>
+    /// Why turning it on failed.
+    /// </summary>
+    FailureView? Failure
+) {
+}
+
+class FfiConverterTypeDeskOffView: FfiConverterRustBuffer<DeskOffView> {
+    public static FfiConverterTypeDeskOffView INSTANCE = new FfiConverterTypeDeskOffView();
+
+    public override DeskOffView Read(BigEndianStream stream) {
+        return new DeskOffView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            TurnOn: FfiConverterString.INSTANCE.Read(stream),
+            CanTurnOn: FfiConverterBoolean.INSTANCE.Read(stream),
+            Enabling: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeskOffView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TurnOn)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanTurnOn)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enabling)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
+    }
+
+    public override void Write(DeskOffView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.TurnOn, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanTurnOn, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Enabling, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One ticket in the queue.
+/// </summary>
+/// <param name="TicketId">
+/// What opens it ([`DeskAction::OpenTicket`]).
+/// </param>
+/// <param name="Subject">
+/// The subject.
+/// </param>
+/// <param name="Reference">
+/// What a person calls it (`T-41`).
+/// </param>
+/// <param name="Requester">
+/// Who raised it, as far as it says, or [`NO_CUSTOMER`].
+/// </param>
+/// <param name="StatusLabel">
+/// Its status, short, as the Linux app badges it in a row ("Waiting").
+/// </param>
+/// <param name="Status">
+/// Its status, when it is one this build knows, for the badge's style.
+/// </param>
+/// <param name="UpdatedAt">
+/// When it last changed, as an ISO 8601 instant.
+/// </param>
+public record DeskRowView (
+    /// <summary>
+    /// What opens it ([`DeskAction::OpenTicket`]).
+    /// </summary>
+    string TicketId, 
+    /// <summary>
+    /// The subject.
+    /// </summary>
+    string Subject, 
+    /// <summary>
+    /// What a person calls it (`T-41`).
+    /// </summary>
+    string Reference, 
+    /// <summary>
+    /// Who raised it, as far as it says, or [`NO_CUSTOMER`].
+    /// </summary>
+    string Requester, 
+    /// <summary>
+    /// Its status, short, as the Linux app badges it in a row ("Waiting").
+    /// </summary>
+    string StatusLabel, 
+    /// <summary>
+    /// Its status, when it is one this build knows, for the badge's style.
+    /// </summary>
+    DeskStatus? Status, 
+    /// <summary>
+    /// When it last changed, as an ISO 8601 instant.
+    /// </summary>
+    string UpdatedAt
+) {
+}
+
+class FfiConverterTypeDeskRowView: FfiConverterRustBuffer<DeskRowView> {
+    public static FfiConverterTypeDeskRowView INSTANCE = new FfiConverterTypeDeskRowView();
+
+    public override DeskRowView Read(BigEndianStream stream) {
+        return new DeskRowView(
+            TicketId: FfiConverterString.INSTANCE.Read(stream),
+            Subject: FfiConverterString.INSTANCE.Read(stream),
+            Reference: FfiConverterString.INSTANCE.Read(stream),
+            Requester: FfiConverterString.INSTANCE.Read(stream),
+            StatusLabel: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterOptionalTypeDeskStatus.INSTANCE.Read(stream),
+            UpdatedAt: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeskRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.TicketId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subject)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Reference)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Requester)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StatusLabel)
+            + FfiConverterOptionalTypeDeskStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.UpdatedAt);
+    }
+
+    public override void Write(DeskRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.TicketId, stream);
+            FfiConverterString.INSTANCE.Write(value.Subject, stream);
+            FfiConverterString.INSTANCE.Write(value.Reference, stream);
+            FfiConverterString.INSTANCE.Write(value.Requester, stream);
+            FfiConverterString.INSTANCE.Write(value.StatusLabel, stream);
+            FfiConverterOptionalTypeDeskStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.UpdatedAt, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The desk's settings and its logo.
+/// </summary>
+/// <param name="Title">
+/// The heading, [`SETTINGS_TITLE`].
+/// </param>
+/// <param name="Intro">
+/// What the settings say under their heading, [`SETTINGS_INTRO`].
+/// </param>
+/// <param name="Status">
+/// Where the read stands. No form is offered before the settings are
+/// read: one not built from them could only save over them.
+/// </param>
+/// <param name="EnabledLabel">
+/// The "desk on" switch's label.
+/// </param>
+/// <param name="EnabledNote">
+/// The note under it.
+/// </param>
+/// <param name="Enabled">
+/// Whether the desk takes tickets, as the form has it.
+/// </param>
+/// <param name="NotifyLabel">
+/// The "email customers" switch's label.
+/// </param>
+/// <param name="NotifyCustomersByEmail">
+/// Whether customers are emailed replies, as the form has it.
+/// </param>
+/// <param name="BrandLabel">
+/// The name box's label.
+/// </param>
+/// <param name="BrandName">
+/// The name customers see, as the form has it; blank for the workspace's.
+/// </param>
+/// <param name="CanEdit">
+/// Whether the form can be changed: read, the member may use the desk,
+/// and no save is on its way.
+/// </param>
+/// <param name="CanSave">
+/// Whether "Save" works: something changed, and neither a save nor a logo
+/// change is on its way.
+/// </param>
+/// <param name="Saving">
+/// Whether a save is on its way.
+/// </param>
+/// <param name="SaveFailure">
+/// Why the last save failed.
+/// </param>
+/// <param name="LogoHelp">
+/// What the logo is and what the service takes, [`LOGO_HELP`].
+/// </param>
+/// <param name="LogoLine">
+/// Whether there is a logo, in words. Empty until read.
+/// </param>
+/// <param name="LogoUrl">
+/// The logo customers see, when there is one.
+/// </param>
+/// <param name="CanChooseLogo">
+/// Whether "Choose an image" works: read, the member may use the desk,
+/// and neither a save nor a logo change is on its way.
+/// </param>
+/// <param name="ShowRemoveLogo">
+/// Whether "Remove" shows: there is a logo.
+/// </param>
+/// <param name="CanRemoveLogo">
+/// Whether "Remove" works.
+/// </param>
+/// <param name="LogoBusy">
+/// Whether a logo upload or removal is on its way.
+/// </param>
+/// <param name="LogoFailure">
+/// Why the last logo change failed, in the service's words where it gave
+/// them (too large, a type it will not host, bad dimensions).
+/// </param>
+/// <param name="LogoFileKept">
+/// That the logo was taken down but its file may still be reachable, in
+/// the core's words.
 /// </param>
 public record DeskSettingsView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`SETTINGS_TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// What the settings say under their heading, [`SETTINGS_INTRO`].
+    /// </summary>
+    string Intro, 
+    /// <summary>
+    /// Where the read stands. No form is offered before the settings are
+    /// read: one not built from them could only save over them.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The "desk on" switch's label.
+    /// </summary>
+    string EnabledLabel, 
+    /// <summary>
+    /// The note under it.
+    /// </summary>
+    string EnabledNote, 
+    /// <summary>
+    /// Whether the desk takes tickets, as the form has it.
+    /// </summary>
+    bool Enabled, 
+    /// <summary>
+    /// The "email customers" switch's label.
+    /// </summary>
+    string NotifyLabel, 
+    /// <summary>
+    /// Whether customers are emailed replies, as the form has it.
+    /// </summary>
+    bool NotifyCustomersByEmail, 
+    /// <summary>
+    /// The name box's label.
+    /// </summary>
+    string BrandLabel, 
+    /// <summary>
+    /// The name customers see, as the form has it; blank for the workspace's.
+    /// </summary>
+    string BrandName, 
+    /// <summary>
+    /// Whether the form can be changed: read, the member may use the desk,
+    /// and no save is on its way.
+    /// </summary>
+    bool CanEdit, 
+    /// <summary>
+    /// Whether "Save" works: something changed, and neither a save nor a logo
+    /// change is on its way.
+    /// </summary>
+    bool CanSave, 
+    /// <summary>
+    /// Whether a save is on its way.
+    /// </summary>
+    bool Saving, 
+    /// <summary>
+    /// Why the last save failed.
+    /// </summary>
+    FailureView? SaveFailure, 
+    /// <summary>
+    /// What the logo is and what the service takes, [`LOGO_HELP`].
+    /// </summary>
+    string LogoHelp, 
+    /// <summary>
+    /// Whether there is a logo, in words. Empty until read.
+    /// </summary>
+    string LogoLine, 
+    /// <summary>
+    /// The logo customers see, when there is one.
+    /// </summary>
+    string? LogoUrl, 
+    /// <summary>
+    /// Whether "Choose an image" works: read, the member may use the desk,
+    /// and neither a save nor a logo change is on its way.
+    /// </summary>
+    bool CanChooseLogo, 
+    /// <summary>
+    /// Whether "Remove" shows: there is a logo.
+    /// </summary>
+    bool ShowRemoveLogo, 
+    /// <summary>
+    /// Whether "Remove" works.
+    /// </summary>
+    bool CanRemoveLogo, 
+    /// <summary>
+    /// Whether a logo upload or removal is on its way.
+    /// </summary>
+    bool LogoBusy, 
+    /// <summary>
+    /// Why the last logo change failed, in the service's words where it gave
+    /// them (too large, a type it will not host, bad dimensions).
+    /// </summary>
+    FailureView? LogoFailure, 
+    /// <summary>
+    /// That the logo was taken down but its file may still be reachable, in
+    /// the core's words.
+    /// </summary>
+    string? LogoFileKept
 ) {
 }
 
@@ -5010,33 +5692,290 @@ class FfiConverterTypeDeskSettingsView: FfiConverterRustBuffer<DeskSettingsView>
 
     public override DeskSettingsView Read(BigEndianStream stream) {
         return new DeskSettingsView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Intro: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            EnabledLabel: FfiConverterString.INSTANCE.Read(stream),
+            EnabledNote: FfiConverterString.INSTANCE.Read(stream),
+            Enabled: FfiConverterBoolean.INSTANCE.Read(stream),
+            NotifyLabel: FfiConverterString.INSTANCE.Read(stream),
+            NotifyCustomersByEmail: FfiConverterBoolean.INSTANCE.Read(stream),
+            BrandLabel: FfiConverterString.INSTANCE.Read(stream),
+            BrandName: FfiConverterString.INSTANCE.Read(stream),
+            CanEdit: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
+            Saving: FfiConverterBoolean.INSTANCE.Read(stream),
+            SaveFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            LogoHelp: FfiConverterString.INSTANCE.Read(stream),
+            LogoLine: FfiConverterString.INSTANCE.Read(stream),
+            LogoUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanChooseLogo: FfiConverterBoolean.INSTANCE.Read(stream),
+            ShowRemoveLogo: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanRemoveLogo: FfiConverterBoolean.INSTANCE.Read(stream),
+            LogoBusy: FfiConverterBoolean.INSTANCE.Read(stream),
+            LogoFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            LogoFileKept: FfiConverterOptionalString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(DeskSettingsView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Intro)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EnabledLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EnabledNote)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enabled)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NotifyLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.NotifyCustomersByEmail)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BrandLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BrandName)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanEdit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.SaveFailure)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LogoHelp)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LogoLine)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LogoUrl)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChooseLogo)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowRemoveLogo)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanRemoveLogo)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.LogoBusy)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.LogoFailure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LogoFileKept);
     }
 
     public override void Write(DeskSettingsView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Intro, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.EnabledLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.EnabledNote, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Enabled, stream);
+            FfiConverterString.INSTANCE.Write(value.NotifyLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.NotifyCustomersByEmail, stream);
+            FfiConverterString.INSTANCE.Write(value.BrandLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BrandName, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanEdit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.SaveFailure, stream);
+            FfiConverterString.INSTANCE.Write(value.LogoHelp, stream);
+            FfiConverterString.INSTANCE.Write(value.LogoLine, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.LogoUrl, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanChooseLogo, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowRemoveLogo, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanRemoveLogo, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.LogoBusy, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.LogoFailure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.LogoFileKept, stream);
     }
 }
 
 
 
 /// <summary>
-/// One help desk ticket.
+/// One of a ticket's status buttons.
+/// </summary>
+/// <param name="Status">
+/// The status it moves the ticket to.
+/// </param>
+/// <param name="Label">
+/// Its label, in the core's words ("Waiting on the customer").
+/// </param>
+/// <param name="Selected">
+/// Whether it is the ticket's status now (that button does nothing).
+/// </param>
+public record DeskStatusChoiceView (
+    /// <summary>
+    /// The status it moves the ticket to.
+    /// </summary>
+    DeskStatus Status, 
+    /// <summary>
+    /// Its label, in the core's words ("Waiting on the customer").
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether it is the ticket's status now (that button does nothing).
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeDeskStatusChoiceView: FfiConverterRustBuffer<DeskStatusChoiceView> {
+    public static FfiConverterTypeDeskStatusChoiceView INSTANCE = new FfiConverterTypeDeskStatusChoiceView();
+
+    public override DeskStatusChoiceView Read(BigEndianStream stream) {
+        return new DeskStatusChoiceView(
+            Status: FfiConverterTypeDeskStatus.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeskStatusChoiceView value) {
+        return 0
+            + FfiConverterTypeDeskStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(DeskStatusChoiceView value, BigEndianStream stream) {
+            FfiConverterTypeDeskStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One ticket, its conversation, its status and the reply.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading: the subject once read, [`TICKET_TITLE`] before.
+/// </param>
+/// <param name="TicketId">
+/// The ticket the page was opened for.
+/// </param>
+/// <param name="Status">
+/// Where the read stands.
+/// </param>
+/// <param name="ReferenceLine">
+/// Its reference and status ("T-41 · Open"), empty until read.
+/// </param>
+/// <param name="Statuses">
+/// The status buttons, in their order, each with whether it is the
+/// ticket's own. None until read.
+/// </param>
+/// <param name="CanChangeStatus">
+/// Whether the status buttons work (the ticket's own does nothing): read,
+/// the member may use the desk, and no change is on its way.
+/// </param>
+/// <param name="StatusChanging">
+/// Whether a status change is on its way.
+/// </param>
+/// <param name="StatusFailure">
+/// Why the last status change failed.
+/// </param>
+/// <param name="Details">
+/// The customer's details and where the ticket came in, as the Linux app
+/// lists them; only those it has.
+/// </param>
+/// <param name="CreatedAt">
+/// When it was raised, as an ISO 8601 instant. Empty until read.
+/// </param>
+/// <param name="ResolvedAt">
+/// When it was resolved, as an ISO 8601 instant, while it is.
+/// </param>
+/// <param name="Messages">
+/// The conversation, oldest first.
+/// </param>
+/// <param name="RefreshFailure">
+/// Why the last read again failed, shown beside the ticket.
+/// </param>
+/// <param name="Reply">
+/// The reply being written, as the core holds it.
+/// </param>
+/// <param name="CanWriteReply">
+/// Whether the reply box can be written in: read, the member may use the
+/// desk, and no reply is on its way.
+/// </param>
+/// <param name="CanReply">
+/// Whether "Send" works for the reply.
+/// </param>
+/// <param name="Sending">
+/// Whether the reply is on its way.
+/// </param>
+/// <param name="SendFailure">
+/// Why the last reply failed. What was written stays.
+/// </param>
+/// <param name="NotifiedNote">
+/// Whether the customer was emailed the last reply, in words, when the
+/// service said.
 /// </param>
 public record DeskTicketView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading: the subject once read, [`TICKET_TITLE`] before.
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// The ticket the page was opened for.
+    /// </summary>
+    string TicketId, 
+    /// <summary>
+    /// Where the read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Its reference and status ("T-41 · Open"), empty until read.
+    /// </summary>
+    string ReferenceLine, 
+    /// <summary>
+    /// The status buttons, in their order, each with whether it is the
+    /// ticket's own. None until read.
+    /// </summary>
+    DeskStatusChoiceView[] Statuses, 
+    /// <summary>
+    /// Whether the status buttons work (the ticket's own does nothing): read,
+    /// the member may use the desk, and no change is on its way.
+    /// </summary>
+    bool CanChangeStatus, 
+    /// <summary>
+    /// Whether a status change is on its way.
+    /// </summary>
+    bool StatusChanging, 
+    /// <summary>
+    /// Why the last status change failed.
+    /// </summary>
+    FailureView? StatusFailure, 
+    /// <summary>
+    /// The customer's details and where the ticket came in, as the Linux app
+    /// lists them; only those it has.
+    /// </summary>
+    FactView[] Details, 
+    /// <summary>
+    /// When it was raised, as an ISO 8601 instant. Empty until read.
+    /// </summary>
+    string CreatedAt, 
+    /// <summary>
+    /// When it was resolved, as an ISO 8601 instant, while it is.
+    /// </summary>
+    string? ResolvedAt, 
+    /// <summary>
+    /// The conversation, oldest first.
+    /// </summary>
+    DeskMessageView[] Messages, 
+    /// <summary>
+    /// Why the last read again failed, shown beside the ticket.
+    /// </summary>
+    FailureView? RefreshFailure, 
+    /// <summary>
+    /// The reply being written, as the core holds it.
+    /// </summary>
+    string Reply, 
+    /// <summary>
+    /// Whether the reply box can be written in: read, the member may use the
+    /// desk, and no reply is on its way.
+    /// </summary>
+    bool CanWriteReply, 
+    /// <summary>
+    /// Whether "Send" works for the reply.
+    /// </summary>
+    bool CanReply, 
+    /// <summary>
+    /// Whether the reply is on its way.
+    /// </summary>
+    bool Sending, 
+    /// <summary>
+    /// Why the last reply failed. What was written stays.
+    /// </summary>
+    FailureView? SendFailure, 
+    /// <summary>
+    /// Whether the customer was emailed the last reply, in words, when the
+    /// service said.
+    /// </summary>
+    string? NotifiedNote
 ) {
 }
 
@@ -5045,33 +5984,175 @@ class FfiConverterTypeDeskTicketView: FfiConverterRustBuffer<DeskTicketView> {
 
     public override DeskTicketView Read(BigEndianStream stream) {
         return new DeskTicketView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            TicketId: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            ReferenceLine: FfiConverterString.INSTANCE.Read(stream),
+            Statuses: FfiConverterSequenceTypeDeskStatusChoiceView.INSTANCE.Read(stream),
+            CanChangeStatus: FfiConverterBoolean.INSTANCE.Read(stream),
+            StatusChanging: FfiConverterBoolean.INSTANCE.Read(stream),
+            StatusFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Details: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            CreatedAt: FfiConverterString.INSTANCE.Read(stream),
+            ResolvedAt: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Messages: FfiConverterSequenceTypeDeskMessageView.INSTANCE.Read(stream),
+            RefreshFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Reply: FfiConverterString.INSTANCE.Read(stream),
+            CanWriteReply: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanReply: FfiConverterBoolean.INSTANCE.Read(stream),
+            Sending: FfiConverterBoolean.INSTANCE.Read(stream),
+            SendFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            NotifiedNote: FfiConverterOptionalString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(DeskTicketView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TicketId)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ReferenceLine)
+            + FfiConverterSequenceTypeDeskStatusChoiceView.INSTANCE.AllocationSize(value.Statuses)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChangeStatus)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.StatusChanging)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.StatusFailure)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Details)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CreatedAt)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ResolvedAt)
+            + FfiConverterSequenceTypeDeskMessageView.INSTANCE.AllocationSize(value.Messages)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RefreshFailure)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Reply)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanWriteReply)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanReply)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Sending)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.SendFailure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NotifiedNote);
     }
 
     public override void Write(DeskTicketView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.TicketId, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.ReferenceLine, stream);
+            FfiConverterSequenceTypeDeskStatusChoiceView.INSTANCE.Write(value.Statuses, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanChangeStatus, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.StatusChanging, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.StatusFailure, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Details, stream);
+            FfiConverterString.INSTANCE.Write(value.CreatedAt, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ResolvedAt, stream);
+            FfiConverterSequenceTypeDeskMessageView.INSTANCE.Write(value.Messages, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.RefreshFailure, stream);
+            FfiConverterString.INSTANCE.Write(value.Reply, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanWriteReply, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanReply, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Sending, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.SendFailure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NotifiedNote, stream);
     }
 }
 
 
 
 /// <summary>
-/// The help desk's list of tickets.
+/// The queue, with the form that raises a ticket.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`DESK_TITLE`].
+/// </param>
+/// <param name="Status">
+/// Where the queue's read stands. A desk that is off is read: see `off`.
+/// </param>
+/// <param name="Off">
+/// The switched-off state, in place of the queue, while the desk is off.
+/// </param>
+/// <param name="Filters">
+/// The filter's choices, each with how many tickets it shows once read.
+/// </param>
+/// <param name="CanFilter">
+/// Whether the filter can be used: the queue is read.
+/// </param>
+/// <param name="Rows">
+/// The tickets the filter shows, most recently updated first.
+/// </param>
+/// <param name="Empty">
+/// What to say when the queue is read and has no tickets at all.
+/// </param>
+/// <param name="NoneMatching">
+/// The line when the filter matches nothing in a queue that has tickets.
+/// </param>
+/// <param name="Refreshing">
+/// Whether the queue is being read again, with these still showing.
+/// </param>
+/// <param name="Submitted">
+/// The confirmation of a ticket raised ("Ticket T-41 is open."), until
+/// dismissed.
+/// </param>
+/// <param name="CanStart">
+/// Whether "New ticket" is offered: the member may use the desk, it is
+/// on and read, and no form is open.
+/// </param>
+/// <param name="CanOpenSettings">
+/// Whether "Settings" is offered: the member may use the desk.
+/// </param>
+/// <param name="Compose">
+/// The form raising a ticket, while it is open.
 /// </param>
 public record DeskView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`DESK_TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// Where the queue's read stands. A desk that is off is read: see `off`.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The switched-off state, in place of the queue, while the desk is off.
+    /// </summary>
+    DeskOffView? Off, 
+    /// <summary>
+    /// The filter's choices, each with how many tickets it shows once read.
+    /// </summary>
+    DeskFilterView[] Filters, 
+    /// <summary>
+    /// Whether the filter can be used: the queue is read.
+    /// </summary>
+    bool CanFilter, 
+    /// <summary>
+    /// The tickets the filter shows, most recently updated first.
+    /// </summary>
+    DeskRowView[] Rows, 
+    /// <summary>
+    /// What to say when the queue is read and has no tickets at all.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// The line when the filter matches nothing in a queue that has tickets.
+    /// </summary>
+    string? NoneMatching, 
+    /// <summary>
+    /// Whether the queue is being read again, with these still showing.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// The confirmation of a ticket raised ("Ticket T-41 is open."), until
+    /// dismissed.
+    /// </summary>
+    string? Submitted, 
+    /// <summary>
+    /// Whether "New ticket" is offered: the member may use the desk, it is
+    /// on and read, and no form is open.
+    /// </summary>
+    bool CanStart, 
+    /// <summary>
+    /// Whether "Settings" is offered: the member may use the desk.
+    /// </summary>
+    bool CanOpenSettings, 
+    /// <summary>
+    /// The form raising a ticket, while it is open.
+    /// </summary>
+    DeskComposeView? Compose
 ) {
 }
 
@@ -5080,17 +6161,53 @@ class FfiConverterTypeDeskView: FfiConverterRustBuffer<DeskView> {
 
     public override DeskView Read(BigEndianStream stream) {
         return new DeskView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Off: FfiConverterOptionalTypeDeskOffView.INSTANCE.Read(stream),
+            Filters: FfiConverterSequenceTypeDeskFilterView.INSTANCE.Read(stream),
+            CanFilter: FfiConverterBoolean.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeDeskRowView.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            NoneMatching: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Submitted: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanStart: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanOpenSettings: FfiConverterBoolean.INSTANCE.Read(stream),
+            Compose: FfiConverterOptionalTypeDeskComposeView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(DeskView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalTypeDeskOffView.INSTANCE.AllocationSize(value.Off)
+            + FfiConverterSequenceTypeDeskFilterView.INSTANCE.AllocationSize(value.Filters)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanFilter)
+            + FfiConverterSequenceTypeDeskRowView.INSTANCE.AllocationSize(value.Rows)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NoneMatching)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Submitted)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanStart)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanOpenSettings)
+            + FfiConverterOptionalTypeDeskComposeView.INSTANCE.AllocationSize(value.Compose);
     }
 
     public override void Write(DeskView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalTypeDeskOffView.INSTANCE.Write(value.Off, stream);
+            FfiConverterSequenceTypeDeskFilterView.INSTANCE.Write(value.Filters, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanFilter, stream);
+            FfiConverterSequenceTypeDeskRowView.INSTANCE.Write(value.Rows, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NoneMatching, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Submitted, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanStart, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanOpenSettings, stream);
+            FfiConverterOptionalTypeDeskComposeView.INSTANCE.Write(value.Compose, stream);
     }
 }
 
@@ -8799,6 +9916,134 @@ public record DeskAction {
     public record OpenSettings: DeskAction {}
     
     
+    /// <summary>
+    /// Show only the tickets `filter` picks.
+    /// </summary>
+    public record Filter (
+        DeskFilter FilterValue
+    ) : DeskAction {}
+    
+    /// <summary>
+    /// Turn the desk on, from the switched-off state.
+    /// </summary>
+    public record TurnOn: DeskAction {}
+    
+    
+    /// <summary>
+    /// Open the form raising a ticket.
+    /// </summary>
+    public record StartTicket: DeskAction {}
+    
+    
+    /// <summary>
+    /// The form changed: the whole form as it now reads.
+    /// </summary>
+    public record EditTicket (
+        string Subject,
+        string Message,
+        string RequesterName,
+        string RequesterEmail,
+        string RequesterPhone
+    ) : DeskAction {}
+    
+    /// <summary>
+    /// Raise the ticket, or try again after a failure.
+    /// </summary>
+    public record SubmitTicket: DeskAction {}
+    
+    
+    /// <summary>
+    /// Close the form, dropping what was typed.
+    /// </summary>
+    public record CancelTicket: DeskAction {}
+    
+    
+    /// <summary>
+    /// Put away the confirmation of a ticket raised.
+    /// </summary>
+    public record DismissSubmitted: DeskAction {}
+    
+    
+    /// <summary>
+    /// The open ticket's reply changed.
+    /// </summary>
+    public record EditReply (
+        string Text
+    ) : DeskAction {}
+    
+    /// <summary>
+    /// Send the reply.
+    /// </summary>
+    public record SendReply: DeskAction {}
+    
+    
+    /// <summary>
+    /// Move the open ticket to `status`. Not asked first: every status can be
+    /// moved back, and the answer shows at once.
+    /// </summary>
+    public record SetStatus (
+        DeskStatus Status
+    ) : DeskAction {}
+    
+    /// <summary>
+    /// Put away the open ticket's failures.
+    /// </summary>
+    public record DismissTicketFailures: DeskAction {}
+    
+    
+    /// <summary>
+    /// The "desk on" switch.
+    /// </summary>
+    public record SetEnabled (
+        bool On
+    ) : DeskAction {}
+    
+    /// <summary>
+    /// The "email customers" switch.
+    /// </summary>
+    public record SetNotify (
+        bool On
+    ) : DeskAction {}
+    
+    /// <summary>
+    /// The name box changed.
+    /// </summary>
+    public record EditBrandName (
+        string Name
+    ) : DeskAction {}
+    
+    /// <summary>
+    /// Save what changed.
+    /// </summary>
+    public record SaveSettings: DeskAction {}
+    
+    
+    /// <summary>
+    /// Publish a picked image as the logo. Refused here, and never sent, when
+    /// [`desk_logo_problem`] has a reason.
+    /// </summary>
+    public record UploadLogo (
+        PickedFileView File
+    ) : DeskAction {}
+    
+    /// <summary>
+    /// The picked logo could not be read at all.
+    /// </summary>
+    public record LogoUnreadable: DeskAction {}
+    
+    
+    /// <summary>
+    /// Take the logo down.
+    /// </summary>
+    public record DeleteLogo: DeskAction {}
+    
+    
+    /// <summary>
+    /// Put away the settings' failures and notes.
+    /// </summary>
+    public record DismissSettingsFailures: DeskAction {}
+    
+    
 
     
 }
@@ -8819,6 +10064,75 @@ class FfiConverterTypeDeskAction : FfiConverterRustBuffer<DeskAction>{
             case 3:
                 return new DeskAction.OpenSettings(
                 );
+            case 4:
+                return new DeskAction.Filter(
+                    FfiConverterTypeDeskFilter.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new DeskAction.TurnOn(
+                );
+            case 6:
+                return new DeskAction.StartTicket(
+                );
+            case 7:
+                return new DeskAction.EditTicket(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new DeskAction.SubmitTicket(
+                );
+            case 9:
+                return new DeskAction.CancelTicket(
+                );
+            case 10:
+                return new DeskAction.DismissSubmitted(
+                );
+            case 11:
+                return new DeskAction.EditReply(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 12:
+                return new DeskAction.SendReply(
+                );
+            case 13:
+                return new DeskAction.SetStatus(
+                    FfiConverterTypeDeskStatus.INSTANCE.Read(stream)
+                );
+            case 14:
+                return new DeskAction.DismissTicketFailures(
+                );
+            case 15:
+                return new DeskAction.SetEnabled(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 16:
+                return new DeskAction.SetNotify(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 17:
+                return new DeskAction.EditBrandName(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 18:
+                return new DeskAction.SaveSettings(
+                );
+            case 19:
+                return new DeskAction.UploadLogo(
+                    FfiConverterTypePickedFileView.INSTANCE.Read(stream)
+                );
+            case 20:
+                return new DeskAction.LogoUnreadable(
+                );
+            case 21:
+                return new DeskAction.DeleteLogo(
+                );
+            case 22:
+                return new DeskAction.DismissSettingsFailures(
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeskAction.Read()", value));
         }
@@ -8832,6 +10146,56 @@ class FfiConverterTypeDeskAction : FfiConverterRustBuffer<DeskAction>{
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.TicketId);
             case DeskAction.OpenSettings variant_value:
+                return 4;
+            case DeskAction.Filter variant_value:
+                return 4
+                    + FfiConverterTypeDeskFilter.INSTANCE.AllocationSize(variant_value.FilterValue);
+            case DeskAction.TurnOn variant_value:
+                return 4;
+            case DeskAction.StartTicket variant_value:
+                return 4;
+            case DeskAction.EditTicket variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Subject)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Message)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.RequesterName)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.RequesterEmail)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.RequesterPhone);
+            case DeskAction.SubmitTicket variant_value:
+                return 4;
+            case DeskAction.CancelTicket variant_value:
+                return 4;
+            case DeskAction.DismissSubmitted variant_value:
+                return 4;
+            case DeskAction.EditReply variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case DeskAction.SendReply variant_value:
+                return 4;
+            case DeskAction.SetStatus variant_value:
+                return 4
+                    + FfiConverterTypeDeskStatus.INSTANCE.AllocationSize(variant_value.Status);
+            case DeskAction.DismissTicketFailures variant_value:
+                return 4;
+            case DeskAction.SetEnabled variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case DeskAction.SetNotify variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case DeskAction.EditBrandName variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name);
+            case DeskAction.SaveSettings variant_value:
+                return 4;
+            case DeskAction.UploadLogo variant_value:
+                return 4
+                    + FfiConverterTypePickedFileView.INSTANCE.AllocationSize(variant_value.File);
+            case DeskAction.LogoUnreadable variant_value:
+                return 4;
+            case DeskAction.DeleteLogo variant_value:
+                return 4;
+            case DeskAction.DismissSettingsFailures variant_value:
                 return 4;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeskAction.AllocationSize()", value));
@@ -8850,8 +10214,185 @@ class FfiConverterTypeDeskAction : FfiConverterRustBuffer<DeskAction>{
             case DeskAction.OpenSettings variant_value:
                 stream.WriteInt(3);
                 break;
+            case DeskAction.Filter variant_value:
+                stream.WriteInt(4);
+                FfiConverterTypeDeskFilter.INSTANCE.Write(variant_value.FilterValue, stream);
+                break;
+            case DeskAction.TurnOn variant_value:
+                stream.WriteInt(5);
+                break;
+            case DeskAction.StartTicket variant_value:
+                stream.WriteInt(6);
+                break;
+            case DeskAction.EditTicket variant_value:
+                stream.WriteInt(7);
+                FfiConverterString.INSTANCE.Write(variant_value.Subject, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Message, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.RequesterName, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.RequesterEmail, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.RequesterPhone, stream);
+                break;
+            case DeskAction.SubmitTicket variant_value:
+                stream.WriteInt(8);
+                break;
+            case DeskAction.CancelTicket variant_value:
+                stream.WriteInt(9);
+                break;
+            case DeskAction.DismissSubmitted variant_value:
+                stream.WriteInt(10);
+                break;
+            case DeskAction.EditReply variant_value:
+                stream.WriteInt(11);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case DeskAction.SendReply variant_value:
+                stream.WriteInt(12);
+                break;
+            case DeskAction.SetStatus variant_value:
+                stream.WriteInt(13);
+                FfiConverterTypeDeskStatus.INSTANCE.Write(variant_value.Status, stream);
+                break;
+            case DeskAction.DismissTicketFailures variant_value:
+                stream.WriteInt(14);
+                break;
+            case DeskAction.SetEnabled variant_value:
+                stream.WriteInt(15);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case DeskAction.SetNotify variant_value:
+                stream.WriteInt(16);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case DeskAction.EditBrandName variant_value:
+                stream.WriteInt(17);
+                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
+                break;
+            case DeskAction.SaveSettings variant_value:
+                stream.WriteInt(18);
+                break;
+            case DeskAction.UploadLogo variant_value:
+                stream.WriteInt(19);
+                FfiConverterTypePickedFileView.INSTANCE.Write(variant_value.File, stream);
+                break;
+            case DeskAction.LogoUnreadable variant_value:
+                stream.WriteInt(20);
+                break;
+            case DeskAction.DeleteLogo variant_value:
+                stream.WriteInt(21);
+                break;
+            case DeskAction.DismissSettingsFailures variant_value:
+                stream.WriteInt(22);
+                break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeskAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// One of the filter's choices.
+/// </summary>
+public enum DeskFilter: int {
+    /// <summary>
+    /// Every ticket.
+    /// </summary>
+    All,
+    /// <summary>
+    /// Waiting on the workspace.
+    /// </summary>
+    Open,
+    /// <summary>
+    /// Waiting on the customer.
+    /// </summary>
+    Waiting,
+    /// <summary>
+    /// Resolved.
+    /// </summary>
+    Resolved
+}
+
+class FfiConverterTypeDeskFilter: FfiConverterRustBuffer<DeskFilter> {
+    public static FfiConverterTypeDeskFilter INSTANCE = new FfiConverterTypeDeskFilter();
+
+    public override DeskFilter Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return DeskFilter.All;
+            case 2: return DeskFilter.Open;
+            case 3: return DeskFilter.Waiting;
+            case 4: return DeskFilter.Resolved;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeskFilter.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(DeskFilter value) {
+        return 4;
+    }
+
+    public override void Write(DeskFilter value, BigEndianStream stream) {
+        switch (value) {
+            case DeskFilter.All: stream.WriteInt(1); break;
+            case DeskFilter.Open: stream.WriteInt(2); break;
+            case DeskFilter.Waiting: stream.WriteInt(3); break;
+            case DeskFilter.Resolved: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeskFilter.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A ticket's status, as a ticket's buttons send it.
+/// </summary>
+public enum DeskStatus: int {
+    /// <summary>
+    /// Waiting on the workspace.
+    /// </summary>
+    Open,
+    /// <summary>
+    /// Waiting on the customer.
+    /// </summary>
+    Waiting,
+    /// <summary>
+    /// Resolved.
+    /// </summary>
+    Resolved
+}
+
+class FfiConverterTypeDeskStatus: FfiConverterRustBuffer<DeskStatus> {
+    public static FfiConverterTypeDeskStatus INSTANCE = new FfiConverterTypeDeskStatus();
+
+    public override DeskStatus Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return DeskStatus.Open;
+            case 2: return DeskStatus.Waiting;
+            case 3: return DeskStatus.Resolved;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeskStatus.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(DeskStatus value) {
+        return 4;
+    }
+
+    public override void Write(DeskStatus value, BigEndianStream stream) {
+        switch (value) {
+            case DeskStatus.Open: stream.WriteInt(1); break;
+            case DeskStatus.Waiting: stream.WriteInt(2); break;
+            case DeskStatus.Resolved: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeskStatus.Write()", value));
         }
     }
 }
@@ -12736,6 +14277,68 @@ class FfiConverterOptionalTypeContactWritesView: FfiConverterRustBuffer<ContactW
 
 
 
+class FfiConverterOptionalTypeDeskComposeView: FfiConverterRustBuffer<DeskComposeView?> {
+    public static FfiConverterOptionalTypeDeskComposeView INSTANCE = new FfiConverterOptionalTypeDeskComposeView();
+
+    public override DeskComposeView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeDeskComposeView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(DeskComposeView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeDeskComposeView.INSTANCE.AllocationSize((DeskComposeView)value);
+        }
+    }
+
+    public override void Write(DeskComposeView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeDeskComposeView.INSTANCE.Write((DeskComposeView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeDeskOffView: FfiConverterRustBuffer<DeskOffView?> {
+    public static FfiConverterOptionalTypeDeskOffView INSTANCE = new FfiConverterOptionalTypeDeskOffView();
+
+    public override DeskOffView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeDeskOffView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(DeskOffView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeDeskOffView.INSTANCE.AllocationSize((DeskOffView)value);
+        }
+    }
+
+    public override void Write(DeskOffView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeDeskOffView.INSTANCE.Write((DeskOffView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeEmptyView: FfiConverterRustBuffer<EmptyView?> {
     public static FfiConverterOptionalTypeEmptyView INSTANCE = new FfiConverterOptionalTypeEmptyView();
 
@@ -12915,6 +14518,37 @@ class FfiConverterOptionalTypeUnblockQuestionView: FfiConverterRustBuffer<Unbloc
         } else {
             stream.WriteByte(1);
             FfiConverterTypeUnblockQuestionView.INSTANCE.Write((UnblockQuestionView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeDeskStatus: FfiConverterRustBuffer<DeskStatus?> {
+    public static FfiConverterOptionalTypeDeskStatus INSTANCE = new FfiConverterOptionalTypeDeskStatus();
+
+    public override DeskStatus? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeDeskStatus.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(DeskStatus? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeDeskStatus.INSTANCE.AllocationSize((DeskStatus)value);
+        }
+    }
+
+    public override void Write(DeskStatus? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeDeskStatus.INSTANCE.Write((DeskStatus)value, stream);
         }
     }
 }
@@ -13130,6 +14764,190 @@ class FfiConverterSequenceTypeContactRowView: FfiConverterRustBuffer<ContactRowV
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeContactRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeDeskFilterView: FfiConverterRustBuffer<DeskFilterView[]> {
+    public static FfiConverterSequenceTypeDeskFilterView INSTANCE = new FfiConverterSequenceTypeDeskFilterView();
+
+    public override DeskFilterView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DeskFilterView[length];
+        var readFn = FfiConverterTypeDeskFilterView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DeskFilterView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDeskFilterView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DeskFilterView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDeskFilterView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeDeskMessageView: FfiConverterRustBuffer<DeskMessageView[]> {
+    public static FfiConverterSequenceTypeDeskMessageView INSTANCE = new FfiConverterSequenceTypeDeskMessageView();
+
+    public override DeskMessageView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DeskMessageView[length];
+        var readFn = FfiConverterTypeDeskMessageView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DeskMessageView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDeskMessageView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DeskMessageView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDeskMessageView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeDeskRowView: FfiConverterRustBuffer<DeskRowView[]> {
+    public static FfiConverterSequenceTypeDeskRowView INSTANCE = new FfiConverterSequenceTypeDeskRowView();
+
+    public override DeskRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DeskRowView[length];
+        var readFn = FfiConverterTypeDeskRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DeskRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDeskRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DeskRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDeskRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeDeskStatusChoiceView: FfiConverterRustBuffer<DeskStatusChoiceView[]> {
+    public static FfiConverterSequenceTypeDeskStatusChoiceView INSTANCE = new FfiConverterSequenceTypeDeskStatusChoiceView();
+
+    public override DeskStatusChoiceView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DeskStatusChoiceView[length];
+        var readFn = FfiConverterTypeDeskStatusChoiceView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DeskStatusChoiceView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDeskStatusChoiceView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DeskStatusChoiceView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDeskStatusChoiceView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -13678,6 +15496,21 @@ internal static class _UniFFIAsync {
 }
 #pragma warning restore 8625
 public static class DistrictFfi {
+    /// <summary>
+    /// Why the service would not host `file` as the help desk's logo, or `None`
+    /// when it is one it takes: a PNG, JPEG or WebP image (its type sniffed from
+    /// its bytes, never its name, so a GIF renamed `.png` is still a GIF) of one
+    /// byte up to the core's limit on an image, five megabytes. The chooser reads
+    /// one byte past the limit, so a larger file arrives one byte over it.
+    /// </summary>
+    public static string? DeskLogoProblem(PickedFileView @file) {
+        return FfiConverterOptionalString.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_desk_logo_problem(FfiConverterTypePickedFileView.INSTANCE.Lower(@file), ref _status)
+));
+    }
+
+
     /// <summary>
     /// The pick for a reply's attachments: the core's image types, as many files
     /// as one message may carry.

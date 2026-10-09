@@ -1,0 +1,71 @@
+{
+  "screen": {
+    "Desk": {
+      "view": {
+        "can_filter": true,
+        "can_open_settings": true,
+        "can_start": true,
+        "compose": null,
+        "empty": {
+          "body": "Tickets your customers raise will appear here.",
+          "title": "No tickets yet"
+        },
+        "filters": [
+          {
+            "filter": "All",
+            "label": "Every ticket (0)",
+            "selected": true
+          },
+          {
+            "filter": "Open",
+            "label": "Open (0)",
+            "selected": false
+          },
+          {
+            "filter": "Waiting",
+            "label": "Waiting on the customer (0)",
+            "selected": false
+          },
+          {
+            "filter": "Resolved",
+            "label": "Resolved (0)",
+            "selected": false
+          }
+        ],
+        "none_matching": null,
+        "off": null,
+        "refreshing": false,
+        "rows": [],
+        "status": "Ready",
+        "submitted": null,
+        "title": "Help desk"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Desk",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
