@@ -1,0 +1,95 @@
+{
+  "screen": {
+    "Billing": {
+      "view": {
+        "account": {
+          "body": null,
+          "failure": null,
+          "invoices": [
+            {
+              "amount": "$249.00",
+              "can_open": true,
+              "created": 1754231400,
+              "id": "in_contract_paid",
+              "status": "paid"
+            },
+            {
+              "amount": "$15.00",
+              "can_open": false,
+              "created": 1756909800,
+              "id": "in_contract_open",
+              "status": "open"
+            }
+          ],
+          "invoices_truncated": "Showing your most recent invoices. Older ones are on the website.",
+          "no_invoices": null,
+          "no_subscriptions": null,
+          "state": "Ready",
+          "subscriptions": [
+            {
+              "amount": "$249.00",
+              "coupon": "Founding customer",
+              "ends_at": null,
+              "id": "sub_contract_pro",
+              "name": "District AI Voice Pro",
+              "renews_at": 1756909800,
+              "status": "active"
+            },
+            {
+              "amount": "$15.00",
+              "coupon": null,
+              "ends_at": 1757514600,
+              "id": "sub_contract_legacy",
+              "name": "Legacy Add-on",
+              "renews_at": null,
+              "status": "active"
+            }
+          ],
+          "title": null
+        },
+        "note": "Plan changes, payment methods and cancellations are made on the District AI website. This screen is read only.",
+        "offers_web": true,
+        "plan": {
+          "included_minutes": 1500,
+          "meter_percent": 100,
+          "minutes_used": 1523,
+          "name": "VoicePro",
+          "overage_note": "Minutes beyond your plan are billed automatically.",
+          "status": "Active",
+          "status_caption": null
+        },
+        "purchase": null,
+        "refreshing": false,
+        "status": "Ready",
+        "title": "Billing",
+        "web_action": "Manage billing on the web"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Billing",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
