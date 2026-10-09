@@ -15,6 +15,13 @@ publish.workspace = true
 # crate's own tests.
 crate-type = ["cdylib", "lib"]
 
+[features]
+# Scripted scenes (src/scripted.rs): the core against the core's contract
+# fixtures instead of the service, for the UI walk and the Store screenshots.
+# Never in a build that ships: CI and release.yml check district_ffi.dll for
+# its marker. CI builds a separate scripted test package with it.
+scripted = []
+
 [dependencies]
 async-trait = { workspace = true }
 district-api = { workspace = true }
