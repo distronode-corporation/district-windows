@@ -7942,13 +7942,115 @@ class FfiConverterTypeRoutingView: FfiConverterRustBuffer<RoutingView> {
 /// The booking pages screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading: "Booking pages".
+/// </param>
+/// <param name="Status">
+/// Where the read stands: a status page while loading or failed.
+/// </param>
+/// <param name="State">
+/// Where the booking pages stand, once read.
+/// </param>
+/// <param name="Message">
+/// The card's sentence, in the core's words. Empty until read.
+/// </param>
+/// <param name="BookingUrl">
+/// The public booking page's address, when the service sent it.
+/// </param>
+/// <param name="LastReadyAt">
+/// When they were last live, as an ISO 8601 instant.
+/// </param>
+/// <param name="Problem">
+/// What went wrong with the last setup, while that is the state.
+/// </param>
+/// <param name="Refreshing">
+/// Whether the status is being read again, with it showing.
+/// </param>
+/// <param name="Notice">
+/// What the last press came to, when it needs saying, beside the card.
+/// </param>
+/// <param name="OffersEnable">
+/// Whether "Turn on booking pages" is offered.
+/// </param>
+/// <param name="Enabling">
+/// Whether turning them on is on its way (the button is off meanwhile).
+/// </param>
+/// <param name="OffersCheck">
+/// Whether "Check again" is offered: only where reading again could
+/// change the answer.
+/// </param>
+/// <param name="OffersWeb">
+/// Whether "Manage on the web" is offered.
+/// </param>
+/// <param name="WebEnabled">
+/// Whether "Manage on the web" can be pressed: not while the link is
+/// being asked for. While the browser is awaited a press starts over.
+/// </param>
+/// <param name="Opening">
+/// Whether the hand-off to the web is under way (show progress).
 /// </param>
 public record SchedulingView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading: "Booking pages".
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// Where the read stands: a status page while loading or failed.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Where the booking pages stand, once read.
+    /// </summary>
+    SchedulingState? State, 
+    /// <summary>
+    /// The card's sentence, in the core's words. Empty until read.
+    /// </summary>
+    string Message, 
+    /// <summary>
+    /// The public booking page's address, when the service sent it.
+    /// </summary>
+    string? BookingUrl, 
+    /// <summary>
+    /// When they were last live, as an ISO 8601 instant.
+    /// </summary>
+    string? LastReadyAt, 
+    /// <summary>
+    /// What went wrong with the last setup, while that is the state.
+    /// </summary>
+    string? Problem, 
+    /// <summary>
+    /// Whether the status is being read again, with it showing.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// What the last press came to, when it needs saying, beside the card.
+    /// </summary>
+    FailureView? Notice, 
+    /// <summary>
+    /// Whether "Turn on booking pages" is offered.
+    /// </summary>
+    bool OffersEnable, 
+    /// <summary>
+    /// Whether turning them on is on its way (the button is off meanwhile).
+    /// </summary>
+    bool Enabling, 
+    /// <summary>
+    /// Whether "Check again" is offered: only where reading again could
+    /// change the answer.
+    /// </summary>
+    bool OffersCheck, 
+    /// <summary>
+    /// Whether "Manage on the web" is offered.
+    /// </summary>
+    bool OffersWeb, 
+    /// <summary>
+    /// Whether "Manage on the web" can be pressed: not while the link is
+    /// being asked for. While the browser is awaited a press starts over.
+    /// </summary>
+    bool WebEnabled, 
+    /// <summary>
+    /// Whether the hand-off to the web is under way (show progress).
+    /// </summary>
+    bool Opening
 ) {
 }
 
@@ -7957,17 +8059,59 @@ class FfiConverterTypeSchedulingView: FfiConverterRustBuffer<SchedulingView> {
 
     public override SchedulingView Read(BigEndianStream stream) {
         return new SchedulingView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            State: FfiConverterOptionalTypeSchedulingState.INSTANCE.Read(stream),
+            Message: FfiConverterString.INSTANCE.Read(stream),
+            BookingUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
+            LastReadyAt: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Problem: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            OffersEnable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Enabling: FfiConverterBoolean.INSTANCE.Read(stream),
+            OffersCheck: FfiConverterBoolean.INSTANCE.Read(stream),
+            OffersWeb: FfiConverterBoolean.INSTANCE.Read(stream),
+            WebEnabled: FfiConverterBoolean.INSTANCE.Read(stream),
+            Opening: FfiConverterBoolean.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(SchedulingView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalTypeSchedulingState.INSTANCE.AllocationSize(value.State)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Message)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.BookingUrl)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LastReadyAt)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Problem)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersEnable)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enabling)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersCheck)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWeb)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.WebEnabled)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Opening);
     }
 
     public override void Write(SchedulingView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalTypeSchedulingState.INSTANCE.Write(value.State, stream);
+            FfiConverterString.INSTANCE.Write(value.Message, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.BookingUrl, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.LastReadyAt, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Problem, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Notice, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersEnable, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Enabling, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersCheck, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersWeb, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.WebEnabled, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Opening, stream);
     }
 }
 
@@ -12236,9 +12380,21 @@ public enum SchedulingAction: int {
     /// </summary>
     Open,
     /// <summary>
-    /// Manage the booking pages on the web dashboard.
+    /// Manage the booking pages on the web dashboard, signed in.
     /// </summary>
-    ManageOnWeb
+    ManageOnWeb,
+    /// <summary>
+    /// Turn booking pages on.
+    /// </summary>
+    Enable,
+    /// <summary>
+    /// Read where they stand again ("Check again", "Try again").
+    /// </summary>
+    CheckAgain,
+    /// <summary>
+    /// Put the notice away.
+    /// </summary>
+    DismissNotice
 }
 
 class FfiConverterTypeSchedulingAction: FfiConverterRustBuffer<SchedulingAction> {
@@ -12249,6 +12405,9 @@ class FfiConverterTypeSchedulingAction: FfiConverterRustBuffer<SchedulingAction>
         switch (value) {
             case 1: return SchedulingAction.Open;
             case 2: return SchedulingAction.ManageOnWeb;
+            case 3: return SchedulingAction.Enable;
+            case 4: return SchedulingAction.CheckAgain;
+            case 5: return SchedulingAction.DismissNotice;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAction.Read()", value));
         }
     }
@@ -12261,7 +12420,85 @@ class FfiConverterTypeSchedulingAction: FfiConverterRustBuffer<SchedulingAction>
         switch (value) {
             case SchedulingAction.Open: stream.WriteInt(1); break;
             case SchedulingAction.ManageOnWeb: stream.WriteInt(2); break;
+            case SchedulingAction.Enable: stream.WriteInt(3); break;
+            case SchedulingAction.CheckAgain: stream.WriteInt(4); break;
+            case SchedulingAction.DismissNotice: stream.WriteInt(5); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Where the booking pages stand, which picks the card's icon.
+/// </summary>
+public enum SchedulingState: int {
+    /// <summary>
+    /// The workspace is not offered booking pages.
+    /// </summary>
+    NotOffered,
+    /// <summary>
+    /// Offered, never set up.
+    /// </summary>
+    NotSetUp,
+    /// <summary>
+    /// Being set up.
+    /// </summary>
+    Provisioning,
+    /// <summary>
+    /// Live.
+    /// </summary>
+    Live,
+    /// <summary>
+    /// The last setup failed (the service retries).
+    /// </summary>
+    SetupFailed,
+    /// <summary>
+    /// Switched off by a person.
+    /// </summary>
+    SwitchedOff,
+    /// <summary>
+    /// A state this build does not know.
+    /// </summary>
+    Unknown
+}
+
+class FfiConverterTypeSchedulingState: FfiConverterRustBuffer<SchedulingState> {
+    public static FfiConverterTypeSchedulingState INSTANCE = new FfiConverterTypeSchedulingState();
+
+    public override SchedulingState Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return SchedulingState.NotOffered;
+            case 2: return SchedulingState.NotSetUp;
+            case 3: return SchedulingState.Provisioning;
+            case 4: return SchedulingState.Live;
+            case 5: return SchedulingState.SetupFailed;
+            case 6: return SchedulingState.SwitchedOff;
+            case 7: return SchedulingState.Unknown;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingState.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SchedulingState value) {
+        return 4;
+    }
+
+    public override void Write(SchedulingState value, BigEndianStream stream) {
+        switch (value) {
+            case SchedulingState.NotOffered: stream.WriteInt(1); break;
+            case SchedulingState.NotSetUp: stream.WriteInt(2); break;
+            case SchedulingState.Provisioning: stream.WriteInt(3); break;
+            case SchedulingState.Live: stream.WriteInt(4); break;
+            case SchedulingState.SetupFailed: stream.WriteInt(5); break;
+            case SchedulingState.SwitchedOff: stream.WriteInt(6); break;
+            case SchedulingState.Unknown: stream.WriteInt(7); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingState.Write()", value));
         }
     }
 }
@@ -15683,6 +15920,37 @@ class FfiConverterOptionalTypeReportStatus: FfiConverterRustBuffer<ReportStatus?
         } else {
             stream.WriteByte(1);
             FfiConverterTypeReportStatus.INSTANCE.Write((ReportStatus)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeSchedulingState: FfiConverterRustBuffer<SchedulingState?> {
+    public static FfiConverterOptionalTypeSchedulingState INSTANCE = new FfiConverterOptionalTypeSchedulingState();
+
+    public override SchedulingState? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSchedulingState.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SchedulingState? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSchedulingState.INSTANCE.AllocationSize((SchedulingState)value);
+        }
+    }
+
+    public override void Write(SchedulingState? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSchedulingState.INSTANCE.Write((SchedulingState)value, stream);
         }
     }
 }
