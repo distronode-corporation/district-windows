@@ -827,6 +827,18 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1096,7 +1108,73 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     RustBuffer uniffi_district_ffi_fn_func_attachment_pick(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_attachment_problem(RustBuffer @file,uint @held,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_file_kind(RustBuffer @head,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_file_kind_mime_type(RustBuffer @kind,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_logo_pick(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      RustBuffer uniffi_district_ffi_fn_func_link_kind(RustBuffer @uri,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_brand_palette(sbyte @dark,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -1679,7 +1757,73 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_attachment_pick(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_attachment_problem(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_file_kind(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_file_kind_mime_type(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_logo_pick(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_link_kind(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_brand_palette(
     );
 
     #if NET8_0_OR_GREATER
@@ -1901,9 +2045,45 @@ static class _UniFFILib {
     }
     static void uniffiCheckApiChecksums() {
         {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_attachment_pick();
+            if (checksum != 17750) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_attachment_pick` checksum `17750`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_attachment_problem();
+            if (checksum != 50343) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_attachment_problem` checksum `50343`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_file_kind();
+            if (checksum != 16763) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_file_kind` checksum `16763`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_file_kind_mime_type();
+            if (checksum != 50845) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_file_kind_mime_type` checksum `50845`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_logo_pick();
+            if (checksum != 60023) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_logo_pick` checksum `60023`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_link_kind();
             if (checksum != 17727) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_link_kind` checksum `17727`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_brand_palette();
+            if (checksum != 2320) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_brand_palette` checksum `2320`, library returned `{checksum}`");
             }
         }
         {
@@ -2144,6 +2324,27 @@ class FfiConverterString: FfiConverter<string, RustBuffer> {
         var bytes = System.Text.Encoding.UTF8.GetBytes(value);
         stream.WriteInt(bytes.Length);
         stream.WriteBytes(bytes);
+    }
+}
+
+
+
+
+class FfiConverterByteArray: FfiConverterRustBuffer<byte[]> {
+    public static FfiConverterByteArray INSTANCE = new FfiConverterByteArray();
+
+    public override byte[] Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        return stream.ReadBytes(length);
+    }
+
+    public override int AllocationSize(byte[] value) {
+        return 4 + value.Length;
+    }
+
+    public override void Write(byte[] value, BigEndianStream stream) {
+        stream.WriteInt(value.Length);
+        stream.WriteBytes(value);
     }
 }
 
@@ -4890,6 +5091,65 @@ class FfiConverterTypeFailureView: FfiConverterRustBuffer<FailureView> {
 
 
 /// <summary>
+/// What a file chooser offers and how much of each file C# reads.
+/// </summary>
+/// <param name="Extensions">
+/// The extensions to filter on, each with its dot (`.png`), as
+/// `FileOpenPicker.FileTypeFilter` takes them.
+/// </param>
+/// <param name="MaxFiles">
+/// How many files one pick may return.
+/// </param>
+/// <param name="ReadCap">
+/// How many bytes of each file to read at most: one past the largest the
+/// service takes, so the core sees a file is too large and says so.
+/// </param>
+public record FilePickView (
+    /// <summary>
+    /// The extensions to filter on, each with its dot (`.png`), as
+    /// `FileOpenPicker.FileTypeFilter` takes them.
+    /// </summary>
+    string[] Extensions, 
+    /// <summary>
+    /// How many files one pick may return.
+    /// </summary>
+    uint MaxFiles, 
+    /// <summary>
+    /// How many bytes of each file to read at most: one past the largest the
+    /// service takes, so the core sees a file is too large and says so.
+    /// </summary>
+    ulong ReadCap
+) {
+}
+
+class FfiConverterTypeFilePickView: FfiConverterRustBuffer<FilePickView> {
+    public static FfiConverterTypeFilePickView INSTANCE = new FfiConverterTypeFilePickView();
+
+    public override FilePickView Read(BigEndianStream stream) {
+        return new FilePickView(
+            Extensions: FfiConverterSequenceString.INSTANCE.Read(stream),
+            MaxFiles: FfiConverterUInt32.INSTANCE.Read(stream),
+            ReadCap: FfiConverterUInt64.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(FilePickView value) {
+        return 0
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Extensions)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.MaxFiles)
+            + FfiConverterUInt64.INSTANCE.AllocationSize(value.ReadCap);
+    }
+
+    public override void Write(FilePickView value, BigEndianStream stream) {
+            FfiConverterSequenceString.INSTANCE.Write(value.Extensions, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.MaxFiles, stream);
+            FfiConverterUInt64.INSTANCE.Write(value.ReadCap, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The card sending the owner to finish setting up on the web.
 /// </summary>
 /// <param name="Title">
@@ -5908,6 +6168,101 @@ class FfiConverterTypePagingView: FfiConverterRustBuffer<PagingView> {
 
 
 /// <summary>
+/// One theme's brand colours, each `0xAARRGGBB`.
+/// </summary>
+/// <param name="Accent">
+/// The accent: suggested actions, selections, links and focus.
+/// </param>
+/// <param name="AccentHover">
+/// The accent under the pointer.
+/// </param>
+/// <param name="OnAccent">
+/// Text and icons drawn on the accent or on a semantic colour.
+/// </param>
+/// <param name="Success">
+/// Something went well.
+/// </param>
+/// <param name="Warning">
+/// Something needs attention.
+/// </param>
+/// <param name="Destructive">
+/// Something is destroyed or failed.
+/// </param>
+/// <param name="Info">
+/// Neutral information.
+/// </param>
+public record PaletteView (
+    /// <summary>
+    /// The accent: suggested actions, selections, links and focus.
+    /// </summary>
+    uint Accent, 
+    /// <summary>
+    /// The accent under the pointer.
+    /// </summary>
+    uint AccentHover, 
+    /// <summary>
+    /// Text and icons drawn on the accent or on a semantic colour.
+    /// </summary>
+    uint OnAccent, 
+    /// <summary>
+    /// Something went well.
+    /// </summary>
+    uint Success, 
+    /// <summary>
+    /// Something needs attention.
+    /// </summary>
+    uint Warning, 
+    /// <summary>
+    /// Something is destroyed or failed.
+    /// </summary>
+    uint Destructive, 
+    /// <summary>
+    /// Neutral information.
+    /// </summary>
+    uint Info
+) {
+}
+
+class FfiConverterTypePaletteView: FfiConverterRustBuffer<PaletteView> {
+    public static FfiConverterTypePaletteView INSTANCE = new FfiConverterTypePaletteView();
+
+    public override PaletteView Read(BigEndianStream stream) {
+        return new PaletteView(
+            Accent: FfiConverterUInt32.INSTANCE.Read(stream),
+            AccentHover: FfiConverterUInt32.INSTANCE.Read(stream),
+            OnAccent: FfiConverterUInt32.INSTANCE.Read(stream),
+            Success: FfiConverterUInt32.INSTANCE.Read(stream),
+            Warning: FfiConverterUInt32.INSTANCE.Read(stream),
+            Destructive: FfiConverterUInt32.INSTANCE.Read(stream),
+            Info: FfiConverterUInt32.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PaletteView value) {
+        return 0
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Accent)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.AccentHover)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.OnAccent)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Success)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Warning)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Destructive)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Info);
+    }
+
+    public override void Write(PaletteView value, BigEndianStream stream) {
+            FfiConverterUInt32.INSTANCE.Write(value.Accent, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.AccentHover, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.OnAccent, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Success, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Warning, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Destructive, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Info, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The the persona section.
 /// </summary>
 /// <param name="Title">
@@ -5937,6 +6292,63 @@ class FfiConverterTypePersonaView: FfiConverterRustBuffer<PersonaView> {
 
     public override void Write(PersonaView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One file the member picked, as C# read it.
+/// </summary>
+/// <param name="FileName">
+/// The file's name, without its folder.
+/// </param>
+/// <param name="Size">
+/// The file's size as Windows reported it, in bytes. It may be more than
+/// `bytes` holds: the read stops at [`FilePickView::read_cap`].
+/// </param>
+/// <param name="Bytes">
+/// The file's bytes, from its start, no more than the pick's `read_cap`.
+/// </param>
+public record PickedFileView (
+    /// <summary>
+    /// The file's name, without its folder.
+    /// </summary>
+    string FileName, 
+    /// <summary>
+    /// The file's size as Windows reported it, in bytes. It may be more than
+    /// `bytes` holds: the read stops at [`FilePickView::read_cap`].
+    /// </summary>
+    ulong Size, 
+    /// <summary>
+    /// The file's bytes, from its start, no more than the pick's `read_cap`.
+    /// </summary>
+    byte[] Bytes
+) {
+}
+
+class FfiConverterTypePickedFileView: FfiConverterRustBuffer<PickedFileView> {
+    public static FfiConverterTypePickedFileView INSTANCE = new FfiConverterTypePickedFileView();
+
+    public override PickedFileView Read(BigEndianStream stream) {
+        return new PickedFileView(
+            FileName: FfiConverterString.INSTANCE.Read(stream),
+            Size: FfiConverterUInt64.INSTANCE.Read(stream),
+            Bytes: FfiConverterByteArray.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PickedFileView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.FileName)
+            + FfiConverterUInt64.INSTANCE.AllocationSize(value.Size)
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.Bytes);
+    }
+
+    public override void Write(PickedFileView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.FileName, stream);
+            FfiConverterUInt64.INSTANCE.Write(value.Size, stream);
+            FfiConverterByteArray.INSTANCE.Write(value.Bytes, stream);
     }
 }
 
@@ -7577,6 +7989,90 @@ class FfiConverterTypeDirectoryAction: FfiConverterRustBuffer<DirectoryAction> {
         switch (value) {
             case DirectoryAction.Open: stream.WriteInt(1); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDirectoryAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// What a file's first bytes say it is.
+/// </summary>
+public enum FileKind: int {
+    /// <summary>
+    /// PNG: `89 50 4E 47 0D 0A 1A 0A`.
+    /// </summary>
+    Png,
+    /// <summary>
+    /// JPEG: `FF D8 FF`.
+    /// </summary>
+    Jpeg,
+    /// <summary>
+    /// GIF: `GIF87a` or `GIF89a`.
+    /// </summary>
+    Gif,
+    /// <summary>
+    /// WebP: `RIFF`, four bytes of length, `WEBP`.
+    /// </summary>
+    Webp,
+    /// <summary>
+    /// HEIC: an ISO box `ftyp` whose major brand is one of HEVC-coded
+    /// images' (`heic`, `heix`, `hevc`, `hevx`, `heim`, `heis`, `hevm`,
+    /// `hevs`). The service takes none, and the core says so.
+    /// </summary>
+    Heic,
+    /// <summary>
+    /// HEIF of another coding: an `ftyp` box whose major brand is `mif1` or
+    /// `msf1`.
+    /// </summary>
+    Heif,
+    /// <summary>
+    /// PDF: `%PDF-`.
+    /// </summary>
+    Pdf,
+    /// <summary>
+    /// Anything else, an empty or truncated file included.
+    /// </summary>
+    Unknown
+}
+
+class FfiConverterTypeFileKind: FfiConverterRustBuffer<FileKind> {
+    public static FfiConverterTypeFileKind INSTANCE = new FfiConverterTypeFileKind();
+
+    public override FileKind Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return FileKind.Png;
+            case 2: return FileKind.Jpeg;
+            case 3: return FileKind.Gif;
+            case 4: return FileKind.Webp;
+            case 5: return FileKind.Heic;
+            case 6: return FileKind.Heif;
+            case 7: return FileKind.Pdf;
+            case 8: return FileKind.Unknown;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeFileKind.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(FileKind value) {
+        return 4;
+    }
+
+    public override void Write(FileKind value, BigEndianStream stream) {
+        switch (value) {
+            case FileKind.Png: stream.WriteInt(1); break;
+            case FileKind.Jpeg: stream.WriteInt(2); break;
+            case FileKind.Gif: stream.WriteInt(3); break;
+            case FileKind.Webp: stream.WriteInt(4); break;
+            case FileKind.Heic: stream.WriteInt(5); break;
+            case FileKind.Heif: stream.WriteInt(6); break;
+            case FileKind.Pdf: stream.WriteInt(7); break;
+            case FileKind.Unknown: stream.WriteInt(8); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeFileKind.Write()", value));
         }
     }
 }
@@ -12092,6 +12588,64 @@ internal static class _UniFFIAsync {
 #pragma warning restore 8625
 public static class DistrictFfi {
     /// <summary>
+    /// The pick for a reply's attachments: the core's image types, as many files
+    /// as one message may carry.
+    /// </summary>
+    public static FilePickView AttachmentPick() {
+        return FfiConverterTypeFilePickView.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_attachment_pick( ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// Why the core would refuse `file` as the next of `held` attachments, in its
+    /// own words, or `None` when it would take it.
+    /// </summary>
+    public static string? AttachmentProblem(PickedFileView @file, uint @held) {
+        return FfiConverterOptionalString.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_attachment_problem(FfiConverterTypePickedFileView.INSTANCE.Lower(@file), FfiConverterUInt32.INSTANCE.Lower(@held), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// What `head`, a file's first bytes, says the file is. Twelve bytes are
+    /// enough for every kind; fewer than a kind's signature is [`FileKind::Unknown`].
+    /// </summary>
+    public static FileKind FileKind(byte[] @head) {
+        return FfiConverterTypeFileKind.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_file_kind(FfiConverterByteArray.INSTANCE.Lower(@head), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// The MIME type the core is handed for `kind` (see [`FileKind::mime_type`]).
+    /// </summary>
+    public static string FileKindMimeType(FileKind @kind) {
+        return FfiConverterString.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_file_kind_mime_type(FfiConverterTypeFileKind.INSTANCE.Lower(@kind), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// The pick for the help desk's logo: [`LOGO_TYPES`], one file.
+    /// </summary>
+    public static FilePickView LogoPick() {
+        return FfiConverterTypeFilePickView.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_logo_pick( ref _status)
+));
+    }
+
+
+    /// <summary>
     /// What `uri` is for. Only the scheme and the host decide; the query, which
     /// carries the sign-in's code and state, is left to the core.
     /// </summary>
@@ -12099,6 +12653,17 @@ public static class DistrictFfi {
         return FfiConverterTypeLinkKind.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_district_ffi_fn_func_link_kind(FfiConverterString.INSTANCE.Lower(@uri), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// The brand's colours for a dark theme (`true`) or a light one.
+    /// </summary>
+    public static PaletteView BrandPalette(bool @dark) {
+        return FfiConverterTypePaletteView.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_brand_palette(FfiConverterBoolean.INSTANCE.Lower(@dark), ref _status)
 ));
     }
 
