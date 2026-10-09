@@ -11,15 +11,27 @@ PowerShell 7 run as administrator (trusting the test certificate needs it).
 throwaway certificate that signed it (one or more copies), as CI's AppPackages
 directory (and its district-ai-test-msix artifact) does; the framework packages
 it depends on are installed from its Dependencies\x64 when there is one, and
-stay installed (they are shared with other apps). The certificate is trusted for the run only, and
-the package is always removed afterwards, pass or fail. A copy of the package
-that was already installed is refused rather than replaced.
+stay installed (they are shared with other apps). The certificate is trusted
+for the run only, and the package is always removed afterwards, pass or fail.
+A copy of the package that was already installed is refused rather than
+replaced.
+
+Without -Scripted it runs the smoke tests (SmokeTests) against a package that
+ships. With -Scripted, the package must be the scripted test package (built
+with district-ffi's `scripted` feature, which the script checks), and it runs
+the scene walk (SceneWalkTests). -Screenshots saves each page of the walk at
+1920x1080 in that folder, setting the display to 1920x1080 first.
 
 .EXAMPLE
 pwsh scripts/run-ui-tests.ps1 -Packages $env:USERPROFILE\Downloads\district-ai-test-msix
+
+.EXAMPLE
+pwsh scripts/run-ui-tests.ps1 -Packages .\district-ai-scripted-msix -Scripted -Screenshots .\shots
 #>
 param(
-    [Parameter(Mandatory)] [string] $Packages
+    [Parameter(Mandatory)] [string] $Packages,
+    [switch] $Scripted,
+    [string] $Screenshots = ''
 )
 
 Set-StrictMode -Version Latest
@@ -44,6 +56,11 @@ try {
     $name = ([xml]$reader.ReadToEnd()).Package.Identity.Name
     $reader.Dispose()
 } finally { $zip.Dispose() }
+# The scene walk needs a scripted package; the smoke tests one that ships.
+python (Join-Path $PSScriptRoot 'check-scripted.py') $(if ($Scripted) { '--present' } else { '--absent' }) $msix.FullName
+if ($LASTEXITCODE -ne 0) { throw "$($msix.Name) is $(if ($Scripted) { 'not ' })a scripted build" }
+if ($Screenshots -and -not $Scripted) { throw '-Screenshots needs -Scripted' }
+
 if (Get-AppxPackage -Name $name) { throw "$name is already installed for this user: uninstall it first, so the tests run against $($msix.Name)" }
 
 $dependencies = Join-Path $msix.DirectoryName 'Dependencies\x64'
@@ -73,13 +90,29 @@ try {
 
     $env:DISTRICTAI_PACKAGE_FAMILY = $package.PackageFamilyName
     $env:DISTRICTAI_UI_TESTS_REQUIRED = '1'
+    if ($Scripted) {
+        $env:DISTRICTAI_UI_SCRIPTED = '1'
+        $filter = 'FullyQualifiedName~DistrictAI.UiTests.SceneWalkTests'
+    } else {
+        $filter = 'FullyQualifiedName~DistrictAI.UiTests.SmokeTests'
+    }
+    if ($Screenshots) {
+        $env:DISTRICTAI_SCREENSHOTS = [IO.Path]::GetFullPath($Screenshots)
+        # Windows Server's own cmdlet. The walk checks the window really is 1920x1080.
+        try { Set-DisplayResolution -Width 1920 -Height 1080 -Force } catch { Write-Host "Set-DisplayResolution: $($_.Exception.Message)" }
+        Add-Type -AssemblyName System.Windows.Forms
+        Write-Host "display: $([System.Windows.Forms.Screen]::PrimaryScreen.Bounds)"
+    }
     $clock = [Diagnostics.Stopwatch]::StartNew()
-    dotnet test $project --nologo --logger 'console;verbosity=detailed'
+    dotnet test $project --nologo --logger 'console;verbosity=detailed' --filter $filter
     $code = $LASTEXITCODE
     Write-Host ("UI tests ran in {0:N1} s (build included)" -f $clock.Elapsed.TotalSeconds)
     if ($code -ne 0) { throw "the UI tests failed ($code)" }
     $failed = $false
 } finally {
+    foreach ($variable in 'DISTRICTAI_PACKAGE_FAMILY', 'DISTRICTAI_UI_TESTS_REQUIRED', 'DISTRICTAI_UI_SCRIPTED', 'DISTRICTAI_SCREENSHOTS') {
+        Remove-Item -Path "Env:$variable" -ErrorAction SilentlyContinue
+    }
     Get-Process -Name 'DistrictAI' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     if ($failed) {
         # Why the app stopped, if it crashed: Windows Error Reporting's record.

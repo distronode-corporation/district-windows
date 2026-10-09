@@ -31,6 +31,21 @@ internal static partial class Native
     [LibraryImport("user32.dll", EntryPoint = "SendMessageTimeoutW", SetLastError = true)]
     private static partial nint SendMessageTimeout(nint window, uint message, nuint wParam, nint lParam, uint flags, uint timeout, out nuint result);
 
+    /// <summary>Moves and sizes <paramref name="window"/> (outer size, in pixels).</summary>
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool MoveWindow(nint window, int x, int y, int width, int height, [MarshalAs(UnmanagedType.Bool)] bool repaint);
+
+    /// <summary>Draws <paramref name="window"/> into <paramref name="dc"/>; flag 2 (PW_RENDERFULLCONTENT) includes DirectComposition content, which WinUI is.</summary>
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool PrintWindow(nint window, nint dc, uint flags);
+
+    /// <summary>Brings <paramref name="window"/> to the foreground.</summary>
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool SetForegroundWindow(nint window);
+
     [LibraryImport("kernel32.dll", StringMarshalling = StringMarshalling.Utf16)]
     private static partial int GetPackagesByPackageFamily(string packageFamilyName, ref uint count, nint packageFullNames, ref uint bufferLength, nint buffer);
 

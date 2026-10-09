@@ -145,6 +145,38 @@ same identity. With a package already installed by hand, `dotnet test
 tests/DistrictAI.UiTests` runs the tests against it directly; they skip when it is not
 installed.
 
+### Scripted scenes and the area walk
+
+`district-ffi` has a `scripted` feature (`crates/district-ffi/src/scripted.rs`): started
+with `--district-scripted-scene=signed-in` on its command line, a build with it runs the
+core against the core's own contract fixtures instead of the service, signed in to one
+workspace ("Example Dental"), with no network and nothing stored. It exists so that
+every page can be rendered and photographed without an account. Without the argument, a
+scripted build runs as any other.
+
+The feature never ships. `scripts/check-scripted.py` looks for its marker in a
+`district_ffi.dll` or in the packages that hold one; CI runs it on the DLL and the test
+MSIX it builds, and `release.yml` on every DLL and package a release carries.
+
+CI's `windows-app` job also builds the DLL with the feature into a separate scripted test
+MSIX, never uploaded, and runs the area walk against it (`SceneWalkTests`): every entry
+the navigation pane offers is opened, and each page must show its heading, finish loading
+and show no failure. Each page is saved at 1920x1080 in the `district-ai-screenshots`
+artifact. The scenes' own Rust tests (`cargo test -p district-ffi --features scripted
+--lib scripted`) check the same thing against the projections first, and that each
+fixture still decodes. When an area is built, its effects need answers in `scripted.rs`
+if the core sends ones it does not answer yet, and its page's heading a line in
+`SceneWalkTests`.
+
+To build and walk it on Windows:
+
+```
+cargo build -p district-ffi --release --features scripted
+dotnet build src/DistrictAI -c Release -p:Platform=x64 -p:DistrictFfiProfile=release `
+  -p:GenerateAppxPackageOnBuild=true -p:AppxPackageDir=<out>\ ...   # signed as CI signs it
+./scripts/run-ui-tests.ps1 -Packages <out> -Scripted -Screenshots <folder>
+```
+
 ## Public hygiene
 
 This repository is public, and `scripts/check-public-hygiene.py` keeps it that way. CI runs

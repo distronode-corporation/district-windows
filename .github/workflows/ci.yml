@@ -3,7 +3,8 @@ name: CI
 # Linux, where everything OS-neutral runs:
 #
 # - `rust` formats, lints and tests crates/district-ffi (the projection snapshot
-#   tests included) and holds its line coverage to coverage-floors.toml;
+#   tests included) and holds its line coverage to coverage-floors.toml, then
+#   lints and tests it with the `scripted` feature (the scenes' own tests);
 # - `msrv` compiles it at the declared minimum Rust version;
 # - `bindings` regenerates the C# bindings and fails if the committed ones differ;
 # - `dotnet` tests DistrictAI.Core against the Linux build of district-ffi,
@@ -24,7 +25,11 @@ name: CI
 #   an MSIX signed with a throwaway certificate made in the job (never
 #   committed, never kept), installs that package and runs the UI smoke tests
 #   against it (tests/DistrictAI.UiTests), then builds and packages the GitHub
-#   flavour (Package.GitHub.appxmanifest) unsigned, as a release does.
+#   flavour (Package.GitHub.appxmanifest) unsigned, as a release does. Last, it
+#   builds district_ffi.dll with the `scripted` feature into a separate
+#   scripted test MSIX, never uploaded, and walks every area the pane offers in
+#   its signed-in scene, saving a 1920x1080 screenshot of each page. Every DLL
+#   and package that ships is checked to carry no scripted code.
 #
 # Any job on a Windows runner carries `if: ${{ !github.event.repository.private }}`:
 # private Windows minutes are metered, public ones are not.
@@ -96,6 +101,13 @@ jobs:
 
       - name: Line coverage meets every floor
         run: python3 scripts/check-coverage.py "$RUNNER_TEMP/coverage.json"
+
+      # The scripted scenes (src/scripted.rs) are compiled only with the
+      # feature, so the runs above never see them.
+      - name: cargo clippy and test, with the scripted feature
+        run: |
+          cargo clippy -p district-ffi --all-targets --locked --features scripted -- -D warnings
+          cargo test -p district-ffi --locked --features scripted --lib scripted
 
   # The declared Rust floor, compiled at the floor.
   msrv:
@@ -224,6 +236,9 @@ jobs:
       - name: The coverage check still catches what it claims to
         run: python3 scripts/check-coverage.py --self-test
 
+      - name: The scripted-build check still catches what it claims to
+        run: python3 scripts/check-scripted.py --self-test
+
       - name: The unsafe check still catches what it claims to
         run: python3 scripts/check-unsafe.py --self-test
 
@@ -333,6 +348,9 @@ jobs:
 
       - name: Build district_ffi.dll
         run: cargo build -p district-ffi --locked --release
+
+      - name: district_ffi.dll has no scripted scenes
+        run: python scripts/check-scripted.py --absent target/release/district_ffi.dll
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
@@ -497,6 +515,59 @@ jobs:
           path: ${{ runner.temp }}/AppPackages
           retention-days: 7
           if-no-files-found: error
+
+      # The scripted test package: district_ffi.dll with the `scripted`
+      # feature (made-up data, no network), copied out of the target directory
+      # so nothing above or in a later run packages it by mistake, and the
+      # app packaged around it under the same throwaway-certificate rules as
+      # the test MSIX. Never uploaded: it exists for the walk below.
+      - name: Build the scripted district_ffi.dll and package a scripted test MSIX
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          cargo build -p district-ffi --locked --release --features scripted
+          if ($LASTEXITCODE -ne 0) { throw "cargo build failed with $LASTEXITCODE" }
+          $ffi = Join-Path $env:RUNNER_TEMP 'scripted-ffi'
+          New-Item -ItemType Directory -Force $ffi | Out-Null
+          Copy-Item target/release/district_ffi.dll $ffi
+          python scripts/check-scripted.py --present (Join-Path $ffi 'district_ffi.dll')
+          if ($LASTEXITCODE -ne 0) { throw 'the scripted build carries no scripted scenes' }
+          $publisher = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity.Publisher
+          $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher `
+            -KeyUsage DigitalSignature -FriendlyName 'District AI CI scripted test package' `
+            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1) `
+            -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
+          $out = Join-Path $env:RUNNER_TEMP 'ScriptedPackages'
+          try {
+            dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+              -p:DistrictFfiProfile=release "-p:DistrictFfiDir=$ffi\" -warnaserror `
+              -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=true `
+              -p:DebugType=none `
+              "-p:PackageCertificateThumbprint=$($cert.Thumbprint)" "-p:AppxPackageDir=$out\"
+            if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
+            Export-Certificate -Cert $cert -FilePath (Join-Path $out 'District-AI-CI-scripted.cer') | Out-Null
+          } finally {
+            Remove-Item -Path "Cert:\CurrentUser\My\$($cert.Thumbprint)" -DeleteKey
+          }
+
+      # Every entry the navigation pane offers in the scripted signed-in scene
+      # is opened and must render, finish loading and show no failure; each
+      # page is saved at 1920x1080 (the display is set to that first).
+      - name: UI walk of the scripted test MSIX, with screenshots
+        shell: pwsh
+        timeout-minutes: 15
+        run: |
+          ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'ScriptedPackages') -Scripted `
+            -Screenshots (Join-Path $env:RUNNER_TEMP 'screenshots')
+
+      # The walk's pages, for the Store listing and for review. Kept a week.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: district-ai-screenshots
+          path: ${{ runner.temp }}/screenshots
+          retention-days: 7
+          if-no-files-found: warn
 
   # Pull requests only: fails a pull request that ADDS a dependency with a known
   # moderate-or-worse vulnerability, or under a licence this Apache-2.0 project
