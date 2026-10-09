@@ -139,6 +139,48 @@ public sealed class SceneWalkTests
     }
 
     /// <summary>
+    /// A call placed from the dialler shows its live transcript on the call
+    /// strip: the scene accepts the call (its media never connects) and the
+    /// call's socket answers with the recorded snapshot (scripted.rs,
+    /// transcript_snapshot). The strip is saved as 90-live-transcript.png when
+    /// screenshots are on; then the call is hung up.
+    /// </summary>
+    [Fact]
+    public void APlacedCallShowsItsLiveTranscript()
+    {
+        RequireScriptedPackage();
+        var shots = Environment.GetEnvironmentVariable("DISTRICTAI_SCREENSHOTS");
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        var handle = window.Properties.NativeWindowHandle.Value;
+        _ = Heading(app, WorkspaceName, _startTimeout);
+        if (shots is { Length: > 0 })
+        {
+            SizeClient(handle, 1920, 1080);
+        }
+
+        Open(app, "Calls");
+        app.Find(ControlType.Button, "Place a call", _pageTimeout).AsButton().Invoke();
+        app.Find(ControlType.Edit, "Number to call", _pageTimeout).AsTextBox().Text = "+12125550142";
+        Wait.For(
+            () => app.TryFind(ControlType.Button, "Call") is { IsEnabled: true } call ? call : null,
+            _pageTimeout,
+            "Call to work",
+            app.Describe).AsButton().Invoke();
+
+        _ = app.Find(null, "Live transcript", _pageTimeout);
+        _ = app.Find(ControlType.Text, "I'd like to book a cleaning on Thursday.", _pageTimeout);
+        InstalledApp.Log("the call strip shows the live transcript");
+        if (shots is { Length: > 0 })
+        {
+            Save(handle, Path.Combine(shots, "90-live-transcript.png"), clientOnly: true);
+        }
+        app.Find(ControlType.Button, "Hang up", _pageTimeout).AsButton().Invoke();
+        _ = app.Find(ControlType.Text, "Call ended", _pageTimeout);
+        Assert.True(app.IsRunning, "the app ended during the call");
+    }
+
+    /// <summary>
     /// Opens a page with <paramref name="open"/> and checks it: its heading
     /// (<paramref name="expected"/>, or any), loaded, no failure, then saves
     /// it when screenshots are on. With <paramref name="editName"/>, the

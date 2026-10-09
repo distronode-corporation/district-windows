@@ -17,23 +17,27 @@
   "shell": {
     "call": {
       "call_id": null,
-      "can_hang_up": false,
-      "can_mute": false,
+      "can_hang_up": true,
+      "can_mute": true,
       "connected_at": null,
-      "ended": "Something went wrong on our side. Please try again shortly.",
+      "ended": null,
       "ended_note": null,
-      "failure": {
-        "message": "Something went wrong on our side. Please try again shortly.",
-        "regions_line": null,
-        "retryable": true
-      },
+      "failure": null,
       "media_notice": null,
       "microphone_denied": false,
       "muted": true,
       "outbound": true,
       "peer": "+1 212 555 0142",
-      "state_label": "Something went wrong on our side. Please try again shortly.",
-      "transcript": null
+      "state_label": "Connecting.",
+      "transcript": {
+        "full": null,
+        "heading": "Live transcript",
+        "incomplete": null,
+        "lines": [],
+        "phase": "Connecting",
+        "status": "Connecting.",
+        "waiting": null
+      }
     },
     "calls_available": true,
     "can_go_back": false,

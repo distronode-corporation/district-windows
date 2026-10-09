@@ -224,6 +224,7 @@ internal static class V
         bool microphoneDenied = false,
         bool canMute = true,
         string? endedNote = null,
-        string? mediaNotice = null) =>
-        new(null, peer, state, connectedAt, muted, canHangUp, ended, failure, microphoneDenied, Outbound: true, canMute, endedNote, mediaNotice);
+        string? mediaNotice = null,
+        TranscriptView? transcript = null) =>
+        new(null, peer, state, connectedAt, muted, canHangUp, ended, failure, microphoneDenied, Outbound: true, canMute, endedNote, mediaNotice, transcript);
 }

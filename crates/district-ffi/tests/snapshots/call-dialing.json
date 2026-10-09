@@ -28,7 +28,8 @@
       "muted": true,
       "outbound": true,
       "peer": "+1 212 555 0142",
-      "state_label": "Placing the call."
+      "state_label": "Placing the call.",
+      "transcript": null
     },
     "calls_available": true,
     "can_go_back": false,

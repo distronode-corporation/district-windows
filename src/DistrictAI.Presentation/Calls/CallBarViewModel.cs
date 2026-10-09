@@ -109,12 +109,16 @@ public sealed partial class CallBarViewModel : ObservableObject
     [ObservableProperty]
     public partial bool MicrophoneDenied { get; set; }
 
+    /// <summary>The call's live transcript, under the strip.</summary>
+    public TranscriptViewModel Transcript { get; } = new();
+
     internal void Attach(PageContext context) => _context = context;
 
     /// <summary>Draws <paramref name="call"/>, or hides the strip when there is none.</summary>
     internal void Show(ActiveCallView? call)
     {
         IsShown = call is not null;
+        Transcript.Show(call?.Transcript);
         if (call is null)
         {
             StopTimer();

@@ -20,6 +20,7 @@ use std::future::Future;
 use district_api::{ApiError, ErrorDetail};
 use district_auth::AccessClaims;
 use district_core::{Effect, Event};
+use district_live::{LiveUpdate, WorkspaceUpdate};
 use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 
@@ -309,11 +310,48 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             ring_here: true,
         },
+        // A call placed from the dialler is accepted by the service, so it
+        // has an id and its live transcript is asked for. Its media is never
+        // connected: the call stays "Connecting.", with no audio anywhere.
+        Effect::Dial { ticket, .. } => Event::Dialled {
+            ticket,
+            result: decode(fixture!("district-dial.json")),
+        },
+        // The socket answers the call's transcript with the recorded
+        // snapshot, and a reply still being heard.
+        Effect::WatchTranscript {
+            transcript: Some(watch),
+            ..
+        } => transcript_snapshot(&watch.call_id)?,
         // Everything else: writes, the browser, live updates, presence, calls,
         // notifications and the settings sections the core has no fixture
         // for. Unanswered, as with no network.
         _ => return None,
     })
+}
+
+/// The recorded transcript snapshot, for `call_id` in the scripted
+/// workspace, with the assistant's reply to it still being heard.
+fn transcript_snapshot(call_id: &str) -> Option<Event> {
+    let mut envelope: Value =
+        serde_json::from_str(fixture!("telemetry-event-transcript-snapshot.json")).ok()?;
+    envelope["workspaceId"] = json!(WORKSPACE_ID);
+    envelope["callId"] = json!(call_id);
+    let data = &mut envelope["data"];
+    data["callId"] = json!(call_id);
+    let mut reply = data["segments"][0].clone();
+    reply["segmentId"] = json!("item_c3");
+    reply["index"] = json!(2);
+    reply["seq"] = json!(3);
+    reply["text"] = json!("Of course. Would morning or afternoon suit you");
+    reply["final"] = json!(false);
+    reply["endedAt"] = json!(null);
+    data["segments"].as_array_mut()?.push(reply);
+    data["lastSeq"] = json!(3);
+    Some(Event::Live(WorkspaceUpdate {
+        workspace_id: WORKSPACE_ID.to_owned(),
+        update: LiveUpdate::Event(serde_json::from_value(envelope).ok()?),
+    }))
 }
 
 #[cfg(test)]
@@ -358,10 +396,15 @@ mod tests {
     }
 
     fn started() -> Model {
+        started_with(false)
+    }
+
+    /// The scene in a build that can carry calls, or not.
+    fn started_with(calls_available: bool) -> Model {
         let (mut model, first) = Model::new(CoreConfig {
             web_base_url: "https://www.distronode.com".to_owned(),
             app_version: "0.1.0".to_owned(),
-            calls_available: false,
+            calls_available,
         });
         settle(&mut model, first);
         model
@@ -448,6 +491,29 @@ mod tests {
             );
             assert_eq!(unsettled(&screen), None, "{destination:?}: {screen:?}");
         }
+    }
+
+    /// A call placed in the scene shows its live transcript: the recorded
+    /// lines, and the reply still being heard.
+    #[test]
+    fn a_placed_call_shows_its_live_transcript() {
+        let mut model = started_with(true);
+        let mut pending = Vec::new();
+        for event in (crate::events::UiEvent::CallNumber {
+            number: "+12125550142".to_owned(),
+        })
+        .events()
+        {
+            pending.extend(model.update(event));
+        }
+        settle(&mut model, pending);
+        let shell = serde_json::to_value(shell_view(&model, false)).unwrap();
+        let transcript = &shell["call"]["transcript"];
+        assert_eq!(transcript["phase"], "Live", "{shell}");
+        let lines = transcript["lines"].as_array().unwrap();
+        assert_eq!(lines.len(), 3);
+        assert_eq!(lines[1]["speaker"], "Caller");
+        assert_eq!(lines[2]["is_final"], false);
     }
 
     /// Every list screen of 1.0 and 2.0, built or not: each fixture its

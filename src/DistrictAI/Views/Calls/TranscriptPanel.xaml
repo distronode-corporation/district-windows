@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Calls.TranscriptPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cvm="using:DistrictAI.ViewModels.Calls"
+    Visibility="{x:Bind ViewModel.IsShown, Mode=OneWay}">
+    <!--
+        The call's live transcript, under the call strip. It folds away
+        (Expander), keeps the newest line in view unless the member has
+        scrolled up to read, and Narrator hears each line once, when it is
+        final, through the polite live region at the foot (Announcer).
+    -->
+    <Expander
+        HorizontalAlignment="Stretch"
+        HorizontalContentAlignment="Stretch"
+        IsExpanded="{x:Bind ViewModel.IsExpanded, Mode=TwoWay}">
+        <Expander.Header>
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Heading, Mode=OneWay}" />
+                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.Status, Mode=OneWay}" />
+            </StackPanel>
+        </Expander.Header>
+        <StackPanel Spacing="8">
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.Incomplete, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasIncomplete, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.Waiting, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasWaiting, Mode=OneWay}" />
+            <ScrollViewer
+                x:Name="LinesScroller"
+                MaxHeight="220"
+                AutomationProperties.Name="{x:Bind ViewModel.Heading, Mode=OneWay}"
+                HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto"
+                ViewChanged="OnLinesScrolled">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Lines}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="6" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="cvm:TranscriptLineItem">
+                            <StackPanel AutomationProperties.Name="{x:Bind Spoken}" Spacing="0">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Speaker}" />
+                                <TextBlock
+                                    Text="{x:Bind Text}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{x:Bind IsFinal}" />
+                                <!-- Still being heard: provisional, in the quieter style, until its final replaces it. -->
+                                <TextBlock
+                                    FontStyle="Italic"
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind Text}"
+                                    Visibility="{x:Bind IsInterim}" />
+                                <TextBlock
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Note}"
+                                    Visibility="{x:Bind HasNote}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </ScrollViewer>
+            <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasFullNote, Mode=OneWay}">
+                <ProgressBar IsIndeterminate="{x:Bind ViewModel.FullLoading, Mode=OneWay}" Visibility="{x:Bind ViewModel.FullLoading, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.FullNote, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+            <ScrollViewer
+                MaxHeight="220"
+                HorizontalScrollBarVisibility="Disabled"
+                Visibility="{x:Bind ViewModel.HasFullText, Mode=OneWay}">
+                <TextBlock
+                    IsTextSelectionEnabled="True"
+                    Text="{x:Bind ViewModel.FullText, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+            </ScrollViewer>
+            <!-- Narrator's polite live region: each final line, once. -->
+            <TextBlock
+                x:Name="Announcer"
+                Height="1"
+                AutomationProperties.LiveSetting="Polite"
+                Opacity="0" />
+        </StackPanel>
+    </Expander>
+</UserControl>

@@ -3585,6 +3585,10 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
 /// The call's connection notice: reconnecting, audio that could not be
 /// decrypted, or a microphone that could not be used.
 /// </param>
+/// <param name="Transcript">
+/// The call's live transcript, once the call has an id and the core has
+/// asked for it.
+/// </param>
 public record ActiveCallView (
     /// <summary>
     /// The call's id. Always `None` in this version: core 2.0.0 keeps it
@@ -3648,7 +3652,12 @@ public record ActiveCallView (
     /// The call's connection notice: reconnecting, audio that could not be
     /// decrypted, or a microphone that could not be used.
     /// </summary>
-    string? MediaNotice
+    string? MediaNotice, 
+    /// <summary>
+    /// The call's live transcript, once the call has an id and the core has
+    /// asked for it.
+    /// </summary>
+    TranscriptView? Transcript
 ) {
 }
 
@@ -3669,7 +3678,8 @@ class FfiConverterTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView> {
             Outbound: FfiConverterBoolean.INSTANCE.Read(stream),
             CanMute: FfiConverterBoolean.INSTANCE.Read(stream),
             EndedNote: FfiConverterOptionalString.INSTANCE.Read(stream),
-            MediaNotice: FfiConverterOptionalString.INSTANCE.Read(stream)
+            MediaNotice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Transcript: FfiConverterOptionalTypeTranscriptView.INSTANCE.Read(stream)
         );
     }
 
@@ -3687,7 +3697,8 @@ class FfiConverterTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Outbound)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanMute)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.EndedNote)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.MediaNotice);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.MediaNotice)
+            + FfiConverterOptionalTypeTranscriptView.INSTANCE.AllocationSize(value.Transcript);
     }
 
     public override void Write(ActiveCallView value, BigEndianStream stream) {
@@ -3704,6 +3715,7 @@ class FfiConverterTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView> {
             FfiConverterBoolean.INSTANCE.Write(value.CanMute, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.EndedNote, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.MediaNotice, stream);
+            FfiConverterOptionalTypeTranscriptView.INSTANCE.Write(value.Transcript, stream);
     }
 }
 
@@ -7321,6 +7333,63 @@ class FfiConverterTypeFinishSetupView: FfiConverterRustBuffer<FinishSetupView> {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
             FfiConverterString.INSTANCE.Write(value.Body, stream);
             FfiConverterString.INSTANCE.Write(value.Action, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The full transcript the service keeps, read once the live one has ended.
+/// </summary>
+/// <param name="Loading">
+/// Whether it is being read: "Loading the full transcript."
+/// </param>
+/// <param name="Text">
+/// The transcript, once read.
+/// </param>
+/// <param name="Note">
+/// What shows instead of it: loading, none for this call, or why it could
+/// not be read.
+/// </param>
+public record FullTranscriptView (
+    /// <summary>
+    /// Whether it is being read: "Loading the full transcript."
+    /// </summary>
+    bool Loading, 
+    /// <summary>
+    /// The transcript, once read.
+    /// </summary>
+    string? Text, 
+    /// <summary>
+    /// What shows instead of it: loading, none for this call, or why it could
+    /// not be read.
+    /// </summary>
+    string? Note
+) {
+}
+
+class FfiConverterTypeFullTranscriptView: FfiConverterRustBuffer<FullTranscriptView> {
+    public static FfiConverterTypeFullTranscriptView INSTANCE = new FfiConverterTypeFullTranscriptView();
+
+    public override FullTranscriptView Read(BigEndianStream stream) {
+        return new FullTranscriptView(
+            Loading: FfiConverterBoolean.INSTANCE.Read(stream),
+            Text: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(FullTranscriptView value) {
+        return 0
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Loading)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Text)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note);
+    }
+
+    public override void Write(FullTranscriptView value, BigEndianStream stream) {
+            FfiConverterBoolean.INSTANCE.Write(value.Loading, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Text, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
     }
 }
 
@@ -11242,6 +11311,190 @@ class FfiConverterTypeToolsView: FfiConverterRustBuffer<ToolsView> {
 
     public override void Write(ToolsView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One line of the transcript.
+/// </summary>
+/// <param name="Id">
+/// The line's id, stable across its revisions: what C# keeps its place
+/// and its announcement by.
+/// </param>
+/// <param name="Speaker">
+/// Who said it: "Caller", the assistant's persona name or "Assistant",
+/// or "Other speaker".
+/// </param>
+/// <param name="Text">
+/// What was said: for an interrupted assistant line, what was actually
+/// played.
+/// </param>
+/// <param name="IsFinal">
+/// Whether the line is settled. A line that is not is still being heard:
+/// drawn as provisional, replaced in place by its later revisions, and not
+/// announced until it is final.
+/// </param>
+/// <param name="Note">
+/// "Interrupted", under an assistant line that was cut off.
+/// </param>
+public record TranscriptLineView (
+    /// <summary>
+    /// The line's id, stable across its revisions: what C# keeps its place
+    /// and its announcement by.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Who said it: "Caller", the assistant's persona name or "Assistant",
+    /// or "Other speaker".
+    /// </summary>
+    string Speaker, 
+    /// <summary>
+    /// What was said: for an interrupted assistant line, what was actually
+    /// played.
+    /// </summary>
+    string Text, 
+    /// <summary>
+    /// Whether the line is settled. A line that is not is still being heard:
+    /// drawn as provisional, replaced in place by its later revisions, and not
+    /// announced until it is final.
+    /// </summary>
+    bool IsFinal, 
+    /// <summary>
+    /// "Interrupted", under an assistant line that was cut off.
+    /// </summary>
+    string? Note
+) {
+}
+
+class FfiConverterTypeTranscriptLineView: FfiConverterRustBuffer<TranscriptLineView> {
+    public static FfiConverterTypeTranscriptLineView INSTANCE = new FfiConverterTypeTranscriptLineView();
+
+    public override TranscriptLineView Read(BigEndianStream stream) {
+        return new TranscriptLineView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Speaker: FfiConverterString.INSTANCE.Read(stream),
+            Text: FfiConverterString.INSTANCE.Read(stream),
+            IsFinal: FfiConverterBoolean.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TranscriptLineView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Speaker)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Text)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IsFinal)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note);
+    }
+
+    public override void Write(TranscriptLineView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Speaker, stream);
+            FfiConverterString.INSTANCE.Write(value.Text, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IsFinal, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The live transcript of the call on this desktop.
+/// </summary>
+/// <param name="Heading">
+/// The heading: "Live transcript".
+/// </param>
+/// <param name="Phase">
+/// Where it stands.
+/// </param>
+/// <param name="Status">
+/// The line under the heading: "Connecting.", "Live", "Reconnecting.",
+/// "Call ended"; or, when no live transcript can be shown, [`UNAVAILABLE`].
+/// </param>
+/// <param name="Lines">
+/// The lines said so far, in order.
+/// </param>
+/// <param name="Waiting">
+/// What shows while live with no line yet: "Nothing has been said yet."
+/// </param>
+/// <param name="Incomplete">
+/// The note when earlier lines are missing from the live transcript: they
+/// appear in the full transcript after the call.
+/// </param>
+/// <param name="Full">
+/// The full transcript, once the live one has ended.
+/// </param>
+public record TranscriptView (
+    /// <summary>
+    /// The heading: "Live transcript".
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// Where it stands.
+    /// </summary>
+    TranscriptPhase Phase, 
+    /// <summary>
+    /// The line under the heading: "Connecting.", "Live", "Reconnecting.",
+    /// "Call ended"; or, when no live transcript can be shown, [`UNAVAILABLE`].
+    /// </summary>
+    string Status, 
+    /// <summary>
+    /// The lines said so far, in order.
+    /// </summary>
+    TranscriptLineView[] Lines, 
+    /// <summary>
+    /// What shows while live with no line yet: "Nothing has been said yet."
+    /// </summary>
+    string? Waiting, 
+    /// <summary>
+    /// The note when earlier lines are missing from the live transcript: they
+    /// appear in the full transcript after the call.
+    /// </summary>
+    string? Incomplete, 
+    /// <summary>
+    /// The full transcript, once the live one has ended.
+    /// </summary>
+    FullTranscriptView? Full
+) {
+}
+
+class FfiConverterTypeTranscriptView: FfiConverterRustBuffer<TranscriptView> {
+    public static FfiConverterTypeTranscriptView INSTANCE = new FfiConverterTypeTranscriptView();
+
+    public override TranscriptView Read(BigEndianStream stream) {
+        return new TranscriptView(
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            Phase: FfiConverterTypeTranscriptPhase.INSTANCE.Read(stream),
+            Status: FfiConverterString.INSTANCE.Read(stream),
+            Lines: FfiConverterSequenceTypeTranscriptLineView.INSTANCE.Read(stream),
+            Waiting: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Incomplete: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Full: FfiConverterOptionalTypeFullTranscriptView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TranscriptView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterTypeTranscriptPhase.INSTANCE.AllocationSize(value.Phase)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeTranscriptLineView.INSTANCE.AllocationSize(value.Lines)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Waiting)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Incomplete)
+            + FfiConverterOptionalTypeFullTranscriptView.INSTANCE.AllocationSize(value.Full);
+    }
+
+    public override void Write(TranscriptView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterTypeTranscriptPhase.INSTANCE.Write(value.Phase, stream);
+            FfiConverterString.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeTranscriptLineView.INSTANCE.Write(value.Lines, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Waiting, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Incomplete, stream);
+            FfiConverterOptionalTypeFullTranscriptView.INSTANCE.Write(value.Full, stream);
     }
 }
 
@@ -15950,6 +16203,72 @@ class FfiConverterTypeToolsAction: FfiConverterRustBuffer<ToolsAction> {
 
 
 /// <summary>
+/// Where the live transcript stands.
+/// </summary>
+public enum TranscriptPhase: int {
+    /// <summary>
+    /// Asked for; the first lines have not arrived ("Connecting."). This can
+    /// last up to 30 seconds: the service holds the request until the first
+    /// line.
+    /// </summary>
+    Connecting,
+    /// <summary>
+    /// Lines arrive as they are spoken.
+    /// </summary>
+    Live,
+    /// <summary>
+    /// The assistant stopped with an error and may be replaced; the lines
+    /// shown stay.
+    /// </summary>
+    Reconnecting,
+    /// <summary>
+    /// The call, or its transcription, has ended; the lines shown stay.
+    /// </summary>
+    Ended,
+    /// <summary>
+    /// No live transcript can be shown for this call.
+    /// </summary>
+    Unavailable
+}
+
+class FfiConverterTypeTranscriptPhase: FfiConverterRustBuffer<TranscriptPhase> {
+    public static FfiConverterTypeTranscriptPhase INSTANCE = new FfiConverterTypeTranscriptPhase();
+
+    public override TranscriptPhase Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return TranscriptPhase.Connecting;
+            case 2: return TranscriptPhase.Live;
+            case 3: return TranscriptPhase.Reconnecting;
+            case 4: return TranscriptPhase.Ended;
+            case 5: return TranscriptPhase.Unavailable;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTranscriptPhase.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(TranscriptPhase value) {
+        return 4;
+    }
+
+    public override void Write(TranscriptPhase value, BigEndianStream stream) {
+        switch (value) {
+            case TranscriptPhase.Connecting: stream.WriteInt(1); break;
+            case TranscriptPhase.Live: stream.WriteInt(2); break;
+            case TranscriptPhase.Reconnecting: stream.WriteInt(3); break;
+            case TranscriptPhase.Ended: stream.WriteInt(4); break;
+            case TranscriptPhase.Unavailable: stream.WriteInt(5); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTranscriptPhase.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// A call's transcript.
 /// </summary>
 public record TranscriptState {
@@ -17710,6 +18029,37 @@ class FfiConverterOptionalTypeFinishSetupView: FfiConverterRustBuffer<FinishSetu
 
 
 
+class FfiConverterOptionalTypeFullTranscriptView: FfiConverterRustBuffer<FullTranscriptView?> {
+    public static FfiConverterOptionalTypeFullTranscriptView INSTANCE = new FfiConverterOptionalTypeFullTranscriptView();
+
+    public override FullTranscriptView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeFullTranscriptView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(FullTranscriptView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeFullTranscriptView.INSTANCE.AllocationSize((FullTranscriptView)value);
+        }
+    }
+
+    public override void Write(FullTranscriptView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeFullTranscriptView.INSTANCE.Write((FullTranscriptView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeHistoryChartView: FfiConverterRustBuffer<HistoryChartView?> {
     public static FfiConverterOptionalTypeHistoryChartView INSTANCE = new FfiConverterOptionalTypeHistoryChartView();
 
@@ -17889,6 +18239,37 @@ class FfiConverterOptionalTypeSupportComposeView: FfiConverterRustBuffer<Support
         } else {
             stream.WriteByte(1);
             FfiConverterTypeSupportComposeView.INSTANCE.Write((SupportComposeView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeTranscriptView: FfiConverterRustBuffer<TranscriptView?> {
+    public static FfiConverterOptionalTypeTranscriptView INSTANCE = new FfiConverterOptionalTypeTranscriptView();
+
+    public override TranscriptView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTranscriptView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TranscriptView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTranscriptView.INSTANCE.AllocationSize((TranscriptView)value);
+        }
+    }
+
+    public override void Write(TranscriptView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTranscriptView.INSTANCE.Write((TranscriptView)value, stream);
         }
     }
 }
@@ -19163,6 +19544,52 @@ class FfiConverterSequenceTypeTimelineItemView: FfiConverterRustBuffer<TimelineI
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeTimelineItemView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeTranscriptLineView: FfiConverterRustBuffer<TranscriptLineView[]> {
+    public static FfiConverterSequenceTypeTranscriptLineView INSTANCE = new FfiConverterSequenceTypeTranscriptLineView();
+
+    public override TranscriptLineView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new TranscriptLineView[length];
+        var readFn = FfiConverterTypeTranscriptLineView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(TranscriptLineView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeTranscriptLineView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(TranscriptLineView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeTranscriptLineView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
