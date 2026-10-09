@@ -21,13 +21,13 @@ publish = false
 # commit the tag pointed at (b896f0a for v3.0.0); a tag moved later does not
 # change a locked build. Moving the core is one edit per line here and a
 # Cargo.lock update in the same pull request.
-district-api = { git = "https://github.com/distronode-corporation/district-core-rust", rev = "bea34f92cc03d9ec2633d5eb0853d17f62f60a37", version = "=3.1.0" }
-district-auth = { git = "https://github.com/distronode-corporation/district-core-rust", rev = "bea34f92cc03d9ec2633d5eb0853d17f62f60a37", version = "=3.1.0" }
-district-call = { git = "https://github.com/distronode-corporation/district-core-rust", rev = "bea34f92cc03d9ec2633d5eb0853d17f62f60a37", version = "=3.1.0" }
-district-core = { git = "https://github.com/distronode-corporation/district-core-rust", rev = "bea34f92cc03d9ec2633d5eb0853d17f62f60a37", version = "=3.1.0" }
-district-host = { git = "https://github.com/distronode-corporation/district-core-rust", rev = "bea34f92cc03d9ec2633d5eb0853d17f62f60a37", version = "=3.1.0" }
-district-live = { git = "https://github.com/distronode-corporation/district-core-rust", rev = "bea34f92cc03d9ec2633d5eb0853d17f62f60a37", version = "=3.1.0" }
-district-model = { git = "https://github.com/distronode-corporation/district-core-rust", rev = "bea34f92cc03d9ec2633d5eb0853d17f62f60a37", version = "=3.1.0" }
+district-api = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v3.1.0", version = "=3.1.0" }
+district-auth = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v3.1.0", version = "=3.1.0" }
+district-call = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v3.1.0", version = "=3.1.0" }
+district-core = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v3.1.0", version = "=3.1.0" }
+district-host = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v3.1.0", version = "=3.1.0" }
+district-live = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v3.1.0", version = "=3.1.0" }
+district-model = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v3.1.0", version = "=3.1.0" }
 
 # Exactly the UniFFI that uniffi-bindgen-cs v0.11.0+v0.31.0 is built on. The
 # generator and the scaffolding must agree on every checksum, so this moves only
