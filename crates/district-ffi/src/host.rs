@@ -60,8 +60,31 @@ pub struct NotificationView {
     /// A call ringing now: over everything, with its sound and its buttons,
     /// and kept until it is dealt with.
     pub urgent: bool,
-    /// Its buttons, in order.
+    /// Its buttons, in order. Always none for a message.
     pub actions: Vec<NotificationActionView>,
+    /// What it is about, which picks the toast's style.
+    pub kind: NotificationKind,
+}
+
+/// What a notification is about, from the core's target.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, uniffi::Enum)]
+pub enum NotificationKind {
+    /// A call ringing here now, or one waiting behind another.
+    IncomingCall,
+    /// A call over, such as one missed.
+    Call,
+    /// A new message: no buttons, and its body opens the conversation.
+    Message,
+}
+
+impl From<&NotificationTarget> for NotificationKind {
+    fn from(target: &NotificationTarget) -> Self {
+        match target {
+            NotificationTarget::IncomingCall { .. } => Self::IncomingCall,
+            NotificationTarget::Call { .. } => Self::Call,
+            NotificationTarget::Message { .. } => Self::Message,
+        }
+    }
 }
 
 /// A button on a notification.
@@ -101,6 +124,7 @@ impl From<&Notification> for NotificationView {
                     action_id: action_id(action).to_owned(),
                 })
                 .collect(),
+            kind: NotificationKind::from(&notification.target),
         }
     }
 }
@@ -170,13 +194,12 @@ impl UrlOpener for HostOpener {
     }
 }
 
-/// [`Notifier`] over the host: each call notification (a call ringing here,
-/// one waiting behind another, a missed call) goes to C# as a
-/// [`NotificationView`], and is remembered in the table that
-/// [`Core::activate_notification`](crate::Core::activate_notification) reads.
-///
-/// A new message's notification is dropped here, neither shown nor
-/// remembered: message notifications come with a later version.
+/// [`Notifier`] over the host: each notification the core decides to give (a
+/// call ringing here, one waiting behind another, a missed call, a new
+/// message) goes to C# as a [`NotificationView`], and is remembered in the
+/// table that [`Core::activate_notification`](crate::Core::activate_notification)
+/// reads. Whether to notify at all (a message in the thread already open and
+/// visible, say) is the core's to decide, so nothing is filtered here.
 #[derive(Clone)]
 pub(crate) struct HostNotifier {
     pub(crate) host: Arc<dyn UiHost>,
@@ -185,10 +208,6 @@ pub(crate) struct HostNotifier {
 
 impl Notifier for HostNotifier {
     fn notify(&self, notification: &Notification) {
-        match notification.target {
-            NotificationTarget::IncomingCall { .. } | NotificationTarget::Call { .. } => {}
-            NotificationTarget::Message { .. } => return,
-        }
         // Remembered first, so a click that comes back at once finds it.
         self.table.shown(notification);
         self.host.notify(NotificationView::from(notification));
@@ -355,11 +374,26 @@ pub(crate) mod tests {
                         action_id: "decline".to_owned(),
                     },
                 ],
+                kind: NotificationKind::IncomingCall,
             }
         );
-        let view = NotificationView::from(&message("m-1"));
-        assert!(!view.urgent);
-        assert!(view.actions.is_empty());
+        assert_eq!(
+            NotificationView::from(&message("m-1")),
+            NotificationView {
+                id: "message:m-1".to_owned(),
+                title: "New message".to_owned(),
+                body: "Open District AI to read it.".to_owned(),
+                urgent: false,
+                actions: Vec::new(),
+                kind: NotificationKind::Message,
+            }
+        );
+        let mut missed = ringing("call-1");
+        missed.target = NotificationTarget::Call {
+            workspace_id: "ws-1".to_owned(),
+            call_id: "call-1".to_owned(),
+        };
+        assert_eq!(NotificationView::from(&missed).kind, NotificationKind::Call);
     }
 
     #[test]
@@ -383,8 +417,11 @@ pub(crate) mod tests {
         assert_eq!(table.activate("call:call-1", None), None);
     }
 
+    /// A new message's notification is shown, and remembered so its toast
+    /// opens the conversation through the core; the core's withdrawal takes
+    /// it away again.
     #[test]
-    fn a_message_notification_reaches_neither_the_host_nor_the_table() {
+    fn a_message_notification_is_shown_opened_and_withdrawn() {
         let host = Arc::new(RecordingHost::default());
         let table = Arc::new(NotificationTable::default());
         let notifier = HostNotifier {
@@ -392,19 +429,25 @@ pub(crate) mod tests {
             table: Arc::clone(&table),
         };
         notifier.notify(&message("m-1"));
-        assert!(host.told.lock().unwrap().is_empty());
-        assert!(table.lock().is_empty());
+        assert_eq!(
+            *host.told.lock().unwrap(),
+            [Told::Notify(NotificationView::from(&message("m-1")))]
+        );
+        assert_eq!(
+            table.activate("message:m-1", None),
+            Some(Event::OpenNotification(NotificationTarget::Message {
+                workspace_id: "ws-1".to_owned(),
+                message_id: "m-1".to_owned(),
+            }))
+        );
+        // A message has no buttons, so no action id means anything.
+        assert_eq!(table.activate("message:m-1", Some("answer")), None);
+        notifier.withdraw("message:m-1");
+        assert_eq!(
+            host.told.lock().unwrap().last(),
+            Some(&Told::Withdraw("message:m-1".to_owned()))
+        );
         assert_eq!(table.activate("message:m-1", None), None);
-        // A missed call's still does.
-        let mut missed = ringing("call-1");
-        missed.actions.clear();
-        missed.target = NotificationTarget::Call {
-            workspace_id: "ws-1".to_owned(),
-            call_id: "call-1".to_owned(),
-        };
-        notifier.notify(&missed);
-        assert_eq!(host.told.lock().unwrap().len(), 1);
-        assert!(table.activate("call:call-1", None).is_some());
     }
 
     #[test]
