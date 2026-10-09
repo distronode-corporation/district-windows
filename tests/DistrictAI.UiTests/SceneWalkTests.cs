@@ -44,6 +44,7 @@ public sealed class SceneWalkTests
         ("Contacts", "Contacts"),
         ("Account", "Account"),
         ("Analytics", "Analytics"),
+        ("Support", "Support"),
     ];
 
     /// <summary>
