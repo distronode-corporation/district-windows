@@ -55,7 +55,7 @@ public sealed partial class App : Application, IDisposable
         _core = new CoreHost(new QueueDispatcher(queue), new LauncherBrowser(queue));
         _window = new MainWindow(_core);
         // DIAGNOSTIC, do not merge: BrandPalette off, to see whether it is what crashes the start.
-        // _palette = new BrandPalette(_window);
+        _palette = null; // was: _palette = new BrandPalette(_window);
         _window.Closed += OnClosed;
         _window.AppWindow.Closing += OnClosing;
         // Before Start: the core may ring, notify or ask for the window as soon
