@@ -2,7 +2,166 @@
 <UserControl
     x:Class="DistrictAI.Views.Settings.Members.MembersPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:members="using:DistrictAI.Views.Settings.Members"
+    xmlns:vm="using:DistrictAI.ViewModels.Settings.Members">
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="{StaticResource ReadingWidth}"
+            Padding="{StaticResource PagePadding}"
+            Spacing="8">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+
+            <ProgressRing
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Loading"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasStatus, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.StatusTitle, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind ViewModel.StatusBody, Mode=OneWay}" TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.Name="Try again"
+                    Command="{x:Bind ViewModel.RetryCommand}"
+                    Content="Try again"
+                    Visibility="{x:Bind ViewModel.CanRetry, Mode=OneWay}" />
+            </StackPanel>
+
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.IsReady, Mode=OneWay}">
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.ReadOnlyNote, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasReadOnlyNote, Mode=OneWay}" />
+                <!-- How the last change ended, until dismissed. -->
+                <InfoBar
+                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.NoticeText, Mode=OneWay}"
+                    Severity="{x:Bind members:MembersPage.SeverityFor(ViewModel.NoticeSaved), Mode=OneWay}" />
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="Members" />
+                    <ProgressRing
+                        Width="16"
+                        Height="16"
+                        AutomationProperties.Name="Changing a member"
+                        IsActive="{x:Bind ViewModel.Changing, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Changing, Mode=OneWay}" />
+                </StackPanel>
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Members}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="8" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:MemberItem">
+                            <Border Style="{StaticResource CardStyle}">
+                                <Grid AutomationProperties.Name="{x:Bind AccessibleName}" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="2">
+                                        <TextBlock
+                                            IsTextSelectionEnabled="True"
+                                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                                            Text="{x:Bind Email}"
+                                            TextWrapping="Wrap" />
+                                        <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind RoleLine}" />
+                                    </StackPanel>
+                                    <!-- An agency member's controls: the role, and removal (asked first). -->
+                                    <StackPanel
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Spacing="8"
+                                        Visibility="{x:Bind CanChange}">
+                                        <ComboBox
+                                            MinWidth="140"
+                                            AutomationProperties.Name="Role"
+                                            ItemsSource="{x:Bind Roles}"
+                                            SelectedItem="{x:Bind SelectedRole, Mode=TwoWay}" />
+                                        <Button
+                                            AutomationProperties.Name="{x:Bind RemoveLabel}"
+                                            Command="{x:Bind RemoveCommand}"
+                                            Content="{x:Bind RemoveLabel}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <!-- Adding a member: agency only. Sends no invitation, as the note says. -->
+                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.CanManage, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="{x:Bind ViewModel.AddHeading, Mode=OneWay}" />
+                    <TextBox
+                        AutomationProperties.Name="{x:Bind ViewModel.EmailLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.EmailLabel, Mode=OneWay}"
+                        InputScope="EmailSmtpAddress"
+                        IsEnabled="{x:Bind ViewModel.AddEditable, Mode=OneWay}"
+                        Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <ComboBox
+                        HorizontalAlignment="Stretch"
+                        AutomationProperties.Name="{x:Bind ViewModel.RoleLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.RoleLabel, Mode=OneWay}"
+                        IsEnabled="{x:Bind ViewModel.AddEditable, Mode=OneWay}"
+                        ItemsSource="{x:Bind ViewModel.Roles}"
+                        SelectedItem="{x:Bind ViewModel.NewRole, Mode=TwoWay}" />
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Assertive"
+                        Text="{x:Bind ViewModel.AddRejected, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.HasAddRejected, Mode=OneWay}" />
+                    <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.AddNote, Mode=OneWay}" />
+                    <Button
+                        AutomationProperties.Name="{x:Bind ViewModel.AddLabel, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.AddCommand}"
+                        Content="{x:Bind ViewModel.AddLabel, Mode=OneWay}"
+                        Style="{StaticResource AccentButtonStyle}" />
+                </StackPanel>
+
+                <!-- Renaming the workspace: agency and client. -->
+                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.CanRenameHere, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="{x:Bind ViewModel.RenameHeading, Mode=OneWay}" />
+                    <StackPanel Spacing="2">
+                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.CurrentLabel, Mode=OneWay}" />
+                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.CurrentName, Mode=OneWay}" />
+                    </StackPanel>
+                    <TextBox
+                        AutomationProperties.Name="{x:Bind ViewModel.NewNameLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.NewNameLabel, Mode=OneWay}"
+                        IsEnabled="{x:Bind ViewModel.NameEditable, Mode=OneWay}"
+                        Text="{x:Bind ViewModel.NewName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button
+                            AutomationProperties.Name="{x:Bind ViewModel.RenameLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.RenameCommand}"
+                            Content="{x:Bind ViewModel.RenameLabel, Mode=OneWay}" />
+                        <ProgressRing
+                            Width="16"
+                            Height="16"
+                            AutomationProperties.Name="Renaming"
+                            IsActive="{x:Bind ViewModel.Renaming, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.Renaming, Mode=OneWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

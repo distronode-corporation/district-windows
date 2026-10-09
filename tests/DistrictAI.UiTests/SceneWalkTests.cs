@@ -62,6 +62,7 @@ public sealed class SceneWalkTests
     [
         "Persona",
         "Messaging accounts",
+        "Members",
     ];
 
     /// <summary>

@@ -651,9 +651,7 @@ mod tests {
                 },
             },
             ScreenView::Members {
-                view: crate::settings::members::MembersView {
-                    title: "Members".to_owned(),
-                },
+                view: crate::settings::members::MembersView::sample(),
             },
         ] {
             let buffer =
