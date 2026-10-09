@@ -391,3 +391,30 @@ fn an_ai_draft_is_text_to_edit_and_can_be_reported() {
     assert!(message.contains("Contact: contact_contract_1"), "{message}");
     assert!(!message.contains("Thursday at 2pm"), "{message}");
 }
+
+/// A reply typed and not yet saved (the save waits for the typing to stop) is
+/// saved when the app quits, rather than lost: district-core-rust 2.0.0's
+/// `Event::Quitting` writes it, and `Core::shutdown` runs what Quitting asks
+/// for within its budget (core.rs).
+#[test]
+fn quitting_saves_a_reply_still_waiting_to_be_saved() {
+    let saves = |session: &Session| -> Vec<(String, String)> {
+        session
+            .pending
+            .iter()
+            .filter_map(|effect| match effect {
+                Effect::SaveDraft { draft, .. } => {
+                    Some((draft.thread_key.clone(), draft.body.clone()))
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    let typing = typed(ready(), "On my way.");
+    assert_eq!(saves(&typing), [], "the save waits for the typing to stop");
+    let quit = typing.send(Event::Quitting);
+    assert_eq!(saves(&quit), [(THREAD.to_owned(), "On my way.".to_owned())]);
+
+    // With nothing typed, quitting saves no reply.
+    assert_eq!(saves(&ready().send(Event::Quitting)), []);
+}
