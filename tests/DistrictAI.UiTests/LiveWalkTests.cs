@@ -31,7 +31,7 @@ public sealed class LiveWalkTests
     public void Walk()
     {
         RequireLive();
-        using var walk = LiveWalk.Start();
+        using var walk = LiveWalk.Start("signin");
         try
         {
             walk.RunAll();
@@ -53,7 +53,7 @@ public sealed class LiveWalkTests
     public void TwoCopies()
     {
         RequireLive();
-        using var walk = LiveWalk.Start();
+        using var walk = LiveWalk.Start("two-copies");
         try
         {
             walk.TwoCopies();

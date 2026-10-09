@@ -72,7 +72,7 @@ internal sealed partial class LiveWalk
         Check.Expect(
             answer.Scheme == "districtai" && answer.Host == "auth" && LaunchedUrls.Query(answer, "state") == state,
             "the harness's callback is not a districtai://auth answer to this request");
-        using (Process.Start(new ProcessStartInfo(answer.AbsoluteUri) { UseShellExecute = true }))
+        using (Process.Start(new ProcessStartInfo(answer.OriginalString) { UseShellExecute = true }))
         {
         }
         InstalledApp.Log($"opened the sign-in answer for {login}");

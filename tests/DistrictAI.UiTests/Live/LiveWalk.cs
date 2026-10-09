@@ -90,9 +90,10 @@ internal sealed partial class LiveWalk : IDisposable
     /// <summary>
     /// The walk in DISTRICTAI_LIVE_DIR, attached to the app the harness
     /// started (DISTRICTAI_LIVE_PID, or the one District AI process running),
-    /// or the app started when none runs.
+    /// or the app started when none runs. When there is no app to walk,
+    /// <paramref name="firstCheck"/> is recorded FAIL with why.
     /// </summary>
-    public static LiveWalk Start()
+    public static LiveWalk Start(string firstCheck)
     {
         var folder = Environment.GetEnvironmentVariable("DISTRICTAI_LIVE_DIR");
         if (folder is not { Length: > 0 } || !Directory.Exists(folder))
@@ -103,17 +104,29 @@ internal sealed partial class LiveWalk : IDisposable
         InstalledApp.Log(FormattableString.Invariant($"live walk in {folder}, run {walk.Config.RunId}, {walk.TimeLeft.TotalMinutes:F1} min to start checks in"));
         var running = InstalledApp.RunningProcessIds();
         var wanted = int.TryParse(Environment.GetEnvironmentVariable("DISTRICTAI_LIVE_PID"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var pid) ? pid : 0;
-        if (wanted != 0 && running.Contains(wanted))
+        try
         {
-            walk.Adopt(InstalledApp.Attach(wanted));
+            if (wanted != 0 && running.Contains(wanted))
+            {
+                walk.Adopt(InstalledApp.Attach(wanted));
+            }
+            else if (running.Length == 1)
+            {
+                walk.Adopt(InstalledApp.Attach(running[0]));
+            }
+            else
+            {
+                walk.Relaunch("no single District AI process to attach to");
+            }
         }
-        else if (running.Length == 1)
+        catch (Exception error) when (error is not OutOfMemoryException)
         {
-            walk.Adopt(InstalledApp.Attach(running[0]));
-        }
-        else
-        {
-            walk.Relaunch("no single District AI process to attach to");
+            // No app to walk: the results still say so.
+            InstalledApp.Log(error.ToString());
+            _ = walk.Results.Record(firstCheck, CheckResult.Fail, $"the app's window did not show: {FirstPart(error.Message)}");
+            walk.Finish();
+            walk.Dispose();
+            throw;
         }
         return walk;
     }
