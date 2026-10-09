@@ -4,7 +4,10 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace DistrictAI.Views;
 
-/// <summary>The open workspace's summary: its numbers, its recent calls, and finishing setup.</summary>
+/// <summary>
+/// The open workspace's summary: its numbers, its recent calls, and finishing
+/// setup; with no workspace yet, the plans, when the core offers them.
+/// </summary>
 public sealed partial class OverviewPage : UserControl
 {
     /// <summary>A page with nothing shown yet.</summary>
@@ -13,6 +16,7 @@ public sealed partial class OverviewPage : UserControl
         InitializeComponent();
         Status.Attach(ViewModel.Load);
         Refresh.Attach(ViewModel.Load);
+        Chooser.Attach(ViewModel.Purchase);
     }
 
     /// <summary>What the page shows, and its buttons.</summary>

@@ -49,12 +49,12 @@ pub(crate) fn cases() -> Vec<Case> {
     ]
 }
 
-fn action(action: BillingAction) -> UiEvent {
+pub(super) fn action(action: BillingAction) -> UiEvent {
     UiEvent::Billing { action }
 }
 
 /// The purchases setting read as `setting`.
-fn purchases(session: Session, setting: Option<PurchaseSetting>) -> Session {
+pub(super) fn purchases(session: Session, setting: Option<PurchaseSetting>) -> Session {
     session.answer(
         |e| matches!(e, Effect::ReadPurchaseSetting { .. }),
         |ticket| Event::PurchaseSettingRead { ticket, setting },
@@ -62,12 +62,12 @@ fn purchases(session: Session, setting: Option<PurchaseSetting>) -> Session {
 }
 
 /// Purchases on this computer (never set: "Sign in every time").
-fn buying(session: Session) -> Session {
+pub(super) fn buying(session: Session) -> Session {
     purchases(session, None)
 }
 
 /// Purchases off on this computer.
-fn not_buying(session: Session) -> Session {
+pub(super) fn not_buying(session: Session) -> Session {
     purchases(session, Some(PurchaseSetting::Off))
 }
 
@@ -110,7 +110,7 @@ fn ready(session: Session) -> Session {
     )
 }
 
-fn choose(promo: Option<&str>) -> UiEvent {
+pub(super) fn choose(promo: Option<&str>) -> UiEvent {
     action(BillingAction::ChoosePlan {
         tier: PlanTierView::VoicePro,
         term: PlanTermView::Annual,

@@ -19,6 +19,7 @@ public sealed partial class BillingPage : UserControl
         InitializeComponent();
         Status.Attach(ViewModel.Load);
         Refresh.Attach(ViewModel.Load);
+        Chooser.Attach(ViewModel.Purchase);
     }
 
     /// <summary>What the page shows, and its actions.</summary>

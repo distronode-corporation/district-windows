@@ -206,7 +206,7 @@ pub(crate) fn shell_for(
                 nav: nav_view(signed_in, unread),
                 can_go_back: has_parent(&signed_in.route),
                 notice: signed_in.notice.as_ref().map(|notice| notice.message()),
-                workspaces: switcher(&signed_in.workspaces),
+                workspaces: switcher(signed_in),
                 unread,
                 live: live_banner(signed_in),
                 report: report_status(signed_in, reporting),
@@ -237,7 +237,8 @@ fn entry(workspace: &WorkspaceEntry) -> WorkspaceEntryView {
     }
 }
 
-fn switcher(state: &WorkspacesState) -> WorkspaceSwitcherView {
+fn switcher(signed_in: &SignedIn) -> WorkspaceSwitcherView {
+    let state = &signed_in.workspaces;
     match state {
         WorkspacesState::Ready(workspaces) => WorkspaceSwitcherView {
             entries: workspaces.list.iter().map(entry).collect(),
@@ -251,8 +252,10 @@ fn switcher(state: &WorkspacesState) -> WorkspaceSwitcherView {
         | WorkspacesState::NoWorkspaces
         | WorkspacesState::BillingBlocked { .. }
         | WorkspacesState::Unavailable(_) => WorkspaceSwitcherView {
-            title: state.title().map(str::to_owned),
-            message: state.message(),
+            // The core's words for this account: with purchases on, choosing a
+            // plan or a workspace being set up, never "contact support".
+            title: signed_in.no_workspace_title().map(str::to_owned),
+            message: signed_in.no_workspace_message(),
             ..WorkspaceSwitcherView::default()
         },
     }
