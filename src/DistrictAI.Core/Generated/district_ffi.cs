@@ -8205,13 +8205,99 @@ class FfiConverterTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerView> {
 /// The phone numbers screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading: "Phone numbers".
+/// </param>
+/// <param name="Tab">
+/// The tab showing.
+/// </param>
+/// <param name="ReadOnlyNote">
+/// The note saying the screen changes nothing, worded for the role.
+/// </param>
+/// <param name="OffersWeb">
+/// Whether to offer the web marketplace: only to a role that could buy
+/// there.
+/// </param>
+/// <param name="WebAction">
+/// The web marketplace link's words.
+/// </param>
+/// <param name="WebCaption">
+/// The caption under it.
+/// </param>
+/// <param name="OwnedStatus">
+/// Where the read of the held numbers stands.
+/// </param>
+/// <param name="OwnedEmpty">
+/// What to say when the workspace holds none.
+/// </param>
+/// <param name="Owned">
+/// The numbers the workspace holds.
+/// </param>
+/// <param name="PartialNote">
+/// A note that a carrier did not answer, so the list may be short.
+/// </param>
+/// <param name="Refreshing">
+/// Whether the held numbers are being read again, with these showing.
+/// </param>
+/// <param name="Form">
+/// The search's filters, as typed.
+/// </param>
+/// <param name="Search">
+/// Where the search stands.
 /// </param>
 public record MarketplaceView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading: "Phone numbers".
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// The tab showing.
+    /// </summary>
+    NumbersTab Tab, 
+    /// <summary>
+    /// The note saying the screen changes nothing, worded for the role.
+    /// </summary>
+    string ReadOnlyNote, 
+    /// <summary>
+    /// Whether to offer the web marketplace: only to a role that could buy
+    /// there.
+    /// </summary>
+    bool OffersWeb, 
+    /// <summary>
+    /// The web marketplace link's words.
+    /// </summary>
+    string WebAction, 
+    /// <summary>
+    /// The caption under it.
+    /// </summary>
+    string WebCaption, 
+    /// <summary>
+    /// Where the read of the held numbers stands.
+    /// </summary>
+    LoadStatus OwnedStatus, 
+    /// <summary>
+    /// What to say when the workspace holds none.
+    /// </summary>
+    EmptyView? OwnedEmpty, 
+    /// <summary>
+    /// The numbers the workspace holds.
+    /// </summary>
+    NumberRowView[] Owned, 
+    /// <summary>
+    /// A note that a carrier did not answer, so the list may be short.
+    /// </summary>
+    string? PartialNote, 
+    /// <summary>
+    /// Whether the held numbers are being read again, with these showing.
+    /// </summary>
+    bool Refreshing, 
+    /// <summary>
+    /// The search's filters, as typed.
+    /// </summary>
+    NumberFormView Form, 
+    /// <summary>
+    /// Where the search stands.
+    /// </summary>
+    NumberSearchView Search
 ) {
 }
 
@@ -8220,17 +8306,53 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
 
     public override MarketplaceView Read(BigEndianStream stream) {
         return new MarketplaceView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Tab: FfiConverterTypeNumbersTab.INSTANCE.Read(stream),
+            ReadOnlyNote: FfiConverterString.INSTANCE.Read(stream),
+            OffersWeb: FfiConverterBoolean.INSTANCE.Read(stream),
+            WebAction: FfiConverterString.INSTANCE.Read(stream),
+            WebCaption: FfiConverterString.INSTANCE.Read(stream),
+            OwnedStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            OwnedEmpty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Owned: FfiConverterSequenceTypeNumberRowView.INSTANCE.Read(stream),
+            PartialNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Form: FfiConverterTypeNumberFormView.INSTANCE.Read(stream),
+            Search: FfiConverterTypeNumberSearchView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(MarketplaceView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeNumbersTab.INSTANCE.AllocationSize(value.Tab)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ReadOnlyNote)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWeb)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WebAction)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WebCaption)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.OwnedStatus)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.OwnedEmpty)
+            + FfiConverterSequenceTypeNumberRowView.INSTANCE.AllocationSize(value.Owned)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.PartialNote)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
+            + FfiConverterTypeNumberFormView.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterTypeNumberSearchView.INSTANCE.AllocationSize(value.Search);
     }
 
     public override void Write(MarketplaceView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeNumbersTab.INSTANCE.Write(value.Tab, stream);
+            FfiConverterString.INSTANCE.Write(value.ReadOnlyNote, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersWeb, stream);
+            FfiConverterString.INSTANCE.Write(value.WebAction, stream);
+            FfiConverterString.INSTANCE.Write(value.WebCaption, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.OwnedStatus, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.OwnedEmpty, stream);
+            FfiConverterSequenceTypeNumberRowView.INSTANCE.Write(value.Owned, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.PartialNote, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
+            FfiConverterTypeNumberFormView.INSTANCE.Write(value.Form, stream);
+            FfiConverterTypeNumberSearchView.INSTANCE.Write(value.Search, stream);
     }
 }
 
@@ -8610,6 +8732,175 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
             FfiConverterBoolean.INSTANCE.Write(value.Urgent, stream);
             FfiConverterSequenceTypeNotificationActionView.INSTANCE.Write(value.Actions, stream);
             FfiConverterTypeNotificationKind.INSTANCE.Write(value.Kind, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The search's filters.
+/// </summary>
+/// <param name="AreaCode">
+/// An area code, or blank for any.
+/// </param>
+/// <param name="Country">
+/// A country code.
+/// </param>
+/// <param name="NumberType">
+/// The number type, as the service names it (`local`).
+/// </param>
+/// <param name="NumberTypes">
+/// The number types to choose from, in the core's order.
+/// </param>
+public record NumberFormView (
+    /// <summary>
+    /// An area code, or blank for any.
+    /// </summary>
+    string AreaCode, 
+    /// <summary>
+    /// A country code.
+    /// </summary>
+    string Country, 
+    /// <summary>
+    /// The number type, as the service names it (`local`).
+    /// </summary>
+    string NumberType, 
+    /// <summary>
+    /// The number types to choose from, in the core's order.
+    /// </summary>
+    NumberTypeView[] NumberTypes
+) {
+}
+
+class FfiConverterTypeNumberFormView: FfiConverterRustBuffer<NumberFormView> {
+    public static FfiConverterTypeNumberFormView INSTANCE = new FfiConverterTypeNumberFormView();
+
+    public override NumberFormView Read(BigEndianStream stream) {
+        return new NumberFormView(
+            AreaCode: FfiConverterString.INSTANCE.Read(stream),
+            Country: FfiConverterString.INSTANCE.Read(stream),
+            NumberType: FfiConverterString.INSTANCE.Read(stream),
+            NumberTypes: FfiConverterSequenceTypeNumberTypeView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NumberFormView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.AreaCode)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Country)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NumberType)
+            + FfiConverterSequenceTypeNumberTypeView.INSTANCE.AllocationSize(value.NumberTypes);
+    }
+
+    public override void Write(NumberFormView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.AreaCode, stream);
+            FfiConverterString.INSTANCE.Write(value.Country, stream);
+            FfiConverterString.INSTANCE.Write(value.NumberType, stream);
+            FfiConverterSequenceTypeNumberTypeView.INSTANCE.Write(value.NumberTypes, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A number in a list.
+/// </summary>
+/// <param name="Number">
+/// The number, grouped to read.
+/// </param>
+/// <param name="Line">
+/// The line under it: its name, type, carrier and what it can do, or
+/// where it is, its type and what it can do.
+/// </param>
+/// <param name="Monthly">
+/// What the carrier charges a month, as quoted, or `None` when it quoted
+/// nothing (never shown as zero).
+/// </param>
+public record NumberRowView (
+    /// <summary>
+    /// The number, grouped to read.
+    /// </summary>
+    string Number, 
+    /// <summary>
+    /// The line under it: its name, type, carrier and what it can do, or
+    /// where it is, its type and what it can do.
+    /// </summary>
+    string Line, 
+    /// <summary>
+    /// What the carrier charges a month, as quoted, or `None` when it quoted
+    /// nothing (never shown as zero).
+    /// </summary>
+    string? Monthly
+) {
+}
+
+class FfiConverterTypeNumberRowView: FfiConverterRustBuffer<NumberRowView> {
+    public static FfiConverterTypeNumberRowView INSTANCE = new FfiConverterTypeNumberRowView();
+
+    public override NumberRowView Read(BigEndianStream stream) {
+        return new NumberRowView(
+            Number: FfiConverterString.INSTANCE.Read(stream),
+            Line: FfiConverterString.INSTANCE.Read(stream),
+            Monthly: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NumberRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Number)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Line)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Monthly);
+    }
+
+    public override void Write(NumberRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Number, stream);
+            FfiConverterString.INSTANCE.Write(value.Line, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Monthly, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One number type.
+/// </summary>
+/// <param name="Value">
+/// As the service names it.
+/// </param>
+/// <param name="Label">
+/// As it reads.
+/// </param>
+public record NumberTypeView (
+    /// <summary>
+    /// As the service names it.
+    /// </summary>
+    string Value, 
+    /// <summary>
+    /// As it reads.
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeNumberTypeView: FfiConverterRustBuffer<NumberTypeView> {
+    public static FfiConverterTypeNumberTypeView INSTANCE = new FfiConverterTypeNumberTypeView();
+
+    public override NumberTypeView Read(BigEndianStream stream) {
+        return new NumberTypeView(
+            Value: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NumberTypeView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(NumberTypeView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
     }
 }
 
@@ -13682,38 +13973,120 @@ class FfiConverterTypeLoadStatus : FfiConverterRustBuffer<LoadStatus>{
 /// <summary>
 /// Something the member did on the phone numbers screen.
 /// </summary>
-public enum MarketplaceAction: int {
+public record MarketplaceAction {
+    
     /// <summary>
     /// Open the phone numbers.
     /// </summary>
-    Open,
+    public record Open: MarketplaceAction {}
+    
+    
     /// <summary>
     /// Open the phone numbers on the web dashboard.
     /// </summary>
-    OpenWeb
+    public record OpenWeb: MarketplaceAction {}
+    
+    
+    /// <summary>
+    /// Show this tab.
+    /// </summary>
+    public record SelectTab (
+        NumbersTab Tab
+    ) : MarketplaceAction {}
+    
+    /// <summary>
+    /// The search's filters changed: the core searches once the typing stops.
+    /// </summary>
+    public record EditSearch (
+        string AreaCode,
+        string Country,
+        string NumberType
+    ) : MarketplaceAction {}
+    
+    /// <summary>
+    /// Search now (or again).
+    /// </summary>
+    public record Search: MarketplaceAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeMarketplaceAction: FfiConverterRustBuffer<MarketplaceAction> {
-    public static FfiConverterTypeMarketplaceAction INSTANCE = new FfiConverterTypeMarketplaceAction();
+class FfiConverterTypeMarketplaceAction : FfiConverterRustBuffer<MarketplaceAction>{
+    public static FfiConverterRustBuffer<MarketplaceAction> INSTANCE = new FfiConverterTypeMarketplaceAction();
 
     public override MarketplaceAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return MarketplaceAction.Open;
-            case 2: return MarketplaceAction.OpenWeb;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMarketplaceAction.Read()", value));
+            case 1:
+                return new MarketplaceAction.Open(
+                );
+            case 2:
+                return new MarketplaceAction.OpenWeb(
+                );
+            case 3:
+                return new MarketplaceAction.SelectTab(
+                    FfiConverterTypeNumbersTab.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new MarketplaceAction.EditSearch(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new MarketplaceAction.Search(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMarketplaceAction.Read()", value));
         }
     }
 
     public override int AllocationSize(MarketplaceAction value) {
-        return 4;
+        switch (value) {
+            case MarketplaceAction.Open variant_value:
+                return 4;
+            case MarketplaceAction.OpenWeb variant_value:
+                return 4;
+            case MarketplaceAction.SelectTab variant_value:
+                return 4
+                    + FfiConverterTypeNumbersTab.INSTANCE.AllocationSize(variant_value.Tab);
+            case MarketplaceAction.EditSearch variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.AreaCode)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Country)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.NumberType);
+            case MarketplaceAction.Search variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMarketplaceAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(MarketplaceAction value, BigEndianStream stream) {
         switch (value) {
-            case MarketplaceAction.Open: stream.WriteInt(1); break;
-            case MarketplaceAction.OpenWeb: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMarketplaceAction.Write()", value));
+            case MarketplaceAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case MarketplaceAction.OpenWeb variant_value:
+                stream.WriteInt(2);
+                break;
+            case MarketplaceAction.SelectTab variant_value:
+                stream.WriteInt(3);
+                FfiConverterTypeNumbersTab.INSTANCE.Write(variant_value.Tab, stream);
+                break;
+            case MarketplaceAction.EditSearch variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.AreaCode, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Country, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.NumberType, stream);
+                break;
+            case MarketplaceAction.Search variant_value:
+                stream.WriteInt(5);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMarketplaceAction.Write()", value));
         }
     }
 }
@@ -14030,6 +14403,124 @@ class FfiConverterTypeNotificationKind: FfiConverterRustBuffer<NotificationKind>
 
 
 /// <summary>
+/// Where the number search stands.
+/// </summary>
+public record NumberSearchView {
+    
+    /// <summary>
+    /// Nothing searched yet: not "no results".
+    /// </summary>
+    public record Idle: NumberSearchView {}
+    
+    
+    /// <summary>
+    /// Waiting for the typing to stop, or on its way.
+    /// </summary>
+    public record Searching: NumberSearchView {}
+    
+    
+    /// <summary>
+    /// The carrier's answer, with at least one number.
+    /// </summary>
+    public record Found (
+        string ProviderLine,
+        NumberRowView[] Numbers
+    ) : NumberSearchView {}
+    
+    /// <summary>
+    /// Nothing, or no carrier connected, or a failure: a status with a
+    /// heading, and "Try again" only where it may help.
+    /// </summary>
+    public record Status (
+        string Title,
+        string Body,
+        bool Retry
+    ) : NumberSearchView {}
+    
+
+    
+}
+
+class FfiConverterTypeNumberSearchView : FfiConverterRustBuffer<NumberSearchView>{
+    public static FfiConverterRustBuffer<NumberSearchView> INSTANCE = new FfiConverterTypeNumberSearchView();
+
+    public override NumberSearchView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new NumberSearchView.Idle(
+                );
+            case 2:
+                return new NumberSearchView.Searching(
+                );
+            case 3:
+                return new NumberSearchView.Found(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterSequenceTypeNumberRowView.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new NumberSearchView.Status(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberSearchView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(NumberSearchView value) {
+        switch (value) {
+            case NumberSearchView.Idle variant_value:
+                return 4;
+            case NumberSearchView.Searching variant_value:
+                return 4;
+            case NumberSearchView.Found variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ProviderLine)
+                    + FfiConverterSequenceTypeNumberRowView.INSTANCE.AllocationSize(variant_value.Numbers);
+            case NumberSearchView.Status variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Title)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Body)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Retry);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberSearchView.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(NumberSearchView value, BigEndianStream stream) {
+        switch (value) {
+            case NumberSearchView.Idle variant_value:
+                stream.WriteInt(1);
+                break;
+            case NumberSearchView.Searching variant_value:
+                stream.WriteInt(2);
+                break;
+            case NumberSearchView.Found variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.ProviderLine, stream);
+                FfiConverterSequenceTypeNumberRowView.INSTANCE.Write(variant_value.Numbers, stream);
+                break;
+            case NumberSearchView.Status variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.Title, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Body, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Retry, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberSearchView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the member did towards the phone numbers section.
 /// </summary>
 public enum NumbersAction: int {
@@ -14058,6 +14549,51 @@ class FfiConverterTypeNumbersAction: FfiConverterRustBuffer<NumbersAction> {
         switch (value) {
             case NumbersAction.Open: stream.WriteInt(1); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumbersAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// The screen's two tabs.
+/// </summary>
+public enum NumbersTab: int {
+    /// <summary>
+    /// The numbers the workspace holds.
+    /// </summary>
+    Owned,
+    /// <summary>
+    /// The numbers for sale.
+    /// </summary>
+    Search
+}
+
+class FfiConverterTypeNumbersTab: FfiConverterRustBuffer<NumbersTab> {
+    public static FfiConverterTypeNumbersTab INSTANCE = new FfiConverterTypeNumbersTab();
+
+    public override NumbersTab Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return NumbersTab.Owned;
+            case 2: return NumbersTab.Search;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumbersTab.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(NumbersTab value) {
+        return 4;
+    }
+
+    public override void Write(NumbersTab value, BigEndianStream stream) {
+        switch (value) {
+            case NumbersTab.Owned: stream.WriteInt(1); break;
+            case NumbersTab.Search: stream.WriteInt(2); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumbersTab.Write()", value));
         }
     }
 }
@@ -19130,6 +19666,98 @@ class FfiConverterSequenceTypeNotificationActionView: FfiConverterRustBuffer<Not
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeNotificationActionView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeNumberRowView: FfiConverterRustBuffer<NumberRowView[]> {
+    public static FfiConverterSequenceTypeNumberRowView INSTANCE = new FfiConverterSequenceTypeNumberRowView();
+
+    public override NumberRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new NumberRowView[length];
+        var readFn = FfiConverterTypeNumberRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(NumberRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeNumberRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(NumberRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeNumberRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeNumberTypeView: FfiConverterRustBuffer<NumberTypeView[]> {
+    public static FfiConverterSequenceTypeNumberTypeView INSTANCE = new FfiConverterSequenceTypeNumberTypeView();
+
+    public override NumberTypeView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new NumberTypeView[length];
+        var readFn = FfiConverterTypeNumberTypeView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(NumberTypeView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeNumberTypeView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(NumberTypeView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeNumberTypeView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
