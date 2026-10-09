@@ -4020,6 +4020,142 @@ class FfiConverterTypeAttachmentView: FfiConverterRustBuffer<AttachmentView> {
 
 
 /// <summary>
+/// The audition dialog: a real, billed call to the receptionist with the form
+/// on screen.
+/// </summary>
+/// <param name="Title">
+/// The heading.
+/// </param>
+/// <param name="BilledNote">
+/// What it is, said before anything starts: a real call, billed.
+/// </param>
+/// <param name="State">
+/// Where it stands, when there is something to say.
+/// </param>
+/// <param name="Waiting">
+/// Whether it is being started or joined (show a progress ring).
+/// </param>
+/// <param name="Failure">
+/// Why it could not start or was not joined.
+/// </param>
+/// <param name="ShowStart">
+/// Whether Start shows.
+/// </param>
+/// <param name="CanStart">
+/// Whether Start works now (not while another must wait).
+/// </param>
+/// <param name="ShowStop">
+/// Whether Stop shows.
+/// </param>
+/// <param name="Cooling">
+/// [`COOLING`], while another audition must wait.
+/// </param>
+/// <param name="StartLabel">
+/// [`START_ACTION`].
+/// </param>
+/// <param name="StopLabel">
+/// [`STOP_ACTION`].
+/// </param>
+public record AuditionView (
+    /// <summary>
+    /// The heading.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What it is, said before anything starts: a real call, billed.
+    /// </summary>
+    string BilledNote, 
+    /// <summary>
+    /// Where it stands, when there is something to say.
+    /// </summary>
+    string? State, 
+    /// <summary>
+    /// Whether it is being started or joined (show a progress ring).
+    /// </summary>
+    bool Waiting, 
+    /// <summary>
+    /// Why it could not start or was not joined.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// Whether Start shows.
+    /// </summary>
+    bool ShowStart, 
+    /// <summary>
+    /// Whether Start works now (not while another must wait).
+    /// </summary>
+    bool CanStart, 
+    /// <summary>
+    /// Whether Stop shows.
+    /// </summary>
+    bool ShowStop, 
+    /// <summary>
+    /// [`COOLING`], while another audition must wait.
+    /// </summary>
+    string? Cooling, 
+    /// <summary>
+    /// [`START_ACTION`].
+    /// </summary>
+    string StartLabel, 
+    /// <summary>
+    /// [`STOP_ACTION`].
+    /// </summary>
+    string StopLabel
+) {
+}
+
+class FfiConverterTypeAuditionView: FfiConverterRustBuffer<AuditionView> {
+    public static FfiConverterTypeAuditionView INSTANCE = new FfiConverterTypeAuditionView();
+
+    public override AuditionView Read(BigEndianStream stream) {
+        return new AuditionView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            BilledNote: FfiConverterString.INSTANCE.Read(stream),
+            State: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Waiting: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            ShowStart: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanStart: FfiConverterBoolean.INSTANCE.Read(stream),
+            ShowStop: FfiConverterBoolean.INSTANCE.Read(stream),
+            Cooling: FfiConverterOptionalString.INSTANCE.Read(stream),
+            StartLabel: FfiConverterString.INSTANCE.Read(stream),
+            StopLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(AuditionView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BilledNote)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.State)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Waiting)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowStart)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanStart)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowStop)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Cooling)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StopLabel);
+    }
+
+    public override void Write(AuditionView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.BilledNote, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.State, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Waiting, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowStart, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanStart, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowStop, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Cooling, stream);
+            FfiConverterString.INSTANCE.Write(value.StartLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.StopLabel, stream);
+    }
+}
+
+
+
+/// <summary>
 /// A bar chart: the trend's columns, or the funnel's rows.
 /// </summary>
 /// <param name="Summary">
@@ -4992,6 +5128,51 @@ class FfiConverterTypeChartBarView: FfiConverterRustBuffer<ChartBarView> {
             FfiConverterString.INSTANCE.Write(value.Label, stream);
             FfiConverterString.INSTANCE.Write(value.Value, stream);
             FfiConverterUInt16.INSTANCE.Write(value.PerMille, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One choice of a picker.
+/// </summary>
+/// <param name="Value">
+/// What is sent when it is chosen.
+/// </param>
+/// <param name="Label">
+/// What it reads.
+/// </param>
+public record ChoiceView (
+    /// <summary>
+    /// What is sent when it is chosen.
+    /// </summary>
+    string Value, 
+    /// <summary>
+    /// What it reads.
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeChoiceView: FfiConverterRustBuffer<ChoiceView> {
+    public static FfiConverterTypeChoiceView INSTANCE = new FfiConverterTypeChoiceView();
+
+    public override ChoiceView Read(BigEndianStream stream) {
+        return new ChoiceView(
+            Value: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ChoiceView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(ChoiceView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
     }
 }
 
@@ -9735,16 +9916,240 @@ class FfiConverterTypePeriodChoiceView: FfiConverterRustBuffer<PeriodChoiceView>
 
 
 /// <summary>
-/// The the persona section.
+/// The language half.
+/// </summary>
+/// <param name="EngineLabel">
+/// The stored engine's name, changed in Voice Studio.
+/// </param>
+/// <param name="StudioHint">
+/// Where the engine and the voice are changed.
+/// </param>
+/// <param name="StudioLabel">
+/// The button that opens Voice Studio, [`OPEN_STUDIO`].
+/// </param>
+/// <param name="Language">
+/// The languages the stored engine speaks.
+/// </param>
+/// <param name="ResponseLength">
+/// The answer lengths it offers.
+/// </param>
+public record PersonaEngineView (
+    /// <summary>
+    /// The stored engine's name, changed in Voice Studio.
+    /// </summary>
+    string EngineLabel, 
+    /// <summary>
+    /// Where the engine and the voice are changed.
+    /// </summary>
+    string StudioHint, 
+    /// <summary>
+    /// The button that opens Voice Studio, [`OPEN_STUDIO`].
+    /// </summary>
+    string StudioLabel, 
+    /// <summary>
+    /// The languages the stored engine speaks.
+    /// </summary>
+    PickerView Language, 
+    /// <summary>
+    /// The answer lengths it offers.
+    /// </summary>
+    PickerView ResponseLength
+) {
+}
+
+class FfiConverterTypePersonaEngineView: FfiConverterRustBuffer<PersonaEngineView> {
+    public static FfiConverterTypePersonaEngineView INSTANCE = new FfiConverterTypePersonaEngineView();
+
+    public override PersonaEngineView Read(BigEndianStream stream) {
+        return new PersonaEngineView(
+            EngineLabel: FfiConverterString.INSTANCE.Read(stream),
+            StudioHint: FfiConverterString.INSTANCE.Read(stream),
+            StudioLabel: FfiConverterString.INSTANCE.Read(stream),
+            Language: FfiConverterTypePickerView.INSTANCE.Read(stream),
+            ResponseLength: FfiConverterTypePickerView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PersonaEngineView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.EngineLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StudioHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StudioLabel)
+            + FfiConverterTypePickerView.INSTANCE.AllocationSize(value.Language)
+            + FfiConverterTypePickerView.INSTANCE.AllocationSize(value.ResponseLength);
+    }
+
+    public override void Write(PersonaEngineView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.EngineLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.StudioHint, stream);
+            FfiConverterString.INSTANCE.Write(value.StudioLabel, stream);
+            FfiConverterTypePickerView.INSTANCE.Write(value.Language, stream);
+            FfiConverterTypePickerView.INSTANCE.Write(value.ResponseLength, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The persona section.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`TITLE`].
+/// </param>
+/// <param name="Status">
+/// Where the page stands; the form shows only when [`SectionStatus::Ready`].
+/// </param>
+/// <param name="TextsHeading">
+/// The texts' heading, [`TEXTS_HEADING`].
+/// </param>
+/// <param name="Name">
+/// The receptionist's name, as on screen.
+/// </param>
+/// <param name="Greeting">
+/// Its opening line.
+/// </param>
+/// <param name="Personality">
+/// How it behaves.
+/// </param>
+/// <param name="TextEditable">
+/// Whether the texts can be edited: read, and nothing on its way.
+/// </param>
+/// <param name="ClearHint">
+/// The line under the texts: clearing a box saves it empty.
+/// </param>
+/// <param name="EngineHeading">
+/// The language half's heading, [`ENGINE_HEADING`].
+/// </param>
+/// <param name="Engine">
+/// The language half, once the settings and the options are both read.
+/// </param>
+/// <param name="EngineEditable">
+/// Whether the language half can be edited.
+/// </param>
+/// <param name="EngineNote">
+/// Why the language half is not shown: being read, or read only because
+/// the options could not be read.
+/// </param>
+/// <param name="CanRetryOptions">
+/// Whether "Try again" is offered for the options (`UiEvent::Refresh`).
+/// </param>
+/// <param name="RefitLine">
+/// Fitting a chain of the member's own to a new language, after a save.
+/// </param>
+/// <param name="Notice">
+/// How the last save ended, until dismissed or the form changes.
+/// </param>
+/// <param name="Saving">
+/// Whether a save is on its way (show a progress ring).
+/// </param>
+/// <param name="CanSave">
+/// Whether "Save" works: something changed, and nothing is on its way.
+/// </param>
+/// <param name="SaveLabel">
+/// The save button, [`SAVE_ACTION`].
+/// </param>
+/// <param name="CanPreview">
+/// Whether "Try this receptionist" is offered: it needs the options.
+/// </param>
+/// <param name="PreviewEnabled">
+/// Whether it can be pressed now: no audition dialog open.
+/// </param>
+/// <param name="PreviewLabel">
+/// The audition button, [`PREVIEW_ACTION`].
+/// </param>
+/// <param name="Audition">
+/// The audition dialog, while it is open.
 /// </param>
 public record PersonaView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// Where the page stands; the form shows only when [`SectionStatus::Ready`].
+    /// </summary>
+    SectionStatus Status, 
+    /// <summary>
+    /// The texts' heading, [`TEXTS_HEADING`].
+    /// </summary>
+    string TextsHeading, 
+    /// <summary>
+    /// The receptionist's name, as on screen.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Its opening line.
+    /// </summary>
+    string Greeting, 
+    /// <summary>
+    /// How it behaves.
+    /// </summary>
+    string Personality, 
+    /// <summary>
+    /// Whether the texts can be edited: read, and nothing on its way.
+    /// </summary>
+    bool TextEditable, 
+    /// <summary>
+    /// The line under the texts: clearing a box saves it empty.
+    /// </summary>
+    string ClearHint, 
+    /// <summary>
+    /// The language half's heading, [`ENGINE_HEADING`].
+    /// </summary>
+    string EngineHeading, 
+    /// <summary>
+    /// The language half, once the settings and the options are both read.
+    /// </summary>
+    PersonaEngineView? Engine, 
+    /// <summary>
+    /// Whether the language half can be edited.
+    /// </summary>
+    bool EngineEditable, 
+    /// <summary>
+    /// Why the language half is not shown: being read, or read only because
+    /// the options could not be read.
+    /// </summary>
+    string? EngineNote, 
+    /// <summary>
+    /// Whether "Try again" is offered for the options (`UiEvent::Refresh`).
+    /// </summary>
+    bool CanRetryOptions, 
+    /// <summary>
+    /// Fitting a chain of the member's own to a new language, after a save.
+    /// </summary>
+    string? RefitLine, 
+    /// <summary>
+    /// How the last save ended, until dismissed or the form changes.
+    /// </summary>
+    SaveNoticeView? Notice, 
+    /// <summary>
+    /// Whether a save is on its way (show a progress ring).
+    /// </summary>
+    bool Saving, 
+    /// <summary>
+    /// Whether "Save" works: something changed, and nothing is on its way.
+    /// </summary>
+    bool CanSave, 
+    /// <summary>
+    /// The save button, [`SAVE_ACTION`].
+    /// </summary>
+    string SaveLabel, 
+    /// <summary>
+    /// Whether "Try this receptionist" is offered: it needs the options.
+    /// </summary>
+    bool CanPreview, 
+    /// <summary>
+    /// Whether it can be pressed now: no audition dialog open.
+    /// </summary>
+    bool PreviewEnabled, 
+    /// <summary>
+    /// The audition button, [`PREVIEW_ACTION`].
+    /// </summary>
+    string PreviewLabel, 
+    /// <summary>
+    /// The audition dialog, while it is open.
+    /// </summary>
+    AuditionView? Audition
 ) {
 }
 
@@ -9753,17 +10158,80 @@ class FfiConverterTypePersonaView: FfiConverterRustBuffer<PersonaView> {
 
     public override PersonaView Read(BigEndianStream stream) {
         return new PersonaView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeSectionStatus.INSTANCE.Read(stream),
+            TextsHeading: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Greeting: FfiConverterString.INSTANCE.Read(stream),
+            Personality: FfiConverterString.INSTANCE.Read(stream),
+            TextEditable: FfiConverterBoolean.INSTANCE.Read(stream),
+            ClearHint: FfiConverterString.INSTANCE.Read(stream),
+            EngineHeading: FfiConverterString.INSTANCE.Read(stream),
+            Engine: FfiConverterOptionalTypePersonaEngineView.INSTANCE.Read(stream),
+            EngineEditable: FfiConverterBoolean.INSTANCE.Read(stream),
+            EngineNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanRetryOptions: FfiConverterBoolean.INSTANCE.Read(stream),
+            RefitLine: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Read(stream),
+            Saving: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
+            SaveLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanPreview: FfiConverterBoolean.INSTANCE.Read(stream),
+            PreviewEnabled: FfiConverterBoolean.INSTANCE.Read(stream),
+            PreviewLabel: FfiConverterString.INSTANCE.Read(stream),
+            Audition: FfiConverterOptionalTypeAuditionView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(PersonaView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeSectionStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TextsHeading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Greeting)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Personality)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.TextEditable)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ClearHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EngineHeading)
+            + FfiConverterOptionalTypePersonaEngineView.INSTANCE.AllocationSize(value.Engine)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.EngineEditable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.EngineNote)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanRetryOptions)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RefitLine)
+            + FfiConverterOptionalTypeSaveNoticeView.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SaveLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanPreview)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.PreviewEnabled)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PreviewLabel)
+            + FfiConverterOptionalTypeAuditionView.INSTANCE.AllocationSize(value.Audition);
     }
 
     public override void Write(PersonaView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeSectionStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.TextsHeading, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Greeting, stream);
+            FfiConverterString.INSTANCE.Write(value.Personality, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.TextEditable, stream);
+            FfiConverterString.INSTANCE.Write(value.ClearHint, stream);
+            FfiConverterString.INSTANCE.Write(value.EngineHeading, stream);
+            FfiConverterOptionalTypePersonaEngineView.INSTANCE.Write(value.Engine, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.EngineEditable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.EngineNote, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanRetryOptions, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.RefitLine, stream);
+            FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Write(value.Notice, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
+            FfiConverterString.INSTANCE.Write(value.SaveLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanPreview, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.PreviewEnabled, stream);
+            FfiConverterString.INSTANCE.Write(value.PreviewLabel, stream);
+            FfiConverterOptionalTypeAuditionView.INSTANCE.Write(value.Audition, stream);
     }
 }
 
@@ -9821,6 +10289,64 @@ class FfiConverterTypePickedFileView: FfiConverterRustBuffer<PickedFileView> {
             FfiConverterString.INSTANCE.Write(value.FileName, stream);
             FfiConverterUInt64.INSTANCE.Write(value.Size, stream);
             FfiConverterByteArray.INSTANCE.Write(value.Bytes, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A picker whose choices come from the core, showing a stored value the
+/// choices do not list as it is stored.
+/// </summary>
+/// <param name="Choices">
+/// The choices, in the core's order.
+/// </param>
+/// <param name="Selected">
+/// The value chosen now.
+/// </param>
+/// <param name="SelectedLabel">
+/// What the chosen value reads: its choice's label, else the value as
+/// stored, else [`NOT_CHOSEN`].
+/// </param>
+public record PickerView (
+    /// <summary>
+    /// The choices, in the core's order.
+    /// </summary>
+    ChoiceView[] Choices, 
+    /// <summary>
+    /// The value chosen now.
+    /// </summary>
+    string Selected, 
+    /// <summary>
+    /// What the chosen value reads: its choice's label, else the value as
+    /// stored, else [`NOT_CHOSEN`].
+    /// </summary>
+    string SelectedLabel
+) {
+}
+
+class FfiConverterTypePickerView: FfiConverterRustBuffer<PickerView> {
+    public static FfiConverterTypePickerView INSTANCE = new FfiConverterTypePickerView();
+
+    public override PickerView Read(BigEndianStream stream) {
+        return new PickerView(
+            Choices: FfiConverterSequenceTypeChoiceView.INSTANCE.Read(stream),
+            Selected: FfiConverterString.INSTANCE.Read(stream),
+            SelectedLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PickerView value) {
+        return 0
+            + FfiConverterSequenceTypeChoiceView.INSTANCE.AllocationSize(value.Choices)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Selected)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SelectedLabel);
+    }
+
+    public override void Write(PickerView value, BigEndianStream stream) {
+            FfiConverterSequenceTypeChoiceView.INSTANCE.Write(value.Choices, stream);
+            FfiConverterString.INSTANCE.Write(value.Selected, stream);
+            FfiConverterString.INSTANCE.Write(value.SelectedLabel, stream);
     }
 }
 
@@ -10340,6 +10866,51 @@ class FfiConverterTypeRunsView: FfiConverterRustBuffer<RunsView> {
             FfiConverterBoolean.INSTANCE.Write(value.CanLoadMore, stream);
             FfiConverterString.INSTANCE.Write(value.MoreLabel, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanRetry, stream);
+    }
+}
+
+
+
+/// <summary>
+/// How a section's last save ended, until it is dismissed or the form changes.
+/// </summary>
+/// <param name="Message">
+/// "Saved.", or why the save failed (the edits are kept).
+/// </param>
+/// <param name="Saved">
+/// Whether it saved, rather than failed.
+/// </param>
+public record SaveNoticeView (
+    /// <summary>
+    /// "Saved.", or why the save failed (the edits are kept).
+    /// </summary>
+    string Message, 
+    /// <summary>
+    /// Whether it saved, rather than failed.
+    /// </summary>
+    bool Saved
+) {
+}
+
+class FfiConverterTypeSaveNoticeView: FfiConverterRustBuffer<SaveNoticeView> {
+    public static FfiConverterTypeSaveNoticeView INSTANCE = new FfiConverterTypeSaveNoticeView();
+
+    public override SaveNoticeView Read(BigEndianStream stream) {
+        return new SaveNoticeView(
+            Message: FfiConverterString.INSTANCE.Read(stream),
+            Saved: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SaveNoticeView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Message)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saved);
+    }
+
+    public override void Write(SaveNoticeView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Message, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saved, stream);
     }
 }
 
@@ -15648,34 +16219,257 @@ class FfiConverterTypeNumbersTab: FfiConverterRustBuffer<NumbersTab> {
 
 
 /// <summary>
-/// Something the member did on the the persona section.
+/// Something the member did on the persona section.
 /// </summary>
-public enum PersonaAction: int {
+public record PersonaAction {
+    
     /// <summary>
-    /// Open the the persona section.
+    /// Open the persona section.
     /// </summary>
-    Open
+    public record Open: PersonaAction {}
+    
+    
+    /// <summary>
+    /// A text changed: what the box holds now.
+    /// </summary>
+    public record EditText (
+        PersonaField Field,
+        string Value
+    ) : PersonaAction {}
+    
+    /// <summary>
+    /// A language was chosen.
+    /// </summary>
+    public record ChooseLanguage (
+        string Value
+    ) : PersonaAction {}
+    
+    /// <summary>
+    /// An answer length was chosen.
+    /// </summary>
+    public record ChooseResponseLength (
+        string Value
+    ) : PersonaAction {}
+    
+    /// <summary>
+    /// Save what changed.
+    /// </summary>
+    public record Save: PersonaAction {}
+    
+    
+    /// <summary>
+    /// Put the save notice away.
+    /// </summary>
+    public record DismissSaveNotice: PersonaAction {}
+    
+    
+    /// <summary>
+    /// Open Voice Studio, where the engine and voice are changed.
+    /// </summary>
+    public record OpenVoiceStudio: PersonaAction {}
+    
+    
+    /// <summary>
+    /// Open the audition dialog. Nothing is asked for yet.
+    /// </summary>
+    public record OpenPreview: PersonaAction {}
+    
+    
+    /// <summary>
+    /// Start the audition: a billed call.
+    /// </summary>
+    public record StartPreview: PersonaAction {}
+    
+    
+    /// <summary>
+    /// Stop it.
+    /// </summary>
+    public record StopPreview: PersonaAction {}
+    
+    
+    /// <summary>
+    /// Close the dialog, stopping any audition.
+    /// </summary>
+    public record ClosePreview: PersonaAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypePersonaAction: FfiConverterRustBuffer<PersonaAction> {
-    public static FfiConverterTypePersonaAction INSTANCE = new FfiConverterTypePersonaAction();
+class FfiConverterTypePersonaAction : FfiConverterRustBuffer<PersonaAction>{
+    public static FfiConverterRustBuffer<PersonaAction> INSTANCE = new FfiConverterTypePersonaAction();
 
     public override PersonaAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return PersonaAction.Open;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePersonaAction.Read()", value));
+            case 1:
+                return new PersonaAction.Open(
+                );
+            case 2:
+                return new PersonaAction.EditText(
+                    FfiConverterTypePersonaField.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new PersonaAction.ChooseLanguage(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new PersonaAction.ChooseResponseLength(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new PersonaAction.Save(
+                );
+            case 6:
+                return new PersonaAction.DismissSaveNotice(
+                );
+            case 7:
+                return new PersonaAction.OpenVoiceStudio(
+                );
+            case 8:
+                return new PersonaAction.OpenPreview(
+                );
+            case 9:
+                return new PersonaAction.StartPreview(
+                );
+            case 10:
+                return new PersonaAction.StopPreview(
+                );
+            case 11:
+                return new PersonaAction.ClosePreview(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePersonaAction.Read()", value));
         }
     }
 
     public override int AllocationSize(PersonaAction value) {
-        return 4;
+        switch (value) {
+            case PersonaAction.Open variant_value:
+                return 4;
+            case PersonaAction.EditText variant_value:
+                return 4
+                    + FfiConverterTypePersonaField.INSTANCE.AllocationSize(variant_value.Field)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case PersonaAction.ChooseLanguage variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case PersonaAction.ChooseResponseLength variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case PersonaAction.Save variant_value:
+                return 4;
+            case PersonaAction.DismissSaveNotice variant_value:
+                return 4;
+            case PersonaAction.OpenVoiceStudio variant_value:
+                return 4;
+            case PersonaAction.OpenPreview variant_value:
+                return 4;
+            case PersonaAction.StartPreview variant_value:
+                return 4;
+            case PersonaAction.StopPreview variant_value:
+                return 4;
+            case PersonaAction.ClosePreview variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePersonaAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(PersonaAction value, BigEndianStream stream) {
         switch (value) {
-            case PersonaAction.Open: stream.WriteInt(1); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePersonaAction.Write()", value));
+            case PersonaAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case PersonaAction.EditText variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypePersonaField.INSTANCE.Write(variant_value.Field, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case PersonaAction.ChooseLanguage variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case PersonaAction.ChooseResponseLength variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case PersonaAction.Save variant_value:
+                stream.WriteInt(5);
+                break;
+            case PersonaAction.DismissSaveNotice variant_value:
+                stream.WriteInt(6);
+                break;
+            case PersonaAction.OpenVoiceStudio variant_value:
+                stream.WriteInt(7);
+                break;
+            case PersonaAction.OpenPreview variant_value:
+                stream.WriteInt(8);
+                break;
+            case PersonaAction.StartPreview variant_value:
+                stream.WriteInt(9);
+                break;
+            case PersonaAction.StopPreview variant_value:
+                stream.WriteInt(10);
+                break;
+            case PersonaAction.ClosePreview variant_value:
+                stream.WriteInt(11);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePersonaAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// One of the persona's texts.
+/// </summary>
+public enum PersonaField: int {
+    /// <summary>
+    /// The receptionist's name.
+    /// </summary>
+    Name,
+    /// <summary>
+    /// Its opening line.
+    /// </summary>
+    Greeting,
+    /// <summary>
+    /// How it behaves.
+    /// </summary>
+    Personality
+}
+
+class FfiConverterTypePersonaField: FfiConverterRustBuffer<PersonaField> {
+    public static FfiConverterTypePersonaField INSTANCE = new FfiConverterTypePersonaField();
+
+    public override PersonaField Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return PersonaField.Name;
+            case 2: return PersonaField.Greeting;
+            case 3: return PersonaField.Personality;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePersonaField.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(PersonaField value) {
+        return 4;
+    }
+
+    public override void Write(PersonaField value, BigEndianStream stream) {
+        switch (value) {
+            case PersonaField.Name: stream.WriteInt(1); break;
+            case PersonaField.Greeting: stream.WriteInt(2); break;
+            case PersonaField.Personality: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePersonaField.Write()", value));
         }
     }
 }
@@ -17034,6 +17828,126 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeScreenView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Where a section's page stands: being read, failed, saved but not read
+/// back, or the form.
+/// </summary>
+public record SectionStatus {
+    
+    /// <summary>
+    /// Being read: a progress ring, no form.
+    /// </summary>
+    public record Loading: SectionStatus {}
+    
+    
+    /// <summary>
+    /// The read failed: the reason and, when it could help, "Try again"
+    /// (`UiEvent::Refresh`). No form.
+    /// </summary>
+    public record Failed (
+        string Title,
+        FailureView Failure
+    ) : SectionStatus {}
+    
+    /// <summary>
+    /// A save landed and reading it back failed: "Saved", what to do, and a
+    /// read ([`READ_AGAIN`], `UiEvent::Refresh`), never a save.
+    /// </summary>
+    public record Stale (
+        string Title,
+        string Body,
+        string Action
+    ) : SectionStatus {}
+    
+    /// <summary>
+    /// Read: the form shows.
+    /// </summary>
+    public record Ready: SectionStatus {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeSectionStatus : FfiConverterRustBuffer<SectionStatus>{
+    public static FfiConverterRustBuffer<SectionStatus> INSTANCE = new FfiConverterTypeSectionStatus();
+
+    public override SectionStatus Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new SectionStatus.Loading(
+                );
+            case 2:
+                return new SectionStatus.Failed(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterTypeFailureView.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new SectionStatus.Stale(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new SectionStatus.Ready(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSectionStatus.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SectionStatus value) {
+        switch (value) {
+            case SectionStatus.Loading variant_value:
+                return 4;
+            case SectionStatus.Failed variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Title)
+                    + FfiConverterTypeFailureView.INSTANCE.AllocationSize(variant_value.Failure);
+            case SectionStatus.Stale variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Title)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Body)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Action);
+            case SectionStatus.Ready variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSectionStatus.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(SectionStatus value, BigEndianStream stream) {
+        switch (value) {
+            case SectionStatus.Loading variant_value:
+                stream.WriteInt(1);
+                break;
+            case SectionStatus.Failed variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Title, stream);
+                FfiConverterTypeFailureView.INSTANCE.Write(variant_value.Failure, stream);
+                break;
+            case SectionStatus.Stale variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Title, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Body, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SectionStatus.Ready variant_value:
+                stream.WriteInt(4);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSectionStatus.Write()", value));
         }
     }
 }
@@ -19612,6 +20526,37 @@ class FfiConverterOptionalTypeAiTextView: FfiConverterRustBuffer<AiTextView?> {
 
 
 
+class FfiConverterOptionalTypeAuditionView: FfiConverterRustBuffer<AuditionView?> {
+    public static FfiConverterOptionalTypeAuditionView INSTANCE = new FfiConverterOptionalTypeAuditionView();
+
+    public override AuditionView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeAuditionView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(AuditionView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeAuditionView.INSTANCE.AllocationSize((AuditionView)value);
+        }
+    }
+
+    public override void Write(AuditionView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeAuditionView.INSTANCE.Write((AuditionView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeBarChartView: FfiConverterRustBuffer<BarChartView?> {
     public static FfiConverterOptionalTypeBarChartView INSTANCE = new FfiConverterOptionalTypeBarChartView();
 
@@ -20170,6 +21115,37 @@ class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerV
 
 
 
+class FfiConverterOptionalTypePersonaEngineView: FfiConverterRustBuffer<PersonaEngineView?> {
+    public static FfiConverterOptionalTypePersonaEngineView INSTANCE = new FfiConverterOptionalTypePersonaEngineView();
+
+    public override PersonaEngineView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypePersonaEngineView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(PersonaEngineView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypePersonaEngineView.INSTANCE.AllocationSize((PersonaEngineView)value);
+        }
+    }
+
+    public override void Write(PersonaEngineView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypePersonaEngineView.INSTANCE.Write((PersonaEngineView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeRunsView: FfiConverterRustBuffer<RunsView?> {
     public static FfiConverterOptionalTypeRunsView INSTANCE = new FfiConverterOptionalTypeRunsView();
 
@@ -20194,6 +21170,37 @@ class FfiConverterOptionalTypeRunsView: FfiConverterRustBuffer<RunsView?> {
         } else {
             stream.WriteByte(1);
             FfiConverterTypeRunsView.INSTANCE.Write((RunsView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeSaveNoticeView: FfiConverterRustBuffer<SaveNoticeView?> {
+    public static FfiConverterOptionalTypeSaveNoticeView INSTANCE = new FfiConverterOptionalTypeSaveNoticeView();
+
+    public override SaveNoticeView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSaveNoticeView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SaveNoticeView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSaveNoticeView.INSTANCE.AllocationSize((SaveNoticeView)value);
+        }
+    }
+
+    public override void Write(SaveNoticeView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSaveNoticeView.INSTANCE.Write((SaveNoticeView)value, stream);
         }
     }
 }
@@ -20641,6 +21648,52 @@ class FfiConverterSequenceTypeChartBarView: FfiConverterRustBuffer<ChartBarView[
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeChartBarView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeChoiceView: FfiConverterRustBuffer<ChoiceView[]> {
+    public static FfiConverterSequenceTypeChoiceView INSTANCE = new FfiConverterSequenceTypeChoiceView();
+
+    public override ChoiceView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ChoiceView[length];
+        var readFn = FfiConverterTypeChoiceView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ChoiceView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeChoiceView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ChoiceView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeChoiceView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

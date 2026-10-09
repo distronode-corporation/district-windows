@@ -606,9 +606,7 @@ mod tests {
                 view: crate::settings::SettingsHubView::sample(),
             },
             ScreenView::Persona {
-                view: crate::settings::persona::PersonaView {
-                    title: "Persona".to_owned(),
-                },
+                view: crate::settings::persona::PersonaView::sample(),
             },
             ScreenView::VoiceStudio {
                 view: crate::settings::voice_studio::VoiceStudioView {

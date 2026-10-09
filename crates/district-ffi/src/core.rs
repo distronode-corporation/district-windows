@@ -1148,10 +1148,10 @@ mod tests {
         (core, effects)
     }
 
-    /// The route the actor's model is on, from the pane's highlight and the
-    /// screen.
+    /// Whether the actor's model is on the persona section: its page, under
+    /// the hub's highlight.
     fn on_settings_section(core: &Core) -> bool {
-        matches!(core.screen(), ScreenView::Unavailable { .. })
+        matches!(core.screen(), ScreenView::Persona { .. })
             && core
                 .shell()
                 .nav
