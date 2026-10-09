@@ -1,5 +1,7 @@
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Input;
+using FlaUI.Core.WindowsAPI;
 using Xunit;
 using static DistrictAI.UiTests.Walk;
 
@@ -199,6 +201,73 @@ public sealed class SceneWalkTests
         app.Find(ControlType.Button, "Hang up", PageTimeout).AsButton().Invoke();
         _ = app.Find(ControlType.Text, "Call ended", PageTimeout);
         Assert.True(app.IsRunning, "the app ended during the call");
+    }
+
+    /// <summary>
+    /// The call shortcuts (MainWindow.xaml's accelerators) during a placed
+    /// call: Ctrl+D turns the microphone off (the call bar's Mute pressed)
+    /// and on again, and Ctrl+Shift+H ends the call.
+    /// </summary>
+    /// <remarks>
+    /// The reply box's draft surviving a quit is not walked here: the scene
+    /// answers no draft save and reads every draft back empty (scripted.rs),
+    /// so it cannot keep one. The live walk's VM has the service for that.
+    /// </remarks>
+    [Fact]
+    public void TheCallShortcutsMuteAndHangUp()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        var handle = window.Properties.NativeWindowHandle.Value;
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntil(app, "Calls", "Calls");
+        app.Find(ControlType.Button, "Place a call", PageTimeout).AsButton().Invoke();
+        app.Find(ControlType.Edit, "Number to call", PageTimeout).AsTextBox().Text = "+12125550142";
+        Wait.For(
+            () => app.TryFind(ControlType.Button, "Call") is { IsEnabled: true } call ? call : null,
+            PageTimeout,
+            "Call to work",
+            app.Describe).AsButton().Invoke();
+        _ = app.Find(null, "Live transcript", PageTimeout);
+        var mute = Wait.For(
+            () => app.TryFind(ControlType.Button, "Mute") is { IsEnabled: true } found && found.Patterns.Toggle.IsSupported ? found : null,
+            PageTimeout,
+            "the call bar's Mute, enabled",
+            app.Describe);
+        Assert.Equal(ToggleState.Off, mute.Patterns.Toggle.Pattern.ToggleState.Value);
+
+        // The shortcuts go to the window, as a person's keys do.
+        Shortcut(handle, VirtualKeyShort.KEY_D, VirtualKeyShort.CONTROL);
+        Assert.True(
+            Wait.Until(() => MuteState(app) == ToggleState.On, PageTimeout),
+            $"Ctrl+D did not turn the microphone off.{Environment.NewLine}{app.Describe()}");
+        InstalledApp.Log("Ctrl+D: microphone off");
+        Shortcut(handle, VirtualKeyShort.KEY_D, VirtualKeyShort.CONTROL);
+        Assert.True(
+            Wait.Until(() => MuteState(app) == ToggleState.Off, PageTimeout),
+            $"Ctrl+D again did not turn the microphone on.{Environment.NewLine}{app.Describe()}");
+        InstalledApp.Log("Ctrl+D: microphone on");
+
+        Shortcut(handle, VirtualKeyShort.KEY_H, VirtualKeyShort.CONTROL, VirtualKeyShort.SHIFT);
+        _ = app.Find(ControlType.Text, "Call ended", PageTimeout);
+        InstalledApp.Log("Ctrl+Shift+H: the call ended");
+        Assert.True(app.IsRunning, "the app ended during the call");
+    }
+
+    private static ToggleState? MuteState(InstalledApp app) =>
+        app.TryFind(ControlType.Button, "Mute") is { } mute && mute.Patterns.Toggle.IsSupported
+            ? mute.Patterns.Toggle.Pattern.ToggleState.Value
+            : null;
+
+    /// <summary>Presses <paramref name="key"/> with <paramref name="modifiers"/> held, the window in front.</summary>
+    private static void Shortcut(nint handle, VirtualKeyShort key, params VirtualKeyShort[] modifiers)
+    {
+        _ = Native.SetForegroundWindow(handle);
+        Thread.Sleep(200);
+        Keyboard.TypeSimultaneously([.. modifiers, key]);
+        Thread.Sleep(200);
     }
 
     /// <summary>
