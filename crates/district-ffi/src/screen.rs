@@ -620,16 +620,19 @@ mod tests {
             ScreenView::CallHandling {
                 view: crate::settings::call_handling::CallHandlingView {
                     title: "CallHandling".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Routing {
                 view: crate::settings::routing::RoutingView {
                     title: "Routing".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Directory {
                 view: crate::settings::directory::DirectoryView {
                     title: "Directory".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Tools {

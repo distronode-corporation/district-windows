@@ -66,6 +66,9 @@ public sealed class SceneWalkTests
         "Persona",
         "Messaging accounts",
         "Members",
+        "Call handling",
+        "Call routing rules",
+        "Transfer directory",
     ];
 
     /// <summary>

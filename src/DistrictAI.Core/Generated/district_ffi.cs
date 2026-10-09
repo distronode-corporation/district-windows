@@ -700,15 +700,15 @@ static class _UniFFILib {
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceUiHostMethod2(
-        ulong @uniffiHandle,RustBuffer @url,RustBuffer @view,IntPtr @uniffiFutureCallback,ulong @uniffiCallbackData,IntPtr /*_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*/ @uniffiOutDroppedCallback
-    );
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void UniffiCallbackInterfaceUiHostMethod3(
         ulong @uniffiHandle,RustBuffer @notification,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void UniffiCallbackInterfaceUiHostMethod4(
+    public delegate void UniffiCallbackInterfaceUiHostMethod3(
         ulong @uniffiHandle,RustBuffer @id,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceUiHostMethod4(
+        ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceUiHostMethod5(
@@ -718,10 +718,6 @@ static class _UniFFILib {
     public delegate void UniffiCallbackInterfaceUiHostMethod6(
         ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void UniffiCallbackInterfaceUiHostMethod7(
-        ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
-    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiVTableCallbackInterfaceUiHost
     {
@@ -729,15 +725,12 @@ static class _UniFFILib {
         public IntPtr @uniffiClone;
         public IntPtr @stateChanged;
         public IntPtr @openUrl;
-        public IntPtr @openEmbedded;
         public IntPtr @notify;
         public IntPtr @withdraw;
         public IntPtr @startRingtone;
         public IntPtr @stopRingtone;
         public IntPtr @presentWindow;
     }
-    
-    
     
     
     
@@ -1056,17 +1049,6 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_district_ffi_fn_method_uihost_open_url(ulong @ptr,RustBuffer @url
-    );
-
-    #if NET8_0_OR_GREATER
-    [LibraryImport("district_ffi")]
-    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial
-#else
-    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
-    public static extern
-#endif
-     ulong uniffi_district_ffi_fn_method_uihost_open_embedded(ulong @ptr,RustBuffer @url,RustBuffer @view
     );
 
     #if NET8_0_OR_GREATER
@@ -2056,17 +2038,6 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ushort uniffi_district_ffi_checksum_method_uihost_open_embedded(
-    );
-
-    #if NET8_0_OR_GREATER
-    [LibraryImport("district_ffi")]
-    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial
-#else
-    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
-    public static extern
-#endif
      ushort uniffi_district_ffi_checksum_method_uihost_notify(
     );
 
@@ -2278,39 +2249,33 @@ static class _UniFFILib {
             }
         }
         {
-            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_open_embedded();
-            if (checksum != 14032) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_open_embedded` checksum `14032`, library returned `{checksum}`");
-            }
-        }
-        {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_notify();
-            if (checksum != 65105) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_notify` checksum `65105`, library returned `{checksum}`");
+            if (checksum != 52980) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_notify` checksum `52980`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_withdraw();
-            if (checksum != 22601) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_withdraw` checksum `22601`, library returned `{checksum}`");
+            if (checksum != 37350) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_withdraw` checksum `37350`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_start_ringtone();
-            if (checksum != 38081) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_start_ringtone` checksum `38081`, library returned `{checksum}`");
+            if (checksum != 19017) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_start_ringtone` checksum `19017`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_stop_ringtone();
-            if (checksum != 42039) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_stop_ringtone` checksum `42039`, library returned `{checksum}`");
+            if (checksum != 18874) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_stop_ringtone` checksum `18874`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_uihost_present_window();
-            if (checksum != 3903) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_present_window` checksum `3903`, library returned `{checksum}`");
+            if (checksum != 48954) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_uihost_present_window` checksum `48954`, library returned `{checksum}`");
             }
         }
         {
@@ -2326,32 +2291,6 @@ static class _UniFFILib {
 
 #pragma warning disable 8625
 
-
-
-
-class FfiConverterUInt8: FfiConverter<byte, byte> {
-    public static FfiConverterUInt8 INSTANCE = new FfiConverterUInt8();
-
-    public override byte Lift(byte value) {
-        return value;
-    }
-
-    public override byte Read(BigEndianStream stream) {
-        return stream.ReadByte();
-    }
-
-    public override byte Lower(byte value) {
-        return value;
-    }
-
-    public override int AllocationSize(byte value) {
-        return 1;
-    }
-
-    public override void Write(byte value, BigEndianStream stream) {
-        stream.WriteByte(value);
-    }
-}
 
 
 
@@ -2943,22 +2882,6 @@ public interface UiHost {
     /// </summary>
     Task<bool> OpenUrl(string @url);
     /// <summary>
-    /// Opens `url` in the checkout window, a view inside the app, and answers
-    /// whether it did. Asked only for the service's hand-off start page and
-    /// the one-time link after it (district-core's `UrlOpener::open_embedded`).
-    ///
-    /// [`EmbeddedViewKind::NewPrivate`] opens a new private view, replacing
-    /// any earlier one, with nothing from it or from the browser and nothing
-    /// kept once it closes; [`EmbeddedViewKind::Same`] navigates that view,
-    /// answering false when it is gone. While it shows, a navigation to
-    /// `districtai://handoff` is cancelled in the view and handed to
-    /// [`Core::open_link`](crate::Core::open_link), and the window closing is
-    /// `BillingAction::CheckoutClosed`. Answer false when the view cannot be
-    /// shown at all (no WebView2 runtime): the core then opens the pages in
-    /// the browser instead, and says so.
-    /// </summary>
-    Task<bool> OpenEmbedded(string @url, EmbeddedViewKind @view);
-    /// <summary>
     /// Shows `notification` as a toast, replacing any shown with the same id.
     /// An [`urgent`](NotificationView::urgent) one (a call ringing now) stays
     /// on screen until it is dealt with. Clicking it, or one of its actions,
@@ -3102,43 +3025,6 @@ public class UiHostImpl : UiHost, IDisposable {
         // Get rust future
         CallWithPointer(thisPtr => {
             return _UniFFILib.uniffi_district_ffi_fn_method_uihost_open_url(thisPtr, FfiConverterString.INSTANCE.Lower(@url));
-        }),
-        // Poll
-        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_district_ffi_rust_future_poll_i8(future, continuation, data),
-        // Complete
-        (ulong future, ref UniffiRustCallStatus status) => {
-            return _UniFFILib.ffi_district_ffi_rust_future_complete_i8(future, ref status);
-        },
-        // Free
-        (ulong future) => _UniFFILib.ffi_district_ffi_rust_future_free_i8(future),
-        // Lift
-        (result) => FfiConverterBoolean.INSTANCE.Lift(result),
-        // Error
-        NullCallStatusErrorHandler.INSTANCE
-        
-    );
-    }
-    
-    /// <summary>
-    /// Opens `url` in the checkout window, a view inside the app, and answers
-    /// whether it did. Asked only for the service's hand-off start page and
-    /// the one-time link after it (district-core's `UrlOpener::open_embedded`).
-    ///
-    /// [`EmbeddedViewKind::NewPrivate`] opens a new private view, replacing
-    /// any earlier one, with nothing from it or from the browser and nothing
-    /// kept once it closes; [`EmbeddedViewKind::Same`] navigates that view,
-    /// answering false when it is gone. While it shows, a navigation to
-    /// `districtai://handoff` is cancelled in the view and handed to
-    /// [`Core::open_link`](crate::Core::open_link), and the window closing is
-    /// `BillingAction::CheckoutClosed`. Answer false when the view cannot be
-    /// shown at all (no WebView2 runtime): the core then opens the pages in
-    /// the browser instead, and says so.
-    /// </summary>
-    public async Task<bool> OpenEmbedded(string @url, EmbeddedViewKind @view) {
-    return await _UniFFIAsync.UniffiRustCallAsync(
-        // Get rust future
-        CallWithPointer(thisPtr => {
-            return _UniFFILib.uniffi_district_ffi_fn_method_uihost_open_embedded(thisPtr, FfiConverterString.INSTANCE.Lower(@url), FfiConverterTypeEmbeddedViewKind.INSTANCE.Lower(@view));
         }),
         // Poll
         (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_district_ffi_rust_future_poll_i8(future, continuation, data),
@@ -3308,71 +3194,6 @@ class UniffiCallbackInterfaceUiHost {
             }
         }, futureHandle.Cts.Token);
     }
-    static void OpenEmbedded(ulong @uniffiHandle,RustBuffer @url,RustBuffer @view,IntPtr @uniffiFutureCallback,ulong @uniffiCallbackData,IntPtr /*_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*/ @uniffiOutDroppedCallback) {
-        var handle = @uniffiHandle;
-        var futureHandle = new UniffiForeignFutureHandle();
-        var foreignHandle = _UniFFIAsync._foreign_futures_map.Insert(futureHandle);
-        unsafe {
-            (*(_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*)@uniffiOutDroppedCallback).handle = foreignHandle;
-            (*(_UniFFILib.UniffiForeignFutureDroppedCallbackStruct*)@uniffiOutDroppedCallback).free = Marshal.GetFunctionPointerForDelegate(_UniFFIAsync.UniffiForeignFutureDroppedCallbackImpl.callback);
-        }
-        if (!FfiConverterTypeUiHost.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
-            var ret = new _UniFFILib.UniffiForeignFutureResultI8();
-            ret.@callStatus = new UniffiRustCallStatus();
-            ret.@callStatus.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
-            try {
-                ret.@callStatus.error_buf = FfiConverterString.INSTANCE.Lower($"No callback in handlemap '{handle}'");
-            } catch { }
-            var earlyCb = Marshal.GetDelegateForFunctionPointer<_UniFFILib.UniffiForeignFutureCompleteI8>(@uniffiFutureCallback);
-            futureHandle.InvokeCallbackOnce(() => { earlyCb(@uniffiCallbackData, ret); });
-            futureHandle.Dispose();
-            return;
-        }
-
-        // Optimization: skip queuing if already cancelled before Task.Run schedules.
-        // TryInvokeCallback is the definitive cancellation guard inside the task body.
-        Task.Run(async () => {
-            var ret = new _UniFFILib.UniffiForeignFutureResultI8();
-            ret.@callStatus = new UniffiRustCallStatus();
-
-            try {
-            try {
-            var result =
-
-            await uniffiObject.OpenEmbedded(
-                FfiConverterString.INSTANCE.Lift(@url), 
-                FfiConverterTypeEmbeddedViewKind.INSTANCE.Lift(@view))
-            #if NET6_0_OR_GREATER
-                .WaitAsync(futureHandle.Cts.Token)
-            #endif
-                ;
-            ret.@returnValue = FfiConverterBoolean.INSTANCE.Lower(result);
-
-            ret.@callStatus.code = UniffiCallbackResponseStatus.SUCCESS;
-            } catch (OperationCanceledException) when (futureHandle.Cts.IsCancellationRequested) {
-                ret.@callStatus.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
-                try {
-                    ret.@callStatus.error_buf = FfiConverterString.INSTANCE.Lower("Future cancelled");
-                } catch { }
-            } catch (System.Exception e) {
-                ret.@callStatus.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
-                try {
-                    ret.@callStatus.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
-                }
-                catch {
-                }
-            }
-
-            
-            var cb = Marshal.GetDelegateForFunctionPointer<_UniFFILib.UniffiForeignFutureCompleteI8>(@uniffiFutureCallback);
-            futureHandle.InvokeCallbackOnce(() => {
-                cb(@uniffiCallbackData, ret);
-            });
-            } finally {
-                futureHandle.Dispose();
-            }
-        }, futureHandle.Cts.Token);
-    }
     static void Notify(ulong @uniffiHandle,RustBuffer @notification,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
         var handle = @uniffiHandle;
         try {
@@ -3487,12 +3308,11 @@ class UniffiCallbackInterfaceUiHost {
     }
     static _UniFFILib.UniffiCallbackInterfaceUiHostMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod0(StateChanged);
     static _UniFFILib.UniffiCallbackInterfaceUiHostMethod1 _m1 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod1(OpenUrl);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod2 _m2 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod2(OpenEmbedded);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod3 _m3 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod3(Notify);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod4 _m4 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod4(Withdraw);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod5 _m5 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod5(StartRingtone);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod6 _m6 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod6(StopRingtone);
-    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod7 _m7 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod7(PresentWindow);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod2 _m2 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod2(Notify);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod3 _m3 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod3(Withdraw);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod4 _m4 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod4(StartRingtone);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod5 _m5 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod5(StopRingtone);
+    static _UniFFILib.UniffiCallbackInterfaceUiHostMethod6 _m6 = new _UniFFILib.UniffiCallbackInterfaceUiHostMethod6(PresentWindow);
     static _UniFFILib.UniffiCallbackInterfaceFree _callback_interface_free = new _UniFFILib.UniffiCallbackInterfaceFree(UniffiFree);
     static _UniFFILib.UniffiCallbackInterfaceClone _callback_interface_clone = new _UniFFILib.UniffiCallbackInterfaceClone(UniffiClone);
 
@@ -3503,12 +3323,11 @@ class UniffiCallbackInterfaceUiHost {
         _UniFFILib.UniffiVTableCallbackInterfaceUiHost _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceUiHost {
             @stateChanged = Marshal.GetFunctionPointerForDelegate(_m0),
             @openUrl = Marshal.GetFunctionPointerForDelegate(_m1),
-            @openEmbedded = Marshal.GetFunctionPointerForDelegate(_m2),
-            @notify = Marshal.GetFunctionPointerForDelegate(_m3),
-            @withdraw = Marshal.GetFunctionPointerForDelegate(_m4),
-            @startRingtone = Marshal.GetFunctionPointerForDelegate(_m5),
-            @stopRingtone = Marshal.GetFunctionPointerForDelegate(_m6),
-            @presentWindow = Marshal.GetFunctionPointerForDelegate(_m7),
+            @notify = Marshal.GetFunctionPointerForDelegate(_m2),
+            @withdraw = Marshal.GetFunctionPointerForDelegate(_m3),
+            @startRingtone = Marshal.GetFunctionPointerForDelegate(_m4),
+            @stopRingtone = Marshal.GetFunctionPointerForDelegate(_m5),
+            @presentWindow = Marshal.GetFunctionPointerForDelegate(_m6),
             @uniffiFree = Marshal.GetFunctionPointerForDelegate(_callback_interface_free),
             @uniffiClone = Marshal.GetFunctionPointerForDelegate(_callback_interface_clone),
         };
@@ -3615,121 +3434,6 @@ class FfiConverterTypeUiHost: FfiConverter<UiHost, ulong> {
 
 
 /// <summary>
-/// The account's subscriptions and invoices.
-/// </summary>
-/// <param name="State">
-/// Where it stands.
-/// </param>
-/// <param name="Title">
-/// The heading of the unavailable or failed card.
-/// </param>
-/// <param name="Body">
-/// Its body: why it is unavailable.
-/// </param>
-/// <param name="Failure">
-/// Why the read failed.
-/// </param>
-/// <param name="Subscriptions">
-/// The subscriptions.
-/// </param>
-/// <param name="NoSubscriptions">
-/// The line for an account with none.
-/// </param>
-/// <param name="Invoices">
-/// The latest invoices.
-/// </param>
-/// <param name="NoInvoices">
-/// The line for an account with none.
-/// </param>
-/// <param name="InvoicesTruncated">
-/// The note under a list that is not all of them.
-/// </param>
-public record AccountBillingView (
-    /// <summary>
-    /// Where it stands.
-    /// </summary>
-    AccountBillingState State, 
-    /// <summary>
-    /// The heading of the unavailable or failed card.
-    /// </summary>
-    string? Title, 
-    /// <summary>
-    /// Its body: why it is unavailable.
-    /// </summary>
-    string? Body, 
-    /// <summary>
-    /// Why the read failed.
-    /// </summary>
-    FailureView? Failure, 
-    /// <summary>
-    /// The subscriptions.
-    /// </summary>
-    SubscriptionRowView[] Subscriptions, 
-    /// <summary>
-    /// The line for an account with none.
-    /// </summary>
-    string? NoSubscriptions, 
-    /// <summary>
-    /// The latest invoices.
-    /// </summary>
-    InvoiceRowView[] Invoices, 
-    /// <summary>
-    /// The line for an account with none.
-    /// </summary>
-    string? NoInvoices, 
-    /// <summary>
-    /// The note under a list that is not all of them.
-    /// </summary>
-    string? InvoicesTruncated
-) {
-}
-
-class FfiConverterTypeAccountBillingView: FfiConverterRustBuffer<AccountBillingView> {
-    public static FfiConverterTypeAccountBillingView INSTANCE = new FfiConverterTypeAccountBillingView();
-
-    public override AccountBillingView Read(BigEndianStream stream) {
-        return new AccountBillingView(
-            State: FfiConverterTypeAccountBillingState.INSTANCE.Read(stream),
-            Title: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Body: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
-            Subscriptions: FfiConverterSequenceTypeSubscriptionRowView.INSTANCE.Read(stream),
-            NoSubscriptions: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Invoices: FfiConverterSequenceTypeInvoiceRowView.INSTANCE.Read(stream),
-            NoInvoices: FfiConverterOptionalString.INSTANCE.Read(stream),
-            InvoicesTruncated: FfiConverterOptionalString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(AccountBillingView value) {
-        return 0
-            + FfiConverterTypeAccountBillingState.INSTANCE.AllocationSize(value.State)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Title)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Body)
-            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
-            + FfiConverterSequenceTypeSubscriptionRowView.INSTANCE.AllocationSize(value.Subscriptions)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NoSubscriptions)
-            + FfiConverterSequenceTypeInvoiceRowView.INSTANCE.AllocationSize(value.Invoices)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NoInvoices)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.InvoicesTruncated);
-    }
-
-    public override void Write(AccountBillingView value, BigEndianStream stream) {
-            FfiConverterTypeAccountBillingState.INSTANCE.Write(value.State, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.Title, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.Body, stream);
-            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
-            FfiConverterSequenceTypeSubscriptionRowView.INSTANCE.Write(value.Subscriptions, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.NoSubscriptions, stream);
-            FfiConverterSequenceTypeInvoiceRowView.INSTANCE.Write(value.Invoices, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.NoInvoices, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.InvoicesTruncated, stream);
-    }
-}
-
-
-
-/// <summary>
 /// The account screen: who is signed in, on which installation, with which
 /// build.
 /// </summary>
@@ -3772,23 +3476,6 @@ class FfiConverterTypeAccountBillingView: FfiConverterRustBuffer<AccountBillingV
 /// </param>
 /// <param name="RingSettingMessage">
 /// The line under the setting when calls cannot ring here right now.
-/// </param>
-/// <param name="PurchasesOn">
-/// "Purchases on this computer": on ("Sign in every time") or off, once
-/// the core has read it; `None` until then, and then the row is not
-/// shown. Changed with `BillingAction::SetPurchases`.
-/// </param>
-/// <param name="PurchasesLabel">
-/// The row's label, "Purchases on this computer".
-/// </param>
-/// <param name="PurchasesBody">
-/// What the row does.
-/// </param>
-/// <param name="PurchasesOnLabel">
-/// The "on" choice's name, "Sign in every time".
-/// </param>
-/// <param name="PurchasesOffLabel">
-/// The "off" choice's name, "Off".
 /// </param>
 public record AccountView (
     /// <summary>
@@ -3842,29 +3529,7 @@ public record AccountView (
     /// <summary>
     /// The line under the setting when calls cannot ring here right now.
     /// </summary>
-    string? RingSettingMessage, 
-    /// <summary>
-    /// "Purchases on this computer": on ("Sign in every time") or off, once
-    /// the core has read it; `None` until then, and then the row is not
-    /// shown. Changed with `BillingAction::SetPurchases`.
-    /// </summary>
-    bool? PurchasesOn, 
-    /// <summary>
-    /// The row's label, "Purchases on this computer".
-    /// </summary>
-    string PurchasesLabel, 
-    /// <summary>
-    /// What the row does.
-    /// </summary>
-    string PurchasesBody, 
-    /// <summary>
-    /// The "on" choice's name, "Sign in every time".
-    /// </summary>
-    string PurchasesOnLabel, 
-    /// <summary>
-    /// The "off" choice's name, "Off".
-    /// </summary>
-    string PurchasesOffLabel
+    string? RingSettingMessage
 ) {
 }
 
@@ -3884,12 +3549,7 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             RingOnThisComputer: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
             RingSettingLabel: FfiConverterString.INSTANCE.Read(stream),
             RingSettingBody: FfiConverterString.INSTANCE.Read(stream),
-            RingSettingMessage: FfiConverterOptionalString.INSTANCE.Read(stream),
-            PurchasesOn: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
-            PurchasesLabel: FfiConverterString.INSTANCE.Read(stream),
-            PurchasesBody: FfiConverterString.INSTANCE.Read(stream),
-            PurchasesOnLabel: FfiConverterString.INSTANCE.Read(stream),
-            PurchasesOffLabel: FfiConverterString.INSTANCE.Read(stream)
+            RingSettingMessage: FfiConverterOptionalString.INSTANCE.Read(stream)
         );
     }
 
@@ -3906,12 +3566,7 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.RingOnThisComputer)
             + FfiConverterString.INSTANCE.AllocationSize(value.RingSettingLabel)
             + FfiConverterString.INSTANCE.AllocationSize(value.RingSettingBody)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RingSettingMessage)
-            + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.PurchasesOn)
-            + FfiConverterString.INSTANCE.AllocationSize(value.PurchasesLabel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.PurchasesBody)
-            + FfiConverterString.INSTANCE.AllocationSize(value.PurchasesOnLabel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.PurchasesOffLabel);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RingSettingMessage);
     }
 
     public override void Write(AccountView value, BigEndianStream stream) {
@@ -3927,11 +3582,6 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             FfiConverterString.INSTANCE.Write(value.RingSettingLabel, stream);
             FfiConverterString.INSTANCE.Write(value.RingSettingBody, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.RingSettingMessage, stream);
-            FfiConverterOptionalBoolean.INSTANCE.Write(value.PurchasesOn, stream);
-            FfiConverterString.INSTANCE.Write(value.PurchasesLabel, stream);
-            FfiConverterString.INSTANCE.Write(value.PurchasesBody, stream);
-            FfiConverterString.INSTANCE.Write(value.PurchasesOnLabel, stream);
-            FfiConverterString.INSTANCE.Write(value.PurchasesOffLabel, stream);
     }
 }
 
@@ -4122,131 +3772,6 @@ class FfiConverterTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView> {
             FfiConverterOptionalString.INSTANCE.Write(value.EndedNote, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.MediaNotice, stream);
             FfiConverterOptionalTypeTranscriptView.INSTANCE.Write(value.Transcript, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The add form.
-/// </summary>
-/// <param name="Heading">
-/// [`ADD_HEADING`].
-/// </param>
-/// <param name="EmailLabel">
-/// [`EMAIL_LABEL`].
-/// </param>
-/// <param name="Email">
-/// The address, as typed.
-/// </param>
-/// <param name="RoleLabel">
-/// [`ROLE_LABEL`].
-/// </param>
-/// <param name="Role">
-/// The role it will get.
-/// </param>
-/// <param name="Editable">
-/// Whether the form can be edited: nothing on its way.
-/// </param>
-/// <param name="CanAdd">
-/// Whether "Add" works: an address, and nothing on its way.
-/// </param>
-/// <param name="Rejected">
-/// Why the last "Add" was refused here: not an address.
-/// </param>
-/// <param name="Note">
-/// That adding someone sends no invitation, in the core's words.
-/// </param>
-/// <param name="AddLabel">
-/// [`ADD_ACTION`].
-/// </param>
-public record AddMemberView (
-    /// <summary>
-    /// [`ADD_HEADING`].
-    /// </summary>
-    string Heading, 
-    /// <summary>
-    /// [`EMAIL_LABEL`].
-    /// </summary>
-    string EmailLabel, 
-    /// <summary>
-    /// The address, as typed.
-    /// </summary>
-    string Email, 
-    /// <summary>
-    /// [`ROLE_LABEL`].
-    /// </summary>
-    string RoleLabel, 
-    /// <summary>
-    /// The role it will get.
-    /// </summary>
-    MemberRoleView Role, 
-    /// <summary>
-    /// Whether the form can be edited: nothing on its way.
-    /// </summary>
-    bool Editable, 
-    /// <summary>
-    /// Whether "Add" works: an address, and nothing on its way.
-    /// </summary>
-    bool CanAdd, 
-    /// <summary>
-    /// Why the last "Add" was refused here: not an address.
-    /// </summary>
-    string? Rejected, 
-    /// <summary>
-    /// That adding someone sends no invitation, in the core's words.
-    /// </summary>
-    string Note, 
-    /// <summary>
-    /// [`ADD_ACTION`].
-    /// </summary>
-    string AddLabel
-) {
-}
-
-class FfiConverterTypeAddMemberView: FfiConverterRustBuffer<AddMemberView> {
-    public static FfiConverterTypeAddMemberView INSTANCE = new FfiConverterTypeAddMemberView();
-
-    public override AddMemberView Read(BigEndianStream stream) {
-        return new AddMemberView(
-            Heading: FfiConverterString.INSTANCE.Read(stream),
-            EmailLabel: FfiConverterString.INSTANCE.Read(stream),
-            Email: FfiConverterString.INSTANCE.Read(stream),
-            RoleLabel: FfiConverterString.INSTANCE.Read(stream),
-            Role: FfiConverterTypeMemberRoleView.INSTANCE.Read(stream),
-            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
-            CanAdd: FfiConverterBoolean.INSTANCE.Read(stream),
-            Rejected: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Note: FfiConverterString.INSTANCE.Read(stream),
-            AddLabel: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(AddMemberView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
-            + FfiConverterString.INSTANCE.AllocationSize(value.EmailLabel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Email)
-            + FfiConverterString.INSTANCE.AllocationSize(value.RoleLabel)
-            + FfiConverterTypeMemberRoleView.INSTANCE.AllocationSize(value.Role)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAdd)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Rejected)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Note)
-            + FfiConverterString.INSTANCE.AllocationSize(value.AddLabel);
-    }
-
-    public override void Write(AddMemberView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Heading, stream);
-            FfiConverterString.INSTANCE.Write(value.EmailLabel, stream);
-            FfiConverterString.INSTANCE.Write(value.Email, stream);
-            FfiConverterString.INSTANCE.Write(value.RoleLabel, stream);
-            FfiConverterTypeMemberRoleView.INSTANCE.Write(value.Role, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.CanAdd, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.Rejected, stream);
-            FfiConverterString.INSTANCE.Write(value.Note, stream);
-            FfiConverterString.INSTANCE.Write(value.AddLabel, stream);
     }
 }
 
@@ -4657,6 +4182,139 @@ class FfiConverterTypeAuditionView: FfiConverterRustBuffer<AuditionView> {
 
 
 /// <summary>
+/// The member's own availability.
+/// </summary>
+/// <param name="Heading">
+/// The heading, [`AVAILABILITY_HEADING`].
+/// </param>
+/// <param name="Note">
+/// What it is for, [`AVAILABILITY_NOTE`].
+/// </param>
+/// <param name="Status">
+/// Where its read stands, on its own: a failed read offers a retry and no
+/// switch.
+/// </param>
+/// <param name="Label">
+/// The switch's label, [`AVAILABILITY_LABEL`].
+/// </param>
+/// <param name="Available">
+/// Whether the member's devices ring for this workspace.
+/// </param>
+/// <param name="ShowSwitch">
+/// Whether the switch shows: read, with no reason the member cannot be
+/// rung.
+/// </param>
+/// <param name="CanToggle">
+/// Whether the switch works: shown, the member may change things, and no
+/// change on its way.
+/// </param>
+/// <param name="Blocked">
+/// Why the member cannot be made available, in the core's words, in place
+/// of the switch.
+/// </param>
+/// <param name="Changing">
+/// Whether a change is on its way (show a progress ring).
+/// </param>
+/// <param name="Notice">
+/// How the last change ended, until dismissed.
+/// </param>
+public record AvailabilityPanelView (
+    /// <summary>
+    /// The heading, [`AVAILABILITY_HEADING`].
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// What it is for, [`AVAILABILITY_NOTE`].
+    /// </summary>
+    string Note, 
+    /// <summary>
+    /// Where its read stands, on its own: a failed read offers a retry and no
+    /// switch.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The switch's label, [`AVAILABILITY_LABEL`].
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether the member's devices ring for this workspace.
+    /// </summary>
+    bool Available, 
+    /// <summary>
+    /// Whether the switch shows: read, with no reason the member cannot be
+    /// rung.
+    /// </summary>
+    bool ShowSwitch, 
+    /// <summary>
+    /// Whether the switch works: shown, the member may change things, and no
+    /// change on its way.
+    /// </summary>
+    bool CanToggle, 
+    /// <summary>
+    /// Why the member cannot be made available, in the core's words, in place
+    /// of the switch.
+    /// </summary>
+    string? Blocked, 
+    /// <summary>
+    /// Whether a change is on its way (show a progress ring).
+    /// </summary>
+    bool Changing, 
+    /// <summary>
+    /// How the last change ended, until dismissed.
+    /// </summary>
+    SaveNoticeView? Notice
+) {
+}
+
+class FfiConverterTypeAvailabilityPanelView: FfiConverterRustBuffer<AvailabilityPanelView> {
+    public static FfiConverterTypeAvailabilityPanelView INSTANCE = new FfiConverterTypeAvailabilityPanelView();
+
+    public override AvailabilityPanelView Read(BigEndianStream stream) {
+        return new AvailabilityPanelView(
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            Note: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Available: FfiConverterBoolean.INSTANCE.Read(stream),
+            ShowSwitch: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanToggle: FfiConverterBoolean.INSTANCE.Read(stream),
+            Blocked: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Changing: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(AvailabilityPanelView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Available)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowSwitch)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanToggle)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Blocked)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Changing)
+            + FfiConverterOptionalTypeSaveNoticeView.INSTANCE.AllocationSize(value.Notice);
+    }
+
+    public override void Write(AvailabilityPanelView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterString.INSTANCE.Write(value.Note, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Available, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowSwitch, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanToggle, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Blocked, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Changing, stream);
+            FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Write(value.Notice, stream);
+    }
+}
+
+
+
+/// <summary>
 /// A bar chart: the trend's columns, or the funnel's rows.
 /// </summary>
 /// <param name="Summary">
@@ -4745,75 +4403,13 @@ class FfiConverterTypeBarChartView: FfiConverterRustBuffer<BarChartView> {
 /// The billing screen.
 /// </summary>
 /// <param name="Title">
-/// The heading: "Billing".
-/// </param>
-/// <param name="Status">
-/// Where the plan's read stands: the screen's status page while loading
-/// or failed.
-/// </param>
-/// <param name="Refreshing">
-/// Whether the plan is being read again, with it showing.
-/// </param>
-/// <param name="Plan">
-/// The workspace's plan, once read.
-/// </param>
-/// <param name="Account">
-/// The account's subscriptions and invoices.
-/// </param>
-/// <param name="Note">
-/// The note under the heading: what this screen can change.
-/// </param>
-/// <param name="OffersWeb">
-/// Whether "Manage billing on the web" is offered: for a role that could
-/// change the plan, while purchases in the app are not.
-/// </param>
-/// <param name="WebAction">
-/// Its label.
-/// </param>
-/// <param name="Purchase">
-/// Choosing a plan and managing billing in the app, while they are
-/// offered to this member on this computer; `None` hides them all.
+/// The heading. A placeholder, until the screen is built.
 /// </param>
 public record BillingView (
     /// <summary>
-    /// The heading: "Billing".
+    /// The heading. A placeholder, until the screen is built.
     /// </summary>
-    string Title, 
-    /// <summary>
-    /// Where the plan's read stands: the screen's status page while loading
-    /// or failed.
-    /// </summary>
-    LoadStatus Status, 
-    /// <summary>
-    /// Whether the plan is being read again, with it showing.
-    /// </summary>
-    bool Refreshing, 
-    /// <summary>
-    /// The workspace's plan, once read.
-    /// </summary>
-    PlanView? Plan, 
-    /// <summary>
-    /// The account's subscriptions and invoices.
-    /// </summary>
-    AccountBillingView Account, 
-    /// <summary>
-    /// The note under the heading: what this screen can change.
-    /// </summary>
-    string Note, 
-    /// <summary>
-    /// Whether "Manage billing on the web" is offered: for a role that could
-    /// change the plan, while purchases in the app are not.
-    /// </summary>
-    bool OffersWeb, 
-    /// <summary>
-    /// Its label.
-    /// </summary>
-    string WebAction, 
-    /// <summary>
-    /// Choosing a plan and managing billing in the app, while they are
-    /// offered to this member on this computer; `None` hides them all.
-    /// </summary>
-    PurchaseView? Purchase
+    string Title
 ) {
 }
 
@@ -4822,41 +4418,17 @@ class FfiConverterTypeBillingView: FfiConverterRustBuffer<BillingView> {
 
     public override BillingView Read(BigEndianStream stream) {
         return new BillingView(
-            Title: FfiConverterString.INSTANCE.Read(stream),
-            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
-            Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
-            Plan: FfiConverterOptionalTypePlanView.INSTANCE.Read(stream),
-            Account: FfiConverterTypeAccountBillingView.INSTANCE.Read(stream),
-            Note: FfiConverterString.INSTANCE.Read(stream),
-            OffersWeb: FfiConverterBoolean.INSTANCE.Read(stream),
-            WebAction: FfiConverterString.INSTANCE.Read(stream),
-            Purchase: FfiConverterOptionalTypePurchaseView.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(BillingView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
-            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
-            + FfiConverterOptionalTypePlanView.INSTANCE.AllocationSize(value.Plan)
-            + FfiConverterTypeAccountBillingView.INSTANCE.AllocationSize(value.Account)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Note)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWeb)
-            + FfiConverterString.INSTANCE.AllocationSize(value.WebAction)
-            + FfiConverterOptionalTypePurchaseView.INSTANCE.AllocationSize(value.Purchase);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
     }
 
     public override void Write(BillingView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
-            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
-            FfiConverterOptionalTypePlanView.INSTANCE.Write(value.Plan, stream);
-            FfiConverterTypeAccountBillingView.INSTANCE.Write(value.Account, stream);
-            FfiConverterString.INSTANCE.Write(value.Note, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.OffersWeb, stream);
-            FfiConverterString.INSTANCE.Write(value.WebAction, stream);
-            FfiConverterOptionalTypePurchaseView.INSTANCE.Write(value.Purchase, stream);
     }
 }
 
@@ -5190,16 +4762,215 @@ class FfiConverterTypeCallDetailView: FfiConverterRustBuffer<CallDetailView> {
 
 
 /// <summary>
+/// One way of answering, as offered.
+/// </summary>
+/// <param name="Mode">
+/// Which (`CallHandlingAction::SelectMode`).
+/// </param>
+/// <param name="Label">
+/// Its name.
+/// </param>
+/// <param name="Body">
+/// What it does.
+/// </param>
+/// <param name="Selected">
+/// Whether it is the one on screen.
+/// </param>
+public record CallHandlingModeView (
+    /// <summary>
+    /// Which (`CallHandlingAction::SelectMode`).
+    /// </summary>
+    CallHandlingChoice Mode, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// What it does.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// Whether it is the one on screen.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeCallHandlingModeView: FfiConverterRustBuffer<CallHandlingModeView> {
+    public static FfiConverterTypeCallHandlingModeView INSTANCE = new FfiConverterTypeCallHandlingModeView();
+
+    public override CallHandlingModeView Read(BigEndianStream stream) {
+        return new CallHandlingModeView(
+            Mode: FfiConverterTypeCallHandlingChoice.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CallHandlingModeView value) {
+        return 0
+            + FfiConverterTypeCallHandlingChoice.INSTANCE.AllocationSize(value.Mode)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(CallHandlingModeView value, BigEndianStream stream) {
+            FfiConverterTypeCallHandlingChoice.INSTANCE.Write(value.Mode, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The call handling section.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`CALL_HANDLING_TITLE`].
+/// </param>
+/// <param name="HandlingHeading">
+/// The heading over who answers, [`HANDLING_HEADING`].
+/// </param>
+/// <param name="HandlingNote">
+/// What that part is for, [`HANDLING_NOTE`].
+/// </param>
+/// <param name="Status">
+/// Where the read of who answers stands. A failed read offers a retry and
+/// no control.
+/// </param>
+/// <param name="Modes">
+/// The ways of answering offered, in order, once read. A viewer is shown
+/// only the one in force.
+/// </param>
+/// <param name="UnknownMode">
+/// A stored mode this app does not know, as the core keeps it, under
+/// [`UNKNOWN_MODE_TITLE`].
+/// </param>
+/// <param name="RingLabel">
+/// The ring's label, [`RING_LABEL`].
+/// </param>
+/// <param name="RingHint">
+/// The hint under it: the range the service accepts.
+/// </param>
+/// <param name="RingSeconds">
+/// How long the devices ring, in seconds, as the form has it.
+/// </param>
+/// <param name="RingWords">
+/// The same, in words ("20 seconds").
+/// </param>
+/// <param name="RingMin">
+/// The shortest ring the service accepts.
+/// </param>
+/// <param name="RingMax">
+/// The longest.
+/// </param>
+/// <param name="CanChange">
+/// Whether the member's role may change call handling. A viewer reads.
+/// </param>
+/// <param name="CanEdit">
+/// Whether the mode and the ring can be changed now: read, the member may,
+/// and no save on its way.
+/// </param>
+/// <param name="CanSave">
+/// Whether "Save" works: something changed and nothing is on its way.
+/// </param>
+/// <param name="Saving">
+/// Whether a save is on its way (show a progress ring).
+/// </param>
+/// <param name="Notice">
+/// How the last save ended, until dismissed or the form changes.
+/// </param>
+/// <param name="ViewerNote">
+/// What a viewer is told, in place of the controls.
+/// </param>
+/// <param name="Availability">
+/// The member's own availability.
 /// </param>
 public record CallHandlingView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`CALL_HANDLING_TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// The heading over who answers, [`HANDLING_HEADING`].
+    /// </summary>
+    string HandlingHeading, 
+    /// <summary>
+    /// What that part is for, [`HANDLING_NOTE`].
+    /// </summary>
+    string HandlingNote, 
+    /// <summary>
+    /// Where the read of who answers stands. A failed read offers a retry and
+    /// no control.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The ways of answering offered, in order, once read. A viewer is shown
+    /// only the one in force.
+    /// </summary>
+    CallHandlingModeView[] Modes, 
+    /// <summary>
+    /// A stored mode this app does not know, as the core keeps it, under
+    /// [`UNKNOWN_MODE_TITLE`].
+    /// </summary>
+    string? UnknownMode, 
+    /// <summary>
+    /// The ring's label, [`RING_LABEL`].
+    /// </summary>
+    string RingLabel, 
+    /// <summary>
+    /// The hint under it: the range the service accepts.
+    /// </summary>
+    string RingHint, 
+    /// <summary>
+    /// How long the devices ring, in seconds, as the form has it.
+    /// </summary>
+    long RingSeconds, 
+    /// <summary>
+    /// The same, in words ("20 seconds").
+    /// </summary>
+    string RingWords, 
+    /// <summary>
+    /// The shortest ring the service accepts.
+    /// </summary>
+    long RingMin, 
+    /// <summary>
+    /// The longest.
+    /// </summary>
+    long RingMax, 
+    /// <summary>
+    /// Whether the member's role may change call handling. A viewer reads.
+    /// </summary>
+    bool CanChange, 
+    /// <summary>
+    /// Whether the mode and the ring can be changed now: read, the member may,
+    /// and no save on its way.
+    /// </summary>
+    bool CanEdit, 
+    /// <summary>
+    /// Whether "Save" works: something changed and nothing is on its way.
+    /// </summary>
+    bool CanSave, 
+    /// <summary>
+    /// Whether a save is on its way (show a progress ring).
+    /// </summary>
+    bool Saving, 
+    /// <summary>
+    /// How the last save ended, until dismissed or the form changes.
+    /// </summary>
+    SaveNoticeView? Notice, 
+    /// <summary>
+    /// What a viewer is told, in place of the controls.
+    /// </summary>
+    string? ViewerNote, 
+    /// <summary>
+    /// The member's own availability.
+    /// </summary>
+    AvailabilityPanelView Availability
 ) {
 }
 
@@ -5208,17 +4979,71 @@ class FfiConverterTypeCallHandlingView: FfiConverterRustBuffer<CallHandlingView>
 
     public override CallHandlingView Read(BigEndianStream stream) {
         return new CallHandlingView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            HandlingHeading: FfiConverterString.INSTANCE.Read(stream),
+            HandlingNote: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Modes: FfiConverterSequenceTypeCallHandlingModeView.INSTANCE.Read(stream),
+            UnknownMode: FfiConverterOptionalString.INSTANCE.Read(stream),
+            RingLabel: FfiConverterString.INSTANCE.Read(stream),
+            RingHint: FfiConverterString.INSTANCE.Read(stream),
+            RingSeconds: FfiConverterInt64.INSTANCE.Read(stream),
+            RingWords: FfiConverterString.INSTANCE.Read(stream),
+            RingMin: FfiConverterInt64.INSTANCE.Read(stream),
+            RingMax: FfiConverterInt64.INSTANCE.Read(stream),
+            CanChange: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanEdit: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
+            Saving: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Read(stream),
+            ViewerNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Availability: FfiConverterTypeAvailabilityPanelView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(CallHandlingView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HandlingHeading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HandlingNote)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeCallHandlingModeView.INSTANCE.AllocationSize(value.Modes)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.UnknownMode)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RingLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RingHint)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.RingSeconds)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RingWords)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.RingMin)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.RingMax)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChange)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanEdit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving)
+            + FfiConverterOptionalTypeSaveNoticeView.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ViewerNote)
+            + FfiConverterTypeAvailabilityPanelView.INSTANCE.AllocationSize(value.Availability);
     }
 
     public override void Write(CallHandlingView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.HandlingHeading, stream);
+            FfiConverterString.INSTANCE.Write(value.HandlingNote, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeCallHandlingModeView.INSTANCE.Write(value.Modes, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.UnknownMode, stream);
+            FfiConverterString.INSTANCE.Write(value.RingLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RingHint, stream);
+            FfiConverterInt64.INSTANCE.Write(value.RingSeconds, stream);
+            FfiConverterString.INSTANCE.Write(value.RingWords, stream);
+            FfiConverterInt64.INSTANCE.Write(value.RingMin, stream);
+            FfiConverterInt64.INSTANCE.Write(value.RingMax, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanChange, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanEdit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+            FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ViewerNote, stream);
+            FfiConverterTypeAvailabilityPanelView.INSTANCE.Write(value.Availability, stream);
     }
 }
 
@@ -5666,108 +5491,6 @@ class FfiConverterTypeCampaignView: FfiConverterRustBuffer<CampaignView> {
 
 
 /// <summary>
-/// One carrier, to choose.
-/// </summary>
-/// <param name="Carrier">
-/// The carrier.
-/// </param>
-/// <param name="Label">
-/// Its name.
-/// </param>
-public record CarrierChoiceView (
-    /// <summary>
-    /// The carrier.
-    /// </summary>
-    MessagingCarrier Carrier, 
-    /// <summary>
-    /// Its name.
-    /// </summary>
-    string Label
-) {
-}
-
-class FfiConverterTypeCarrierChoiceView: FfiConverterRustBuffer<CarrierChoiceView> {
-    public static FfiConverterTypeCarrierChoiceView INSTANCE = new FfiConverterTypeCarrierChoiceView();
-
-    public override CarrierChoiceView Read(BigEndianStream stream) {
-        return new CarrierChoiceView(
-            Carrier: FfiConverterTypeMessagingCarrier.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(CarrierChoiceView value) {
-        return 0
-            + FfiConverterTypeMessagingCarrier.INSTANCE.AllocationSize(value.Carrier)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
-    }
-
-    public override void Write(CarrierChoiceView value, BigEndianStream stream) {
-            FfiConverterTypeMessagingCarrier.INSTANCE.Write(value.Carrier, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
-    }
-}
-
-
-
-/// <summary>
-/// One channel's sender.
-/// </summary>
-/// <param name="Channel">
-/// The channel.
-/// </param>
-/// <param name="Label">
-/// Its name ("SMS").
-/// </param>
-/// <param name="Picker">
-/// The accounts to choose from, and the one chosen ("" for none of its
-/// own, which reads [`DEFAULT_SENDER`]).
-/// </param>
-public record ChannelSenderView (
-    /// <summary>
-    /// The channel.
-    /// </summary>
-    SenderChannel Channel, 
-    /// <summary>
-    /// Its name ("SMS").
-    /// </summary>
-    string Label, 
-    /// <summary>
-    /// The accounts to choose from, and the one chosen ("" for none of its
-    /// own, which reads [`DEFAULT_SENDER`]).
-    /// </summary>
-    PickerView Picker
-) {
-}
-
-class FfiConverterTypeChannelSenderView: FfiConverterRustBuffer<ChannelSenderView> {
-    public static FfiConverterTypeChannelSenderView INSTANCE = new FfiConverterTypeChannelSenderView();
-
-    public override ChannelSenderView Read(BigEndianStream stream) {
-        return new ChannelSenderView(
-            Channel: FfiConverterTypeSenderChannel.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream),
-            Picker: FfiConverterTypePickerView.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(ChannelSenderView value) {
-        return 0
-            + FfiConverterTypeSenderChannel.INSTANCE.AllocationSize(value.Channel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
-            + FfiConverterTypePickerView.INSTANCE.AllocationSize(value.Picker);
-    }
-
-    public override void Write(ChannelSenderView value, BigEndianStream stream) {
-            FfiConverterTypeSenderChannel.INSTANCE.Write(value.Channel, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
-            FfiConverterTypePickerView.INSTANCE.Write(value.Picker, stream);
-    }
-}
-
-
-
-/// <summary>
 /// One bar.
 /// </summary>
 /// <param name="Label">
@@ -6017,101 +5740,6 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
             FfiConverterOptionalString.INSTANCE.Write(value.Busy, stream);
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
             FfiConverterTypeAiDraftOfferView.INSTANCE.Write(value.AiDraft, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The step before checkout opens, which names Stripe.
-/// </summary>
-/// <param name="Title">
-/// The heading.
-/// </param>
-/// <param name="Body">
-/// The body: who handles payment, and where checkout opens.
-/// </param>
-/// <param name="Plan">
-/// The plan chosen, by name.
-/// </param>
-/// <param name="Term">
-/// The term chosen, by name.
-/// </param>
-/// <param name="Promo">
-/// The promotion code, when one was given.
-/// </param>
-/// <param name="Action">
-/// The confirming button's label.
-/// </param>
-/// <param name="Cancel">
-/// The way back's label.
-/// </param>
-public record ConfirmPurchaseView (
-    /// <summary>
-    /// The heading.
-    /// </summary>
-    string Title, 
-    /// <summary>
-    /// The body: who handles payment, and where checkout opens.
-    /// </summary>
-    string Body, 
-    /// <summary>
-    /// The plan chosen, by name.
-    /// </summary>
-    string Plan, 
-    /// <summary>
-    /// The term chosen, by name.
-    /// </summary>
-    string Term, 
-    /// <summary>
-    /// The promotion code, when one was given.
-    /// </summary>
-    string? Promo, 
-    /// <summary>
-    /// The confirming button's label.
-    /// </summary>
-    string Action, 
-    /// <summary>
-    /// The way back's label.
-    /// </summary>
-    string Cancel
-) {
-}
-
-class FfiConverterTypeConfirmPurchaseView: FfiConverterRustBuffer<ConfirmPurchaseView> {
-    public static FfiConverterTypeConfirmPurchaseView INSTANCE = new FfiConverterTypeConfirmPurchaseView();
-
-    public override ConfirmPurchaseView Read(BigEndianStream stream) {
-        return new ConfirmPurchaseView(
-            Title: FfiConverterString.INSTANCE.Read(stream),
-            Body: FfiConverterString.INSTANCE.Read(stream),
-            Plan: FfiConverterString.INSTANCE.Read(stream),
-            Term: FfiConverterString.INSTANCE.Read(stream),
-            Promo: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Action: FfiConverterString.INSTANCE.Read(stream),
-            Cancel: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(ConfirmPurchaseView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Plan)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Term)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Promo)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Action)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Cancel);
-    }
-
-    public override void Write(ConfirmPurchaseView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Title, stream);
-            FfiConverterString.INSTANCE.Write(value.Body, stream);
-            FfiConverterString.INSTANCE.Write(value.Plan, stream);
-            FfiConverterString.INSTANCE.Write(value.Term, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.Promo, stream);
-            FfiConverterString.INSTANCE.Write(value.Action, stream);
-            FfiConverterString.INSTANCE.Write(value.Cancel, stream);
     }
 }
 
@@ -6952,81 +6580,6 @@ class FfiConverterTypeCreateAccountView: FfiConverterRustBuffer<CreateAccountVie
     public override void Write(CreateAccountView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Label, stream);
             FfiConverterString.INSTANCE.Write(value.Note, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The owner's mobile number box.
-/// </summary>
-/// <param name="Heading">
-/// [`CREATOR_HEADING`].
-/// </param>
-/// <param name="Help">
-/// What it is for; the saved number is never shown.
-/// </param>
-/// <param name="Number">
-/// What is typed.
-/// </param>
-/// <param name="CanSave">
-/// Whether "Save number" works.
-/// </param>
-/// <param name="Saving">
-/// Whether it is being saved.
-/// </param>
-public record CreatorCellView (
-    /// <summary>
-    /// [`CREATOR_HEADING`].
-    /// </summary>
-    string Heading, 
-    /// <summary>
-    /// What it is for; the saved number is never shown.
-    /// </summary>
-    string Help, 
-    /// <summary>
-    /// What is typed.
-    /// </summary>
-    string Number, 
-    /// <summary>
-    /// Whether "Save number" works.
-    /// </summary>
-    bool CanSave, 
-    /// <summary>
-    /// Whether it is being saved.
-    /// </summary>
-    bool Saving
-) {
-}
-
-class FfiConverterTypeCreatorCellView: FfiConverterRustBuffer<CreatorCellView> {
-    public static FfiConverterTypeCreatorCellView INSTANCE = new FfiConverterTypeCreatorCellView();
-
-    public override CreatorCellView Read(BigEndianStream stream) {
-        return new CreatorCellView(
-            Heading: FfiConverterString.INSTANCE.Read(stream),
-            Help: FfiConverterString.INSTANCE.Read(stream),
-            Number: FfiConverterString.INSTANCE.Read(stream),
-            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
-            Saving: FfiConverterBoolean.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(CreatorCellView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Help)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Number)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving);
-    }
-
-    public override void Write(CreatorCellView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Heading, stream);
-            FfiConverterString.INSTANCE.Write(value.Help, stream);
-            FfiConverterString.INSTANCE.Write(value.Number, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
     }
 }
 
@@ -8540,16 +8093,199 @@ class FfiConverterTypeDialerView: FfiConverterRustBuffer<DialerView> {
 
 
 /// <summary>
-/// The the transfer directory section.
+/// One entry of the directory.
+/// </summary>
+/// <param name="Index">
+/// Its position, which its edits and its removal name.
+/// </param>
+/// <param name="Title">
+/// Its heading: the name, or "No name".
+/// </param>
+/// <param name="Line">
+/// The line under it: the number grouped for reading, or that it has
+/// none.
+/// </param>
+/// <param name="Name">
+/// The name, as the form has it.
+/// </param>
+/// <param name="PhoneNumber">
+/// The number, as the form has it.
+/// </param>
+public record DirectoryEntryView (
+    /// <summary>
+    /// Its position, which its edits and its removal name.
+    /// </summary>
+    uint Index, 
+    /// <summary>
+    /// Its heading: the name, or "No name".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The line under it: the number grouped for reading, or that it has
+    /// none.
+    /// </summary>
+    string Line, 
+    /// <summary>
+    /// The name, as the form has it.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The number, as the form has it.
+    /// </summary>
+    string PhoneNumber
+) {
+}
+
+class FfiConverterTypeDirectoryEntryView: FfiConverterRustBuffer<DirectoryEntryView> {
+    public static FfiConverterTypeDirectoryEntryView INSTANCE = new FfiConverterTypeDirectoryEntryView();
+
+    public override DirectoryEntryView Read(BigEndianStream stream) {
+        return new DirectoryEntryView(
+            Index: FfiConverterUInt32.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Line: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            PhoneNumber: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DirectoryEntryView value) {
+        return 0
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Index)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Line)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PhoneNumber);
+    }
+
+    public override void Write(DirectoryEntryView value, BigEndianStream stream) {
+            FfiConverterUInt32.INSTANCE.Write(value.Index, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Line, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.PhoneNumber, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The transfer directory section.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`DIRECTORY_TITLE`].
+/// </param>
+/// <param name="Intro">
+/// What it says under the heading, [`DIRECTORY_INTRO`].
+/// </param>
+/// <param name="Status">
+/// Where the page stands. No list is offered before the settings are
+/// read: a list not built from them could only save over them.
+/// </param>
+/// <param name="Unmodellable">
+/// A directory stored in a shape this app cannot change whole: said in
+/// place of the list, with no control. Not a failure, and a retry cannot
+/// help.
+/// </param>
+/// <param name="Entries">
+/// The entries, in order: the edited list, else the stored one.
+/// </param>
+/// <param name="Empty">
+/// What to say when there is nobody.
+/// </param>
+/// <param name="Incomplete">
+/// How many entries lack a name or a number, when some do.
+/// </param>
+/// <param name="NewName">
+/// The name of the entry being added.
+/// </param>
+/// <param name="NewPhoneNumber">
+/// The number of the entry being added.
+/// </param>
+/// <param name="AddRejected">
+/// Why the last "Add" did nothing: a name and a number are both needed.
+/// </param>
+/// <param name="CanEdit">
+/// Whether the list can be changed: read, editable here, the member may,
+/// and no save on its way.
+/// </param>
+/// <param name="CanSave">
+/// Whether "Save" works: the list differs from the stored one.
+/// </param>
+/// <param name="Saving">
+/// Whether a save is on its way (show a progress ring).
+/// </param>
+/// <param name="Notice">
+/// How the last save ended, until dismissed or the list changes.
+/// </param>
+/// <param name="Confirming">
+/// The core's question before the save, while it asks.
 /// </param>
 public record DirectoryView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`DIRECTORY_TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// What it says under the heading, [`DIRECTORY_INTRO`].
+    /// </summary>
+    string Intro, 
+    /// <summary>
+    /// Where the page stands. No list is offered before the settings are
+    /// read: a list not built from them could only save over them.
+    /// </summary>
+    SectionStatus Status, 
+    /// <summary>
+    /// A directory stored in a shape this app cannot change whole: said in
+    /// place of the list, with no control. Not a failure, and a retry cannot
+    /// help.
+    /// </summary>
+    EmptyView? Unmodellable, 
+    /// <summary>
+    /// The entries, in order: the edited list, else the stored one.
+    /// </summary>
+    DirectoryEntryView[] Entries, 
+    /// <summary>
+    /// What to say when there is nobody.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// How many entries lack a name or a number, when some do.
+    /// </summary>
+    string? Incomplete, 
+    /// <summary>
+    /// The name of the entry being added.
+    /// </summary>
+    string NewName, 
+    /// <summary>
+    /// The number of the entry being added.
+    /// </summary>
+    string NewPhoneNumber, 
+    /// <summary>
+    /// Why the last "Add" did nothing: a name and a number are both needed.
+    /// </summary>
+    string? AddRejected, 
+    /// <summary>
+    /// Whether the list can be changed: read, editable here, the member may,
+    /// and no save on its way.
+    /// </summary>
+    bool CanEdit, 
+    /// <summary>
+    /// Whether "Save" works: the list differs from the stored one.
+    /// </summary>
+    bool CanSave, 
+    /// <summary>
+    /// Whether a save is on its way (show a progress ring).
+    /// </summary>
+    bool Saving, 
+    /// <summary>
+    /// How the last save ended, until dismissed or the list changes.
+    /// </summary>
+    SaveNoticeView? Notice, 
+    /// <summary>
+    /// The core's question before the save, while it asks.
+    /// </summary>
+    QuestionView? Confirming
 ) {
 }
 
@@ -8558,17 +8294,59 @@ class FfiConverterTypeDirectoryView: FfiConverterRustBuffer<DirectoryView> {
 
     public override DirectoryView Read(BigEndianStream stream) {
         return new DirectoryView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Intro: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeSectionStatus.INSTANCE.Read(stream),
+            Unmodellable: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Entries: FfiConverterSequenceTypeDirectoryEntryView.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Incomplete: FfiConverterOptionalString.INSTANCE.Read(stream),
+            NewName: FfiConverterString.INSTANCE.Read(stream),
+            NewPhoneNumber: FfiConverterString.INSTANCE.Read(stream),
+            AddRejected: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanEdit: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
+            Saving: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Read(stream),
+            Confirming: FfiConverterOptionalTypeQuestionView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(DirectoryView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Intro)
+            + FfiConverterTypeSectionStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Unmodellable)
+            + FfiConverterSequenceTypeDirectoryEntryView.INSTANCE.AllocationSize(value.Entries)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Incomplete)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NewName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NewPhoneNumber)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.AddRejected)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanEdit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving)
+            + FfiConverterOptionalTypeSaveNoticeView.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeQuestionView.INSTANCE.AllocationSize(value.Confirming);
     }
 
     public override void Write(DirectoryView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Intro, stream);
+            FfiConverterTypeSectionStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Unmodellable, stream);
+            FfiConverterSequenceTypeDirectoryEntryView.INSTANCE.Write(value.Entries, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Incomplete, stream);
+            FfiConverterString.INSTANCE.Write(value.NewName, stream);
+            FfiConverterString.INSTANCE.Write(value.NewPhoneNumber, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.AddRejected, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanEdit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+            FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeQuestionView.INSTANCE.Write(value.Confirming, stream);
     }
 }
 
@@ -9683,205 +9461,6 @@ class FfiConverterTypeIncomingRingView: FfiConverterRustBuffer<IncomingRingView>
 
 
 /// <summary>
-/// One invoice.
-/// </summary>
-/// <param name="Id">
-/// The processor's id, to open it by.
-/// </param>
-/// <param name="Amount">
-/// What it cost ("$249.00").
-/// </param>
-/// <param name="Status">
-/// Its state ("paid"), or empty.
-/// </param>
-/// <param name="Created">
-/// When it was made, in Unix seconds.
-/// </param>
-/// <param name="CanOpen">
-/// Whether it has a page to open.
-/// </param>
-public record InvoiceRowView (
-    /// <summary>
-    /// The processor's id, to open it by.
-    /// </summary>
-    string Id, 
-    /// <summary>
-    /// What it cost ("$249.00").
-    /// </summary>
-    string Amount, 
-    /// <summary>
-    /// Its state ("paid"), or empty.
-    /// </summary>
-    string Status, 
-    /// <summary>
-    /// When it was made, in Unix seconds.
-    /// </summary>
-    long Created, 
-    /// <summary>
-    /// Whether it has a page to open.
-    /// </summary>
-    bool CanOpen
-) {
-}
-
-class FfiConverterTypeInvoiceRowView: FfiConverterRustBuffer<InvoiceRowView> {
-    public static FfiConverterTypeInvoiceRowView INSTANCE = new FfiConverterTypeInvoiceRowView();
-
-    public override InvoiceRowView Read(BigEndianStream stream) {
-        return new InvoiceRowView(
-            Id: FfiConverterString.INSTANCE.Read(stream),
-            Amount: FfiConverterString.INSTANCE.Read(stream),
-            Status: FfiConverterString.INSTANCE.Read(stream),
-            Created: FfiConverterInt64.INSTANCE.Read(stream),
-            CanOpen: FfiConverterBoolean.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(InvoiceRowView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Amount)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
-            + FfiConverterInt64.INSTANCE.AllocationSize(value.Created)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanOpen);
-    }
-
-    public override void Write(InvoiceRowView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Id, stream);
-            FfiConverterString.INSTANCE.Write(value.Amount, stream);
-            FfiConverterString.INSTANCE.Write(value.Status, stream);
-            FfiConverterInt64.INSTANCE.Write(value.Created, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.CanOpen, stream);
-    }
-}
-
-
-
-/// <summary>
-/// What checking the keys came to.
-/// </summary>
-/// <param name="Message">
-/// What it says.
-/// </param>
-/// <param name="Outcome">
-/// How it went.
-/// </param>
-public record KeyCheckView (
-    /// <summary>
-    /// What it says.
-    /// </summary>
-    string Message, 
-    /// <summary>
-    /// How it went.
-    /// </summary>
-    KeyCheckOutcome Outcome
-) {
-}
-
-class FfiConverterTypeKeyCheckView: FfiConverterRustBuffer<KeyCheckView> {
-    public static FfiConverterTypeKeyCheckView INSTANCE = new FfiConverterTypeKeyCheckView();
-
-    public override KeyCheckView Read(BigEndianStream stream) {
-        return new KeyCheckView(
-            Message: FfiConverterString.INSTANCE.Read(stream),
-            Outcome: FfiConverterTypeKeyCheckOutcome.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(KeyCheckView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Message)
-            + FfiConverterTypeKeyCheckOutcome.INSTANCE.AllocationSize(value.Outcome);
-    }
-
-    public override void Write(KeyCheckView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Message, stream);
-            FfiConverterTypeKeyCheckOutcome.INSTANCE.Write(value.Outcome, stream);
-    }
-}
-
-
-
-/// <summary>
-/// One key box. A secret box never carries what is typed in it.
-/// </summary>
-/// <param name="Field">
-/// The box.
-/// </param>
-/// <param name="Label">
-/// Its label.
-/// </param>
-/// <param name="Secret">
-/// Whether it is a secret (a password box).
-/// </param>
-/// <param name="Value">
-/// What is typed, for a box that is not a secret; always empty for one
-/// that is.
-/// </param>
-/// <param name="Filled">
-/// Whether anything is typed in it. A secret box the core has emptied
-/// (a change of carrier, the form closed) is emptied in the app too.
-/// </param>
-public record KeyFieldView (
-    /// <summary>
-    /// The box.
-    /// </summary>
-    KeyField Field, 
-    /// <summary>
-    /// Its label.
-    /// </summary>
-    string Label, 
-    /// <summary>
-    /// Whether it is a secret (a password box).
-    /// </summary>
-    bool Secret, 
-    /// <summary>
-    /// What is typed, for a box that is not a secret; always empty for one
-    /// that is.
-    /// </summary>
-    string Value, 
-    /// <summary>
-    /// Whether anything is typed in it. A secret box the core has emptied
-    /// (a change of carrier, the form closed) is emptied in the app too.
-    /// </summary>
-    bool Filled
-) {
-}
-
-class FfiConverterTypeKeyFieldView: FfiConverterRustBuffer<KeyFieldView> {
-    public static FfiConverterTypeKeyFieldView INSTANCE = new FfiConverterTypeKeyFieldView();
-
-    public override KeyFieldView Read(BigEndianStream stream) {
-        return new KeyFieldView(
-            Field: FfiConverterTypeKeyField.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream),
-            Secret: FfiConverterBoolean.INSTANCE.Read(stream),
-            Value: FfiConverterString.INSTANCE.Read(stream),
-            Filled: FfiConverterBoolean.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(KeyFieldView value) {
-        return 0
-            + FfiConverterTypeKeyField.INSTANCE.AllocationSize(value.Field)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Secret)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Filled);
-    }
-
-    public override void Write(KeyFieldView value, BigEndianStream stream) {
-            FfiConverterTypeKeyField.INSTANCE.Write(value.Field, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Secret, stream);
-            FfiConverterString.INSTANCE.Write(value.Value, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Filled, stream);
-    }
-}
-
-
-
-/// <summary>
 /// The the knowledge base section.
 /// </summary>
 /// <param name="Title">
@@ -9958,71 +9537,6 @@ class FfiConverterTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerView> {
     public override void Write(LiveBannerView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Message, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanRefresh, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The numbers Distronode holds for the workspace.
-/// </summary>
-/// <param name="Heading">
-/// [`MANAGED_HEADING`].
-/// </param>
-/// <param name="Body">
-/// [`MANAGED_BODY`].
-/// </param>
-/// <param name="Carrier">
-/// The carrier, or "Distronode".
-/// </param>
-/// <param name="Numbers">
-/// The numbers, grouped.
-/// </param>
-public record ManagedNumbersView (
-    /// <summary>
-    /// [`MANAGED_HEADING`].
-    /// </summary>
-    string Heading, 
-    /// <summary>
-    /// [`MANAGED_BODY`].
-    /// </summary>
-    string Body, 
-    /// <summary>
-    /// The carrier, or "Distronode".
-    /// </summary>
-    string Carrier, 
-    /// <summary>
-    /// The numbers, grouped.
-    /// </summary>
-    string Numbers
-) {
-}
-
-class FfiConverterTypeManagedNumbersView: FfiConverterRustBuffer<ManagedNumbersView> {
-    public static FfiConverterTypeManagedNumbersView INSTANCE = new FfiConverterTypeManagedNumbersView();
-
-    public override ManagedNumbersView Read(BigEndianStream stream) {
-        return new ManagedNumbersView(
-            Heading: FfiConverterString.INSTANCE.Read(stream),
-            Body: FfiConverterString.INSTANCE.Read(stream),
-            Carrier: FfiConverterString.INSTANCE.Read(stream),
-            Numbers: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(ManagedNumbersView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Carrier)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Numbers);
-    }
-
-    public override void Write(ManagedNumbersView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Heading, stream);
-            FfiConverterString.INSTANCE.Write(value.Body, stream);
-            FfiConverterString.INSTANCE.Write(value.Carrier, stream);
-            FfiConverterString.INSTANCE.Write(value.Numbers, stream);
     }
 }
 
@@ -10186,156 +9700,16 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
 
 
 /// <summary>
-/// One member.
-/// </summary>
-/// <param name="Email">
-/// The address, as the service stores it. It names the member.
-/// </param>
-/// <param name="RoleLine">
-/// Their role's name and what it may do.
-/// </param>
-/// <param name="Role">
-/// Their role, when it is one of the three.
-/// </param>
-/// <param name="CanChange">
-/// Whether their role can be changed and they can be removed now: an
-/// agency member, with nothing on its way.
-/// </param>
-/// <param name="RemoveLabel">
-/// [`REMOVE_FROM_WORKSPACE`].
-/// </param>
-public record MemberRowView (
-    /// <summary>
-    /// The address, as the service stores it. It names the member.
-    /// </summary>
-    string Email, 
-    /// <summary>
-    /// Their role's name and what it may do.
-    /// </summary>
-    string RoleLine, 
-    /// <summary>
-    /// Their role, when it is one of the three.
-    /// </summary>
-    MemberRoleView? Role, 
-    /// <summary>
-    /// Whether their role can be changed and they can be removed now: an
-    /// agency member, with nothing on its way.
-    /// </summary>
-    bool CanChange, 
-    /// <summary>
-    /// [`REMOVE_FROM_WORKSPACE`].
-    /// </summary>
-    string RemoveLabel
-) {
-}
-
-class FfiConverterTypeMemberRowView: FfiConverterRustBuffer<MemberRowView> {
-    public static FfiConverterTypeMemberRowView INSTANCE = new FfiConverterTypeMemberRowView();
-
-    public override MemberRowView Read(BigEndianStream stream) {
-        return new MemberRowView(
-            Email: FfiConverterString.INSTANCE.Read(stream),
-            RoleLine: FfiConverterString.INSTANCE.Read(stream),
-            Role: FfiConverterOptionalTypeMemberRoleView.INSTANCE.Read(stream),
-            CanChange: FfiConverterBoolean.INSTANCE.Read(stream),
-            RemoveLabel: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(MemberRowView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Email)
-            + FfiConverterString.INSTANCE.AllocationSize(value.RoleLine)
-            + FfiConverterOptionalTypeMemberRoleView.INSTANCE.AllocationSize(value.Role)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChange)
-            + FfiConverterString.INSTANCE.AllocationSize(value.RemoveLabel);
-    }
-
-    public override void Write(MemberRowView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Email, stream);
-            FfiConverterString.INSTANCE.Write(value.RoleLine, stream);
-            FfiConverterOptionalTypeMemberRoleView.INSTANCE.Write(value.Role, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.CanChange, stream);
-            FfiConverterString.INSTANCE.Write(value.RemoveLabel, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The members section.
+/// The the members section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`TITLE`].
-/// </param>
-/// <param name="Status">
-/// Where the list stands; the section shows only when ready.
-/// </param>
-/// <param name="Members">
-/// The members, in the service's order.
-/// </param>
-/// <param name="Changing">
-/// Whether a change of a member is on its way (show a progress ring).
-/// </param>
-/// <param name="ReadOnlyNote">
-/// [`AGENCY_ONLY`], for a member who may not manage members.
-/// </param>
-/// <param name="Notice">
-/// How the last change ended, until dismissed.
-/// </param>
-/// <param name="Roles">
-/// The roles, in the order offered, each with what it may do.
-/// </param>
-/// <param name="Add">
-/// Adding a member: only for an agency member.
-/// </param>
-/// <param name="Rename">
-/// Renaming the workspace: for an agency or a client member.
-/// </param>
-/// <param name="ConfirmRemove">
-/// "Remove this member?", while it is asked.
+/// The heading. A placeholder, until the screen is built.
 /// </param>
 public record MembersView (
     /// <summary>
-    /// The heading, [`TITLE`].
+    /// The heading. A placeholder, until the screen is built.
     /// </summary>
-    string Title, 
-    /// <summary>
-    /// Where the list stands; the section shows only when ready.
-    /// </summary>
-    SectionStatus Status, 
-    /// <summary>
-    /// The members, in the service's order.
-    /// </summary>
-    MemberRowView[] Members, 
-    /// <summary>
-    /// Whether a change of a member is on its way (show a progress ring).
-    /// </summary>
-    bool Changing, 
-    /// <summary>
-    /// [`AGENCY_ONLY`], for a member who may not manage members.
-    /// </summary>
-    string? ReadOnlyNote, 
-    /// <summary>
-    /// How the last change ended, until dismissed.
-    /// </summary>
-    SaveNoticeView? Notice, 
-    /// <summary>
-    /// The roles, in the order offered, each with what it may do.
-    /// </summary>
-    RoleChoiceView[] Roles, 
-    /// <summary>
-    /// Adding a member: only for an agency member.
-    /// </summary>
-    AddMemberView? Add, 
-    /// <summary>
-    /// Renaming the workspace: for an agency or a client member.
-    /// </summary>
-    RenameView? Rename, 
-    /// <summary>
-    /// "Remove this member?", while it is asked.
-    /// </summary>
-    RemoveQuestionView? ConfirmRemove
+    string Title
 ) {
 }
 
@@ -10344,517 +9718,33 @@ class FfiConverterTypeMembersView: FfiConverterRustBuffer<MembersView> {
 
     public override MembersView Read(BigEndianStream stream) {
         return new MembersView(
-            Title: FfiConverterString.INSTANCE.Read(stream),
-            Status: FfiConverterTypeSectionStatus.INSTANCE.Read(stream),
-            Members: FfiConverterSequenceTypeMemberRowView.INSTANCE.Read(stream),
-            Changing: FfiConverterBoolean.INSTANCE.Read(stream),
-            ReadOnlyNote: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Notice: FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Read(stream),
-            Roles: FfiConverterSequenceTypeRoleChoiceView.INSTANCE.Read(stream),
-            Add: FfiConverterOptionalTypeAddMemberView.INSTANCE.Read(stream),
-            Rename: FfiConverterOptionalTypeRenameView.INSTANCE.Read(stream),
-            ConfirmRemove: FfiConverterOptionalTypeRemoveQuestionView.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(MembersView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
-            + FfiConverterTypeSectionStatus.INSTANCE.AllocationSize(value.Status)
-            + FfiConverterSequenceTypeMemberRowView.INSTANCE.AllocationSize(value.Members)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Changing)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReadOnlyNote)
-            + FfiConverterOptionalTypeSaveNoticeView.INSTANCE.AllocationSize(value.Notice)
-            + FfiConverterSequenceTypeRoleChoiceView.INSTANCE.AllocationSize(value.Roles)
-            + FfiConverterOptionalTypeAddMemberView.INSTANCE.AllocationSize(value.Add)
-            + FfiConverterOptionalTypeRenameView.INSTANCE.AllocationSize(value.Rename)
-            + FfiConverterOptionalTypeRemoveQuestionView.INSTANCE.AllocationSize(value.ConfirmRemove);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
     }
 
     public override void Write(MembersView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
-            FfiConverterTypeSectionStatus.INSTANCE.Write(value.Status, stream);
-            FfiConverterSequenceTypeMemberRowView.INSTANCE.Write(value.Members, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Changing, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.ReadOnlyNote, stream);
-            FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Write(value.Notice, stream);
-            FfiConverterSequenceTypeRoleChoiceView.INSTANCE.Write(value.Roles, stream);
-            FfiConverterOptionalTypeAddMemberView.INSTANCE.Write(value.Add, stream);
-            FfiConverterOptionalTypeRenameView.INSTANCE.Write(value.Rename, stream);
-            FfiConverterOptionalTypeRemoveQuestionView.INSTANCE.Write(value.ConfirmRemove, stream);
     }
 }
 
 
 
 /// <summary>
-/// One carrier account.
-/// </summary>
-/// <param name="Id">
-/// The account, to act on.
-/// </param>
-/// <param name="Label">
-/// Its name.
-/// </param>
-/// <param name="Line">
-/// Its carrier, whose account it is, and its numbers.
-/// </param>
-/// <param name="IsDefault">
-/// Whether it is the default sender.
-/// </param>
-/// <param name="OffersMakeDefault">
-/// Whether "Make default" shows.
-/// </param>
-/// <param name="OffersEdit">
-/// Whether "Edit" shows: a carrier and a source this build knows.
-/// </param>
-/// <param name="OffersRemove">
-/// Whether "Remove" shows.
-/// </param>
-public record MessagingAccountView (
-    /// <summary>
-    /// The account, to act on.
-    /// </summary>
-    string Id, 
-    /// <summary>
-    /// Its name.
-    /// </summary>
-    string Label, 
-    /// <summary>
-    /// Its carrier, whose account it is, and its numbers.
-    /// </summary>
-    string Line, 
-    /// <summary>
-    /// Whether it is the default sender.
-    /// </summary>
-    bool IsDefault, 
-    /// <summary>
-    /// Whether "Make default" shows.
-    /// </summary>
-    bool OffersMakeDefault, 
-    /// <summary>
-    /// Whether "Edit" shows: a carrier and a source this build knows.
-    /// </summary>
-    bool OffersEdit, 
-    /// <summary>
-    /// Whether "Remove" shows.
-    /// </summary>
-    bool OffersRemove
-) {
-}
-
-class FfiConverterTypeMessagingAccountView: FfiConverterRustBuffer<MessagingAccountView> {
-    public static FfiConverterTypeMessagingAccountView INSTANCE = new FfiConverterTypeMessagingAccountView();
-
-    public override MessagingAccountView Read(BigEndianStream stream) {
-        return new MessagingAccountView(
-            Id: FfiConverterString.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream),
-            Line: FfiConverterString.INSTANCE.Read(stream),
-            IsDefault: FfiConverterBoolean.INSTANCE.Read(stream),
-            OffersMakeDefault: FfiConverterBoolean.INSTANCE.Read(stream),
-            OffersEdit: FfiConverterBoolean.INSTANCE.Read(stream),
-            OffersRemove: FfiConverterBoolean.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(MessagingAccountView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Line)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IsDefault)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersMakeDefault)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersEdit)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersRemove);
-    }
-
-    public override void Write(MessagingAccountView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Id, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
-            FfiConverterString.INSTANCE.Write(value.Line, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.IsDefault, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.OffersMakeDefault, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.OffersEdit, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.OffersRemove, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The question before removing an account.
+/// The the messaging accounts section.
 /// </summary>
 /// <param name="Title">
-/// The heading.
-/// </param>
-/// <param name="Body">
-/// What removing does.
-/// </param>
-/// <param name="Action">
-/// The confirming button's label.
-/// </param>
-public record MessagingConfirmView (
-    /// <summary>
-    /// The heading.
-    /// </summary>
-    string Title, 
-    /// <summary>
-    /// What removing does.
-    /// </summary>
-    string Body, 
-    /// <summary>
-    /// The confirming button's label.
-    /// </summary>
-    string Action
-) {
-}
-
-class FfiConverterTypeMessagingConfirmView: FfiConverterRustBuffer<MessagingConfirmView> {
-    public static FfiConverterTypeMessagingConfirmView INSTANCE = new FfiConverterTypeMessagingConfirmView();
-
-    public override MessagingConfirmView Read(BigEndianStream stream) {
-        return new MessagingConfirmView(
-            Title: FfiConverterString.INSTANCE.Read(stream),
-            Body: FfiConverterString.INSTANCE.Read(stream),
-            Action: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(MessagingConfirmView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Action);
-    }
-
-    public override void Write(MessagingConfirmView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Title, stream);
-            FfiConverterString.INSTANCE.Write(value.Body, stream);
-            FfiConverterString.INSTANCE.Write(value.Action, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The form adding or editing an account.
-/// </summary>
-/// <param name="Title">
-/// "Add a carrier account" or "Edit the carrier account".
-/// </param>
-/// <param name="Carriers">
-/// The carriers.
-/// </param>
-/// <param name="Carrier">
-/// The carrier chosen.
-/// </param>
-/// <param name="Sources">
-/// Whose account it can be.
-/// </param>
-/// <param name="Source">
-/// Whose account it is.
-/// </param>
-/// <param name="Label">
-/// The account's name.
-/// </param>
-/// <param name="Keys">
-/// The carrier's key boxes, in order.
-/// </param>
-/// <param name="KeysNote">
-/// The line under the boxes: blank keeps the saved value, or every key is
-/// needed.
-/// </param>
-/// <param name="CarrierSwitch">
-/// The warning after changing an existing account's carrier.
-/// </param>
-/// <param name="PhoneNumbers">
-/// The numbers, one per line.
-/// </param>
-/// <param name="NumbersHelp">
-/// What the numbers box does.
-/// </param>
-/// <param name="MakeDefault">
-/// Whether to make it the default sender.
-/// </param>
-/// <param name="Editable">
-/// Whether the form can be changed (not while a change or check is on
-/// its way).
-/// </param>
-/// <param name="CanSave">
-/// Whether "Save" works.
-/// </param>
-/// <param name="CanTest">
-/// Whether "Check these keys" works: every box typed.
-/// </param>
-/// <param name="TestHint">
-/// Why the check is not offered yet.
-/// </param>
-/// <param name="Test">
-/// What the last check came to.
-/// </param>
-/// <param name="Saving">
-/// Whether the save is on its way.
-/// </param>
-public record MessagingFormView (
-    /// <summary>
-    /// "Add a carrier account" or "Edit the carrier account".
-    /// </summary>
-    string Title, 
-    /// <summary>
-    /// The carriers.
-    /// </summary>
-    CarrierChoiceView[] Carriers, 
-    /// <summary>
-    /// The carrier chosen.
-    /// </summary>
-    MessagingCarrier Carrier, 
-    /// <summary>
-    /// Whose account it can be.
-    /// </summary>
-    SourceChoiceView[] Sources, 
-    /// <summary>
-    /// Whose account it is.
-    /// </summary>
-    MessagingSource Source, 
-    /// <summary>
-    /// The account's name.
-    /// </summary>
-    string Label, 
-    /// <summary>
-    /// The carrier's key boxes, in order.
-    /// </summary>
-    KeyFieldView[] Keys, 
-    /// <summary>
-    /// The line under the boxes: blank keeps the saved value, or every key is
-    /// needed.
-    /// </summary>
-    string KeysNote, 
-    /// <summary>
-    /// The warning after changing an existing account's carrier.
-    /// </summary>
-    string? CarrierSwitch, 
-    /// <summary>
-    /// The numbers, one per line.
-    /// </summary>
-    string PhoneNumbers, 
-    /// <summary>
-    /// What the numbers box does.
-    /// </summary>
-    string NumbersHelp, 
-    /// <summary>
-    /// Whether to make it the default sender.
-    /// </summary>
-    bool MakeDefault, 
-    /// <summary>
-    /// Whether the form can be changed (not while a change or check is on
-    /// its way).
-    /// </summary>
-    bool Editable, 
-    /// <summary>
-    /// Whether "Save" works.
-    /// </summary>
-    bool CanSave, 
-    /// <summary>
-    /// Whether "Check these keys" works: every box typed.
-    /// </summary>
-    bool CanTest, 
-    /// <summary>
-    /// Why the check is not offered yet.
-    /// </summary>
-    string? TestHint, 
-    /// <summary>
-    /// What the last check came to.
-    /// </summary>
-    KeyCheckView? Test, 
-    /// <summary>
-    /// Whether the save is on its way.
-    /// </summary>
-    bool Saving
-) {
-}
-
-class FfiConverterTypeMessagingFormView: FfiConverterRustBuffer<MessagingFormView> {
-    public static FfiConverterTypeMessagingFormView INSTANCE = new FfiConverterTypeMessagingFormView();
-
-    public override MessagingFormView Read(BigEndianStream stream) {
-        return new MessagingFormView(
-            Title: FfiConverterString.INSTANCE.Read(stream),
-            Carriers: FfiConverterSequenceTypeCarrierChoiceView.INSTANCE.Read(stream),
-            Carrier: FfiConverterTypeMessagingCarrier.INSTANCE.Read(stream),
-            Sources: FfiConverterSequenceTypeSourceChoiceView.INSTANCE.Read(stream),
-            Source: FfiConverterTypeMessagingSource.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream),
-            Keys: FfiConverterSequenceTypeKeyFieldView.INSTANCE.Read(stream),
-            KeysNote: FfiConverterString.INSTANCE.Read(stream),
-            CarrierSwitch: FfiConverterOptionalString.INSTANCE.Read(stream),
-            PhoneNumbers: FfiConverterString.INSTANCE.Read(stream),
-            NumbersHelp: FfiConverterString.INSTANCE.Read(stream),
-            MakeDefault: FfiConverterBoolean.INSTANCE.Read(stream),
-            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
-            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
-            CanTest: FfiConverterBoolean.INSTANCE.Read(stream),
-            TestHint: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Test: FfiConverterOptionalTypeKeyCheckView.INSTANCE.Read(stream),
-            Saving: FfiConverterBoolean.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(MessagingFormView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
-            + FfiConverterSequenceTypeCarrierChoiceView.INSTANCE.AllocationSize(value.Carriers)
-            + FfiConverterTypeMessagingCarrier.INSTANCE.AllocationSize(value.Carrier)
-            + FfiConverterSequenceTypeSourceChoiceView.INSTANCE.AllocationSize(value.Sources)
-            + FfiConverterTypeMessagingSource.INSTANCE.AllocationSize(value.Source)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
-            + FfiConverterSequenceTypeKeyFieldView.INSTANCE.AllocationSize(value.Keys)
-            + FfiConverterString.INSTANCE.AllocationSize(value.KeysNote)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.CarrierSwitch)
-            + FfiConverterString.INSTANCE.AllocationSize(value.PhoneNumbers)
-            + FfiConverterString.INSTANCE.AllocationSize(value.NumbersHelp)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.MakeDefault)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanTest)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.TestHint)
-            + FfiConverterOptionalTypeKeyCheckView.INSTANCE.AllocationSize(value.Test)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving);
-    }
-
-    public override void Write(MessagingFormView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Title, stream);
-            FfiConverterSequenceTypeCarrierChoiceView.INSTANCE.Write(value.Carriers, stream);
-            FfiConverterTypeMessagingCarrier.INSTANCE.Write(value.Carrier, stream);
-            FfiConverterSequenceTypeSourceChoiceView.INSTANCE.Write(value.Sources, stream);
-            FfiConverterTypeMessagingSource.INSTANCE.Write(value.Source, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
-            FfiConverterSequenceTypeKeyFieldView.INSTANCE.Write(value.Keys, stream);
-            FfiConverterString.INSTANCE.Write(value.KeysNote, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.CarrierSwitch, stream);
-            FfiConverterString.INSTANCE.Write(value.PhoneNumbers, stream);
-            FfiConverterString.INSTANCE.Write(value.NumbersHelp, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.MakeDefault, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.CanTest, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.TestHint, stream);
-            FfiConverterOptionalTypeKeyCheckView.INSTANCE.Write(value.Test, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The messaging accounts section.
-/// </summary>
-/// <param name="Title">
-/// The heading, [`MESSAGING_TITLE`].
-/// </param>
-/// <param name="Status">
-/// Being read, failed, or read.
-/// </param>
-/// <param name="ViewerNote">
-/// For a viewer: that the accounts are shown and not changed.
-/// </param>
-/// <param name="Notice">
-/// How the last change ended, until it is dismissed.
-/// </param>
-/// <param name="Busy">
-/// Whether a change or a check of keys is on its way.
-/// </param>
-/// <param name="Editable">
-/// Whether changes can be made now: read, and nothing on its way.
-/// </param>
-/// <param name="OffersAdd">
-/// Whether "Add an account" shows (a member who may change them).
-/// </param>
-/// <param name="Empty">
-/// What to say when no carrier is connected.
-/// </param>
-/// <param name="Accounts">
-/// The accounts.
-/// </param>
-/// <param name="Managed">
-/// The numbers Distronode holds for the workspace, when it holds any.
-/// </param>
-/// <param name="Channels">
-/// Each channel's sender, while there are accounts.
-/// </param>
-/// <param name="ChannelsEditable">
-/// Whether the senders can be chosen (else they are read only).
-/// </param>
-/// <param name="Creator">
-/// The owner's mobile number box, for a member who may change it.
-/// </param>
-/// <param name="Confirm">
-/// The question before an account is removed.
-/// </param>
-/// <param name="Form">
-/// The form adding or editing an account, while it is open.
+/// The heading. A placeholder, until the screen is built.
 /// </param>
 public record MessagingView (
     /// <summary>
-    /// The heading, [`MESSAGING_TITLE`].
+    /// The heading. A placeholder, until the screen is built.
     /// </summary>
-    string Title, 
-    /// <summary>
-    /// Being read, failed, or read.
-    /// </summary>
-    SectionStatus Status, 
-    /// <summary>
-    /// For a viewer: that the accounts are shown and not changed.
-    /// </summary>
-    string? ViewerNote, 
-    /// <summary>
-    /// How the last change ended, until it is dismissed.
-    /// </summary>
-    SaveNoticeView? Notice, 
-    /// <summary>
-    /// Whether a change or a check of keys is on its way.
-    /// </summary>
-    bool Busy, 
-    /// <summary>
-    /// Whether changes can be made now: read, and nothing on its way.
-    /// </summary>
-    bool Editable, 
-    /// <summary>
-    /// Whether "Add an account" shows (a member who may change them).
-    /// </summary>
-    bool OffersAdd, 
-    /// <summary>
-    /// What to say when no carrier is connected.
-    /// </summary>
-    EmptyView? Empty, 
-    /// <summary>
-    /// The accounts.
-    /// </summary>
-    MessagingAccountView[] Accounts, 
-    /// <summary>
-    /// The numbers Distronode holds for the workspace, when it holds any.
-    /// </summary>
-    ManagedNumbersView? Managed, 
-    /// <summary>
-    /// Each channel's sender, while there are accounts.
-    /// </summary>
-    ChannelSenderView[] Channels, 
-    /// <summary>
-    /// Whether the senders can be chosen (else they are read only).
-    /// </summary>
-    bool ChannelsEditable, 
-    /// <summary>
-    /// The owner's mobile number box, for a member who may change it.
-    /// </summary>
-    CreatorCellView? Creator, 
-    /// <summary>
-    /// The question before an account is removed.
-    /// </summary>
-    MessagingConfirmView? Confirm, 
-    /// <summary>
-    /// The form adding or editing an account, while it is open.
-    /// </summary>
-    MessagingFormView? Form
+    string Title
 ) {
 }
 
@@ -10863,59 +9753,17 @@ class FfiConverterTypeMessagingView: FfiConverterRustBuffer<MessagingView> {
 
     public override MessagingView Read(BigEndianStream stream) {
         return new MessagingView(
-            Title: FfiConverterString.INSTANCE.Read(stream),
-            Status: FfiConverterTypeSectionStatus.INSTANCE.Read(stream),
-            ViewerNote: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Notice: FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Read(stream),
-            Busy: FfiConverterBoolean.INSTANCE.Read(stream),
-            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
-            OffersAdd: FfiConverterBoolean.INSTANCE.Read(stream),
-            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
-            Accounts: FfiConverterSequenceTypeMessagingAccountView.INSTANCE.Read(stream),
-            Managed: FfiConverterOptionalTypeManagedNumbersView.INSTANCE.Read(stream),
-            Channels: FfiConverterSequenceTypeChannelSenderView.INSTANCE.Read(stream),
-            ChannelsEditable: FfiConverterBoolean.INSTANCE.Read(stream),
-            Creator: FfiConverterOptionalTypeCreatorCellView.INSTANCE.Read(stream),
-            Confirm: FfiConverterOptionalTypeMessagingConfirmView.INSTANCE.Read(stream),
-            Form: FfiConverterOptionalTypeMessagingFormView.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(MessagingView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
-            + FfiConverterTypeSectionStatus.INSTANCE.AllocationSize(value.Status)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ViewerNote)
-            + FfiConverterOptionalTypeSaveNoticeView.INSTANCE.AllocationSize(value.Notice)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Busy)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersAdd)
-            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
-            + FfiConverterSequenceTypeMessagingAccountView.INSTANCE.AllocationSize(value.Accounts)
-            + FfiConverterOptionalTypeManagedNumbersView.INSTANCE.AllocationSize(value.Managed)
-            + FfiConverterSequenceTypeChannelSenderView.INSTANCE.AllocationSize(value.Channels)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ChannelsEditable)
-            + FfiConverterOptionalTypeCreatorCellView.INSTANCE.AllocationSize(value.Creator)
-            + FfiConverterOptionalTypeMessagingConfirmView.INSTANCE.AllocationSize(value.Confirm)
-            + FfiConverterOptionalTypeMessagingFormView.INSTANCE.AllocationSize(value.Form);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
     }
 
     public override void Write(MessagingView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
-            FfiConverterTypeSectionStatus.INSTANCE.Write(value.Status, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.ViewerNote, stream);
-            FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Write(value.Notice, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Busy, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.OffersAdd, stream);
-            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
-            FfiConverterSequenceTypeMessagingAccountView.INSTANCE.Write(value.Accounts, stream);
-            FfiConverterOptionalTypeManagedNumbersView.INSTANCE.Write(value.Managed, stream);
-            FfiConverterSequenceTypeChannelSenderView.INSTANCE.Write(value.Channels, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.ChannelsEditable, stream);
-            FfiConverterOptionalTypeCreatorCellView.INSTANCE.Write(value.Creator, stream);
-            FfiConverterOptionalTypeMessagingConfirmView.INSTANCE.Write(value.Confirm, stream);
-            FfiConverterOptionalTypeMessagingFormView.INSTANCE.Write(value.Form, stream);
     }
 }
 
@@ -12187,513 +11035,67 @@ class FfiConverterTypePickerView: FfiConverterRustBuffer<PickerView> {
 
 
 /// <summary>
-/// One plan in the chooser.
+/// The question the core asks before a save that replaces a whole list.
 /// </summary>
-/// <param name="Tier">
-/// The plan.
-/// </param>
-/// <param name="Label">
-/// Its name.
-/// </param>
-public record PlanOptionView (
-    /// <summary>
-    /// The plan.
-    /// </summary>
-    PlanTierView Tier, 
-    /// <summary>
-    /// Its name.
-    /// </summary>
-    string Label
-) {
-}
-
-class FfiConverterTypePlanOptionView: FfiConverterRustBuffer<PlanOptionView> {
-    public static FfiConverterTypePlanOptionView INSTANCE = new FfiConverterTypePlanOptionView();
-
-    public override PlanOptionView Read(BigEndianStream stream) {
-        return new PlanOptionView(
-            Tier: FfiConverterTypePlanTierView.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(PlanOptionView value) {
-        return 0
-            + FfiConverterTypePlanTierView.INSTANCE.AllocationSize(value.Tier)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
-    }
-
-    public override void Write(PlanOptionView value, BigEndianStream stream) {
-            FfiConverterTypePlanTierView.INSTANCE.Write(value.Tier, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The workspace's plan.
-/// </summary>
-/// <param name="Name">
-/// The plan's name, or the line for a workspace with none.
-/// </param>
-/// <param name="Status">
-/// The status badge.
-/// </param>
-/// <param name="StatusCaption">
-/// What the badge means, when it needs saying.
-/// </param>
-/// <param name="OverageNote">
-/// What happens past the included minutes.
-/// </param>
-/// <param name="MinutesUsed">
-/// The call minutes metered this month, rounded, or `None` when nothing
-/// was metered (never a zero that was not measured).
-/// </param>
-/// <param name="IncludedMinutes">
-/// The minutes the plan includes, when the processor said.
-/// </param>
-/// <param name="MeterPercent">
-/// How full the minutes meter is, 0 to 100, when both are known.
-/// </param>
-public record PlanView (
-    /// <summary>
-    /// The plan's name, or the line for a workspace with none.
-    /// </summary>
-    string Name, 
-    /// <summary>
-    /// The status badge.
-    /// </summary>
-    string Status, 
-    /// <summary>
-    /// What the badge means, when it needs saying.
-    /// </summary>
-    string? StatusCaption, 
-    /// <summary>
-    /// What happens past the included minutes.
-    /// </summary>
-    string? OverageNote, 
-    /// <summary>
-    /// The call minutes metered this month, rounded, or `None` when nothing
-    /// was metered (never a zero that was not measured).
-    /// </summary>
-    long? MinutesUsed, 
-    /// <summary>
-    /// The minutes the plan includes, when the processor said.
-    /// </summary>
-    long? IncludedMinutes, 
-    /// <summary>
-    /// How full the minutes meter is, 0 to 100, when both are known.
-    /// </summary>
-    byte? MeterPercent
-) {
-}
-
-class FfiConverterTypePlanView: FfiConverterRustBuffer<PlanView> {
-    public static FfiConverterTypePlanView INSTANCE = new FfiConverterTypePlanView();
-
-    public override PlanView Read(BigEndianStream stream) {
-        return new PlanView(
-            Name: FfiConverterString.INSTANCE.Read(stream),
-            Status: FfiConverterString.INSTANCE.Read(stream),
-            StatusCaption: FfiConverterOptionalString.INSTANCE.Read(stream),
-            OverageNote: FfiConverterOptionalString.INSTANCE.Read(stream),
-            MinutesUsed: FfiConverterOptionalInt64.INSTANCE.Read(stream),
-            IncludedMinutes: FfiConverterOptionalInt64.INSTANCE.Read(stream),
-            MeterPercent: FfiConverterOptionalUInt8.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(PlanView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.StatusCaption)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.OverageNote)
-            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.MinutesUsed)
-            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.IncludedMinutes)
-            + FfiConverterOptionalUInt8.INSTANCE.AllocationSize(value.MeterPercent);
-    }
-
-    public override void Write(PlanView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Name, stream);
-            FfiConverterString.INSTANCE.Write(value.Status, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.StatusCaption, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.OverageNote, stream);
-            FfiConverterOptionalInt64.INSTANCE.Write(value.MinutesUsed, stream);
-            FfiConverterOptionalInt64.INSTANCE.Write(value.IncludedMinutes, stream);
-            FfiConverterOptionalUInt8.INSTANCE.Write(value.MeterPercent, stream);
-    }
-}
-
-
-
-/// <summary>
-/// Choosing a plan and managing billing in the app.
-/// </summary>
-/// <param name="Plans">
-/// The plans, smallest first.
-/// </param>
-/// <param name="Terms">
-/// The terms, monthly first.
-/// </param>
-/// <param name="ChooseAction">
-/// The chooser's action: "Choose a plan".
-/// </param>
-/// <param name="PricesNote">
-/// The line beside the plans: the price is shown at checkout.
-/// </param>
-/// <param name="PromoLabel">
-/// The promotion code field's label.
-/// </param>
-/// <param name="PromoInvalid">
-/// What to say about a code of the wrong shape.
-/// </param>
-/// <param name="PromoMaxLen">
-/// The longest code taken.
-/// </param>
-/// <param name="OffersManage">
-/// Whether "Manage billing" is offered.
-/// </param>
-/// <param name="ManageAction">
-/// Its label.
-/// </param>
-/// <param name="Confirming">
-/// The step naming Stripe, while it shows.
-/// </param>
-/// <param name="Opening">
-/// Whether a page is being opened (show progress).
-/// </param>
-/// <param name="OpeningLabel">
-/// What to say meanwhile.
-/// </param>
-/// <param name="Enabled">
-/// Whether the actions can be pressed: not while the link is being asked
-/// for.
-/// </param>
-/// <param name="Notice">
-/// What the last press came to, when it needs saying.
-/// </param>
-/// <param name="InBrowserNote">
-/// Said once purchase pages open in the system browser, because this
-/// computer cannot show them in the app.
-/// </param>
-public record PurchaseView (
-    /// <summary>
-    /// The plans, smallest first.
-    /// </summary>
-    PlanOptionView[] Plans, 
-    /// <summary>
-    /// The terms, monthly first.
-    /// </summary>
-    TermOptionView[] Terms, 
-    /// <summary>
-    /// The chooser's action: "Choose a plan".
-    /// </summary>
-    string ChooseAction, 
-    /// <summary>
-    /// The line beside the plans: the price is shown at checkout.
-    /// </summary>
-    string PricesNote, 
-    /// <summary>
-    /// The promotion code field's label.
-    /// </summary>
-    string PromoLabel, 
-    /// <summary>
-    /// What to say about a code of the wrong shape.
-    /// </summary>
-    string PromoInvalid, 
-    /// <summary>
-    /// The longest code taken.
-    /// </summary>
-    uint PromoMaxLen, 
-    /// <summary>
-    /// Whether "Manage billing" is offered.
-    /// </summary>
-    bool OffersManage, 
-    /// <summary>
-    /// Its label.
-    /// </summary>
-    string ManageAction, 
-    /// <summary>
-    /// The step naming Stripe, while it shows.
-    /// </summary>
-    ConfirmPurchaseView? Confirming, 
-    /// <summary>
-    /// Whether a page is being opened (show progress).
-    /// </summary>
-    bool Opening, 
-    /// <summary>
-    /// What to say meanwhile.
-    /// </summary>
-    string OpeningLabel, 
-    /// <summary>
-    /// Whether the actions can be pressed: not while the link is being asked
-    /// for.
-    /// </summary>
-    bool Enabled, 
-    /// <summary>
-    /// What the last press came to, when it needs saying.
-    /// </summary>
-    FailureView? Notice, 
-    /// <summary>
-    /// Said once purchase pages open in the system browser, because this
-    /// computer cannot show them in the app.
-    /// </summary>
-    string? InBrowserNote
-) {
-}
-
-class FfiConverterTypePurchaseView: FfiConverterRustBuffer<PurchaseView> {
-    public static FfiConverterTypePurchaseView INSTANCE = new FfiConverterTypePurchaseView();
-
-    public override PurchaseView Read(BigEndianStream stream) {
-        return new PurchaseView(
-            Plans: FfiConverterSequenceTypePlanOptionView.INSTANCE.Read(stream),
-            Terms: FfiConverterSequenceTypeTermOptionView.INSTANCE.Read(stream),
-            ChooseAction: FfiConverterString.INSTANCE.Read(stream),
-            PricesNote: FfiConverterString.INSTANCE.Read(stream),
-            PromoLabel: FfiConverterString.INSTANCE.Read(stream),
-            PromoInvalid: FfiConverterString.INSTANCE.Read(stream),
-            PromoMaxLen: FfiConverterUInt32.INSTANCE.Read(stream),
-            OffersManage: FfiConverterBoolean.INSTANCE.Read(stream),
-            ManageAction: FfiConverterString.INSTANCE.Read(stream),
-            Confirming: FfiConverterOptionalTypeConfirmPurchaseView.INSTANCE.Read(stream),
-            Opening: FfiConverterBoolean.INSTANCE.Read(stream),
-            OpeningLabel: FfiConverterString.INSTANCE.Read(stream),
-            Enabled: FfiConverterBoolean.INSTANCE.Read(stream),
-            Notice: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
-            InBrowserNote: FfiConverterOptionalString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(PurchaseView value) {
-        return 0
-            + FfiConverterSequenceTypePlanOptionView.INSTANCE.AllocationSize(value.Plans)
-            + FfiConverterSequenceTypeTermOptionView.INSTANCE.AllocationSize(value.Terms)
-            + FfiConverterString.INSTANCE.AllocationSize(value.ChooseAction)
-            + FfiConverterString.INSTANCE.AllocationSize(value.PricesNote)
-            + FfiConverterString.INSTANCE.AllocationSize(value.PromoLabel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.PromoInvalid)
-            + FfiConverterUInt32.INSTANCE.AllocationSize(value.PromoMaxLen)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersManage)
-            + FfiConverterString.INSTANCE.AllocationSize(value.ManageAction)
-            + FfiConverterOptionalTypeConfirmPurchaseView.INSTANCE.AllocationSize(value.Confirming)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Opening)
-            + FfiConverterString.INSTANCE.AllocationSize(value.OpeningLabel)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enabled)
-            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Notice)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.InBrowserNote);
-    }
-
-    public override void Write(PurchaseView value, BigEndianStream stream) {
-            FfiConverterSequenceTypePlanOptionView.INSTANCE.Write(value.Plans, stream);
-            FfiConverterSequenceTypeTermOptionView.INSTANCE.Write(value.Terms, stream);
-            FfiConverterString.INSTANCE.Write(value.ChooseAction, stream);
-            FfiConverterString.INSTANCE.Write(value.PricesNote, stream);
-            FfiConverterString.INSTANCE.Write(value.PromoLabel, stream);
-            FfiConverterString.INSTANCE.Write(value.PromoInvalid, stream);
-            FfiConverterUInt32.INSTANCE.Write(value.PromoMaxLen, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.OffersManage, stream);
-            FfiConverterString.INSTANCE.Write(value.ManageAction, stream);
-            FfiConverterOptionalTypeConfirmPurchaseView.INSTANCE.Write(value.Confirming, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Opening, stream);
-            FfiConverterString.INSTANCE.Write(value.OpeningLabel, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Enabled, stream);
-            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Notice, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.InBrowserNote, stream);
-    }
-}
-
-
-
-/// <summary>
-/// "Remove this member?"
-/// </summary>
-/// <param name="Email">
-/// The member, as listed.
-/// </param>
 /// <param name="Title">
-/// The heading.
+/// The question's heading.
 /// </param>
 /// <param name="Body">
-/// What removing them does.
+/// What saving does.
 /// </param>
-/// <param name="RemoveLabel">
-/// The button that removes them.
+/// <param name="Action">
+/// The confirming button's label.
 /// </param>
-/// <param name="CancelLabel">
-/// The button that keeps them: the default.
+/// <param name="Destructive">
+/// Whether saving removes everything (the confirming button is then not
+/// the default).
 /// </param>
-public record RemoveQuestionView (
+public record QuestionView (
     /// <summary>
-    /// The member, as listed.
-    /// </summary>
-    string Email, 
-    /// <summary>
-    /// The heading.
+    /// The question's heading.
     /// </summary>
     string Title, 
     /// <summary>
-    /// What removing them does.
+    /// What saving does.
     /// </summary>
     string Body, 
     /// <summary>
-    /// The button that removes them.
+    /// The confirming button's label.
     /// </summary>
-    string RemoveLabel, 
+    string Action, 
     /// <summary>
-    /// The button that keeps them: the default.
+    /// Whether saving removes everything (the confirming button is then not
+    /// the default).
     /// </summary>
-    string CancelLabel
+    bool Destructive
 ) {
 }
 
-class FfiConverterTypeRemoveQuestionView: FfiConverterRustBuffer<RemoveQuestionView> {
-    public static FfiConverterTypeRemoveQuestionView INSTANCE = new FfiConverterTypeRemoveQuestionView();
+class FfiConverterTypeQuestionView: FfiConverterRustBuffer<QuestionView> {
+    public static FfiConverterTypeQuestionView INSTANCE = new FfiConverterTypeQuestionView();
 
-    public override RemoveQuestionView Read(BigEndianStream stream) {
-        return new RemoveQuestionView(
-            Email: FfiConverterString.INSTANCE.Read(stream),
+    public override QuestionView Read(BigEndianStream stream) {
+        return new QuestionView(
             Title: FfiConverterString.INSTANCE.Read(stream),
             Body: FfiConverterString.INSTANCE.Read(stream),
-            RemoveLabel: FfiConverterString.INSTANCE.Read(stream),
-            CancelLabel: FfiConverterString.INSTANCE.Read(stream)
+            Action: FfiConverterString.INSTANCE.Read(stream),
+            Destructive: FfiConverterBoolean.INSTANCE.Read(stream)
         );
     }
 
-    public override int AllocationSize(RemoveQuestionView value) {
+    public override int AllocationSize(QuestionView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Email)
             + FfiConverterString.INSTANCE.AllocationSize(value.Title)
             + FfiConverterString.INSTANCE.AllocationSize(value.Body)
-            + FfiConverterString.INSTANCE.AllocationSize(value.RemoveLabel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.CancelLabel);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Action)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Destructive);
     }
 
-    public override void Write(RemoveQuestionView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Email, stream);
+    public override void Write(QuestionView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
             FfiConverterString.INSTANCE.Write(value.Body, stream);
-            FfiConverterString.INSTANCE.Write(value.RemoveLabel, stream);
-            FfiConverterString.INSTANCE.Write(value.CancelLabel, stream);
-    }
-}
-
-
-
-/// <summary>
-/// The rename form.
-/// </summary>
-/// <param name="Heading">
-/// [`RENAME_HEADING`].
-/// </param>
-/// <param name="CurrentLabel">
-/// [`CURRENT_NAME`].
-/// </param>
-/// <param name="Current">
-/// The name now: the one the service stored at the last rename, else the
-/// switcher's.
-/// </param>
-/// <param name="NewLabel">
-/// [`NEW_NAME`].
-/// </param>
-/// <param name="NewName">
-/// The new name, as typed.
-/// </param>
-/// <param name="Editable">
-/// Whether the box can be edited: nothing on its way.
-/// </param>
-/// <param name="CanRename">
-/// Whether "Rename the workspace" works.
-/// </param>
-/// <param name="Renaming">
-/// Whether a rename is on its way (show a progress ring).
-/// </param>
-/// <param name="RenameLabel">
-/// [`RENAME_ACTION`].
-/// </param>
-public record RenameView (
-    /// <summary>
-    /// [`RENAME_HEADING`].
-    /// </summary>
-    string Heading, 
-    /// <summary>
-    /// [`CURRENT_NAME`].
-    /// </summary>
-    string CurrentLabel, 
-    /// <summary>
-    /// The name now: the one the service stored at the last rename, else the
-    /// switcher's.
-    /// </summary>
-    string Current, 
-    /// <summary>
-    /// [`NEW_NAME`].
-    /// </summary>
-    string NewLabel, 
-    /// <summary>
-    /// The new name, as typed.
-    /// </summary>
-    string NewName, 
-    /// <summary>
-    /// Whether the box can be edited: nothing on its way.
-    /// </summary>
-    bool Editable, 
-    /// <summary>
-    /// Whether "Rename the workspace" works.
-    /// </summary>
-    bool CanRename, 
-    /// <summary>
-    /// Whether a rename is on its way (show a progress ring).
-    /// </summary>
-    bool Renaming, 
-    /// <summary>
-    /// [`RENAME_ACTION`].
-    /// </summary>
-    string RenameLabel
-) {
-}
-
-class FfiConverterTypeRenameView: FfiConverterRustBuffer<RenameView> {
-    public static FfiConverterTypeRenameView INSTANCE = new FfiConverterTypeRenameView();
-
-    public override RenameView Read(BigEndianStream stream) {
-        return new RenameView(
-            Heading: FfiConverterString.INSTANCE.Read(stream),
-            CurrentLabel: FfiConverterString.INSTANCE.Read(stream),
-            Current: FfiConverterString.INSTANCE.Read(stream),
-            NewLabel: FfiConverterString.INSTANCE.Read(stream),
-            NewName: FfiConverterString.INSTANCE.Read(stream),
-            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
-            CanRename: FfiConverterBoolean.INSTANCE.Read(stream),
-            Renaming: FfiConverterBoolean.INSTANCE.Read(stream),
-            RenameLabel: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(RenameView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
-            + FfiConverterString.INSTANCE.AllocationSize(value.CurrentLabel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Current)
-            + FfiConverterString.INSTANCE.AllocationSize(value.NewLabel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.NewName)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanRename)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Renaming)
-            + FfiConverterString.INSTANCE.AllocationSize(value.RenameLabel);
-    }
-
-    public override void Write(RenameView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Heading, stream);
-            FfiConverterString.INSTANCE.Write(value.CurrentLabel, stream);
-            FfiConverterString.INSTANCE.Write(value.Current, stream);
-            FfiConverterString.INSTANCE.Write(value.NewLabel, stream);
-            FfiConverterString.INSTANCE.Write(value.NewName, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.CanRename, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Renaming, stream);
-            FfiConverterString.INSTANCE.Write(value.RenameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Action, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Destructive, stream);
     }
 }
 
@@ -12973,61 +11375,6 @@ class FfiConverterTypeRichTextView: FfiConverterRustBuffer<RichTextView> {
 
 
 /// <summary>
-/// One role to choose, with what it may do.
-/// </summary>
-/// <param name="Role">
-/// The role.
-/// </param>
-/// <param name="Label">
-/// Its name.
-/// </param>
-/// <param name="Description">
-/// What it may do.
-/// </param>
-public record RoleChoiceView (
-    /// <summary>
-    /// The role.
-    /// </summary>
-    MemberRoleView Role, 
-    /// <summary>
-    /// Its name.
-    /// </summary>
-    string Label, 
-    /// <summary>
-    /// What it may do.
-    /// </summary>
-    string Description
-) {
-}
-
-class FfiConverterTypeRoleChoiceView: FfiConverterRustBuffer<RoleChoiceView> {
-    public static FfiConverterTypeRoleChoiceView INSTANCE = new FfiConverterTypeRoleChoiceView();
-
-    public override RoleChoiceView Read(BigEndianStream stream) {
-        return new RoleChoiceView(
-            Role: FfiConverterTypeMemberRoleView.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream),
-            Description: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(RoleChoiceView value) {
-        return 0
-            + FfiConverterTypeMemberRoleView.INSTANCE.AllocationSize(value.Role)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Description);
-    }
-
-    public override void Write(RoleChoiceView value, BigEndianStream stream) {
-            FfiConverterTypeMemberRoleView.INSTANCE.Write(value.Role, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
-            FfiConverterString.INSTANCE.Write(value.Description, stream);
-    }
-}
-
-
-
-/// <summary>
 /// The meeting rooms screen.
 /// </summary>
 /// <param name="Title">
@@ -13063,16 +11410,219 @@ class FfiConverterTypeRoomsView: FfiConverterRustBuffer<RoomsView> {
 
 
 /// <summary>
-/// The the routing rules section.
+/// One rule, as its card shows it.
+/// </summary>
+/// <param name="Index">
+/// Its position, which its edits and its removal name.
+/// </param>
+/// <param name="Heading">
+/// "Rule 1".
+/// </param>
+/// <param name="Summary">
+/// What it matches, and the voice it gives.
+/// </param>
+/// <param name="Field">
+/// What about the caller is compared ("Caller detail").
+/// </param>
+/// <param name="Operator">
+/// How ("Compared by").
+/// </param>
+/// <param name="Value">
+/// What it is compared with.
+/// </param>
+/// <param name="Voice">
+/// The voice ("Voice").
+/// </param>
+/// <param name="Instruction">
+/// What the receptionist is told.
+/// </param>
+/// <param name="Engine">
+/// The engine, in words: shown, and not changed here.
+/// </param>
+/// <param name="Kept">
+/// What the rule stores beyond the builder's keys, kept as it is.
+/// </param>
+public record RoutingRuleView (
+    /// <summary>
+    /// Its position, which its edits and its removal name.
+    /// </summary>
+    uint Index, 
+    /// <summary>
+    /// "Rule 1".
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// What it matches, and the voice it gives.
+    /// </summary>
+    string Summary, 
+    /// <summary>
+    /// What about the caller is compared ("Caller detail").
+    /// </summary>
+    RulePickerView Field, 
+    /// <summary>
+    /// How ("Compared by").
+    /// </summary>
+    RulePickerView Operator, 
+    /// <summary>
+    /// What it is compared with.
+    /// </summary>
+    string Value, 
+    /// <summary>
+    /// The voice ("Voice").
+    /// </summary>
+    RulePickerView Voice, 
+    /// <summary>
+    /// What the receptionist is told.
+    /// </summary>
+    string Instruction, 
+    /// <summary>
+    /// The engine, in words: shown, and not changed here.
+    /// </summary>
+    string Engine, 
+    /// <summary>
+    /// What the rule stores beyond the builder's keys, kept as it is.
+    /// </summary>
+    string? Kept
+) {
+}
+
+class FfiConverterTypeRoutingRuleView: FfiConverterRustBuffer<RoutingRuleView> {
+    public static FfiConverterTypeRoutingRuleView INSTANCE = new FfiConverterTypeRoutingRuleView();
+
+    public override RoutingRuleView Read(BigEndianStream stream) {
+        return new RoutingRuleView(
+            Index: FfiConverterUInt32.INSTANCE.Read(stream),
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            Summary: FfiConverterString.INSTANCE.Read(stream),
+            Field: FfiConverterTypeRulePickerView.INSTANCE.Read(stream),
+            Operator: FfiConverterTypeRulePickerView.INSTANCE.Read(stream),
+            Value: FfiConverterString.INSTANCE.Read(stream),
+            Voice: FfiConverterTypeRulePickerView.INSTANCE.Read(stream),
+            Instruction: FfiConverterString.INSTANCE.Read(stream),
+            Engine: FfiConverterString.INSTANCE.Read(stream),
+            Kept: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RoutingRuleView value) {
+        return 0
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Index)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterTypeRulePickerView.INSTANCE.AllocationSize(value.Field)
+            + FfiConverterTypeRulePickerView.INSTANCE.AllocationSize(value.Operator)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
+            + FfiConverterTypeRulePickerView.INSTANCE.AllocationSize(value.Voice)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Instruction)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Engine)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Kept);
+    }
+
+    public override void Write(RoutingRuleView value, BigEndianStream stream) {
+            FfiConverterUInt32.INSTANCE.Write(value.Index, stream);
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterString.INSTANCE.Write(value.Summary, stream);
+            FfiConverterTypeRulePickerView.INSTANCE.Write(value.Field, stream);
+            FfiConverterTypeRulePickerView.INSTANCE.Write(value.Operator, stream);
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+            FfiConverterTypeRulePickerView.INSTANCE.Write(value.Voice, stream);
+            FfiConverterString.INSTANCE.Write(value.Instruction, stream);
+            FfiConverterString.INSTANCE.Write(value.Engine, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Kept, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The routing rules section.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`ROUTING_TITLE`].
+/// </param>
+/// <param name="Intro">
+/// What it says under the heading, [`ROUTING_INTRO`].
+/// </param>
+/// <param name="Status">
+/// Where the page stands. No list is offered before the settings are
+/// read: a list not built from them could only save over them.
+/// </param>
+/// <param name="Unmodellable">
+/// Rules stored in a shape this app cannot change whole: said in place of
+/// the list, with no control. Not a failure, and a retry cannot help.
+/// </param>
+/// <param name="Rules">
+/// The rules, in the order they are checked: the edited list, else the
+/// stored one.
+/// </param>
+/// <param name="Empty">
+/// What to say when there is no rule.
+/// </param>
+/// <param name="CanEdit">
+/// Whether the rules can be changed: read, editable here, the member may,
+/// and no save on its way.
+/// </param>
+/// <param name="CanSave">
+/// Whether "Save" works: the list differs from the stored one.
+/// </param>
+/// <param name="Saving">
+/// Whether a save is on its way (show a progress ring).
+/// </param>
+/// <param name="Notice">
+/// How the last save ended, until dismissed or the list changes.
+/// </param>
+/// <param name="Confirming">
+/// The core's question before the save, while it asks.
 /// </param>
 public record RoutingView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`ROUTING_TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// What it says under the heading, [`ROUTING_INTRO`].
+    /// </summary>
+    string Intro, 
+    /// <summary>
+    /// Where the page stands. No list is offered before the settings are
+    /// read: a list not built from them could only save over them.
+    /// </summary>
+    SectionStatus Status, 
+    /// <summary>
+    /// Rules stored in a shape this app cannot change whole: said in place of
+    /// the list, with no control. Not a failure, and a retry cannot help.
+    /// </summary>
+    EmptyView? Unmodellable, 
+    /// <summary>
+    /// The rules, in the order they are checked: the edited list, else the
+    /// stored one.
+    /// </summary>
+    RoutingRuleView[] Rules, 
+    /// <summary>
+    /// What to say when there is no rule.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// Whether the rules can be changed: read, editable here, the member may,
+    /// and no save on its way.
+    /// </summary>
+    bool CanEdit, 
+    /// <summary>
+    /// Whether "Save" works: the list differs from the stored one.
+    /// </summary>
+    bool CanSave, 
+    /// <summary>
+    /// Whether a save is on its way (show a progress ring).
+    /// </summary>
+    bool Saving, 
+    /// <summary>
+    /// How the last save ended, until dismissed or the list changes.
+    /// </summary>
+    SaveNoticeView? Notice, 
+    /// <summary>
+    /// The core's question before the save, while it asks.
+    /// </summary>
+    QuestionView? Confirming
 ) {
 }
 
@@ -13081,17 +11631,94 @@ class FfiConverterTypeRoutingView: FfiConverterRustBuffer<RoutingView> {
 
     public override RoutingView Read(BigEndianStream stream) {
         return new RoutingView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Intro: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeSectionStatus.INSTANCE.Read(stream),
+            Unmodellable: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Rules: FfiConverterSequenceTypeRoutingRuleView.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            CanEdit: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
+            Saving: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Read(stream),
+            Confirming: FfiConverterOptionalTypeQuestionView.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(RoutingView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Intro)
+            + FfiConverterTypeSectionStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Unmodellable)
+            + FfiConverterSequenceTypeRoutingRuleView.INSTANCE.AllocationSize(value.Rules)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanEdit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving)
+            + FfiConverterOptionalTypeSaveNoticeView.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeQuestionView.INSTANCE.AllocationSize(value.Confirming);
     }
 
     public override void Write(RoutingView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Intro, stream);
+            FfiConverterTypeSectionStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Unmodellable, stream);
+            FfiConverterSequenceTypeRoutingRuleView.INSTANCE.Write(value.Rules, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanEdit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+            FfiConverterOptionalTypeSaveNoticeView.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeQuestionView.INSTANCE.Write(value.Confirming, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One of a rule's pickers, under its label.
+/// </summary>
+/// <param name="Label">
+/// Its label ("Caller detail", "Compared by", "Voice").
+/// </param>
+/// <param name="Picker">
+/// The web console's choices, with the rule's value chosen; a stored
+/// value they do not list is shown as stored.
+/// </param>
+public record RulePickerView (
+    /// <summary>
+    /// Its label ("Caller detail", "Compared by", "Voice").
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// The web console's choices, with the rule's value chosen; a stored
+    /// value they do not list is shown as stored.
+    /// </summary>
+    PickerView Picker
+) {
+}
+
+class FfiConverterTypeRulePickerView: FfiConverterRustBuffer<RulePickerView> {
+    public static FfiConverterTypeRulePickerView INSTANCE = new FfiConverterTypeRulePickerView();
+
+    public override RulePickerView Read(BigEndianStream stream) {
+        return new RulePickerView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Picker: FfiConverterTypePickerView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RulePickerView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterTypePickerView.INSTANCE.AllocationSize(value.Picker);
+    }
+
+    public override void Write(RulePickerView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterTypePickerView.INSTANCE.Write(value.Picker, stream);
     }
 }
 
@@ -14265,51 +12892,6 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
 
 
 /// <summary>
-/// One source, to choose.
-/// </summary>
-/// <param name="Source">
-/// The source.
-/// </param>
-/// <param name="Label">
-/// What it reads.
-/// </param>
-public record SourceChoiceView (
-    /// <summary>
-    /// The source.
-    /// </summary>
-    MessagingSource Source, 
-    /// <summary>
-    /// What it reads.
-    /// </summary>
-    string Label
-) {
-}
-
-class FfiConverterTypeSourceChoiceView: FfiConverterRustBuffer<SourceChoiceView> {
-    public static FfiConverterTypeSourceChoiceView INSTANCE = new FfiConverterTypeSourceChoiceView();
-
-    public override SourceChoiceView Read(BigEndianStream stream) {
-        return new SourceChoiceView(
-            Source: FfiConverterTypeMessagingSource.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(SourceChoiceView value) {
-        return 0
-            + FfiConverterTypeMessagingSource.INSTANCE.AllocationSize(value.Source)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
-    }
-
-    public override void Write(SourceChoiceView value, BigEndianStream stream) {
-            FfiConverterTypeMessagingSource.INSTANCE.Write(value.Source, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
-    }
-}
-
-
-
-/// <summary>
 /// What the core needs from the app to start.
 /// </summary>
 /// <param name="DataDir">
@@ -14379,101 +12961,6 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
             FfiConverterString.INSTANCE.Write(value.AppVersion, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.DeviceName, stream);
             FfiConverterString.INSTANCE.Write(value.CredentialNamespace, stream);
-    }
-}
-
-
-
-/// <summary>
-/// One subscription.
-/// </summary>
-/// <param name="Id">
-/// The processor's id.
-/// </param>
-/// <param name="Name">
-/// The plan's name.
-/// </param>
-/// <param name="Status">
-/// The processor's word for its state.
-/// </param>
-/// <param name="Amount">
-/// The amount per period ("$249.00"), when the processor sent one.
-/// </param>
-/// <param name="RenewsAt">
-/// When it renews, in Unix seconds.
-/// </param>
-/// <param name="EndsAt">
-/// When it ends instead, in Unix seconds.
-/// </param>
-/// <param name="Coupon">
-/// A coupon applied to it, by name.
-/// </param>
-public record SubscriptionRowView (
-    /// <summary>
-    /// The processor's id.
-    /// </summary>
-    string Id, 
-    /// <summary>
-    /// The plan's name.
-    /// </summary>
-    string Name, 
-    /// <summary>
-    /// The processor's word for its state.
-    /// </summary>
-    string Status, 
-    /// <summary>
-    /// The amount per period ("$249.00"), when the processor sent one.
-    /// </summary>
-    string? Amount, 
-    /// <summary>
-    /// When it renews, in Unix seconds.
-    /// </summary>
-    long? RenewsAt, 
-    /// <summary>
-    /// When it ends instead, in Unix seconds.
-    /// </summary>
-    long? EndsAt, 
-    /// <summary>
-    /// A coupon applied to it, by name.
-    /// </summary>
-    string? Coupon
-) {
-}
-
-class FfiConverterTypeSubscriptionRowView: FfiConverterRustBuffer<SubscriptionRowView> {
-    public static FfiConverterTypeSubscriptionRowView INSTANCE = new FfiConverterTypeSubscriptionRowView();
-
-    public override SubscriptionRowView Read(BigEndianStream stream) {
-        return new SubscriptionRowView(
-            Id: FfiConverterString.INSTANCE.Read(stream),
-            Name: FfiConverterString.INSTANCE.Read(stream),
-            Status: FfiConverterString.INSTANCE.Read(stream),
-            Amount: FfiConverterOptionalString.INSTANCE.Read(stream),
-            RenewsAt: FfiConverterOptionalInt64.INSTANCE.Read(stream),
-            EndsAt: FfiConverterOptionalInt64.INSTANCE.Read(stream),
-            Coupon: FfiConverterOptionalString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(SubscriptionRowView value) {
-        return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Amount)
-            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.RenewsAt)
-            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.EndsAt)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Coupon);
-    }
-
-    public override void Write(SubscriptionRowView value, BigEndianStream stream) {
-            FfiConverterString.INSTANCE.Write(value.Id, stream);
-            FfiConverterString.INSTANCE.Write(value.Name, stream);
-            FfiConverterString.INSTANCE.Write(value.Status, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.Amount, stream);
-            FfiConverterOptionalInt64.INSTANCE.Write(value.RenewsAt, stream);
-            FfiConverterOptionalInt64.INSTANCE.Write(value.EndsAt, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.Coupon, stream);
     }
 }
 
@@ -15186,51 +13673,6 @@ class FfiConverterTypeSupportView: FfiConverterRustBuffer<SupportView> {
             FfiConverterOptionalString.INSTANCE.Write(value.Submitted, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanStart, stream);
             FfiConverterOptionalTypeSupportComposeView.INSTANCE.Write(value.Compose, stream);
-    }
-}
-
-
-
-/// <summary>
-/// One term in the chooser.
-/// </summary>
-/// <param name="Term">
-/// The term.
-/// </param>
-/// <param name="Label">
-/// Its name.
-/// </param>
-public record TermOptionView (
-    /// <summary>
-    /// The term.
-    /// </summary>
-    PlanTermView Term, 
-    /// <summary>
-    /// Its name.
-    /// </summary>
-    string Label
-) {
-}
-
-class FfiConverterTypeTermOptionView: FfiConverterRustBuffer<TermOptionView> {
-    public static FfiConverterTypeTermOptionView INSTANCE = new FfiConverterTypeTermOptionView();
-
-    public override TermOptionView Read(BigEndianStream stream) {
-        return new TermOptionView(
-            Term: FfiConverterTypePlanTermView.INSTANCE.Read(stream),
-            Label: FfiConverterString.INSTANCE.Read(stream)
-        );
-    }
-
-    public override int AllocationSize(TermOptionView value) {
-        return 0
-            + FfiConverterTypePlanTermView.INSTANCE.AllocationSize(value.Term)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
-    }
-
-    public override void Write(TermOptionView value, BigEndianStream stream) {
-            FfiConverterTypePlanTermView.INSTANCE.Write(value.Term, stream);
-            FfiConverterString.INSTANCE.Write(value.Label, stream);
     }
 }
 
@@ -16318,63 +14760,6 @@ class FfiConverterTypeWorkspaceSwitcherView: FfiConverterRustBuffer<WorkspaceSwi
 
 
 /// <summary>
-/// Where the account's half stands.
-/// </summary>
-public enum AccountBillingState: int {
-    /// <summary>
-    /// Being read.
-    /// </summary>
-    Loading,
-    /// <summary>
-    /// Read.
-    /// </summary>
-    Ready,
-    /// <summary>
-    /// The payment processor could not be reached: never shown as "none".
-    /// </summary>
-    Unavailable,
-    /// <summary>
-    /// The read failed.
-    /// </summary>
-    Failed
-}
-
-class FfiConverterTypeAccountBillingState: FfiConverterRustBuffer<AccountBillingState> {
-    public static FfiConverterTypeAccountBillingState INSTANCE = new FfiConverterTypeAccountBillingState();
-
-    public override AccountBillingState Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return AccountBillingState.Loading;
-            case 2: return AccountBillingState.Ready;
-            case 3: return AccountBillingState.Unavailable;
-            case 4: return AccountBillingState.Failed;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAccountBillingState.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(AccountBillingState value) {
-        return 4;
-    }
-
-    public override void Write(AccountBillingState value, BigEndianStream stream) {
-        switch (value) {
-            case AccountBillingState.Loading: stream.WriteInt(1); break;
-            case AccountBillingState.Ready: stream.WriteInt(2); break;
-            case AccountBillingState.Unavailable: stream.WriteInt(3); break;
-            case AccountBillingState.Failed: stream.WriteInt(4); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeAccountBillingState.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
 /// Something the member did on the analytics screen.
 /// </summary>
 public record AnalyticsAction {
@@ -16513,213 +14898,40 @@ class FfiConverterTypeAnalyticsPeriod: FfiConverterRustBuffer<AnalyticsPeriod> {
 
 
 /// <summary>
-/// Something the member did on the billing screen, or about purchases.
+/// Something the member did on the billing screen.
 /// </summary>
-public record BillingAction {
-    
+public enum BillingAction: int {
     /// <summary>
     /// Open billing.
     /// </summary>
-    public record Open: BillingAction {}
-    
-    
+    Open,
     /// <summary>
-    /// Manage billing on the web dashboard, in the browser.
+    /// Manage billing on the web dashboard.
     /// </summary>
-    public record ManageOnWeb: BillingAction {}
-    
-    
-    /// <summary>
-    /// Open an invoice's page in the browser.
-    /// </summary>
-    public record OpenInvoice (
-        string InvoiceId
-    ) : BillingAction {}
-    
-    /// <summary>
-    /// Read the plan again ("Try again").
-    /// </summary>
-    public record CheckAgain: BillingAction {}
-    
-    
-    /// <summary>
-    /// Choose a plan: the step naming Stripe shows. A promotion code that is
-    /// not of the shape the service reads sends nothing (the page says why
-    /// before it lets the member press).
-    /// </summary>
-    public record ChoosePlan (
-        PlanTierView Tier,
-        PlanTermView Term,
-        string? Promo
-    ) : BillingAction {}
-    
-    /// <summary>
-    /// Continue to checkout.
-    /// </summary>
-    public record ConfirmPurchase: BillingAction {}
-    
-    
-    /// <summary>
-    /// Back out of the confirmation step.
-    /// </summary>
-    public record CancelPurchase: BillingAction {}
-    
-    
-    /// <summary>
-    /// Manage billing inside the app.
-    /// </summary>
-    public record ManageInApp: BillingAction {}
-    
-    
-    /// <summary>
-    /// Put the purchase notice away.
-    /// </summary>
-    public record DismissPurchaseNotice: BillingAction {}
-    
-    
-    /// <summary>
-    /// The checkout window closed.
-    /// </summary>
-    public record CheckoutClosed: BillingAction {}
-    
-    
-    /// <summary>
-    /// The Account page's "Purchases on this computer": on ("Sign in every
-    /// time") or off.
-    /// </summary>
-    public record SetPurchases (
-        bool On
-    ) : BillingAction {}
-    
-
-    
+    ManageOnWeb
 }
 
-class FfiConverterTypeBillingAction : FfiConverterRustBuffer<BillingAction>{
-    public static FfiConverterRustBuffer<BillingAction> INSTANCE = new FfiConverterTypeBillingAction();
+class FfiConverterTypeBillingAction: FfiConverterRustBuffer<BillingAction> {
+    public static FfiConverterTypeBillingAction INSTANCE = new FfiConverterTypeBillingAction();
 
     public override BillingAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1:
-                return new BillingAction.Open(
-                );
-            case 2:
-                return new BillingAction.ManageOnWeb(
-                );
-            case 3:
-                return new BillingAction.OpenInvoice(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 4:
-                return new BillingAction.CheckAgain(
-                );
-            case 5:
-                return new BillingAction.ChoosePlan(
-                    FfiConverterTypePlanTierView.INSTANCE.Read(stream),
-                    FfiConverterTypePlanTermView.INSTANCE.Read(stream),
-                    FfiConverterOptionalString.INSTANCE.Read(stream)
-                );
-            case 6:
-                return new BillingAction.ConfirmPurchase(
-                );
-            case 7:
-                return new BillingAction.CancelPurchase(
-                );
-            case 8:
-                return new BillingAction.ManageInApp(
-                );
-            case 9:
-                return new BillingAction.DismissPurchaseNotice(
-                );
-            case 10:
-                return new BillingAction.CheckoutClosed(
-                );
-            case 11:
-                return new BillingAction.SetPurchases(
-                    FfiConverterBoolean.INSTANCE.Read(stream)
-                );
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.Read()", value));
+            case 1: return BillingAction.Open;
+            case 2: return BillingAction.ManageOnWeb;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.Read()", value));
         }
     }
 
     public override int AllocationSize(BillingAction value) {
-        switch (value) {
-            case BillingAction.Open variant_value:
-                return 4;
-            case BillingAction.ManageOnWeb variant_value:
-                return 4;
-            case BillingAction.OpenInvoice variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.InvoiceId);
-            case BillingAction.CheckAgain variant_value:
-                return 4;
-            case BillingAction.ChoosePlan variant_value:
-                return 4
-                    + FfiConverterTypePlanTierView.INSTANCE.AllocationSize(variant_value.Tier)
-                    + FfiConverterTypePlanTermView.INSTANCE.AllocationSize(variant_value.Term)
-                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.Promo);
-            case BillingAction.ConfirmPurchase variant_value:
-                return 4;
-            case BillingAction.CancelPurchase variant_value:
-                return 4;
-            case BillingAction.ManageInApp variant_value:
-                return 4;
-            case BillingAction.DismissPurchaseNotice variant_value:
-                return 4;
-            case BillingAction.CheckoutClosed variant_value:
-                return 4;
-            case BillingAction.SetPurchases variant_value:
-                return 4
-                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.AllocationSize()", value));
-        }
+        return 4;
     }
 
     public override void Write(BillingAction value, BigEndianStream stream) {
         switch (value) {
-            case BillingAction.Open variant_value:
-                stream.WriteInt(1);
-                break;
-            case BillingAction.ManageOnWeb variant_value:
-                stream.WriteInt(2);
-                break;
-            case BillingAction.OpenInvoice variant_value:
-                stream.WriteInt(3);
-                FfiConverterString.INSTANCE.Write(variant_value.InvoiceId, stream);
-                break;
-            case BillingAction.CheckAgain variant_value:
-                stream.WriteInt(4);
-                break;
-            case BillingAction.ChoosePlan variant_value:
-                stream.WriteInt(5);
-                FfiConverterTypePlanTierView.INSTANCE.Write(variant_value.Tier, stream);
-                FfiConverterTypePlanTermView.INSTANCE.Write(variant_value.Term, stream);
-                FfiConverterOptionalString.INSTANCE.Write(variant_value.Promo, stream);
-                break;
-            case BillingAction.ConfirmPurchase variant_value:
-                stream.WriteInt(6);
-                break;
-            case BillingAction.CancelPurchase variant_value:
-                stream.WriteInt(7);
-                break;
-            case BillingAction.ManageInApp variant_value:
-                stream.WriteInt(8);
-                break;
-            case BillingAction.DismissPurchaseNotice variant_value:
-                stream.WriteInt(9);
-                break;
-            case BillingAction.CheckoutClosed variant_value:
-                stream.WriteInt(10);
-                break;
-            case BillingAction.SetPurchases variant_value:
-                stream.WriteInt(11);
-                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
-                break;
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.Write()", value));
+            case BillingAction.Open: stream.WriteInt(1); break;
+            case BillingAction.ManageOnWeb: stream.WriteInt(2); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBillingAction.Write()", value));
         }
     }
 }
@@ -16848,32 +15060,182 @@ class FfiConverterTypeBlockedAction : FfiConverterRustBuffer<BlockedAction>{
 /// <summary>
 /// Something the member did on the call handling section.
 /// </summary>
-public enum CallHandlingAction: int {
+public record CallHandlingAction {
+    
     /// <summary>
     /// Open the call handling section.
     /// </summary>
-    Open
+    public record Open: CallHandlingAction {}
+    
+    
+    /// <summary>
+    /// Choose who answers. Saved with `Save`.
+    /// </summary>
+    public record SelectMode (
+        CallHandlingChoice Mode
+    ) : CallHandlingAction {}
+    
+    /// <summary>
+    /// Choose how long the devices ring; the core moves it into the range the
+    /// service accepts. Saved with `Save`.
+    /// </summary>
+    public record SetRingSeconds (
+        long Seconds
+    ) : CallHandlingAction {}
+    
+    /// <summary>
+    /// Save what changed, for every member.
+    /// </summary>
+    public record Save: CallHandlingAction {}
+    
+    
+    /// <summary>
+    /// Be rung for this workspace's calls, or not. Sent at once.
+    /// </summary>
+    public record SetAvailable (
+        bool Available
+    ) : CallHandlingAction {}
+    
+    /// <summary>
+    /// Put the notices away.
+    /// </summary>
+    public record DismissNotices: CallHandlingAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeCallHandlingAction: FfiConverterRustBuffer<CallHandlingAction> {
-    public static FfiConverterTypeCallHandlingAction INSTANCE = new FfiConverterTypeCallHandlingAction();
+class FfiConverterTypeCallHandlingAction : FfiConverterRustBuffer<CallHandlingAction>{
+    public static FfiConverterRustBuffer<CallHandlingAction> INSTANCE = new FfiConverterTypeCallHandlingAction();
 
     public override CallHandlingAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return CallHandlingAction.Open;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCallHandlingAction.Read()", value));
+            case 1:
+                return new CallHandlingAction.Open(
+                );
+            case 2:
+                return new CallHandlingAction.SelectMode(
+                    FfiConverterTypeCallHandlingChoice.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new CallHandlingAction.SetRingSeconds(
+                    FfiConverterInt64.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new CallHandlingAction.Save(
+                );
+            case 5:
+                return new CallHandlingAction.SetAvailable(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new CallHandlingAction.DismissNotices(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCallHandlingAction.Read()", value));
         }
     }
 
     public override int AllocationSize(CallHandlingAction value) {
-        return 4;
+        switch (value) {
+            case CallHandlingAction.Open variant_value:
+                return 4;
+            case CallHandlingAction.SelectMode variant_value:
+                return 4
+                    + FfiConverterTypeCallHandlingChoice.INSTANCE.AllocationSize(variant_value.Mode);
+            case CallHandlingAction.SetRingSeconds variant_value:
+                return 4
+                    + FfiConverterInt64.INSTANCE.AllocationSize(variant_value.Seconds);
+            case CallHandlingAction.Save variant_value:
+                return 4;
+            case CallHandlingAction.SetAvailable variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Available);
+            case CallHandlingAction.DismissNotices variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCallHandlingAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(CallHandlingAction value, BigEndianStream stream) {
         switch (value) {
-            case CallHandlingAction.Open: stream.WriteInt(1); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCallHandlingAction.Write()", value));
+            case CallHandlingAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case CallHandlingAction.SelectMode variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypeCallHandlingChoice.INSTANCE.Write(variant_value.Mode, stream);
+                break;
+            case CallHandlingAction.SetRingSeconds variant_value:
+                stream.WriteInt(3);
+                FfiConverterInt64.INSTANCE.Write(variant_value.Seconds, stream);
+                break;
+            case CallHandlingAction.Save variant_value:
+                stream.WriteInt(4);
+                break;
+            case CallHandlingAction.SetAvailable variant_value:
+                stream.WriteInt(5);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Available, stream);
+                break;
+            case CallHandlingAction.DismissNotices variant_value:
+                stream.WriteInt(6);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCallHandlingAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Who answers, as the member chooses it.
+/// </summary>
+public enum CallHandlingChoice: int {
+    /// <summary>
+    /// The receptionist answers.
+    /// </summary>
+    AiFirst,
+    /// <summary>
+    /// The receptionist answers, then the devices ring.
+    /// </summary>
+    AiThenApp,
+    /// <summary>
+    /// The devices ring first.
+    /// </summary>
+    AppFirst
+}
+
+class FfiConverterTypeCallHandlingChoice: FfiConverterRustBuffer<CallHandlingChoice> {
+    public static FfiConverterTypeCallHandlingChoice INSTANCE = new FfiConverterTypeCallHandlingChoice();
+
+    public override CallHandlingChoice Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return CallHandlingChoice.AiFirst;
+            case 2: return CallHandlingChoice.AiThenApp;
+            case 3: return CallHandlingChoice.AppFirst;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCallHandlingChoice.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(CallHandlingChoice value) {
+        return 4;
+    }
+
+    public override void Write(CallHandlingChoice value, BigEndianStream stream) {
+        switch (value) {
+            case CallHandlingChoice.AiFirst: stream.WriteInt(1); break;
+            case CallHandlingChoice.AiThenApp: stream.WriteInt(2); break;
+            case CallHandlingChoice.AppFirst: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCallHandlingChoice.Write()", value));
         }
     }
 }
@@ -17859,34 +16221,200 @@ class FfiConverterTypeDeskStatus: FfiConverterRustBuffer<DeskStatus> {
 
 
 /// <summary>
-/// Something the member did on the the transfer directory section.
+/// Something the member did on the transfer directory section.
 /// </summary>
-public enum DirectoryAction: int {
+public record DirectoryAction {
+    
     /// <summary>
-    /// Open the the transfer directory section.
+    /// Open the transfer directory section.
     /// </summary>
-    Open
+    public record Open: DirectoryAction {}
+    
+    
+    /// <summary>
+    /// The new entry's name changed.
+    /// </summary>
+    public record EditNewName (
+        string Name
+    ) : DirectoryAction {}
+    
+    /// <summary>
+    /// The new entry's number changed.
+    /// </summary>
+    public record EditNewPhoneNumber (
+        string Number
+    ) : DirectoryAction {}
+    
+    /// <summary>
+    /// Add the new entry to the list. Nothing is saved yet.
+    /// </summary>
+    public record Add: DirectoryAction {}
+    
+    
+    /// <summary>
+    /// Change one field of one entry, keeping its other keys.
+    /// </summary>
+    public record Edit (
+        uint Index,
+        DirectoryEntryField Field,
+        string Value
+    ) : DirectoryAction {}
+    
+    /// <summary>
+    /// Take one entry off the list. Nothing is saved yet.
+    /// </summary>
+    public record Remove (
+        uint Index
+    ) : DirectoryAction {}
+    
+    /// <summary>
+    /// "Save": the core asks first.
+    /// </summary>
+    public record Save: DirectoryAction {}
+    
+    
+    /// <summary>
+    /// Answer the question yes.
+    /// </summary>
+    public record ConfirmSave: DirectoryAction {}
+    
+    
+    /// <summary>
+    /// Answer it no.
+    /// </summary>
+    public record CancelSave: DirectoryAction {}
+    
+    
+    /// <summary>
+    /// Put the save's notice away.
+    /// </summary>
+    public record DismissNotice: DirectoryAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeDirectoryAction: FfiConverterRustBuffer<DirectoryAction> {
-    public static FfiConverterTypeDirectoryAction INSTANCE = new FfiConverterTypeDirectoryAction();
+class FfiConverterTypeDirectoryAction : FfiConverterRustBuffer<DirectoryAction>{
+    public static FfiConverterRustBuffer<DirectoryAction> INSTANCE = new FfiConverterTypeDirectoryAction();
 
     public override DirectoryAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return DirectoryAction.Open;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDirectoryAction.Read()", value));
+            case 1:
+                return new DirectoryAction.Open(
+                );
+            case 2:
+                return new DirectoryAction.EditNewName(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new DirectoryAction.EditNewPhoneNumber(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new DirectoryAction.Add(
+                );
+            case 5:
+                return new DirectoryAction.Edit(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterTypeDirectoryEntryField.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new DirectoryAction.Remove(
+                    FfiConverterUInt32.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new DirectoryAction.Save(
+                );
+            case 8:
+                return new DirectoryAction.ConfirmSave(
+                );
+            case 9:
+                return new DirectoryAction.CancelSave(
+                );
+            case 10:
+                return new DirectoryAction.DismissNotice(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDirectoryAction.Read()", value));
         }
     }
 
     public override int AllocationSize(DirectoryAction value) {
-        return 4;
+        switch (value) {
+            case DirectoryAction.Open variant_value:
+                return 4;
+            case DirectoryAction.EditNewName variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name);
+            case DirectoryAction.EditNewPhoneNumber variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Number);
+            case DirectoryAction.Add variant_value:
+                return 4;
+            case DirectoryAction.Edit variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterTypeDirectoryEntryField.INSTANCE.AllocationSize(variant_value.Field)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case DirectoryAction.Remove variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index);
+            case DirectoryAction.Save variant_value:
+                return 4;
+            case DirectoryAction.ConfirmSave variant_value:
+                return 4;
+            case DirectoryAction.CancelSave variant_value:
+                return 4;
+            case DirectoryAction.DismissNotice variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDirectoryAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(DirectoryAction value, BigEndianStream stream) {
         switch (value) {
-            case DirectoryAction.Open: stream.WriteInt(1); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDirectoryAction.Write()", value));
+            case DirectoryAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case DirectoryAction.EditNewName variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
+                break;
+            case DirectoryAction.EditNewPhoneNumber variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
+                break;
+            case DirectoryAction.Add variant_value:
+                stream.WriteInt(4);
+                break;
+            case DirectoryAction.Edit variant_value:
+                stream.WriteInt(5);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterTypeDirectoryEntryField.INSTANCE.Write(variant_value.Field, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case DirectoryAction.Remove variant_value:
+                stream.WriteInt(6);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                break;
+            case DirectoryAction.Save variant_value:
+                stream.WriteInt(7);
+                break;
+            case DirectoryAction.ConfirmSave variant_value:
+                stream.WriteInt(8);
+                break;
+            case DirectoryAction.CancelSave variant_value:
+                stream.WriteInt(9);
+                break;
+            case DirectoryAction.DismissNotice variant_value:
+                stream.WriteInt(10);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDirectoryAction.Write()", value));
         }
     }
 }
@@ -17898,41 +16426,40 @@ class FfiConverterTypeDirectoryAction: FfiConverterRustBuffer<DirectoryAction> {
 
 
 /// <summary>
-/// Which view [`UiHost::open_embedded`] opens a page in: the core's
-/// `EmbeddedView`.
+/// A field of a directory entry the member edits.
 /// </summary>
-public enum EmbeddedViewKind: int {
+public enum DirectoryEntryField: int {
     /// <summary>
-    /// A new private view.
+    /// The person's name.
     /// </summary>
-    NewPrivate,
+    Name,
     /// <summary>
-    /// The view the last new one opened.
+    /// The number to put a caller through to.
     /// </summary>
-    Same
+    PhoneNumber
 }
 
-class FfiConverterTypeEmbeddedViewKind: FfiConverterRustBuffer<EmbeddedViewKind> {
-    public static FfiConverterTypeEmbeddedViewKind INSTANCE = new FfiConverterTypeEmbeddedViewKind();
+class FfiConverterTypeDirectoryEntryField: FfiConverterRustBuffer<DirectoryEntryField> {
+    public static FfiConverterTypeDirectoryEntryField INSTANCE = new FfiConverterTypeDirectoryEntryField();
 
-    public override EmbeddedViewKind Read(BigEndianStream stream) {
+    public override DirectoryEntryField Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return EmbeddedViewKind.NewPrivate;
-            case 2: return EmbeddedViewKind.Same;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEmbeddedViewKind.Read()", value));
+            case 1: return DirectoryEntryField.Name;
+            case 2: return DirectoryEntryField.PhoneNumber;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDirectoryEntryField.Read()", value));
         }
     }
 
-    public override int AllocationSize(EmbeddedViewKind value) {
+    public override int AllocationSize(DirectoryEntryField value) {
         return 4;
     }
 
-    public override void Write(EmbeddedViewKind value, BigEndianStream stream) {
+    public override void Write(DirectoryEntryField value, BigEndianStream stream) {
         switch (value) {
-            case EmbeddedViewKind.NewPrivate: stream.WriteInt(1); break;
-            case EmbeddedViewKind.Same: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEmbeddedViewKind.Write()", value));
+            case DirectoryEntryField.Name: stream.WriteInt(1); break;
+            case DirectoryEntryField.PhoneNumber: stream.WriteInt(2); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDirectoryEntryField.Write()", value));
         }
     }
 }
@@ -18277,144 +16804,6 @@ class FfiConverterTypeHqMessageView : FfiConverterRustBuffer<HqMessageView>{
 
 
 /// <summary>
-/// How checking the keys went.
-/// </summary>
-public enum KeyCheckOutcome: int {
-    /// <summary>
-    /// Asking the carrier.
-    /// </summary>
-    Running,
-    /// <summary>
-    /// The carrier accepted them.
-    /// </summary>
-    Passed,
-    /// <summary>
-    /// The carrier refused them: an answer about what was typed.
-    /// </summary>
-    Refused,
-    /// <summary>
-    /// The carrier could not be asked.
-    /// </summary>
-    Unreachable
-}
-
-class FfiConverterTypeKeyCheckOutcome: FfiConverterRustBuffer<KeyCheckOutcome> {
-    public static FfiConverterTypeKeyCheckOutcome INSTANCE = new FfiConverterTypeKeyCheckOutcome();
-
-    public override KeyCheckOutcome Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return KeyCheckOutcome.Running;
-            case 2: return KeyCheckOutcome.Passed;
-            case 3: return KeyCheckOutcome.Refused;
-            case 4: return KeyCheckOutcome.Unreachable;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeKeyCheckOutcome.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(KeyCheckOutcome value) {
-        return 4;
-    }
-
-    public override void Write(KeyCheckOutcome value, BigEndianStream stream) {
-        switch (value) {
-            case KeyCheckOutcome.Running: stream.WriteInt(1); break;
-            case KeyCheckOutcome.Passed: stream.WriteInt(2); break;
-            case KeyCheckOutcome.Refused: stream.WriteInt(3); break;
-            case KeyCheckOutcome.Unreachable: stream.WriteInt(4); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeKeyCheckOutcome.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
-/// A key box of the form.
-/// </summary>
-public enum KeyField: int {
-    /// <summary>
-    /// Twilio's account SID.
-    /// </summary>
-    AccountSid,
-    /// <summary>
-    /// Twilio's auth token.
-    /// </summary>
-    AuthToken,
-    /// <summary>
-    /// Sinch's project id (not a secret).
-    /// </summary>
-    ProjectId,
-    /// <summary>
-    /// Sinch's access key id.
-    /// </summary>
-    KeyId,
-    /// <summary>
-    /// Sinch's access key secret.
-    /// </summary>
-    KeySecret,
-    /// <summary>
-    /// Sinch's voice application key.
-    /// </summary>
-    ApplicationKey,
-    /// <summary>
-    /// Sinch's voice application secret.
-    /// </summary>
-    ApplicationSecret,
-    /// <summary>
-    /// Telnyx's API key.
-    /// </summary>
-    ApiKey
-}
-
-class FfiConverterTypeKeyField: FfiConverterRustBuffer<KeyField> {
-    public static FfiConverterTypeKeyField INSTANCE = new FfiConverterTypeKeyField();
-
-    public override KeyField Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return KeyField.AccountSid;
-            case 2: return KeyField.AuthToken;
-            case 3: return KeyField.ProjectId;
-            case 4: return KeyField.KeyId;
-            case 5: return KeyField.KeySecret;
-            case 6: return KeyField.ApplicationKey;
-            case 7: return KeyField.ApplicationSecret;
-            case 8: return KeyField.ApiKey;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeKeyField.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(KeyField value) {
-        return 4;
-    }
-
-    public override void Write(KeyField value, BigEndianStream stream) {
-        switch (value) {
-            case KeyField.AccountSid: stream.WriteInt(1); break;
-            case KeyField.AuthToken: stream.WriteInt(2); break;
-            case KeyField.ProjectId: stream.WriteInt(3); break;
-            case KeyField.KeyId: stream.WriteInt(4); break;
-            case KeyField.KeySecret: stream.WriteInt(5); break;
-            case KeyField.ApplicationKey: stream.WriteInt(6); break;
-            case KeyField.ApplicationSecret: stream.WriteInt(7); break;
-            case KeyField.ApiKey: stream.WriteInt(8); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeKeyField.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
 /// Something the member did on the the knowledge base section.
 /// </summary>
 public enum KnowledgeAction: int {
@@ -18725,265 +17114,34 @@ class FfiConverterTypeMarketplaceAction : FfiConverterRustBuffer<MarketplaceActi
 
 
 /// <summary>
-/// A role, as the section offers it.
+/// Something the member did on the the members section.
 /// </summary>
-public enum MemberRoleView: int {
+public enum MembersAction: int {
     /// <summary>
-    /// Full access, members included.
+    /// Open the the members section.
     /// </summary>
-    Agency,
-    /// <summary>
-    /// Everyday use.
-    /// </summary>
-    Client,
-    /// <summary>
-    /// Read only.
-    /// </summary>
-    Viewer
+    Open
 }
 
-class FfiConverterTypeMemberRoleView: FfiConverterRustBuffer<MemberRoleView> {
-    public static FfiConverterTypeMemberRoleView INSTANCE = new FfiConverterTypeMemberRoleView();
-
-    public override MemberRoleView Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return MemberRoleView.Agency;
-            case 2: return MemberRoleView.Client;
-            case 3: return MemberRoleView.Viewer;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMemberRoleView.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(MemberRoleView value) {
-        return 4;
-    }
-
-    public override void Write(MemberRoleView value, BigEndianStream stream) {
-        switch (value) {
-            case MemberRoleView.Agency: stream.WriteInt(1); break;
-            case MemberRoleView.Client: stream.WriteInt(2); break;
-            case MemberRoleView.Viewer: stream.WriteInt(3); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMemberRoleView.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
-/// Something the member did on the members section.
-/// </summary>
-public record MembersAction {
-    
-    /// <summary>
-    /// Open the members section.
-    /// </summary>
-    public record Open: MembersAction {}
-    
-    
-    /// <summary>
-    /// The address to add changed: what the box holds now.
-    /// </summary>
-    public record EditEmail (
-        string Email
-    ) : MembersAction {}
-    
-    /// <summary>
-    /// The role to add with changed.
-    /// </summary>
-    public record SetRole (
-        MemberRoleView Role
-    ) : MembersAction {}
-    
-    /// <summary>
-    /// Add the address. Agency only.
-    /// </summary>
-    public record Add: MembersAction {}
-    
-    
-    /// <summary>
-    /// Give a listed member another role. Agency only.
-    /// </summary>
-    public record ChangeRole (
-        string Email,
-        MemberRoleView Role
-    ) : MembersAction {}
-    
-    /// <summary>
-    /// Ask before removing a listed member. Agency only.
-    /// </summary>
-    public record AskRemove (
-        string Email
-    ) : MembersAction {}
-    
-    /// <summary>
-    /// Remove them, after the question.
-    /// </summary>
-    public record ConfirmRemove: MembersAction {}
-    
-    
-    /// <summary>
-    /// Keep them.
-    /// </summary>
-    public record CancelRemove: MembersAction {}
-    
-    
-    /// <summary>
-    /// The new name changed: what the box holds now.
-    /// </summary>
-    public record EditName (
-        string Name
-    ) : MembersAction {}
-    
-    /// <summary>
-    /// Rename the workspace. Agency and client.
-    /// </summary>
-    public record Rename: MembersAction {}
-    
-    
-    /// <summary>
-    /// Put the notice away.
-    /// </summary>
-    public record DismissNotice: MembersAction {}
-    
-    
-
-    
-}
-
-class FfiConverterTypeMembersAction : FfiConverterRustBuffer<MembersAction>{
-    public static FfiConverterRustBuffer<MembersAction> INSTANCE = new FfiConverterTypeMembersAction();
+class FfiConverterTypeMembersAction: FfiConverterRustBuffer<MembersAction> {
+    public static FfiConverterTypeMembersAction INSTANCE = new FfiConverterTypeMembersAction();
 
     public override MembersAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1:
-                return new MembersAction.Open(
-                );
-            case 2:
-                return new MembersAction.EditEmail(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 3:
-                return new MembersAction.SetRole(
-                    FfiConverterTypeMemberRoleView.INSTANCE.Read(stream)
-                );
-            case 4:
-                return new MembersAction.Add(
-                );
-            case 5:
-                return new MembersAction.ChangeRole(
-                    FfiConverterString.INSTANCE.Read(stream),
-                    FfiConverterTypeMemberRoleView.INSTANCE.Read(stream)
-                );
-            case 6:
-                return new MembersAction.AskRemove(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 7:
-                return new MembersAction.ConfirmRemove(
-                );
-            case 8:
-                return new MembersAction.CancelRemove(
-                );
-            case 9:
-                return new MembersAction.EditName(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 10:
-                return new MembersAction.Rename(
-                );
-            case 11:
-                return new MembersAction.DismissNotice(
-                );
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMembersAction.Read()", value));
+            case 1: return MembersAction.Open;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMembersAction.Read()", value));
         }
     }
 
     public override int AllocationSize(MembersAction value) {
-        switch (value) {
-            case MembersAction.Open variant_value:
-                return 4;
-            case MembersAction.EditEmail variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Email);
-            case MembersAction.SetRole variant_value:
-                return 4
-                    + FfiConverterTypeMemberRoleView.INSTANCE.AllocationSize(variant_value.Role);
-            case MembersAction.Add variant_value:
-                return 4;
-            case MembersAction.ChangeRole variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Email)
-                    + FfiConverterTypeMemberRoleView.INSTANCE.AllocationSize(variant_value.Role);
-            case MembersAction.AskRemove variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Email);
-            case MembersAction.ConfirmRemove variant_value:
-                return 4;
-            case MembersAction.CancelRemove variant_value:
-                return 4;
-            case MembersAction.EditName variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name);
-            case MembersAction.Rename variant_value:
-                return 4;
-            case MembersAction.DismissNotice variant_value:
-                return 4;
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMembersAction.AllocationSize()", value));
-        }
+        return 4;
     }
 
     public override void Write(MembersAction value, BigEndianStream stream) {
         switch (value) {
-            case MembersAction.Open variant_value:
-                stream.WriteInt(1);
-                break;
-            case MembersAction.EditEmail variant_value:
-                stream.WriteInt(2);
-                FfiConverterString.INSTANCE.Write(variant_value.Email, stream);
-                break;
-            case MembersAction.SetRole variant_value:
-                stream.WriteInt(3);
-                FfiConverterTypeMemberRoleView.INSTANCE.Write(variant_value.Role, stream);
-                break;
-            case MembersAction.Add variant_value:
-                stream.WriteInt(4);
-                break;
-            case MembersAction.ChangeRole variant_value:
-                stream.WriteInt(5);
-                FfiConverterString.INSTANCE.Write(variant_value.Email, stream);
-                FfiConverterTypeMemberRoleView.INSTANCE.Write(variant_value.Role, stream);
-                break;
-            case MembersAction.AskRemove variant_value:
-                stream.WriteInt(6);
-                FfiConverterString.INSTANCE.Write(variant_value.Email, stream);
-                break;
-            case MembersAction.ConfirmRemove variant_value:
-                stream.WriteInt(7);
-                break;
-            case MembersAction.CancelRemove variant_value:
-                stream.WriteInt(8);
-                break;
-            case MembersAction.EditName variant_value:
-                stream.WriteInt(9);
-                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
-                break;
-            case MembersAction.Rename variant_value:
-                stream.WriteInt(10);
-                break;
-            case MembersAction.DismissNotice variant_value:
-                stream.WriteInt(11);
-                break;
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMembersAction.Write()", value));
+            case MembersAction.Open: stream.WriteInt(1); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMembersAction.Write()", value));
         }
     }
 }
@@ -18995,464 +17153,34 @@ class FfiConverterTypeMembersAction : FfiConverterRustBuffer<MembersAction>{
 
 
 /// <summary>
-/// Something the member did on the messaging accounts section.
+/// Something the member did on the the messaging accounts section.
 /// </summary>
-public record MessagingAction {
-    
+public enum MessagingAction: int {
     /// <summary>
-    /// Open the section.
+    /// Open the the messaging accounts section.
     /// </summary>
-    public record Open: MessagingAction {}
-    
-    
-    /// <summary>
-    /// Open the form for a new account.
-    /// </summary>
-    public record StartAdd: MessagingAction {}
-    
-    
-    /// <summary>
-    /// Open the form for a listed account.
-    /// </summary>
-    public record StartEdit (
-        string AccountId
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// Choose the carrier.
-    /// </summary>
-    public record SetCarrier (
-        MessagingCarrier Carrier
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// Choose whose account it is.
-    /// </summary>
-    public record SetSource (
-        MessagingSource Source
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// The account's name changed.
-    /// </summary>
-    public record EditLabel (
-        string Label
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// A key box changed. The value is never printed.
-    /// </summary>
-    public record EditKey (
-        KeyField Field,
-        string Value
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// The numbers box changed.
-    /// </summary>
-    public record EditNumbers (
-        string Numbers
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// Make it the default sender, or not.
-    /// </summary>
-    public record SetMakeDefault (
-        bool On
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// Close the form, dropping what was typed.
-    /// </summary>
-    public record CloseForm: MessagingAction {}
-    
-    
-    /// <summary>
-    /// Save the form's account.
-    /// </summary>
-    public record Save: MessagingAction {}
-    
-    
-    /// <summary>
-    /// Ask the carrier whether the typed keys work.
-    /// </summary>
-    public record CheckKeys: MessagingAction {}
-    
-    
-    /// <summary>
-    /// Make a listed account the default sender.
-    /// </summary>
-    public record MakeDefault (
-        string AccountId
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// Send one channel from a listed account.
-    /// </summary>
-    public record SetChannelSender (
-        SenderChannel Channel,
-        string AccountId
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// Ask before removing a listed account.
-    /// </summary>
-    public record AskRemove (
-        string AccountId
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// Remove it, after the question.
-    /// </summary>
-    public record ConfirmRemove: MessagingAction {}
-    
-    
-    /// <summary>
-    /// Do not remove it.
-    /// </summary>
-    public record CancelRemove: MessagingAction {}
-    
-    
-    /// <summary>
-    /// The owner's mobile number changed.
-    /// </summary>
-    public record EditOwnerNumber (
-        string Number
-    ) : MessagingAction {}
-    
-    /// <summary>
-    /// Save the owner's mobile number.
-    /// </summary>
-    public record SaveOwnerNumber: MessagingAction {}
-    
-    
-    /// <summary>
-    /// Put the notice away.
-    /// </summary>
-    public record DismissNotice: MessagingAction {}
-    
-    
-
-    
+    Open
 }
 
-class FfiConverterTypeMessagingAction : FfiConverterRustBuffer<MessagingAction>{
-    public static FfiConverterRustBuffer<MessagingAction> INSTANCE = new FfiConverterTypeMessagingAction();
+class FfiConverterTypeMessagingAction: FfiConverterRustBuffer<MessagingAction> {
+    public static FfiConverterTypeMessagingAction INSTANCE = new FfiConverterTypeMessagingAction();
 
     public override MessagingAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1:
-                return new MessagingAction.Open(
-                );
-            case 2:
-                return new MessagingAction.StartAdd(
-                );
-            case 3:
-                return new MessagingAction.StartEdit(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 4:
-                return new MessagingAction.SetCarrier(
-                    FfiConverterTypeMessagingCarrier.INSTANCE.Read(stream)
-                );
-            case 5:
-                return new MessagingAction.SetSource(
-                    FfiConverterTypeMessagingSource.INSTANCE.Read(stream)
-                );
-            case 6:
-                return new MessagingAction.EditLabel(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 7:
-                return new MessagingAction.EditKey(
-                    FfiConverterTypeKeyField.INSTANCE.Read(stream),
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 8:
-                return new MessagingAction.EditNumbers(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 9:
-                return new MessagingAction.SetMakeDefault(
-                    FfiConverterBoolean.INSTANCE.Read(stream)
-                );
-            case 10:
-                return new MessagingAction.CloseForm(
-                );
-            case 11:
-                return new MessagingAction.Save(
-                );
-            case 12:
-                return new MessagingAction.CheckKeys(
-                );
-            case 13:
-                return new MessagingAction.MakeDefault(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 14:
-                return new MessagingAction.SetChannelSender(
-                    FfiConverterTypeSenderChannel.INSTANCE.Read(stream),
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 15:
-                return new MessagingAction.AskRemove(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 16:
-                return new MessagingAction.ConfirmRemove(
-                );
-            case 17:
-                return new MessagingAction.CancelRemove(
-                );
-            case 18:
-                return new MessagingAction.EditOwnerNumber(
-                    FfiConverterString.INSTANCE.Read(stream)
-                );
-            case 19:
-                return new MessagingAction.SaveOwnerNumber(
-                );
-            case 20:
-                return new MessagingAction.DismissNotice(
-                );
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingAction.Read()", value));
+            case 1: return MessagingAction.Open;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingAction.Read()", value));
         }
     }
 
     public override int AllocationSize(MessagingAction value) {
-        switch (value) {
-            case MessagingAction.Open variant_value:
-                return 4;
-            case MessagingAction.StartAdd variant_value:
-                return 4;
-            case MessagingAction.StartEdit variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.AccountId);
-            case MessagingAction.SetCarrier variant_value:
-                return 4
-                    + FfiConverterTypeMessagingCarrier.INSTANCE.AllocationSize(variant_value.Carrier);
-            case MessagingAction.SetSource variant_value:
-                return 4
-                    + FfiConverterTypeMessagingSource.INSTANCE.AllocationSize(variant_value.Source);
-            case MessagingAction.EditLabel variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Label);
-            case MessagingAction.EditKey variant_value:
-                return 4
-                    + FfiConverterTypeKeyField.INSTANCE.AllocationSize(variant_value.Field)
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
-            case MessagingAction.EditNumbers variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Numbers);
-            case MessagingAction.SetMakeDefault variant_value:
-                return 4
-                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
-            case MessagingAction.CloseForm variant_value:
-                return 4;
-            case MessagingAction.Save variant_value:
-                return 4;
-            case MessagingAction.CheckKeys variant_value:
-                return 4;
-            case MessagingAction.MakeDefault variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.AccountId);
-            case MessagingAction.SetChannelSender variant_value:
-                return 4
-                    + FfiConverterTypeSenderChannel.INSTANCE.AllocationSize(variant_value.Channel)
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.AccountId);
-            case MessagingAction.AskRemove variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.AccountId);
-            case MessagingAction.ConfirmRemove variant_value:
-                return 4;
-            case MessagingAction.CancelRemove variant_value:
-                return 4;
-            case MessagingAction.EditOwnerNumber variant_value:
-                return 4
-                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Number);
-            case MessagingAction.SaveOwnerNumber variant_value:
-                return 4;
-            case MessagingAction.DismissNotice variant_value:
-                return 4;
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingAction.AllocationSize()", value));
-        }
+        return 4;
     }
 
     public override void Write(MessagingAction value, BigEndianStream stream) {
         switch (value) {
-            case MessagingAction.Open variant_value:
-                stream.WriteInt(1);
-                break;
-            case MessagingAction.StartAdd variant_value:
-                stream.WriteInt(2);
-                break;
-            case MessagingAction.StartEdit variant_value:
-                stream.WriteInt(3);
-                FfiConverterString.INSTANCE.Write(variant_value.AccountId, stream);
-                break;
-            case MessagingAction.SetCarrier variant_value:
-                stream.WriteInt(4);
-                FfiConverterTypeMessagingCarrier.INSTANCE.Write(variant_value.Carrier, stream);
-                break;
-            case MessagingAction.SetSource variant_value:
-                stream.WriteInt(5);
-                FfiConverterTypeMessagingSource.INSTANCE.Write(variant_value.Source, stream);
-                break;
-            case MessagingAction.EditLabel variant_value:
-                stream.WriteInt(6);
-                FfiConverterString.INSTANCE.Write(variant_value.Label, stream);
-                break;
-            case MessagingAction.EditKey variant_value:
-                stream.WriteInt(7);
-                FfiConverterTypeKeyField.INSTANCE.Write(variant_value.Field, stream);
-                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
-                break;
-            case MessagingAction.EditNumbers variant_value:
-                stream.WriteInt(8);
-                FfiConverterString.INSTANCE.Write(variant_value.Numbers, stream);
-                break;
-            case MessagingAction.SetMakeDefault variant_value:
-                stream.WriteInt(9);
-                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
-                break;
-            case MessagingAction.CloseForm variant_value:
-                stream.WriteInt(10);
-                break;
-            case MessagingAction.Save variant_value:
-                stream.WriteInt(11);
-                break;
-            case MessagingAction.CheckKeys variant_value:
-                stream.WriteInt(12);
-                break;
-            case MessagingAction.MakeDefault variant_value:
-                stream.WriteInt(13);
-                FfiConverterString.INSTANCE.Write(variant_value.AccountId, stream);
-                break;
-            case MessagingAction.SetChannelSender variant_value:
-                stream.WriteInt(14);
-                FfiConverterTypeSenderChannel.INSTANCE.Write(variant_value.Channel, stream);
-                FfiConverterString.INSTANCE.Write(variant_value.AccountId, stream);
-                break;
-            case MessagingAction.AskRemove variant_value:
-                stream.WriteInt(15);
-                FfiConverterString.INSTANCE.Write(variant_value.AccountId, stream);
-                break;
-            case MessagingAction.ConfirmRemove variant_value:
-                stream.WriteInt(16);
-                break;
-            case MessagingAction.CancelRemove variant_value:
-                stream.WriteInt(17);
-                break;
-            case MessagingAction.EditOwnerNumber variant_value:
-                stream.WriteInt(18);
-                FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
-                break;
-            case MessagingAction.SaveOwnerNumber variant_value:
-                stream.WriteInt(19);
-                break;
-            case MessagingAction.DismissNotice variant_value:
-                stream.WriteInt(20);
-                break;
-            default:
-                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingAction.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
-/// A carrier, as the form offers it.
-/// </summary>
-public enum MessagingCarrier: int {
-    /// <summary>
-    /// Twilio.
-    /// </summary>
-    Twilio,
-    /// <summary>
-    /// Sinch.
-    /// </summary>
-    Sinch,
-    /// <summary>
-    /// Telnyx.
-    /// </summary>
-    Telnyx
-}
-
-class FfiConverterTypeMessagingCarrier: FfiConverterRustBuffer<MessagingCarrier> {
-    public static FfiConverterTypeMessagingCarrier INSTANCE = new FfiConverterTypeMessagingCarrier();
-
-    public override MessagingCarrier Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return MessagingCarrier.Twilio;
-            case 2: return MessagingCarrier.Sinch;
-            case 3: return MessagingCarrier.Telnyx;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingCarrier.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(MessagingCarrier value) {
-        return 4;
-    }
-
-    public override void Write(MessagingCarrier value, BigEndianStream stream) {
-        switch (value) {
-            case MessagingCarrier.Twilio: stream.WriteInt(1); break;
-            case MessagingCarrier.Sinch: stream.WriteInt(2); break;
-            case MessagingCarrier.Telnyx: stream.WriteInt(3); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingCarrier.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
-/// Whose carrier account an account is.
-/// </summary>
-public enum MessagingSource: int {
-    /// <summary>
-    /// The workspace's own carrier account.
-    /// </summary>
-    Own,
-    /// <summary>
-    /// Managed by Distronode.
-    /// </summary>
-    Managed
-}
-
-class FfiConverterTypeMessagingSource: FfiConverterRustBuffer<MessagingSource> {
-    public static FfiConverterTypeMessagingSource INSTANCE = new FfiConverterTypeMessagingSource();
-
-    public override MessagingSource Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return MessagingSource.Own;
-            case 2: return MessagingSource.Managed;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingSource.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(MessagingSource value) {
-        return 4;
-    }
-
-    public override void Write(MessagingSource value, BigEndianStream stream) {
-        switch (value) {
-            case MessagingSource.Own: stream.WriteInt(1); break;
-            case MessagingSource.Managed: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingSource.Write()", value));
+            case MessagingAction.Open: stream.WriteInt(1); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMessagingAction.Write()", value));
         }
     }
 }
@@ -20155,108 +17883,6 @@ class FfiConverterTypePersonaField: FfiConverterRustBuffer<PersonaField> {
 
 
 /// <summary>
-/// How often a plan is billed.
-/// </summary>
-public enum PlanTermView: int {
-    /// <summary>
-    /// Every month.
-    /// </summary>
-    Monthly,
-    /// <summary>
-    /// A year up front.
-    /// </summary>
-    Annual
-}
-
-class FfiConverterTypePlanTermView: FfiConverterRustBuffer<PlanTermView> {
-    public static FfiConverterTypePlanTermView INSTANCE = new FfiConverterTypePlanTermView();
-
-    public override PlanTermView Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return PlanTermView.Monthly;
-            case 2: return PlanTermView.Annual;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePlanTermView.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(PlanTermView value) {
-        return 4;
-    }
-
-    public override void Write(PlanTermView value, BigEndianStream stream) {
-        switch (value) {
-            case PlanTermView.Monthly: stream.WriteInt(1); break;
-            case PlanTermView.Annual: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePlanTermView.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
-/// A plan the app offers.
-/// </summary>
-public enum PlanTierView: int {
-    /// <summary>
-    /// Voice Solo.
-    /// </summary>
-    VoiceSolo,
-    /// <summary>
-    /// Voice Starter.
-    /// </summary>
-    VoiceStarter,
-    /// <summary>
-    /// Voice Pro.
-    /// </summary>
-    VoicePro,
-    /// <summary>
-    /// Voice Studio.
-    /// </summary>
-    VoiceStudio
-}
-
-class FfiConverterTypePlanTierView: FfiConverterRustBuffer<PlanTierView> {
-    public static FfiConverterTypePlanTierView INSTANCE = new FfiConverterTypePlanTierView();
-
-    public override PlanTierView Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return PlanTierView.VoiceSolo;
-            case 2: return PlanTierView.VoiceStarter;
-            case 3: return PlanTierView.VoicePro;
-            case 4: return PlanTierView.VoiceStudio;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePlanTierView.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(PlanTierView value) {
-        return 4;
-    }
-
-    public override void Write(PlanTierView value, BigEndianStream stream) {
-        switch (value) {
-            case PlanTierView.VoiceSolo: stream.WriteInt(1); break;
-            case PlanTierView.VoiceStarter: stream.WriteInt(2); break;
-            case PlanTierView.VoicePro: stream.WriteInt(3); break;
-            case PlanTierView.VoiceStudio: stream.WriteInt(4); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePlanTierView.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
 /// How to offer the Report action beside AI-generated content.
 /// </summary>
 public enum ReportAvailability: int {
@@ -20704,34 +18330,228 @@ class FfiConverterTypeRoomsAction: FfiConverterRustBuffer<RoomsAction> {
 
 
 /// <summary>
-/// Something the member did on the the routing rules section.
+/// Something the member did on the routing rules section.
 /// </summary>
-public enum RoutingAction: int {
+public record RoutingAction {
+    
     /// <summary>
-    /// Open the the routing rules section.
+    /// Open the routing rules section.
     /// </summary>
-    Open
+    public record Open: RoutingAction {}
+    
+    
+    /// <summary>
+    /// Add a rule with the web console's defaults. Nothing is saved yet.
+    /// </summary>
+    public record Add: RoutingAction {}
+    
+    
+    /// <summary>
+    /// Change one field of one rule, keeping its other keys.
+    /// </summary>
+    public record Edit (
+        uint Index,
+        RoutingField Field,
+        string Value
+    ) : RoutingAction {}
+    
+    /// <summary>
+    /// Take one rule off the list. Nothing is saved yet.
+    /// </summary>
+    public record Remove (
+        uint Index
+    ) : RoutingAction {}
+    
+    /// <summary>
+    /// "Save": the core asks first.
+    /// </summary>
+    public record Save: RoutingAction {}
+    
+    
+    /// <summary>
+    /// Answer the question yes.
+    /// </summary>
+    public record ConfirmSave: RoutingAction {}
+    
+    
+    /// <summary>
+    /// Answer it no.
+    /// </summary>
+    public record CancelSave: RoutingAction {}
+    
+    
+    /// <summary>
+    /// Put the save's notice away.
+    /// </summary>
+    public record DismissNotice: RoutingAction {}
+    
+    
+
+    
 }
 
-class FfiConverterTypeRoutingAction: FfiConverterRustBuffer<RoutingAction> {
-    public static FfiConverterTypeRoutingAction INSTANCE = new FfiConverterTypeRoutingAction();
+class FfiConverterTypeRoutingAction : FfiConverterRustBuffer<RoutingAction>{
+    public static FfiConverterRustBuffer<RoutingAction> INSTANCE = new FfiConverterTypeRoutingAction();
 
     public override RoutingAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return RoutingAction.Open;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoutingAction.Read()", value));
+            case 1:
+                return new RoutingAction.Open(
+                );
+            case 2:
+                return new RoutingAction.Add(
+                );
+            case 3:
+                return new RoutingAction.Edit(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterTypeRoutingField.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new RoutingAction.Remove(
+                    FfiConverterUInt32.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new RoutingAction.Save(
+                );
+            case 6:
+                return new RoutingAction.ConfirmSave(
+                );
+            case 7:
+                return new RoutingAction.CancelSave(
+                );
+            case 8:
+                return new RoutingAction.DismissNotice(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoutingAction.Read()", value));
         }
     }
 
     public override int AllocationSize(RoutingAction value) {
-        return 4;
+        switch (value) {
+            case RoutingAction.Open variant_value:
+                return 4;
+            case RoutingAction.Add variant_value:
+                return 4;
+            case RoutingAction.Edit variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterTypeRoutingField.INSTANCE.AllocationSize(variant_value.Field)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case RoutingAction.Remove variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index);
+            case RoutingAction.Save variant_value:
+                return 4;
+            case RoutingAction.ConfirmSave variant_value:
+                return 4;
+            case RoutingAction.CancelSave variant_value:
+                return 4;
+            case RoutingAction.DismissNotice variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoutingAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(RoutingAction value, BigEndianStream stream) {
         switch (value) {
-            case RoutingAction.Open: stream.WriteInt(1); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoutingAction.Write()", value));
+            case RoutingAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case RoutingAction.Add variant_value:
+                stream.WriteInt(2);
+                break;
+            case RoutingAction.Edit variant_value:
+                stream.WriteInt(3);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterTypeRoutingField.INSTANCE.Write(variant_value.Field, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case RoutingAction.Remove variant_value:
+                stream.WriteInt(4);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                break;
+            case RoutingAction.Save variant_value:
+                stream.WriteInt(5);
+                break;
+            case RoutingAction.ConfirmSave variant_value:
+                stream.WriteInt(6);
+                break;
+            case RoutingAction.CancelSave variant_value:
+                stream.WriteInt(7);
+                break;
+            case RoutingAction.DismissNotice variant_value:
+                stream.WriteInt(8);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoutingAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A field of a rule the member edits here. The engine is not one: it is
+/// shown and kept.
+/// </summary>
+public enum RoutingField: int {
+    /// <summary>
+    /// What about the caller is compared.
+    /// </summary>
+    Field,
+    /// <summary>
+    /// How.
+    /// </summary>
+    Operator,
+    /// <summary>
+    /// What it is compared with.
+    /// </summary>
+    Value,
+    /// <summary>
+    /// The voice for a matching caller.
+    /// </summary>
+    Voice,
+    /// <summary>
+    /// What the receptionist is told for a matching caller.
+    /// </summary>
+    Instruction
+}
+
+class FfiConverterTypeRoutingField: FfiConverterRustBuffer<RoutingField> {
+    public static FfiConverterTypeRoutingField INSTANCE = new FfiConverterTypeRoutingField();
+
+    public override RoutingField Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return RoutingField.Field;
+            case 2: return RoutingField.Operator;
+            case 3: return RoutingField.Value;
+            case 4: return RoutingField.Voice;
+            case 5: return RoutingField.Instruction;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoutingField.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(RoutingField value) {
+        return 4;
+    }
+
+    public override void Write(RoutingField value, BigEndianStream stream) {
+        switch (value) {
+            case RoutingField.Field: stream.WriteInt(1); break;
+            case RoutingField.Operator: stream.WriteInt(2); break;
+            case RoutingField.Value: stream.WriteInt(3); break;
+            case RoutingField.Voice: stream.WriteInt(4); break;
+            case RoutingField.Instruction: stream.WriteInt(5); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRoutingField.Write()", value));
         }
     }
 }
@@ -21724,57 +19544,6 @@ class FfiConverterTypeSectionStatus : FfiConverterRustBuffer<SectionStatus>{
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSectionStatus.Write()", value));
-        }
-    }
-}
-
-
-
-
-
-
-
-/// <summary>
-/// A channel a sender is set for.
-/// </summary>
-public enum SenderChannel: int {
-    /// <summary>
-    /// Texts.
-    /// </summary>
-    Sms,
-    /// <summary>
-    /// Calls.
-    /// </summary>
-    Voice,
-    /// <summary>
-    /// WhatsApp.
-    /// </summary>
-    Whatsapp
-}
-
-class FfiConverterTypeSenderChannel: FfiConverterRustBuffer<SenderChannel> {
-    public static FfiConverterTypeSenderChannel INSTANCE = new FfiConverterTypeSenderChannel();
-
-    public override SenderChannel Read(BigEndianStream stream) {
-        var value = stream.ReadInt();
-        switch (value) {
-            case 1: return SenderChannel.Sms;
-            case 2: return SenderChannel.Voice;
-            case 3: return SenderChannel.Whatsapp;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSenderChannel.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(SenderChannel value) {
-        return 4;
-    }
-
-    public override void Write(SenderChannel value, BigEndianStream stream) {
-        switch (value) {
-            case SenderChannel.Sms: stream.WriteInt(1); break;
-            case SenderChannel.Voice: stream.WriteInt(2); break;
-            case SenderChannel.Whatsapp: stream.WriteInt(3); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSenderChannel.Write()", value));
         }
     }
 }
@@ -24229,68 +21998,6 @@ class FfiConverterTypeWorkflowsAction : FfiConverterRustBuffer<WorkflowsAction>{
 
 
 
-class FfiConverterOptionalUInt8: FfiConverterRustBuffer<byte?> {
-    public static FfiConverterOptionalUInt8 INSTANCE = new FfiConverterOptionalUInt8();
-
-    public override byte? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterUInt8.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(byte? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterUInt8.INSTANCE.AllocationSize((byte)value);
-        }
-    }
-
-    public override void Write(byte? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterUInt8.INSTANCE.Write((byte)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalInt64: FfiConverterRustBuffer<long?> {
-    public static FfiConverterOptionalInt64 INSTANCE = new FfiConverterOptionalInt64();
-
-    public override long? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterInt64.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(long? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterInt64.INSTANCE.AllocationSize((long)value);
-        }
-    }
-
-    public override void Write(long? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterInt64.INSTANCE.Write((long)value, stream);
-        }
-    }
-}
-
-
-
-
 class FfiConverterOptionalBoolean: FfiConverterRustBuffer<bool?> {
     public static FfiConverterOptionalBoolean INSTANCE = new FfiConverterOptionalBoolean();
 
@@ -24377,37 +22084,6 @@ class FfiConverterOptionalTypeActiveCallView: FfiConverterRustBuffer<ActiveCallV
         } else {
             stream.WriteByte(1);
             FfiConverterTypeActiveCallView.INSTANCE.Write((ActiveCallView)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalTypeAddMemberView: FfiConverterRustBuffer<AddMemberView?> {
-    public static FfiConverterOptionalTypeAddMemberView INSTANCE = new FfiConverterOptionalTypeAddMemberView();
-
-    public override AddMemberView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeAddMemberView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(AddMemberView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeAddMemberView.INSTANCE.AllocationSize((AddMemberView)value);
-        }
-    }
-
-    public override void Write(AddMemberView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeAddMemberView.INSTANCE.Write((AddMemberView)value, stream);
         }
     }
 }
@@ -24570,37 +22246,6 @@ class FfiConverterOptionalTypeComposerView: FfiConverterRustBuffer<ComposerView?
 
 
 
-class FfiConverterOptionalTypeConfirmPurchaseView: FfiConverterRustBuffer<ConfirmPurchaseView?> {
-    public static FfiConverterOptionalTypeConfirmPurchaseView INSTANCE = new FfiConverterOptionalTypeConfirmPurchaseView();
-
-    public override ConfirmPurchaseView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeConfirmPurchaseView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(ConfirmPurchaseView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeConfirmPurchaseView.INSTANCE.AllocationSize((ConfirmPurchaseView)value);
-        }
-    }
-
-    public override void Write(ConfirmPurchaseView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeConfirmPurchaseView.INSTANCE.Write((ConfirmPurchaseView)value, stream);
-        }
-    }
-}
-
-
-
-
 class FfiConverterOptionalTypeConfirmView: FfiConverterRustBuffer<ConfirmView?> {
     public static FfiConverterOptionalTypeConfirmView INSTANCE = new FfiConverterOptionalTypeConfirmView();
 
@@ -24749,37 +22394,6 @@ class FfiConverterOptionalTypeCreateAccountView: FfiConverterRustBuffer<CreateAc
         } else {
             stream.WriteByte(1);
             FfiConverterTypeCreateAccountView.INSTANCE.Write((CreateAccountView)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalTypeCreatorCellView: FfiConverterRustBuffer<CreatorCellView?> {
-    public static FfiConverterOptionalTypeCreatorCellView INSTANCE = new FfiConverterOptionalTypeCreatorCellView();
-
-    public override CreatorCellView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeCreatorCellView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(CreatorCellView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeCreatorCellView.INSTANCE.AllocationSize((CreatorCellView)value);
-        }
-    }
-
-    public override void Write(CreatorCellView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeCreatorCellView.INSTANCE.Write((CreatorCellView)value, stream);
         }
     }
 }
@@ -25097,37 +22711,6 @@ class FfiConverterOptionalTypeIncomingRingView: FfiConverterRustBuffer<IncomingR
 
 
 
-class FfiConverterOptionalTypeKeyCheckView: FfiConverterRustBuffer<KeyCheckView?> {
-    public static FfiConverterOptionalTypeKeyCheckView INSTANCE = new FfiConverterOptionalTypeKeyCheckView();
-
-    public override KeyCheckView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeKeyCheckView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(KeyCheckView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeKeyCheckView.INSTANCE.AllocationSize((KeyCheckView)value);
-        }
-    }
-
-    public override void Write(KeyCheckView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeKeyCheckView.INSTANCE.Write((KeyCheckView)value, stream);
-        }
-    }
-}
-
-
-
-
 class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerView?> {
     public static FfiConverterOptionalTypeLiveBannerView INSTANCE = new FfiConverterOptionalTypeLiveBannerView();
 
@@ -25152,99 +22735,6 @@ class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerV
         } else {
             stream.WriteByte(1);
             FfiConverterTypeLiveBannerView.INSTANCE.Write((LiveBannerView)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalTypeManagedNumbersView: FfiConverterRustBuffer<ManagedNumbersView?> {
-    public static FfiConverterOptionalTypeManagedNumbersView INSTANCE = new FfiConverterOptionalTypeManagedNumbersView();
-
-    public override ManagedNumbersView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeManagedNumbersView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(ManagedNumbersView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeManagedNumbersView.INSTANCE.AllocationSize((ManagedNumbersView)value);
-        }
-    }
-
-    public override void Write(ManagedNumbersView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeManagedNumbersView.INSTANCE.Write((ManagedNumbersView)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalTypeMessagingConfirmView: FfiConverterRustBuffer<MessagingConfirmView?> {
-    public static FfiConverterOptionalTypeMessagingConfirmView INSTANCE = new FfiConverterOptionalTypeMessagingConfirmView();
-
-    public override MessagingConfirmView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeMessagingConfirmView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(MessagingConfirmView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeMessagingConfirmView.INSTANCE.AllocationSize((MessagingConfirmView)value);
-        }
-    }
-
-    public override void Write(MessagingConfirmView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeMessagingConfirmView.INSTANCE.Write((MessagingConfirmView)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalTypeMessagingFormView: FfiConverterRustBuffer<MessagingFormView?> {
-    public static FfiConverterOptionalTypeMessagingFormView INSTANCE = new FfiConverterOptionalTypeMessagingFormView();
-
-    public override MessagingFormView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeMessagingFormView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(MessagingFormView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeMessagingFormView.INSTANCE.AllocationSize((MessagingFormView)value);
-        }
-    }
-
-    public override void Write(MessagingFormView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeMessagingFormView.INSTANCE.Write((MessagingFormView)value, stream);
         }
     }
 }
@@ -25283,123 +22773,30 @@ class FfiConverterOptionalTypePersonaEngineView: FfiConverterRustBuffer<PersonaE
 
 
 
-class FfiConverterOptionalTypePlanView: FfiConverterRustBuffer<PlanView?> {
-    public static FfiConverterOptionalTypePlanView INSTANCE = new FfiConverterOptionalTypePlanView();
+class FfiConverterOptionalTypeQuestionView: FfiConverterRustBuffer<QuestionView?> {
+    public static FfiConverterOptionalTypeQuestionView INSTANCE = new FfiConverterOptionalTypeQuestionView();
 
-    public override PlanView? Read(BigEndianStream stream) {
+    public override QuestionView? Read(BigEndianStream stream) {
         if (stream.ReadByte() == 0) {
             return null;
         }
-        return FfiConverterTypePlanView.INSTANCE.Read(stream);
+        return FfiConverterTypeQuestionView.INSTANCE.Read(stream);
     }
 
-    public override int AllocationSize(PlanView? value) {
+    public override int AllocationSize(QuestionView? value) {
         if (value == null) {
             return 1;
         } else {
-            return 1 + FfiConverterTypePlanView.INSTANCE.AllocationSize((PlanView)value);
+            return 1 + FfiConverterTypeQuestionView.INSTANCE.AllocationSize((QuestionView)value);
         }
     }
 
-    public override void Write(PlanView? value, BigEndianStream stream) {
+    public override void Write(QuestionView? value, BigEndianStream stream) {
         if (value == null) {
             stream.WriteByte(0);
         } else {
             stream.WriteByte(1);
-            FfiConverterTypePlanView.INSTANCE.Write((PlanView)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalTypePurchaseView: FfiConverterRustBuffer<PurchaseView?> {
-    public static FfiConverterOptionalTypePurchaseView INSTANCE = new FfiConverterOptionalTypePurchaseView();
-
-    public override PurchaseView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypePurchaseView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(PurchaseView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypePurchaseView.INSTANCE.AllocationSize((PurchaseView)value);
-        }
-    }
-
-    public override void Write(PurchaseView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypePurchaseView.INSTANCE.Write((PurchaseView)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalTypeRemoveQuestionView: FfiConverterRustBuffer<RemoveQuestionView?> {
-    public static FfiConverterOptionalTypeRemoveQuestionView INSTANCE = new FfiConverterOptionalTypeRemoveQuestionView();
-
-    public override RemoveQuestionView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeRemoveQuestionView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(RemoveQuestionView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeRemoveQuestionView.INSTANCE.AllocationSize((RemoveQuestionView)value);
-        }
-    }
-
-    public override void Write(RemoveQuestionView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeRemoveQuestionView.INSTANCE.Write((RemoveQuestionView)value, stream);
-        }
-    }
-}
-
-
-
-
-class FfiConverterOptionalTypeRenameView: FfiConverterRustBuffer<RenameView?> {
-    public static FfiConverterOptionalTypeRenameView INSTANCE = new FfiConverterOptionalTypeRenameView();
-
-    public override RenameView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeRenameView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(RenameView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeRenameView.INSTANCE.AllocationSize((RenameView)value);
-        }
-    }
-
-    public override void Write(RenameView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeRenameView.INSTANCE.Write((RenameView)value, stream);
+            FfiConverterTypeQuestionView.INSTANCE.Write((QuestionView)value, stream);
         }
     }
 }
@@ -25624,37 +23021,6 @@ class FfiConverterOptionalTypeDeskStatus: FfiConverterRustBuffer<DeskStatus?> {
 
 
 
-class FfiConverterOptionalTypeMemberRoleView: FfiConverterRustBuffer<MemberRoleView?> {
-    public static FfiConverterOptionalTypeMemberRoleView INSTANCE = new FfiConverterOptionalTypeMemberRoleView();
-
-    public override MemberRoleView? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeMemberRoleView.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(MemberRoleView? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeMemberRoleView.INSTANCE.AllocationSize((MemberRoleView)value);
-        }
-    }
-
-    public override void Write(MemberRoleView? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeMemberRoleView.INSTANCE.Write((MemberRoleView)value, stream);
-        }
-    }
-}
-
-
-
-
 class FfiConverterOptionalTypeReportStatus: FfiConverterRustBuffer<ReportStatus?> {
     public static FfiConverterOptionalTypeReportStatus INSTANCE = new FfiConverterOptionalTypeReportStatus();
 
@@ -25855,6 +23221,52 @@ class FfiConverterSequenceTypeBlockedRowView: FfiConverterRustBuffer<BlockedRowV
 
 
 
+class FfiConverterSequenceTypeCallHandlingModeView: FfiConverterRustBuffer<CallHandlingModeView[]> {
+    public static FfiConverterSequenceTypeCallHandlingModeView INSTANCE = new FfiConverterSequenceTypeCallHandlingModeView();
+
+    public override CallHandlingModeView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new CallHandlingModeView[length];
+        var readFn = FfiConverterTypeCallHandlingModeView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(CallHandlingModeView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeCallHandlingModeView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(CallHandlingModeView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeCallHandlingModeView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeCallRowView: FfiConverterRustBuffer<CallRowView[]> {
     public static FfiConverterSequenceTypeCallRowView INSTANCE = new FfiConverterSequenceTypeCallRowView();
 
@@ -25894,98 +23306,6 @@ class FfiConverterSequenceTypeCallRowView: FfiConverterRustBuffer<CallRowView[]>
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeCallRowView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
-class FfiConverterSequenceTypeCarrierChoiceView: FfiConverterRustBuffer<CarrierChoiceView[]> {
-    public static FfiConverterSequenceTypeCarrierChoiceView INSTANCE = new FfiConverterSequenceTypeCarrierChoiceView();
-
-    public override CarrierChoiceView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new CarrierChoiceView[length];
-        var readFn = FfiConverterTypeCarrierChoiceView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(CarrierChoiceView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeCarrierChoiceView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(CarrierChoiceView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeCarrierChoiceView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
-class FfiConverterSequenceTypeChannelSenderView: FfiConverterRustBuffer<ChannelSenderView[]> {
-    public static FfiConverterSequenceTypeChannelSenderView INSTANCE = new FfiConverterSequenceTypeChannelSenderView();
-
-    public override ChannelSenderView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new ChannelSenderView[length];
-        var readFn = FfiConverterTypeChannelSenderView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(ChannelSenderView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeChannelSenderView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(ChannelSenderView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeChannelSenderView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -26361,6 +23681,52 @@ class FfiConverterSequenceTypeDeviceRowView: FfiConverterRustBuffer<DeviceRowVie
 
 
 
+class FfiConverterSequenceTypeDirectoryEntryView: FfiConverterRustBuffer<DirectoryEntryView[]> {
+    public static FfiConverterSequenceTypeDirectoryEntryView INSTANCE = new FfiConverterSequenceTypeDirectoryEntryView();
+
+    public override DirectoryEntryView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DirectoryEntryView[length];
+        var readFn = FfiConverterTypeDirectoryEntryView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DirectoryEntryView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDirectoryEntryView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DirectoryEntryView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDirectoryEntryView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeFactView: FfiConverterRustBuffer<FactView[]> {
     public static FfiConverterSequenceTypeFactView INSTANCE = new FfiConverterSequenceTypeFactView();
 
@@ -26446,190 +23812,6 @@ class FfiConverterSequenceTypeHistoryMonthView: FfiConverterRustBuffer<HistoryMo
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeHistoryMonthView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
-class FfiConverterSequenceTypeInvoiceRowView: FfiConverterRustBuffer<InvoiceRowView[]> {
-    public static FfiConverterSequenceTypeInvoiceRowView INSTANCE = new FfiConverterSequenceTypeInvoiceRowView();
-
-    public override InvoiceRowView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new InvoiceRowView[length];
-        var readFn = FfiConverterTypeInvoiceRowView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(InvoiceRowView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeInvoiceRowView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(InvoiceRowView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeInvoiceRowView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
-class FfiConverterSequenceTypeKeyFieldView: FfiConverterRustBuffer<KeyFieldView[]> {
-    public static FfiConverterSequenceTypeKeyFieldView INSTANCE = new FfiConverterSequenceTypeKeyFieldView();
-
-    public override KeyFieldView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new KeyFieldView[length];
-        var readFn = FfiConverterTypeKeyFieldView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(KeyFieldView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeKeyFieldView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(KeyFieldView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeKeyFieldView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
-class FfiConverterSequenceTypeMemberRowView: FfiConverterRustBuffer<MemberRowView[]> {
-    public static FfiConverterSequenceTypeMemberRowView INSTANCE = new FfiConverterSequenceTypeMemberRowView();
-
-    public override MemberRowView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new MemberRowView[length];
-        var readFn = FfiConverterTypeMemberRowView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(MemberRowView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeMemberRowView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(MemberRowView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeMemberRowView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
-class FfiConverterSequenceTypeMessagingAccountView: FfiConverterRustBuffer<MessagingAccountView[]> {
-    public static FfiConverterSequenceTypeMessagingAccountView INSTANCE = new FfiConverterSequenceTypeMessagingAccountView();
-
-    public override MessagingAccountView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new MessagingAccountView[length];
-        var readFn = FfiConverterTypeMessagingAccountView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(MessagingAccountView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeMessagingAccountView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(MessagingAccountView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeMessagingAccountView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -26913,52 +24095,6 @@ class FfiConverterSequenceTypePeriodChoiceView: FfiConverterRustBuffer<PeriodCho
 
 
 
-class FfiConverterSequenceTypePlanOptionView: FfiConverterRustBuffer<PlanOptionView[]> {
-    public static FfiConverterSequenceTypePlanOptionView INSTANCE = new FfiConverterSequenceTypePlanOptionView();
-
-    public override PlanOptionView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new PlanOptionView[length];
-        var readFn = FfiConverterTypePlanOptionView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(PlanOptionView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypePlanOptionView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(PlanOptionView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypePlanOptionView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
 class FfiConverterSequenceTypeRichRun: FfiConverterRustBuffer<RichRun[]> {
     public static FfiConverterSequenceTypeRichRun INSTANCE = new FfiConverterSequenceTypeRichRun();
 
@@ -27005,24 +24141,24 @@ class FfiConverterSequenceTypeRichRun: FfiConverterRustBuffer<RichRun[]> {
 
 
 
-class FfiConverterSequenceTypeRoleChoiceView: FfiConverterRustBuffer<RoleChoiceView[]> {
-    public static FfiConverterSequenceTypeRoleChoiceView INSTANCE = new FfiConverterSequenceTypeRoleChoiceView();
+class FfiConverterSequenceTypeRoutingRuleView: FfiConverterRustBuffer<RoutingRuleView[]> {
+    public static FfiConverterSequenceTypeRoutingRuleView INSTANCE = new FfiConverterSequenceTypeRoutingRuleView();
 
-    public override RoleChoiceView[]  Read(BigEndianStream stream) {
+    public override RoutingRuleView[]  Read(BigEndianStream stream) {
         var length = stream.ReadInt();
         if (length == 0) {
             return [];
         }
 
-        var result = new RoleChoiceView[length];
-        var readFn = FfiConverterTypeRoleChoiceView.INSTANCE.Read;
+        var result = new RoutingRuleView[length];
+        var readFn = FfiConverterTypeRoutingRuleView.INSTANCE.Read;
         for (int i = 0; i < length; i++) {
             result[i] = readFn(stream);
         }
         return result;
     }
 
-    public override int AllocationSize(RoleChoiceView[]  value) {
+    public override int AllocationSize(RoutingRuleView[]  value) {
         var sizeForLength = 4;
 
         // details/1-empty-list-as-default-method-parameter.md
@@ -27030,12 +24166,12 @@ class FfiConverterSequenceTypeRoleChoiceView: FfiConverterRustBuffer<RoleChoiceV
             return sizeForLength;
         }
 
-        var allocationSizeFn = FfiConverterTypeRoleChoiceView.INSTANCE.AllocationSize;
+        var allocationSizeFn = FfiConverterTypeRoutingRuleView.INSTANCE.AllocationSize;
         var sizeForItems = value.Sum(item => allocationSizeFn(item));
         return sizeForLength + sizeForItems;
     }
 
-    public override void Write(RoleChoiceView[] value, BigEndianStream stream) {
+    public override void Write(RoutingRuleView[] value, BigEndianStream stream) {
         // details/1-empty-list-as-default-method-parameter.md
         if (value == null) {
             stream.WriteInt(0);
@@ -27043,7 +24179,7 @@ class FfiConverterSequenceTypeRoleChoiceView: FfiConverterRustBuffer<RoleChoiceV
         }
 
         stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeRoleChoiceView.INSTANCE.Write;
+        var writerFn = FfiConverterTypeRoutingRuleView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -27281,98 +24417,6 @@ class FfiConverterSequenceTypeSettingsRowView: FfiConverterRustBuffer<SettingsRo
 
 
 
-class FfiConverterSequenceTypeSourceChoiceView: FfiConverterRustBuffer<SourceChoiceView[]> {
-    public static FfiConverterSequenceTypeSourceChoiceView INSTANCE = new FfiConverterSequenceTypeSourceChoiceView();
-
-    public override SourceChoiceView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new SourceChoiceView[length];
-        var readFn = FfiConverterTypeSourceChoiceView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(SourceChoiceView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeSourceChoiceView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(SourceChoiceView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeSourceChoiceView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
-class FfiConverterSequenceTypeSubscriptionRowView: FfiConverterRustBuffer<SubscriptionRowView[]> {
-    public static FfiConverterSequenceTypeSubscriptionRowView INSTANCE = new FfiConverterSequenceTypeSubscriptionRowView();
-
-    public override SubscriptionRowView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new SubscriptionRowView[length];
-        var readFn = FfiConverterTypeSubscriptionRowView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(SubscriptionRowView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeSubscriptionRowView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(SubscriptionRowView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeSubscriptionRowView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
 class FfiConverterSequenceTypeSupportKindView: FfiConverterRustBuffer<SupportKindView[]> {
     public static FfiConverterSequenceTypeSupportKindView INSTANCE = new FfiConverterSequenceTypeSupportKindView();
 
@@ -27504,52 +24548,6 @@ class FfiConverterSequenceTypeSupportRowView: FfiConverterRustBuffer<SupportRowV
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeSupportRowView.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
-    }
-}
-
-
-
-
-class FfiConverterSequenceTypeTermOptionView: FfiConverterRustBuffer<TermOptionView[]> {
-    public static FfiConverterSequenceTypeTermOptionView INSTANCE = new FfiConverterSequenceTypeTermOptionView();
-
-    public override TermOptionView[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        var result = new TermOptionView[length];
-        var readFn = FfiConverterTypeTermOptionView.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(TermOptionView[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterTypeTermOptionView.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(TermOptionView[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterTypeTermOptionView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

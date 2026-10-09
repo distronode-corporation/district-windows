@@ -1,0 +1,51 @@
+{
+  "screen": {
+    "Routing": {
+      "view": {
+        "can_edit": false,
+        "can_save": false,
+        "confirming": null,
+        "empty": null,
+        "intro": "Which callers get which voice and instruction. Rules are checked in this order, and saving replaces every rule stored.",
+        "notice": null,
+        "rules": [],
+        "saving": false,
+        "status": {
+          "Stale": {
+            "action": "Read them again",
+            "body": "Saved, but the settings could not be read back. Read them again before changing anything else.",
+            "title": "Saved"
+          }
+        },
+        "title": "Call routing rules",
+        "unmodellable": null
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
