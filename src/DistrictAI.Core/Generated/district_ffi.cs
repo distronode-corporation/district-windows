@@ -2070,8 +2070,8 @@ static class _UniFFILib {
     static void uniffiCheckApiChecksums() {
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_desk_logo_problem();
-            if (checksum != 16779) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_desk_logo_problem` checksum `16779`, library returned `{checksum}`");
+            if (checksum != 4964) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_desk_logo_problem` checksum `4964`, library returned `{checksum}`");
             }
         }
         {
@@ -18696,9 +18696,10 @@ public static class DistrictFfi {
     /// <summary>
     /// Why the service would not host `file` as the help desk's logo, or `None`
     /// when it is one it takes: a PNG, JPEG or WebP image (its type sniffed from
-    /// its bytes, never its name, so a GIF renamed `.png` is still a GIF) of one
-    /// byte up to the core's limit on an image, five megabytes. The chooser reads
-    /// one byte past the limit, so a larger file arrives one byte over it.
+    /// its bytes, never its name, so a GIF renamed `.png` is still a GIF), not
+    /// empty, and no larger than the core's limit on an image, five megabytes. The
+    /// chooser reads one byte past the limit, so a larger file arrives one byte
+    /// over it.
     /// </summary>
     public static string? DeskLogoProblem(PickedFileView @file) {
         return FfiConverterOptionalString.INSTANCE.Lift(

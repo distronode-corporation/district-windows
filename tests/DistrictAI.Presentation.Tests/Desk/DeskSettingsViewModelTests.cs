@@ -8,7 +8,8 @@ namespace DistrictAI.Presentation.Tests.Desk;
 public sealed class DeskSettingsViewModelTests
 {
     private const string TypeRefused = "The logo must be a PNG, JPEG or WebP image.";
-    private const string SizeRefused = "The logo must be between 1 byte and 5 MB.";
+    private const string SizeRefused = "The logo must be 5 MB or smaller.";
+    private const string EmptyRefused = "This file is empty.";
     private const int LogoLimit = 5 * 1024 * 1024;
 
     private static readonly byte[] _png = [0x89, (byte)'P', (byte)'N', (byte)'G', 0x0D, 0x0A, 0x1A, 0x0A];
@@ -59,7 +60,8 @@ public sealed class DeskSettingsViewModelTests
     /// five megabytes for its size.
     /// </summary>
     private static string? Check(PickedFileView file) =>
-        file.Bytes.AsSpan().StartsWith("GIF8"u8) ? TypeRefused
+        file.Bytes.Length == 0 ? EmptyRefused
+        : file.Bytes.AsSpan().StartsWith("GIF8"u8) ? TypeRefused
         : file.Bytes.Length > LogoLimit ? SizeRefused
         : null;
 
@@ -168,6 +170,15 @@ public sealed class DeskSettingsViewModelTests
         model.PickedLogo([File("limit.png", limit)]);
         Assert.Single(sink.Sent);
         Assert.False(model.HasLogoNote);
+    }
+
+    [Fact]
+    public void AnEmptyLogoIsRefusedHereAndNeverSent()
+    {
+        var (model, sink) = Attached(_ready);
+        model.PickedLogo([File("empty.png", [])]);
+        Assert.Empty(sink.Sent);
+        Assert.Equal(EmptyRefused, model.LogoNote);
     }
 
     [Fact]

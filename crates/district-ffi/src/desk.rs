@@ -76,6 +76,8 @@ pub const LOGO_HELP: &str = "Shown to customers on the help desk's pages. A PNG,
 /// Why a picked logo is refused for its type (a GIF among them), naming the
 /// types the Linux app offers as a logo.
 pub const LOGO_TYPE_REFUSED: &str = "The logo must be a PNG, JPEG or WebP image.";
+/// Why a picked logo is refused when the file holds nothing.
+pub const LOGO_EMPTY: &str = "This file is empty.";
 /// The note after a reply the customer was emailed, as the Linux app words it.
 pub const NOTIFIED: &str = "The customer was emailed your reply.";
 /// The note after a reply the customer was not emailed, as the Linux app
@@ -614,9 +616,10 @@ pub(crate) fn events(action: DeskAction) -> Vec<Event> {
 
 /// Why the service would not host `file` as the help desk's logo, or `None`
 /// when it is one it takes: a PNG, JPEG or WebP image (its type sniffed from
-/// its bytes, never its name, so a GIF renamed `.png` is still a GIF) of one
-/// byte up to the core's limit on an image, five megabytes. The chooser reads
-/// one byte past the limit, so a larger file arrives one byte over it.
+/// its bytes, never its name, so a GIF renamed `.png` is still a GIF), not
+/// empty, and no larger than the core's limit on an image, five megabytes. The
+/// chooser reads one byte past the limit, so a larger file arrives one byte
+/// over it.
 #[uniffi::export]
 pub fn desk_logo_problem(file: PickedFileView) -> Option<String> {
     logo_problem(&file)
@@ -630,11 +633,13 @@ fn logo_problem(file: &PickedFileView) -> Option<String> {
         bytes: file.bytes.iter().take(12).copied().collect(),
     };
     let mime_type = picked_attachment(head).mime_type;
-    if !LOGO_TYPES.contains(&mime_type.as_str()) {
+    if file.bytes.is_empty() {
+        Some(LOGO_EMPTY.to_owned())
+    } else if !LOGO_TYPES.contains(&mime_type.as_str()) {
         Some(LOGO_TYPE_REFUSED.to_owned())
     } else if file.bytes.len() > MAX_ATTACHMENT_BYTES {
         Some(format!(
-            "The logo must be between 1 byte and {} MB.",
+            "The logo must be {} MB or smaller.",
             MAX_ATTACHMENT_BYTES / (1024 * 1024)
         ))
     } else {
@@ -994,13 +999,16 @@ mod tests {
         let refused = Some(LOGO_TYPE_REFUSED.to_owned());
         assert_eq!(desk_logo_problem(file("logo.gif", GIF)), refused);
         assert_eq!(desk_logo_problem(file("logo.png", GIF)), refused);
-        assert_eq!(desk_logo_problem(file("empty.png", b"")), refused);
+        assert_eq!(
+            desk_logo_problem(file("empty.png", b"")).as_deref(),
+            Some("This file is empty.")
+        );
         assert_eq!(desk_logo_problem(file("doc.png", b"%PDF-1.7")), refused);
         let mut large = PNG.to_vec();
         large.resize(MAX_ATTACHMENT_BYTES + 1, 0);
         assert_eq!(
             desk_logo_problem(file("large.png", &large)),
-            Some("The logo must be between 1 byte and 5 MB.".to_owned())
+            Some("The logo must be 5 MB or smaller.".to_owned())
         );
         large.truncate(MAX_ATTACHMENT_BYTES);
         assert_eq!(desk_logo_problem(file("large.png", &large)), None);

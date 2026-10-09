@@ -886,12 +886,17 @@ fn a_gif_logo_and_one_too_large_are_refused_before_the_core() {
     large.resize(5 * 1024 * 1024 + 1, 0);
     assert_eq!(
         desk_logo_problem(picked("large.png", &large)).as_deref(),
-        Some("The logo must be between 1 byte and 5 MB.")
+        Some("The logo must be 5 MB or smaller.")
+    );
+    assert_eq!(
+        desk_logo_problem(picked("empty.png", b"")).as_deref(),
+        Some("This file is empty.")
     );
     for file in [
         picked("logo.gif", GIF),
         picked("logo.png", GIF),
         picked("large.png", &large),
+        picked("empty.png", b""),
     ] {
         let after = act(settings(), DeskAction::UploadLogo { file });
         assert_eq!(
