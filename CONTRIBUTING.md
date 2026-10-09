@@ -161,8 +161,9 @@ MSIX it builds, and `release.yml` on every DLL and package a release carries.
 CI's `windows-app` job also builds the DLL with the feature into a separate scripted test
 MSIX, never uploaded, and runs the area walk against it (`SceneWalkTests`): every entry
 the navigation pane offers is opened, and each page must show its heading, finish loading
-and show no failure. Each page is saved at 1920x1080 in the `district-ai-screenshots`
-artifact. The scenes' own Rust tests (`cargo test -p district-ffi --features scripted
+and show no failure; a page a button opens (the blocked callers, from Contacts) is
+walked too. Each page's client area is saved at 1920x1080 in the
+`district-ai-screenshots` artifact, with the whole window once (`00-window.png`). The scenes' own Rust tests (`cargo test -p district-ffi --features scripted
 --lib scripted`) check the same thing against the projections first, and that each
 fixture still decodes. When an area is built, its effects need answers in `scripted.rs`
 if the core sends ones it does not answer yet, and its page's heading a line in
@@ -281,6 +282,18 @@ changes only these:
 Until then an area's screens are the "Not in this version yet" page and the navigation pane
 does not offer it. It goes live when its pull request sets `BUILT = true` in its module:
 the pane then offers it to every role `Capabilities::allows` (district-core's `role.rs`).
+
+Setting `BUILT` puts the area in the scripted walk (see "Scripted scenes and the area
+walk"), which every pull request must pass, so building an area also means:
+
+- a line for its page's heading in `_headings` in
+  `tests/DistrictAI.UiTests/SceneWalkTests.cs` (or in `_subPages`, for a page a button
+  opens rather than a pane entry);
+- an answer in `crates/district-ffi/src/scripted.rs` for each effect its screens send
+  that the scene does not answer yet, from the core's fixtures. `cargo test -p district-ffi
+  --features scripted --lib scripted` fails on a built screen left loading or failed.
+
+These two are shared files an area's pull request does change.
 
 The shared files are the manager's, and an area's pull request leaves them alone (say in
 the pull request if one has to change, and why): `screen.rs`, `events.rs`, `shell.rs`,

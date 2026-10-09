@@ -20,7 +20,8 @@ Without -Scripted it runs the smoke tests (SmokeTests) against a package that
 ships. With -Scripted, the package must be the scripted test package (built
 with district-ffi's `scripted` feature, which the script checks), and it runs
 the scene walk (SceneWalkTests). -Screenshots saves each page of the walk at
-1920x1080 in that folder, setting the display to 1920x1080 first.
+1920x1080 (its client area) in that folder, setting the display larger
+first, and the whole window once (00-window.png).
 
 .EXAMPLE
 pwsh scripts/run-ui-tests.ps1 -Packages $env:USERPROFILE\Downloads\district-ai-test-msix
@@ -98,8 +99,12 @@ try {
     }
     if ($Screenshots) {
         $env:DISTRICTAI_SCREENSHOTS = [IO.Path]::GetFullPath($Screenshots)
-        # Windows Server's own cmdlet. The walk checks the window really is 1920x1080.
-        try { Set-DisplayResolution -Width 1920 -Height 1080 -Force } catch { Write-Host "Set-DisplayResolution: $($_.Exception.Message)" }
+        # The pages are saved at a 1920x1080 client area, so the window, with
+        # its title bar and frame, needs a larger display. Windows Server's own
+        # cmdlet; the walk checks the client area really is 1920x1080.
+        foreach ($mode in @(@(2560, 1440), @(1920, 1200))) {
+            try { Set-DisplayResolution -Width $mode[0] -Height $mode[1] -Force; break } catch { Write-Host "Set-DisplayResolution $($mode -join 'x'): $($_.Exception.Message)" }
+        }
         Add-Type -AssemblyName System.Windows.Forms
         Write-Host "display: $([System.Windows.Forms.Screen]::PrimaryScreen.Bounds)"
     }

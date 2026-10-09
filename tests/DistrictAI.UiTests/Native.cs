@@ -46,6 +46,61 @@ internal static partial class Native
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool SetForegroundWindow(nint window);
 
+    /// <summary>A Win32 RECT.</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Rect
+    {
+        /// <summary>The left edge.</summary>
+        public int Left;
+        /// <summary>The top edge.</summary>
+        public int Top;
+        /// <summary>The right edge.</summary>
+        public int Right;
+        /// <summary>The bottom edge.</summary>
+        public int Bottom;
+
+        /// <summary>The width.</summary>
+        public readonly int Width => Right - Left;
+
+        /// <summary>The height.</summary>
+        public readonly int Height => Bottom - Top;
+    }
+
+    /// <summary>The window's outer rectangle, invisible resize borders included, in screen pixels.</summary>
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool GetWindowRect(nint window, out Rect rect);
+
+    /// <summary>The window's client area, from (0, 0).</summary>
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool GetClientRect(nint window, out Rect rect);
+
+    /// <summary>Where the client area's (0, 0) is on the screen.</summary>
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool ClientToScreen(nint window, ref Point point);
+
+    /// <summary>A Win32 POINT.</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Point
+    {
+        /// <summary>X.</summary>
+        public int X;
+        /// <summary>Y.</summary>
+        public int Y;
+    }
+
+    [LibraryImport("dwmapi.dll")]
+    private static partial int DwmGetWindowAttribute(nint window, uint attribute, out Rect value, uint size);
+
+    /// <summary>The part of the window that is drawn (DWMWA_EXTENDED_FRAME_BOUNDS): its title bar and frame, without the invisible resize borders.</summary>
+    public static Rect VisibleBounds(nint window)
+    {
+        Marshal.ThrowExceptionForHR(DwmGetWindowAttribute(window, 9, out var rect, (uint)Marshal.SizeOf<Rect>()));
+        return rect;
+    }
+
     [LibraryImport("kernel32.dll", StringMarshalling = StringMarshalling.Utf16)]
     private static partial int GetPackagesByPackageFamily(string packageFamilyName, ref uint count, nint packageFullNames, ref uint bufferLength, nint buffer);
 

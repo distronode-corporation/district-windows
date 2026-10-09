@@ -486,7 +486,7 @@ mod tests {
             Route::Workspace(S::Members),
             Route::Workspace(S::Numbers),
         ];
-        for route in routes {
+        for route in routes.clone() {
             let _ = after(&mut model, Event::Navigate(route.clone()));
             // Some routes lead on (the numbers section to the marketplace).
             assert!(
@@ -494,14 +494,9 @@ mod tests {
                 "signed out at {route:?}"
             );
         }
-        // And the 1.0 screens are filled in, not loading.
-        for route in [
-            Route::Overview,
-            Route::Inbox,
-            Route::Calls,
-            Route::Contacts,
-            Route::Devices,
-        ] {
+        // And every built screen among them (1.0's, and each area whose
+        // packet has set BUILT) is filled in, neither loading nor failed.
+        for route in routes.into_iter().filter(crate::nav::built) {
             let screen = after(&mut model, Event::Navigate(route.clone()));
             assert_eq!(unsettled(&screen), None, "{route:?}: {screen:?}");
         }

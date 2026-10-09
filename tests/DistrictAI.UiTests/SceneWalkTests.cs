@@ -11,8 +11,9 @@ namespace DistrictAI.UiTests;
 /// The scripted test package (district-ffi's <c>scripted</c> feature), started
 /// in its signed-in scene: every entry the navigation pane offers is opened,
 /// and each page must render, finish loading and show no failure. With
-/// DISTRICTAI_SCREENSHOTS set to a folder, each page is also saved there at
-/// 1920x1080, for the Store listing.
+/// DISTRICTAI_SCREENSHOTS set to a folder, each page's client area is also
+/// saved there at 1920x1080, for the Store listing, and the whole window
+/// (title bar included) once, as 00-window.png.
 /// </summary>
 /// <remarks>
 /// It runs only against a scripted package (DISTRICTAI_UI_SCRIPTED=1, which
@@ -42,6 +43,17 @@ public sealed class SceneWalkTests
         ("Calls", "Calls"),
         ("Contacts", "Contacts"),
         ("Account", "Account"),
+        ("Analytics", "Analytics"),
+    ];
+
+    /// <summary>
+    /// Pages a button on another page opens, not a pane entry: from the page
+    /// of <c>Entry</c>, the button named <c>Button</c>, and the heading it
+    /// shows. Walked when the button is there (its area built).
+    /// </summary>
+    private static readonly (string Entry, string Button, string Heading)[] _subPages =
+    [
+        ("Contacts", "Blocked callers", "Blocked callers"),
     ];
 
     /// <summary>What a page that failed shows (StatusPanel, UnavailablePage, the core's failure titles).</summary>
@@ -57,7 +69,7 @@ public sealed class SceneWalkTests
         var handle = window.Properties.NativeWindowHandle.Value;
         if (shots is { Length: > 0 })
         {
-            Size(app, handle, 1920, 1080);
+            SizeClient(handle, 1920, 1080);
         }
 
         // Signed in by the scene, on the overview.
@@ -69,46 +81,84 @@ public sealed class SceneWalkTests
             app.Describe);
         InstalledApp.Log($"the pane offers {entries.Length}: [{string.Join(", ", entries)}]");
 
+        if (shots is { Length: > 0 })
+        {
+            Save(handle, Path.Combine(shots, "00-window.png"), clientOnly: false);
+        }
+
         var problems = new List<string>();
         var index = 0;
         foreach (var entry in entries)
         {
-            index++;
-            var clock = Stopwatch.StartNew();
-            try
+            var expected = _headings.FirstOrDefault(known => entry.StartsWith(known.Entry, StringComparison.Ordinal)).Heading;
+            if (!Visit(app, handle, entry, () => Open(app, entry), expected, shots, ++index, problems))
             {
-                Open(app, entry);
-                var expected = _headings.FirstOrDefault(known => entry.StartsWith(known.Entry, StringComparison.Ordinal)).Heading;
-                var heading = Heading(app, expected, _pageTimeout);
-                // Loaded: the status panel's progress ring gone.
-                _ = Wait.For(
-                    () => app.TryFind(ControlType.ProgressBar, "Loading") is null ? heading : null,
-                    _pageTimeout,
-                    $"\"{entry}\" to finish loading",
-                    app.Describe);
-                if (Failure(app) is { } failure)
+                break;
+            }
+            foreach (var sub in _subPages.Where(sub => entry.StartsWith(sub.Entry, StringComparison.Ordinal)))
+            {
+                if (app.TryFind(ControlType.Button, sub.Button) is null)
                 {
-                    problems.Add($"\"{entry}\" shows \"{failure}\".{Environment.NewLine}{app.Describe()}");
+                    InstalledApp.Log($"\"{entry}\" has no \"{sub.Button}\" button: not walked");
                     continue;
                 }
-                InstalledApp.Log(FormattableString.Invariant($"\"{entry}\": \"{heading.Name}\" in {clock.ElapsedMilliseconds} ms"));
-                if (shots is { Length: > 0 })
+                if (!Visit(app, handle, sub.Button, () => app.Find(ControlType.Button, sub.Button, _pageTimeout).AsButton().Invoke(), sub.Heading, shots, ++index, problems))
                 {
-                    Save(handle, Path.Combine(shots, FormattableString.Invariant($"{index:D2}-{FileName(entry)}.png")));
+                    break;
                 }
-            }
-            catch (TimeoutException error)
-            {
-                problems.Add($"\"{entry}\": {error.Message}");
             }
             if (!app.IsRunning)
             {
-                problems.Add($"the app ended after \"{entry}\" was opened");
                 break;
             }
         }
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine + Environment.NewLine, problems));
         Assert.True(app.IsRunning, "the app ended during the walk");
+    }
+
+    /// <summary>
+    /// Opens a page with <paramref name="open"/> and checks it: its heading
+    /// (<paramref name="expected"/>, or any), loaded, no failure, then saves
+    /// it when screenshots are on. Problems go in <paramref name="problems"/>;
+    /// false when the app has ended.
+    /// </summary>
+    private static bool Visit(InstalledApp app, nint handle, string name, Action open, string? expected, string? shots, int index, List<string> problems)
+    {
+        var clock = Stopwatch.StartNew();
+        try
+        {
+            open();
+            InstalledApp.Log($"opened \"{name}\"");
+            var heading = Heading(app, expected, _pageTimeout);
+            // Loaded: the status panel's progress ring gone.
+            _ = Wait.For(
+                () => app.TryFind(ControlType.ProgressBar, "Loading") is null ? heading : null,
+                _pageTimeout,
+                $"\"{name}\" to finish loading",
+                app.Describe);
+            if (Failure(app) is { } failure)
+            {
+                problems.Add($"\"{name}\" shows \"{failure}\".{Environment.NewLine}{app.Describe()}");
+            }
+            else
+            {
+                InstalledApp.Log(FormattableString.Invariant($"\"{name}\": \"{heading.Name}\" in {clock.ElapsedMilliseconds} ms"));
+                if (shots is { Length: > 0 })
+                {
+                    Save(handle, Path.Combine(shots, FormattableString.Invariant($"{index:D2}-{FileName(name)}.png")), clientOnly: true);
+                }
+            }
+        }
+        catch (TimeoutException error)
+        {
+            problems.Add($"\"{name}\": {error.Message}");
+        }
+        if (app.IsRunning)
+        {
+            return true;
+        }
+        problems.Add($"the app ended after \"{name}\" was opened");
+        return false;
     }
 
     /// <summary>The names of the pane's entries, in order (headings and separators are not entries).</summary>
@@ -131,7 +181,6 @@ public sealed class SceneWalkTests
         {
             item.Click();
         }
-        InstalledApp.Log($"opened \"{entry}\"");
     }
 
     /// <summary>
@@ -170,30 +219,49 @@ public sealed class SceneWalkTests
             .FirstOrDefault(name => _failureTexts.Any(failure => name.StartsWith(failure, StringComparison.Ordinal)));
     }
 
-    /// <summary>Sizes the window to <paramref name="width"/> by <paramref name="height"/>, and waits until it is.</summary>
-    private static void Size(InstalledApp app, nint handle, int width, int height)
+    /// <summary>
+    /// Sizes the window so its client area is <paramref name="width"/> by
+    /// <paramref name="height"/>, and waits until it is. The window is larger
+    /// than that by its title bar and frame, so the display must be too.
+    /// </summary>
+    private static void SizeClient(nint handle, int width, int height)
     {
-        _ = Native.MoveWindow(handle, 0, 0, width, height, repaint: true);
+        _ = Native.GetWindowRect(handle, out var outer);
+        _ = Native.GetClientRect(handle, out var client);
+        var extraWidth = outer.Width - client.Width;
+        var extraHeight = outer.Height - client.Height;
+        _ = Native.MoveWindow(handle, 0, 0, width + extraWidth, height + extraHeight, repaint: true);
         var sized = Wait.Until(
-            () =>
-            {
-                var bounds = app.MainWindow(_pageTimeout).BoundingRectangle;
-                return bounds.Width == width && bounds.Height == height;
-            },
+            () => Native.GetClientRect(handle, out var now) && now.Width == width && now.Height == height,
             TimeSpan.FromSeconds(10));
-        var actual = app.MainWindow(_pageTimeout).BoundingRectangle;
-        InstalledApp.Log(FormattableString.Invariant($"window {actual.Width}x{actual.Height} (asked for {width}x{height})"));
-        Assert.True(sized, FormattableString.Invariant($"the window is {actual.Width}x{actual.Height}, not {width}x{height}: is the display smaller?"));
+        _ = Native.GetClientRect(handle, out var actual);
+        InstalledApp.Log(FormattableString.Invariant($"client area {actual.Width}x{actual.Height} (asked for {width}x{height}; the frame adds {extraWidth}x{extraHeight})"));
+        Assert.True(sized, FormattableString.Invariant($"the client area is {actual.Width}x{actual.Height}, not {width}x{height}: is the display smaller than the window?"));
     }
 
-    /// <summary>Saves what the window draws, all of it, as a PNG.</summary>
-    private static void Save(nint handle, string path)
+    /// <summary>
+    /// Saves what the window draws as a PNG: its client area, or the visible
+    /// window (title bar and frame, without the invisible resize borders).
+    /// </summary>
+    private static void Save(nint handle, string path, bool clientOnly)
     {
         _ = Native.SetForegroundWindow(handle);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        var bounds = WindowBounds(handle);
-        using var bitmap = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
-        using (var graphics = Graphics.FromImage(bitmap))
+        _ = Native.GetWindowRect(handle, out var outer);
+        Native.Rect area;
+        if (clientOnly)
+        {
+            _ = Native.GetClientRect(handle, out var client);
+            var origin = default(Native.Point);
+            _ = Native.ClientToScreen(handle, ref origin);
+            area = new Native.Rect { Left = origin.X, Top = origin.Y, Right = origin.X + client.Width, Bottom = origin.Y + client.Height };
+        }
+        else
+        {
+            area = Native.VisibleBounds(handle);
+        }
+        using var whole = new Bitmap(outer.Width, outer.Height, PixelFormat.Format32bppArgb);
+        using (var graphics = Graphics.FromImage(whole))
         {
             var dc = graphics.GetHdc();
             try
@@ -205,16 +273,10 @@ public sealed class SceneWalkTests
                 graphics.ReleaseHdc(dc);
             }
         }
-        bitmap.Save(path, ImageFormat.Png);
-        InstalledApp.Log(FormattableString.Invariant($"saved {path} ({bounds.Width}x{bounds.Height})"));
-    }
-
-    private static Rectangle WindowBounds(nint handle)
-    {
-        using var automation = new FlaUI.UIA3.UIA3Automation();
-        var element = automation.FromHandle(handle);
-        var bounds = element.BoundingRectangle;
-        return new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+        var crop = new Rectangle(area.Left - outer.Left, area.Top - outer.Top, area.Width, area.Height);
+        using var image = whole.Clone(crop, PixelFormat.Format32bppArgb);
+        image.Save(path, ImageFormat.Png);
+        InstalledApp.Log(FormattableString.Invariant($"saved {path} ({image.Width}x{image.Height})"));
     }
 
     private static string FileName(string entry) =>
