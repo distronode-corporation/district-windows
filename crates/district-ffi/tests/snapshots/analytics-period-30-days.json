@@ -1,0 +1,256 @@
+{
+  "screen": {
+    "Analytics": {
+      "view": {
+        "history": {
+          "caption": "The bars compare metered call minutes across these months.",
+          "chart": {
+            "headings": [
+              "Month",
+              "",
+              "Call minutes",
+              "Messages"
+            ],
+            "months": [
+              {
+                "messages": "505",
+                "minutes": "1522.75",
+                "month": "Aug 2026",
+                "per_mille": 1000
+              },
+              {
+                "messages": "355",
+                "minutes": "290.75",
+                "month": "Jul 2026",
+                "per_mille": 191
+              },
+              {
+                "messages": "12",
+                "minutes": "Not recorded",
+                "month": "Jun 2026",
+                "per_mille": 0
+              }
+            ],
+            "summary": "Recent months: Aug 2026: 1522.75 call minutes, 505 messages; Jul 2026: 290.75 call minutes, 355 messages; Jun 2026: Not recorded call minutes, 12 messages."
+          },
+          "empty": null,
+          "refreshing": false,
+          "status": "Ready",
+          "title": "Recent months"
+        },
+        "period_label": "Period",
+        "periods": [
+          {
+            "label": "7 days",
+            "period": "SevenDays",
+            "selected": false
+          },
+          {
+            "label": "30 days",
+            "period": "ThirtyDays",
+            "selected": true
+          },
+          {
+            "label": "90 days",
+            "period": "NinetyDays",
+            "selected": false
+          }
+        ],
+        "refreshing": false,
+        "report": {
+          "change": "Up 20% on the previous period.",
+          "figures": [
+            {
+              "label": "Calls",
+              "value": "48"
+            },
+            {
+              "label": "Average call",
+              "value": "2m 0s"
+            },
+            {
+              "label": "Converted",
+              "value": "38%"
+            },
+            {
+              "label": "Missed",
+              "value": "9"
+            },
+            {
+              "label": "Abandoned",
+              "value": "4"
+            }
+          ],
+          "funnel": {
+            "axis_end": "Successful Leads",
+            "axis_start": "Total Dials",
+            "bars": [
+              {
+                "label": "Total Dials",
+                "per_mille": 1000,
+                "value": "48"
+              },
+              {
+                "label": "Connected Calls",
+                "per_mille": 729,
+                "value": "35"
+              },
+              {
+                "label": "Successful Leads",
+                "per_mille": 375,
+                "value": "18"
+              }
+            ],
+            "scale_bottom": "0",
+            "scale_top": "48",
+            "summary": "Call funnel: Total Dials 48, Connected Calls 35, Successful Leads 18."
+          },
+          "funnel_title": "Call funnel",
+          "refreshing": false,
+          "sentiment": {
+            "bands": [
+              {
+                "label": "Positive Sentiment",
+                "legend": "Positive Sentiment: 21 (44%)",
+                "per_mille": 438,
+                "tone": "Positive"
+              },
+              {
+                "label": "Neutral Sentiment",
+                "legend": "Neutral Sentiment: 16 (33%)",
+                "per_mille": 333,
+                "tone": "Neutral"
+              },
+              {
+                "label": "Friction Sentiment",
+                "legend": "Friction Sentiment: 11 (23%)",
+                "per_mille": 229,
+                "tone": "Friction"
+              }
+            ],
+            "summary": "Caller sentiment: Positive Sentiment 21 (44%), Neutral Sentiment 16 (33%), Friction Sentiment 11 (23%)."
+          },
+          "sentiment_empty": null,
+          "sentiment_title": "Caller sentiment",
+          "status": "Ready",
+          "title": "Calls over 30 days",
+          "trend": {
+            "axis_end": "Aug 15",
+            "axis_start": "Aug 9",
+            "bars": [
+              {
+                "label": "Aug 9",
+                "per_mille": 818,
+                "value": "9"
+              },
+              {
+                "label": "Aug 10",
+                "per_mille": 636,
+                "value": "7"
+              },
+              {
+                "label": "Aug 11",
+                "per_mille": 818,
+                "value": "9"
+              },
+              {
+                "label": "Aug 12",
+                "per_mille": 0,
+                "value": "0"
+              },
+              {
+                "label": "Aug 13",
+                "per_mille": 364,
+                "value": "4"
+              },
+              {
+                "label": "Aug 14",
+                "per_mille": 727,
+                "value": "8"
+              },
+              {
+                "label": "Aug 15",
+                "per_mille": 1000,
+                "value": "11"
+              }
+            ],
+            "scale_bottom": "0",
+            "scale_top": "11",
+            "summary": "Calls per day: Aug 9 9, Aug 10 7, Aug 11 9, Aug 12 0, Aug 13 4, Aug 14 8, Aug 15 11. The most was 11, on Aug 15."
+          },
+          "trend_empty": null,
+          "trend_title": "Calls per day"
+        },
+        "status": "Ready",
+        "title": "Analytics",
+        "usage": {
+          "empty": null,
+          "lines": [
+            {
+              "label": "Texts sent",
+              "value": "412"
+            },
+            {
+              "label": "Texts received",
+              "value": "87"
+            },
+            {
+              "label": "Picture messages sent",
+              "value": "6"
+            },
+            {
+              "label": "WhatsApp messages sent",
+              "value": "0"
+            },
+            {
+              "label": "Outbound call minutes",
+              "value": "318.5"
+            },
+            {
+              "label": "Inbound call minutes",
+              "value": "1204.25"
+            },
+            {
+              "label": "Phone numbers",
+              "value": "3"
+            },
+            {
+              "label": "Video minutes",
+              "value": "42"
+            }
+          ],
+          "month": "Aug 2026",
+          "refreshing": false,
+          "status": "Ready",
+          "title": "This month's usage"
+        }
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Analytics",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
