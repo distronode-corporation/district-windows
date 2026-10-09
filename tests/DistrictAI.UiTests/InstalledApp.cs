@@ -25,7 +25,11 @@ internal sealed class InstalledApp : IDisposable
     /// <summary>The executable's process name.</summary>
     public const string ProcessName = "DistrictAI";
 
-    /// <summary>The window's title (MainWindow.xaml).</summary>
+    /// <summary>
+    /// The window's title (MainWindow.xaml). While another copy is installed
+    /// the core names this copy in it: "District AI (GitHub copy)"
+    /// (crates/district-ffi/src/copies.rs, window_title).
+    /// </summary>
     public const string WindowTitle = "District AI";
 
     /// <summary>The package family under test: DISTRICTAI_PACKAGE_FAMILY, or <see cref="DefaultFamily"/>.</summary>
@@ -37,9 +41,13 @@ internal sealed class InstalledApp : IDisposable
 
     private readonly UIA3Automation _automation = new();
 
-    private InstalledApp(int processId)
+    // Whether the app is this object's to end: false for an app it attached to.
+    private readonly bool _owned;
+
+    private InstalledApp(int processId, bool owned = true)
     {
         ProcessId = processId;
+        _owned = owned;
     }
 
     /// <summary>The first instance's process.</summary>
@@ -59,6 +67,18 @@ internal sealed class InstalledApp : IDisposable
         using var app = Application.LaunchStoreApp(Aumid, arguments ?? string.Empty);
         Log($"launched {Aumid}{(arguments is null ? string.Empty : $" {arguments}")}: process {app.ProcessId}");
         return new InstalledApp(app.ProcessId);
+    }
+
+    /// <summary>
+    /// The app someone else started (the live walk's harness), by its
+    /// process id: nothing is ended first, and <see cref="Dispose"/> leaves
+    /// it running.
+    /// </summary>
+    public static InstalledApp Attach(int processId)
+    {
+        Assert.True(RunningProcessIds().Contains(processId), FormattableString.Invariant($"no District AI process {processId} to attach to"));
+        Log(FormattableString.Invariant($"attached to process {processId}"));
+        return new InstalledApp(processId, owned: false);
     }
 
     /// <summary>Starts the package again while it runs: a second process, which hands its launch to the first.</summary>
@@ -95,15 +115,51 @@ internal sealed class InstalledApp : IDisposable
     /// <summary>Whether the first instance's process is still running.</summary>
     public bool IsRunning => RunningProcessIds().Contains(ProcessId);
 
-    /// <summary>The app's top-level window, waited for while it is not on the screen.</summary>
+    /// <summary>The app's main window, waited for while it is not on the screen.</summary>
     public Window MainWindow(TimeSpan timeout) =>
         Wait.For(
-            () => _automation.GetDesktop()
-                .FindFirstChild(cf => cf.ByProcessId(ProcessId).And(cf.ByControlType(ControlType.Window)).And(cf.ByName(WindowTitle)))
-                ?.AsWindow(),
+            () => TryMainWindow()?.AsWindow(),
             timeout,
             "the District AI window",
             Describe);
+
+    /// <summary>
+    /// The app's main window, now, or null: the process's top-level window
+    /// titled <see cref="WindowTitle"/>, or that naming its copy. The checkout
+    /// window ("District AI checkout") is another top-level window of the
+    /// same process, and never this one.
+    /// </summary>
+    public AutomationElement? TryMainWindow() =>
+        _automation.GetDesktop()
+            .FindAllChildren(cf => cf.ByProcessId(ProcessId).And(cf.ByControlType(ControlType.Window)))
+            .FirstOrDefault(window => IsMainTitle(window.Properties.Name.ValueOrDefault ?? string.Empty));
+
+    /// <summary>Whether <paramref name="title"/> is the main window's: "District AI", or "District AI (... copy)".</summary>
+    public static bool IsMainTitle(string title) =>
+        title == WindowTitle
+        || (title.StartsWith(WindowTitle + " (", StringComparison.Ordinal) && title.EndsWith(" copy)", StringComparison.Ordinal));
+
+    /// <summary>
+    /// The app's other windows whose title holds <paramref name="titlePart"/>:
+    /// the process's top-level windows (the checkout window), and the windows
+    /// UI Automation puts under the main window because it owns them (a
+    /// file dialog, a message box).
+    /// </summary>
+    public AutomationElement[] Windows(string titlePart)
+    {
+        var desktop = _automation.GetDesktop();
+        var top = desktop.FindAllChildren(cf => cf.ByProcessId(ProcessId).And(cf.ByControlType(ControlType.Window)));
+        var owned = TryMainWindow()?.FindAllChildren(cf => cf.ByControlType(ControlType.Window)) ?? [];
+        return [.. top.Concat(owned)
+            .Where(window => (window.Properties.Name.ValueOrDefault ?? string.Empty).Contains(titlePart, StringComparison.Ordinal))];
+    }
+
+    /// <summary>The first of <see cref="Windows"/>, now, or null.</summary>
+    public AutomationElement? TryWindow(string titlePart) => Windows(titlePart).FirstOrDefault();
+
+    /// <summary>The first of <see cref="Windows"/>, waited for.</summary>
+    public AutomationElement WaitWindow(string titlePart, TimeSpan timeout) =>
+        Wait.For(() => TryWindow(titlePart), timeout, $"a window titled \"...{titlePart}...\"", Describe);
 
     /// <summary>
     /// The control in the app's window that UI Automation names
@@ -119,9 +175,23 @@ internal sealed class InstalledApp : IDisposable
 
     /// <summary>What <see cref="Find"/> finds, now, or null.</summary>
     public AutomationElement? TryFind(ControlType? type, string name) =>
-        _automation.GetDesktop()
-            .FindFirstChild(cf => cf.ByProcessId(ProcessId).And(cf.ByControlType(ControlType.Window)))
-            ?.FindFirstDescendant(cf => type is { } wanted ? cf.ByControlType(wanted).And(cf.ByName(name)) : cf.ByName(name))
+        TryMainWindow() is { } window ? TryFindIn(window, type, name) : null;
+
+    /// <summary>
+    /// The control under <paramref name="window"/> (any element: a window
+    /// from <see cref="Windows"/>, or a panel) named <paramref name="name"/>,
+    /// of <paramref name="type"/> (any, when null), on screen; waited for.
+    /// </summary>
+    public AutomationElement FindIn(AutomationElement window, ControlType? type, string name, TimeSpan timeout) =>
+        Wait.For(
+            () => TryFindIn(window, type, name),
+            timeout,
+            type is null ? $"an element named \"{name}\" in that window" : $"a {type} named \"{name}\" in that window",
+            Describe);
+
+    /// <summary>What <see cref="FindIn"/> finds, now, or null.</summary>
+    public static AutomationElement? TryFindIn(AutomationElement window, ControlType? type, string name) =>
+        window.FindFirstDescendant(cf => type is { } wanted ? cf.ByControlType(wanted).And(cf.ByName(name)) : cf.ByName(name))
             is { IsOffscreen: false } found ? found : null;
 
     /// <summary>
@@ -153,10 +223,13 @@ internal sealed class InstalledApp : IDisposable
         return text.ToString();
     }
 
-    /// <summary>Ends the app if a test left it running.</summary>
+    /// <summary>Ends the app if a test left it running (not one it attached to).</summary>
     public void Dispose()
     {
-        StopAll();
+        if (_owned)
+        {
+            StopAll();
+        }
         _automation.Dispose();
     }
 
