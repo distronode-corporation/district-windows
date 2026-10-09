@@ -10,10 +10,10 @@ namespace DistrictAI.ViewModels;
 /// </summary>
 public sealed class PageContext
 {
-    private readonly CoreHost _core;
+    private readonly ICoreSink _core;
     private readonly IBrowser _browser;
 
-    internal PageContext(CoreHost core, IBrowser browser)
+    internal PageContext(ICoreSink core, IBrowser browser)
     {
         _core = core;
         _browser = browser;

@@ -29,6 +29,9 @@ public sealed partial class ThreadPage : UserControl
 
     internal void Show(ThreadView view) => ViewModel.Show(view, _context?.ReportSending ?? false);
 
+    /// <summary>Where an item's time and Report button sit: sent messages on the right, everything else on the left.</summary>
+    public static HorizontalAlignment SideFor(bool outbound) => outbound ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+
     private async void OnReportClick(object sender, RoutedEventArgs e)
     {
         if (_context is null || XamlRoot is null || (sender as FrameworkElement)?.DataContext is not TimelineItem item)

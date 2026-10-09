@@ -2,7 +2,6 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
-using Microsoft.UI.Xaml;
 
 namespace DistrictAI.ViewModels.Calls;
 
@@ -16,28 +15,31 @@ namespace DistrictAI.ViewModels.Calls;
 /// While the call is answered the core's <see cref="ActiveCallView.StateLabel"/>
 /// is its length, which the core moves on only when its model changes. So the
 /// strip counts from <see cref="ActiveCallView.ConnectedAt"/> itself, once a
-/// second, on a <see cref="DispatcherTimer"/> that runs only while the core
-/// gives that instant (answered, and not over). The length shown is this app's
-/// own; the call log is the record.
+/// second, on a <see cref="TimeProvider"/> timer that runs only while the core
+/// gives that instant (answered, and not over). Each tick is posted to the
+/// <see cref="SynchronizationContext"/> the timer was started on (the UI
+/// thread's, in the app), so the strip changes only on that thread. The length
+/// shown is this app's own; the call log is the record.
 /// </remarks>
 public sealed partial class CallBarViewModel : ObservableObject
 {
     private static readonly TimeSpan _tickEvery = TimeSpan.FromSeconds(1);
 
-    private readonly Func<DateTimeOffset> _now;
+    private readonly TimeProvider _time;
     private PageContext? _context;
-    private DispatcherTimer? _timer;
+    private ITimer? _timer;
+    private bool _ticking;
     private DateTimeOffset? _connectedAt;
     private bool _writing;
 
     /// <summary>A strip that reads the time from the system clock.</summary>
     public CallBarViewModel()
-        : this(() => DateTimeOffset.UtcNow)
+        : this(TimeProvider.System)
     {
     }
 
-    /// <summary>A strip that reads the time from <paramref name="now"/>.</summary>
-    internal CallBarViewModel(Func<DateTimeOffset> now) => _now = now;
+    /// <summary>A strip that reads the time, and counts, on <paramref name="time"/>.</summary>
+    internal CallBarViewModel(TimeProvider time) => _time = time;
 
     /// <summary>Whether there is a call to show.</summary>
     [ObservableProperty]
@@ -200,7 +202,7 @@ public sealed partial class CallBarViewModel : ObservableObject
     {
         if (_connectedAt is { } connectedAt)
         {
-            Status = FormatDuration(_now() - connectedAt);
+            Status = FormatDuration(_time.GetUtcNow() - connectedAt);
         }
     }
 
@@ -208,16 +210,36 @@ public sealed partial class CallBarViewModel : ObservableObject
     {
         if (_timer is null)
         {
-            _timer = new DispatcherTimer { Interval = _tickEvery };
-            _timer.Tick += OnTick;
+            // Made stopped, and started below. Ticks go back to the thread
+            // that started it.
+            var ui = SynchronizationContext.Current;
+            _timer = _time.CreateTimer(_ => OnTick(ui), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
-        if (!_timer.IsEnabled)
+        if (!_ticking)
         {
-            _timer.Start();
+            _ticking = true;
+            _timer.Change(_tickEvery, _tickEvery);
         }
     }
 
-    private void StopTimer() => _timer?.Stop();
+    private void StopTimer()
+    {
+        if (_ticking)
+        {
+            _ticking = false;
+            _timer!.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        }
+    }
 
-    private void OnTick(object? sender, object e) => UpdateDuration();
+    private void OnTick(SynchronizationContext? ui)
+    {
+        if (ui is null)
+        {
+            UpdateDuration();
+        }
+        else
+        {
+            ui.Post(_ => UpdateDuration(), null);
+        }
+    }
 }

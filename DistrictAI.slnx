@@ -5,8 +5,10 @@
   <Folder Name="/src/">
     <Project Path="src/DistrictAI/DistrictAI.csproj" />
     <Project Path="src/DistrictAI.Core/DistrictAI.Core.csproj" />
+    <Project Path="src/DistrictAI.Presentation/DistrictAI.Presentation.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/DistrictAI.Core.Tests/DistrictAI.Core.Tests.csproj" />
+    <Project Path="tests/DistrictAI.Presentation.Tests/DistrictAI.Presentation.Tests.csproj" />
   </Folder>
 </Solution>
