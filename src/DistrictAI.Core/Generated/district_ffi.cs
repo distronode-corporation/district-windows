@@ -6541,6 +6541,51 @@ class FfiConverterTypeCopiesView: FfiConverterRustBuffer<CopiesView> {
 
 
 /// <summary>
+/// The way to a new account, on a signed-out sign-in page.
+/// </summary>
+/// <param name="Label">
+/// The button's words.
+/// </param>
+/// <param name="Note">
+/// What it does.
+/// </param>
+public record CreateAccountView (
+    /// <summary>
+    /// The button's words.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// What it does.
+    /// </summary>
+    string Note
+) {
+}
+
+class FfiConverterTypeCreateAccountView: FfiConverterRustBuffer<CreateAccountView> {
+    public static FfiConverterTypeCreateAccountView INSTANCE = new FfiConverterTypeCreateAccountView();
+
+    public override CreateAccountView Read(BigEndianStream stream) {
+        return new CreateAccountView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Note: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CreateAccountView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Note);
+    }
+
+    public override void Write(CreateAccountView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Note, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The form raising a ticket for a customer.
 /// </summary>
 /// <param name="Title">
@@ -12411,6 +12456,10 @@ class FfiConverterTypeSentimentChartView: FfiConverterRustBuffer<SentimentChartV
 /// <param name="Error">
 /// Why the last sign-in failed, if it did.
 /// </param>
+/// <param name="CreateAccount">
+/// "Create an account", beside "Sign in with your browser" (welcome.rs).
+/// Left out of the snapshots while it is not offered.
+/// </param>
 public record SessionScreen (
     /// <summary>
     /// The heading.
@@ -12443,7 +12492,12 @@ public record SessionScreen (
     /// <summary>
     /// Why the last sign-in failed, if it did.
     /// </summary>
-    string? Error
+    string? Error, 
+    /// <summary>
+    /// "Create an account", beside "Sign in with your browser" (welcome.rs).
+    /// Left out of the snapshots while it is not offered.
+    /// </summary>
+    CreateAccountView? CreateAccount
 ) {
 }
 
@@ -12459,7 +12513,8 @@ class FfiConverterTypeSessionScreen: FfiConverterRustBuffer<SessionScreen> {
             Retry: FfiConverterBoolean.INSTANCE.Read(stream),
             RetrySignOut: FfiConverterBoolean.INSTANCE.Read(stream),
             Cancel: FfiConverterBoolean.INSTANCE.Read(stream),
-            Error: FfiConverterOptionalString.INSTANCE.Read(stream)
+            Error: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CreateAccount: FfiConverterOptionalTypeCreateAccountView.INSTANCE.Read(stream)
         );
     }
 
@@ -12472,7 +12527,8 @@ class FfiConverterTypeSessionScreen: FfiConverterRustBuffer<SessionScreen> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Retry)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.RetrySignOut)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Cancel)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Error);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Error)
+            + FfiConverterOptionalTypeCreateAccountView.INSTANCE.AllocationSize(value.CreateAccount);
     }
 
     public override void Write(SessionScreen value, BigEndianStream stream) {
@@ -12484,6 +12540,7 @@ class FfiConverterTypeSessionScreen: FfiConverterRustBuffer<SessionScreen> {
             FfiConverterBoolean.INSTANCE.Write(value.RetrySignOut, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Cancel, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Error, stream);
+            FfiConverterOptionalTypeCreateAccountView.INSTANCE.Write(value.CreateAccount, stream);
     }
 }
 
@@ -22306,6 +22363,37 @@ class FfiConverterOptionalTypeContactWritesView: FfiConverterRustBuffer<ContactW
         } else {
             stream.WriteByte(1);
             FfiConverterTypeContactWritesView.INSTANCE.Write((ContactWritesView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeCreateAccountView: FfiConverterRustBuffer<CreateAccountView?> {
+    public static FfiConverterOptionalTypeCreateAccountView INSTANCE = new FfiConverterOptionalTypeCreateAccountView();
+
+    public override CreateAccountView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeCreateAccountView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(CreateAccountView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeCreateAccountView.INSTANCE.AllocationSize((CreateAccountView)value);
+        }
+    }
+
+    public override void Write(CreateAccountView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeCreateAccountView.INSTANCE.Write((CreateAccountView)value, stream);
         }
     }
 }
