@@ -1,0 +1,58 @@
+{
+  "screen": {
+    "Messaging": {
+      "view": {
+        "accounts": [],
+        "busy": false,
+        "channels": [],
+        "channels_editable": true,
+        "confirm": null,
+        "creator": {
+          "can_save": false,
+          "heading": "The owner's mobile number",
+          "help": "Where the receptionist reaches the workspace's owner. The saved number is not shown here; typing one replaces it.",
+          "number": "",
+          "saving": false
+        },
+        "editable": true,
+        "empty": {
+          "body": "This workspace has no carrier account, so it cannot send texts from its own numbers.",
+          "title": "No carrier connected"
+        },
+        "form": null,
+        "managed": null,
+        "notice": null,
+        "offers_add": true,
+        "status": "Ready",
+        "title": "Messaging accounts",
+        "viewer_note": null
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
