@@ -1,0 +1,90 @@
+{
+  "screen": {
+    "Hq": {
+      "view": {
+        "ask_label": "Ask",
+        "can_ask": true,
+        "can_retry": false,
+        "card": null,
+        "empty": null,
+        "failure": null,
+        "footnote": "Each question is answered by an AI model, which is billed. A change it proposes is made only when you confirm it.",
+        "messages": [
+          {
+            "Question": {
+              "index": 0,
+              "text": "How many calls?"
+            }
+          },
+          {
+            "Answer": {
+              "index": 1,
+              "report": "InApp",
+              "text": {
+                "blocks": [
+                  {
+                    "Paragraph": {
+                      "runs": [
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "You had "
+                        },
+                        {
+                          "bold": true,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": "19 calls"
+                        },
+                        {
+                          "bold": false,
+                          "code": false,
+                          "italic": false,
+                          "link": null,
+                          "text": " this week, and 3 of them were missed."
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "prompt_placeholder": "Ask District HQ",
+        "retry_label": "Try again",
+        "thinking": null,
+        "title": "District HQ"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Hq",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": "Sending",
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
