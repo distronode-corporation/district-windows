@@ -45,6 +45,7 @@ public sealed class SceneWalkTests
         ("Account", "Account"),
         ("Analytics", "Analytics"),
         ("Support", "Support"),
+        ("District HQ", "District HQ"),
     ];
 
     /// <summary>
