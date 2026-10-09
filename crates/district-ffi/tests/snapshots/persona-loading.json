@@ -1,0 +1,56 @@
+{
+  "screen": {
+    "Persona": {
+      "view": {
+        "audition": null,
+        "can_preview": false,
+        "can_retry_options": false,
+        "can_save": false,
+        "clear_hint": "Clearing a box saves it as empty. Anything you do not change is kept as it is.",
+        "engine": null,
+        "engine_editable": false,
+        "engine_heading": "Language and answers",
+        "engine_note": "Reading the languages this workspace may use.",
+        "greeting": "",
+        "name": "",
+        "notice": null,
+        "personality": "",
+        "preview_enabled": true,
+        "preview_label": "Try this receptionist",
+        "refit_line": null,
+        "save_label": "Save",
+        "saving": false,
+        "status": "Loading",
+        "text_editable": false,
+        "texts_heading": "What it says",
+        "title": "Persona"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

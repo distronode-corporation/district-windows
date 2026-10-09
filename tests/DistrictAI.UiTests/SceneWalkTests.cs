@@ -54,6 +54,16 @@ public sealed class SceneWalkTests
     ];
 
     /// <summary>
+    /// The settings sections built so far, by their hub row's title: each is
+    /// opened from the Workspace settings hub, and its page's level-one
+    /// heading must be that title. A section's packet adds its row here.
+    /// </summary>
+    private static readonly string[] _settingsSections =
+    [
+        "Persona",
+    ];
+
+    /// <summary>
     /// The conversation the Inbox opens first: the scene answers the inbox with
     /// the core's district-conversations.json, whose first thread is this
     /// contact's (the thread page's heading), and its timeline and draft from
@@ -109,6 +119,19 @@ public sealed class SceneWalkTests
                 && !Visit(app, handle, "Conversation", () => OpenFirstConversation(app), ConversationTitle, shots, ++index, problems, ReplyBoxName))
             {
                 break;
+            }
+            // The built settings sections, each from the hub's row, and back to
+            // the hub for the next.
+            if (entry.StartsWith("Workspace settings", StringComparison.Ordinal))
+            {
+                foreach (var section in _settingsSections)
+                {
+                    if (!Visit(app, handle, section, () => OpenSettingsRow(app, section), section, shots, ++index, problems)
+                        || !Visit(app, handle, entry, () => Open(app, entry), entry, null, index, problems))
+                    {
+                        break;
+                    }
+                }
             }
             foreach (var sub in _subPages.Where(sub => entry.StartsWith(sub.Entry, StringComparison.Ordinal)))
             {
@@ -230,6 +253,31 @@ public sealed class SceneWalkTests
             .Select(item => item.Name)
             .Where(name => name.Length > 0)
             .Distinct()];
+
+    /// <summary>
+    /// Opens the hub's row for <paramref name="title"/>, as a click on it does.
+    /// A row's name is its title, then what the section holds.
+    /// </summary>
+    private static void OpenSettingsRow(InstalledApp app, string title)
+    {
+        var row = Wait.For(
+            () => app.Automation.GetDesktop()
+                .FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Window)))
+                ?.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
+                .FirstOrDefault(item => !item.Properties.IsOffscreen.ValueOrDefault
+                    && NameOf(item).StartsWith(title + ". ", StringComparison.Ordinal)),
+            _pageTimeout,
+            $"the settings row \"{title}\"",
+            app.Describe);
+        if (row.Patterns.Invoke.IsSupported)
+        {
+            row.Patterns.Invoke.Pattern.Invoke();
+        }
+        else
+        {
+            row.Click();
+        }
+    }
 
     /// <summary>Opens the Inbox's first conversation, as a click on it does.</summary>
     private static void OpenFirstConversation(InstalledApp app)
