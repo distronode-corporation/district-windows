@@ -17,10 +17,6 @@ use crate::views::{
     failure, humanize,
 };
 
-/// Why 1.0 showed conversations without a reply box. Not shown since the reply
-/// box was built: a thread without one says why in the core's words.
-pub const READ_ONLY_NOTE: &str =
-    "Replies are sent from the web dashboard or the District AI phone apps.";
 /// The heading of a conversation that could not be read, as the Linux app words it.
 pub const THREAD_FAILED_TITLE: &str = "Could not load this conversation";
 

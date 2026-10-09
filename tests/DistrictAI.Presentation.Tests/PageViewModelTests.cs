@@ -266,7 +266,7 @@ public sealed class ContactsViewModelTests
     public void ItListsTheContactsAndTheirCount()
     {
         var contacts = new ContactsViewModel();
-        contacts.Show(new ContactsView(V.Ready, [new ContactRowView("c-1", "Alex", string.Empty)], null, "1 contact", V.Paging(canLoadMore: true, refreshing: true)));
+        contacts.Show(new ContactsView(V.Ready, [new ContactRowView("c-1", "Alex", string.Empty)], null, "1 contact", V.Paging(canLoadMore: true, refreshing: true), false, null));
 
         Assert.Equal([new ContactRowItem("c-1", "Alex", string.Empty)], contacts.Rows);
         Assert.Equal("1 contact", contacts.TotalLabel);
@@ -274,7 +274,7 @@ public sealed class ContactsViewModelTests
         Assert.True(contacts.Load.Refreshing);
         Assert.True(contacts.Paging.LoadMoreEnabled);
 
-        contacts.Show(new ContactsView(V.Ready, [], new EmptyView("No contacts", string.Empty), null, V.Paging(refreshFailure: V.Failure("Offline."))));
+        contacts.Show(new ContactsView(V.Ready, [], new EmptyView("No contacts", string.Empty), null, V.Paging(refreshFailure: V.Failure("Offline.")), false, null));
         Assert.Equal(string.Empty, contacts.TotalLabel);
         Assert.False(contacts.HasTotalLabel);
         Assert.True(contacts.Load.ShowEmpty);
@@ -289,7 +289,7 @@ public sealed class ContactsViewModelTests
 
         var (context, sink) = Pages.Context();
         contacts.Attach(context);
-        contacts.Show(new ContactsView(V.Ready, [], null, null, V.Paging(canLoadMore: true)));
+        contacts.Show(new ContactsView(V.Ready, [], null, null, V.Paging(canLoadMore: true), false, null));
         contacts.OpenContact(new ContactRowItem("c-1", "Alex", string.Empty));
         contacts.Paging.LoadMoreCommand.Execute(null);
         contacts.Load.RetryCommand.Execute(null);
@@ -309,7 +309,7 @@ public sealed class ContactDetailViewModelTests
         FailureView? failure = null,
         ReportAvailability report = ReportAvailability.Hidden,
         string? phone = null) =>
-        new("c-1", V.Ready, "Alex", "+1 212 555 0100", [new FactView("Company", "Example")], numberFacts ?? [], createdAt, updatedAt, research, dossier, failure, report, phone);
+        new("c-1", V.Ready, "Alex", "+1 212 555 0100", [new FactView("Company", "Example")], numberFacts ?? [], createdAt, updatedAt, research, dossier, failure, report, phone, false, null, null, null, null);
 
     [Fact]
     public void ItShowsTheContactAndTheDossier()
@@ -363,7 +363,7 @@ public sealed class ContactDetailViewModelTests
     public void AContactWithLittleKnown()
     {
         var detail = new ContactDetailViewModel();
-        detail.Show(new ContactDetailView("c-2", V.Ready, "Sam", string.Empty, [], [], null, "not a time", null, null, null, ReportAvailability.Hidden, null), reportSending: true);
+        detail.Show(new ContactDetailView("c-2", V.Ready, "Sam", string.Empty, [], [], null, "not a time", null, null, null, ReportAvailability.Hidden, null, false, null, null, null, null), reportSending: true);
 
         Assert.False(detail.HasReach);
         Assert.Empty(detail.Facts);

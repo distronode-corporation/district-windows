@@ -91,19 +91,24 @@ pub use crate::calls::{
 pub use crate::calls_live::{
     ActiveCallView, DialerView, IncomingRingView, active_call_view, dialer_view, incoming_ring_view,
 };
-pub use crate::contacts::{CONTACT_FAILED_TITLE, ContactDetailView, ContactRowView, ContactsView};
+pub use crate::contacts::{
+    CONTACT_FAILED_TITLE, ContactDetailView, ContactFormInput, ContactFormView,
+    ContactQuestionView, ContactRowView, ContactWritesView, ContactsAction, ContactsView,
+};
 pub use crate::core::{Core, StartConfig, StartError};
 pub use crate::events::UiEvent;
 pub use crate::host::{NotificationActionView, NotificationView, UiHost};
 pub use crate::identity::{PRODUCT, client_identity};
 pub use crate::inbox::{
-    InboxView, READ_ONLY_NOTE, SearchHitView, SearchView, THREAD_FAILED_TITLE, ThreadRowView,
-    ThreadView, TimelineItemView, TimelineKind,
+    InboxView, SearchHitView, SearchView, THREAD_FAILED_TITLE, ThreadRowView, ThreadView,
+    TimelineItemView, TimelineKind,
 };
 pub use crate::link::{LinkKind, link_kind};
 pub use crate::nav::{NavDestination, NavEntryView, NavGroupView, NavSection, NavView};
 pub use crate::overview::{FinishSetupView, NO_RECENT_CALLS, OVERVIEW_FAILED_TITLE, OverviewView};
-pub use crate::report::{NO_NOTE, NOTE_LIMIT, PREAMBLE, REPORT_SUBJECT, ReportStatus};
+pub use crate::report::{
+    DRAFT_OPEN, NO_NOTE, NOTE_LIMIT, PREAMBLE, REPORT_SUBJECT, ReportStatus, ui_events,
+};
 pub use crate::screen::{
     ScreenView, SessionScreen, UNAVAILABLE_BODY, UNAVAILABLE_TITLE, screen_view,
 };

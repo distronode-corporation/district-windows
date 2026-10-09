@@ -214,6 +214,10 @@ pub enum ReportTarget {
         /// The conversation. Never sent, as for [`ReportTarget::ThreadEvent`].
         thread_key: String,
     },
+    /// An answer District HQ gave. The service keeps no conversation and gives
+    /// an answer no id, so the report names its kind, and the member's note
+    /// says the rest.
+    HqAnswer,
 }
 
 /// What the service writes in a call's summary field when there is no summary:

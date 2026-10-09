@@ -2,16 +2,20 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels.Contacts;
 
 namespace DistrictAI.ViewModels;
 
-/// <summary>One contact: their details and the AI dossier. Read-only in this build.</summary>
+/// <summary>One contact: their details, the AI dossier, and the changes a member may make (<see cref="Changes"/>).</summary>
 public sealed partial class ContactDetailViewModel : ObservableObject
 {
     private PageContext? _context;
 
     /// <summary>Loading and failure.</summary>
     public LoadStateViewModel Load { get; } = new();
+
+    /// <summary>Edit, Delete, research, Block and Unblock, and the core's questions.</summary>
+    public ContactChangesViewModel Changes { get; } = new();
 
     /// <summary>The number "Call" dials, E.164, or empty for none.</summary>
     public string PhoneNumber { get; private set; } = string.Empty;
@@ -92,6 +96,7 @@ public sealed partial class ContactDetailViewModel : ObservableObject
     {
         _context = context;
         Load.Attach(context);
+        Changes.Attach(context);
     }
 
     internal void Show(ContactDetailView view, bool reportSending)
@@ -120,6 +125,7 @@ public sealed partial class ContactDetailViewModel : ObservableObject
         ReportEnabled = !reportSending;
         PhoneNumber = view.PhoneNumber ?? string.Empty;
         CanCall = PhoneNumber.Length > 0 && (_context?.CallsAvailable ?? false);
+        Changes.Show(view);
     }
 
     private static void AddWhen(List<FactItem> facts, string label, string? iso)

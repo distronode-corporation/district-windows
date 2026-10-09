@@ -249,7 +249,25 @@ fn a_member_gets_the_box() {
     assert!(!composer.can_send, "nothing typed");
     assert!(composer.can_draft_reply);
     assert_eq!(note, "");
-    assert_eq!(offered(&session).len(), 5);
+    // The pane's 2.0 entries are nav.rs's to pin; the box adds no entry and
+    // the thread keeps the inbox highlighted.
+    let offered = offered(&session);
+    assert!(
+        [
+            NavDestination::Overview,
+            NavDestination::Inbox,
+            NavDestination::Calls,
+            NavDestination::Contacts,
+            NavDestination::Account,
+        ]
+        .iter()
+        .all(|entry| offered.contains(entry)),
+        "{offered:?}"
+    );
+    assert_eq!(
+        shell_json(&session)["nav_selected"],
+        json!(NavDestination::Inbox)
+    );
 }
 
 /// A viewer gets no box, and the core's words for why; so does a thread

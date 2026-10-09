@@ -27,7 +27,10 @@ pub(crate) const BUILT: bool = true;
 /// The AI button, as District AI for Linux words it.
 pub const DRAFT_REPLY_LABEL: &str = "Draft a reply with AI";
 /// What the AI button does and that each press is billed, as District AI for
-/// Linux's tooltip on the button says it. The core has no words for this.
+/// Linux's tooltip on the button says it, word for word: the core (2.0.0
+/// included) has no words for this, and nothing in it is Linux-only, so
+/// Windows needs no line of its own. It names a charge to the workspace and
+/// offers nothing to buy, which the store-copy check holds.
 pub const DRAFT_REPLY_NOTE: &str = "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed.";
 /// The heading over a reply the model wrote, while it is in the box.
 pub const AI_DRAFT: &str = "AI draft";

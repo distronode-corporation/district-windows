@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
 using DistrictAI.Platform;
@@ -30,7 +31,6 @@ public sealed partial class App : Application, IDisposable
     private PowerWatch? _power;
     private RingtonePlayer? _ringtone;
     private WindowAttention? _attention;
-    private BrandPalette? _palette;
     // Set by Quit, so the window's Closing is no longer turned into a hide.
     private bool _quitting;
 
@@ -54,7 +54,6 @@ public sealed partial class App : Application, IDisposable
         var queue = DispatcherQueue.GetForCurrentThread();
         _core = new CoreHost(new QueueDispatcher(queue), new LauncherBrowser(queue));
         _window = new MainWindow(_core);
-        _palette = new BrandPalette(_window);
         _window.Closed += OnClosed;
         _window.AppWindow.Closing += OnClosing;
         // Before Start: the core may ring, notify or ask for the window as soon
@@ -91,9 +90,10 @@ public sealed partial class App : Application, IDisposable
                 _core?.Send(new UiEvent.WindowVisible(visible));
             }
         };
-        Handle(_launch);
+        var launch = Activation.Read(_launch);
+        Handle(launch);
         // Started by Windows at sign-in: stay in the tray until asked for.
-        if (_launch.Kind != ExtendedActivationKind.StartupTask)
+        if (launch.Kind != ExtendedActivationKind.StartupTask)
         {
             ShowWindow();
         }
@@ -106,34 +106,61 @@ public sealed partial class App : Application, IDisposable
         return $"{version.Major}.{version.Minor}.{version.Build}";
     }
 
-    /// <summary>An activation a second process redirected here. Arrives on a background thread.</summary>
-    private void OnRedirected(object? sender, AppActivationArguments args) =>
+    /// <summary>
+    /// An activation a second process redirected here. Arrives on a background
+    /// thread while that process waits for the redirection to be delivered, and
+    /// its arguments are that process's objects: they are read here, before it
+    /// exits, and only the values go to the UI thread. Read later, from the
+    /// queued callback, they failed with RPC_S_CALL_FAILED once it had gone,
+    /// and the exception ended this app (a link from the browser's sign-in, for
+    /// one).
+    /// </summary>
+    private void OnRedirected(object? sender, AppActivationArguments args)
+    {
+        Activation activation;
+        try
+        {
+            activation = Activation.Read(args);
+        }
+        catch (COMException)
+        {
+            // It went already. What it carried is lost (a sign-in waits for the
+            // next link), but the window is still what was asked for.
+            activation = new Activation(ExtendedActivationKind.Launch, null, null);
+        }
         _window?.DispatcherQueue.TryEnqueue(() =>
         {
-            Handle(args);
-            if (args.Kind != ExtendedActivationKind.StartupTask)
+            Handle(activation);
+            if (activation.Kind != ExtendedActivationKind.StartupTask)
             {
                 ShowWindow();
             }
         });
+    }
 
-    private void Handle(AppActivationArguments args)
+    private void Handle(Activation activation)
     {
-        if (args.Kind == ExtendedActivationKind.Protocol && args.Data is IProtocolActivatedEventArgs protocol)
+        if (activation.Link is { } link)
         {
-            _core?.OpenLink(protocol.Uri.AbsoluteUri);
+            _core?.OpenLink(link);
         }
         // A toast pressed while the app was not running.
-        if (args.Kind == ExtendedActivationKind.AppNotification && args.Data is AppNotificationActivatedEventArgs notification)
+        if (activation.Notification is { } notification)
         {
             ActivateNotification(notification);
         }
         // Launch: nothing more to do.
     }
 
-    /// <summary>A toast pressed while the app runs. Arrives on a background thread.</summary>
-    private void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args) =>
-        _window?.DispatcherQueue.TryEnqueue(() => ActivateNotification(args));
+    /// <summary>
+    /// A toast pressed while the app runs. Arrives on a background thread, and
+    /// like a redirection its arguments are read before the UI thread runs.
+    /// </summary>
+    private void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)
+    {
+        var arguments = new Dictionary<string, string>(args.Arguments);
+        _window?.DispatcherQueue.TryEnqueue(() => ActivateNotification(arguments));
+    }
 
     /// <summary>
     /// Hands a toast's press to the core, which knows what the notification was
@@ -141,9 +168,9 @@ public sealed partial class App : Application, IDisposable
     /// Decline) leaves that to the core, which asks for the window when the
     /// press needs it.
     /// </summary>
-    private void ActivateNotification(AppNotificationActivatedEventArgs args)
+    private void ActivateNotification(IDictionary<string, string> arguments)
     {
-        if (!ToastNotifier.TryReadActivation(args.Arguments, out var id, out var actionId))
+        if (!ToastNotifier.TryReadActivation(arguments, out var id, out var actionId))
         {
             return;
         }
@@ -252,8 +279,27 @@ public sealed partial class App : Application, IDisposable
         _ringtone = null;
         _tray?.Dispose();
         _tray = null;
-        _palette?.Dispose();
-        _palette = null;
         GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// What an activation asks for, copied out of its <see cref="AppActivationArguments"/>:
+    /// its kind, the link it opens, and a pressed toast's arguments.
+    /// </summary>
+    private sealed record Activation(ExtendedActivationKind Kind, string? Link, IDictionary<string, string>? Notification)
+    {
+        /// <summary>Reads everything an activation carries, at once.</summary>
+        public static Activation Read(AppActivationArguments args)
+        {
+            var kind = args.Kind;
+            return kind switch
+            {
+                ExtendedActivationKind.Protocol when args.Data is IProtocolActivatedEventArgs protocol =>
+                    new Activation(kind, protocol.Uri.AbsoluteUri, null),
+                ExtendedActivationKind.AppNotification when args.Data is AppNotificationActivatedEventArgs notification =>
+                    new Activation(kind, null, new Dictionary<string, string>(notification.Arguments)),
+                _ => new Activation(kind, null, null),
+            };
+        }
     }
 }

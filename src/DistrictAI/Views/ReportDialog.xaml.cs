@@ -8,7 +8,9 @@ namespace DistrictAI.Views;
 /// <summary>
 /// Reporting AI-generated content (a call summary, a dossier): an optional
 /// note, then Send. A member whose role cannot send support requests is sent
-/// to the support page on the web instead.
+/// to the support page on the web instead. While a support request is being
+/// written in Support, the dialog says so instead of sending, and keeps the
+/// note.
 /// </summary>
 public sealed partial class ReportDialog : ContentDialog
 {
@@ -47,9 +49,26 @@ public sealed partial class ReportDialog : ContentDialog
         try
         {
             var dialog = new ReportDialog { XamlRoot = root };
-            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            dialog.Note.Text = context.TakeReportNote(target);
+            // A support request being written in Support shares the form a
+            // report fills: the dialog says so and does not send, and keeps
+            // the note for when the request is sent or discarded.
+            var refusal = context.ReportRefusal;
+            if (refusal is not null)
             {
-                context.Send(new UiEvent.Report(target, dialog.Note.Text.Trim()));
+                dialog.Refusal.Message = refusal;
+                dialog.Refusal.IsOpen = true;
+                dialog.IsPrimaryButtonEnabled = false;
+            }
+            var result = await dialog.ShowAsync();
+            var note = dialog.Note.Text.Trim();
+            if (refusal is null && result == ContentDialogResult.Primary)
+            {
+                context.Send(new UiEvent.Report(target, note));
+            }
+            else if (refusal is not null)
+            {
+                context.KeepReportNote(target, note);
             }
         }
         finally

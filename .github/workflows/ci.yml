@@ -22,8 +22,9 @@ name: CI
 #   view models in DistrictAI.Presentation, checks the formatting of the whole
 #   solution, builds the WinUI app with warnings as errors and packages it as
 #   an MSIX signed with a throwaway certificate made in the job (never
-#   committed, never kept), then builds and packages the GitHub flavour
-#   (Package.GitHub.appxmanifest) unsigned, as a release does.
+#   committed, never kept), installs that package and runs the UI smoke tests
+#   against it (tests/DistrictAI.UiTests), then builds and packages the GitHub
+#   flavour (Package.GitHub.appxmanifest) unsigned, as a release does.
 #
 # Any job on a Windows runner carries `if: ${{ !github.event.repository.private }}`:
 # private Windows minutes are metered, public ones are not.
@@ -402,6 +403,30 @@ jobs:
           ./scripts/run-wack.ps1 -Package $msix.FullName -Certificate (Join-Path $out 'District-AI-CI-test.cer') `
             -Report (Join-Path $out 'wack-report.xml') -Dependencies $(if (Test-Path $deps) { $deps } else { '' })
 
+      # Self-contained: the package carries .NET. The runner has .NET
+      # installed, so the app starting here proves nothing about a PC without
+      # it (v1.0.0 needed the .NET Desktop Runtime and did not start on one).
+      - name: The test MSIX carries its own .NET runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $msix = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'AppPackages') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
+          if ($msix.Count -ne 1) { throw "expected one DistrictAI MSIX, found $($msix.Count)" }
+          $zip = [IO.Compression.ZipFile]::OpenRead($msix[0].FullName)
+          try {
+            foreach ($runtime in 'hostfxr.dll', 'hostpolicy.dll', 'coreclr.dll') {
+              if (-not $zip.GetEntry($runtime)) { throw "the MSIX has no $runtime at its root: it is not self-contained" }
+            }
+            $config = $zip.GetEntry('DistrictAI.runtimeconfig.json')
+            if (-not $config) { throw 'the MSIX has no DistrictAI.runtimeconfig.json' }
+            $reader = [IO.StreamReader]::new($config.Open())
+            $runtimeConfig = $reader.ReadToEnd() | ConvertFrom-Json
+            $reader.Dispose()
+            if (-not $runtimeConfig.runtimeOptions.includedFrameworks) { throw "the runtimeconfig has no includedFrameworks: it is framework-dependent" }
+            Write-Host "self-contained: $(($runtimeConfig.runtimeOptions.includedFrameworks | ForEach-Object { "$($_.name) $($_.version)" }) -join ', ')"
+          } finally { $zip.Dispose() }
+
       # The package carries libwebrtc's licence texts, which DistrictAI.csproj
       # takes from the archive the fetch step unpacked.
       - name: The test MSIX carries libwebrtc's licences
@@ -419,6 +444,17 @@ jobs:
             if ($entry.Length -ne $want) { throw "ThirdPartyNotices/libwebrtc-LICENSE.md is $($entry.Length) bytes, the archive's is $want" }
             Write-Host "ThirdPartyNotices/libwebrtc-LICENSE.md: $($entry.Length) bytes"
           } finally { $zip.Dispose() }
+
+      # The test MSIX installed as a user installs it and driven through UI
+      # Automation (tests/DistrictAI.UiTests, FlaUI): it starts and shows the
+      # sign-in page, a districtai:// link while it runs reaches the one
+      # instance, closing the window hides it, and the tray menu's Quit ends
+      # it. The script trusts the certificate for the run and always removes
+      # the package again.
+      - name: UI smoke tests of the installed test MSIX
+        shell: pwsh
+        timeout-minutes: 15
+        run: ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'AppPackages')
 
       # The GitHub flavour, unsigned, as release.yml builds it, so a flavour
       # that no longer builds or packages fails here and not at a release tag.
