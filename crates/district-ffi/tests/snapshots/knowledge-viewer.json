@@ -1,0 +1,105 @@
+{
+  "screen": {
+    "Knowledge": {
+      "view": {
+        "add_billed": "Adding a document is billed by its length. It is added once, when you press Add.",
+        "add_enabled": true,
+        "add_heading": "Add a document",
+        "add_label": "Add document",
+        "add_rejected": null,
+        "adding": false,
+        "can_change_mode": false,
+        "can_delete": false,
+        "confirm": null,
+        "content_label": "The document's text",
+        "delete_label": "Delete this document",
+        "documents": [
+          {
+            "created_at": "2026-08-15T14:30:00.000Z",
+            "id": "doc_contract_ready",
+            "pieces": "4 pieces",
+            "source_url": null,
+            "state": "Ready",
+            "state_label": "Ready",
+            "title": "Refund policy"
+          },
+          {
+            "created_at": "2026-08-15T14:30:00.000Z",
+            "id": "doc_contract_processing",
+            "pieces": null,
+            "source_url": "https://contract.test/service-area",
+            "state": "Processing",
+            "state_label": "Processing",
+            "title": "Service area"
+          }
+        ],
+        "documents_failed_title": null,
+        "documents_failure": null,
+        "documents_heading": "Documents",
+        "documents_loading": false,
+        "draft_content": "",
+        "draft_editable": true,
+        "draft_title": "",
+        "empty": null,
+        "file_hint": "A plain text file (.txt or .md) of up to 1 MB fills the title and the text. Nothing is added until you press Add document.",
+        "file_label": "Read a text file",
+        "mode_failure": null,
+        "mode_heading": "Where answers come from",
+        "mode_loading": false,
+        "mode_unavailable": null,
+        "mode_unknown": null,
+        "mode_unknown_title": "A setting this app does not know",
+        "modes": [
+          {
+            "body": "Callers' questions are sent to Atlassian, whose assistant writes the answers.",
+            "label": "Linked support knowledge base",
+            "mode": "Linked",
+            "selected": true
+          }
+        ],
+        "notice": null,
+        "show_add": false,
+        "show_delete": false,
+        "title": "Knowledge",
+        "title_label": "Title",
+        "viewer_note": "You have read-only access to this workspace. An agency or client member can add documents and change where answers come from."
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

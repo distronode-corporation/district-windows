@@ -1,0 +1,86 @@
+{
+  "screen": {
+    "CallHandling": {
+      "view": {
+        "availability": {
+          "available": true,
+          "blocked": null,
+          "can_toggle": true,
+          "changing": false,
+          "heading": "Your availability",
+          "label": "Ring me for calls",
+          "note": "Whether your own devices ring for this workspace's calls. A change is sent at once.",
+          "notice": null,
+          "show_switch": true,
+          "status": "Ready"
+        },
+        "can_change": true,
+        "can_edit": true,
+        "can_save": true,
+        "handling_heading": "Who answers",
+        "handling_note": "For every member of this workspace.",
+        "modes": [
+          {
+            "body": "The receptionist takes every incoming call.",
+            "label": "The receptionist answers",
+            "mode": "AiFirst",
+            "selected": false
+          },
+          {
+            "body": "The receptionist takes the call and can hand it to the members' devices.",
+            "label": "The receptionist answers, then your devices ring",
+            "mode": "AiThenApp",
+            "selected": false
+          },
+          {
+            "body": "The members' devices ring before the receptionist answers.",
+            "label": "Your devices ring first",
+            "mode": "AppFirst",
+            "selected": true
+          }
+        ],
+        "notice": {
+          "message": "Something went wrong on our side. Please try again shortly.",
+          "saved": false
+        },
+        "ring_hint": "Between 5 and 30 seconds.",
+        "ring_label": "How long your devices ring",
+        "ring_max": 30,
+        "ring_min": 5,
+        "ring_seconds": 12,
+        "ring_words": "12 seconds",
+        "saving": false,
+        "status": "Ready",
+        "title": "Call handling",
+        "unknown_mode": null,
+        "viewer_note": null
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

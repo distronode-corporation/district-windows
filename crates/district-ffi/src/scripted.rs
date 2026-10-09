@@ -99,6 +99,17 @@ fn decode<T: DeserializeOwned>(text: &str) -> Result<T, ApiError> {
     serde_json::from_value(value).map_err(|_| broken())
 }
 
+/// A write's answer `text`, whose answer holds nothing worth keeping: landed
+/// when it says `success`, else a server error.
+fn written(text: &str) -> Result<(), ApiError> {
+    let answer: Value = decode(text)?;
+    if answer["success"] == json!(true) {
+        Ok(())
+    } else {
+        Err(broken())
+    }
+}
+
 fn broken() -> ApiError {
     ApiError::Server {
         status: 500,
@@ -298,6 +309,33 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             result: decode(fixture!("district-knowledge-mode.json")),
         },
+        // The writes of the Skills and Knowledge sections land, as the
+        // service answers them: each settings write is followed by the read
+        // the core asks for, answered above.
+        Effect::SaveTools { ticket, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(fixture!("district-tools-patch.json")),
+        },
+        // A persona save (Voice Studio's too) is accepted. The scene keeps
+        // nothing, so the read after it is the recorded one again, and Voice
+        // Studio says the workspace does not hold what was sent, as the core
+        // does when the service stores something else.
+        Effect::SavePersona { ticket, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(fixture!("district-persona-patch.json")),
+        },
+        Effect::AddKnowledgeDocument { ticket, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(fixture!("district-knowledge-create.json")),
+        },
+        Effect::DeleteKnowledgeDocument { ticket, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(fixture!("district-knowledge-delete.json")),
+        },
+        Effect::SetKnowledgeMode { ticket, .. } => Event::KnowledgeModeLoaded {
+            ticket,
+            result: decode(fixture!("district-knowledge-mode-patch.json")),
+        },
         Effect::LoadMessaging { ticket, .. } => Event::MessagingLoaded {
             ticket,
             result: decode(fixture!("district-messaging.json")),
@@ -306,6 +344,38 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             result: decode(fixture!("district-members.json")),
         },
+        // The core has no fixture for call handling or availability: the
+        // smallest answers of the shapes it decodes (district-model's
+        // CallHandlingResponse and AvailabilityResponse), a workspace that
+        // never chose (the receptionist answers, a 20 second ring) and a
+        // member who is rung. A save is answered as stored; the scene keeps
+        // nothing, so the next read is the first answer again.
+        Effect::LoadCallHandling { ticket, .. } => Event::CallHandlingLoaded {
+            ticket,
+            result: call_handling(None, None),
+        },
+        Effect::SaveCallHandling { ticket, patch, .. } => Event::CallHandlingLoaded {
+            ticket,
+            result: call_handling(patch.call_handling, patch.app_ring_seconds),
+        },
+        Effect::LoadAvailability { ticket, .. } => Event::AvailabilityLoaded {
+            ticket,
+            result: availability(true),
+        },
+        Effect::SetAvailability {
+            ticket, available, ..
+        } => Event::AvailabilityLoaded {
+            ticket,
+            result: availability(available),
+        },
+        // The transfer directory's and the routing rules' saves land; the
+        // read that follows is answered with the settings fixture above.
+        Effect::SaveDirectory { ticket, .. } | Effect::SaveRoutingRules { ticket, .. } => {
+            Event::SettingsWritten {
+                ticket,
+                result: Ok(()),
+            }
+        }
         Effect::ReadRingSetting { ticket } => Event::RingSettingRead {
             ticket,
             ring_here: true,
@@ -333,6 +403,30 @@ fn signed_in(effect: Effect) -> Option<Event> {
         // for. Unanswered, as with no network.
         _ => return None,
     })
+}
+
+/// Call handling as stored: `mode` and `ring` where a save names them, else
+/// what a workspace that never chose has.
+fn call_handling(
+    mode: Option<district_model::CallHandlingMode>,
+    ring: Option<i64>,
+) -> Result<district_model::CallHandlingResponse, ApiError> {
+    serde_json::from_value(json!({
+        "success": true,
+        "callHandling": mode.map_or("ai_first", district_model::CallHandlingMode::as_str),
+        "appRingSeconds": ring.unwrap_or(district_model::DEFAULT_APP_RING_SECONDS),
+    }))
+    .map_err(|_| broken())
+}
+
+/// The member's availability as stored: `available`, with nothing against it.
+fn availability(available: bool) -> Result<district_model::AvailabilityResponse, ApiError> {
+    serde_json::from_value(json!({
+        "success": true,
+        "availableForCalls": available,
+        "reason": null,
+    }))
+    .map_err(|_| broken())
 }
 
 /// The recorded transcript snapshot, for `call_id` in the scripted
@@ -550,6 +644,7 @@ mod tests {
             Route::Workspace(S::Hub),
             Route::Workspace(S::Persona),
             Route::Workspace(S::VoiceStudio),
+            Route::Workspace(S::CallHandling),
             Route::Workspace(S::Routing),
             Route::Workspace(S::Directory),
             Route::Workspace(S::Tools),
@@ -572,6 +667,191 @@ mod tests {
             let screen = after(&mut model, Event::Navigate(route.clone()));
             assert_eq!(unsettled(&screen), None, "{route:?}: {screen:?}");
         }
+    }
+
+    /// Each settings section the walk opens from the hub fills in, and each
+    /// of their saves is answered: the screen is left saved, not saving.
+    #[test]
+    fn each_call_handling_section_opens_from_the_hub_and_saves() {
+        use crate::events::UiEvent;
+        use crate::settings::call_handling::{CallHandlingAction, CallHandlingChoice};
+        use crate::settings::directory::DirectoryAction;
+        use crate::settings::routing::RoutingAction;
+        use crate::settings::{SettingsAction, SettingsSection};
+
+        let mut model = started();
+        let run = |model: &mut Model, action: UiEvent| {
+            let mut pending = Vec::new();
+            for event in action.events() {
+                pending.extend(model.update(event));
+            }
+            settle(model, pending);
+            screen_view(model)
+        };
+        for (section, title) in [
+            (SettingsSection::CallHandling, "Call handling"),
+            (SettingsSection::Routing, "Call routing rules"),
+            (SettingsSection::Directory, "Transfer directory"),
+        ] {
+            let _ = run(
+                &mut model,
+                UiEvent::Settings {
+                    action: SettingsAction::Open,
+                },
+            );
+            let screen = run(
+                &mut model,
+                UiEvent::Settings {
+                    action: SettingsAction::OpenSection { section },
+                },
+            );
+            assert_eq!(unsettled(&screen), None, "{section:?}: {screen:?}");
+            let json = serde_json::to_value(&screen).unwrap();
+            let page = json.as_object().unwrap().values().next().unwrap();
+            assert_eq!(page["view"]["title"], title);
+        }
+
+        let call_handling = |action| UiEvent::CallHandling { action };
+        let _ = run(&mut model, call_handling(CallHandlingAction::Open));
+        let _ = run(
+            &mut model,
+            call_handling(CallHandlingAction::SelectMode {
+                mode: CallHandlingChoice::AppFirst,
+            }),
+        );
+        let _ = run(
+            &mut model,
+            call_handling(CallHandlingAction::SetRingSeconds { seconds: 12 }),
+        );
+        let ScreenView::CallHandling { view } =
+            run(&mut model, call_handling(CallHandlingAction::Save))
+        else {
+            panic!("call handling shows");
+        };
+        assert!(view.notice.as_ref().is_some_and(|n| n.saved), "{view:?}");
+        assert_eq!(view.ring_seconds, 12);
+        assert!(
+            view.modes
+                .iter()
+                .any(|m| m.selected && m.mode == CallHandlingChoice::AppFirst)
+        );
+        let ScreenView::CallHandling { view } = run(
+            &mut model,
+            call_handling(CallHandlingAction::SetAvailable { available: false }),
+        ) else {
+            panic!("call handling shows");
+        };
+        assert!(!view.availability.available);
+        assert!(view.availability.notice.as_ref().is_some_and(|n| n.saved));
+
+        let routing = |action| UiEvent::Routing { action };
+        let _ = run(&mut model, routing(RoutingAction::Open));
+        let _ = run(&mut model, routing(RoutingAction::Add));
+        let _ = run(&mut model, routing(RoutingAction::Save));
+        let ScreenView::Routing { view } = run(&mut model, routing(RoutingAction::ConfirmSave))
+        else {
+            panic!("the routing rules show");
+        };
+        assert!(view.notice.as_ref().is_some_and(|n| n.saved), "{view:?}");
+
+        let directory = |action| UiEvent::Directory { action };
+        let _ = run(&mut model, directory(DirectoryAction::Open));
+        let _ = run(&mut model, directory(DirectoryAction::Remove { index: 0 }));
+        let _ = run(&mut model, directory(DirectoryAction::Save));
+        let ScreenView::Directory { view } =
+            run(&mut model, directory(DirectoryAction::ConfirmSave))
+        else {
+            panic!("the directory shows");
+        };
+        assert!(view.notice.as_ref().is_some_and(|n| n.saved), "{view:?}");
+    }
+
+    /// The Skills and Knowledge sections' writes are answered: each save
+    /// lands and is read back, an added document is listed again, and a
+    /// change of mode is the mode stored. Nothing is left on its way.
+    #[test]
+    fn the_skills_and_knowledge_writes_land() {
+        use district_core::{KnowledgeEvent, ToolsEvent, WorkspaceSection as S};
+        use district_model::KnowledgeMode;
+        let mut model = started();
+        let _ = after(&mut model, Event::Navigate(Route::Workspace(S::Tools)));
+        for event in [
+            Event::Tools(ToolsEvent::Toggle {
+                id: "send_sms".to_owned(),
+                enabled: true,
+            }),
+            Event::Tools(ToolsEvent::SaveTools),
+            Event::Tools(ToolsEvent::SetEnrichment(false)),
+            Event::Tools(ToolsEvent::SaveEnrichment),
+        ] {
+            let screen = after(&mut model, event);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let json = serde_json::to_value(&screen).unwrap();
+            assert_eq!(json["Tools"]["view"]["tools_saving"], json!(false));
+            assert_eq!(json["Tools"]["view"]["research_saving"], json!(false));
+        }
+        let _ = after(&mut model, Event::Navigate(Route::Workspace(S::Knowledge)));
+        for event in [
+            Event::Knowledge(KnowledgeEvent::EditTitle("Parking".to_owned())),
+            Event::Knowledge(KnowledgeEvent::EditContent("Behind the clinic.".to_owned())),
+            Event::Knowledge(KnowledgeEvent::Add),
+            Event::Knowledge(KnowledgeEvent::AskDelete {
+                document_id: "doc_contract_ready".to_owned(),
+            }),
+            Event::Knowledge(KnowledgeEvent::Confirm),
+            Event::Knowledge(KnowledgeEvent::SelectMode(KnowledgeMode::Internal)),
+        ] {
+            let screen = after(&mut model, event);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let view = &serde_json::to_value(&screen).unwrap()["Knowledge"]["view"];
+            assert_eq!(view["adding"], json!(false), "{view}");
+            assert_eq!(view["add_enabled"], json!(true), "{view}");
+        }
+        let screen = serde_json::to_value(screen_view(&model)).unwrap();
+        let view = &screen["Knowledge"]["view"];
+        assert_eq!(view["notice"]["saved"], json!(true), "{view}");
+        assert_eq!(view["modes"][0]["selected"], json!(true), "{view}");
+    }
+
+    /// Voice Studio opens from the hub filled in, and a save in the scene is
+    /// answered: written, read back, and the notice shown.
+    #[test]
+    fn voice_studio_opens_and_its_save_is_answered() {
+        use crate::settings::voice_studio::{StudioPicker, VoiceStudioAction};
+        let mut model = started();
+        let _ = after(
+            &mut model,
+            Event::Navigate(Route::Workspace(district_core::WorkspaceSection::Hub)),
+        );
+        let screen = after(
+            &mut model,
+            Event::Navigate(Route::Workspace(
+                district_core::WorkspaceSection::VoiceStudio,
+            )),
+        );
+        assert_eq!(unsettled(&screen), None, "{screen:?}");
+        for action in [
+            VoiceStudioAction::SelectLeg {
+                leg: "tts".to_owned(),
+            },
+            VoiceStudioAction::Pick {
+                picker: StudioPicker::Voice,
+                value: "aura-2-luna-en".to_owned(),
+            },
+            VoiceStudioAction::Save,
+        ] {
+            let mut pending = Vec::new();
+            for event in (crate::events::UiEvent::VoiceStudio { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+        }
+        let ScreenView::VoiceStudio { view } = screen_view(&model) else {
+            panic!("Voice Studio stays open");
+        };
+        let studio = view.studio.expect("read back");
+        assert!(!studio.saving);
+        assert!(studio.notice.is_some(), "{studio:?}");
     }
 
     /// The walk's one step past the pane: the inbox's first conversation

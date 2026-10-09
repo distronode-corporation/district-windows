@@ -1,0 +1,81 @@
+{
+  "screen": {
+    "CallHandling": {
+      "view": {
+        "availability": {
+          "available": false,
+          "blocked": "Viewers are not rung for calls.",
+          "can_toggle": false,
+          "changing": false,
+          "heading": "Your availability",
+          "label": "Ring me for calls",
+          "note": "Whether your own devices ring for this workspace's calls. A change is sent at once.",
+          "notice": null,
+          "show_switch": false,
+          "status": "Ready"
+        },
+        "can_change": false,
+        "can_edit": false,
+        "can_save": false,
+        "handling_heading": "Who answers",
+        "handling_note": "For every member of this workspace.",
+        "modes": [
+          {
+            "body": "The receptionist takes the call and can hand it to the members' devices.",
+            "label": "The receptionist answers, then your devices ring",
+            "mode": "AiThenApp",
+            "selected": true
+          }
+        ],
+        "notice": null,
+        "ring_hint": "Between 5 and 30 seconds.",
+        "ring_label": "How long your devices ring",
+        "ring_max": 30,
+        "ring_min": 5,
+        "ring_seconds": 15,
+        "ring_words": "15 seconds",
+        "saving": false,
+        "status": "Ready",
+        "title": "Call handling",
+        "unknown_mode": null,
+        "viewer_note": "Only agency and client members can change how this workspace answers calls."
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

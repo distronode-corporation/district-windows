@@ -2,7 +2,164 @@
 <UserControl
     x:Class="DistrictAI.Views.Settings.Routing.RoutingPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:callhandling="using:DistrictAI.Views.Settings.CallHandling"
+    xmlns:vm="using:DistrictAI.ViewModels.Settings.Routing">
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="{StaticResource ReadingWidth}"
+            Padding="{StaticResource PagePadding}"
+            Spacing="8">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.Intro, Mode=OneWay}"
+                TextWrapping="Wrap" />
+
+            <ProgressRing
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Loading"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+            <!-- A failed read, a save not read back, or rules this app cannot edit: no list. -->
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasStatus, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.StatusTitle, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind ViewModel.StatusBody, Mode=OneWay}" TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.Name="{x:Bind ViewModel.StatusAction, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.RetryCommand}"
+                    Content="{x:Bind ViewModel.StatusAction, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasStatusAction, Mode=OneWay}" />
+            </StackPanel>
+
+            <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.IsReady, Mode=OneWay}">
+                <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.ShowEmpty, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.EmptyTitle, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.EmptyBody, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+
+                <!-- One card per rule, in the order they are checked. -->
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Rules}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="12" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RoutingRuleItem">
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="2">
+                                            <TextBlock
+                                                AutomationProperties.HeadingLevel="Level2"
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                Text="{x:Bind Heading, Mode=OneWay}" />
+                                            <TextBlock
+                                                Style="{StaticResource QuietTextStyle}"
+                                                Text="{x:Bind Summary, Mode=OneWay}"
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <Button
+                                            Grid.Column="1"
+                                            VerticalAlignment="Top"
+                                            AutomationProperties.Name="{x:Bind RemoveName, Mode=OneWay}"
+                                            Command="{x:Bind RemoveCommand}"
+                                            Content="Remove"
+                                            IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                            ToolTipService.ToolTip="{x:Bind RemoveName, Mode=OneWay}" />
+                                    </Grid>
+                                    <ComboBox
+                                        HorizontalAlignment="Stretch"
+                                        AutomationProperties.Name="{x:Bind FieldLabel, Mode=OneWay}"
+                                        Header="{x:Bind FieldLabel, Mode=OneWay}"
+                                        IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                        ItemsSource="{x:Bind FieldChoices}"
+                                        SelectedItem="{x:Bind Field, Mode=TwoWay}" />
+                                    <ComboBox
+                                        HorizontalAlignment="Stretch"
+                                        AutomationProperties.Name="{x:Bind OperatorLabel, Mode=OneWay}"
+                                        Header="{x:Bind OperatorLabel, Mode=OneWay}"
+                                        IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                        ItemsSource="{x:Bind OperatorChoices}"
+                                        SelectedItem="{x:Bind Operator, Mode=TwoWay}" />
+                                    <TextBox
+                                        AutomationProperties.Name="Value"
+                                        Header="Value"
+                                        IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                        Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <ComboBox
+                                        HorizontalAlignment="Stretch"
+                                        AutomationProperties.Name="{x:Bind VoiceLabel, Mode=OneWay}"
+                                        Header="{x:Bind VoiceLabel, Mode=OneWay}"
+                                        IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                        ItemsSource="{x:Bind VoiceChoices}"
+                                        SelectedItem="{x:Bind Voice, Mode=TwoWay}" />
+                                    <TextBox
+                                        AcceptsReturn="True"
+                                        AutomationProperties.Name="Instruction"
+                                        Header="Instruction"
+                                        IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                        Text="{x:Bind Instruction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Engine" />
+                                        <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind Engine, Mode=OneWay}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Style="{StaticResource QuietTextStyle}"
+                                        Text="{x:Bind Kept, Mode=OneWay}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind HasKept, Mode=OneWay}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <Button
+                    AutomationProperties.Name="Add a routing rule"
+                    Command="{x:Bind ViewModel.AddCommand}"
+                    Content="Add a rule" />
+
+                <!-- How the last save ended, until dismissed or the list changes. -->
+                <InfoBar
+                    AutomationProperties.Name="Routing rules save"
+                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+                    Severity="{x:Bind callhandling:CallHandlingPage.SeverityFor(ViewModel.NoticeSaved), Mode=OneWay}" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button
+                        AutomationProperties.Name="Save the routing rules"
+                        Command="{x:Bind ViewModel.SaveCommand}"
+                        Content="Save"
+                        Style="{StaticResource AccentButtonStyle}" />
+                    <ProgressRing
+                        Width="20"
+                        Height="20"
+                        AutomationProperties.Name="Saving"
+                        IsActive="{x:Bind ViewModel.Saving, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Saving, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
