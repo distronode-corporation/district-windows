@@ -28,7 +28,10 @@ use district_model::{StudioRecipe, VoiceStudioResponse};
 use serde::Serialize;
 
 use crate::screen::ScreenView;
-use crate::views::{FactView, LoadStatus};
+use crate::settings::{
+    ChoiceView, PickerView, READ_AGAIN, STALE_TITLE, SaveNoticeView, SectionStatus, unlisted,
+};
+use crate::views::FactView;
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
@@ -54,10 +57,11 @@ pub const SLIDER_SCALE: f64 = 1000.0;
 pub struct VoiceStudioView {
     /// The heading, [`VOICE_STUDIO_TITLE`].
     pub title: String,
-    /// Where the read stands. `Failed` carries "Could not load Voice Studio",
-    /// with "Try again" (`UiEvent::Refresh`) when the core says it may work.
-    pub status: LoadStatus,
-    /// The Studio, once read.
+    /// Where the page stands (the settings kit's): being read, failed
+    /// ("Could not load Voice Studio", with "Try again" when the core says it
+    /// may work), saved but not read back (a read, never a save), or the form.
+    pub status: SectionStatus,
+    /// The Studio, when the form shows.
     pub studio: Option<StudioFormView>,
 }
 
@@ -77,7 +81,7 @@ pub struct StudioFormView {
     /// What the tiers mean.
     pub tier_description: String,
     /// Stable and Latest, in order.
-    pub tiers: Vec<StudioChoiceView>,
+    pub tiers: Vec<ChoiceView>,
     /// The tier shown (`stable` or `latest`).
     pub tier: String,
     /// The recipes' heading, "Starting point".
@@ -101,8 +105,9 @@ pub struct StudioFormView {
     pub meter: StudioMeterView,
     /// Where the call is processed.
     pub residency: StudioResidencyView,
-    /// How the last save went, until an edit or "Dismiss".
-    pub notice: Option<StudioNoticeView>,
+    /// How the last save went, until an edit or "Dismiss": saved, or not
+    /// saved (refused, or not held by the workspace), in the read's words.
+    pub notice: Option<SaveNoticeView>,
     /// "Unsaved changes" or "All changes saved".
     pub pending: String,
     /// Whether there are changes to save.
@@ -114,15 +119,6 @@ pub struct StudioFormView {
     /// Whether a save is on its way, with the read after it (show a progress
     /// ring; nothing moves meanwhile).
     pub saving: bool,
-}
-
-/// One choice: what is held, and what is shown.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
-pub struct StudioChoiceView {
-    /// The value sent back.
-    pub value: String,
-    /// The words shown.
-    pub label: String,
 }
 
 /// One recipe of the tier.
@@ -194,11 +190,10 @@ pub struct StudioPickerView {
     pub picker: StudioPicker,
     /// Its label.
     pub label: String,
-    /// What it offers. A held value the list lacks is the last option, under
-    /// its own name (or "Choose a voice"); choosing it changes nothing.
-    pub options: Vec<StudioChoiceView>,
-    /// The value held.
-    pub selected: String,
+    /// Its choices and the value held. A held value the choices lack reads
+    /// as itself, or for a voice as the read's "Choose a voice"; choosing it
+    /// changes nothing.
+    pub choices: PickerView,
 }
 
 /// One tuning control of the open leg.
@@ -241,7 +236,7 @@ pub enum StudioControlView {
     /// A select.
     Select {
         /// What it offers.
-        options: Vec<StudioChoiceView>,
+        options: Vec<ChoiceView>,
         /// What is held; empty for nothing.
         selected: String,
     },
@@ -285,27 +280,6 @@ pub struct StudioResidencyView {
     pub text: String,
     /// One line per leg that leaves it.
     pub legs_out: Vec<String>,
-}
-
-/// How a notice reads.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, uniffi::Enum)]
-pub enum StudioNoticeTone {
-    /// Saved, and read back as sent.
-    Success,
-    /// Saved, and the read after it failed: read it again before anything
-    /// else.
-    Warning,
-    /// Not saved, or not held by the workspace.
-    Error,
-}
-
-/// How the last save went.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
-pub struct StudioNoticeView {
-    /// The words.
-    pub text: String,
-    /// How they read.
-    pub tone: StudioNoticeTone,
 }
 
 /// Something the member did on the Voice section. Reading it again (and so
@@ -424,13 +398,30 @@ pub(crate) fn screen(_model: &Model, signed_in: &SignedIn) -> ScreenView {
 /// The section `section`, for a member who may change it when `can_change`.
 fn voice_studio_view(section: Option<&VoiceStudioSection>, can_change: bool) -> VoiceStudioView {
     let (status, studio) = match section.map(|section| (section, &section.load)) {
-        None | Some((_, VoiceStudioLoad::Loading)) => (LoadStatus::Loading, None),
+        None | Some((_, VoiceStudioLoad::Loading)) => (SectionStatus::Loading, None),
         Some((_, VoiceStudioLoad::Failed(failure))) => (
-            LoadStatus::failed(VoiceStudioSection::FAILED_TITLE, failure),
+            SectionStatus::Failed {
+                title: VoiceStudioSection::FAILED_TITLE.to_owned(),
+                failure: failure.into(),
+            },
             None,
         ),
+        // The save landed and the read after it failed: nothing may be saved
+        // from a Studio the app can no longer vouch for, so no form.
+        Some((section, VoiceStudioLoad::Ready(_)))
+            if matches!(section.save, StudioSaveState::SavedButStale(_)) =>
+        {
+            (
+                SectionStatus::Stale {
+                    title: STALE_TITLE.to_owned(),
+                    body: VoiceStudioSection::SAVED_STALE.to_owned(),
+                    action: READ_AGAIN.to_owned(),
+                },
+                None,
+            )
+        }
         Some((section, VoiceStudioLoad::Ready(ready))) => (
-            LoadStatus::Ready,
+            SectionStatus::Ready,
             Some(form_view(section, ready, can_change)),
         ),
     };
@@ -514,8 +505,8 @@ fn form_view(
     }
 }
 
-fn choice(value: &str, label: &str) -> StudioChoiceView {
-    StudioChoiceView {
+fn choice(value: &str, label: &str) -> ChoiceView {
+    ChoiceView {
         value: value.to_owned(),
         label: label.to_owned(),
     }
@@ -560,7 +551,11 @@ fn editor_view(ready: &StudioReady) -> StudioEditorView {
         .pickers()
         .into_iter()
         .map(|picker| {
-            let selected = picker.selected.clone();
+            let choices: Vec<ChoiceView> = picker.options.iter().map(option_view).collect();
+            let selected_label = choices
+                .iter()
+                .find(|choice| choice.value == picker.selected)
+                .map_or_else(|| unlisted(&picker.selected), |choice| choice.label.clone());
             StudioPickerView {
                 picker: match picker.kind {
                     PickerKind::Vendor => StudioPicker::Vendor,
@@ -568,12 +563,11 @@ fn editor_view(ready: &StudioReady) -> StudioEditorView {
                     PickerKind::Location => StudioPicker::Location,
                 },
                 label: picker.label,
-                options: listed(
-                    picker.options.iter().map(option_view).collect(),
-                    &selected,
-                    &selected,
-                ),
-                selected,
+                choices: PickerView {
+                    choices,
+                    selected: picker.selected,
+                    selected_label,
+                },
             }
         })
         .collect();
@@ -581,7 +575,7 @@ fn editor_view(ready: &StudioReady) -> StudioEditorView {
         let options = voice
             .voices
             .iter()
-            .map(|(group, option)| StudioChoiceView {
+            .map(|(group, option)| ChoiceView {
                 value: option.value.clone(),
                 label: if group.is_empty() {
                     option.label.clone()
@@ -592,9 +586,12 @@ fn editor_view(ready: &StudioReady) -> StudioEditorView {
             .collect();
         StudioPickerView {
             picker: StudioPicker::Voice,
-            options: listed(options, &voice.selected, voice.selected_label()),
+            choices: PickerView {
+                choices: options,
+                selected_label: voice.selected_label().to_owned(),
+                selected: voice.selected,
+            },
             label: voice.label,
-            selected: voice.selected,
         }
     }));
     let controls = tuning_views(ready);
@@ -607,24 +604,11 @@ fn editor_view(ready: &StudioReady) -> StudioEditorView {
     }
 }
 
-fn option_view(option: &PickerOption) -> StudioChoiceView {
-    StudioChoiceView {
+fn option_view(option: &PickerOption) -> ChoiceView {
+    ChoiceView {
         value: option.value.clone(),
         label: option.text(),
     }
-}
-
-/// `options`, with the held value last under `unlisted` when they lack it, so
-/// a picker always shows what is held.
-fn listed(
-    mut options: Vec<StudioChoiceView>,
-    selected: &str,
-    unlisted: &str,
-) -> Vec<StudioChoiceView> {
-    if !options.iter().any(|option| option.value == selected) {
-        options.push(choice(selected, unlisted));
-    }
-    options
 }
 
 fn tuning_views(ready: &StudioReady) -> Vec<StudioTuningView> {
@@ -707,23 +691,22 @@ fn meter_view(ready: &StudioReady) -> StudioMeterView {
     }
 }
 
-/// What the last save says, in the read's words where it has them.
-fn notice(save: &StudioSaveState, studio: &VoiceStudioResponse) -> Option<StudioNoticeView> {
+/// What the last save says, in the read's words. A save that landed and was
+/// not read back is not one: the page says so instead
+/// ([`SectionStatus::Stale`]).
+fn notice(save: &StudioSaveState, studio: &VoiceStudioResponse) -> Option<SaveNoticeView> {
     let labels = &studio.labels;
-    let (text, tone) = match save {
-        StudioSaveState::Idle | StudioSaveState::Saving => return None,
-        StudioSaveState::Saved => (labels.saved.clone(), StudioNoticeTone::Success),
-        StudioSaveState::Mismatch => (labels.save_failed.clone(), StudioNoticeTone::Error),
-        StudioSaveState::Failed(failure) => (
-            format!("{} {}", labels.save_failed, failure.message),
-            StudioNoticeTone::Error,
-        ),
-        StudioSaveState::SavedButStale(failure) => (
-            format!("{} {}", VoiceStudioSection::SAVED_STALE, failure.message),
-            StudioNoticeTone::Warning,
-        ),
+    let (message, saved) = match save {
+        StudioSaveState::Idle | StudioSaveState::Saving | StudioSaveState::SavedButStale(_) => {
+            return None;
+        }
+        StudioSaveState::Saved => (labels.saved.clone(), true),
+        StudioSaveState::Mismatch => (labels.save_failed.clone(), false),
+        StudioSaveState::Failed(failure) => {
+            (format!("{} {}", labels.save_failed, failure.message), false)
+        }
     };
-    Some(StudioNoticeView { text, tone })
+    Some(SaveNoticeView { message, saved })
 }
 
 /// A view with nothing read yet, for the shared tests that carry one across
@@ -758,20 +741,10 @@ mod tests {
     }
 
     #[test]
-    fn a_held_value_the_list_lacks_is_shown_last() {
-        let options = vec![choice("a", "A")];
-        assert_eq!(listed(options.clone(), "a", "Choose"), options);
-        assert_eq!(
-            listed(options, "b", "Choose"),
-            [choice("a", "A"), choice("b", "Choose")]
-        );
-    }
-
-    #[test]
     fn the_sample_has_nothing_read() {
         let view = sample();
         assert_eq!(view.title, VOICE_STUDIO_TITLE);
-        assert_eq!(view.status, LoadStatus::Loading);
+        assert_eq!(view.status, SectionStatus::Loading);
         assert_eq!(view.studio, None);
     }
 }

@@ -63,201 +63,210 @@
             "has_advanced": true,
             "pickers": [
               {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Deepgram",
+                      "value": "deepgram"
+                    },
+                    {
+                      "label": "Cartesia",
+                      "value": "cartesia"
+                    },
+                    {
+                      "label": "Amazon Polly",
+                      "value": "aws-polly"
+                    },
+                    {
+                      "label": "Google Chirp 3 HD",
+                      "value": "google-tts"
+                    }
+                  ],
+                  "selected": "deepgram",
+                  "selected_label": "Deepgram"
+                },
                 "label": "Vendor",
-                "options": [
-                  {
-                    "label": "Deepgram",
-                    "value": "deepgram"
-                  },
-                  {
-                    "label": "Cartesia",
-                    "value": "cartesia"
-                  },
-                  {
-                    "label": "Amazon Polly",
-                    "value": "aws-polly"
-                  },
-                  {
-                    "label": "Google Chirp 3 HD",
-                    "value": "google-tts"
-                  }
-                ],
-                "picker": "Vendor",
-                "selected": "deepgram"
+                "picker": "Vendor"
               },
               {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Aura-2 · Stable",
+                      "value": "aura-2"
+                    },
+                    {
+                      "label": "Flux TTS · Latest",
+                      "value": "flux-tts"
+                    }
+                  ],
+                  "selected": "aura-2",
+                  "selected_label": "Aura-2 · Stable"
+                },
                 "label": "Model",
-                "options": [
-                  {
-                    "label": "Aura-2 · Stable",
-                    "value": "aura-2"
-                  },
-                  {
-                    "label": "Flux TTS · Latest",
-                    "value": "flux-tts"
-                  }
-                ],
-                "picker": "Model",
-                "selected": "aura-2"
+                "picker": "Model"
               },
               {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Asteria (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-asteria-en"
+                    },
+                    {
+                      "label": "Luna (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-luna-en"
+                    },
+                    {
+                      "label": "Athena (UK English - Feminine) (English (Feminine))",
+                      "value": "aura-2-athena-en"
+                    },
+                    {
+                      "label": "Hera (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-hera-en"
+                    },
+                    {
+                      "label": "Harmonia (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-harmonia-en"
+                    },
+                    {
+                      "label": "Callista (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-callista-en"
+                    },
+                    {
+                      "label": "Ophelia (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-ophelia-en"
+                    },
+                    {
+                      "label": "Andromeda (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-andromeda-en"
+                    },
+                    {
+                      "label": "Juno (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-juno-en"
+                    },
+                    {
+                      "label": "Cora (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-cora-en"
+                    },
+                    {
+                      "label": "Cordelia (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-cordelia-en"
+                    },
+                    {
+                      "label": "Helena (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-helena-en"
+                    },
+                    {
+                      "label": "Minerva (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-minerva-en"
+                    },
+                    {
+                      "label": "Pandora (US English - Feminine) (English (Feminine))",
+                      "value": "aura-2-pandora-en"
+                    },
+                    {
+                      "label": "Orion (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-orion-en"
+                    },
+                    {
+                      "label": "Arcas (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-arcas-en"
+                    },
+                    {
+                      "label": "Orpheus (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-orpheus-en"
+                    },
+                    {
+                      "label": "Zeus (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-zeus-en"
+                    },
+                    {
+                      "label": "Hermes (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-hermes-en"
+                    },
+                    {
+                      "label": "Neptune (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-neptune-en"
+                    },
+                    {
+                      "label": "Apollo (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-apollo-en"
+                    },
+                    {
+                      "label": "Mars (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-mars-en"
+                    },
+                    {
+                      "label": "Aries (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-aries-en"
+                    },
+                    {
+                      "label": "Jupiter (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-jupiter-en"
+                    },
+                    {
+                      "label": "Saturn (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-saturn-en"
+                    },
+                    {
+                      "label": "Draco (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-draco-en"
+                    },
+                    {
+                      "label": "Janus (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-janus-en"
+                    },
+                    {
+                      "label": "Odysseus (US English - Masculine) (English (Masculine))",
+                      "value": "aura-2-odysseus-en"
+                    },
+                    {
+                      "label": "Sirio (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-sirio-es"
+                    },
+                    {
+                      "label": "Carina (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-carina-es"
+                    },
+                    {
+                      "label": "Selena (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-selena-es"
+                    },
+                    {
+                      "label": "Javier (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-javier-es"
+                    },
+                    {
+                      "label": "Diana (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-diana-es"
+                    },
+                    {
+                      "label": "Nestor (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-nestor-es"
+                    },
+                    {
+                      "label": "Celeste (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-celeste-es"
+                    },
+                    {
+                      "label": "Alvaro (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-alvaro-es"
+                    },
+                    {
+                      "label": "Aquila (Spanish - Masculine) (Spanish)",
+                      "value": "aura-2-aquila-es"
+                    },
+                    {
+                      "label": "Estrella (Spanish - Feminine) (Spanish)",
+                      "value": "aura-2-estrella-es"
+                    }
+                  ],
+                  "selected": "aura-2-luna-en",
+                  "selected_label": "Luna (US English - Feminine)"
+                },
                 "label": "Voice",
-                "options": [
-                  {
-                    "label": "Asteria (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-asteria-en"
-                  },
-                  {
-                    "label": "Luna (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-luna-en"
-                  },
-                  {
-                    "label": "Athena (UK English - Feminine) (English (Feminine))",
-                    "value": "aura-2-athena-en"
-                  },
-                  {
-                    "label": "Hera (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-hera-en"
-                  },
-                  {
-                    "label": "Harmonia (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-harmonia-en"
-                  },
-                  {
-                    "label": "Callista (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-callista-en"
-                  },
-                  {
-                    "label": "Ophelia (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-ophelia-en"
-                  },
-                  {
-                    "label": "Andromeda (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-andromeda-en"
-                  },
-                  {
-                    "label": "Juno (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-juno-en"
-                  },
-                  {
-                    "label": "Cora (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-cora-en"
-                  },
-                  {
-                    "label": "Cordelia (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-cordelia-en"
-                  },
-                  {
-                    "label": "Helena (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-helena-en"
-                  },
-                  {
-                    "label": "Minerva (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-minerva-en"
-                  },
-                  {
-                    "label": "Pandora (US English - Feminine) (English (Feminine))",
-                    "value": "aura-2-pandora-en"
-                  },
-                  {
-                    "label": "Orion (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-orion-en"
-                  },
-                  {
-                    "label": "Arcas (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-arcas-en"
-                  },
-                  {
-                    "label": "Orpheus (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-orpheus-en"
-                  },
-                  {
-                    "label": "Zeus (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-zeus-en"
-                  },
-                  {
-                    "label": "Hermes (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-hermes-en"
-                  },
-                  {
-                    "label": "Neptune (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-neptune-en"
-                  },
-                  {
-                    "label": "Apollo (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-apollo-en"
-                  },
-                  {
-                    "label": "Mars (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-mars-en"
-                  },
-                  {
-                    "label": "Aries (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-aries-en"
-                  },
-                  {
-                    "label": "Jupiter (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-jupiter-en"
-                  },
-                  {
-                    "label": "Saturn (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-saturn-en"
-                  },
-                  {
-                    "label": "Draco (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-draco-en"
-                  },
-                  {
-                    "label": "Janus (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-janus-en"
-                  },
-                  {
-                    "label": "Odysseus (US English - Masculine) (English (Masculine))",
-                    "value": "aura-2-odysseus-en"
-                  },
-                  {
-                    "label": "Sirio (Spanish - Masculine) (Spanish)",
-                    "value": "aura-2-sirio-es"
-                  },
-                  {
-                    "label": "Carina (Spanish - Feminine) (Spanish)",
-                    "value": "aura-2-carina-es"
-                  },
-                  {
-                    "label": "Selena (Spanish - Feminine) (Spanish)",
-                    "value": "aura-2-selena-es"
-                  },
-                  {
-                    "label": "Javier (Spanish - Masculine) (Spanish)",
-                    "value": "aura-2-javier-es"
-                  },
-                  {
-                    "label": "Diana (Spanish - Feminine) (Spanish)",
-                    "value": "aura-2-diana-es"
-                  },
-                  {
-                    "label": "Nestor (Spanish - Masculine) (Spanish)",
-                    "value": "aura-2-nestor-es"
-                  },
-                  {
-                    "label": "Celeste (Spanish - Feminine) (Spanish)",
-                    "value": "aura-2-celeste-es"
-                  },
-                  {
-                    "label": "Alvaro (Spanish - Masculine) (Spanish)",
-                    "value": "aura-2-alvaro-es"
-                  },
-                  {
-                    "label": "Aquila (Spanish - Masculine) (Spanish)",
-                    "value": "aura-2-aquila-es"
-                  },
-                  {
-                    "label": "Estrella (Spanish - Feminine) (Spanish)",
-                    "value": "aura-2-estrella-es"
-                  }
-                ],
-                "picker": "Voice",
-                "selected": "aura-2-luna-en"
+                "picker": "Voice"
               }
             ],
             "title": "Voice"
@@ -284,8 +293,8 @@
             ]
           },
           "notice": {
-            "text": "Voice settings were not saved. Something went wrong on our side. Please try again shortly.",
-            "tone": "Error"
+            "message": "Voice settings were not saved. Something went wrong on our side. Please try again shortly.",
+            "saved": false
           },
           "pending": "Unsaved changes",
           "recipes": [

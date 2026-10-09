@@ -26,7 +26,7 @@ public sealed class VoiceStudioViewModelTests
         string voice = "asteria",
         bool editable = true,
         bool dirty = false,
-        StudioNoticeView? notice = null,
+        SaveNoticeView? notice = null,
         bool saving = false,
         string tier = "stable",
         string? basedOn = null) =>
@@ -51,8 +51,8 @@ public sealed class VoiceStudioViewModelTests
             new StudioEditorView(
                 "Voice",
                 [
-                    new(StudioPicker.Vendor, "Vendor", [new("deepgram", "Deepgram")], "deepgram"),
-                    new(StudioPicker.Voice, "Voice", [new("asteria", "Asteria"), new("luna", "Luna")], voice),
+                    new(StudioPicker.Vendor, "Vendor", new PickerView([new("deepgram", "Deepgram")], "deepgram", "Deepgram")),
+                    new(StudioPicker.Voice, "Voice", new PickerView([new("asteria", "Asteria"), new("luna", "Luna")], voice, voice == "luna" ? "Luna" : "Asteria")),
                 ],
                 controls ?? Controls(),
                 "Advanced",
@@ -66,7 +66,7 @@ public sealed class VoiceStudioViewModelTests
             dirty && editable && !saving,
             saving);
 
-    private static VoiceStudioView Ready(StudioFormView? form = null) => new("Voice", new LoadStatus.Ready(), form ?? Form());
+    private static VoiceStudioView Ready(StudioFormView? form = null) => new("Voice", new SectionStatus.Ready(), form ?? Form());
 
     private static (VoiceStudioViewModel Model, RecordingSink Sink) Attached(VoiceStudioView? view = null)
     {
@@ -85,7 +85,7 @@ public sealed class VoiceStudioViewModelTests
         var (model, sink) = Attached();
 
         Assert.Equal("Voice", model.Title);
-        Assert.True(model.HasStudio && model.Load.Ready && model.Editable);
+        Assert.True(model.HasStudio && !model.IsLoading && !model.HasStatus && model.Editable);
         Assert.Equal("Pick a starting point.", model.Description);
         Assert.Equal(["Stable", "Latest"], model.Tiers.Select(tier => tier.ToString()));
         Assert.Equal(0, model.TierIndex);
@@ -138,16 +138,25 @@ public sealed class VoiceStudioViewModelTests
     }
 
     [Fact]
-    public void LoadingAndAFailedReadShowNoStudio()
+    public void LoadingAFailedReadAndASaveNotReadBackShowNoStudio()
     {
-        var (model, _) = Attached(new VoiceStudioView("Voice", new LoadStatus.Loading(), null));
-        Assert.True(model.Load.Loading);
-        Assert.False(model.HasStudio || model.Editable || model.CanSave);
+        var (model, sink) = Attached(new VoiceStudioView("Voice", new SectionStatus.Loading(), null));
+        Assert.True(model.IsLoading);
+        Assert.False(model.HasStudio || model.Editable || model.CanSave || model.HasStatus);
 
-        model.Show(new VoiceStudioView("Voice", new LoadStatus.Failed(new FailureView("Offline.", null, true), "Could not load Voice Studio"), null));
-        Assert.True(model.Load.Failed && model.Load.CanRetry);
-        Assert.Equal("Could not load Voice Studio", model.Load.FailureTitle);
+        model.Show(new VoiceStudioView("Voice", new SectionStatus.Failed("Could not load Voice Studio", new FailureView("Offline.", null, true)), null));
+        Assert.True(model.HasStatus && model.HasStatusAction && !model.IsLoading);
+        Assert.Equal(("Could not load Voice Studio", "Offline.", "Try again"), (model.StatusTitle, model.StatusBody, model.StatusAction));
         Assert.False(model.HasStudio);
+
+        model.Show(new VoiceStudioView("Voice", new SectionStatus.Failed("Could not load Voice Studio", new FailureView("Refused.", null, false)), null));
+        Assert.False(model.HasStatusAction);
+
+        model.Show(new VoiceStudioView("Voice", new SectionStatus.Stale("Saved", "Saved, but Voice Studio could not be read back.", "Read them again"), null));
+        Assert.Equal(("Saved", "Read them again"), (model.StatusTitle, model.StatusAction));
+        Assert.False(model.HasStudio);
+        model.RetryCommand.Execute(null);
+        Assert.Equal([new UiEvent.Refresh()], sink.Sent);
     }
 
     [Fact]
@@ -286,20 +295,29 @@ public sealed class VoiceStudioViewModelTests
         model.SaveCommand.Execute(null);
         Assert.Equal([Sent(new VoiceStudioAction.Reset()), Sent(new VoiceStudioAction.Save())], sink.Sent);
 
-        foreach (var (tone, saved, warning, error) in new[]
-        {
-            (StudioNoticeTone.Success, true, false, false),
-            (StudioNoticeTone.Warning, false, true, false),
-            (StudioNoticeTone.Error, false, false, true),
-        })
-        {
-            model.Show(Ready(Form(notice: new StudioNoticeView("Voice settings saved.", tone))));
-            Assert.Equal("Voice settings saved.", model.Notice);
-            Assert.Equal((saved, warning, error), (model.NoticeSaved, model.NoticeWarning, model.NoticeError));
-        }
+        model.Show(Ready(Form(notice: new SaveNoticeView("Voice settings saved.", true))));
+        Assert.Equal("Voice settings saved.", model.Notice);
+        Assert.True(model.NoticeSaved && !model.NoticeError);
+        model.Show(Ready(Form(notice: new SaveNoticeView("Voice settings were not saved.", false))));
+        Assert.True(!model.NoticeSaved && model.NoticeError);
+        model.Show(Ready());
+        Assert.False(model.NoticeSaved || model.NoticeError);
         sink.Sent.Clear();
         model.DismissNoticeCommand.Execute(null);
         Assert.Equal([Sent(new VoiceStudioAction.DismissNotice())], sink.Sent);
+    }
+
+    [Fact]
+    public void AHeldVoiceTheListLacksShowsFirstAndChoosingItSendsNothing()
+    {
+        var (model, sink) = Attached(Ready(Form(voice: "nobody")));
+        var voice = model.Pickers[1];
+        Assert.Equal("nobody", voice.Selected);
+        Assert.Equal(0, voice.SelectedIndex);
+        Assert.Equal("Asteria", voice.Options[0].Label);
+        voice.SelectedIndex = 1;
+        voice.SelectedIndex = 0;
+        Assert.Equal([new UiEvent.VoiceStudio(new VoiceStudioAction.Pick(StudioPicker.Voice, "asteria"))], sink.Sent);
     }
 
     [Fact]

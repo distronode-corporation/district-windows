@@ -17,7 +17,6 @@ public sealed partial class VoiceStudioPage : UserControl
     public VoiceStudioPage()
     {
         InitializeComponent();
-        StudioStatus.Attach(ViewModel.Load);
     }
 
     /// <summary>What the page shows, and its actions.</summary>

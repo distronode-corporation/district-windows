@@ -1,19 +1,9 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels.Settings.Persona;
 
 namespace DistrictAI.ViewModels.Settings.VoiceStudio;
-
-/// <summary>One choice of a picker, a select or the tier switch.</summary>
-/// <param name="Value">What is sent when it is chosen.</param>
-/// <param name="Label">What it reads.</param>
-public sealed record StudioChoiceItem(string Value, string Label)
-{
-    internal static StudioChoiceItem From(StudioChoiceView choice) => new(choice.Value, choice.Label);
-
-    /// <inheritdoc/>
-    public override string ToString() => Label;
-}
 
 /// <summary>One recipe of the tier.</summary>
 /// <param name="RecipeId">The recipe, to apply it by.</param>
@@ -80,8 +70,8 @@ public sealed partial class StudioPickerItem : ObservableObject
     [ObservableProperty]
     public partial string Label { get; set; } = string.Empty;
 
-    /// <summary>What it offers; a held value the core does not list is the last.</summary>
-    public ObservableCollection<StudioChoiceItem> Options { get; } = [];
+    /// <summary>What it offers; a held value the core does not list is first, as the settings kit shows one.</summary>
+    public ObservableCollection<ChoiceItem> Options { get; } = [];
 
     /// <summary>The chosen option's index.</summary>
     [ObservableProperty]
@@ -93,8 +83,8 @@ public sealed partial class StudioPickerItem : ObservableObject
         try
         {
             Label = view.Label;
-            Selected = view.Selected;
-            Display.Sync(Options, [.. view.Options.Select(StudioChoiceItem.From)]);
+            Selected = view.Choices.Selected;
+            Display.Sync(Options, ChoiceItem.For(view.Choices));
             SelectedIndex = IndexOf(Options, Selected);
         }
         finally
@@ -111,7 +101,7 @@ public sealed partial class StudioPickerItem : ObservableObject
         }
     }
 
-    internal static int IndexOf(IReadOnlyList<StudioChoiceItem> options, string value)
+    internal static int IndexOf(IReadOnlyList<ChoiceItem> options, string value)
     {
         for (var i = 0; i < options.Count; i++)
         {
@@ -223,7 +213,7 @@ public sealed partial class StudioTuningItem : ObservableObject
     public partial bool SliderEnabled { get; set; }
 
     /// <summary>The select's choices.</summary>
-    public ObservableCollection<StudioChoiceItem> Options { get; } = [];
+    public ObservableCollection<ChoiceItem> Options { get; } = [];
 
     /// <summary>The select's chosen index.</summary>
     [ObservableProperty]
@@ -278,7 +268,7 @@ public sealed partial class StudioTuningItem : ObservableObject
                     break;
                 case StudioControlView.Select select:
                     _heldChoice = select.Selected;
-                    Display.Sync(Options, [.. select.Options.Select(StudioChoiceItem.From)]);
+                    Display.Sync(Options, [.. select.Options.Select(Choice)]);
                     SelectedIndex = StudioPickerItem.IndexOf(Options, select.Selected);
                     break;
                 case StudioControlView.Switch flag:
@@ -301,6 +291,8 @@ public sealed partial class StudioTuningItem : ObservableObject
             _updating = false;
         }
     }
+
+    internal static ChoiceItem Choice(ChoiceView choice) => new(choice.Value, choice.Label);
 
     /// <summary>The slider's numbers cross in thousandths (district-ffi's SLIDER_SCALE).</summary>
     private const double Scale = 1000.0;

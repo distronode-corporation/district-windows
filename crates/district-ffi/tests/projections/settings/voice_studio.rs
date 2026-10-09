@@ -5,13 +5,10 @@ use district_core::{
     Effect, Event, Route, SessionState, StudioEdit, VoiceStudioEvent, WorkspaceSection,
 };
 use district_ffi::settings::voice_studio::{
-    StudioControlView, StudioFormView, StudioNoticeTone, StudioPicker, VoiceStudioAction,
-    VoiceStudioView,
+    StudioControlView, StudioFormView, StudioPicker, VoiceStudioAction, VoiceStudioView,
 };
-use district_ffi::settings::{SettingsAction, SettingsSection};
-use district_ffi::{
-    Held, LoadStatus, NavDestination, ScreenView, UiEvent, leaves_unsaved, screen_view,
-};
+use district_ffi::settings::{SectionStatus, SettingsAction, SettingsSection};
+use district_ffi::{Held, NavDestination, ScreenView, UiEvent, leaves_unsaved, screen_view};
 use district_model::VoiceStudioResponse;
 use serde_json::{Value, json};
 
@@ -194,7 +191,7 @@ fn built_it_opens_from_the_hub_and_reads_the_studio() {
     assert!(offered(&session).contains(&NavDestination::Settings));
     let loading = view(&session);
     assert_eq!(loading.title, "Voice");
-    assert_eq!(loading.status, LoadStatus::Loading);
+    assert_eq!(loading.status, SectionStatus::Loading);
 
     let form = form(&ready());
     assert!(form.editable && form.can_change && !form.dirty && !form.can_save);
@@ -211,7 +208,7 @@ fn built_it_opens_from_the_hub_and_reads_the_studio() {
         panic!("Voice Studio shows its failure");
     };
     assert!(
-        matches!(view.status, LoadStatus::Failed { ref title, .. } if title == "Could not load Voice Studio")
+        matches!(view.status, SectionStatus::Failed { ref title, .. } if title == "Could not load Voice Studio")
     );
     assert_eq!(view.studio, None);
 }
@@ -245,11 +242,12 @@ fn the_editor_follows_the_open_leg() {
     let brain = form(&ready().ui(leg("llm"))).editor;
     let pickers: Vec<StudioPicker> = brain.pickers.iter().map(|p| p.picker).collect();
     assert_eq!(pickers, [StudioPicker::Model, StudioPicker::Location]);
-    assert!(
-        ear.pickers
+    assert!(ear.pickers.iter().all(|p| {
+        p.choices
+            .choices
             .iter()
-            .all(|p| p.options.iter().any(|o| o.value == p.selected))
-    );
+            .any(|o| o.value == p.choices.selected)
+    }));
 
     let turn = form(&ready().ui(leg("turn"))).editor;
     assert!(turn.pickers.is_empty());
@@ -286,9 +284,10 @@ fn the_editor_follows_the_open_leg() {
     let voice = form(&ready().ui(leg("tts"))).editor;
     let last = voice.pickers.last().expect("the voice picker");
     assert_eq!(last.picker, StudioPicker::Voice);
-    assert_eq!(last.selected, "aura-2-asteria-en");
+    assert_eq!(last.choices.selected, "aura-2-asteria-en");
     assert!(
-        last.options
+        last.choices
+            .choices
             .iter()
             .any(|o| o.label.ends_with("(English (Feminine))"))
     );
@@ -379,7 +378,12 @@ fn each_control_edits_the_studio() {
         .iter()
         .find(|p| p.picker == StudioPicker::Model)
         .unwrap();
-    if let Some(other) = model.options.iter().find(|o| o.value != model.selected) {
+    if let Some(other) = model
+        .choices
+        .choices
+        .iter()
+        .find(|o| o.value != model.choices.selected)
+    {
         let picked = ready().ui(VoiceStudioAction::Pick {
             picker: StudioPicker::Model,
             value: other.value.clone(),
@@ -429,15 +433,15 @@ fn a_save_says_how_it_went() {
 
     let done = form(&saved());
     let notice = done.notice.expect("a notice");
-    assert_eq!(notice.text, "Voice settings saved.");
-    assert_eq!(notice.tone, StudioNoticeTone::Success);
+    assert_eq!(notice.message, "Voice settings saved.");
+    assert!(notice.saved);
     assert!(!done.dirty);
     assert_eq!(done.pending, "All changes saved");
 
     let not_held = written().answer(is_read, |ticket| read_as(ticket, json(FIXTURE)));
     let notice = form(&not_held).notice.expect("a notice");
-    assert_eq!(notice.text, "Voice settings were not saved.");
-    assert_eq!(notice.tone, StudioNoticeTone::Error);
+    assert_eq!(notice.message, "Voice settings were not saved.");
+    assert!(!notice.saved);
     let dismissed = not_held.ui(VoiceStudioAction::DismissNotice.into_ui());
     assert_eq!(form(&dismissed).notice, None);
 
@@ -447,21 +451,27 @@ fn a_save_says_how_it_went() {
     });
     let refused = form(&refused);
     let notice = refused.notice.expect("a notice");
-    assert!(notice.text.starts_with("Voice settings were not saved. "));
-    assert_eq!(notice.tone, StudioNoticeTone::Error);
+    assert!(
+        notice
+            .message
+            .starts_with("Voice settings were not saved. ")
+    );
+    assert!(!notice.saved);
     assert!(refused.dirty && refused.can_save, "the edits are kept");
 
     let stale = written().answer(is_read, |ticket| Event::VoiceStudioLoaded {
         ticket,
         result: Err(server_error()),
     });
-    let notice = form(&stale).notice.expect("a notice");
-    assert!(
-        notice
-            .text
-            .starts_with("Saved, but Voice Studio could not be read back.")
-    );
-    assert_eq!(notice.tone, StudioNoticeTone::Warning);
+    // Saved and not read back: the kit's page, a read and never a save.
+    let view = view(&stale);
+    assert_eq!(view.studio, None);
+    assert!(matches!(
+        view.status,
+        SectionStatus::Stale { ref body, ref action, .. }
+            if body.starts_with("Saved, but Voice Studio could not be read back.")
+                && action == "Read them again"
+    ));
 }
 
 /// A voice the list lacks is shown under the read's placeholder.
@@ -475,11 +485,14 @@ fn a_held_voice_the_list_lacks_shows_the_placeholder() {
         .answer(is_read, |ticket| read_as(ticket, value))
         .ui(leg("tts"));
     let voice = form(&session).editor.pickers.pop().unwrap();
-    assert_eq!(voice.selected, "aura-2-nobody-en");
-    let last = voice.options.last().unwrap();
-    assert_eq!(
-        (last.value.as_str(), last.label.as_str()),
-        ("aura-2-nobody-en", "Choose a voice")
+    assert_eq!(voice.choices.selected, "aura-2-nobody-en");
+    assert_eq!(voice.choices.selected_label, "Choose a voice");
+    assert!(
+        voice
+            .choices
+            .choices
+            .iter()
+            .all(|choice| choice.value != "aura-2-nobody-en")
     );
 }
 
@@ -649,4 +662,46 @@ fn each_action_is_its_core_event() {
     ] {
         assert_eq!(action.into_ui().events(), [event]);
     }
+}
+
+/// Persona's "Open Voice Studio" lands here and reads the Studio; with an
+/// edit of the persona not saved, the move is held and asked about first.
+#[test]
+fn persona_s_link_lands_here_and_asks_first() {
+    use district_ffi::settings::persona::PersonaAction;
+    let link = || UiEvent::Persona {
+        action: PersonaAction::OpenVoiceStudio,
+    };
+
+    let clean = super::on_persona(false);
+    assert!(
+        link()
+            .events()
+            .iter()
+            .all(|e| !leaves_unsaved(&clean.model, e))
+    );
+    let landed = clean
+        .ui(link())
+        .answer(is_read, |ticket| read_as(ticket, json(FIXTURE)));
+    assert_eq!(
+        route(&landed),
+        Route::Workspace(WorkspaceSection::VoiceStudio)
+    );
+    assert_eq!(view(&landed).status, SectionStatus::Ready);
+
+    let mut session = super::on_persona(true);
+    let mut held = Held::default();
+    assert_eq!(held.pass(&session.model, link().events()), []);
+    assert!(held.question().is_some());
+    for event in held.discard() {
+        session = session.send(event);
+    }
+    assert_eq!(
+        route(&session),
+        Route::Workspace(WorkspaceSection::VoiceStudio)
+    );
+    assert!(matches!(
+        screen_view(&session.model),
+        ScreenView::VoiceStudio { .. }
+    ));
 }

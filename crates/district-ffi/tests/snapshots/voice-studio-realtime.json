@@ -91,46 +91,52 @@
             "has_advanced": true,
             "pickers": [
               {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Gemini 3.8 Live · Preview · Preview: processed globally by Google",
+                      "value": "gemini-3.8-live"
+                    },
+                    {
+                      "label": "Gemini 2.5 Live (native audio) · Stable",
+                      "value": "gemini-live-2.5-flash-native-audio"
+                    }
+                  ],
+                  "selected": "gemini-live-2.5-flash-native-audio",
+                  "selected_label": "Gemini 2.5 Live (native audio) · Stable"
+                },
                 "label": "Model",
-                "options": [
-                  {
-                    "label": "Gemini 3.8 Live · Preview · Preview: processed globally by Google",
-                    "value": "gemini-3.8-live"
-                  },
-                  {
-                    "label": "Gemini 2.5 Live (native audio) · Stable",
-                    "value": "gemini-live-2.5-flash-native-audio"
-                  }
-                ],
-                "picker": "Model",
-                "selected": "gemini-live-2.5-flash-native-audio"
+                "picker": "Model"
               },
               {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Puck (Professional Male)",
+                      "value": "Puck"
+                    },
+                    {
+                      "label": "Charon (Warm Male)",
+                      "value": "Charon"
+                    },
+                    {
+                      "label": "Kore (Friendly Female)",
+                      "value": "Kore"
+                    },
+                    {
+                      "label": "Fenrir (Authoritative Male)",
+                      "value": "Fenrir"
+                    },
+                    {
+                      "label": "Aoede (Professional Female)",
+                      "value": "Aoede"
+                    }
+                  ],
+                  "selected": "Puck",
+                  "selected_label": "Puck (Professional Male)"
+                },
                 "label": "Voice",
-                "options": [
-                  {
-                    "label": "Puck (Professional Male)",
-                    "value": "Puck"
-                  },
-                  {
-                    "label": "Charon (Warm Male)",
-                    "value": "Charon"
-                  },
-                  {
-                    "label": "Kore (Friendly Female)",
-                    "value": "Kore"
-                  },
-                  {
-                    "label": "Fenrir (Authoritative Male)",
-                    "value": "Fenrir"
-                  },
-                  {
-                    "label": "Aoede (Professional Female)",
-                    "value": "Aoede"
-                  }
-                ],
-                "picker": "Voice",
-                "selected": "Puck"
+                "picker": "Voice"
               }
             ],
             "title": "All-in-one"

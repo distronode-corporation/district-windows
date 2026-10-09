@@ -57,46 +57,52 @@
             "has_advanced": true,
             "pickers": [
               {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Deepgram",
+                      "value": "deepgram"
+                    },
+                    {
+                      "label": "AssemblyAI",
+                      "value": "assemblyai"
+                    },
+                    {
+                      "label": "Amazon Transcribe",
+                      "value": "aws-transcribe"
+                    },
+                    {
+                      "label": "Google Chirp 3",
+                      "value": "google-stt"
+                    }
+                  ],
+                  "selected": "deepgram",
+                  "selected_label": "Deepgram"
+                },
                 "label": "Vendor",
-                "options": [
-                  {
-                    "label": "Deepgram",
-                    "value": "deepgram"
-                  },
-                  {
-                    "label": "AssemblyAI",
-                    "value": "assemblyai"
-                  },
-                  {
-                    "label": "Amazon Transcribe",
-                    "value": "aws-transcribe"
-                  },
-                  {
-                    "label": "Google Chirp 3",
-                    "value": "google-stt"
-                  }
-                ],
-                "picker": "Vendor",
-                "selected": "deepgram"
+                "picker": "Vendor"
               },
               {
+                "choices": {
+                  "choices": [
+                    {
+                      "label": "Nova-3 · Stable",
+                      "value": "nova-3-general"
+                    },
+                    {
+                      "label": "Flux (English) · Stable",
+                      "value": "flux-general-en"
+                    },
+                    {
+                      "label": "Flux (multilingual) · Latest",
+                      "value": "flux-general-multi"
+                    }
+                  ],
+                  "selected": "flux-general-en",
+                  "selected_label": "Flux (English) · Stable"
+                },
                 "label": "Model",
-                "options": [
-                  {
-                    "label": "Nova-3 · Stable",
-                    "value": "nova-3-general"
-                  },
-                  {
-                    "label": "Flux (English) · Stable",
-                    "value": "flux-general-en"
-                  },
-                  {
-                    "label": "Flux (multilingual) · Latest",
-                    "value": "flux-general-multi"
-                  }
-                ],
-                "picker": "Model",
-                "selected": "flux-general-en"
+                "picker": "Model"
               }
             ],
             "title": "Ear"
@@ -123,8 +129,8 @@
             ]
           },
           "notice": {
-            "text": "Voice settings were not saved.",
-            "tone": "Error"
+            "message": "Voice settings were not saved.",
+            "saved": false
           },
           "pending": "All changes saved",
           "recipes": [

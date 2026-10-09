@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels.Settings.Persona;
 
 namespace DistrictAI.ViewModels.Settings.VoiceStudio;
 
@@ -28,8 +29,29 @@ public sealed partial class VoiceStudioViewModel : ObservableObject
     [ObservableProperty]
     public partial string Title { get; set; } = string.Empty;
 
-    /// <summary>Loading, and a read that failed.</summary>
-    public LoadStateViewModel Load { get; } = new();
+    /// <summary>Whether the Studio is being read.</summary>
+    [ObservableProperty]
+    public partial bool IsLoading { get; set; }
+
+    /// <summary>The heading of a failed read, or of a save not read back; empty when neither.</summary>
+    [ObservableProperty]
+    public partial string StatusTitle { get; set; } = string.Empty;
+
+    /// <summary>Why, or what to do.</summary>
+    [ObservableProperty]
+    public partial string StatusBody { get; set; } = string.Empty;
+
+    /// <summary>"Try again" or "Read them again", or empty when nothing could help.</summary>
+    [ObservableProperty]
+    public partial string StatusAction { get; set; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="StatusTitle"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasStatus { get; set; }
+
+    /// <summary>Whether there is a <see cref="StatusAction"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasStatusAction { get; set; }
 
     /// <summary>Whether the Studio is read and shown.</summary>
     [ObservableProperty]
@@ -52,7 +74,7 @@ public sealed partial class VoiceStudioViewModel : ObservableObject
     public partial string TierDescription { get; set; } = string.Empty;
 
     /// <summary>Stable and Latest.</summary>
-    public ObservableCollection<StudioChoiceItem> Tiers { get; } = [];
+    public ObservableCollection<ChoiceItem> Tiers { get; } = [];
 
     /// <summary>The tier shown, as an index of <see cref="Tiers"/>.</summary>
     [ObservableProperty]
@@ -156,10 +178,6 @@ public sealed partial class VoiceStudioViewModel : ObservableObject
     [ObservableProperty]
     public partial bool NoticeSaved { get; set; }
 
-    /// <summary>Whether the notice says it saved and was not read back.</summary>
-    [ObservableProperty]
-    public partial bool NoticeWarning { get; set; }
-
     /// <summary>Whether the notice says it did not save.</summary>
     [ObservableProperty]
     public partial bool NoticeError { get; set; }
@@ -180,19 +198,15 @@ public sealed partial class VoiceStudioViewModel : ObservableObject
     [ObservableProperty]
     public partial bool Saving { get; set; }
 
-    internal void Attach(PageContext context)
-    {
-        _context = context;
-        Load.Attach(context);
-    }
+    internal void Attach(PageContext context) => _context = context;
 
     internal void Show(VoiceStudioView view)
     {
         View = view;
         Title = view.Title;
-        Load.Show(view.Status, hasRows: true, empty: null, refreshing: false, refreshFailure: null);
+        ShowStatus(view.Status);
         var studio = view.Studio;
-        HasStudio = view.Status is LoadStatus.Ready && studio is not null;
+        HasStudio = view.Status is SectionStatus.Ready && studio is not null;
         if (studio is null)
         {
             Editable = false;
@@ -208,7 +222,7 @@ public sealed partial class VoiceStudioViewModel : ObservableObject
             TierLabel = studio.TierLabel;
             TierDescription = studio.TierDescription;
             _tier = studio.Tier;
-            Display.Sync(Tiers, [.. studio.Tiers.Select(StudioChoiceItem.From)]);
+            Display.Sync(Tiers, [.. studio.Tiers.Select(StudioTuningItem.Choice)]);
             TierIndex = StudioPickerItem.IndexOf(Tiers, studio.Tier);
         }
         finally
@@ -245,14 +259,27 @@ public sealed partial class VoiceStudioViewModel : ObservableObject
         LegsOut = string.Join(Environment.NewLine, studio.Residency.LegsOut);
         HasLegsOut = LegsOut.Length > 0;
 
-        Notice = studio.Notice?.Text ?? string.Empty;
-        NoticeSaved = studio.Notice?.Tone == StudioNoticeTone.Success;
-        NoticeWarning = studio.Notice?.Tone == StudioNoticeTone.Warning;
-        NoticeError = studio.Notice?.Tone == StudioNoticeTone.Error;
+        Notice = studio.Notice?.Message ?? string.Empty;
+        NoticeSaved = studio.Notice?.Saved == true;
+        NoticeError = studio.Notice?.Saved == false;
         Pending = studio.Pending;
         SaveLabel = studio.SaveLabel;
         CanSave = studio.CanSave;
         Saving = studio.Saving;
+    }
+
+    /// <summary>The settings kit's page status: loading, a failed read, a save not read back, or the form.</summary>
+    private void ShowStatus(SectionStatus status)
+    {
+        IsLoading = status is SectionStatus.Loading;
+        (StatusTitle, StatusBody, StatusAction) = status switch
+        {
+            SectionStatus.Failed failed => (failed.Title, Display.Failure(failed.Failure), failed.Failure.Retryable ? "Try again" : string.Empty),
+            SectionStatus.Stale stale => (stale.Title, stale.Body, stale.Action),
+            _ => (string.Empty, string.Empty, string.Empty),
+        };
+        HasStatus = StatusTitle.Length > 0;
+        HasStatusAction = StatusAction.Length > 0;
     }
 
     /// <summary>
@@ -320,6 +347,10 @@ public sealed partial class VoiceStudioViewModel : ObservableObject
             Send(new VoiceStudioAction.SelectLeg(block.Leg));
         }
     }
+
+    /// <summary>Reads the Studio again: after a failed read, or a save not read back.</summary>
+    [RelayCommand]
+    private void Retry() => _context?.Send(new UiEvent.Refresh());
 
     [RelayCommand]
     private void Reset() => Edit(new VoiceStudioAction.Reset());
