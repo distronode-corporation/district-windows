@@ -6,8 +6,8 @@ using Microsoft.UI.Xaml.Controls;
 namespace DistrictAI.Views.Scheduling;
 
 /// <summary>
-/// The booking pages. A stub until the area's packet builds it: until then the core
-/// shows the unavailable page instead, so this one is never on screen.
+/// The booking pages: where they stand, turning them on, and managing them on
+/// the web, signed in, through the core's hand-off.
 /// </summary>
 public sealed partial class SchedulingPage : UserControl
 {
@@ -15,6 +15,8 @@ public sealed partial class SchedulingPage : UserControl
     public SchedulingPage()
     {
         InitializeComponent();
+        Status.Attach(ViewModel.Load);
+        Refresh.Attach(ViewModel.Load);
     }
 
     /// <summary>What the page shows, and its actions.</summary>
