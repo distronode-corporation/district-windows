@@ -178,6 +178,28 @@ dotnet build src/DistrictAI -c Release -p:Platform=x64 -p:DistrictFfiProfile=rel
 ./scripts/run-ui-tests.ps1 -Packages <out> -Scripted -Screenshots <folder>
 ```
 
+### Live walk
+
+`LiveWalkTests` walks the real app, signed in, against a QA workspace on the production
+service. It runs only on a throwaway Windows Server VM that the maintainers' harness
+makes and deletes, and it skips everywhere else (it needs `DISTRICTAI_UI_LIVE=1`). CI
+publishes the UI tests as a self-contained exe (the `district-ai-ui-tests` artifact) and
+checks that the live tests skip. It also signs the GitHub flavour with a second throwaway
+certificate (`district-ai-github-test-msix`) for the two-copies check. The harness:
+
+- starts `DistrictAI.UiTests.exe -class DistrictAI.UiTests.LiveWalkTests`;
+- passes the walk's folder in `DISTRICTAI_LIVE_DIR` and its deadline in
+  `DISTRICTAI_LIVE_DEADLINE`;
+- writes the QA names to `live-config.json`, so none of them are in this repository;
+- answers sign-in through files: the walk writes a request with its PKCE challenge, and
+  the harness writes back the `districtai://auth` answer. The walk never sees a password
+  and never opens a browser.
+
+Each check is recorded under its checklist id in `live-results.json` as PASS, FAIL,
+NOT_AUTOMATED or PROBE. Screenshots go to `screenshots/`. Links are redacted from every
+log and detail. A denylist in `Walk.Press` refuses to press anything that sends, buys,
+confirms or places a call, unless that one press gives its reason.
+
 ## Public hygiene
 
 This repository is public, and `scripts/check-public-hygiene.py` keeps it that way. CI runs

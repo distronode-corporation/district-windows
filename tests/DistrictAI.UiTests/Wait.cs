@@ -8,6 +8,18 @@ internal static class Wait
     /// <summary>How often a condition is checked again.</summary>
     public static readonly TimeSpan Interval = TimeSpan.FromMilliseconds(100);
 
+    private static readonly AsyncLocal<CancellationToken> _token = new();
+
+    /// <summary>
+    /// What ends every wait on this flow early: the live walk gives each
+    /// check a time cap, and a check past it stops at its next wait.
+    /// </summary>
+    public static CancellationToken Token
+    {
+        get => _token.Value;
+        set => _token.Value = value;
+    }
+
     /// <summary>
     /// The first non-null answer of <paramref name="probe"/> within
     /// <paramref name="timeout"/>. At the deadline, fails with
@@ -33,6 +45,7 @@ internal static class Wait
                 // UI Automation throws while a window is being made or torn down.
                 last = error;
             }
+            Token.ThrowIfCancellationRequested();
             if (clock.Elapsed >= timeout)
             {
                 var because = last is null ? string.Empty : $" (last error: {last.GetType().Name}: {last.Message})";
@@ -49,6 +62,7 @@ internal static class Wait
         var clock = Stopwatch.StartNew();
         while (!condition())
         {
+            Token.ThrowIfCancellationRequested();
             if (clock.Elapsed >= timeout)
             {
                 return false;

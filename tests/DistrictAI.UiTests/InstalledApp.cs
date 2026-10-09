@@ -14,7 +14,7 @@ namespace DistrictAI.UiTests;
 /// polls with a deadline, and a wait that runs out says what UI Automation
 /// held at that moment.
 /// </summary>
-internal sealed class InstalledApp : IDisposable
+internal sealed partial class InstalledApp : IDisposable
 {
     /// <summary>
     /// The Store flavour's package family. The CI test package has the same
@@ -220,7 +220,7 @@ internal sealed class InstalledApp : IDisposable
         {
             text.AppendLine(FormattableString.Invariant($"(reading UI Automation failed: {error.GetType().Name}: {error.Message})"));
         }
-        return text.ToString();
+        return Redact(text.ToString());
     }
 
     /// <summary>Ends the app if a test left it running (not one it attached to).</summary>
@@ -251,9 +251,26 @@ internal sealed class InstalledApp : IDisposable
         _ = Wait.Until(() => RunningProcessIds().Length == 0, TimeSpan.FromSeconds(15));
     }
 
-    /// <summary>A line of the test's output.</summary>
-    public static void Log(string line) =>
-        TestContext.Current.TestOutputHelper?.WriteLine(FormattableString.Invariant($"[{DateTime.UtcNow:HH:mm:ss.fff}] {line}"));
+    /// <summary>A line of the test's output, links taken out (<see cref="Redact"/>).</summary>
+    public static void Log(string line)
+    {
+        var stamped = FormattableString.Invariant($"[{DateTime.UtcNow:HH:mm:ss.fff}] {Redact(line)}");
+        TestContext.Current.TestOutputHelper?.WriteLine(stamped);
+        LogSink?.Invoke(stamped);
+    }
+
+    /// <summary>Where else each (already redacted) line goes: the live walk's log file.</summary>
+    public static Action<string>? LogSink { get; set; }
+
+    /// <summary>
+    /// <paramref name="text"/> with every web and districtai:// link replaced
+    /// by "&lt;url&gt;": a sign-in answer, a hand-off or a guest link must
+    /// never reach a log, a result or a screenshot's caption.
+    /// </summary>
+    public static string Redact(string text) => Links().Replace(text, "<url>");
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"(?:https?|districtai)://\S+", System.Text.RegularExpressions.RegexOptions.IgnoreCase)]
+    private static partial System.Text.RegularExpressions.Regex Links();
 
     private void Tree(AutomationElement parent, int depth, StringBuilder text, Budget budget)
     {

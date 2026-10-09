@@ -147,4 +147,91 @@ internal static partial class Native
         var error = GetPackagesByPackageFamily(family, ref count, 0, ref length, 0);
         return error is ErrorSuccess or ErrorInsufficientBuffer && count > 0;
     }
+
+    private const uint CfUnicodeText = 13;
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool OpenClipboard(nint owner);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool CloseClipboard();
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool EmptyClipboard();
+
+    [LibraryImport("user32.dll")]
+    private static partial nint GetClipboardData(uint format);
+
+    [LibraryImport("kernel32.dll")]
+    private static partial nint GlobalLock(nint memory);
+
+    [LibraryImport("kernel32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool GlobalUnlock(nint memory);
+
+    /// <summary>
+    /// The clipboard's text (CF_UNICODETEXT), or null when it holds none, and
+    /// the clipboard emptied after: what the app copied (a guest link) is
+    /// read once and not left behind.
+    /// </summary>
+    public static string? TakeClipboardText()
+    {
+        var opened = false;
+        for (var attempt = 0; attempt < 20 && !opened; attempt++)
+        {
+            opened = OpenClipboard(0);
+            if (!opened)
+            {
+                Thread.Sleep(50);
+            }
+        }
+        if (!opened)
+        {
+            return null;
+        }
+        try
+        {
+            var data = GetClipboardData(CfUnicodeText);
+            string? text = null;
+            if (data != 0)
+            {
+                var pointer = GlobalLock(data);
+                if (pointer != 0)
+                {
+                    try
+                    {
+                        text = Marshal.PtrToStringUni(pointer);
+                    }
+                    finally
+                    {
+                        _ = GlobalUnlock(data);
+                    }
+                }
+            }
+            _ = EmptyClipboard();
+            return text;
+        }
+        finally
+        {
+            _ = CloseClipboard();
+        }
+    }
+
+    [LibraryImport("user32.dll", EntryPoint = "SendMessageTimeoutW", StringMarshalling = StringMarshalling.Utf16)]
+    private static partial nint SendMessageTimeoutText(nint window, uint message, nuint wParam, string lParam, uint flags, uint timeout, out nuint result);
+
+    /// <summary>
+    /// Tells every top-level window that a setting changed
+    /// (WM_SETTINGCHANGE to HWND_BROADCAST), naming the area, as Settings
+    /// does: "ImmersiveColorSet" after the light or dark choice changes.
+    /// </summary>
+    public static void BroadcastSettingChange(string area)
+    {
+        const nint hwndBroadcast = 0xffff;
+        const uint wmSettingChange = 0x001A;
+        _ = SendMessageTimeoutText(hwndBroadcast, wmSettingChange, 0, area, SmtoAbortIfHung, 5000, out _);
+    }
 }
