@@ -2,7 +2,333 @@
 <UserControl
     x:Class="DistrictAI.Views.Rooms.RoomsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels"
+    xmlns:rvm="using:DistrictAI.ViewModels.Rooms">
+    <!--
+        Meeting rooms, audio only, as District AI for Linux shows them: the
+        form that starts or joins a room by its name, the room joined (who is
+        there, Mute, Copy guest link, Leave), the meetings held, and a meeting's
+        record in place of the list, with Report on its minutes and on its
+        action items.
+    -->
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="{StaticResource ReadingWidth}"
+            Padding="{StaticResource PagePadding}"
+            HorizontalAlignment="Stretch"
+            Spacing="8">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+
+            <!-- Starting or joining a room. -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.StartTitle, Mode=OneWay}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            x:Name="RoomNameBox"
+                            AutomationProperties.Name="{x:Bind ViewModel.RoomNameLabel, Mode=OneWay}"
+                            Header="{x:Bind ViewModel.RoomNameLabel, Mode=OneWay}"
+                            IsSpellCheckEnabled="False"
+                            KeyDown="OnRoomNameKeyDown"
+                            Text="{x:Bind ViewModel.RoomName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel
+                            Grid.Column="1"
+                            VerticalAlignment="Bottom"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Button
+                                AutomationProperties.Name="{x:Bind ViewModel.JoinLabel, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.JoinCommand}"
+                                Content="{x:Bind ViewModel.JoinLabel, Mode=OneWay}"
+                                Style="{StaticResource AccentButtonStyle}" />
+                            <ProgressRing
+                                Width="20"
+                                Height="20"
+                                AutomationProperties.Name="Joining"
+                                IsActive="{x:Bind ViewModel.Joining, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.Joining, Mode=OneWay}" />
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.NameNote, Mode=OneWay}" />
+                    <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.RoleNote, Mode=OneWay}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.BusyNote, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.HasBusyNote, Mode=OneWay}" />
+                    <InfoBar
+                        AutomationProperties.Name="Room problem"
+                        IsClosable="False"
+                        IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.Failure, Mode=OneWay}"
+                        Severity="Error">
+                        <InfoBar.ActionButton>
+                            <Button
+                                AutomationProperties.Name="Dismiss"
+                                Command="{x:Bind ViewModel.DismissFailureCommand}"
+                                Content="Dismiss" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                </StackPanel>
+            </Border>
+
+            <!-- The room joined. -->
+            <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.InRoom, Mode=OneWay}">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.RoomTitle, Mode=OneWay}" />
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Polite"
+                        Text="{x:Bind ViewModel.RoomState, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Polite"
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.PeopleLine, Mode=OneWay}" />
+                    <InfoBar
+                        AutomationProperties.Name="Room notice"
+                        IsClosable="False"
+                        IsOpen="{x:Bind ViewModel.HasRoomNotice, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.RoomNotice, Mode=OneWay}"
+                        Severity="Warning" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button
+                            AutomationProperties.Name="{x:Bind ViewModel.MuteLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.ToggleMuteCommand}"
+                            Visibility="{x:Bind ViewModel.CanSpeak, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="Microphone" />
+                                <TextBlock Text="{x:Bind ViewModel.MuteLabel, Mode=OneWay}" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            AutomationProperties.HelpText="{x:Bind ViewModel.CopyLinkHint, Mode=OneWay}"
+                            AutomationProperties.Name="{x:Bind ViewModel.CopyLinkLabel, Mode=OneWay}"
+                            Click="OnCopyGuestLinkClick"
+                            ToolTipService.ToolTip="{x:Bind ViewModel.CopyLinkHint, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.HasGuestLink, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="Link" />
+                                <TextBlock Text="{x:Bind ViewModel.CopyLinkLabel, Mode=OneWay}" />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            AutomationProperties.Name="{x:Bind ViewModel.LeaveLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.LeaveCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="HangUp" />
+                                <TextBlock Text="{x:Bind ViewModel.LeaveLabel, Mode=OneWay}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Polite"
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.CopiedNote, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.HasCopiedNote, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- The meetings held. -->
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.MeetingsShown, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind ViewModel.MeetingsTitle, Mode=OneWay}" />
+                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.MeetingsDescription, Mode=OneWay}" />
+                <views:RefreshStrip x:Name="Refresh" />
+                <views:StatusPanel x:Name="Status" />
+                <ListView
+                    AutomationProperties.Name="{x:Bind ViewModel.MeetingsTitle, Mode=OneWay}"
+                    IsItemClickEnabled="True"
+                    ItemClick="OnMeetingClick"
+                    ItemsSource="{x:Bind ViewModel.Meetings}"
+                    SelectionMode="None"
+                    Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="rvm:MeetingRowItem">
+                            <Grid
+                                Padding="0,8"
+                                AutomationProperties.Name="{x:Bind AccessibleName}"
+                                ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        Text="{x:Bind Title}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind When}" />
+                                    <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Detail}" />
+                                    <TextBlock
+                                        MaxLines="3"
+                                        Text="{x:Bind Minutes}"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind HasMinutes}" />
+                                </StackPanel>
+                                <StackPanel
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal"
+                                    Spacing="8"
+                                    Visibility="{x:Bind IsInProgress}">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind InProgress}" />
+                                    <Button
+                                        AutomationProperties.Name="{x:Bind RejoinLabel}"
+                                        Click="OnRejoinClick"
+                                        Content="{x:Bind RejoinLabel}"
+                                        IsEnabled="{x:Bind CanRejoin}" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+
+            <!-- A meeting's record, in place of the list. -->
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.RecordOpen, Mode=OneWay}">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.Record.Title, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <Button
+                        Grid.Column="1"
+                        AutomationProperties.Name="Close the meeting"
+                        Command="{x:Bind ViewModel.CloseRecordCommand}"
+                        Content="Close" />
+                </Grid>
+                <ProgressRing
+                    AutomationProperties.Name="Loading"
+                    IsActive="{x:Bind ViewModel.Record.Loading, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.Record.Loading, Mode=OneWay}" />
+                <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.Record.Failed, Mode=OneWay}">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Record.FailureTitle, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind ViewModel.Record.FailureMessage, Mode=OneWay}" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.Record.Ready, Mode=OneWay}">
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Record.Facts}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="vm:FactItem">
+                                <Grid AutomationProperties.Name="{x:Bind AccessibleName}" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Label}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Text="{x:Bind Value}"
+                                        TextWrapping="Wrap" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    AutomationProperties.HeadingLevel="Level3"
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind ViewModel.Record.MinutesTitle, Mode=OneWay}" />
+                                <Button
+                                    Grid.Column="1"
+                                    AutomationProperties.Name="{x:Bind ViewModel.Record.MinutesReportLabel, Mode=OneWay}"
+                                    Click="OnReportMinutesClick"
+                                    Content="{x:Bind ViewModel.Record.MinutesReportLabel, Mode=OneWay}"
+                                    IsEnabled="{x:Bind ViewModel.Record.ReportEnabled, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.Record.HasMinutesReport, Mode=OneWay}" />
+                            </Grid>
+                            <TextBlock
+                                IsTextSelectionEnabled="True"
+                                Text="{x:Bind ViewModel.Record.Minutes, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.Record.HasActionItems, Mode=OneWay}">
+                        <StackPanel Spacing="8">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    AutomationProperties.HeadingLevel="Level3"
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind ViewModel.Record.ActionItemsTitle, Mode=OneWay}" />
+                                <Button
+                                    Grid.Column="1"
+                                    AutomationProperties.Name="{x:Bind ViewModel.Record.ActionItemsReportLabel, Mode=OneWay}"
+                                    Click="OnReportActionItemsClick"
+                                    Content="{x:Bind ViewModel.Record.ActionItemsReportLabel, Mode=OneWay}"
+                                    IsEnabled="{x:Bind ViewModel.Record.ReportEnabled, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.Record.HasActionItemsReport, Mode=OneWay}" />
+                            </Grid>
+                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Record.ActionItems}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="4" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock AutomationProperties.AccessibilityView="Raw" Text="&#x2022;" />
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                Text="{x:Bind}"
+                                                TextWrapping="Wrap" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.Record.HasTranscript, Mode=OneWay}">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level3"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="{x:Bind ViewModel.Record.TranscriptTitle, Mode=OneWay}" />
+                        <TextBlock
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind ViewModel.Record.Transcript, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

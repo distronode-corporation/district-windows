@@ -181,6 +181,54 @@ public sealed class SceneWalkTests
     }
 
     /// <summary>
+    /// The rooms lobby lists the recorded meetings, and a finished one opens
+    /// its record in place of the list: its minutes and action items, each
+    /// with Report. Saved as 91-meeting-record.png when screenshots are on.
+    /// No room is joined: the scene has no media.
+    /// </summary>
+    [Fact]
+    public void AMeetingRecordOpensWithReportOnItsMinutes()
+    {
+        RequireScriptedPackage();
+        var shots = Environment.GetEnvironmentVariable("DISTRICTAI_SCREENSHOTS");
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        var handle = window.Properties.NativeWindowHandle.Value;
+        _ = Heading(app, WorkspaceName, _startTimeout);
+        if (shots is { Length: > 0 })
+        {
+            SizeClient(handle, 1920, 1080);
+        }
+
+        Open(app, "Meeting rooms");
+        _ = Heading(app, "Meeting rooms", _pageTimeout);
+        var row = Wait.For(
+            () => window.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
+                .FirstOrDefault(item => item.Name.StartsWith("Weekly review", StringComparison.Ordinal)),
+            _pageTimeout,
+            "the meeting \"Weekly review\"",
+            app.Describe);
+        if (row.Patterns.Invoke.IsSupported)
+        {
+            row.Patterns.Invoke.Pattern.Invoke();
+        }
+        else
+        {
+            row.Click();
+        }
+        _ = app.Find(ControlType.Text, "Minutes", _pageTimeout);
+        _ = app.Find(ControlType.Text, "Action items", _pageTimeout);
+        _ = app.Find(ControlType.Button, "Report", _pageTimeout);
+        InstalledApp.Log("the meeting record shows its minutes and action items, with Report");
+        if (shots is { Length: > 0 })
+        {
+            Save(handle, Path.Combine(shots, "91-meeting-record.png"), clientOnly: true);
+        }
+        app.Find(ControlType.Button, "Close the meeting", _pageTimeout).AsButton().Invoke();
+        Assert.True(app.IsRunning, "the app ended in the meeting rooms");
+    }
+
+    /// <summary>
     /// Opens a page with <paramref name="open"/> and checks it: its heading
     /// (<paramref name="expected"/>, or any), loaded, no failure, then saves
     /// it when screenshots are on. With <paramref name="editName"/>, the
