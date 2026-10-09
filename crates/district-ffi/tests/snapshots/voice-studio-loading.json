@@ -1,8 +1,11 @@
 {
   "screen": {
-    "Unavailable": {
-      "body": "Use the web dashboard or the District AI phone apps for this.",
-      "title": "Not in this version yet"
+    "VoiceStudio": {
+      "view": {
+        "status": "Loading",
+        "studio": null,
+        "title": "Voice"
+      }
     }
   },
   "shell": {

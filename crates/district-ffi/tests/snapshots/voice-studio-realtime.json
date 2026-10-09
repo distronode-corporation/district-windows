@@ -1,0 +1,261 @@
+{
+  "screen": {
+    "VoiceStudio": {
+      "view": {
+        "status": "Ready",
+        "studio": {
+          "based_on": null,
+          "blocks": [
+            {
+              "detail": "Listens, takes turns, thinks and speaks · Processed in the United States · Median 300 ms over 100 calls · Stable",
+              "leg": "realtime",
+              "open": true,
+              "title": "All-in-one: Gemini 2.5 Live (native audio)"
+            }
+          ],
+          "can_change": true,
+          "can_save": true,
+          "chain_label": "Signal chain",
+          "default_badge": "Default",
+          "description": "Pick a starting point, then fine-tune any part of the call.",
+          "dirty": true,
+          "editable": true,
+          "editor": {
+            "advanced_label": "Advanced",
+            "controls": [
+              {
+                "advanced": true,
+                "control": {
+                  "Slider": {
+                    "default_label": null,
+                    "max": 1000,
+                    "min": 0,
+                    "start": 700,
+                    "step": 50,
+                    "value": 700,
+                    "value_text": "0.70"
+                  }
+                },
+                "description": "Higher gives more varied answers.",
+                "heading": null,
+                "key": "temperature",
+                "label": "Temperature"
+              },
+              {
+                "advanced": true,
+                "control": {
+                  "Select": {
+                    "options": [
+                      {
+                        "label": "Studio British English - Male (Default)",
+                        "value": "en-GB-Studio-B"
+                      },
+                      {
+                        "label": "Journey US English - Female",
+                        "value": "en-US-Journey-F"
+                      },
+                      {
+                        "label": "Journey US English - Male",
+                        "value": "en-US-Journey-O"
+                      },
+                      {
+                        "label": "News US English - Male",
+                        "value": "en-US-News-K"
+                      },
+                      {
+                        "label": "Wavenet US English - Male",
+                        "value": "en-US-Wavenet-D"
+                      },
+                      {
+                        "label": "Wavenet British English - Female",
+                        "value": "en-GB-Wavenet-C"
+                      },
+                      {
+                        "label": "Standard Australian English - Male",
+                        "value": "en-AU-Standard-B"
+                      },
+                      {
+                        "label": "Wavenet Indian English - Male",
+                        "value": "en-IN-Wavenet-D"
+                      }
+                    ],
+                    "selected": ""
+                  }
+                },
+                "description": "Select target vocal style posturing for the native audio generation.",
+                "heading": null,
+                "key": "voiceStyle",
+                "label": "Accent & Style Posturing (Voice Style)"
+              }
+            ],
+            "has_advanced": true,
+            "pickers": [
+              {
+                "label": "Model",
+                "options": [
+                  {
+                    "label": "Gemini 3.8 Live · Preview · Preview: processed globally by Google",
+                    "value": "gemini-3.8-live"
+                  },
+                  {
+                    "label": "Gemini 2.5 Live (native audio) · Stable",
+                    "value": "gemini-live-2.5-flash-native-audio"
+                  }
+                ],
+                "picker": "Model",
+                "selected": "gemini-live-2.5-flash-native-audio"
+              },
+              {
+                "label": "Voice",
+                "options": [
+                  {
+                    "label": "Puck (Professional Male)",
+                    "value": "Puck"
+                  },
+                  {
+                    "label": "Charon (Warm Male)",
+                    "value": "Charon"
+                  },
+                  {
+                    "label": "Kore (Friendly Female)",
+                    "value": "Kore"
+                  },
+                  {
+                    "label": "Fenrir (Authoritative Male)",
+                    "value": "Fenrir"
+                  },
+                  {
+                    "label": "Aoede (Professional Female)",
+                    "value": "Aoede"
+                  }
+                ],
+                "picker": "Voice",
+                "selected": "Puck"
+              }
+            ],
+            "title": "All-in-one"
+          },
+          "meter": {
+            "description": "From the caller's last word to the first sound of the reply, at the median.",
+            "heading": "Time to first word",
+            "headline": "At least 300 ms",
+            "note": "Some steps are not measured yet, so the real time is longer.",
+            "source": "Measured on live calls over 30 days, to Oct 3, 2026. A sum of medians: a guide, not a promise.",
+            "stages": [
+              {
+                "label": "End of turn",
+                "value": "Not measured yet"
+              },
+              {
+                "label": "Model, first sound",
+                "value": "Median 300 ms over 100 calls"
+              }
+            ]
+          },
+          "notice": null,
+          "pending": "Unsaved changes",
+          "recipes": [
+            {
+              "description": "Every part of the call is processed in your region.",
+              "facts": "About 970 ms · Processed in the United States · Stable",
+              "is_default": false,
+              "name": "Stays in the United States",
+              "recipe_id": "in-region",
+              "selected": false
+            },
+            {
+              "description": "The quickest reply we have measured.",
+              "facts": "About 970 ms · Processed in the United States · Stable",
+              "is_default": false,
+              "name": "Fastest",
+              "recipe_id": "fastest",
+              "selected": false
+            },
+            {
+              "description": "The most lifelike voices.",
+              "facts": "At least 850 ms · Processed in the United States · Stable",
+              "is_default": false,
+              "name": "Most natural",
+              "recipe_id": "natural",
+              "selected": false
+            },
+            {
+              "description": "Answers in English or French, and switches when the caller does.",
+              "facts": "Not measured yet · Leaves your region: global (Google) · Preview · Preview: processed globally by Google",
+              "is_default": false,
+              "name": "Bilingual EN/FR",
+              "recipe_id": "bilingual",
+              "selected": false
+            },
+            {
+              "description": "One model listens, thinks and speaks.",
+              "facts": "At least 300 ms · Processed in the United States · Stable",
+              "is_default": true,
+              "name": "All-in-one realtime",
+              "recipe_id": "realtime",
+              "selected": true
+            },
+            {
+              "description": "The chain saved on this persona.",
+              "facts": "About 970 ms · Processed in the United States · Stable",
+              "is_default": false,
+              "name": "Your chain",
+              "recipe_id": "custom",
+              "selected": false
+            }
+          ],
+          "recipes_label": "Starting point",
+          "reset_label": "Reset",
+          "residency": {
+            "heading": "Where the call is processed",
+            "in_region": true,
+            "legs_out": [],
+            "text": "Every part of this call stays in the United States."
+          },
+          "save_label": "Save voice settings",
+          "saving": false,
+          "tier": "stable",
+          "tier_description": "Stable models are proven on live calls. Latest models are newer and still settling.",
+          "tier_label": "Models",
+          "tiers": [
+            {
+              "label": "Stable",
+              "value": "stable"
+            },
+            {
+              "label": "Latest",
+              "value": "latest"
+            }
+          ]
+        },
+        "title": "Voice"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Settings",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
