@@ -30,7 +30,6 @@ public sealed partial class App : Application, IDisposable
     private PowerWatch? _power;
     private RingtonePlayer? _ringtone;
     private WindowAttention? _attention;
-    private BrandPalette? _palette;
     // Set by Quit, so the window's Closing is no longer turned into a hide.
     private bool _quitting;
 
@@ -54,7 +53,6 @@ public sealed partial class App : Application, IDisposable
         var queue = DispatcherQueue.GetForCurrentThread();
         _core = new CoreHost(new QueueDispatcher(queue), new LauncherBrowser(queue));
         _window = new MainWindow(_core);
-        _palette = new BrandPalette(_window);
         _window.Closed += OnClosed;
         _window.AppWindow.Closing += OnClosing;
         // Before Start: the core may ring, notify or ask for the window as soon
@@ -252,8 +250,6 @@ public sealed partial class App : Application, IDisposable
         _ringtone = null;
         _tray?.Dispose();
         _tray = null;
-        _palette?.Dispose();
-        _palette = null;
         GC.SuppressFinalize(this);
     }
 }

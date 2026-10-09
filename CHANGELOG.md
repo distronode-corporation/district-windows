@@ -20,11 +20,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   caller could wait for a ring nobody heard, and after waking it could take minutes to
   ring again.
 
-### Changed
-
-- The app's accent colour is District AI's own, in light and dark, instead of the Windows
-  accent colour. Under a high-contrast theme Windows' colours are kept.
-
 ### Added
 
 - Each release also carries the GitHub flavour of the app as an unsigned MSIX, for the
