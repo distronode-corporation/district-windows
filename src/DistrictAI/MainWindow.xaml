@@ -33,7 +33,11 @@
             ItemInvoked="OnNavInvoked"
             PaneTitle="District AI"
             Visibility="Collapsed">
-            <NavigationView.PaneHeader>
+            <!--
+                Below the pane's title, not in its header row: as PaneHeader, the
+                workspace's name was drawn over "District AI".
+            -->
+            <NavigationView.PaneCustomContent>
                 <StackPanel
                     Padding="12,4,12,8"
                     HorizontalAlignment="Stretch"
@@ -62,7 +66,7 @@
                         Style="{StaticResource QuietTextStyle}"
                         Visibility="Collapsed" />
                 </StackPanel>
-            </NavigationView.PaneHeader>
+            </NavigationView.PaneCustomContent>
             <!-- The entries are the core's (ShellView.Nav), built in MainWindow.Nav.cs. -->
 
             <Grid>
