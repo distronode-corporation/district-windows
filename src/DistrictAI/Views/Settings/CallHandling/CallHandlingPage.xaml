@@ -2,7 +2,175 @@
 <UserControl
     x:Class="DistrictAI.Views.Settings.CallHandling.CallHandlingPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:callhandling="using:DistrictAI.Views.Settings.CallHandling"
+    xmlns:vm="using:DistrictAI.ViewModels.Settings.CallHandling">
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="{StaticResource ReadingWidth}"
+            Padding="{StaticResource PagePadding}"
+            Spacing="8">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+
+            <!-- Who answers, for the whole workspace, saved with a button. -->
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="{x:Bind ViewModel.HandlingHeading, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.HandlingNote, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <ProgressRing
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Loading"
+                IsActive="{x:Bind ViewModel.HandlingLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HandlingLoading, Mode=OneWay}" />
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HandlingFailed, Mode=OneWay}">
+                <TextBlock Text="{x:Bind ViewModel.HandlingFailure, Mode=OneWay}" TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.Name="Try again"
+                    Command="{x:Bind ViewModel.RetryCommand}"
+                    Content="Try again"
+                    Visibility="{x:Bind ViewModel.CanRetryHandling, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HandlingReady, Mode=OneWay}">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Modes}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="4" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CallHandlingModeItem">
+                            <RadioButton
+                                AutomationProperties.FullDescription="{x:Bind Body}"
+                                AutomationProperties.Name="{x:Bind Label}"
+                                Click="OnModeClick"
+                                GroupName="CallHandlingMode"
+                                IsChecked="{x:Bind Selected}"
+                                IsEnabled="{x:Bind CanEdit}">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
+                                    <TextBlock
+                                        Style="{StaticResource QuietTextStyle}"
+                                        Text="{x:Bind Body}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </RadioButton>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+                <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasUnknownMode, Mode=OneWay}">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="A setting this app does not know" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.UnknownMode, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+
+                <Slider
+                    AutomationProperties.HelpText="{x:Bind ViewModel.RingHint, Mode=OneWay}"
+                    AutomationProperties.Name="{x:Bind ViewModel.RingLabel, Mode=OneWay}"
+                    Header="{x:Bind ViewModel.RingLabel, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
+                    Maximum="{x:Bind ViewModel.RingMax, Mode=OneWay}"
+                    Minimum="{x:Bind ViewModel.RingMin, Mode=OneWay}"
+                    SmallChange="1"
+                    StepFrequency="1"
+                    Value="{x:Bind ViewModel.Ring, Mode=TwoWay}"
+                    Visibility="{x:Bind ViewModel.CanChange, Mode=OneWay}" />
+                <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.ShowRingWords, Mode=OneWay}">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.RingLabel, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind ViewModel.RingWords, Mode=OneWay}" />
+                </StackPanel>
+                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.RingHint, Mode=OneWay}" />
+
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.ViewerNote, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasViewerNote, Mode=OneWay}" />
+
+                <!-- How the last save ended, until dismissed or the form changes. -->
+                <InfoBar
+                    AutomationProperties.Name="Call handling save"
+                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticesCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+                    Severity="{x:Bind callhandling:CallHandlingPage.SeverityFor(ViewModel.NoticeSaved), Mode=OneWay}" />
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="12"
+                    Visibility="{x:Bind ViewModel.ShowSave, Mode=OneWay}">
+                    <Button
+                        AutomationProperties.Name="Save how calls are answered"
+                        Command="{x:Bind ViewModel.SaveCommand}"
+                        Content="Save"
+                        Style="{StaticResource AccentButtonStyle}" />
+                    <ProgressRing
+                        Width="20"
+                        Height="20"
+                        AutomationProperties.Name="Saving"
+                        IsActive="{x:Bind ViewModel.Saving, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Saving, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Whether the member is rung: their own, sent at once. -->
+            <TextBlock
+                Margin="0,16,0,0"
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="{x:Bind ViewModel.AvailabilityHeading, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.AvailabilityNote, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <ProgressRing
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Loading"
+                IsActive="{x:Bind ViewModel.AvailabilityLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.AvailabilityLoading, Mode=OneWay}" />
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.AvailabilityFailed, Mode=OneWay}">
+                <TextBlock Text="{x:Bind ViewModel.AvailabilityFailure, Mode=OneWay}" TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.Name="Try again"
+                    Command="{x:Bind ViewModel.RetryCommand}"
+                    Content="Try again"
+                    Visibility="{x:Bind ViewModel.CanRetryAvailability, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ToggleSwitch
+                    AutomationProperties.Name="{x:Bind ViewModel.AvailabilityLabel, Mode=OneWay}"
+                    Header="{x:Bind ViewModel.AvailabilityLabel, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.CanToggle, Mode=OneWay}"
+                    IsOn="{x:Bind ViewModel.Available, Mode=TwoWay}"
+                    Visibility="{x:Bind ViewModel.ShowSwitch, Mode=OneWay}" />
+                <ProgressRing
+                    Width="20"
+                    Height="20"
+                    VerticalAlignment="Bottom"
+                    AutomationProperties.Name="Changing"
+                    IsActive="{x:Bind ViewModel.Changing, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.Changing, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasBlocked, Mode=OneWay}">
+                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.AvailabilityLabel, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Blocked, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+            <InfoBar
+                AutomationProperties.Name="Availability change"
+                CloseButtonCommand="{x:Bind ViewModel.DismissNoticesCommand}"
+                IsClosable="True"
+                IsOpen="{x:Bind ViewModel.HasAvailabilityNotice, Mode=OneWay}"
+                Message="{x:Bind ViewModel.AvailabilityNotice, Mode=OneWay}"
+                Severity="{x:Bind callhandling:CallHandlingPage.SeverityFor(ViewModel.AvailabilityNoticeSaved), Mode=OneWay}" />
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

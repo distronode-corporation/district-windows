@@ -61,6 +61,9 @@ public sealed class SceneWalkTests
     private static readonly string[] _settingsSections =
     [
         "Persona",
+        "Call handling",
+        "Call routing rules",
+        "Transfer directory",
     ];
 
     /// <summary>

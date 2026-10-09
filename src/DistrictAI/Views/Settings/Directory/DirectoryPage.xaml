@@ -2,7 +2,160 @@
 <UserControl
     x:Class="DistrictAI.Views.Settings.Directory.DirectoryPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:callhandling="using:DistrictAI.Views.Settings.CallHandling"
+    xmlns:vm="using:DistrictAI.ViewModels.Settings.Directory">
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="{StaticResource ReadingWidth}"
+            Padding="{StaticResource PagePadding}"
+            Spacing="8">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.Intro, Mode=OneWay}"
+                TextWrapping="Wrap" />
+
+            <ProgressRing
+                HorizontalAlignment="Left"
+                AutomationProperties.Name="Loading"
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+
+            <!-- A failed read, a save not read back, or a directory this app cannot edit: no list. -->
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasStatus, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.StatusTitle, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind ViewModel.StatusBody, Mode=OneWay}" TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.Name="{x:Bind ViewModel.StatusAction, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.RetryCommand}"
+                    Content="{x:Bind ViewModel.StatusAction, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasStatusAction, Mode=OneWay}" />
+            </StackPanel>
+
+            <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.IsReady, Mode=OneWay}">
+                <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.ShowEmpty, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.EmptyTitle, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.EmptyBody, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Incomplete, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasIncomplete, Mode=OneWay}" />
+
+                <!-- One card per entry, in order. -->
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Entries}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="12" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DirectoryEntryItem">
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="2">
+                                            <TextBlock
+                                                AutomationProperties.HeadingLevel="Level2"
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                Text="{x:Bind Title, Mode=OneWay}" />
+                                            <TextBlock
+                                                Style="{StaticResource QuietTextStyle}"
+                                                Text="{x:Bind Line, Mode=OneWay}"
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <Button
+                                            Grid.Column="1"
+                                            VerticalAlignment="Top"
+                                            AutomationProperties.Name="{x:Bind RemoveName, Mode=OneWay}"
+                                            Command="{x:Bind RemoveCommand}"
+                                            Content="Remove"
+                                            IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                            ToolTipService.ToolTip="{x:Bind RemoveName, Mode=OneWay}" />
+                                    </Grid>
+                                    <TextBox
+                                        AutomationProperties.Name="{x:Bind NameLabel, Mode=OneWay}"
+                                        Header="Name"
+                                        IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                        Text="{x:Bind Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBox
+                                        AutomationProperties.Name="{x:Bind NumberLabel, Mode=OneWay}"
+                                        Header="Phone number"
+                                        InputScope="TelephoneNumber"
+                                        IsEnabled="{x:Bind CanEdit, Mode=OneWay}"
+                                        Text="{x:Bind PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <!-- Someone to add: a name and a number are both needed. -->
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="Add someone" />
+                <TextBox
+                    AutomationProperties.Name="Name of the person to add"
+                    Header="Name"
+                    IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.NewName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox
+                    AutomationProperties.Name="Phone number of the person to add"
+                    Header="Phone number"
+                    InputScope="TelephoneNumber"
+                    IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
+                    KeyDown="OnNewNumberKeyDown"
+                    Text="{x:Bind ViewModel.NewPhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock
+                    AutomationProperties.LiveSetting="Assertive"
+                    Text="{x:Bind ViewModel.AddRejected, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.HasAddRejected, Mode=OneWay}" />
+                <Button
+                    AutomationProperties.Name="Add to the directory"
+                    Command="{x:Bind ViewModel.AddCommand}"
+                    Content="Add to the list" />
+
+                <!-- How the last save ended, until dismissed or the list changes. -->
+                <InfoBar
+                    AutomationProperties.Name="Transfer directory save"
+                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+                    Severity="{x:Bind callhandling:CallHandlingPage.SeverityFor(ViewModel.NoticeSaved), Mode=OneWay}" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button
+                        AutomationProperties.Name="Save the transfer directory"
+                        Command="{x:Bind ViewModel.SaveCommand}"
+                        Content="Save"
+                        Style="{StaticResource AccentButtonStyle}" />
+                    <ProgressRing
+                        Width="20"
+                        Height="20"
+                        AutomationProperties.Name="Saving"
+                        IsActive="{x:Bind ViewModel.Saving, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Saving, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
