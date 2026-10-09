@@ -5,6 +5,10 @@
         "body": "Sign in with your District AI account. Signing in happens in your browser, so this app never sees your password.",
         "busy": false,
         "cancel": false,
+        "create_account": {
+          "label": "Create an account",
+          "note": "Your browser opens the District AI sign-in page, which offers Create an account. When the account is made, you come back here signed in."
+        },
         "error": "No browser is available, and signing in needs one.",
         "retry": false,
         "retry_sign_out": false,

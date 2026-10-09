@@ -9,7 +9,7 @@ namespace DistrictAI.Presentation.Tests.Copies;
 public sealed class SignInHeldTests
 {
     private static readonly SessionScreen _signedOut =
-        new("Sign in", "Use your browser.", false, SignIn: true, false, false, false, null);
+        new("Sign in", "Use your browser.", false, SignIn: true, false, false, false, null, null);
 
     private static readonly CopiesView _both = new(
         CopyFlavour.Store,
