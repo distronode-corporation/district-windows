@@ -10,8 +10,8 @@ use crate::report;
 use crate::shell::TabView;
 use crate::views::ReportTarget;
 use crate::{
-    analytics, billing, blocked, composer, desk, hq, marketplace, rooms, scheduling, settings,
-    support, workflows,
+    analytics, billing, blocked, composer, contacts, desk, hq, marketplace, rooms, scheduling,
+    settings, support, workflows,
 };
 
 /// Something the user did in the window. Most are one core event, and Report
@@ -155,6 +155,12 @@ pub enum UiEvent {
     SetRingOnThisComputer {
         /// On, or off.
         on: bool,
+    },
+    /// Something done on the contacts or a contact: adding, editing,
+    /// deleting, research, blocking.
+    Contacts {
+        /// What.
+        action: crate::contacts::ContactsAction,
     },
     /// Something done on the blocked callers.
     Blocked {
@@ -322,6 +328,7 @@ impl UiEvent {
             UiEvent::DismissRing => Event::Ring(RingEvent::Dismiss),
             UiEvent::Microphone { on } => Event::Microphone(on),
             UiEvent::SetRingOnThisComputer { on } => Event::SetRingOnThisComputer(on),
+            UiEvent::Contacts { action } => return contacts::events(action),
             UiEvent::Blocked { action } => return blocked::events(action),
             UiEvent::Hq { action } => return hq::events(action),
             UiEvent::Analytics { action } => return analytics::events(action),

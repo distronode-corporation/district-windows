@@ -1,0 +1,129 @@
+{
+  "screen": {
+    "Analytics": {
+      "view": {
+        "history": {
+          "caption": "The bars compare metered call minutes across these months.",
+          "chart": null,
+          "empty": null,
+          "refreshing": false,
+          "status": {
+            "Failed": {
+              "failure": {
+                "message": "Something went wrong on our side. Please try again shortly.",
+                "regions_line": null,
+                "retryable": true
+              },
+              "title": "Could not load usage history"
+            }
+          },
+          "title": "Recent months"
+        },
+        "period_label": "Period",
+        "periods": [
+          {
+            "label": "7 days",
+            "period": "SevenDays",
+            "selected": true
+          },
+          {
+            "label": "30 days",
+            "period": "ThirtyDays",
+            "selected": false
+          },
+          {
+            "label": "90 days",
+            "period": "NinetyDays",
+            "selected": false
+          }
+        ],
+        "refreshing": false,
+        "report": {
+          "change": "",
+          "figures": [],
+          "funnel": {
+            "axis_end": "",
+            "axis_start": "",
+            "bars": [],
+            "scale_bottom": "0",
+            "scale_top": "0",
+            "summary": "Call funnel: nothing to show."
+          },
+          "funnel_title": "Call funnel",
+          "refreshing": false,
+          "sentiment": null,
+          "sentiment_empty": null,
+          "sentiment_title": "Caller sentiment",
+          "status": {
+            "Failed": {
+              "failure": {
+                "message": "Something went wrong on our side. Please try again shortly.",
+                "regions_line": null,
+                "retryable": true
+              },
+              "title": "Could not load call analytics"
+            }
+          },
+          "title": "Calls",
+          "trend": null,
+          "trend_empty": null,
+          "trend_title": ""
+        },
+        "status": {
+          "Failed": {
+            "failure": {
+              "message": "Something went wrong on our side. Please try again shortly.",
+              "regions_line": null,
+              "retryable": true
+            },
+            "title": "Could not load analytics"
+          }
+        },
+        "title": "Analytics",
+        "usage": {
+          "empty": null,
+          "lines": [],
+          "month": null,
+          "refreshing": false,
+          "status": {
+            "Failed": {
+              "failure": {
+                "message": "Something went wrong on our side. Please try again shortly.",
+                "regions_line": null,
+                "retryable": true
+              },
+              "title": "Could not load usage"
+            }
+          },
+          "title": "This month's usage"
+        }
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Analytics",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

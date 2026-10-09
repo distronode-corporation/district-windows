@@ -32,9 +32,62 @@
                         <TextBlock Text="Call" />
                     </StackPanel>
                 </Button>
+                <TextBlock
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="Blocked"
+                    Visibility="{x:Bind ViewModel.Changes.Blocked, Mode=OneWay}" />
+                <!-- The changes a member may make; a role that may change nothing sees none of them. -->
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    Visibility="{x:Bind ViewModel.Changes.Writable, Mode=OneWay}">
+                    <Button
+                        AutomationProperties.Name="Edit contact"
+                        Command="{x:Bind ViewModel.Changes.StartEditCommand}"
+                        IsEnabled="{x:Bind ViewModel.Changes.CanEdit, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="Edit" />
+                            <TextBlock Text="Edit" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        AutomationProperties.Name="{x:Bind ViewModel.Changes.BlockLabel, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.Changes.AskBlockCommand}"
+                        Content="{x:Bind ViewModel.Changes.BlockLabel, Mode=OneWay}"
+                        IsEnabled="{x:Bind ViewModel.Changes.CanBlock, Mode=OneWay}" />
+                    <Button
+                        AutomationProperties.Name="Delete contact"
+                        Command="{x:Bind ViewModel.Changes.AskDeleteCommand}"
+                        IsEnabled="{x:Bind ViewModel.Changes.CanDelete, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="Delete" />
+                            <TextBlock Text="Delete" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="You have read-only access to this workspace, so you cannot change contacts."
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind ViewModel.Changes.ReadOnly, Mode=OneWay}" />
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    Visibility="{x:Bind ViewModel.Changes.Busy, Mode=OneWay}">
+                    <ProgressRing
+                        Width="16"
+                        Height="16"
+                        AutomationProperties.Name="{x:Bind ViewModel.Changes.BusyText, Mode=OneWay}"
+                        IsActive="{x:Bind ViewModel.Changes.Busy, Mode=OneWay}" />
+                    <TextBlock
+                        AutomationProperties.LiveSetting="Polite"
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.Changes.BusyText, Mode=OneWay}" />
+                </StackPanel>
                 <InfoBar
                     AutomationProperties.Name="Problem"
-                    IsClosable="False"
+                    CloseButtonClick="OnFailureClosed"
+                    IsClosable="True"
                     IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
                     Message="{x:Bind ViewModel.FailureMessage, Mode=OneWay}"
                     Severity="Warning" />
@@ -98,6 +151,29 @@
                         Style="{StaticResource QuietTextStyle}"
                         Text="{x:Bind ViewModel.ResearchStatus, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.HasResearchStatus, Mode=OneWay}" />
+                    <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.Changes.Writable, Mode=OneWay}">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="Research" />
+                        <TextBlock
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="Research looks this contact up on the web and writes a summary. Each run is billed."
+                            TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button
+                                AutomationProperties.Name="Run research"
+                                Command="{x:Bind ViewModel.Changes.EnrichCommand}"
+                                Content="Run research"
+                                IsEnabled="{x:Bind ViewModel.Changes.CanEnrich, Mode=OneWay}" />
+                            <Button
+                                AutomationProperties.Name="Clear research"
+                                Command="{x:Bind ViewModel.Changes.AskClearResearchCommand}"
+                                Content="Clear research"
+                                IsEnabled="{x:Bind ViewModel.Changes.CanClearResearch, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.Changes.OffersClearResearch, Mode=OneWay}" />
+                        </StackPanel>
+                    </StackPanel>
 
                     <Button
                         AutomationProperties.Name="{x:Bind ViewModel.ReportLabel, Mode=OneWay}"

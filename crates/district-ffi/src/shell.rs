@@ -13,7 +13,7 @@ use serde::Serialize;
 
 use crate::calls_live::{ActiveCallView, IncomingRingView, active_call_view, incoming_ring_view};
 use crate::nav::{NavView, nav_view};
-use crate::report::{ReportStatus, report_status};
+use crate::report::{ReportStatus, refusal, report_status};
 use crate::views::humanize;
 
 /// What the window's frame shows, whatever the screen inside it.
@@ -40,6 +40,11 @@ pub struct ShellView {
     /// The report this session started, while it is under way or until its
     /// outcome is dismissed (`UiEvent::DismissReport`).
     pub report: Option<ReportStatus>,
+    /// Why a Report would be refused now (a support request is being written
+    /// in Support), for the report dialog to say before it sends, keeping the
+    /// note. Left out of the snapshots while there is none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub report_refusal: Option<String>,
     /// The phone call on this desktop, placed or answered, until its summary
     /// is put away (`UiEvent::DismissCall`). It outlives a change of screen and
     /// of workspace, so the window shows it over every screen.
@@ -174,6 +179,7 @@ pub(crate) fn shell_for(
         unread: 0,
         live: None,
         report: None,
+        report_refusal: None,
         call: None,
         ring: None,
         calls_available,
@@ -196,6 +202,7 @@ pub(crate) fn shell_for(
                 unread,
                 live: live_banner(signed_in),
                 report: report_status(signed_in, reporting),
+                report_refusal: refusal(signed_in),
                 call: active_call_view(signed_in, now),
                 ring: incoming_ring_view(signed_in),
                 calls_available,

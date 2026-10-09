@@ -2,7 +2,365 @@
 <UserControl
     x:Class="DistrictAI.Views.Analytics.AnalyticsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- A stub, which the packet that builds the area fills (CONTRIBUTING.md, "Areas"). -->
-    <Grid />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:charts="using:DistrictAI.Views.Analytics"
+    xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels"
+    xmlns:avm="using:DistrictAI.ViewModels.Analytics">
+    <!--
+        Call analytics and metered usage, as District AI for Linux shows them.
+        Each chart is a ChartFrame: one element Narrator reads by its sentence,
+        with the bars inside drawn from the core's thousandths as two
+        star-sized cells (ChartLength.Star). Every fill is a theme brush, so
+        under high contrast the bars take the system's colours; the sentiment
+        bands are also told apart by pattern (filled, outlined, dashed).
+    -->
+    <Grid>
+        <ScrollViewer>
+            <StackPanel
+                MaxWidth="{StaticResource ReadingWidth}"
+                Padding="{StaticResource PagePadding}"
+                HorizontalAlignment="Stretch"
+                Spacing="8">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level1"
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <views:RefreshStrip x:Name="Refresh" />
+
+                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+                    <RadioButtons
+                        x:Name="PeriodChooser"
+                        AutomationProperties.Name="{x:Bind ViewModel.PeriodLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.PeriodLabel, Mode=OneWay}"
+                        ItemsSource="{x:Bind ViewModel.Periods}"
+                        MaxColumns="3"
+                        SelectedIndex="{x:Bind ViewModel.SelectedPeriod, Mode=OneWay}"
+                        SelectionChanged="OnPeriodChanged" />
+
+                    <!-- The calls over the period. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                Text="{x:Bind ViewModel.ReportTitle, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                            <views:StatusPanel x:Name="ReportStatus" />
+                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.ReportLoad.Ready, Mode=OneWay}">
+                                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Figures}">
+                                    <ItemsRepeater.Layout>
+                                        <UniformGridLayout
+                                            ItemsStretch="Fill"
+                                            MinColumnSpacing="8"
+                                            MinItemWidth="120"
+                                            MinRowSpacing="8" />
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:FactItem">
+                                            <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
+                                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind Value}" />
+                                                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Label}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.Change, Mode=OneWay}" />
+
+                                <TextBlock
+                                    AutomationProperties.HeadingLevel="Level3"
+                                    Style="{StaticResource SectionHeaderStyle}"
+                                    Text="{x:Bind ViewModel.TrendTitle, Mode=OneWay}" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.TrendEmpty, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.HasTrendEmpty, Mode=OneWay}" />
+                                <charts:ChartFrame AutomationProperties.Name="{x:Bind ViewModel.Trend.Summary, Mode=OneWay}" Visibility="{x:Bind ViewModel.HasTrend, Mode=OneWay}">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="160" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            Text="{x:Bind ViewModel.Trend.ScaleTop, Mode=OneWay}" />
+                                        <TextBlock
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            Text="{x:Bind ViewModel.Trend.ScaleBottom, Mode=OneWay}" />
+                                        <Border
+                                            Grid.Column="1"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="0,1,0,1">
+                                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Trend.Bars}">
+                                                <ItemsRepeater.Layout>
+                                                    <UniformGridLayout
+                                                        ItemsStretch="Fill"
+                                                        MaximumRowsOrColumns="{x:Bind ViewModel.Trend.Columns, Mode=OneWay}"
+                                                        MinItemHeight="158"
+                                                        MinItemWidth="2" />
+                                                </ItemsRepeater.Layout>
+                                                <ItemsRepeater.ItemTemplate>
+                                                    <DataTemplate x:DataType="avm:BarItem">
+                                                        <Grid Height="158">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="{x:Bind charts:ChartLength.Star(Rest)}" />
+                                                                <RowDefinition Height="{x:Bind charts:ChartLength.Star(Filled)}" MinHeight="{x:Bind Least}" />
+                                                            </Grid.RowDefinitions>
+                                                            <Rectangle
+                                                                Grid.Row="1"
+                                                                Margin="1,0"
+                                                                Fill="{ThemeResource SystemControlHighlightAccentBrush}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsRepeater.ItemTemplate>
+                                            </ItemsRepeater>
+                                        </Border>
+                                        <Grid Grid.Row="1" Grid.Column="1">
+                                            <TextBlock
+                                                HorizontalAlignment="Left"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Text="{x:Bind ViewModel.Trend.AxisStart, Mode=OneWay}" />
+                                            <TextBlock
+                                                HorizontalAlignment="Right"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Text="{x:Bind ViewModel.Trend.AxisEnd, Mode=OneWay}" />
+                                        </Grid>
+                                    </Grid>
+                                </charts:ChartFrame>
+
+                                <TextBlock
+                                    AutomationProperties.HeadingLevel="Level3"
+                                    Style="{StaticResource SectionHeaderStyle}"
+                                    Text="{x:Bind ViewModel.FunnelTitle, Mode=OneWay}" />
+                                <charts:ChartFrame AutomationProperties.Name="{x:Bind ViewModel.Funnel.Summary, Mode=OneWay}">
+                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Funnel.Bars}">
+                                        <ItemsRepeater.Layout>
+                                            <StackLayout Spacing="6" />
+                                        </ItemsRepeater.Layout>
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="avm:BarItem">
+                                                <Grid ColumnSpacing="8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="140" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="60" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                                        Text="{x:Bind Label}"
+                                                        TextTrimming="CharacterEllipsis" />
+                                                    <Grid Grid.Column="1" Height="14">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="{x:Bind charts:ChartLength.Star(Filled)}" MinWidth="{x:Bind Least}" />
+                                                            <ColumnDefinition Width="{x:Bind charts:ChartLength.Star(Rest)}" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Rectangle
+                                                            Grid.ColumnSpan="2"
+                                                            Stroke="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                            StrokeThickness="1" />
+                                                        <Rectangle Fill="{ThemeResource SystemControlHighlightAccentBrush}" />
+                                                    </Grid>
+                                                    <TextBlock
+                                                        Grid.Column="2"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center"
+                                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                                        Text="{x:Bind Value}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </charts:ChartFrame>
+
+                                <TextBlock
+                                    AutomationProperties.HeadingLevel="Level3"
+                                    Style="{StaticResource SectionHeaderStyle}"
+                                    Text="{x:Bind ViewModel.SentimentTitle, Mode=OneWay}" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.SentimentEmpty, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.HasSentimentEmpty, Mode=OneWay}" />
+                                <charts:ChartFrame AutomationProperties.Name="{x:Bind ViewModel.SentimentSummary, Mode=OneWay}" Visibility="{x:Bind ViewModel.HasSentiment, Mode=OneWay}">
+                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.SentimentBands}">
+                                        <ItemsRepeater.Layout>
+                                            <StackLayout Spacing="6" />
+                                        </ItemsRepeater.Layout>
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="avm:SentimentBandItem">
+                                                <Grid ColumnSpacing="8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="220" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                                        Text="{x:Bind Legend}"
+                                                        TextTrimming="CharacterEllipsis" />
+                                                    <Grid Grid.Column="1" Height="14">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="{x:Bind charts:ChartLength.Star(Filled)}" MinWidth="{x:Bind Least}" />
+                                                            <ColumnDefinition Width="{x:Bind charts:ChartLength.Star(Rest)}" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Rectangle
+                                                            Grid.ColumnSpan="2"
+                                                            Stroke="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                            StrokeThickness="1" />
+                                                        <Rectangle Fill="{ThemeResource SystemFillColorSuccessBrush}" Visibility="{x:Bind IsSolid}" />
+                                                        <Rectangle
+                                                            Stroke="{ThemeResource SystemFillColorCautionBrush}"
+                                                            StrokeThickness="2"
+                                                            Visibility="{x:Bind IsOutline}" />
+                                                        <Rectangle
+                                                            Stroke="{ThemeResource SystemFillColorCriticalBrush}"
+                                                            StrokeDashArray="2,1"
+                                                            StrokeThickness="2"
+                                                            Visibility="{x:Bind IsDashed}" />
+                                                    </Grid>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </charts:ChartFrame>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- This month's usage. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                Text="{x:Bind ViewModel.UsageTitle, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.UsageMonth, Mode=OneWay}" />
+                            <views:StatusPanel x:Name="UsageStatus" />
+                            <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.UsageLoad.Ready, Mode=OneWay}">
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.UsageEmpty, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.HasUsageEmpty, Mode=OneWay}" />
+                                <ItemsRepeater ItemsSource="{x:Bind ViewModel.UsageLines}">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Spacing="4" />
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:FactItem">
+                                            <Grid AutomationProperties.Name="{x:Bind AccessibleName}" ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
+                                                <TextBlock
+                                                    Grid.Column="1"
+                                                    Style="{StaticResource QuietTextStyle}"
+                                                    Text="{x:Bind Value}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- The last few months of usage. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                Text="{x:Bind ViewModel.HistoryTitle, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.HistoryCaption, Mode=OneWay}" />
+                            <views:StatusPanel x:Name="HistoryStatus" />
+                            <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HistoryLoad.Ready, Mode=OneWay}">
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.HistoryEmpty, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.HasHistoryEmpty, Mode=OneWay}" />
+                                <charts:ChartFrame AutomationProperties.Name="{x:Bind ViewModel.HistorySummary, Mode=OneWay}" Visibility="{x:Bind ViewModel.HasHistory, Mode=OneWay}">
+                                    <StackPanel Spacing="6">
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="80" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="100" />
+                                                <ColumnDefinition Width="100" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.HistoryMonthHeading, Mode=OneWay}" />
+                                            <TextBlock
+                                                Grid.Column="2"
+                                                HorizontalAlignment="Right"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Text="{x:Bind ViewModel.HistoryMinutesHeading, Mode=OneWay}" />
+                                            <TextBlock
+                                                Grid.Column="3"
+                                                HorizontalAlignment="Right"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Text="{x:Bind ViewModel.HistoryMessagesHeading, Mode=OneWay}" />
+                                        </Grid>
+                                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.HistoryMonths}">
+                                            <ItemsRepeater.Layout>
+                                                <StackLayout Spacing="6" />
+                                            </ItemsRepeater.Layout>
+                                            <ItemsRepeater.ItemTemplate>
+                                                <DataTemplate x:DataType="avm:HistoryMonthItem">
+                                                    <Grid ColumnSpacing="8">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="80" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="100" />
+                                                            <ColumnDefinition Width="100" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                                            Text="{x:Bind Month}" />
+                                                        <Grid Grid.Column="1" Height="14">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="{x:Bind charts:ChartLength.Star(Filled)}" MinWidth="{x:Bind Least}" />
+                                                                <ColumnDefinition Width="{x:Bind charts:ChartLength.Star(Rest)}" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Rectangle
+                                                                Grid.ColumnSpan="2"
+                                                                Stroke="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                                StrokeThickness="1" />
+                                                            <Rectangle Fill="{ThemeResource SystemControlHighlightAccentBrush}" />
+                                                        </Grid>
+                                                        <TextBlock
+                                                            Grid.Column="2"
+                                                            HorizontalAlignment="Right"
+                                                            VerticalAlignment="Center"
+                                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                                            Text="{x:Bind Minutes}" />
+                                                        <TextBlock
+                                                            Grid.Column="3"
+                                                            HorizontalAlignment="Right"
+                                                            VerticalAlignment="Center"
+                                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                                            Text="{x:Bind Messages}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsRepeater.ItemTemplate>
+                                        </ItemsRepeater>
+                                    </StackPanel>
+                                </charts:ChartFrame>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+        <views:StatusPanel x:Name="Status" />
+    </Grid>
 </UserControl>

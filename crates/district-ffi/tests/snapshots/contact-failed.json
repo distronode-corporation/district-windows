@@ -2,9 +2,13 @@
   "screen": {
     "ContactDetail": {
       "view": {
+        "blocked": false,
+        "busy": null,
+        "confirming": null,
         "contact_id": "contact_contract_1",
         "created_at": null,
         "dossier": null,
+        "editing": null,
         "facts": [],
         "failure": null,
         "name": "",
@@ -23,7 +27,14 @@
             "title": "Could not load this contact"
           }
         },
-        "updated_at": null
+        "updated_at": null,
+        "writes": {
+          "can_block": false,
+          "can_clear_research": false,
+          "can_delete": false,
+          "can_edit": false,
+          "can_enrich": false
+        }
       }
     }
   },

@@ -6,8 +6,8 @@ using Microsoft.UI.Xaml.Controls;
 namespace DistrictAI.Views.Support;
 
 /// <summary>
-/// The support requests. A stub until the area's packet builds it: until then the core
-/// shows the unavailable page instead, so this one is never on screen.
+/// The workspace's support requests to Distronode, open and resolved, and the
+/// form that raises one. Closed to a viewer, so it is never shown for one.
 /// </summary>
 public sealed partial class SupportPage : UserControl
 {
@@ -15,6 +15,8 @@ public sealed partial class SupportPage : UserControl
     public SupportPage()
     {
         InitializeComponent();
+        Status.Attach(ViewModel.Load);
+        Refresh.Attach(ViewModel.Load);
     }
 
     /// <summary>What the page shows, and its actions.</summary>
@@ -23,4 +25,12 @@ public sealed partial class SupportPage : UserControl
     internal void Attach(PageContext context) => ViewModel.Attach(context);
 
     internal void Show(SupportView view) => ViewModel.Show(view);
+
+    private void OnRequestClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is SupportRowItem row)
+        {
+            ViewModel.OpenRequest(row);
+        }
+    }
 }

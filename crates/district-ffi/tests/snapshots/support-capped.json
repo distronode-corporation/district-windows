@@ -1,0 +1,746 @@
+{
+  "screen": {
+    "Support": {
+      "view": {
+        "can_start": true,
+        "capped_note": "Showing the 100 most recent requests.",
+        "compose": null,
+        "empty": null,
+        "open": [
+          {
+            "key": "DA-100",
+            "reference": "DA-100",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-101",
+            "reference": "DA-101",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-102",
+            "reference": "DA-102",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-103",
+            "reference": "DA-103",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-104",
+            "reference": "DA-104",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-105",
+            "reference": "DA-105",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-106",
+            "reference": "DA-106",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-107",
+            "reference": "DA-107",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-108",
+            "reference": "DA-108",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-109",
+            "reference": "DA-109",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-110",
+            "reference": "DA-110",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-111",
+            "reference": "DA-111",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-112",
+            "reference": "DA-112",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-113",
+            "reference": "DA-113",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-114",
+            "reference": "DA-114",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-115",
+            "reference": "DA-115",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-116",
+            "reference": "DA-116",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-117",
+            "reference": "DA-117",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-118",
+            "reference": "DA-118",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-119",
+            "reference": "DA-119",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-120",
+            "reference": "DA-120",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-121",
+            "reference": "DA-121",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-122",
+            "reference": "DA-122",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-123",
+            "reference": "DA-123",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-124",
+            "reference": "DA-124",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-125",
+            "reference": "DA-125",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-126",
+            "reference": "DA-126",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-127",
+            "reference": "DA-127",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-128",
+            "reference": "DA-128",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-129",
+            "reference": "DA-129",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-130",
+            "reference": "DA-130",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-131",
+            "reference": "DA-131",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-132",
+            "reference": "DA-132",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-133",
+            "reference": "DA-133",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-134",
+            "reference": "DA-134",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-135",
+            "reference": "DA-135",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-136",
+            "reference": "DA-136",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-137",
+            "reference": "DA-137",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-138",
+            "reference": "DA-138",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-139",
+            "reference": "DA-139",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-140",
+            "reference": "DA-140",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-141",
+            "reference": "DA-141",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-142",
+            "reference": "DA-142",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-143",
+            "reference": "DA-143",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-144",
+            "reference": "DA-144",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-145",
+            "reference": "DA-145",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-146",
+            "reference": "DA-146",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-147",
+            "reference": "DA-147",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-148",
+            "reference": "DA-148",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-149",
+            "reference": "DA-149",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-150",
+            "reference": "DA-150",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-151",
+            "reference": "DA-151",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-152",
+            "reference": "DA-152",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-153",
+            "reference": "DA-153",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-154",
+            "reference": "DA-154",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-155",
+            "reference": "DA-155",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-156",
+            "reference": "DA-156",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-157",
+            "reference": "DA-157",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-158",
+            "reference": "DA-158",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-159",
+            "reference": "DA-159",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-160",
+            "reference": "DA-160",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-161",
+            "reference": "DA-161",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-162",
+            "reference": "DA-162",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-163",
+            "reference": "DA-163",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-164",
+            "reference": "DA-164",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-165",
+            "reference": "DA-165",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-166",
+            "reference": "DA-166",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-167",
+            "reference": "DA-167",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-168",
+            "reference": "DA-168",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-169",
+            "reference": "DA-169",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-170",
+            "reference": "DA-170",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-171",
+            "reference": "DA-171",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-172",
+            "reference": "DA-172",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-173",
+            "reference": "DA-173",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-174",
+            "reference": "DA-174",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-175",
+            "reference": "DA-175",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-176",
+            "reference": "DA-176",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-177",
+            "reference": "DA-177",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-178",
+            "reference": "DA-178",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-179",
+            "reference": "DA-179",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-180",
+            "reference": "DA-180",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-181",
+            "reference": "DA-181",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-182",
+            "reference": "DA-182",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-183",
+            "reference": "DA-183",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-184",
+            "reference": "DA-184",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-185",
+            "reference": "DA-185",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-186",
+            "reference": "DA-186",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-187",
+            "reference": "DA-187",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-188",
+            "reference": "DA-188",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-189",
+            "reference": "DA-189",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-190",
+            "reference": "DA-190",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-191",
+            "reference": "DA-191",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-192",
+            "reference": "DA-192",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-193",
+            "reference": "DA-193",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-194",
+            "reference": "DA-194",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-195",
+            "reference": "DA-195",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-196",
+            "reference": "DA-196",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-197",
+            "reference": "DA-197",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-198",
+            "reference": "DA-198",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          },
+          {
+            "key": "DA-199",
+            "reference": "DA-199",
+            "status": "In Progress",
+            "subject": "Outbound calls failing on the Toronto number",
+            "updated_at": "2026-09-06T12:30:00.000Z"
+          }
+        ],
+        "refresh_failure": null,
+        "refreshing": false,
+        "resolved": [],
+        "status": "Ready",
+        "submitted": null,
+        "title": "Support"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Support",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

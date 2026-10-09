@@ -10,5 +10,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/DistrictAI.Core.Tests/DistrictAI.Core.Tests.csproj" />
     <Project Path="tests/DistrictAI.Presentation.Tests/DistrictAI.Presentation.Tests.csproj" />
+    <Project Path="tests/DistrictAI.UiTests/DistrictAI.UiTests.csproj" />
   </Folder>
 </Solution>

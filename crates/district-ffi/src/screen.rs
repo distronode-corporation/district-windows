@@ -38,6 +38,10 @@ pub const UNAVAILABLE_BODY: &str = "Use the web dashboard or the District AI pho
 
 /// What the screen inside the frame shows.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
+#[allow(
+    clippy::large_enum_variant,
+    reason = "one screen is made per state change and lowered to C# at once; UniFFI cannot carry a Box, so a page as large as the analytics stays inline"
+)]
 pub enum ScreenView {
     /// Everything outside a session: looking for a stored one, signed out,
     /// signing in through the browser, and signing out.
@@ -279,7 +283,7 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
             ),
         },
         Route::Contacts => ScreenView::Contacts {
-            view: contacts_view(&signed_in.contacts),
+            view: contacts_view(&signed_in.contacts, &capabilities),
         },
         Route::ContactDetail { contact_id } => ScreenView::ContactDetail {
             view: contact_detail_view(
@@ -531,6 +535,7 @@ mod tests {
             ScreenView::BlockedContacts {
                 view: crate::blocked::BlockedView {
                     title: "BlockedContacts".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Hq {
@@ -540,9 +545,7 @@ mod tests {
                 },
             },
             ScreenView::Analytics {
-                view: crate::analytics::AnalyticsView {
-                    title: "Analytics".to_owned(),
-                },
+                view: crate::analytics::sample(),
             },
             ScreenView::Marketplace {
                 view: crate::marketplace::MarketplaceView {
@@ -582,11 +585,13 @@ mod tests {
             ScreenView::Support {
                 view: crate::support::SupportView {
                     title: "Support".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::SupportRequest {
                 view: crate::support::SupportRequestView {
                     title: "SupportRequest".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Rooms {

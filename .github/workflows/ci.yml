@@ -22,8 +22,9 @@ name: CI
 #   view models in DistrictAI.Presentation, checks the formatting of the whole
 #   solution, builds the WinUI app with warnings as errors and packages it as
 #   an MSIX signed with a throwaway certificate made in the job (never
-#   committed, never kept), then builds and packages the GitHub flavour
-#   (Package.GitHub.appxmanifest) unsigned, as a release does.
+#   committed, never kept), installs that package and runs the UI smoke tests
+#   against it (tests/DistrictAI.UiTests), then builds and packages the GitHub
+#   flavour (Package.GitHub.appxmanifest) unsigned, as a release does.
 #
 # Any job on a Windows runner carries `if: ${{ !github.event.repository.private }}`:
 # private Windows minutes are metered, public ones are not.
@@ -443,6 +444,17 @@ jobs:
             if ($entry.Length -ne $want) { throw "ThirdPartyNotices/libwebrtc-LICENSE.md is $($entry.Length) bytes, the archive's is $want" }
             Write-Host "ThirdPartyNotices/libwebrtc-LICENSE.md: $($entry.Length) bytes"
           } finally { $zip.Dispose() }
+
+      # The test MSIX installed as a user installs it and driven through UI
+      # Automation (tests/DistrictAI.UiTests, FlaUI): it starts and shows the
+      # sign-in page, a districtai:// link while it runs reaches the one
+      # instance, closing the window hides it, and the tray menu's Quit ends
+      # it. The script trusts the certificate for the run and always removes
+      # the package again.
+      - name: UI smoke tests of the installed test MSIX
+        shell: pwsh
+        timeout-minutes: 15
+        run: ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'AppPackages')
 
       # The GitHub flavour, unsigned, as release.yml builds it, so a flavour
       # that no longer builds or packages fails here and not at a release tag.
