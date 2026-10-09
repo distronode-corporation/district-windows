@@ -11,6 +11,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The app carries its own .NET runtime, so it starts on a computer without the .NET Desktop
+  Runtime. 1.0.0 needed it installed and did not start without it.
+
 - When Windows announces that the computer is going to sleep or hibernate, District AI
   stops ringing on it first (ending any call under way), and rings on it again when it
   wakes. Before, a sleeping computer could stay listed to ring for up to ten minutes, so a
