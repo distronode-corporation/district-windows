@@ -602,9 +602,7 @@ mod tests {
                 },
             },
             ScreenView::Rooms {
-                view: crate::rooms::RoomsView {
-                    title: "Rooms".to_owned(),
-                },
+                view: crate::rooms::sample(),
             },
             ScreenView::WorkspaceSettings {
                 view: crate::settings::SettingsHubView::sample(),

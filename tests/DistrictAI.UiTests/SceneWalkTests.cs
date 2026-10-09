@@ -185,7 +185,7 @@ public sealed class SceneWalkTests
             SizeClient(handle, 1920, 1080);
         }
 
-        Open(app, "Calls");
+        OpenUntil(app, "Calls", "Calls");
         app.Find(ControlType.Button, "Place a call", _pageTimeout).AsButton().Invoke();
         app.Find(ControlType.Edit, "Number to call", _pageTimeout).AsTextBox().Text = "+12125550142";
         Wait.For(
@@ -204,6 +204,53 @@ public sealed class SceneWalkTests
         app.Find(ControlType.Button, "Hang up", _pageTimeout).AsButton().Invoke();
         _ = app.Find(ControlType.Text, "Call ended", _pageTimeout);
         Assert.True(app.IsRunning, "the app ended during the call");
+    }
+
+    /// <summary>
+    /// The rooms lobby lists the recorded meetings, and a finished one opens
+    /// its record in place of the list: its minutes and action items, each
+    /// with Report. Saved as 91-meeting-record.png when screenshots are on.
+    /// No room is joined: the scene has no media.
+    /// </summary>
+    [Fact]
+    public void AMeetingRecordOpensWithReportOnItsMinutes()
+    {
+        RequireScriptedPackage();
+        var shots = Environment.GetEnvironmentVariable("DISTRICTAI_SCREENSHOTS");
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        var handle = window.Properties.NativeWindowHandle.Value;
+        _ = Heading(app, WorkspaceName, _startTimeout);
+        if (shots is { Length: > 0 })
+        {
+            SizeClient(handle, 1920, 1080);
+        }
+
+        OpenUntil(app, "Meeting rooms", "Meeting rooms");
+        var row = Wait.For(
+            () => window.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
+                .FirstOrDefault(item => item.Name.StartsWith("Weekly review", StringComparison.Ordinal)),
+            _pageTimeout,
+            "the meeting \"Weekly review\"",
+            app.Describe);
+        if (row.Patterns.Invoke.IsSupported)
+        {
+            row.Patterns.Invoke.Pattern.Invoke();
+        }
+        else
+        {
+            row.Click();
+        }
+        _ = app.Find(ControlType.Text, "Minutes", _pageTimeout);
+        _ = app.Find(ControlType.Text, "Action items", _pageTimeout);
+        _ = app.Find(ControlType.Button, "Report", _pageTimeout);
+        InstalledApp.Log("the meeting record shows its minutes and action items, with Report");
+        if (shots is { Length: > 0 })
+        {
+            Save(handle, Path.Combine(shots, "91-meeting-record.png"), clientOnly: true);
+        }
+        app.Find(ControlType.Button, "Close the meeting", _pageTimeout).AsButton().Invoke();
+        Assert.True(app.IsRunning, "the app ended in the meeting rooms");
     }
 
     /// <summary>
@@ -319,6 +366,30 @@ public sealed class SceneWalkTests
         else
         {
             item.Click();
+        }
+    }
+
+    /// <summary>
+    /// Chooses the entry named <paramref name="entry"/> until its page shows
+    /// <paramref name="heading"/>. A choice made in the first moments after
+    /// launch, while the scene is still filling the navigation pane, can be
+    /// lost (in run 37892440647 "Calls" was chosen 20 ms after the overview's
+    /// heading showed, and the overview stayed), so it is made again.
+    /// </summary>
+    private static void OpenUntil(InstalledApp app, string entry, string heading)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            Open(app, entry);
+            try
+            {
+                _ = Heading(app, heading, TimeSpan.FromSeconds(10));
+                return;
+            }
+            catch (TimeoutException) when (attempt < 3)
+            {
+                InstalledApp.Log(FormattableString.Invariant($"\"{entry}\" did not open (attempt {attempt}): choosing it again"));
+            }
         }
     }
 

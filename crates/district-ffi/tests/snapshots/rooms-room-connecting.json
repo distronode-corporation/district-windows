@@ -1,0 +1,88 @@
+{
+  "screen": {
+    "Rooms": {
+      "view": {
+        "busy_note": null,
+        "can_join": false,
+        "failure": null,
+        "join_label": "Join",
+        "joining": false,
+        "meetings": [
+          {
+            "can_rejoin": false,
+            "detail": "",
+            "in_progress": "In progress",
+            "meeting_id": "meeting_contract_live",
+            "minutes": "Minutes are written when the meeting ends.",
+            "rejoin_label": "Rejoin",
+            "started_at": "2026-08-15T14:30:00.000Z",
+            "title": "standup"
+          },
+          {
+            "can_rejoin": false,
+            "detail": "42m 0s, 2 people",
+            "in_progress": null,
+            "meeting_id": "meeting_contract_completed",
+            "minutes": "The team reviewed Thursday's inbound volume and agreed to move the after-hours overflow onto the second attendant. Ada took the carrier follow-up, Grace is rewriting the greeting, and the routing change lands before the…",
+            "rejoin_label": "Rejoin",
+            "started_at": "2026-08-14T15:00:00.000Z",
+            "title": "Weekly review"
+          }
+        ],
+        "meetings_description": "The most recent meetings held in this workspace's rooms. Open one to read its minutes and transcript.",
+        "meetings_empty": null,
+        "meetings_refreshing": false,
+        "meetings_status": "Ready",
+        "meetings_title": "Meetings",
+        "name_note": "Everyone who joins \"weekly-review\" meets in the same room.",
+        "record": null,
+        "role_note": "The Companion joins every room and writes up the minutes.",
+        "room": {
+          "can_mute": false,
+          "can_speak": true,
+          "copied_note": "Guest link copied.",
+          "copy_link_hint": "Copy a link that lets someone without an account join this room",
+          "copy_link_label": "Copy guest link",
+          "guest_link": "https://www.distronode.com/meet/meet_ws-contract-test_weekly-review?e=1786973400&s=Y29udHJhY3QtbWVldC1pbnZpdGUtc2lnbmF0dXJl",
+          "leave_label": "Leave the room",
+          "muted": true,
+          "notice": null,
+          "people": [],
+          "people_line": "Nobody else is here yet.",
+          "state": "Joining the room.",
+          "title": "Room \"weekly-review\""
+        },
+        "room_name": "Weekly review",
+        "room_name_label": "Room name",
+        "start_title": "Start or join a room",
+        "title": "Meeting rooms"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": true,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Rooms",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
