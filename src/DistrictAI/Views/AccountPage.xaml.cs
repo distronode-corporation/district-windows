@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.Platform;
 using DistrictAI.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -21,7 +22,7 @@ public sealed partial class AccountPage : UserControl
     }
 
     /// <summary>What the page shows, and its buttons.</summary>
-    public AccountViewModel ViewModel { get; } = new();
+    public AccountViewModel ViewModel { get; } = new(new StartupRegistration());
 
     internal void Attach(PageContext context) => ViewModel.Attach(context);
 

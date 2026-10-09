@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The view models: what each page shows, copied from the core's views, and
+    what its buttons send to the core. OS-neutral (no WinUI, no Windows App
+    SDK), so it builds and tests on Linux like DistrictAI.Core. The app's
+    pages bind to these; anything Windows-only reaches them through a small
+    interface the app implements (ICoreSink, IBrowser, IStartupTask) or
+    through TimeProvider.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>DistrictAI.ViewModels</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../DistrictAI.Core/DistrictAI.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The app's pages call the view models' internal members (Attach, Show, the commands' helpers). -->
+    <InternalsVisibleTo Include="DistrictAI" />
+    <InternalsVisibleTo Include="DistrictAI.Presentation.Tests" />
+  </ItemGroup>
+</Project>

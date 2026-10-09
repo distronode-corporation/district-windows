@@ -62,6 +62,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../DistrictAI.Core/DistrictAI.Core.csproj" />
+    <ProjectReference Include="../DistrictAI.Presentation/DistrictAI.Presentation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

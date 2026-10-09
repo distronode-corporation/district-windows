@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
-using DistrictAI.Platform;
 
 namespace DistrictAI.ViewModels;
 
@@ -11,10 +10,18 @@ namespace DistrictAI.ViewModels;
 /// </summary>
 public sealed partial class AccountViewModel : ObservableObject
 {
+    private readonly IStartupTask _startup;
     private PageContext? _context;
     private bool _startupCanChange;
     private bool _startupBusy;
     private bool _writingRing;
+
+    /// <summary>An account page that reads and changes start at sign-in through <paramref name="startup"/>.</summary>
+    public AccountViewModel(IStartupTask startup)
+    {
+        ArgumentNullException.ThrowIfNull(startup);
+        _startup = startup;
+    }
 
     /// <summary>The user's name, or empty.</summary>
     [ObservableProperty]
@@ -151,7 +158,7 @@ public sealed partial class AccountViewModel : ObservableObject
         StartupSwitchEnabled = false;
         try
         {
-            ShowStartup(await StartupRegistration.GetAsync().ConfigureAwait(true));
+            ShowStartup(await _startup.GetAsync().ConfigureAwait(true));
         }
         finally
         {
@@ -171,7 +178,7 @@ public sealed partial class AccountViewModel : ObservableObject
         StartupSwitchEnabled = false;
         try
         {
-            ShowStartup(await StartupRegistration.SetAsync(enabled).ConfigureAwait(true));
+            ShowStartup(await _startup.SetAsync(enabled).ConfigureAwait(true));
         }
         finally
         {

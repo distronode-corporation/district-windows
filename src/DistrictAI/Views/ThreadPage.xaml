@@ -158,7 +158,7 @@
                             TextAlignment="Center"
                             Visibility="{x:Bind IsNote}" />
                         <StackPanel
-                            HorizontalAlignment="{x:Bind Alignment}"
+                            HorizontalAlignment="{x:Bind views:ThreadPage.SideFor(IsOutboundMessage)}"
                             Orientation="Horizontal"
                             Spacing="8">
                             <TextBlock

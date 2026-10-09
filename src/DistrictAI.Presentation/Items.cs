@@ -1,5 +1,4 @@
 using DistrictAI.Core.Ffi;
-using Microsoft.UI.Xaml;
 
 namespace DistrictAI.ViewModels;
 
@@ -159,9 +158,6 @@ public sealed record TimelineItem
 
     /// <summary>Whether there is a time to show.</summary>
     public bool HasWhen => When.Length > 0;
-
-    /// <summary>Sent messages sit on the right, everything else on the left.</summary>
-    public HorizontalAlignment Alignment => IsOutboundMessage ? HorizontalAlignment.Right : HorizontalAlignment.Left;
 
     /// <summary>The Report button's words.</summary>
     public string ReportLabel => Display.ReportLabel(Report);
