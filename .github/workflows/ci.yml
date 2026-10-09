@@ -552,8 +552,8 @@ jobs:
 
       # Every entry the navigation pane offers in the scripted signed-in scene
       # is opened and must render, finish loading and show no failure; each
-      # page's client area is saved at 1920x1080 (the display is set larger
-      # first), and the whole window once.
+      # page's client area is saved at 1920x1080 (the display set to that,
+      # the window's frame taken off to fit), and the whole window once.
       - name: UI walk of the scripted test MSIX, with screenshots
         shell: pwsh
         timeout-minutes: 15

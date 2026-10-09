@@ -91,6 +91,34 @@ internal static partial class Native
         public int Y;
     }
 
+    [LibraryImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
+    private static partial nint GetWindowLongPtr(nint window, int index);
+
+    [LibraryImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
+    private static partial nint SetWindowLongPtr(nint window, int index, nint value);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetWindowPos(nint window, nint after, int x, int y, int width, int height, uint flags);
+
+    /// <summary>
+    /// Takes the title bar and the sizing frame off <paramref name="window"/>
+    /// and makes it <paramref name="width"/> by <paramref name="height"/> at
+    /// (0, 0): its client area is then the whole window, which fits a display
+    /// of that size.
+    /// </summary>
+    public static void Frameless(nint window, int width, int height)
+    {
+        const int gwlStyle = -16;
+        const nint wsCaption = 0x00C00000;
+        const nint wsThickFrame = 0x00040000;
+        const uint swpNoZOrder = 0x0004;
+        const uint swpFrameChanged = 0x0020;
+        var style = GetWindowLongPtr(window, gwlStyle);
+        _ = SetWindowLongPtr(window, gwlStyle, style & ~(wsCaption | wsThickFrame));
+        _ = SetWindowPos(window, 0, 0, 0, width, height, swpNoZOrder | swpFrameChanged);
+    }
+
     [LibraryImport("dwmapi.dll")]
     private static partial int DwmGetWindowAttribute(nint window, uint attribute, out Rect value, uint size);
 
