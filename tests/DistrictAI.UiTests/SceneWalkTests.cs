@@ -48,16 +48,20 @@ public sealed class SceneWalkTests
         ("District HQ", "District HQ"),
         ("Booking pages", "Booking pages"),
         ("Help desk", "Help desk"),
+        ("Billing", "Billing"),
     ];
 
     /// <summary>
     /// Pages a button on another page opens, not a pane entry: from the page
     /// of <c>Entry</c>, the button named <c>Button</c>, and the heading it
-    /// shows. Walked when the button is there (its area built).
+    /// shows, and, for a panel on the same page, the text box that shows it
+    /// open (or null). Walked when the button is there (its area built).
     /// </summary>
-    private static readonly (string Entry, string Button, string Heading)[] _subPages =
+    private static readonly (string Entry, string Button, string Heading, string? Edit)[] _subPages =
     [
-        ("Contacts", "Blocked callers", "Blocked callers"),
+        ("Contacts", "Blocked callers", "Blocked callers", null),
+        // The plan chooser opens on the billing page itself; nothing is bought.
+        ("Billing", "Choose a plan", "Billing", "Promotion code"),
     ];
 
     /// <summary>
@@ -124,7 +128,7 @@ public sealed class SceneWalkTests
                     InstalledApp.Log($"\"{entry}\" has no \"{sub.Button}\" button: not walked");
                     continue;
                 }
-                if (!Visit(app, handle, sub.Button, () => app.Find(ControlType.Button, sub.Button, _pageTimeout).AsButton().Invoke(), sub.Heading, shots, ++index, problems))
+                if (!Visit(app, handle, sub.Button, () => app.Find(ControlType.Button, sub.Button, _pageTimeout).AsButton().Invoke(), sub.Heading, shots, ++index, problems, sub.Edit))
                 {
                     break;
                 }

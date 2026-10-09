@@ -43,14 +43,15 @@ is itself a finding, so the list cannot outlive what it excuses.
 must not trip it (comments, code, words that merely contain a phrase), and
 fails unless every case answers as expected.
 
-Per-screen rules (packet K4, not built yet): today every screen gets the same
-rule, `phrases_for_screen` returns PHRASES whatever the screen. When 2.0 adds
-billing, checkout, marketplace and welcome screens that may say "sign up" or
-"price", K4 splits PHRASES into the words those screens may use and the rest,
-and has `phrases_for_screen` return the narrower pattern for a screen in a set
-of allowed names. Snapshot findings already carry their screen, so nothing else
-in the snapshot scan changes; source literals have no screen (`None`) and keep
-the full rule.
+Per-screen rules: in 2.0 District AI for Windows buys in the app, and the
+screens that do may name what they sell. `phrases_for_screen` narrows the rule
+for a screen in SCREEN_WORDS: the Billing screen may say "price" ("the price is
+shown at checkout") and "subscription" (the core's own words for the plans
+the payment processor holds), and nothing else on the list. Every other screen,
+and every source literal (which has no screen, `None`), keeps the full rule, so
+a C# or Rust string, a XAML text or a resource string still may not say either:
+the billing page's own words come from the core, through its snapshot. Packet
+K4 adds the checkout and welcome screens' words (sign up) when it builds them.
 """
 
 from __future__ import annotations
@@ -81,12 +82,33 @@ PHRASES = re.compile(
 )
 
 
-def phrases_for_screen(screen: str | None) -> re.Pattern[str]:
+# The words each screen may use, and so the narrower rule it gets: PHRASES
+# without them. Keyed by the variant under `screen` in a snapshot.
+SCREEN_WORDS: dict[str, str] = {
+    # Prices are shown at checkout (the core names none), and the account's
+    # plans are the processor's subscriptions, in the core's words.
+    "Billing": r"pric(?:e|es|ed|ing)|subscri(?:ption|ptions)",
+}
+
+class _ScreenRule:
+    """PHRASES, less the whole-word matches a screen may use."""
+
+    def __init__(self, words: str) -> None:
+        self._allowed = re.compile(rf"(?:{words})", re.IGNORECASE)
+
+    def finditer(self, text: str) -> list[re.Match[str]]:
+        return [m for m in PHRASES.finditer(text) if not self._allowed.fullmatch(m.group(0))]
+
+
+def phrases_for_screen(screen: str | None) -> re.Pattern[str] | _ScreenRule:
     """The refused wording for text shown on `screen` (None: not tied to one).
 
-    One rule for every screen today; K4 narrows it per screen (module docstring).
+    The full rule, except for a screen in SCREEN_WORDS, which may use its words
+    (module docstring). A word a screen may use is matched as a whole word, so
+    "subscribe" or "subscriber" on Billing is still refused.
     """
-    return PHRASES
+    words = SCREEN_WORDS.get(screen or "")
+    return PHRASES if words is None else _ScreenRule(words)
 
 # `path:line` (forward slashes, relative to the repository root) to the reason
 # the line is fine. None is expected for 1.0.
@@ -567,6 +589,21 @@ def self_test() -> int:
     if [(f.key, f.phrase, f.text, f.screen) for f in got] != want:
         failed += 1
         print(f"self-test: snapshot findings should be {want}, got {[(f.key, f.phrase, f.text, f.screen) for f in got]}")
+    # Billing may name a price and a subscription, and nothing else on the
+    # list; another screen, the same words, is still refused.
+    billing = json.dumps({"screen": {"Billing": {"view": {
+        "note": "The price is shown at checkout.",
+        "plans": "No subscription is attached. Prices vary. Subscriptions: 2.",
+        "cta": "Subscribe, buy now, sign up, free trial",
+    }}}})
+    got = scan_snapshot("b.json", billing)
+    expect("Billing's own words", got, 4)
+    total += 1
+    if sorted(f.phrase.lower() for f in got) != ["buy", "free trial", "sign up", "subscribe"]:
+        failed += 1
+        print(f"self-test: Billing should refuse only subscribe, buy, sign up and free trial, got {[f.phrase for f in got]}")
+    other = json.dumps({"screen": {"Overview": {"view": {"note": "The price of a subscription."}}}})
+    expect("another screen keeps the full rule", scan_snapshot("o.json", other), 2)
     got = scan_snapshot("s.json", '{"a b": ["x", {"y": "buy"}]}')
     expect("snapshot value under a quoted key", got, 1)
     total += 1
