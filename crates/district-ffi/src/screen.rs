@@ -571,16 +571,19 @@ mod tests {
             ScreenView::Desk {
                 view: crate::desk::DeskView {
                     title: "Desk".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::DeskTicket {
                 view: crate::desk::DeskTicketView {
                     title: "DeskTicket".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::DeskSettings {
                 view: crate::desk::DeskSettingsView {
                     title: "DeskSettings".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Support {

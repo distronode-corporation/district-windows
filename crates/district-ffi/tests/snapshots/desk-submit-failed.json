@@ -1,0 +1,115 @@
+{
+  "screen": {
+    "Desk": {
+      "view": {
+        "can_filter": true,
+        "can_open_settings": true,
+        "can_start": false,
+        "compose": {
+          "can_submit": true,
+          "customer_note": "Optional. Replies are emailed to the address given here, when the desk emails customers.",
+          "failure": {
+            "message": "Subject is too short.",
+            "regions_line": null,
+            "retryable": true
+          },
+          "message": "Which card was charged?",
+          "message_max": 10000,
+          "needs": null,
+          "requester_email": "",
+          "requester_name": "Ada",
+          "requester_phone": "+1 416 555 0142",
+          "subject": "Invoice question",
+          "subject_max": 200,
+          "submit_label": "Raise",
+          "submitting": false,
+          "title": "New ticket"
+        },
+        "empty": null,
+        "filters": [
+          {
+            "filter": "All",
+            "label": "Every ticket (3)",
+            "selected": true
+          },
+          {
+            "filter": "Open",
+            "label": "Open (1)",
+            "selected": false
+          },
+          {
+            "filter": "Waiting",
+            "label": "Waiting on the customer (1)",
+            "selected": false
+          },
+          {
+            "filter": "Resolved",
+            "label": "Resolved (1)",
+            "selected": false
+          }
+        ],
+        "none_matching": null,
+        "off": null,
+        "refreshing": false,
+        "rows": [
+          {
+            "reference": "T-41",
+            "requester": "Contract Test Caller",
+            "status": "Open",
+            "status_label": "Open",
+            "subject": "Reschedule Thursday's appointment",
+            "ticket_id": "desk_ticket_open",
+            "updated_at": "2026-09-06T16:40:00.000Z"
+          },
+          {
+            "reference": "T-42",
+            "requester": "No customer details",
+            "status": "Waiting",
+            "status_label": "Waiting",
+            "subject": "Caller could not complete a booking",
+            "ticket_id": "desk_ticket_waiting",
+            "updated_at": "2026-09-06T16:40:00.000Z"
+          },
+          {
+            "reference": "T-43",
+            "requester": "billing@example.com",
+            "status": "Resolved",
+            "status_label": "Resolved",
+            "subject": "Invoice question",
+            "ticket_id": "desk_ticket_resolved",
+            "updated_at": "2026-09-06T16:40:00.000Z"
+          }
+        ],
+        "status": "Ready",
+        "submitted": null,
+        "title": "Help desk"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Desk",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
