@@ -162,6 +162,7 @@ internal sealed partial class LiveWalk : IDisposable
         });
         Outcome outcome;
         var stuck = false;
+        var broke = false;
         try
         {
             if (task.Wait(limit + TimeSpan.FromSeconds(5)))
@@ -178,6 +179,7 @@ internal sealed partial class LiveWalk : IDisposable
         catch (AggregateException error) when (error.InnerException is { } inner)
         {
             outcome = From(inner, limit, probe);
+            broke = inner is not PreconditionException;
         }
         var crashes = _crashes.New();
         if (crashes.Length > 0 || !App.IsRunning || stuck)
@@ -189,6 +191,12 @@ internal sealed partial class LiveWalk : IDisposable
             {
                 _ = task.Wait(TimeSpan.FromSeconds(15));
             }
+        }
+        else if (broke)
+        {
+            // A check that stopped part-way can leave a dialog or a form open:
+            // the next starts from a fresh app (the session is kept).
+            Relaunch($"{id} stopped part-way");
         }
         InstalledApp.Log(FormattableString.Invariant($"--- {id}: {LiveResults.Wire(outcome.Result)} in {clock.Elapsed.TotalSeconds:F0} s: {outcome.Detail}"));
         return Results.Record(id, outcome.Result, outcome.Detail);
