@@ -6,7 +6,15 @@
         "metrics": [],
         "purchase": {
           "choose_action": "Choose a plan",
-          "confirming": null,
+          "confirming": {
+            "action": "Continue to checkout",
+            "body": "Payment is handled by Stripe, District AI's payment processor. Checkout opens in a private window inside District AI, signed in for this purchase only. Your card details go to Stripe, not to District AI, and the price is shown before you pay.",
+            "cancel": "Cancel",
+            "plan": "Voice Pro",
+            "promo": "SAVE-100",
+            "term": "Annual",
+            "title": "Continue to checkout with Stripe"
+          },
           "enabled": true,
           "in_browser_note": null,
           "manage_action": "Manage billing",

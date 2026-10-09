@@ -6,6 +6,7 @@ use district_core::{
 };
 use serde::Serialize;
 
+use crate::billing::{PurchaseView, purchase_view};
 use crate::calls::{CallRowView, call_row};
 use crate::views::{FactView, FailureView, LoadStatus};
 
@@ -20,7 +21,8 @@ pub const NO_RECENT_CALLS: &str =
 pub struct OverviewView {
     /// Where the read stands. With no workspace open, `Failed` carries the
     /// workspace list's own heading and words (no workspace, billing, a list
-    /// that could not be read).
+    /// that could not be read); for an account with no workspace that is
+    /// offered the plans, the words say to choose one.
     pub status: LoadStatus,
     /// The open workspace's name, once the overview is read.
     pub workspace_name: String,
@@ -40,6 +42,10 @@ pub struct OverviewView {
     /// with core 2.0.0, where a failed reload replaces the overview with its
     /// failure (`status`); kept so a core that keeps the content can say so.
     pub refresh_failure: Option<FailureView>,
+    /// The billing screen's plan chooser, for an account with no workspace
+    /// while the core offers it the plans: checkout is what makes the first
+    /// workspace. `None` in every other state.
+    pub purchase: Option<PurchaseView>,
 }
 
 /// The card sending the owner to finish setting up on the web.
@@ -65,6 +71,7 @@ pub(crate) fn overview_view(signed_in: &SignedIn) -> OverviewView {
         finish_setup: None,
         refreshing: false,
         refresh_failure: None,
+        purchase: None,
     };
     let workspaces = match &signed_in.workspaces {
         WorkspacesState::Loading => return view,
@@ -80,12 +87,15 @@ pub(crate) fn overview_view(signed_in: &SignedIn) -> OverviewView {
             };
             view.status = LoadStatus::Failed {
                 failure: FailureView {
-                    message: other.message().unwrap_or_default(),
+                    message: signed_in.no_workspace_message().unwrap_or_default(),
                     regions_line,
                     retryable,
                 },
                 title: other.title().unwrap_or_default().to_owned(),
             };
+            // Offered only with no workspace at all: never for billing or a
+            // list that could not be read.
+            view.purchase = purchase_view(signed_in);
             return view;
         }
     };
@@ -123,6 +133,7 @@ pub(crate) fn overview_view(signed_in: &SignedIn) -> OverviewView {
                 }),
                 refreshing: content.refreshing,
                 refresh_failure: None,
+                purchase: None,
             };
         }
     }

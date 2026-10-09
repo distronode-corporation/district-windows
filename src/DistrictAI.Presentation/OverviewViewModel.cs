@@ -2,10 +2,15 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels.Billing;
 
 namespace DistrictAI.ViewModels;
 
-/// <summary>The overview: the workspace's numbers, its recent calls, and the finish-setup card.</summary>
+/// <summary>
+/// The overview: the workspace's numbers, its recent calls, and the finish-setup
+/// card; and, for an account with no workspace yet that the core offers the
+/// plans, the billing screen's chooser, since checkout makes the first workspace.
+/// </summary>
 public sealed partial class OverviewViewModel : ObservableObject
 {
     private PageContext? _context;
@@ -18,6 +23,20 @@ public sealed partial class OverviewViewModel : ObservableObject
 
     /// <summary>The latest calls.</summary>
     public ObservableCollection<CallRowItem> RecentCalls { get; } = [];
+
+    /// <summary>The plan chooser, for an account with no workspace.</summary>
+    public PlanChooserViewModel Purchase { get; } = new();
+
+    /// <summary>
+    /// Whether the no-workspace page with the chooser shows, in place of the
+    /// plain status page: no workspace, and the plans offered.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool OffersPlans { get; set; }
+
+    /// <summary>Whether the plain status page (loading, or a page with no way forward) shows.</summary>
+    [ObservableProperty]
+    public partial bool StatusShown { get; set; } = true;
 
     /// <summary>The workspace's name.</summary>
     [ObservableProperty]
@@ -59,6 +78,7 @@ public sealed partial class OverviewViewModel : ObservableObject
     {
         _context = context;
         Load.Attach(context);
+        Purchase.Attach(context);
     }
 
     internal void Show(OverviewView view)
@@ -75,6 +95,9 @@ public sealed partial class OverviewViewModel : ObservableObject
         Display.Sync(RecentCalls, [.. view.RecentCalls.Select(CallRowItem.From)]);
         RecentCallsEmpty = view.RecentCallsEmpty ?? string.Empty;
         NoRecentCalls = Load.Ready && view.RecentCalls.Length == 0 && RecentCallsEmpty.Length > 0;
+        Purchase.Show(view.Purchase);
+        OffersPlans = view.Purchase is not null && Load.Failed;
+        StatusShown = !OffersPlans;
     }
 
     internal void OpenCall(CallRowItem row) => _context?.Send(new UiEvent.OpenCall(row.CallId));

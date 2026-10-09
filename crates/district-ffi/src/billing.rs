@@ -504,8 +504,9 @@ fn invoice_row(invoice: &BillingInvoice) -> InvoiceRowView {
     }
 }
 
-/// The purchase controls, while the core offers them to this member here.
-fn purchase_view(signed_in: &SignedIn) -> Option<PurchaseView> {
+/// The purchase controls, while the core offers them to this member here: on
+/// the billing screen, and on the overview of an account with no workspace.
+pub(crate) fn purchase_view(signed_in: &SignedIn) -> Option<PurchaseView> {
     if !signed_in.offers_plans() {
         return None;
     }
