@@ -559,9 +559,7 @@ mod tests {
                 },
             },
             ScreenView::Workflows {
-                view: crate::workflows::WorkflowsView {
-                    title: "Workflows".to_owned(),
-                },
+                view: crate::workflows::sample_view(),
             },
             ScreenView::Scheduling {
                 view: crate::scheduling::SchedulingView {

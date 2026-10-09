@@ -1,0 +1,122 @@
+{
+  "screen": {
+    "Workflows": {
+      "view": {
+        "campaign": {
+          "active": true,
+          "badge": "Active",
+          "batch": "25",
+          "batch_label": "Batch size",
+          "can_change": true,
+          "can_pause": true,
+          "can_resume": false,
+          "failure": null,
+          "goal": "Book demos with lapsed trials",
+          "goal_label": "Goal",
+          "note": "The campaign's goal and batch size are changed on the District AI website.",
+          "pause_label": "Pause campaign",
+          "pending": false,
+          "resume_label": "Resume campaign",
+          "show_pause": true,
+          "show_resume": false,
+          "status": "Ready",
+          "title": "Outbound campaign"
+        },
+        "confirming": null,
+        "empty": null,
+        "rows": [
+          {
+            "active": true,
+            "can_switch": true,
+            "detail": "After a missed call · Last run success",
+            "expanded": true,
+            "last_run_at": "2026-08-18T11:30:00.000Z",
+            "name": "Missed-call follow-up",
+            "runs": {
+              "can_load_more": false,
+              "can_retry": false,
+              "failure": null,
+              "loading": true,
+              "more_label": "More runs",
+              "note": "Reading runs.",
+              "runs": [
+                {
+                  "detail": "Send sms: ok · Add crm tag: ok",
+                  "run_id": "run_contract_success",
+                  "started_at": "2026-08-18T11:30:00.000Z",
+                  "status": "Success",
+                  "tone": "Success"
+                },
+                {
+                  "detail": "Send sms: ok · Send email: skipped (contact has no email address)",
+                  "run_id": "run_contract_partial",
+                  "started_at": "2026-08-18T10:15:00.000Z",
+                  "status": "Partial",
+                  "tone": "Warning"
+                },
+                {
+                  "detail": "notify_ops webhook returned 502",
+                  "run_id": "run_contract_failed",
+                  "started_at": "2026-08-17T16:40:00.000Z",
+                  "status": "Failed",
+                  "tone": "Danger"
+                },
+                {
+                  "detail": "Send sms: skipped (contact is on the dnc list)",
+                  "run_id": "run_contract_skipped",
+                  "started_at": "2026-08-17T09:05:00.000Z",
+                  "status": "Skipped",
+                  "tone": "Neutral"
+                }
+              ]
+            },
+            "switch_name": "Turn on Missed-call follow-up",
+            "switching": false,
+            "workflow_id": "wf_contract_active"
+          },
+          {
+            "active": false,
+            "can_switch": true,
+            "detail": "New contact · Not run yet",
+            "expanded": false,
+            "last_run_at": null,
+            "name": "New contact welcome",
+            "runs": null,
+            "switch_name": "Turn on New contact welcome",
+            "switching": false,
+            "workflow_id": "wf_contract_paused"
+          }
+        ],
+        "status": "Ready",
+        "title": "Workflows",
+        "toggle_failure": null
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Workflows",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
