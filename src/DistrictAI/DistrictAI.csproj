@@ -19,6 +19,15 @@
     <PlatformTarget>x64</PlatformTarget>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!--
+      Self-contained: the package carries the .NET runtime. The Windows App
+      Runtime the package depends on does not include .NET, and nothing installs
+      the .NET Desktop Runtime for a Store app, so a framework-dependent build
+      does not start on a PC without it (v1.0.0 did not; CI's runners have .NET
+      installed, which hid it). ci.yml and release.yml check every package for
+      hostfxr.dll, coreclr.dll and includedFrameworks.
+    -->
+    <SelfContained>true</SelfContained>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsPackageType>MSIX</WindowsPackageType>

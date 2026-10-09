@@ -324,6 +324,17 @@ jobs:
               $dll = @($zip.Entries | Where-Object FullName -eq 'DistrictAI.dll')
               if ($dll.Count -ne 1) { throw "$label has no DistrictAI.dll at its root" }
               if (-not $zip.GetEntry('ThirdPartyNotices/libwebrtc-LICENSE.md')) { throw "$label has no ThirdPartyNotices/libwebrtc-LICENSE.md" }
+              # Self-contained: the package carries .NET, which no Store install
+              # provides (v1.0.0 did not start on a PC without the .NET Desktop Runtime).
+              foreach ($runtime in 'hostfxr.dll', 'hostpolicy.dll', 'coreclr.dll') {
+                if (-not $zip.GetEntry($runtime)) { throw "$label has no $runtime at its root: it is not self-contained" }
+              }
+              $config = $zip.GetEntry('DistrictAI.runtimeconfig.json')
+              if (-not $config) { throw "$label has no DistrictAI.runtimeconfig.json" }
+              $reader = [IO.StreamReader]::new($config.Open())
+              $runtimeConfig = $reader.ReadToEnd() | ConvertFrom-Json
+              $reader.Dispose()
+              if (-not $runtimeConfig.runtimeOptions.includedFrameworks) { throw "$label's runtimeconfig has no includedFrameworks: it is framework-dependent" }
               $file = Join-Path $work "$label-DistrictAI.dll"
               [IO.Compression.ZipFileExtensions]::ExtractToFile($dll[0], $file, $true)
               $stream = [IO.File]::OpenRead($file)

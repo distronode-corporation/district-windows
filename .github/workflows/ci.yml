@@ -403,6 +403,30 @@ jobs:
           ./scripts/run-wack.ps1 -Package $msix.FullName -Certificate (Join-Path $out 'District-AI-CI-test.cer') `
             -Report (Join-Path $out 'wack-report.xml') -Dependencies $(if (Test-Path $deps) { $deps } else { '' })
 
+      # Self-contained: the package carries .NET. The runner has .NET
+      # installed, so the app starting here proves nothing about a PC without
+      # it (v1.0.0 needed the .NET Desktop Runtime and did not start on one).
+      - name: The test MSIX carries its own .NET runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $msix = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'AppPackages') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
+          if ($msix.Count -ne 1) { throw "expected one DistrictAI MSIX, found $($msix.Count)" }
+          $zip = [IO.Compression.ZipFile]::OpenRead($msix[0].FullName)
+          try {
+            foreach ($runtime in 'hostfxr.dll', 'hostpolicy.dll', 'coreclr.dll') {
+              if (-not $zip.GetEntry($runtime)) { throw "the MSIX has no $runtime at its root: it is not self-contained" }
+            }
+            $config = $zip.GetEntry('DistrictAI.runtimeconfig.json')
+            if (-not $config) { throw 'the MSIX has no DistrictAI.runtimeconfig.json' }
+            $reader = [IO.StreamReader]::new($config.Open())
+            $runtimeConfig = $reader.ReadToEnd() | ConvertFrom-Json
+            $reader.Dispose()
+            if (-not $runtimeConfig.runtimeOptions.includedFrameworks) { throw "the runtimeconfig has no includedFrameworks: it is framework-dependent" }
+            Write-Host "self-contained: $(($runtimeConfig.runtimeOptions.includedFrameworks | ForEach-Object { "$($_.name) $($_.version)" }) -join ', ')"
+          } finally { $zip.Dispose() }
+
       # The package carries libwebrtc's licence texts, which DistrictAI.csproj
       # takes from the archive the fetch step unpacked.
       - name: The test MSIX carries libwebrtc's licences
