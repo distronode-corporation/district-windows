@@ -159,6 +159,35 @@ public sealed partial class CallBarViewModel : ObservableObject
         StartTimer();
     }
 
+    /// <summary>
+    /// Ctrl+D: turns the microphone off or on, as the mute button does, when
+    /// that button is shown and works. Returns whether it did, so the key
+    /// otherwise stays with the focused control.
+    /// </summary>
+    internal bool ToggleMute()
+    {
+        if (!IsShown || !CanHangUp || !CanMute)
+        {
+            return false;
+        }
+        Muted = !Muted;
+        return true;
+    }
+
+    /// <summary>
+    /// Ctrl+Shift+H: hangs up, as the Hang up button does, when there is a
+    /// call to end. Returns whether it did.
+    /// </summary>
+    internal bool HangUpByKey()
+    {
+        if (!IsShown || !HangUpCommand.CanExecute(null))
+        {
+            return false;
+        }
+        HangUpCommand.Execute(null);
+        return true;
+    }
+
     partial void OnMutedChanged(bool value)
     {
         if (!_writing)
