@@ -54,6 +54,16 @@ public sealed class SceneWalkTests
     ];
 
     /// <summary>
+    /// The settings sections built so far, by their hub row's title: each is
+    /// opened from the Workspace settings hub, and its page's level-one
+    /// heading must be that title. A section's packet adds its row here.
+    /// </summary>
+    private static readonly string[] _settingsSections =
+    [
+        "Persona",
+    ];
+
+    /// <summary>
     /// The conversation the Inbox opens first: the scene answers the inbox with
     /// the core's district-conversations.json, whose first thread is this
     /// contact's (the thread page's heading), and its timeline and draft from
@@ -110,6 +120,19 @@ public sealed class SceneWalkTests
             {
                 break;
             }
+            // The built settings sections, each from the hub's row, and back to
+            // the hub for the next.
+            if (entry.StartsWith("Workspace settings", StringComparison.Ordinal))
+            {
+                foreach (var section in _settingsSections)
+                {
+                    if (!Visit(app, handle, section, () => OpenSettingsRow(app, section), section, shots, ++index, problems)
+                        || !Visit(app, handle, entry, () => Open(app, entry), entry, null, index, problems))
+                    {
+                        break;
+                    }
+                }
+            }
             foreach (var sub in _subPages.Where(sub => entry.StartsWith(sub.Entry, StringComparison.Ordinal)))
             {
                 if (app.TryFind(ControlType.Button, sub.Button) is null)
@@ -152,7 +175,7 @@ public sealed class SceneWalkTests
             SizeClient(handle, 1920, 1080);
         }
 
-        Open(app, "Calls");
+        OpenUntil(app, "Calls", "Calls");
         app.Find(ControlType.Button, "Place a call", _pageTimeout).AsButton().Invoke();
         app.Find(ControlType.Edit, "Number to call", _pageTimeout).AsTextBox().Text = "+12125550142";
         Wait.For(
@@ -193,8 +216,7 @@ public sealed class SceneWalkTests
             SizeClient(handle, 1920, 1080);
         }
 
-        Open(app, "Meeting rooms");
-        _ = Heading(app, "Meeting rooms", _pageTimeout);
+        OpenUntil(app, "Meeting rooms", "Meeting rooms");
         var row = Wait.For(
             () => window.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
                 .FirstOrDefault(item => item.Name.StartsWith("Weekly review", StringComparison.Ordinal)),
@@ -279,6 +301,31 @@ public sealed class SceneWalkTests
             .Where(name => name.Length > 0)
             .Distinct()];
 
+    /// <summary>
+    /// Opens the hub's row for <paramref name="title"/>, as a click on it does.
+    /// A row's name is its title, then what the section holds.
+    /// </summary>
+    private static void OpenSettingsRow(InstalledApp app, string title)
+    {
+        var row = Wait.For(
+            () => app.Automation.GetDesktop()
+                .FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Window)))
+                ?.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
+                .FirstOrDefault(item => !item.Properties.IsOffscreen.ValueOrDefault
+                    && NameOf(item).StartsWith(title + ". ", StringComparison.Ordinal)),
+            _pageTimeout,
+            $"the settings row \"{title}\"",
+            app.Describe);
+        if (row.Patterns.Invoke.IsSupported)
+        {
+            row.Patterns.Invoke.Pattern.Invoke();
+        }
+        else
+        {
+            row.Click();
+        }
+    }
+
     /// <summary>Opens the Inbox's first conversation, as a click on it does.</summary>
     private static void OpenFirstConversation(InstalledApp app)
     {
@@ -309,6 +356,30 @@ public sealed class SceneWalkTests
         else
         {
             item.Click();
+        }
+    }
+
+    /// <summary>
+    /// Chooses the entry named <paramref name="entry"/> until its page shows
+    /// <paramref name="heading"/>. A choice made in the first moments after
+    /// launch, while the scene is still filling the navigation pane, can be
+    /// lost (in run 37892440647 "Calls" was chosen 20 ms after the overview's
+    /// heading showed, and the overview stayed), so it is made again.
+    /// </summary>
+    private static void OpenUntil(InstalledApp app, string entry, string heading)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            Open(app, entry);
+            try
+            {
+                _ = Heading(app, heading, TimeSpan.FromSeconds(10));
+                return;
+            }
+            catch (TimeoutException) when (attempt < 3)
+            {
+                InstalledApp.Log(FormattableString.Invariant($"\"{entry}\" did not open (attempt {attempt}): choosing it again"));
+            }
         }
     }
 

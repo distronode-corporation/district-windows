@@ -7,12 +7,14 @@
 //! there. Each section's views, actions and projection are in its own file.
 
 use district_core::{
-    Capabilities, Event, Model, Route, SettingsGroup, SignedIn, WorkspaceSection, settings_note,
-    settings_rows,
+    Capabilities, ConfigLoad, Event, Model, Route, SaveState, SettingsGroup, SignedIn,
+    WorkspaceSection, settings_note, settings_rows,
 };
+use district_model::PersonaLabelledValue;
 use serde::Serialize;
 
 use crate::screen::ScreenView;
+use crate::views::FailureView;
 
 pub mod call_handling;
 pub mod directory;
@@ -24,6 +26,139 @@ pub mod persona;
 pub mod routing;
 pub mod tools;
 pub mod voice_studio;
+
+// What the sections share (the settings kit): how a section's page stands
+// after its read and its save, the notice a save leaves, and a picker whose
+// choices come from the core. The Linux app's settings_kit.rs and
+// save_notice.rs, as views.
+
+/// The heading of a section whose save landed and whose settings could not be
+/// read back. Not a failure: the save is done.
+pub const STALE_TITLE: &str = "Saved";
+/// The button that reads a section's settings again, after such a save.
+pub const READ_AGAIN: &str = "Read them again";
+/// What a picker shows for a stored value that is empty.
+pub const NOT_CHOSEN: &str = "Not chosen";
+
+/// Where a section's page stands: being read, failed, saved but not read
+/// back, or the form.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
+pub enum SectionStatus {
+    /// Being read: a progress ring, no form.
+    Loading,
+    /// The read failed: the reason and, when it could help, "Try again"
+    /// (`UiEvent::Refresh`). No form.
+    Failed {
+        /// The heading.
+        title: String,
+        /// Why.
+        failure: FailureView,
+    },
+    /// A save landed and reading it back failed: "Saved", what to do, and a
+    /// read ([`READ_AGAIN`], `UiEvent::Refresh`), never a save.
+    Stale {
+        /// [`STALE_TITLE`].
+        title: String,
+        /// The core's words.
+        body: String,
+        /// [`READ_AGAIN`].
+        action: String,
+    },
+    /// Read: the form shows.
+    Ready,
+}
+
+/// The page of a section that edits the settings row, from its read and its
+/// save.
+pub(crate) fn section_status(load: &ConfigLoad, save: &SaveState) -> SectionStatus {
+    match (load, save) {
+        (ConfigLoad::Loading, _) => SectionStatus::Loading,
+        (ConfigLoad::Failed(_), SaveState::SavedButStale(_)) => SectionStatus::Stale {
+            title: STALE_TITLE.to_owned(),
+            body: SaveState::SAVED_STALE.to_owned(),
+            action: READ_AGAIN.to_owned(),
+        },
+        (ConfigLoad::Failed(failure), _) => SectionStatus::Failed {
+            title: ConfigLoad::FAILED_TITLE.to_owned(),
+            failure: failure.into(),
+        },
+        (ConfigLoad::Ready(_), _) => SectionStatus::Ready,
+    }
+}
+
+/// How a section's last save ended, until it is dismissed or the form changes.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct SaveNoticeView {
+    /// "Saved.", or why the save failed (the edits are kept).
+    pub message: String,
+    /// Whether it saved, rather than failed.
+    pub saved: bool,
+}
+
+/// The notice for `save`, when there is one. A save that landed and could not
+/// be read back is not one: the page says so instead ([`SectionStatus::Stale`]).
+pub(crate) fn save_notice(save: &SaveState) -> Option<SaveNoticeView> {
+    match save {
+        SaveState::Saved => Some(SaveNoticeView {
+            message: SaveState::SAVED.to_owned(),
+            saved: true,
+        }),
+        SaveState::Failed(failure) => Some(SaveNoticeView {
+            message: FailureView::from(failure).message,
+            saved: false,
+        }),
+        SaveState::Idle | SaveState::Saving | SaveState::SavedButStale(_) => None,
+    }
+}
+
+/// One choice of a picker.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct ChoiceView {
+    /// What is sent when it is chosen.
+    pub value: String,
+    /// What it reads.
+    pub label: String,
+}
+
+/// A picker whose choices come from the core, showing a stored value the
+/// choices do not list as it is stored.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct PickerView {
+    /// The choices, in the core's order.
+    pub choices: Vec<ChoiceView>,
+    /// The value chosen now.
+    pub selected: String,
+    /// What the chosen value reads: its choice's label, else the value as
+    /// stored, else [`NOT_CHOSEN`].
+    pub selected_label: String,
+}
+
+/// What the picker shows for `value` when no choice lists it.
+pub(crate) fn unlisted(value: &str) -> String {
+    if value.trim().is_empty() {
+        NOT_CHOSEN.to_owned()
+    } else {
+        value.to_owned()
+    }
+}
+
+/// The picker of `list`, with `selected` chosen.
+pub(crate) fn picker(list: &[PersonaLabelledValue], selected: &str) -> PickerView {
+    PickerView {
+        choices: list
+            .iter()
+            .map(|choice| ChoiceView {
+                value: choice.value.clone(),
+                label: choice.label.clone(),
+            })
+            .collect(),
+        selected: selected.to_owned(),
+        selected_label: list
+            .iter()
+            .find(|choice| choice.value == selected)
+            .map_or_else(|| unlisted(selected), |choice| choice.label.clone()),
+    }
+}
 
 /// Whether this version has the hub.
 pub(crate) const BUILT: bool = true;

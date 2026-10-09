@@ -14,6 +14,7 @@ public sealed partial class SignInViewModel : ObservableObject
 {
     private ICoreSink? _core;
     private bool _screenOffersSignIn;
+    private bool _screenOffersCreateAccount;
     private bool _signInHeld;
 
     /// <summary>The heading.</summary>
@@ -63,6 +64,26 @@ public sealed partial class SignInViewModel : ObservableObject
     [ObservableProperty]
     public partial bool CanSignIn { get; set; }
 
+    /// <summary>
+    /// Whether "Create an account" is offered: the core offers it beside
+    /// browser sign-in, and it is not held. It starts the same browser sign-in,
+    /// whose page offers the account.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool CanCreateAccount { get; set; }
+
+    /// <summary>The "Create an account" button's words.</summary>
+    [ObservableProperty]
+    public partial string CreateAccountLabel { get; set; } = string.Empty;
+
+    /// <summary>What "Create an account" does, under it.</summary>
+    [ObservableProperty]
+    public partial string CreateAccountNote { get; set; } = string.Empty;
+
+    /// <summary>Whether "Create an account" shows at all (its note too), held or not.</summary>
+    [ObservableProperty]
+    public partial bool OffersCreateAccount { get; set; }
+
     /// <summary>Whether "Try again" is offered.</summary>
     [ObservableProperty]
     public partial bool CanRetry { get; set; }
@@ -86,6 +107,11 @@ public sealed partial class SignInViewModel : ObservableObject
         HasError = screen.Error is not null;
         _screenOffersSignIn = screen.SignIn;
         CanSignIn = _screenOffersSignIn && !_signInHeld;
+        _screenOffersCreateAccount = screen.CreateAccount is not null;
+        OffersCreateAccount = _screenOffersCreateAccount;
+        CreateAccountLabel = screen.CreateAccount?.Label ?? string.Empty;
+        CreateAccountNote = screen.CreateAccount?.Note ?? string.Empty;
+        CanCreateAccount = _screenOffersCreateAccount && !_signInHeld;
         CanRetry = screen.Retry;
         CanRetrySignOut = screen.RetrySignOut;
         CanCancel = screen.Cancel;
@@ -106,6 +132,7 @@ public sealed partial class SignInViewModel : ObservableObject
         CopyLine = copies.ThisCopyLine ?? string.Empty;
         HasCopyLine = copies.ThisCopyLine is not null;
         CanSignIn = _screenOffersSignIn && !_signInHeld;
+        CanCreateAccount = _screenOffersCreateAccount && !_signInHeld;
     }
 
     [RelayCommand]
@@ -117,6 +144,14 @@ public sealed partial class SignInViewModel : ObservableObject
             _core?.Send(new UiEvent.SignIn());
         }
     }
+
+    /// <summary>
+    /// "Create an account": the browser sign-in, whose page offers the
+    /// account, so the code exchange is the one every sign-in uses. Held like
+    /// sign-in while another copy of the app is installed.
+    /// </summary>
+    [RelayCommand]
+    private void CreateAccount() => SignIn();
 
     [RelayCommand]
     private void Retry() => _core?.Send(new UiEvent.RetryRestore());

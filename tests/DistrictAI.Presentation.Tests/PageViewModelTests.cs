@@ -86,7 +86,7 @@ public sealed class SignInViewModelTests
         var signIn = new SignInViewModel();
         Assert.Equal("District AI", signIn.Title);
 
-        signIn.Show(new SessionScreen("Sign in", "Use your browser.", Busy: true, SignIn: true, Retry: true, RetrySignOut: true, Cancel: true, Error: "Refused."));
+        signIn.Show(new SessionScreen("Sign in", "Use your browser.", Busy: true, SignIn: true, Retry: true, RetrySignOut: true, Cancel: true, Error: "Refused.", CreateAccount: null));
         Assert.Equal("Sign in", signIn.Title);
         Assert.Equal("Use your browser.", signIn.Body);
         Assert.True(signIn.Busy);
@@ -97,7 +97,7 @@ public sealed class SignInViewModelTests
         Assert.True(signIn.CanRetrySignOut);
         Assert.True(signIn.CanCancel);
 
-        signIn.Show(new SessionScreen("Sign in", string.Empty, false, false, false, false, false, null));
+        signIn.Show(new SessionScreen("Sign in", string.Empty, false, false, false, false, false, null, null));
         Assert.Equal(string.Empty, signIn.Error);
         Assert.False(signIn.HasError);
     }
