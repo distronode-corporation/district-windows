@@ -1,7 +1,5 @@
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
-using FlaUI.Core.Input;
-using FlaUI.Core.WindowsAPI;
 using Xunit;
 
 // One app per user: two tests at once would drive the same instance.
@@ -124,8 +122,6 @@ public sealed class SmokeTests
         _ = app.Find(ControlType.Button, SignInButton, _startTimeout);
         var handle = window.Properties.NativeWindowHandle.Value;
 
-        ReportTheNotificationArea(app);
-
         // What Explorer sends the window when its icon is right-clicked
         // (NOTIFYICON_VERSION_4): WM_CONTEXTMENU and the icon's id in lParam,
         // the anchor point in wParam. The menu, its items and Quit are the
@@ -152,55 +148,6 @@ public sealed class SmokeTests
             Wait.Until(() => !app.IsRunning, _stepTimeout),
             $"the app was still running {_stepTimeout.TotalSeconds} s after Quit.{Environment.NewLine}{app.Describe()}");
         Assert.Empty(InstalledApp.RunningProcessIds());
-    }
-
-    /// <summary>
-    /// Whether the icon itself can be reached and right-clicked on this
-    /// machine: the taskbar's "Show Hidden Icons" flyout opened, the icon
-    /// looked for by its tooltip, right-clicked, and the menu that opens (if
-    /// one does) closed again. Reported, never asserted: it depends on the
-    /// shell's flyout, real mouse input and the foreground, none of which the
-    /// app controls.
-    /// </summary>
-    private static void ReportTheNotificationArea(InstalledApp app)
-    {
-        AutomationElement? Menu() =>
-            app.Automation.GetDesktop().FindFirstChild(cf => cf.ByProcessId(app.ProcessId).And(cf.ByControlType(ControlType.Menu)));
-        try
-        {
-            var desktop = app.Automation.GetDesktop();
-            var taskbar = desktop.FindFirstChild(cf => cf.ByClassName("Shell_TrayWnd"));
-            var chevron = taskbar?.FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName("Show Hidden Icons")));
-            if (chevron is null)
-            {
-                InstalledApp.Log($"notification area: {(taskbar is null ? "no taskbar" : "no \"Show Hidden Icons\" button")} in UI Automation");
-                return;
-            }
-            chevron.Click();
-            AutomationElement? icon = null;
-            var found = Wait.Until(
-                () => (icon = app.Automation.GetDesktop().FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName(InstalledApp.WindowTitle)))) is not null,
-                TimeSpan.FromSeconds(5));
-            if (!found || icon is null)
-            {
-                InstalledApp.Log("notification area: the District AI icon was not found by its tooltip, on the taskbar or in the flyout");
-                Keyboard.Type(VirtualKeyShort.ESCAPE);
-                return;
-            }
-            InstalledApp.Log($"notification area: icon found (class {icon.ClassName}, parent window {icon.Parent?.ClassName}); right-clicking it");
-            icon.RightClick();
-            var menu = Wait.Until(() => Menu() is not null, TimeSpan.FromSeconds(5));
-            var items = menu ? string.Join(", ", Menu()?.FindAllDescendants(cf => cf.ByControlType(ControlType.MenuItem)).Select(item => item.Name) ?? []) : string.Empty;
-            InstalledApp.Log(menu ? $"notification area: the right click opened the app's menu: [{items}]" : "notification area: the right click opened no menu within 5 s");
-            Keyboard.Type(VirtualKeyShort.ESCAPE);
-            var closed = Wait.Until(() => Menu() is null, TimeSpan.FromSeconds(5));
-            Keyboard.Type(VirtualKeyShort.ESCAPE);
-            InstalledApp.Log($"notification area: menu {(closed ? "closed" : "STILL OPEN")} after Escape");
-        }
-        catch (Exception error) when (error is not OutOfMemoryException)
-        {
-            InstalledApp.Log($"notification area: driving it failed: {error.GetType().Name}: {error.Message}");
-        }
     }
 
     /// <summary>
