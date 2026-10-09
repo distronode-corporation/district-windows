@@ -178,17 +178,25 @@ fn offered(session: &Session) -> Vec<NavDestination> {
         .collect()
 }
 
+/// The areas of 2.0 built so far, which the navigation pane offers beside
+/// 1.0's five. The pull request that builds an area adds it here.
+const BUILT_AREAS: [NavDestination; 1] = [NavDestination::Hq];
+
 /// An area whose packet has not built it: `session` shows `expected`, as
 /// [`ScreenView::Unavailable`], and the navigation pane offers 1.0's five
-/// destinations and nothing else.
+/// destinations and the areas built ([`BUILT_AREAS`]), and nothing else.
 fn assert_unbuilt(session: &Session, expected: Route) {
     assert_eq!(route(session), expected);
     assert!(
         matches!(screen_view(&session.model), ScreenView::Unavailable { .. }),
         "{expected:?}"
     );
+    let offered: Vec<NavDestination> = offered(session)
+        .into_iter()
+        .filter(|destination| !BUILT_AREAS.contains(destination))
+        .collect();
     assert_eq!(
-        offered(session),
+        offered,
         [
             NavDestination::Overview,
             NavDestination::Inbox,

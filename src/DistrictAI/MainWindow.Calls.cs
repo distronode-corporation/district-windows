@@ -2,7 +2,6 @@ using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using DistrictAI.Views.Calls;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 
 namespace DistrictAI;
 
@@ -35,12 +34,4 @@ public sealed partial class MainWindow
         _ringBanner.Show(shell);
         _callBar.Show(shell);
     }
-
-    // Ctrl+D and Ctrl+Shift+H, from anywhere in the window. A key that has no
-    // call to act on is left to the focused control.
-    private void OnMuteAccelerator(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) =>
-        args.Handled = _callBar?.ViewModel.ToggleMute() ?? false;
-
-    private void OnHangUpAccelerator(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) =>
-        args.Handled = _callBar?.ViewModel.HangUpByKey() ?? false;
 }

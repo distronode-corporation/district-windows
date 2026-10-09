@@ -59,8 +59,13 @@ fn reference(target: &ReportTarget) -> String {
             }
             Some(ThreadRef::Address(_)) | None => format!("Conversation event: {event_id}"),
         },
+        ReportTarget::HqAnswer => HQ_ANSWER_REFERENCE.to_owned(),
     }
 }
+
+/// What the support desk receives about a District HQ answer: its kind. The
+/// service keeps no id for one, and the report quotes none of it.
+const HQ_ANSWER_REFERENCE: &str = "District HQ answer";
 
 /// The report's message: where it came from, what it is about, and the note,
 /// trimmed and cut to [`NOTE_LIMIT`] characters.
@@ -196,6 +201,15 @@ mod tests {
             assert!(!sent.contains(address), "{sent}");
             assert!(!sent.contains("addr:"), "{sent}");
         }
+    }
+
+    /// A District HQ answer is reported by its kind alone.
+    #[test]
+    fn an_hq_answer_is_reported_by_its_kind() {
+        assert_eq!(
+            message(&ReportTarget::HqAnswer, " made up a number "),
+            format!("{PREAMBLE}\n{HQ_ANSWER_REFERENCE}\n\nmade up a number")
+        );
     }
 
     #[test]

@@ -536,6 +536,7 @@ mod tests {
             ScreenView::Hq {
                 view: crate::hq::HqView {
                     title: "Hq".to_owned(),
+                    ..crate::hq::HqView::sample()
                 },
             },
             ScreenView::Analytics {

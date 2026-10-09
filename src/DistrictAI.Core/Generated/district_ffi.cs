@@ -5205,16 +5205,220 @@ class FfiConverterTypeFinishSetupView: FfiConverterRustBuffer<FinishSetupView> {
 
 
 /// <summary>
+/// The card in front of a change the assistant proposed.
+/// </summary>
+/// <param name="Title">
+/// The heading.
+/// </param>
+/// <param name="Summary">
+/// The service's one sentence saying exactly what the change would do.
+/// </param>
+/// <param name="Note">
+/// The note under it: nothing has changed yet, only certain roles can
+/// confirm, or the change may have been made.
+/// </param>
+/// <param name="Applying">
+/// The line while the confirmed change is being applied (show a progress
+/// ring).
+/// </param>
+/// <param name="Failure">
+/// Why the confirmation failed. Confirm stays, as the member's decision.
+/// </param>
+/// <param name="ConfirmLabel">
+/// The confirming button's label.
+/// </param>
+/// <param name="DismissLabel">
+/// The declining button's label.
+/// </param>
+/// <param name="CanConfirm">
+/// Whether Confirm works now.
+/// </param>
+/// <param name="CanDismiss">
+/// Whether Dismiss works now.
+/// </param>
+public record HqCardView (
+    /// <summary>
+    /// The heading.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The service's one sentence saying exactly what the change would do.
+    /// </summary>
+    string Summary, 
+    /// <summary>
+    /// The note under it: nothing has changed yet, only certain roles can
+    /// confirm, or the change may have been made.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// The line while the confirmed change is being applied (show a progress
+    /// ring).
+    /// </summary>
+    string? Applying, 
+    /// <summary>
+    /// Why the confirmation failed. Confirm stays, as the member's decision.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// The confirming button's label.
+    /// </summary>
+    string ConfirmLabel, 
+    /// <summary>
+    /// The declining button's label.
+    /// </summary>
+    string DismissLabel, 
+    /// <summary>
+    /// Whether Confirm works now.
+    /// </summary>
+    bool CanConfirm, 
+    /// <summary>
+    /// Whether Dismiss works now.
+    /// </summary>
+    bool CanDismiss
+) {
+}
+
+class FfiConverterTypeHqCardView: FfiConverterRustBuffer<HqCardView> {
+    public static FfiConverterTypeHqCardView INSTANCE = new FfiConverterTypeHqCardView();
+
+    public override HqCardView Read(BigEndianStream stream) {
+        return new HqCardView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Summary: FfiConverterString.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Applying: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            ConfirmLabel: FfiConverterString.INSTANCE.Read(stream),
+            DismissLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanConfirm: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanDismiss: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HqCardView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Applying)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConfirmLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DismissLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanConfirm)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDismiss);
+    }
+
+    public override void Write(HqCardView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Summary, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Applying, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterString.INSTANCE.Write(value.ConfirmLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DismissLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanConfirm, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDismiss, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The District HQ screen.
 /// </summary>
 /// <param name="Title">
-/// The heading. A placeholder, until the screen is built.
+/// The heading, [`TITLE`].
+/// </param>
+/// <param name="Empty">
+/// What an empty conversation says, while nothing has been asked.
+/// </param>
+/// <param name="Messages">
+/// The conversation, oldest first. It only grows while the workspace is
+/// open, so a page may keep what it drew and add the rest.
+/// </param>
+/// <param name="Thinking">
+/// The line while a prompt is being answered (show a progress ring).
+/// </param>
+/// <param name="Failure">
+/// Why the last prompt went unanswered. The question stays in the
+/// conversation.
+/// </param>
+/// <param name="CanRetry">
+/// Whether "Try again" is offered for [`failure`](Self::failure): only when
+/// trying again could help.
+/// </param>
+/// <param name="Card">
+/// The card of a change the assistant proposed, while there is one.
+/// </param>
+/// <param name="CanAsk">
+/// Whether a prompt can be sent now: not while one is being answered or a
+/// change applied.
+/// </param>
+/// <param name="PromptPlaceholder">
+/// The prompt box's placeholder, [`PROMPT_PLACEHOLDER`].
+/// </param>
+/// <param name="AskLabel">
+/// The send button's label, [`ASK_ACTION`].
+/// </param>
+/// <param name="RetryLabel">
+/// The "Try again" button's label, [`RETRY_ACTION`].
+/// </param>
+/// <param name="Footnote">
+/// The line under the prompt box, [`FOOTNOTE`].
 /// </param>
 public record HqView (
     /// <summary>
-    /// The heading. A placeholder, until the screen is built.
+    /// The heading, [`TITLE`].
     /// </summary>
-    string Title
+    string Title, 
+    /// <summary>
+    /// What an empty conversation says, while nothing has been asked.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// The conversation, oldest first. It only grows while the workspace is
+    /// open, so a page may keep what it drew and add the rest.
+    /// </summary>
+    HqMessageView[] Messages, 
+    /// <summary>
+    /// The line while a prompt is being answered (show a progress ring).
+    /// </summary>
+    string? Thinking, 
+    /// <summary>
+    /// Why the last prompt went unanswered. The question stays in the
+    /// conversation.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// Whether "Try again" is offered for [`failure`](Self::failure): only when
+    /// trying again could help.
+    /// </summary>
+    bool CanRetry, 
+    /// <summary>
+    /// The card of a change the assistant proposed, while there is one.
+    /// </summary>
+    HqCardView? Card, 
+    /// <summary>
+    /// Whether a prompt can be sent now: not while one is being answered or a
+    /// change applied.
+    /// </summary>
+    bool CanAsk, 
+    /// <summary>
+    /// The prompt box's placeholder, [`PROMPT_PLACEHOLDER`].
+    /// </summary>
+    string PromptPlaceholder, 
+    /// <summary>
+    /// The send button's label, [`ASK_ACTION`].
+    /// </summary>
+    string AskLabel, 
+    /// <summary>
+    /// The "Try again" button's label, [`RETRY_ACTION`].
+    /// </summary>
+    string RetryLabel, 
+    /// <summary>
+    /// The line under the prompt box, [`FOOTNOTE`].
+    /// </summary>
+    string Footnote
 ) {
 }
 
@@ -5223,17 +5427,50 @@ class FfiConverterTypeHqView: FfiConverterRustBuffer<HqView> {
 
     public override HqView Read(BigEndianStream stream) {
         return new HqView(
-            Title: FfiConverterString.INSTANCE.Read(stream)
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Messages: FfiConverterSequenceTypeHqMessageView.INSTANCE.Read(stream),
+            Thinking: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            CanRetry: FfiConverterBoolean.INSTANCE.Read(stream),
+            Card: FfiConverterOptionalTypeHqCardView.INSTANCE.Read(stream),
+            CanAsk: FfiConverterBoolean.INSTANCE.Read(stream),
+            PromptPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            AskLabel: FfiConverterString.INSTANCE.Read(stream),
+            RetryLabel: FfiConverterString.INSTANCE.Read(stream),
+            Footnote: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(HqView value) {
         return 0
-            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterSequenceTypeHqMessageView.INSTANCE.AllocationSize(value.Messages)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Thinking)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanRetry)
+            + FfiConverterOptionalTypeHqCardView.INSTANCE.AllocationSize(value.Card)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAsk)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PromptPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AskLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RetryLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Footnote);
     }
 
     public override void Write(HqView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterSequenceTypeHqMessageView.INSTANCE.Write(value.Messages, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Thinking, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanRetry, stream);
+            FfiConverterOptionalTypeHqCardView.INSTANCE.Write(value.Card, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanAsk, stream);
+            FfiConverterString.INSTANCE.Write(value.PromptPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.AskLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RetryLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Footnote, stream);
     }
 }
 
@@ -6349,6 +6586,118 @@ class FfiConverterTypePickedFileView: FfiConverterRustBuffer<PickedFileView> {
             FfiConverterString.INSTANCE.Write(value.FileName, stream);
             FfiConverterUInt64.INSTANCE.Write(value.Size, stream);
             FfiConverterByteArray.INSTANCE.Write(value.Bytes, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A stretch of text in one style.
+/// </summary>
+/// <param name="Text">
+/// The text, shown exactly as it is.
+/// </param>
+/// <param name="Bold">
+/// Strong emphasis.
+/// </param>
+/// <param name="Italic">
+/// Emphasis.
+/// </param>
+/// <param name="Code">
+/// Inline code, in a fixed-width font.
+/// </param>
+/// <param name="Link">
+/// The web page the run links to, when it is a link: always `https://` or
+/// `http://` ([`is_web_link`]). Opening it goes back through the core.
+/// </param>
+public record RichRun (
+    /// <summary>
+    /// The text, shown exactly as it is.
+    /// </summary>
+    string Text, 
+    /// <summary>
+    /// Strong emphasis.
+    /// </summary>
+    bool Bold, 
+    /// <summary>
+    /// Emphasis.
+    /// </summary>
+    bool Italic, 
+    /// <summary>
+    /// Inline code, in a fixed-width font.
+    /// </summary>
+    bool Code, 
+    /// <summary>
+    /// The web page the run links to, when it is a link: always `https://` or
+    /// `http://` ([`is_web_link`]). Opening it goes back through the core.
+    /// </summary>
+    string? Link
+) {
+}
+
+class FfiConverterTypeRichRun: FfiConverterRustBuffer<RichRun> {
+    public static FfiConverterTypeRichRun INSTANCE = new FfiConverterTypeRichRun();
+
+    public override RichRun Read(BigEndianStream stream) {
+        return new RichRun(
+            Text: FfiConverterString.INSTANCE.Read(stream),
+            Bold: FfiConverterBoolean.INSTANCE.Read(stream),
+            Italic: FfiConverterBoolean.INSTANCE.Read(stream),
+            Code: FfiConverterBoolean.INSTANCE.Read(stream),
+            Link: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RichRun value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Text)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Bold)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Italic)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Code)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Link);
+    }
+
+    public override void Write(RichRun value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Text, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Bold, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Italic, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Code, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Link, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Text written in the subset, as blocks.
+/// </summary>
+/// <param name="Blocks">
+/// The blocks, in reading order.
+/// </param>
+public record RichTextView (
+    /// <summary>
+    /// The blocks, in reading order.
+    /// </summary>
+    RichBlock[] Blocks
+) {
+}
+
+class FfiConverterTypeRichTextView: FfiConverterRustBuffer<RichTextView> {
+    public static FfiConverterTypeRichTextView INSTANCE = new FfiConverterTypeRichTextView();
+
+    public override RichTextView Read(BigEndianStream stream) {
+        return new RichTextView(
+            Blocks: FfiConverterSequenceTypeRichBlock.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RichTextView value) {
+        return 0
+            + FfiConverterSequenceTypeRichBlock.INSTANCE.AllocationSize(value.Blocks);
+    }
+
+    public override void Write(RichTextView value, BigEndianStream stream) {
+            FfiConverterSequenceTypeRichBlock.INSTANCE.Write(value.Blocks, stream);
     }
 }
 
@@ -8086,38 +8435,242 @@ class FfiConverterTypeFileKind: FfiConverterRustBuffer<FileKind> {
 /// <summary>
 /// Something the member did on District HQ.
 /// </summary>
-public enum HqAction: int {
+public record HqAction {
+    
     /// <summary>
     /// Open District HQ.
     /// </summary>
-    Open,
+    public record Open: HqAction {}
+    
+    
+    /// <summary>
+    /// Send a prompt. A blank one is not sent.
+    /// </summary>
+    public record Ask (
+        string Prompt
+    ) : HqAction {}
+    
     /// <summary>
     /// Ask again, after a question that failed.
     /// </summary>
-    Retry
+    public record Retry: HqAction {}
+    
+    
+    /// <summary>
+    /// Apply the proposed change.
+    /// </summary>
+    public record Confirm: HqAction {}
+    
+    
+    /// <summary>
+    /// Set the proposed change aside. Nothing is sent to the service.
+    /// </summary>
+    public record Dismiss: HqAction {}
+    
+    
+    /// <summary>
+    /// A link in an answer was clicked: the core opens it in the browser when
+    /// it is a web page, and does nothing otherwise.
+    /// </summary>
+    public record OpenLink (
+        string Url
+    ) : HqAction {}
+    
+
+    
 }
 
-class FfiConverterTypeHqAction: FfiConverterRustBuffer<HqAction> {
-    public static FfiConverterTypeHqAction INSTANCE = new FfiConverterTypeHqAction();
+class FfiConverterTypeHqAction : FfiConverterRustBuffer<HqAction>{
+    public static FfiConverterRustBuffer<HqAction> INSTANCE = new FfiConverterTypeHqAction();
 
     public override HqAction Read(BigEndianStream stream) {
         var value = stream.ReadInt();
         switch (value) {
-            case 1: return HqAction.Open;
-            case 2: return HqAction.Retry;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Read()", value));
+            case 1:
+                return new HqAction.Open(
+                );
+            case 2:
+                return new HqAction.Ask(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new HqAction.Retry(
+                );
+            case 4:
+                return new HqAction.Confirm(
+                );
+            case 5:
+                return new HqAction.Dismiss(
+                );
+            case 6:
+                return new HqAction.OpenLink(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Read()", value));
         }
     }
 
     public override int AllocationSize(HqAction value) {
-        return 4;
+        switch (value) {
+            case HqAction.Open variant_value:
+                return 4;
+            case HqAction.Ask variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Prompt);
+            case HqAction.Retry variant_value:
+                return 4;
+            case HqAction.Confirm variant_value:
+                return 4;
+            case HqAction.Dismiss variant_value:
+                return 4;
+            case HqAction.OpenLink variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Url);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.AllocationSize()", value));
+        }
     }
 
     public override void Write(HqAction value, BigEndianStream stream) {
         switch (value) {
-            case HqAction.Open: stream.WriteInt(1); break;
-            case HqAction.Retry: stream.WriteInt(2); break;
-            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Write()", value));
+            case HqAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case HqAction.Ask variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Prompt, stream);
+                break;
+            case HqAction.Retry variant_value:
+                stream.WriteInt(3);
+                break;
+            case HqAction.Confirm variant_value:
+                stream.WriteInt(4);
+                break;
+            case HqAction.Dismiss variant_value:
+                stream.WriteInt(5);
+                break;
+            case HqAction.OpenLink variant_value:
+                stream.WriteInt(6);
+                FfiConverterString.INSTANCE.Write(variant_value.Url, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// One line of the conversation.
+/// </summary>
+public record HqMessageView {
+    
+    /// <summary>
+    /// What the member asked, as they typed it.
+    /// </summary>
+    public record Question (
+        uint Index,
+        string Text
+    ) : HqMessageView {}
+    
+    /// <summary>
+    /// What District HQ answered: AI-generated, so Report is offered on it.
+    /// </summary>
+    public record Answer (
+        uint Index,
+        RichTextView Text,
+        ReportAvailability Report
+    ) : HqMessageView {}
+    
+    /// <summary>
+    /// What became of a confirmed change, written by the app.
+    /// </summary>
+    public record Note (
+        uint Index,
+        string Text,
+        bool Applied
+    ) : HqMessageView {}
+    
+
+    
+}
+
+class FfiConverterTypeHqMessageView : FfiConverterRustBuffer<HqMessageView>{
+    public static FfiConverterRustBuffer<HqMessageView> INSTANCE = new FfiConverterTypeHqMessageView();
+
+    public override HqMessageView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new HqMessageView.Question(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new HqMessageView.Answer(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterTypeRichTextView.INSTANCE.Read(stream),
+                    FfiConverterTypeReportAvailability.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new HqMessageView.Note(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(HqMessageView value) {
+        switch (value) {
+            case HqMessageView.Question variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case HqMessageView.Answer variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterTypeRichTextView.INSTANCE.AllocationSize(variant_value.Text)
+                    + FfiConverterTypeReportAvailability.INSTANCE.AllocationSize(variant_value.Report);
+            case HqMessageView.Note variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Applied);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(HqMessageView value, BigEndianStream stream) {
+        switch (value) {
+            case HqMessageView.Question variant_value:
+                stream.WriteInt(1);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case HqMessageView.Answer variant_value:
+                stream.WriteInt(2);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterTypeRichTextView.INSTANCE.Write(variant_value.Text, stream);
+                FfiConverterTypeReportAvailability.INSTANCE.Write(variant_value.Report, stream);
+                break;
+            case HqMessageView.Note variant_value:
+                stream.WriteInt(3);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Applied, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.Write()", value));
         }
     }
 }
@@ -8860,6 +9413,14 @@ public record ReportTarget {
         string EventId
     ) : ReportTarget {}
     
+    /// <summary>
+    /// An answer District HQ gave. The service keeps no conversation and gives
+    /// an answer no id, so the report names its kind, and the member's note
+    /// says the rest.
+    /// </summary>
+    public record HqAnswer: ReportTarget {}
+    
+    
 
     
 }
@@ -8883,6 +9444,9 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                     FfiConverterString.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
                 );
+            case 4:
+                return new ReportTarget.HqAnswer(
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Read()", value));
         }
@@ -8900,6 +9464,8 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.ThreadKey)
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.EventId);
+            case ReportTarget.HqAnswer variant_value:
+                return 4;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.AllocationSize()", value));
         }
@@ -8920,8 +9486,133 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                 FfiConverterString.INSTANCE.Write(variant_value.ThreadKey, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.EventId, stream);
                 break;
+            case ReportTarget.HqAnswer variant_value:
+                stream.WriteInt(4);
+                break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// One block of rich text. Consecutive list items sit on lines of their own
+/// with no gap between them; every other block has a gap before it.
+/// </summary>
+public record RichBlock {
+    
+    /// <summary>
+    /// A paragraph. A line break inside it is a `\n` in a run's text.
+    /// </summary>
+    public record Paragraph (
+        RichRun[] Runs
+    ) : RichBlock {}
+    
+    /// <summary>
+    /// A heading, of any level: shown as a strong line.
+    /// </summary>
+    public record Heading (
+        RichRun[] Runs
+    ) : RichBlock {}
+    
+    /// <summary>
+    /// An item of a bulleted or numbered list.
+    /// </summary>
+    public record ListItem (
+        string Marker,
+        uint Depth,
+        RichRun[] Runs
+    ) : RichBlock {}
+    
+    /// <summary>
+    /// A code block, shown as it is in a fixed-width font.
+    /// </summary>
+    public record Code (
+        string Text
+    ) : RichBlock {}
+    
+
+    
+}
+
+class FfiConverterTypeRichBlock : FfiConverterRustBuffer<RichBlock>{
+    public static FfiConverterRustBuffer<RichBlock> INSTANCE = new FfiConverterTypeRichBlock();
+
+    public override RichBlock Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new RichBlock.Paragraph(
+                    FfiConverterSequenceTypeRichRun.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new RichBlock.Heading(
+                    FfiConverterSequenceTypeRichRun.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new RichBlock.ListItem(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterSequenceTypeRichRun.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new RichBlock.Code(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRichBlock.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(RichBlock value) {
+        switch (value) {
+            case RichBlock.Paragraph variant_value:
+                return 4
+                    + FfiConverterSequenceTypeRichRun.INSTANCE.AllocationSize(variant_value.Runs);
+            case RichBlock.Heading variant_value:
+                return 4
+                    + FfiConverterSequenceTypeRichRun.INSTANCE.AllocationSize(variant_value.Runs);
+            case RichBlock.ListItem variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Marker)
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Depth)
+                    + FfiConverterSequenceTypeRichRun.INSTANCE.AllocationSize(variant_value.Runs);
+            case RichBlock.Code variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRichBlock.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(RichBlock value, BigEndianStream stream) {
+        switch (value) {
+            case RichBlock.Paragraph variant_value:
+                stream.WriteInt(1);
+                FfiConverterSequenceTypeRichRun.INSTANCE.Write(variant_value.Runs, stream);
+                break;
+            case RichBlock.Heading variant_value:
+                stream.WriteInt(2);
+                FfiConverterSequenceTypeRichRun.INSTANCE.Write(variant_value.Runs, stream);
+                break;
+            case RichBlock.ListItem variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Marker, stream);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Depth, stream);
+                FfiConverterSequenceTypeRichRun.INSTANCE.Write(variant_value.Runs, stream);
+                break;
+            case RichBlock.Code variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRichBlock.Write()", value));
         }
     }
 }
@@ -11815,6 +12506,37 @@ class FfiConverterOptionalTypeFinishSetupView: FfiConverterRustBuffer<FinishSetu
 
 
 
+class FfiConverterOptionalTypeHqCardView: FfiConverterRustBuffer<HqCardView?> {
+    public static FfiConverterOptionalTypeHqCardView INSTANCE = new FfiConverterOptionalTypeHqCardView();
+
+    public override HqCardView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeHqCardView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(HqCardView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeHqCardView.INSTANCE.AllocationSize((HqCardView)value);
+        }
+    }
+
+    public override void Write(HqCardView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeHqCardView.INSTANCE.Write((HqCardView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeIncomingRingView: FfiConverterRustBuffer<IncomingRingView?> {
     public static FfiConverterOptionalTypeIncomingRingView INSTANCE = new FfiConverterOptionalTypeIncomingRingView();
 
@@ -12276,6 +12998,52 @@ class FfiConverterSequenceTypeNotificationActionView: FfiConverterRustBuffer<Not
 
 
 
+class FfiConverterSequenceTypeRichRun: FfiConverterRustBuffer<RichRun[]> {
+    public static FfiConverterSequenceTypeRichRun INSTANCE = new FfiConverterSequenceTypeRichRun();
+
+    public override RichRun[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new RichRun[length];
+        var readFn = FfiConverterTypeRichRun.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(RichRun[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeRichRun.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(RichRun[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeRichRun.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeSearchHitView: FfiConverterRustBuffer<SearchHitView[]> {
     public static FfiConverterSequenceTypeSearchHitView INSTANCE = new FfiConverterSequenceTypeSearchHitView();
 
@@ -12453,6 +13221,98 @@ class FfiConverterSequenceTypeWorkspaceEntryView: FfiConverterRustBuffer<Workspa
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeWorkspaceEntryView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeHqMessageView: FfiConverterRustBuffer<HqMessageView[]> {
+    public static FfiConverterSequenceTypeHqMessageView INSTANCE = new FfiConverterSequenceTypeHqMessageView();
+
+    public override HqMessageView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new HqMessageView[length];
+        var readFn = FfiConverterTypeHqMessageView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(HqMessageView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeHqMessageView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(HqMessageView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeHqMessageView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeRichBlock: FfiConverterRustBuffer<RichBlock[]> {
+    public static FfiConverterSequenceTypeRichBlock INSTANCE = new FfiConverterSequenceTypeRichBlock();
+
+    public override RichBlock[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new RichBlock[length];
+        var readFn = FfiConverterTypeRichBlock.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(RichBlock[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeRichBlock.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(RichBlock[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeRichBlock.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
