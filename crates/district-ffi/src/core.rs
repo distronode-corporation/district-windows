@@ -919,8 +919,11 @@ mod tests {
     }
 
     /// Waits, for real, until `done` holds; the actor runs on its own runtime.
+    /// Waits for `done`, polling every 10 ms, for 30 s at most: a slow
+    /// runner (Windows CI) gets there late, never wrongly, and a passing test
+    /// leaves at once.
     async fn eventually(what: &str, done: impl Fn() -> bool) {
-        for _ in 0..500 {
+        for _ in 0..3000 {
             if done() {
                 break;
             }
@@ -1161,6 +1164,15 @@ mod tests {
                 .any(|entry| entry.selected && entry.destination == crate::NavDestination::Settings)
     }
 
+    /// Whether the persona section's form is read and its name reads `name`.
+    fn persona_ready(core: &Core, name: &str) -> bool {
+        matches!(
+            core.screen(),
+            ScreenView::Persona { view }
+                if view.status == crate::settings::SectionStatus::Ready && view.name == name
+        )
+    }
+
     /// The actor holds a move away from a section with unsaved changes and
     /// asks; Keep editing drops it, Discard hands it to the core. A move with
     /// nothing unsaved is never held.
@@ -1183,12 +1195,17 @@ mod tests {
             },
         });
         eventually("the section", || on_settings_section(&core)).await;
+        // The section reads the settings row again on opening, and an edit is
+        // taken only once that read has landed: wait for the form, or the
+        // edit can arrive first and be dropped (it was, on Windows CI).
+        eventually("the form read", || persona_ready(&core, "")).await;
         core.deliver(Message::event(Event::Persona(
             district_core::PersonaEvent::EditText {
                 field: district_core::PersonaText::Name,
                 value: "Grace".to_owned(),
             },
         )));
+        eventually("the edit taken", || persona_ready(&core, "Grace")).await;
         for leave in [
             UiEvent::Back,
             UiEvent::Refresh,

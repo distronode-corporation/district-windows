@@ -645,6 +645,7 @@ mod tests {
             ScreenView::Messaging {
                 view: crate::settings::messaging::MessagingView {
                     title: "Messaging".to_owned(),
+                    ..Default::default()
                 },
             },
             ScreenView::Members {
