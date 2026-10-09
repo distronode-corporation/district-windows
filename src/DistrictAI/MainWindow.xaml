@@ -13,6 +13,14 @@
                 Invoked="OnBackAccelerator"
                 Modifiers="Menu" />
             <KeyboardAccelerator Key="Escape" Invoked="OnEscapeAccelerator" />
+            <KeyboardAccelerator
+                Key="D"
+                Invoked="OnMuteAccelerator"
+                Modifiers="Control" />
+            <KeyboardAccelerator
+                Key="H"
+                Invoked="OnHangUpAccelerator"
+                Modifiers="Control,Shift" />
         </Grid.KeyboardAccelerators>
 
         <views:SignInPage x:Name="SignIn" />
