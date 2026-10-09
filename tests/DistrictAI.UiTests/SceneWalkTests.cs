@@ -49,6 +49,7 @@ public sealed class SceneWalkTests
         ("Booking pages", "Booking pages"),
         ("Phone numbers", "Phone numbers"),
         ("Help desk", "Help desk"),
+        ("Workflows", "Workflows"),
     ];
 
     /// <summary>
