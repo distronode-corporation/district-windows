@@ -79,28 +79,56 @@ jobs:
         with:
           persist-credentials: false
 
-      # The commit of the core Cargo.lock locks district-call to.
-      - name: Read the locked core commit
+      # The release of the core Cargo.lock locks district-call to. Cargo.lock
+      # comes from the pull request, so its commit alone could name any commit
+      # GitHub serves for the core, a fork's included. Only a release is
+      # checked out: the lock's tag must be a vX.Y.Z tag of the core whose
+      # commit is the one locked, and the checkout is of that tag.
+      - name: Read the locked core release
         id: core
         shell: bash
         run: |
           set -euo pipefail
-          commit="$(python -I -c '
+          locked="$(python -I -c '
           import re, sys, tomllib
           lock = tomllib.load(open("Cargo.lock", "rb"))
           [source] = {p["source"] for p in lock["package"] if p["name"] == "district-call"}
-          m = re.fullmatch(r"git\+https://github\.com/distronode-corporation/district-core-rust\?tag=[^#]+#([0-9a-f]{40})", source)
-          sys.exit(f"unexpected source {source}") if not m else print(m.group(1))
+          m = re.fullmatch(r"git\+https://github\.com/distronode-corporation/district-core-rust\?tag=(v[0-9]+\.[0-9]+\.[0-9]+)#([0-9a-f]{40})", source)
+          sys.exit(f"unexpected source {source}") if not m else print(m.group(1), m.group(2))
           ')"
-          echo "district-call is locked to $commit"
+          read -r tag commit <<< "$locked"
+          # An annotated tag's commit is its peeled ref (^{}); a lightweight
+          # tag has only the one ref.
+          refs="$(git ls-remote https://github.com/distronode-corporation/district-core-rust "refs/tags/$tag" "refs/tags/$tag^{}")"
+          tagged="$(awk -v t="refs/tags/$tag^{}" '$2 == t { print $1 }' <<< "$refs")"
+          [ -n "$tagged" ] || tagged="$(awk -v t="refs/tags/$tag" '$2 == t { print $1 }' <<< "$refs")"
+          if [ "$tagged" != "$commit" ]; then
+            echo "::error::Cargo.lock locks district-call to $commit, but the core's $tag is '${tagged:-not a tag}'"
+            exit 1
+          fi
+          echo "district-call is locked to $tag ($commit)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "commit=$commit" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: distronode-corporation/district-core-rust
-          ref: ${{ steps.core.outputs.commit }}
+          ref: refs/tags/${{ steps.core.outputs.tag }}
           path: core
           persist-credentials: false
+
+      # The tag could have moved since it was read.
+      - name: Check the core checkout is the locked commit
+        shell: bash
+        env:
+          LOCKED: ${{ steps.core.outputs.commit }}
+        run: |
+          set -euo pipefail
+          head="$(git -C core rev-parse HEAD)"
+          if [ "$head" != "$LOCKED" ]; then
+            echo "::error::the core checkout is $head, not the locked $LOCKED"
+            exit 1
+          fi
 
       - name: Install the stable toolchain
         working-directory: core
