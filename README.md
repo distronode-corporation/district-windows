@@ -5,10 +5,12 @@ receptionist from Distronode. It is a WinUI 3 app written in C#, and everything 
 (signing in, what each screen shows, live updates, calls) comes from the same Rust core as
 [District AI for Linux](https://github.com/distronode-corporation/district-linux).
 
-> **Status: 1.0.0 is released** on
-> [GitHub Releases](https://github.com/distronode-corporation/district-windows/releases).
-> It is coming to the Microsoft Store; the listing is not live yet. Until it is, a release
-> holds the Store package and a test build for sideloading (see [Releases](#releases)).
+> **Status: District AI is on the
+> [Microsoft Store](https://apps.microsoft.com/detail/9P9F0NNFJ3CP).** Install it from
+> there, or with `winget install --id 9P9F0NNFJ3CP --source msstore`. Each release on
+> [GitHub Releases](https://github.com/distronode-corporation/district-windows/releases)
+> also carries the Store package and a test build for sideloading, for testing (see
+> [Releases](#releases)).
 
 ## What it is for
 
@@ -24,7 +26,7 @@ You need a District AI account to use it.
 | | |
 |---|---|
 | Windows | Windows 10 version 2004 or later, and Windows 11, on x64. Windows 11 on ARM runs the x64 build |
-| Distribution | [GitHub Releases](https://github.com/distronode-corporation/district-windows/releases) now; the Microsoft Store once its listing is live |
+| Distribution | The [Microsoft Store](https://apps.microsoft.com/detail/9P9F0NNFJ3CP) (`winget install --id 9P9F0NNFJ3CP --source msstore`); [GitHub Releases](https://github.com/distronode-corporation/district-windows/releases) for the Store package and a sideload test build, for testing |
 | Language | English |
 
 ## Releases
@@ -47,9 +49,11 @@ built by `.github/workflows/release.yml` from a tagged commit on `main`, and car
 
 ### Installing the sideload test build
 
-The test build is for testing before the Store listing is live. Download the `.msix`, the
-`.cer` and the dependencies `.zip` of one release into a folder, open PowerShell as
-administrator in that folder, and run (with `<v>` the version, for example `1.0.0`):
+The test build is for testing; to use District AI, install it from the Microsoft Store.
+The test build has the same identity as the Store copy, so remove the Store copy first.
+Download the `.msix`, the `.cer` and the dependencies `.zip` of one release into a
+folder, open PowerShell as administrator in that folder, and run (with `<v>` the version,
+for example `1.1.0`):
 
 ```
 Import-Certificate -FilePath .\DistrictAI_<v>_sideload-test.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
