@@ -665,6 +665,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: true,
             in_app_purchases: true,
+            locale: district_core::Locale::En,
         };
         let (mut model, effects) = Model::new(config.clone());
         let ticket = effects

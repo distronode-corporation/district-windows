@@ -28,6 +28,7 @@ district-api = { workspace = true }
 district-auth = { workspace = true }
 district-call = { workspace = true }
 district-core = { workspace = true }
+district-l10n = { workspace = true }
 district-host = { workspace = true }
 district-live = { workspace = true }
 district-model = { workspace = true }

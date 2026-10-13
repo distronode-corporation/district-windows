@@ -306,6 +306,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: true,
             in_app_purchases: true,
+            locale: district_core::Locale::En,
         });
         let ticket = ticket_in(effects);
         let effects = model.update(Event::SessionRestored {
@@ -594,6 +595,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: true,
             in_app_purchases: true,
+            locale: district_core::Locale::En,
         });
         signed_in(&model);
     }

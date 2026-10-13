@@ -128,6 +128,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: false,
             in_app_purchases: true,
+            locale: district_core::Locale::En,
         });
         assert!(!leaves_unsaved(&model, &Event::Back));
         let mut held = Held::default();

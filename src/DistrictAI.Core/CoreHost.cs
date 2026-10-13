@@ -115,12 +115,39 @@ public sealed class CoreHost : UiHost, ICoreSink, IAsyncDisposable
 
     /// <summary>
     /// Starts the core, with its files in <paramref name="dataDir"/> (the
-    /// package's LocalState) and its credentials under
-    /// <paramref name="credentialNamespace"/> (the package family name).
+    /// package's LocalState), its credentials under
+    /// <paramref name="credentialNamespace"/> (the package family name), and
+    /// the user's <paramref name="languages"/>, most preferred first
+    /// (<see cref="UserLanguages"/>): the core writes in the first of them it
+    /// has, English or Canadian French, and in English when none is either.
     /// </summary>
     /// <exception cref="StartException">The core could not start.</exception>
-    public void Start(string dataDir, string appVersion, string? deviceName, string credentialNamespace) =>
-        _core.Start(new StartConfig(dataDir, appVersion, deviceName, credentialNamespace), this);
+    public void Start(string dataDir, string appVersion, string? deviceName, string credentialNamespace, IReadOnlyList<string> languages)
+    {
+        ArgumentNullException.ThrowIfNull(languages);
+        _core.Start(new StartConfig(dataDir, appVersion, deviceName, credentialNamespace, [.. languages]), this);
+    }
+
+    /// <summary>
+    /// The user's languages, most preferred first, as BCP 47 tags: the app's
+    /// language override (Windows' PrimaryLanguageOverride) when one is set,
+    /// then the Windows display languages (GlobalizationPreferences.Languages),
+    /// each once.
+    /// </summary>
+    public static IReadOnlyList<string> UserLanguages(string? languageOverride, IEnumerable<string> windowsLanguages)
+    {
+        ArgumentNullException.ThrowIfNull(windowsLanguages);
+        var languages = new List<string>();
+        foreach (var language in windowsLanguages.Prepend(languageOverride ?? string.Empty))
+        {
+            var tag = language.Trim();
+            if (tag.Length > 0 && !languages.Contains(tag, StringComparer.OrdinalIgnoreCase))
+            {
+                languages.Add(tag);
+            }
+        }
+        return languages;
+    }
 
     /// <summary>Forwards something the user did.</summary>
     public void Send(UiEvent uiEvent) => _core.Send(uiEvent);

@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The shared core is district-core-rust 4.0.0-beta.1, which keeps every word it shows in
+  a catalog, ready for Canadian French. The app still speaks English only.
+- A call's details word two values as the web portal does: a negative sentiment reads
+  "Friction", and a transfer that went through reads "Transferred".
+
 ## [2.0.1] - 2026-10-13
 
 ### Changed

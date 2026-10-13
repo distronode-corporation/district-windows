@@ -10,7 +10,7 @@ use district_api::{ApiClient, ApiConfig};
 use district_auth::{NativeAuthApi, TokenRefreshCoordinator};
 use district_core::{
     CallEngine, Clock, CoreConfig, DesktopPresence, DistrictApi, Effect, EffectRunner, Event,
-    LiveHub, LiveUpdates, Model, NativeAuth, Notifier, Presence, Restoring, RingSurface,
+    LiveHub, LiveUpdates, Locale, Model, NativeAuth, Notifier, Presence, Restoring, RingSurface,
     SessionState, Settings, TokioClock, UrlOpener,
 };
 use district_host::{DeviceIdentity, RefreshMarkerFile, SettingsFile};
@@ -63,6 +63,21 @@ pub struct StartConfig {
     /// so the Store copy and the GitHub copy installed side by side would
     /// otherwise read each other's session.
     pub credential_namespace: String,
+    /// The user's languages, most preferred first, as BCP 47 tags: the app's
+    /// language override when one is set, then the Windows display languages.
+    /// The core writes in the first of them it has
+    /// (`district_l10n::Locale::from_tags`): English or Canadian French, and
+    /// English when none is either.
+    pub languages: Vec<String>,
+}
+
+/// Whether a user whose languages are `languages` (as in
+/// [`StartConfig::languages`]) gets Canadian French: the rule the core picks
+/// its own locale by (`district_l10n::Locale::from_tags`), so the window's own
+/// strings follow it and both speak the same language.
+#[uniffi::export]
+pub fn speaks_french(languages: Vec<String>) -> bool {
+    Locale::from_tags(&languages) == Locale::FrCa
 }
 
 /// Why the core could not start.
@@ -500,6 +515,7 @@ fn start_real(
         // District AI for Windows buys in the app: checkout in a view inside
         // the window (district-core's `purchase`, src/billing.rs).
         in_app_purchases: true,
+        locale: Locale::from_tags(&config.languages),
     };
     let (model, first) = Model::new(core_config);
     let sender = launch(
@@ -530,6 +546,7 @@ fn start_scripted(
         app_version: config.app_version.clone(),
         calls_available: district_call::CALLS_AVAILABLE,
         in_app_purchases: true,
+        locale: Locale::from_tags(&config.languages),
     });
     launch(
         runtime,
@@ -744,6 +761,16 @@ mod tests {
     use crate::screen::WELCOME_TITLE;
     use crate::shell::SessionPhase;
 
+    #[test]
+    fn the_first_language_the_core_has_decides_french() {
+        let tags = |tags: &[&str]| tags.iter().map(|tag| (*tag).to_owned()).collect();
+        assert!(speaks_french(tags(&["fr-CA", "en-US"])));
+        assert!(speaks_french(tags(&["de-DE", "fr-FR"])));
+        assert!(!speaks_french(tags(&["en-US", "fr-CA"])));
+        assert!(!speaks_french(tags(&["de-DE"])));
+        assert!(!speaks_french(Vec::new()));
+    }
+
     /// Answers the effects of signing in and out the way the real runner
     /// would with no stored session and a browser that opens, and records
     /// every effect it is asked to run.
@@ -885,6 +912,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: false,
             in_app_purchases: true,
+            locale: district_core::Locale::En,
         }
     }
 
@@ -972,6 +1000,7 @@ mod tests {
                 app_version: "0.1.0".to_owned(),
                 device_name: None,
                 credential_namespace: "DistrictAI.Tests_0".to_owned(),
+                languages: vec!["en-US".to_owned()],
             },
             Arc::new(RecordingHost::default()),
         );
@@ -1365,6 +1394,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             device_name: Some("Test PC".to_owned()),
             credential_namespace: "DistrictAI.Tests_0".to_owned(),
+            languages: vec!["en-US".to_owned()],
         };
         core.start(config.clone(), host.clone()).unwrap();
         assert_eq!(
@@ -1388,6 +1418,7 @@ mod tests {
                     app_version: "0.1.0".to_owned(),
                     device_name: None,
                     credential_namespace: "DistrictAI.Tests_0".to_owned(),
+                    languages: vec!["en-US".to_owned()],
                 },
                 Arc::new(RecordingHost::default()),
             )

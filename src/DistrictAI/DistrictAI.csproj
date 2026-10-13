@@ -68,6 +68,16 @@
     <None Remove="Package.GitHub.appxmanifest" />
   </ItemGroup>
 
+  <!--
+    French (fr-CA). Off unless the build passes -p:DistrictFrench=true, which
+    defines DISTRICT_FRENCH: without it the app and the core speak English
+    whatever the user's languages (L10n/Languages.cs).
+  -->
+  <PropertyGroup>
+    <DistrictFrench Condition="'$(DistrictFrench)' == ''">false</DistrictFrench>
+    <DefineConstants Condition="'$(DistrictFrench)' == 'true'">$(DefineConstants);DISTRICT_FRENCH</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />

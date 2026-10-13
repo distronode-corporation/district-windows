@@ -82,8 +82,9 @@ jobs:
       # The release of the core Cargo.lock locks district-call to. Cargo.lock
       # comes from the pull request, so its commit alone could name any commit
       # GitHub serves for the core, a fork's included. Only a release is
-      # checked out: the lock's tag must be a vX.Y.Z tag of the core whose
-      # commit is the one locked, and the checkout is of that tag.
+      # checked out: the lock's tag must be a vX.Y.Z tag of the core (or a
+      # pre-release of one, vX.Y.Z-beta.N) whose commit is the one locked, and
+      # the checkout is of that tag.
       - name: Read the locked core release
         id: core
         shell: bash
@@ -93,7 +94,7 @@ jobs:
           import re, sys, tomllib
           lock = tomllib.load(open("Cargo.lock", "rb"))
           [source] = {p["source"] for p in lock["package"] if p["name"] == "district-call"}
-          m = re.fullmatch(r"git\+https://github\.com/distronode-corporation/district-core-rust\?tag=(v[0-9]+\.[0-9]+\.[0-9]+)#([0-9a-f]{40})", source)
+          m = re.fullmatch(r"git\+https://github\.com/distronode-corporation/district-core-rust\?tag=(v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?)#([0-9a-f]{40})", source)
           sys.exit(f"unexpected source {source}") if not m else print(m.group(1), m.group(2))
           ')"
           read -r tag commit <<< "$locked"

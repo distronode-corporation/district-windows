@@ -856,6 +856,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1148,6 +1150,17 @@ static class _UniFFILib {
     public static extern
 #endif
      RustBuffer uniffi_district_ffi_fn_func_copies_view(RustBuffer @thisFamily,RustBuffer @schemeHandlers,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     sbyte uniffi_district_ffi_fn_func_speaks_french(RustBuffer @languages,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -1862,6 +1875,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_speaks_french(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_desk_logo_problem(
     );
 
@@ -2203,6 +2227,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_copies_view();
             if (checksum != 21668) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_copies_view` checksum `21668`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_speaks_french();
+            if (checksum != 17890) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_speaks_french` checksum `17890`, library returned `{checksum}`");
             }
         }
         {
@@ -16577,6 +16607,13 @@ class FfiConverterTypeSourceChoiceView: FfiConverterRustBuffer<SourceChoiceView>
 /// so the Store copy and the GitHub copy installed side by side would
 /// otherwise read each other's session.
 /// </param>
+/// <param name="Languages">
+/// The user's languages, most preferred first, as BCP 47 tags: the app's
+/// language override when one is set, then the Windows display languages.
+/// The core writes in the first of them it has
+/// (`district_l10n::Locale::from_tags`): English or Canadian French, and
+/// English when none is either.
+/// </param>
 public record StartConfig (
     /// <summary>
     /// Where the app's own files go: the device id, the settings and the
@@ -16598,7 +16635,15 @@ public record StartConfig (
     /// so the Store copy and the GitHub copy installed side by side would
     /// otherwise read each other's session.
     /// </summary>
-    string CredentialNamespace
+    string CredentialNamespace, 
+    /// <summary>
+    /// The user's languages, most preferred first, as BCP 47 tags: the app's
+    /// language override when one is set, then the Windows display languages.
+    /// The core writes in the first of them it has
+    /// (`district_l10n::Locale::from_tags`): English or Canadian French, and
+    /// English when none is either.
+    /// </summary>
+    string[] Languages
 ) {
 }
 
@@ -16610,7 +16655,8 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
             DataDir: FfiConverterString.INSTANCE.Read(stream),
             AppVersion: FfiConverterString.INSTANCE.Read(stream),
             DeviceName: FfiConverterOptionalString.INSTANCE.Read(stream),
-            CredentialNamespace: FfiConverterString.INSTANCE.Read(stream)
+            CredentialNamespace: FfiConverterString.INSTANCE.Read(stream),
+            Languages: FfiConverterSequenceString.INSTANCE.Read(stream)
         );
     }
 
@@ -16619,7 +16665,8 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
             + FfiConverterString.INSTANCE.AllocationSize(value.DataDir)
             + FfiConverterString.INSTANCE.AllocationSize(value.AppVersion)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.DeviceName)
-            + FfiConverterString.INSTANCE.AllocationSize(value.CredentialNamespace);
+            + FfiConverterString.INSTANCE.AllocationSize(value.CredentialNamespace)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Languages);
     }
 
     public override void Write(StartConfig value, BigEndianStream stream) {
@@ -16627,6 +16674,7 @@ class FfiConverterTypeStartConfig: FfiConverterRustBuffer<StartConfig> {
             FfiConverterString.INSTANCE.Write(value.AppVersion, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.DeviceName, stream);
             FfiConverterString.INSTANCE.Write(value.CredentialNamespace, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.Languages, stream);
     }
 }
 
@@ -33600,6 +33648,20 @@ public static class DistrictFfi {
         return FfiConverterTypeCopiesView.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_district_ffi_fn_func_copies_view(FfiConverterString.INSTANCE.Lower(@thisFamily), FfiConverterSequenceString.INSTANCE.Lower(@schemeHandlers), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// Whether a user whose languages are `languages` (as in
+    /// [`StartConfig::languages`]) gets Canadian French: the rule the core picks
+    /// its own locale by (`district_l10n::Locale::from_tags`), so the window's own
+    /// strings follow it and both speak the same language.
+    /// </summary>
+    public static bool SpeaksFrench(string[] @languages) {
+        return FfiConverterBoolean.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_speaks_french(FfiConverterSequenceString.INSTANCE.Lower(@languages), ref _status)
 ));
     }
 

@@ -4,12 +4,13 @@
 use district_core::{
     CallDetailScreen, CallLog, CallView, Capabilities, TranscriptView, format_phone_number,
 };
+use district_l10n::WireCategory;
 use district_model::{CallAnalysis, CallSummary, PhoneIntel};
 use serde::Serialize;
 
 use crate::views::{
     AI_SUMMARY, AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView,
-    ReportAvailability, ai_summary, facts, failure, humanize,
+    ReportAvailability, ai_summary, facts, failure, humanize, wire,
 };
 
 /// The heading of a call that could not be read, as the Linux app words it.
@@ -165,14 +166,20 @@ fn call_title(call: &CallSummary) -> String {
 /// One row of a call list.
 pub(crate) fn call_row(call: &CallSummary) -> CallRowView {
     let missed = call.call_type == "missed";
-    let direction = if missed {
-        "Missed".to_owned()
-    } else if outbound(call) {
-        "Outbound".to_owned()
-    } else {
-        "Inbound".to_owned()
-    };
-    let outcome = call.disposition.as_deref().map(humanize);
+    let direction = wire(
+        WireCategory::CallType,
+        if missed {
+            "missed"
+        } else if outbound(call) {
+            "outbound"
+        } else {
+            "inbound"
+        },
+    );
+    let outcome = call
+        .disposition
+        .as_deref()
+        .map(|raw| wire(WireCategory::Disposition, raw));
     let detail = [Some(direction), outcome, duration(call)]
         .into_iter()
         .flatten()
@@ -222,8 +229,13 @@ pub(crate) fn number_facts(intel: Option<&PhoneIntel>) -> [(&'static str, Option
 fn call_facts(call: &CallSummary) -> Vec<FactView> {
     let [location, line_type, carrier] = number_facts(call.phone_intel.as_ref());
     facts([
-        ("Status", Some(humanize(&call.status))),
-        ("Direction", call.direction.as_deref().map(humanize)),
+        ("Status", Some(wire(WireCategory::CallStatus, &call.status))),
+        (
+            "Direction",
+            call.direction
+                .as_deref()
+                .map(|raw| wire(WireCategory::CallDirection, raw)),
+        ),
         (
             if outbound(call) {
                 "Placed from"
@@ -235,9 +247,24 @@ fn call_facts(call: &CallSummary) -> Vec<FactView> {
         location,
         line_type,
         carrier,
-        ("Sentiment", call.sentiment.as_deref().map(humanize)),
-        ("Outcome", call.disposition.as_deref().map(humanize)),
-        ("Transfer", call.transfer_status.as_deref().map(humanize)),
+        (
+            "Sentiment",
+            call.sentiment
+                .as_deref()
+                .map(|raw| wire(WireCategory::Sentiment, raw)),
+        ),
+        (
+            "Outcome",
+            call.disposition
+                .as_deref()
+                .map(|raw| wire(WireCategory::Disposition, raw)),
+        ),
+        (
+            "Transfer",
+            call.transfer_status
+                .as_deref()
+                .map(|raw| wire(WireCategory::TransferStatus, raw)),
+        ),
         (
             "Why it was transferred",
             call.transfer_reason.as_deref().map(humanize),
