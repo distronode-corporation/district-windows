@@ -6,18 +6,22 @@ namespace DistrictAI.UiTests.Live;
 /// <summary>The owner's read-only checks: every area, Analytics, Phone numbers.</summary>
 internal sealed partial class LiveWalk
 {
-    /// <summary>The settings sections the hub offers an owner, each opened by its row (the tenth row, Phone numbers, is a pane entry too).</summary>
+    /// <summary>
+    /// The settings sections the hub offers an owner, by their row's
+    /// AutomationId, each opened by its row (the tenth row, Phone numbers, is
+    /// a pane entry too).
+    /// </summary>
     public static readonly string[] SettingsSections =
     [
-        "Persona",
-        "Voice",
-        "Call handling",
-        "Call routing rules",
-        "Transfer directory",
-        "Skills",
-        "Knowledge",
-        "Messaging accounts",
-        "Members",
+        "SettingsRowPersona",
+        "SettingsRowVoiceStudio",
+        "SettingsRowCallHandling",
+        "SettingsRowRouting",
+        "SettingsRowDirectory",
+        "SettingsRowTools",
+        "SettingsRowKnowledge",
+        "SettingsRowMessaging",
+        "SettingsRowMembers",
     ];
 
     /// <summary>The analytics periods (the core's analytics.rs, range labels).</summary>
@@ -30,32 +34,37 @@ internal sealed partial class LiveWalk
     private Outcome Areas(Check check)
     {
         var window = App.TryMainWindow() ?? throw new CheckFailedException("no main window");
-        var entries = UiTests.Walk.NavEntries(window);
+        var entries = UiTests.Walk.NavItems(window);
         Check.Expect(entries.Length >= 5, $"the pane offers {entries.Length} entries");
         var problems = new List<string>();
         var opened = 0;
-        foreach (var entry in entries)
+        foreach (var (navId, entry) in entries)
         {
-            var expected = entry == "Overview" ? Config.WorkspaceName
-                : entry.StartsWith("Inbox", StringComparison.Ordinal) ? "Conversations"
-                : entry;
-            if (Open(entry, () => UiTests.Walk.Open(App, entry), expected, problems))
+            // The overview's heading is the workspace's name, the Inbox's its
+            // own (by id); every other page's, its entry's name.
+            string? OpenEntry()
+            {
+                var name = UiTests.Walk.OpenById(App, navId);
+                return navId == "NavOverview" ? Config.WorkspaceName : navId == "NavInbox" ? null : name;
+            }
+            if (Open(entry, OpenEntry, navId == "NavInbox" ? "InboxHeading" : null, problems))
             {
                 opened++;
                 check.Shot();
             }
-            if (entry != "Workspace settings")
+            if (navId != "NavSettings")
             {
                 continue;
             }
             foreach (var section in SettingsSections)
             {
-                if (Open(section, () => UiTests.Walk.OpenSettingsRow(App, section), section, problems))
+                var title = App.TryFindById(section) is { } row ? UiTests.Walk.NameOf(row) : section;
+                if (Open(title, () => UiTests.Walk.OpenSettingsRowById(App, section), null, problems))
                 {
                     opened++;
                     check.Shot();
                 }
-                _ = Open(entry, () => UiTests.Walk.Open(App, entry), entry, problems);
+                _ = Open(entry, () => UiTests.Walk.OpenById(App, navId), null, problems);
             }
         }
         return problems.Count == 0
@@ -64,11 +73,11 @@ internal sealed partial class LiveWalk
     }
 
     /// <summary>Opens a page and checks it as the scripted walk does (Walk.Visit), without its screenshots.</summary>
-    private bool Open(string name, Action open, string expected, List<string> problems)
+    private bool Open(string name, Func<string?> open, string? headingId, List<string> problems)
     {
         var before = problems.Count;
         var problemsHere = new List<string>();
-        _ = UiTests.Walk.Visit(App, Handle, name, open, expected, null, 0, problemsHere);
+        _ = UiTests.Walk.VisitPage(App, Handle, name, open, headingId, null, 0, problemsHere);
         // The dump each problem carries goes to the log, not the result.
         foreach (var problem in problemsHere)
         {

@@ -84,6 +84,8 @@ public sealed partial class MainWindow
                     Icon = new FontIcon { Glyph = entry.Glyph },
                     Tag = entry.Destination,
                 };
+                // "NavCalls": the same in every language, for the UI tests.
+                AutomationProperties.SetAutomationId(item, $"Nav{entry.Destination}");
                 if (entry.Destination == NavDestination.Inbox)
                 {
                     _unreadBadge = new InfoBadge { Visibility = Visibility.Collapsed };

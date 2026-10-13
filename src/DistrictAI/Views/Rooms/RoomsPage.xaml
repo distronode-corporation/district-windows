@@ -218,16 +218,21 @@
                         TextWrapping="Wrap" />
                     <Button
                         Grid.Column="1"
+                        AutomationProperties.AutomationId="CloseMeetingButton"
                         AutomationProperties.Name="Close the meeting"
                         Command="{x:Bind ViewModel.CloseRecordCommand}"
                         Content="Close" />
                 </Grid>
                 <ProgressRing
+                    AutomationProperties.AutomationId="LoadingRing"
                     AutomationProperties.Name="Loading"
                     IsActive="{x:Bind ViewModel.Record.Loading, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.Record.Loading, Mode=OneWay}" />
                 <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.Record.Failed, Mode=OneWay}">
-                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Record.FailureTitle, Mode=OneWay}" />
+                    <TextBlock
+                        AutomationProperties.AutomationId="FailureTitle"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Text="{x:Bind ViewModel.Record.FailureTitle, Mode=OneWay}" />
                     <TextBlock Text="{x:Bind ViewModel.Record.FailureMessage, Mode=OneWay}" TextWrapping="Wrap" />
                 </StackPanel>
                 <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.Record.Ready, Mode=OneWay}">
@@ -257,11 +262,13 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock
+                                    AutomationProperties.AutomationId="MinutesHeading"
                                     AutomationProperties.HeadingLevel="Level3"
                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                     Text="{x:Bind ViewModel.Record.MinutesTitle, Mode=OneWay}" />
                                 <Button
                                     Grid.Column="1"
+                                    AutomationProperties.AutomationId="MinutesReportButton"
                                     AutomationProperties.Name="{x:Bind ViewModel.Record.MinutesReportLabel, Mode=OneWay}"
                                     Click="OnReportMinutesClick"
                                     Content="{x:Bind ViewModel.Record.MinutesReportLabel, Mode=OneWay}"
@@ -283,6 +290,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock
+                                    AutomationProperties.AutomationId="ActionItemsHeading"
                                     AutomationProperties.HeadingLevel="Level3"
                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                     Text="{x:Bind ViewModel.Record.ActionItemsTitle, Mode=OneWay}" />

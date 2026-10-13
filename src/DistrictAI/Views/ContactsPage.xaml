@@ -43,6 +43,7 @@
             <Button
                 Grid.Column="2"
                 VerticalAlignment="Center"
+                AutomationProperties.AutomationId="BlockedCallersButton"
                 AutomationProperties.Name="Blocked callers"
                 Command="{x:Bind ViewModel.OpenBlockedCommand}"
                 Content="Blocked callers" />

@@ -93,6 +93,7 @@
             x:Name="Box"
             MaxHeight="200"
             AcceptsReturn="True"
+            AutomationProperties.AutomationId="ReplyBox"
             AutomationProperties.HelpText="Ctrl+Enter sends."
             AutomationProperties.Name="Reply"
             IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"

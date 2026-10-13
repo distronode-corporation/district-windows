@@ -129,6 +129,7 @@
                 <TextBlock
                     AutomationProperties.HeadingLevel="Level1"
                     Style="{StaticResource TitleTextBlockStyle}"
+                    AutomationProperties.AutomationId="FailureTitle"
                     Text="{x:Bind ViewModel.Load.FailureTitle, Mode=OneWay}"
                     TextWrapping="Wrap" />
                 <TextBlock Text="{x:Bind ViewModel.Load.FailureMessage, Mode=OneWay}" TextWrapping="Wrap" />

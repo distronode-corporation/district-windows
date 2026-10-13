@@ -17,7 +17,10 @@
         IsExpanded="{x:Bind ViewModel.IsExpanded, Mode=TwoWay}">
         <Expander.Header>
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Heading, Mode=OneWay}" />
+                <TextBlock
+                    AutomationProperties.AutomationId="TranscriptHeading"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Heading, Mode=OneWay}" />
                 <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.Status, Mode=OneWay}" />
             </StackPanel>
         </Expander.Header>

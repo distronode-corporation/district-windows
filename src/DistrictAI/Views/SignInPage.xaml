@@ -10,6 +10,7 @@
         VerticalAlignment="Center"
         Spacing="16">
         <TextBlock
+            AutomationProperties.AutomationId="SignInTitle"
             AutomationProperties.HeadingLevel="Level1"
             Style="{StaticResource TitleTextBlockStyle}"
             Text="{x:Bind ViewModel.Title, Mode=OneWay}"
@@ -33,6 +34,7 @@
             IsActive="{x:Bind ViewModel.Busy, Mode=OneWay}"
             Visibility="{x:Bind ViewModel.Busy, Mode=OneWay}" />
         <InfoBar
+            AutomationProperties.AutomationId="SignInProblem"
             AutomationProperties.Name="Sign-in problem"
             IsClosable="False"
             IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
@@ -40,6 +42,7 @@
             Severity="Error" />
         <StackPanel Orientation="Horizontal" Spacing="8">
             <Button
+                AutomationProperties.AutomationId="SignInButton"
                 AutomationProperties.Name="Sign in with your browser"
                 Command="{x:Bind ViewModel.SignInCommand}"
                 Content="Sign in with your browser"
@@ -52,6 +55,7 @@
                 IsEnabled="{x:Bind ViewModel.CanCreateAccount, Mode=OneWay}"
                 Visibility="{x:Bind ViewModel.OffersCreateAccount, Mode=OneWay}" />
             <Button
+                AutomationProperties.AutomationId="TryAgainButton"
                 AutomationProperties.Name="Try again"
                 Command="{x:Bind ViewModel.RetryCommand}"
                 Content="Try again"

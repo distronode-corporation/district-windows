@@ -17,6 +17,7 @@
             Severity="Warning">
             <InfoBar.ActionButton>
                 <Button
+                    AutomationProperties.AutomationId="TryAgainButton"
                     AutomationProperties.Name="Try again"
                     Command="{x:Bind State.RetryCommand}"
                     Content="Try again"

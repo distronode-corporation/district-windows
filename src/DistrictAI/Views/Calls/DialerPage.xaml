@@ -25,6 +25,7 @@
                 Text="{x:Bind ViewModel.Formatted, Mode=OneWay}" />
             <TextBox
                 x:Name="NumberBox"
+                AutomationProperties.AutomationId="DialNumberBox"
                 AutomationProperties.Name="Number to call"
                 Header="Number to call"
                 InputScope="TelephoneNumber"
@@ -34,6 +35,7 @@
                 Text="{x:Bind ViewModel.Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <Button
+                    AutomationProperties.AutomationId="DialCallButton"
                     AutomationProperties.Name="Call"
                     Command="{x:Bind ViewModel.DialCommand}"
                     Style="{StaticResource AccentButtonStyle}">
