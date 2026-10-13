@@ -3,6 +3,7 @@
     x:Class="DistrictAI.Views.ContactsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:views="using:DistrictAI.Views"
     xmlns:vm="using:DistrictAI.ViewModels">
     <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
@@ -21,7 +22,7 @@
                 <TextBlock
                     AutomationProperties.HeadingLevel="Level1"
                     Style="{StaticResource TitleTextBlockStyle}"
-                    Text="Contacts" />
+                    Text="{x:Bind l10n:S.ContactsTitle}" />
                 <TextBlock
                     Style="{StaticResource QuietTextStyle}"
                     Text="{x:Bind ViewModel.TotalLabel, Mode=OneWay}"
@@ -31,27 +32,27 @@
             <Button
                 Grid.Column="1"
                 VerticalAlignment="Center"
-                AutomationProperties.Name="Add contact"
+                AutomationProperties.Name="{x:Bind l10n:S.ContactsAdd}"
                 Command="{x:Bind ViewModel.AddContactCommand}"
                 Style="{StaticResource AccentButtonStyle}"
                 Visibility="{x:Bind ViewModel.CanCreate, Mode=OneWay}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <SymbolIcon Symbol="AddFriend" />
-                    <TextBlock Text="Add contact" />
+                    <TextBlock Text="{x:Bind l10n:S.ContactsAdd}" />
                 </StackPanel>
             </Button>
             <Button
                 Grid.Column="2"
                 VerticalAlignment="Center"
                 AutomationProperties.AutomationId="BlockedCallersButton"
-                AutomationProperties.Name="Blocked callers"
+                AutomationProperties.Name="{x:Bind l10n:S.ContactsBlockedCallers}"
                 Command="{x:Bind ViewModel.OpenBlockedCommand}"
-                Content="Blocked callers" />
+                Content="{x:Bind l10n:S.ContactsBlockedCallers}" />
         </Grid>
         <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
         <ListView
             Grid.Row="2"
-            AutomationProperties.Name="Contacts"
+            AutomationProperties.Name="{x:Bind l10n:S.ContactsTitle}"
             IsItemClickEnabled="True"
             ItemClick="OnContactClick"
             ItemsSource="{x:Bind ViewModel.Rows}"
@@ -83,15 +84,15 @@
                     Spacing="4">
                     <Button
                         HorizontalAlignment="Center"
-                        AutomationProperties.Name="Load more contacts"
+                        AutomationProperties.Name="{x:Bind l10n:S.ContactsLoadMore}"
                         Command="{x:Bind ViewModel.Paging.LoadMoreCommand}"
-                        Content="Load more"
+                        Content="{x:Bind l10n:S.CommonLoadMore}"
                         IsEnabled="{x:Bind ViewModel.Paging.LoadMoreEnabled, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.Paging.CanLoadMore, Mode=OneWay}" />
                     <ProgressRing
                         Width="20"
                         Height="20"
-                        AutomationProperties.Name="Loading more contacts"
+                        AutomationProperties.Name="{x:Bind l10n:S.ContactsLoadingMore}"
                         IsActive="{x:Bind ViewModel.Paging.LoadingMore, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.Paging.LoadingMore, Mode=OneWay}" />
                     <TextBlock

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels.Rooms;
 
@@ -123,12 +124,12 @@ public sealed partial class MeetingRecordViewModel : ObservableObject
         var started = Display.When(record.StartedAt);
         if (started.Length > 0)
         {
-            facts.Insert(Math.Min(1, facts.Count), new FactItem("Started", started));
+            facts.Insert(Math.Min(1, facts.Count), new FactItem(S.RoomsStarted, started));
         }
         var ended = Display.When(record.EndedAt);
         if (ended.Length > 0)
         {
-            facts.Insert(Math.Min(2, facts.Count), new FactItem("Ended", ended));
+            facts.Insert(Math.Min(2, facts.Count), new FactItem(S.RoomsEnded, ended));
         }
         Display.Sync(Facts, facts);
         MinutesTitle = record.MinutesTitle;

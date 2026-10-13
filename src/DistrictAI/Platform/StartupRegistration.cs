@@ -1,3 +1,4 @@
+using DistrictAI.L10n;
 using DistrictAI.ViewModels;
 using Windows.ApplicationModel;
 
@@ -43,9 +44,9 @@ internal sealed class StartupRegistration : IStartupTask
     {
         StartupTaskState.Enabled => new(Enabled: true, CanChange: true, Message: null),
         StartupTaskState.Disabled => new(Enabled: false, CanChange: true, Message: null),
-        StartupTaskState.DisabledByUser => new(Enabled: false, CanChange: false, Message: "Turned off in Windows Settings, under Apps, Startup."),
-        StartupTaskState.DisabledByPolicy => new(Enabled: false, CanChange: false, Message: "Turned off by your organisation."),
-        StartupTaskState.EnabledByPolicy => new(Enabled: true, CanChange: false, Message: "Turned on by your organisation."),
+        StartupTaskState.DisabledByUser => new(Enabled: false, CanChange: false, Message: S.AccountStartupOffByUser),
+        StartupTaskState.DisabledByPolicy => new(Enabled: false, CanChange: false, Message: S.AccountStartupOffByPolicy),
+        StartupTaskState.EnabledByPolicy => new(Enabled: true, CanChange: false, Message: S.AccountStartupOnByPolicy),
         _ => new(Enabled: false, CanChange: false, Message: null),
     };
 }

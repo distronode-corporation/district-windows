@@ -2,7 +2,8 @@
 <UserControl
     x:Class="DistrictAI.Views.StatusPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
     <!-- Loading, a load that failed, or nothing to show: whichever applies, centred where the content would be. -->
     <StackPanel
         MaxWidth="480"
@@ -12,7 +13,7 @@
         Spacing="12">
         <ProgressRing
             AutomationProperties.AutomationId="LoadingRing"
-            AutomationProperties.Name="Loading"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
             IsActive="{x:Bind State.Loading, Mode=OneWay}"
             Visibility="{x:Bind State.Loading, Mode=OneWay}" />
         <StackPanel Spacing="8" Visibility="{x:Bind State.Failed, Mode=OneWay}">
@@ -38,9 +39,9 @@
             <Button
                 HorizontalAlignment="Center"
                 AutomationProperties.AutomationId="TryAgainButton"
-                AutomationProperties.Name="Try again"
+                AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
                 Command="{x:Bind State.RetryCommand}"
-                Content="Try again"
+                Content="{x:Bind l10n:S.CommonTryAgain}"
                 Visibility="{x:Bind State.CanRetry, Mode=OneWay}" />
         </StackPanel>
         <StackPanel Spacing="4" Visibility="{x:Bind State.ShowEmpty, Mode=OneWay}">

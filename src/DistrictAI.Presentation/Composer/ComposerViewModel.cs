@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Composer;
@@ -297,5 +298,5 @@ public sealed partial class ComposerViewModel : ObservableObject
 public sealed record AttachmentChip(string Url, string Name)
 {
     /// <summary>The remove button's accessible name: "Remove Image 1".</summary>
-    public string RemoveLabel => $"Remove {Name}";
+    public string RemoveLabel => S.ComposerRemoveAttachment(Name);
 }

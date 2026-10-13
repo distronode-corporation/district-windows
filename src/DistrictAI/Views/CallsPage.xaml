@@ -3,6 +3,7 @@
     x:Class="DistrictAI.Views.CallsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:views="using:DistrictAI.Views"
     xmlns:vm="using:DistrictAI.ViewModels">
     <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
@@ -19,25 +20,25 @@
             <TextBlock
                 AutomationProperties.HeadingLevel="Level1"
                 Style="{StaticResource TitleTextBlockStyle}"
-                Text="Calls" />
+                Text="{x:Bind l10n:S.CallsTitle}" />
             <!-- The dialler, in a build that can carry calls. -->
             <Button
                 Grid.Column="1"
                 VerticalAlignment="Center"
                 AutomationProperties.AutomationId="PlaceCallButton"
-                AutomationProperties.Name="Place a call"
+                AutomationProperties.Name="{x:Bind l10n:S.CallsPlaceCall}"
                 Command="{x:Bind ViewModel.PlaceCallCommand}"
                 Visibility="{x:Bind ViewModel.CanPlaceCall, Mode=OneWay}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE75F;" />
-                    <TextBlock Text="Place a call" />
+                    <TextBlock Text="{x:Bind l10n:S.CallsPlaceCall}" />
                 </StackPanel>
             </Button>
         </Grid>
         <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
         <ListView
             Grid.Row="2"
-            AutomationProperties.Name="Calls"
+            AutomationProperties.Name="{x:Bind l10n:S.CallsTitle}"
             IsItemClickEnabled="True"
             ItemClick="OnCallClick"
             ItemsSource="{x:Bind ViewModel.Rows}"
@@ -84,15 +85,15 @@
                     Spacing="4">
                     <Button
                         HorizontalAlignment="Center"
-                        AutomationProperties.Name="Load more calls"
+                        AutomationProperties.Name="{x:Bind l10n:S.CallsLoadMore}"
                         Command="{x:Bind ViewModel.Paging.LoadMoreCommand}"
-                        Content="Load more"
+                        Content="{x:Bind l10n:S.CommonLoadMore}"
                         IsEnabled="{x:Bind ViewModel.Paging.LoadMoreEnabled, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.Paging.CanLoadMore, Mode=OneWay}" />
                     <ProgressRing
                         Width="20"
                         Height="20"
-                        AutomationProperties.Name="Loading more calls"
+                        AutomationProperties.Name="{x:Bind l10n:S.CallsLoadingMore}"
                         IsActive="{x:Bind ViewModel.Paging.LoadingMore, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.Paging.LoadingMore, Mode=OneWay}" />
                     <TextBlock

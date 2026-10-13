@@ -2,7 +2,8 @@
 <UserControl
     x:Class="DistrictAI.Views.Calls.DialerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
     <ScrollViewer>
         <StackPanel
             MaxWidth="440"
@@ -12,7 +13,7 @@
             <TextBlock
                 AutomationProperties.HeadingLevel="Level1"
                 Style="{StaticResource TitleTextBlockStyle}"
-                Text="Dialler" />
+                Text="{x:Bind l10n:S.DialerTitle}" />
             <TextBlock
                 Style="{StaticResource QuietTextStyle}"
                 Text="{x:Bind ViewModel.Hint, Mode=OneWay}"
@@ -26,8 +27,8 @@
             <TextBox
                 x:Name="NumberBox"
                 AutomationProperties.AutomationId="DialNumberBox"
-                AutomationProperties.Name="Number to call"
-                Header="Number to call"
+                AutomationProperties.Name="{x:Bind l10n:S.DialerNumber}"
+                Header="{x:Bind l10n:S.DialerNumber}"
                 InputScope="TelephoneNumber"
                 IsSpellCheckEnabled="False"
                 IsTextPredictionEnabled="False"
@@ -36,18 +37,18 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <Button
                     AutomationProperties.AutomationId="DialCallButton"
-                    AutomationProperties.Name="Call"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonCall}"
                     Command="{x:Bind ViewModel.DialCommand}"
                     Style="{StaticResource AccentButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="Phone" />
-                        <TextBlock Text="Call" />
+                        <TextBlock Text="{x:Bind l10n:S.CommonCall}" />
                     </StackPanel>
                 </Button>
                 <ProgressRing
                     Width="20"
                     Height="20"
-                    AutomationProperties.Name="Placing the call"
+                    AutomationProperties.Name="{x:Bind l10n:S.DialerPlacing}"
                     IsActive="{x:Bind ViewModel.Dialing, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.Dialing, Mode=OneWay}" />
             </StackPanel>
@@ -60,7 +61,7 @@
                 TextWrapping="Wrap"
                 Visibility="{x:Bind ViewModel.HasNote, Mode=OneWay}" />
             <InfoBar
-                AutomationProperties.Name="Call problem"
+                AutomationProperties.Name="{x:Bind l10n:S.CommonCallProblem}"
                 IsClosable="False"
                 IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
                 Message="{x:Bind ViewModel.Failure, Mode=OneWay}"

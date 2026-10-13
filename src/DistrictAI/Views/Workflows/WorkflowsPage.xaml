@@ -3,6 +3,7 @@
     x:Class="DistrictAI.Views.Workflows.WorkflowsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:views="using:DistrictAI.Views"
     xmlns:wf="using:DistrictAI.ViewModels.Workflows">
     <ScrollViewer>
@@ -48,7 +49,7 @@
                                 TextWrapping="Wrap" />
                         </StackPanel>
                         <InfoBar
-                            AutomationProperties.Name="Could not change the campaign"
+                            AutomationProperties.Name="{x:Bind l10n:S.WorkflowsCampaignFailed}"
                             IsClosable="False"
                             IsOpen="{x:Bind ViewModel.HasCampaignFailure, Mode=OneWay}"
                             Message="{x:Bind ViewModel.CampaignFailure, Mode=OneWay}"
@@ -70,7 +71,7 @@
                             <ProgressRing
                                 Width="20"
                                 Height="20"
-                                AutomationProperties.Name="Changing the campaign"
+                                AutomationProperties.Name="{x:Bind l10n:S.WorkflowsChangingCampaign}"
                                 IsActive="{x:Bind ViewModel.CampaignPending, Mode=OneWay}"
                                 Visibility="{x:Bind ViewModel.CampaignPending, Mode=OneWay}" />
                         </StackPanel>
@@ -80,7 +81,7 @@
             </Border>
 
             <InfoBar
-                AutomationProperties.Name="Could not change a workflow"
+                AutomationProperties.Name="{x:Bind l10n:S.WorkflowsWorkflowFailed}"
                 CloseButtonClick="OnToggleFailureClosed"
                 IsClosable="True"
                 IsOpen="{x:Bind ViewModel.HasToggleFailure, Mode=OneWay}"
@@ -95,7 +96,7 @@
                     show by the line's kind.
                 -->
                 <ItemsRepeater
-                    AutomationProperties.Name="Workflows"
+                    AutomationProperties.Name="{x:Bind l10n:S.WorkflowsList}"
                     ItemsSource="{x:Bind ViewModel.Entries}"
                     Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
                     <ItemsRepeater.Layout>
@@ -185,7 +186,7 @@
                                     <ProgressRing
                                         Width="20"
                                         Height="20"
-                                        AutomationProperties.Name="Reading runs"
+                                        AutomationProperties.Name="{x:Bind l10n:S.WorkflowsReadingRuns}"
                                         IsActive="{x:Bind RunsLoading}"
                                         Visibility="{x:Bind RunsLoading}" />
                                     <TextBlock
@@ -207,9 +208,9 @@
                                         Visibility="{x:Bind CanLoadMore}" />
                                     <Button
                                         AutomationProperties.AutomationId="TryAgainButton"
-                                        AutomationProperties.Name="Try again"
+                                        AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
                                         Click="OnRetryRunsClick"
-                                        Content="Try again"
+                                        Content="{x:Bind l10n:S.CommonTryAgain}"
                                         IsEnabled="{x:Bind CanRetryRuns}"
                                         Visibility="{x:Bind CanRetryRuns}" />
                                 </StackPanel>

@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.Platform;
 using DistrictAI.Platform.Calls;
 using DistrictAI.Platform.Checkout;
@@ -94,7 +95,7 @@ public sealed partial class App : Application, IDisposable
             WinRT.Interop.WindowNative.GetWindowHandle(_window),
             queue,
             Path.Combine(AppContext.BaseDirectory, "Assets", "TrayIcon.ico"),
-            "District AI",
+            S.BrandDistrictAi,
             TrayMenu);
         _tray.Selected += (_, _) => ShowWindow();
         // The one place the core hears about the window's visibility.
@@ -225,13 +226,13 @@ public sealed partial class App : Application, IDisposable
     /// <summary>The tray menu, as it is when it opens.</summary>
     private List<TrayMenuItem?> TrayMenu()
     {
-        var items = new List<TrayMenuItem?> { new("Open District AI", ShowWindow) };
+        var items = new List<TrayMenuItem?> { new(S.TrayOpen, ShowWindow) };
         if (_core?.Current.Shell.Phase == SessionPhase.SignedIn)
         {
-            items.Add(new("Sign out", () => _core?.Send(new UiEvent.SignOut())));
+            items.Add(new(S.TraySignOut, () => _core?.Send(new UiEvent.SignOut())));
         }
         items.Add(null);
-        items.Add(new("Quit", Quit));
+        items.Add(new(S.TrayQuit, Quit));
         return items;
     }
 
@@ -249,7 +250,7 @@ public sealed partial class App : Application, IDisposable
         {
             return;
         }
-        _tray?.ShowTip("District AI", "District AI is still running in the notification area. Quit from its icon.");
+        _tray?.ShowTip(S.BrandDistrictAi, S.TrayStillRunning);
         settings[TrayTipShownKey] = true;
     }
 

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Contacts;
 
 namespace DistrictAI.ViewModels;
@@ -108,8 +109,8 @@ public sealed partial class ContactDetailViewModel : ObservableObject
         Reach = view.Reach;
         HasReach = Reach.Length > 0;
         List<FactItem> facts = [.. view.Facts.Select(FactItem.From)];
-        AddWhen(facts, "Added", view.CreatedAt);
-        AddWhen(facts, "Last changed", view.UpdatedAt);
+        AddWhen(facts, S.ContactAdded, view.CreatedAt);
+        AddWhen(facts, S.ContactLastChanged, view.UpdatedAt);
         Display.Sync(Facts, facts);
         Display.Sync(NumberFacts, [.. view.NumberFacts.Select(FactItem.From)]);
         HasNumberFacts = view.NumberFacts.Length > 0;

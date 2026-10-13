@@ -137,16 +137,17 @@ assert set(SCREEN_SOURCES) == ALLOWED_SCREENS
 # The catalog entries that are each allowed screen's own, by the `screen` field
 # an entry of that catalog has. Any other entry belongs to no allowed screen.
 CATALOG_SCREENS: dict[str, tuple[tuple[str, str], ...]] = {
-    "Billing": (("crates/district-ffi/l10n/ffi.toml", "billing"),),
-    "Checkout": (("crates/district-ffi/l10n/ffi.toml", "checkout"),),
-    "Marketplace": (("crates/district-ffi/l10n/ffi.toml", "marketplace"),),
-    "Session": (("crates/district-ffi/l10n/ffi.toml", "welcome"),),
+    "Billing": (("crates/district-ffi/l10n/ffi.toml", "billing"), ("src/DistrictAI/l10n/ui.toml", "billing")),
+    "Checkout": (("crates/district-ffi/l10n/ffi.toml", "checkout"), ("src/DistrictAI/l10n/ui.toml", "checkout")),
+    "Marketplace": (("crates/district-ffi/l10n/ffi.toml", "marketplace"), ("src/DistrictAI/l10n/ui.toml", "numbers")),
+    "Session": (("crates/district-ffi/l10n/ffi.toml", "welcome"), ("src/DistrictAI/l10n/ui.toml", "sign_in")),
 }
 assert set(CATALOG_SCREENS) == ALLOWED_SCREENS
 
 # Code generated from a catalog, which the scan leaves to the catalog itself.
 GENERATED = (
     "crates/district-ffi/src/generated/",
+    "src/DistrictAI.Presentation/L10n/Strings.g.cs",
 )
 
 

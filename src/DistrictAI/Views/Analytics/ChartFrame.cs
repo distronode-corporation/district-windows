@@ -1,3 +1,4 @@
+using DistrictAI.L10n;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
@@ -31,7 +32,7 @@ public sealed partial class ChartFrame : ContentControl
 
         protected override string GetClassNameCore() => nameof(ChartFrame);
 
-        protected override string GetLocalizedControlTypeCore() => "chart";
+        protected override string GetLocalizedControlTypeCore() => S.AnalyticsChartType;
 
         // The bars are drawing: nothing under the chart is read on its own.
         protected override IList<AutomationPeer> GetChildrenCore() => [];

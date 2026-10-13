@@ -2,14 +2,21 @@
 """Generate what this repository's string catalogs produce, or check that what
 is committed is what they produce now.
 
-    python3 scripts/gen-l10n.py            # write every target below
-    python3 scripts/gen-l10n.py --check    # fail if a catalog is invalid or a target is stale (CI)
+    python3 scripts/gen-l10n.py              # write every target below
+    python3 scripts/gen-l10n.py --check      # fail if a catalog is invalid or a target is stale (CI)
+    python3 scripts/gen-l10n.py --self-test  # prove the XAML check catches a missing string
 
 Each target is one or more catalogs (TOML, i18n/README.md in the monorepo) and
 one backend of the vendored generator, tools/l10n/l10n.py. --check runs
 `l10n.py check` on each target's catalogs with the gen comparison (`--gen
 BACKEND:OUT`), which fails on an invalid or non-canonical catalog and on a
 generated file that differs byte for byte from what the catalog produces.
+
+Both modes then read the XAML: every `{x:Bind l10n:S.Name}` (a property, or a
+method called with arguments) under src/ must name a string the generated C#
+declares, and a file that uses `l10n:S.` must declare
+`xmlns:l10n="using:DistrictAI.L10n"`. The XAML compiler reports a missing name
+only as WMC9999, on Windows; this says which file, which line and which name.
 
 The French is written later (v3.0, W3); until then every generated French
 branch carries the English and `FR_COMPLETE` / `FrComplete` is false. Nothing
@@ -23,8 +30,10 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import re
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -40,6 +49,7 @@ TARGETS: list[tuple[list[str], str, str, dict[str, str]]] = [
         "crates/district-ffi/src/generated/strings.rs",
         {"locale_path": "district_l10n::Locale", "int_fmt": "district_l10n::format::integer"},
     ),
+    (["src/DistrictAI/l10n/ui.toml"], "csharp", "src/DistrictAI.Presentation/L10n/Strings.g.cs", {"namespace": "DistrictAI.L10n"}),
 ]
 
 # The test that calls every generated Rust function in both languages, held to
@@ -48,6 +58,14 @@ TARGETS: list[tuple[list[str], str, str, dict[str, str]]] = [
 ACCESSOR_TESTS = [
     ("crates/district-ffi/l10n/ffi.toml", "crate::l10n::s", "crates/district-ffi/src/generated/accessors.rs"),
 ]
+
+# The XAML namespace the pages reach the generated class through.
+XMLNS = 'xmlns:l10n="using:DistrictAI.L10n"'
+XMLNS_ANY = re.compile(r'xmlns:l10n="([^"]*)"')
+USE = re.compile(r"\{x:Bind\s+l10n:S\.([A-Za-z_][A-Za-z0-9_]*)")
+ANY_USE = re.compile(r"\bl10n:S\.")
+MEMBER = re.compile(r"^\s*public static string ([A-Za-z_][A-Za-z0-9_]*)\b", re.MULTILINE)
+COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 
 
 def run(args: list[str]) -> int:
@@ -128,10 +146,135 @@ def opt_args(opts: dict[str, str]) -> list[str]:
     return [arg for key, value in opts.items() for arg in ("--opt", f"{key}={value}")]
 
 
+def generated_members(source: str) -> set[str]:
+    """The strings a generated C# file declares: `public static string Name` (property or method)."""
+    return set(MEMBER.findall(source))
+
+
+def check_xaml(files: Iterable[tuple[str, str]], members: set[str], catalogs: list[str]) -> list[str]:
+    """Problems in `files` ((path, text) pairs), one readable line each."""
+    problems: list[str] = []
+    origin = ", ".join(catalogs)
+    for path, text in files:
+        # Comments keep their line breaks, so line numbers stay right.
+        code = COMMENT.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
+        if not ANY_USE.search(code):
+            continue
+        declared = XMLNS_ANY.search(code)
+        if declared is None:
+            line = code.count("\n", 0, ANY_USE.search(code).start()) + 1
+            problems.append(f"{path}:{line}: uses l10n:S. but does not declare {XMLNS}")
+        elif declared.group(0) != XMLNS:
+            line = code.count("\n", 0, declared.start()) + 1
+            problems.append(f"{path}:{line}: declares {declared.group(0)}, not {XMLNS}")
+        for use in USE.finditer(code):
+            name = use.group(1)
+            if name not in members:
+                line = code.count("\n", 0, use.start()) + 1
+                problems.append(
+                    f"{path}:{line}: {{x:Bind l10n:S.{name}}} names no string: no key in {origin} generates S.{name}"
+                )
+    return problems
+
+
+def xaml_files() -> list[tuple[str, str]]:
+    """Every XAML file under src/, outside build output."""
+    out = []
+    for path in sorted((ROOT / "src").rglob("*.xaml")):
+        rel = path.relative_to(ROOT)
+        if {"bin", "obj"} & set(rel.parts):
+            continue
+        out.append((rel.as_posix(), path.read_text(encoding="utf-8")))
+    return out
+
+
+def check_all_xaml() -> bool:
+    """Reads the generated C# of every csharp target and checks the XAML against it."""
+    members: set[str] = set()
+    catalogs: list[str] = []
+    for cats, backend, out, _ in TARGETS:
+        if backend != "csharp":
+            continue
+        catalogs += cats
+        generated = ROOT / out
+        if generated.is_file():
+            members |= generated_members(generated.read_text(encoding="utf-8"))
+    problems = check_xaml(xaml_files(), members, catalogs)
+    for problem in problems:
+        print(problem, file=sys.stderr)
+    if problems:
+        print(f"gen-l10n: {len(problems)} XAML problem(s)", file=sys.stderr)
+    return not problems
+
+
+def self_test() -> int:
+    generated = "\n".join(
+        [
+            "    public static partial class S",
+            "    {",
+            '        public static string CallsPlaceCall => Current == Locale.FrCa ? "Place a call" : "Place a call";',
+            "        public static string CallsCount(long count)",
+            "        public static Locale Current { get; set; } = Locale.En;",
+            "    }",
+        ]
+    )
+    members = generated_members(generated)
+    cats = ["src/DistrictAI/l10n/ui.toml"]
+    head = f'<UserControl\n    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"\n    {XMLNS}>\n'
+    cases: list[tuple[str, str, list[str]]] = [
+        ("a known property", head + '<Button Content="{x:Bind l10n:S.CallsPlaceCall}" />\n', []),
+        ("a known method", head + '<TextBlock Text="{x:Bind l10n:S.CallsCount(ViewModel.Count), Mode=OneWay}" />\n', []),
+        ("no l10n at all", '<UserControl>\n<Button Content="{x:Bind ViewModel.Label}" />\n', []),
+        ("a name in a comment only", head + "<!-- {x:Bind l10n:S.Nothing} -->\n", []),
+        (
+            "a misspelt name",
+            head + '<Button\n    Content="{x:Bind l10n:S.CallsPlaceCal}" />\n',
+            [
+                "Page.xaml:5: {x:Bind l10n:S.CallsPlaceCal} names no string: "
+                "no key in src/DistrictAI/l10n/ui.toml generates S.CallsPlaceCal"
+            ],
+        ),
+        (
+            "a name the generated class has, but not as a string",
+            head + '<TextBlock Text="{x:Bind l10n:S.Current}" />\n',
+            ["Page.xaml:4: {x:Bind l10n:S.Current} names no string: no key in src/DistrictAI/l10n/ui.toml generates S.Current"],
+        ),
+        (
+            "no xmlns:l10n",
+            '<UserControl>\n<Button Content="{x:Bind l10n:S.CallsPlaceCall}" />\n',
+            [f"Page.xaml:2: uses l10n:S. but does not declare {XMLNS}"],
+        ),
+        (
+            "xmlns:l10n elsewhere",
+            '<UserControl xmlns:l10n="using:DistrictAI.Other">\n<Button Content="{x:Bind l10n:S.CallsPlaceCall}" />\n',
+            [f'Page.xaml:1: declares xmlns:l10n="using:DistrictAI.Other", not {XMLNS}'],
+        ),
+    ]
+    failures = 0
+    for name, text, expected in cases:
+        got = check_xaml([("Page.xaml", text)], members, cats)
+        ok = got == expected
+        failures += not ok
+        print(f"  {'pass' if ok else 'FAIL'}  {name}: expected {expected}, got {got}")
+    expected_members = {"CallsPlaceCall", "CallsCount"}
+    ok = members == expected_members
+    failures += not ok
+    print(f"  {'pass' if ok else 'FAIL'}  members read: expected {sorted(expected_members)}, got {sorted(members)}")
+    if failures:
+        print(f"\nself-test FAILED: {failures} case(s) did not answer as expected", file=sys.stderr)
+        return 1
+    print(f"\nself-test passed: {len(cases) + 1} cases")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n", 1)[0])
-    parser.add_argument("--check", action="store_true", help="fail if anything committed is stale")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="fail if anything committed is stale")
+    mode.add_argument("--self-test", action="store_true", help="prove the XAML check catches a missing string")
     args = parser.parse_args(argv)
+    if args.self_test:
+        return self_test()
     failed = False
     for catalogs, backend, out, opts in TARGETS:
         if args.check:
@@ -152,6 +295,8 @@ def main(argv: list[str] | None = None) -> int:
         elif not path.is_file() or path.read_text(encoding="utf-8") != text:
             print(f"gen-l10n: {out} is not what {catalog} produces; run python3 scripts/gen-l10n.py", file=sys.stderr)
             failed = True
+    if not check_all_xaml():
+        failed = True
     return 1 if failed else 0
 
 

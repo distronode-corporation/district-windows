@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Desk;
@@ -107,7 +108,7 @@ public sealed partial class DeskTicketViewModel : ObservableObject
         var resolved = Display.When(view.ResolvedAt);
         DatesLine = string.Join(
             " · ",
-            new[] { raised.Length > 0 ? "Raised " + raised : string.Empty, resolved.Length > 0 ? "Resolved " + resolved : string.Empty }
+            new[] { raised.Length > 0 ? S.DeskTicketRaisedWhen(raised) : string.Empty, resolved.Length > 0 ? S.DeskTicketResolvedWhen(resolved) : string.Empty }
                 .Where(part => part.Length > 0));
         Display.Sync(Statuses, [.. view.Statuses.Select(choice => new DeskStatusItem(choice.Status, choice.Label, choice.Selected, view.CanChangeStatus && !choice.Selected))]);
         StatusChanging = view.StatusChanging;
@@ -187,7 +188,7 @@ public sealed partial class DeskTicketViewModel : ObservableObject
 public sealed record DeskStatusItem(DeskStatus Status, string Label, bool Selected, bool Enabled)
 {
     /// <summary>What a screen reader says for the button.</summary>
-    public string AccessibleName => Selected ? Label + ", current status" : "Mark as " + Label;
+    public string AccessibleName => Selected ? S.DeskTicketStatusCurrent(Label) : S.DeskTicketMarkAs(Label);
 
     /// <inheritdoc/>
     public override string ToString() => AccessibleName;

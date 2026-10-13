@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Composer;
 
 namespace DistrictAI.ViewModels;
@@ -9,7 +10,7 @@ namespace DistrictAI.ViewModels;
 /// <summary>One conversation, oldest first, and the reply box under it.</summary>
 public sealed partial class ThreadViewModel : ObservableObject
 {
-    private static readonly EmptyView _noMessages = new("No messages in this conversation yet.", string.Empty);
+    private static EmptyView NoMessages => new(S.ThreadNoMessages, string.Empty);
 
     private PageContext? _context;
 
@@ -71,7 +72,7 @@ public sealed partial class ThreadViewModel : ObservableObject
         ReadOnlyNote = view.ReadOnlyNote;
         HasReadOnlyNote = view.ReadOnlyNote.Length > 0;
         Composer.Show(view.ThreadKey, view.Composer, reportSending);
-        Load.Show(view.Status, view.Items.Length > 0, _noMessages, view.Refreshing, view.RefreshFailure);
+        Load.Show(view.Status, view.Items.Length > 0, NoMessages, view.Refreshing, view.RefreshFailure);
         Display.Sync(Items, [.. view.Items.Select(item => TimelineItem.From(item, !reportSending))]);
         HasMore = Load.Ready && view.HasMore;
         LoadingOlder = view.LoadingOlder;

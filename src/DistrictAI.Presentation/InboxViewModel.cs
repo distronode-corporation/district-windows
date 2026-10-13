@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels;
 
@@ -102,7 +102,7 @@ public sealed partial class InboxViewModel : ObservableObject
         }
         if (search.Query.Trim().Length < search.MinQueryLength)
         {
-            return string.Create(CultureInfo.CurrentCulture, $"Type at least {search.MinQueryLength} characters to search.");
+            return S.InboxMinQuery(search.MinQueryLength);
         }
         if (search.Hits.Length == 0)
         {

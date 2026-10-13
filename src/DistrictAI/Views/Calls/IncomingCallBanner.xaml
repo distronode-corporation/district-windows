@@ -3,9 +3,10 @@
     x:Class="DistrictAI.Views.Calls.IncomingCallBanner"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
     AutomationProperties.LandmarkType="Custom"
-    AutomationProperties.LocalizedLandmarkType="Incoming call"
-    AutomationProperties.Name="Incoming call"
+    AutomationProperties.LocalizedLandmarkType="{x:Bind l10n:S.IncomingCallLandmark}"
+    AutomationProperties.Name="{x:Bind l10n:S.IncomingCallLandmark}"
     Visibility="{x:Bind ViewModel.IsShown, Mode=OneWay}">
     <Grid
         Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -68,32 +69,32 @@
                 <ProgressRing
                     Width="20"
                     Height="20"
-                    AutomationProperties.Name="Answering"
+                    AutomationProperties.Name="{x:Bind l10n:S.IncomingCallAnswering}"
                     IsActive="{x:Bind ViewModel.Answering, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.Answering, Mode=OneWay}" />
                 <Button
-                    AutomationProperties.Name="Decline"
+                    AutomationProperties.Name="{x:Bind l10n:S.IncomingCallDecline}"
                     Command="{x:Bind ViewModel.DeclineCommand}"
                     Visibility="{x:Bind ViewModel.Live, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="HangUp" />
-                        <TextBlock Text="Decline" />
+                        <TextBlock Text="{x:Bind l10n:S.IncomingCallDecline}" />
                     </StackPanel>
                 </Button>
                 <Button
-                    AutomationProperties.Name="Answer"
+                    AutomationProperties.Name="{x:Bind l10n:S.IncomingCallAnswer}"
                     Command="{x:Bind ViewModel.AnswerCommand}"
                     Style="{StaticResource AccentButtonStyle}"
                     Visibility="{x:Bind ViewModel.ShowAnswer, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="Phone" />
-                        <TextBlock Text="Answer" />
+                        <TextBlock Text="{x:Bind l10n:S.IncomingCallAnswer}" />
                     </StackPanel>
                 </Button>
                 <Button
-                    AutomationProperties.Name="Dismiss"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonDismiss}"
                     Command="{x:Bind ViewModel.DismissCommand}"
-                    Content="Dismiss"
+                    Content="{x:Bind l10n:S.CommonDismiss}"
                     Visibility="{x:Bind ViewModel.CanDismiss, Mode=OneWay}" />
             </StackPanel>
         </Grid>

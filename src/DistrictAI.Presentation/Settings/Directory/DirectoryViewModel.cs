@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 using DistrictAI.ViewModels.Settings.CallHandling;
 
@@ -50,13 +51,13 @@ public sealed partial class DirectoryEntryItem : ObservableObject
     public partial bool CanEdit { get; set; }
 
     /// <summary>The name box's name for screen readers.</summary>
-    public string NameLabel => "Name of " + Title;
+    public string NameLabel => S.DirectoryNameOf(Title);
 
     /// <summary>The number box's name for screen readers.</summary>
-    public string NumberLabel => "Phone number of " + Title;
+    public string NumberLabel => S.DirectoryNumberOf(Title);
 
     /// <summary>The removal's name for screen readers.</summary>
-    public string RemoveName => "Remove " + Title + " from the directory";
+    public string RemoveName => S.DirectoryRemoveEntry(Title);
 
     partial void OnTitleChanged(string value)
     {
@@ -139,7 +140,7 @@ public sealed partial class DirectoryViewModel : ObservableObject
 
     /// <summary>The heading.</summary>
     [ObservableProperty]
-    public partial string Title { get; set; } = "Transfer directory";
+    public partial string Title { get; set; } = S.DirectoryTitle;
 
     /// <summary>What it says under the heading.</summary>
     [ObservableProperty]
@@ -248,7 +249,7 @@ public sealed partial class DirectoryViewModel : ObservableObject
         IsLoading = view.Status is SectionStatus.Loading;
         (StatusTitle, StatusBody, StatusAction) = (view.Status, view.Unmodellable) switch
         {
-            (SectionStatus.Failed failed, _) => (failed.Title, Display.Failure(failed.Failure), failed.Failure.Retryable ? "Try again" : string.Empty),
+            (SectionStatus.Failed failed, _) => (failed.Title, Display.Failure(failed.Failure), failed.Failure.Retryable ? S.CommonTryAgain : string.Empty),
             (SectionStatus.Stale stale, _) => (stale.Title, stale.Body, stale.Action),
             (_, { } unmodellable) => (unmodellable.Title, unmodellable.Body, string.Empty),
             _ => (string.Empty, string.Empty, string.Empty),

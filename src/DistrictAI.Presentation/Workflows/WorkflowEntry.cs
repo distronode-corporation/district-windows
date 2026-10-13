@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels.Workflows;
 
@@ -71,10 +72,10 @@ public sealed record WorkflowEntry(
     public bool IsFooter => Kind == WorkflowEntryKind.Footer;
 
     /// <summary>The words on the button that opens or closes the runs.</summary>
-    public string RunsButtonLabel => Expanded ? "Hide runs" : "Show runs";
+    public string RunsButtonLabel => Expanded ? S.WorkflowsHideRuns : S.WorkflowsShowRuns;
 
     /// <summary>That button's accessible name, which says whose runs.</summary>
-    public string RunsButtonName => RunsButtonLabel + " of " + Name;
+    public string RunsButtonName => Expanded ? S.WorkflowsHideRunsOf(Name) : S.WorkflowsShowRunsOf(Name);
 
     /// <summary>Whether a run worked (the status shows in the success colour).</summary>
     public bool IsSuccess => IsRun && Tone == RunTone.Success;
@@ -97,7 +98,7 @@ public sealed record WorkflowEntry(
     /// <summary>What a screen reader says for the line.</summary>
     public string AccessibleName => Kind switch
     {
-        WorkflowEntryKind.Workflow => Name + ", " + (Active ? "on" : "off") + ", " + Detail,
+        WorkflowEntryKind.Workflow => Active ? S.WorkflowsRowOn(Name, Detail) : S.WorkflowsRowOff(Name, Detail),
         WorkflowEntryKind.Run => string.Join(", ", new[] { RunStatus, When, Detail }.Where(part => part.Length > 0)),
         _ => string.Join(", ", new[] { RunsNote, RunsFailure }.Where(part => part.Length > 0)),
     };

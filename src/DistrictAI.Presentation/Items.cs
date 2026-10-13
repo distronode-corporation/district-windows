@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels;
 
@@ -57,7 +58,7 @@ public sealed record ThreadRowItem(string ThreadKey, string Title, string Previe
 
     /// <summary>What a screen reader says for the row.</summary>
     public string AccessibleName =>
-        string.Join(", ", new[] { Title, Unread ? "unread" : string.Empty, ChannelLabel, Preview, When }.Where(part => part.Length > 0));
+        string.Join(", ", new[] { Title, Unread ? S.InboxUnread : string.Empty, ChannelLabel, Preview, When }.Where(part => part.Length > 0));
 
     internal static ThreadRowItem From(ThreadRowView row) =>
         new(row.ThreadKey, row.Title, row.Preview, row.ChannelLabel, row.Unread, Display.When(row.LastAt), row.CanOpen);
@@ -170,7 +171,7 @@ public sealed record TimelineItem
         ", ",
         new[]
         {
-            IsOutboundMessage ? "You" : Author,
+            IsOutboundMessage ? S.ThreadYou : Author,
             Subject,
             Body,
             Attachments,
@@ -257,17 +258,17 @@ public sealed record ContactRowItem(string ContactId, string Name, string Detail
 public sealed record DeviceRowItem(string DeviceId, string Name, string Detail, bool IsThisDevice, bool CanSignOut)
 {
     /// <summary>The Sign out button's accessible name.</summary>
-    public string SignOutName => "Sign out " + Name;
+    public string SignOutName => S.DevicesSignOutDevice(Name);
 
     /// <summary>What a screen reader says for the row.</summary>
-    public string AccessibleName => IsThisDevice ? Name + ", this device, " + Detail : Name + ", " + Detail;
+    public string AccessibleName => IsThisDevice ? S.DevicesRowThisDevice(Name, Detail) : Name + ", " + Detail;
 
     internal static DeviceRowItem From(DeviceRowView row, bool busy)
     {
         // The time in this computer's zone when the core has one; otherwise
         // the service's words ("Signed in recently").
         var when = Display.When(row.LastActiveAt);
-        var lastActive = when.Length > 0 ? "Last active " + when : row.LastActiveLabel;
+        var lastActive = when.Length > 0 ? S.DevicesLastActive(when) : row.LastActiveLabel;
         return new(row.DeviceId, row.Name, row.Platform + " \u00B7 " + lastActive, row.IsThisDevice, !busy);
     }
 

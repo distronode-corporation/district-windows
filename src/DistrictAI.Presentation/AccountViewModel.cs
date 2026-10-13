@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels;
 
@@ -149,7 +150,7 @@ public sealed partial class AccountViewModel : ObservableObject
         Email = view.Email ?? string.Empty;
         HasEmail = Email.Length > 0;
         UserId = view.UserId;
-        AppVersion = "Version " + view.AppVersion;
+        AppVersion = S.AccountVersion(view.AppVersion);
         DeviceId = view.DeviceId;
         DevicesCaption = view.DevicesCaption;
         SignOutCaption = view.SignOutCaption;

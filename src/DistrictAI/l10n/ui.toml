@@ -1,0 +1,2329 @@
+[meta]
+catalog = "ui"
+platform = "csharp"
+apple = false
+
+[account.app_name]
+en = "District AI for Windows"
+ctx = "label"
+screen = "account"
+tier = "T3"
+note = "This app's name as the Microsoft Store lists it."
+
+[account.delete]
+en = "Delete account"
+ctx = "button"
+screen = "account"
+tier = "T0"
+
+[account.delete_title]
+en = "Delete your account"
+ctx = "title"
+screen = "account"
+tier = "T0"
+note = "Section heading."
+
+[account.device_id]
+en = "Device ID"
+ctx = "label"
+screen = "account"
+tier = "T3"
+
+[account.devices]
+en = "Devices"
+ctx = "button"
+screen = "account"
+tier = "T3"
+note = "Opens the list of signed-in devices."
+
+[account.devices_title]
+en = "Devices"
+ctx = "title"
+screen = "account"
+tier = "T3"
+note = "Section heading."
+
+[account.sign_out_title]
+en = "Sign out"
+ctx = "title"
+screen = "account"
+tier = "T3"
+note = "Section heading."
+
+[account.start_at_sign_in]
+en = "Start at sign-in"
+ctx = "label"
+screen = "account"
+tier = "T3"
+note = "Switch: start the app when the user signs in to Windows."
+
+[account.startup_off_by_policy]
+en = "Turned off by your organisation."
+ctx = "body"
+screen = "account"
+tier = "T3"
+note = "Under the Start at sign-in switch."
+
+[account.startup_off_by_user]
+en = "Turned off in Windows Settings, under Apps, Startup."
+ctx = "body"
+screen = "account"
+tier = "T3"
+note = "Under the Start at sign-in switch. Use the names Windows shows in French for Settings, Apps and Startup."
+
+[account.startup_on_by_policy]
+en = "Turned on by your organisation."
+ctx = "body"
+screen = "account"
+tier = "T3"
+note = "Under the Start at sign-in switch."
+
+[account.this_computer]
+en = "This computer"
+ctx = "title"
+screen = "account"
+tier = "T3"
+note = "Section heading."
+
+[account.title]
+en = "Account"
+ctx = "title"
+screen = "account"
+tier = "T3"
+note = "Page title."
+
+[account.user_id]
+en = "User ID"
+ctx = "label"
+screen = "account"
+tier = "T3"
+
+[account.version]
+en = "Version {version}"
+ctx = "label"
+screen = "account"
+tier = "T3"
+args = { version = "str" }
+note = "{version} is the app's version number, such as 2.0.1."
+
+[account.your_account]
+en = "Your account"
+ctx = "title"
+screen = "account"
+tier = "T3"
+note = "Section heading."
+
+[analytics.chart_type]
+en = "chart"
+ctx = "a11y"
+screen = "analytics"
+tier = "T3"
+note = "Lower case: the kind of control a screen reader announces for a chart."
+
+[billing.billed]
+en = "Billed"
+ctx = "label"
+screen = "billing"
+tier = "T1"
+note = "Label of the choice of billing interval (monthly, yearly)."
+
+[billing.checkout_in_browser]
+en = "Checkout in the browser"
+ctx = "a11y"
+screen = "billing"
+tier = "T1"
+note = "Name of the banner shown while checkout is open in the browser."
+
+[billing.close_plans]
+en = "Close the plans"
+ctx = "a11y"
+screen = "billing"
+tier = "T1"
+
+[billing.continue]
+en = "Continue"
+ctx = "button"
+screen = "billing"
+tier = "T1"
+note = "Continues to checkout."
+
+[billing.ends]
+en = "ends {date}"
+ctx = "label"
+screen = "billing"
+tier = "T1"
+args = { date = "date" }
+note = "Lower case: part of a plan's line, after its status and amount, joined by commas."
+
+[billing.invoice_open]
+en = "Open"
+ctx = "button"
+screen = "billing"
+tier = "T1"
+note = "Opens one invoice."
+
+[billing.invoice_open_a11y]
+en = "Open invoice"
+ctx = "a11y"
+screen = "billing"
+tier = "T1"
+
+[billing.invoices]
+en = "Invoices"
+ctx = "title"
+screen = "billing"
+tier = "T1"
+note = "Section heading."
+
+[billing.minutes_of_included]
+en = "{used} of {included} minutes this month"
+ctx = "label"
+screen = "billing"
+tier = "T1"
+args = { used = "str", included = "str" }
+note = "{used} and {included} arrive already formatted as numbers for the user's region (1,234)."
+
+[billing.minutes_used]
+en = "Minutes used"
+ctx = "a11y"
+screen = "billing"
+tier = "T1"
+note = "Name of the meter of minutes used this month."
+
+[billing.minutes_used_only]
+en = "{used} minutes this month"
+ctx = "label"
+screen = "billing"
+tier = "T1"
+args = { used = "str" }
+note = "{used} arrives already formatted as a number for the user's region (1,234)."
+
+[billing.on_this_account]
+en = "On this account"
+ctx = "title"
+screen = "billing"
+tier = "T1"
+note = "Heading over the account's subscriptions and invoices."
+
+[billing.plan]
+en = "Plan"
+ctx = "label"
+screen = "billing"
+tier = "T1"
+note = "Label of the choice of plan."
+
+[billing.plan_status]
+en = "Plan status"
+ctx = "a11y"
+screen = "billing"
+tier = "T1"
+
+[billing.problem]
+en = "Billing problem"
+ctx = "a11y"
+screen = "billing"
+tier = "T1"
+
+[billing.promotion_code]
+en = "Promotion code"
+ctx = "a11y"
+screen = "billing"
+tier = "T1"
+
+[billing.reading_account]
+en = "Reading the account"
+ctx = "a11y"
+screen = "billing"
+tier = "T1"
+note = "Busy indicator."
+
+[billing.renews]
+en = "renews {date}"
+ctx = "label"
+screen = "billing"
+tier = "T1"
+args = { date = "date" }
+note = "Lower case: part of a plan's line, after its status and amount, joined by commas."
+
+[billing.title]
+en = "Billing"
+ctx = "title"
+screen = "billing"
+tier = "T1"
+note = "Page title."
+
+[billing.your_plan]
+en = "Your plan"
+ctx = "title"
+screen = "billing"
+tier = "T1"
+note = "Section heading."
+
+[blocked.blocked_when]
+en = "Blocked {when}"
+ctx = "label"
+screen = "blocked"
+tier = "T3"
+args = { when = "date" }
+note = "{when} is a date and time, already formatted."
+
+[blocked.confirm_title]
+en = "Unblock {name}?"
+ctx = "title"
+screen = "blocked"
+tier = "T3"
+args = { name = "str" }
+note = "Title of the question before a caller is unblocked."
+
+[blocked.row_unblocking]
+en = "unblocking"
+ctx = "a11y"
+screen = "blocked"
+tier = "T3"
+note = "Lower case: part of a row's screen-reader text, for a caller being unblocked."
+
+[blocked.title]
+en = "Blocked callers"
+ctx = "title"
+screen = "blocked"
+tier = "T3"
+note = "Page title, and the name of its list."
+
+[blocked.unblock]
+en = "Unblock"
+ctx = "button"
+screen = "blocked"
+tier = "T3"
+note = "Unblocks one caller."
+
+[blocked.unblock_caller]
+en = "Unblock {name}"
+ctx = "a11y"
+screen = "blocked"
+tier = "T3"
+args = { name = "str" }
+note = "{name} is the caller's name or number."
+
+[blocked.unblocking]
+en = "Unblocking"
+ctx = "a11y"
+screen = "blocked"
+tier = "T3"
+note = "Busy indicator."
+
+[brand.district_ai]
+en = "District AI"
+ctx = "title"
+screen = "shell"
+fixed = true
+note = "The product's name: the window, the tray icon, the navigation pane."
+
+[call_bar.connection]
+en = "Call connection"
+ctx = "a11y"
+screen = "call_bar"
+tier = "T3"
+note = "Name of the banner about the call's connection."
+
+[call_bar.hang_up]
+en = "Hang up"
+ctx = "button"
+screen = "call_bar"
+tier = "T3"
+note = "Ends the call."
+
+[call_bar.hang_up_tooltip]
+en = "Hang up (Ctrl+Shift+H)"
+ctx = "tooltip"
+screen = "call_bar"
+tier = "T3"
+note = "Keep the key names Ctrl+Shift+H."
+
+[call_bar.landmark]
+en = "Call"
+ctx = "a11y"
+screen = "call_bar"
+tier = "T3"
+note = "Noun: the region of the window that shows the call in progress (screen-reader landmark)."
+
+[call_bar.mic_blocked]
+en = "Microphone blocked"
+ctx = "a11y"
+screen = "call_bar"
+tier = "T0"
+note = "Name of the banner shown when Windows denies the microphone."
+
+[call_bar.mic_blocked_message]
+en = "District AI can't use your microphone. Allow microphone access in Windows Settings."
+ctx = "body"
+screen = "call_bar"
+tier = "T0"
+note = "Use the name Windows shows in French for Settings."
+
+[call_bar.mute]
+en = "Mute"
+ctx = "a11y"
+screen = "call_bar"
+tier = "T3"
+note = "Toggle: mutes the microphone during a call."
+
+[call_bar.mute_tooltip]
+en = "Mute (Ctrl+D)"
+ctx = "tooltip"
+screen = "call_bar"
+tier = "T3"
+note = "Keep the key names Ctrl+D."
+
+[call_bar.open_mic_settings]
+en = "Open microphone settings"
+ctx = "link"
+screen = "call_bar"
+tier = "T0"
+note = "Opens the Windows privacy page for the microphone."
+
+[call_detail.analysis]
+en = "Analysis"
+ctx = "title"
+screen = "call_detail"
+tier = "T3"
+note = "Section heading."
+
+[call_detail.follow_up_sent]
+en = "Follow-up sent"
+ctx = "title"
+screen = "call_detail"
+tier = "T3"
+note = "Heading over the follow-up message sent after the call."
+
+[call_detail.loading_transcript]
+en = "Loading the transcript"
+ctx = "a11y"
+screen = "call_detail"
+tier = "T3"
+note = "Busy indicator."
+
+[call_detail.retry_transcript]
+en = "Try loading the transcript again"
+ctx = "a11y"
+screen = "call_detail"
+tier = "T3"
+
+[call_detail.transcript]
+en = "Transcript"
+ctx = "title"
+screen = "call_detail"
+tier = "T3"
+note = "Section heading."
+
+[call_handling.availability]
+en = "Availability change"
+ctx = "a11y"
+screen = "call_handling"
+tier = "T3"
+note = "Name of the banner about a change of availability."
+
+[call_handling.changing]
+en = "Changing"
+ctx = "a11y"
+screen = "call_handling"
+tier = "T3"
+note = "Busy indicator."
+
+[call_handling.save]
+en = "Save how calls are answered"
+ctx = "a11y"
+screen = "call_handling"
+tier = "T3"
+
+[call_handling.save_status]
+en = "Call handling save"
+ctx = "a11y"
+screen = "call_handling"
+tier = "T3"
+note = "Name of the banner that says whether call handling was saved."
+
+[call_handling.title]
+en = "Call handling"
+ctx = "title"
+screen = "call_handling"
+tier = "T3"
+note = "Page title."
+
+[call_handling.unknown_setting]
+en = "A setting this app does not know"
+ctx = "label"
+screen = "call_handling"
+tier = "T3"
+note = "Shown for a setting a newer service sends."
+
+[calls.load_more]
+en = "Load more calls"
+ctx = "a11y"
+screen = "calls"
+tier = "T3"
+
+[calls.loading_more]
+en = "Loading more calls"
+ctx = "a11y"
+screen = "calls"
+tier = "T3"
+note = "Busy indicator."
+
+[calls.place_call]
+en = "Place a call"
+ctx = "button"
+screen = "calls"
+tier = "T3"
+
+[calls.title]
+en = "Calls"
+ctx = "title"
+screen = "calls"
+tier = "T3"
+note = "Page title, and the name of its list."
+
+[checkout.close]
+en = "Close checkout"
+ctx = "a11y"
+screen = "checkout"
+tier = "T1"
+note = "Name of the Close button of the checkout window."
+
+[checkout.view]
+en = "Checkout"
+ctx = "a11y"
+screen = "checkout"
+tier = "T1"
+note = "Name of the checkout page area."
+
+[checkout.window_title]
+en = "District AI checkout"
+ctx = "title"
+screen = "checkout"
+tier = "T1"
+note = "Title of the checkout window."
+
+[checkout.window_title_page]
+en = "{page} (District AI checkout)"
+ctx = "title"
+screen = "checkout"
+tier = "T1"
+args = { page = "str" }
+note = "Title of the checkout window while a page is open; {page} is that page's own title."
+
+[common.call]
+en = "Call"
+ctx = "button"
+screen = "common"
+tier = "T3"
+note = "Verb: places a phone call."
+
+[common.call_problem]
+en = "Call problem"
+ctx = "a11y"
+screen = "common"
+tier = "T2"
+note = "Screen-reader name of the banner that says why a call failed."
+
+[common.cancel]
+en = "Cancel"
+ctx = "button"
+screen = "common"
+tier = "T3"
+
+[common.close]
+en = "Close"
+ctx = "button"
+screen = "common"
+tier = "T3"
+
+[common.delete]
+en = "Delete"
+ctx = "button"
+screen = "common"
+tier = "T2"
+
+[common.details]
+en = "Details"
+ctx = "title"
+screen = "common"
+tier = "T3"
+note = "Section heading."
+
+[common.dismiss]
+en = "Dismiss"
+ctx = "button"
+screen = "common"
+tier = "T3"
+note = "Hides a message or a banner."
+
+[common.edit]
+en = "Edit"
+ctx = "button"
+screen = "common"
+tier = "T3"
+
+[common.email_address]
+en = "Email address"
+ctx = "label"
+screen = "common"
+tier = "T3"
+note = "Field label."
+
+[common.load_more]
+en = "Load more"
+ctx = "button"
+screen = "common"
+tier = "T3"
+note = "Loads the next page of a list."
+
+[common.loading]
+en = "Loading"
+ctx = "a11y"
+screen = "common"
+tier = "T3"
+note = "Busy indicator while a page or section loads."
+
+[common.name]
+en = "Name"
+ctx = "label"
+screen = "common"
+tier = "T3"
+note = "Field label: the name of a person, an account or the assistant."
+
+[common.phone_number]
+en = "Phone number"
+ctx = "label"
+screen = "common"
+tier = "T3"
+note = "Field label."
+
+[common.problem]
+en = "Problem"
+ctx = "a11y"
+screen = "common"
+tier = "T2"
+note = "Screen-reader name of an error banner."
+
+[common.remove]
+en = "Remove"
+ctx = "button"
+screen = "common"
+tier = "T2"
+note = "Removes one item from a list."
+
+[common.reply]
+en = "Reply"
+ctx = "label"
+screen = "common"
+tier = "T3"
+note = "Noun: label of the box where a reply is written."
+
+[common.report]
+en = "Report"
+ctx = "button"
+screen = "common"
+tier = "T0"
+note = "Button on an AI-generated answer: report it as wrong or harmful."
+
+[common.report_on_web]
+en = "Report on the web"
+ctx = "button"
+screen = "common"
+tier = "T0"
+note = "Button on an AI-generated answer: report it on the website."
+
+[common.save]
+en = "Save"
+ctx = "button"
+screen = "common"
+tier = "T3"
+
+[common.saving]
+en = "Saving"
+ctx = "a11y"
+screen = "common"
+tier = "T3"
+note = "Busy indicator while a change is saved."
+
+[common.searching]
+en = "Searching"
+ctx = "a11y"
+screen = "common"
+tier = "T3"
+note = "Busy indicator while a search runs."
+
+[common.send]
+en = "Send"
+ctx = "button"
+screen = "common"
+tier = "T3"
+
+[common.send_reply]
+en = "Send the reply"
+ctx = "a11y"
+screen = "common"
+tier = "T3"
+
+[common.sending_reply]
+en = "Sending the reply"
+ctx = "a11y"
+screen = "common"
+tier = "T3"
+note = "Busy indicator."
+
+[common.sign_out]
+en = "Sign out"
+ctx = "button"
+screen = "common"
+tier = "T3"
+
+[common.subject]
+en = "Subject"
+ctx = "label"
+screen = "common"
+tier = "T3"
+note = "Field label: the subject of a ticket or a support request."
+
+[common.try_again]
+en = "Try again"
+ctx = "button"
+screen = "common"
+tier = "T3"
+
+[common.working]
+en = "Working"
+ctx = "a11y"
+screen = "common"
+tier = "T3"
+note = "Busy indicator."
+
+[composer.attach]
+en = "Attach"
+ctx = "button"
+screen = "composer"
+tier = "T3"
+
+[composer.attach_image]
+en = "Attach an image"
+ctx = "tooltip"
+screen = "composer"
+tier = "T3"
+
+[composer.dismiss_error]
+en = "Dismiss the error"
+ctx = "a11y"
+screen = "composer"
+tier = "T3"
+
+[composer.help]
+en = "Ctrl+Enter sends."
+ctx = "a11y"
+screen = "composer"
+tier = "T3"
+note = "Screen-reader help on the reply box. Keep the key names Ctrl+Enter."
+
+[composer.placeholder]
+en = "Write a reply"
+ctx = "placeholder"
+screen = "composer"
+tier = "T3"
+
+[composer.remove_attachment]
+en = "Remove {name}"
+ctx = "a11y"
+screen = "composer"
+tier = "T3"
+args = { name = "str" }
+note = "{name} is an attachment's name, such as Image 1."
+
+[composer.reply]
+en = "Reply"
+ctx = "a11y"
+screen = "composer"
+tier = "T3"
+note = "Noun: name of the reply area and its text box."
+
+[composer.send_tooltip]
+en = "Send (Ctrl+Enter)"
+ctx = "tooltip"
+screen = "composer"
+tier = "T3"
+note = "Keep the key names Ctrl+Enter."
+
+[contact.added]
+en = "Added"
+ctx = "label"
+screen = "contact"
+tier = "T3"
+note = "Fact label: when the contact was created."
+
+[contact.block]
+en = "Block"
+ctx = "button"
+screen = "contact"
+tier = "T3"
+note = "Blocks the contact's calls."
+
+[contact.blocked]
+en = "Blocked"
+ctx = "label"
+screen = "contact"
+tier = "T3"
+note = "Badge on a contact who is blocked."
+
+[contact.clear_research]
+en = "Clear research"
+ctx = "button"
+screen = "contact"
+tier = "T2"
+note = "Deletes the research summary."
+
+[contact.delete]
+en = "Delete contact"
+ctx = "a11y"
+screen = "contact"
+tier = "T2"
+
+[contact.edit]
+en = "Edit contact"
+ctx = "a11y"
+screen = "contact"
+tier = "T3"
+
+[contact.last_changed]
+en = "Last changed"
+ctx = "label"
+screen = "contact"
+tier = "T3"
+note = "Fact label: when the contact last changed."
+
+[contact.phone_number]
+en = "Phone number"
+ctx = "title"
+screen = "contact"
+tier = "T3"
+note = "Section heading over the contact's number."
+
+[contact.read_only]
+en = "You have read-only access to this workspace, so you cannot change contacts."
+ctx = "body"
+screen = "contact"
+tier = "T3"
+
+[contact.research]
+en = "Research"
+ctx = "title"
+screen = "contact"
+tier = "T3"
+note = "Section heading: research on a contact."
+
+[contact.research_note]
+en = "Research looks this contact up on the web and writes a summary. Each run is billed."
+ctx = "body"
+screen = "contact"
+tier = "T1"
+
+[contact.run_research]
+en = "Run research"
+ctx = "button"
+screen = "contact"
+tier = "T1"
+note = "Each run is billed."
+
+[contact.unblock]
+en = "Unblock"
+ctx = "button"
+screen = "contact"
+tier = "T3"
+
+[contacts.add]
+en = "Add contact"
+ctx = "button"
+screen = "contacts"
+tier = "T3"
+
+[contacts.blocked_callers]
+en = "Blocked callers"
+ctx = "button"
+screen = "contacts"
+tier = "T3"
+note = "Opens the list of blocked callers."
+
+[contacts.load_more]
+en = "Load more contacts"
+ctx = "a11y"
+screen = "contacts"
+tier = "T3"
+
+[contacts.loading_more]
+en = "Loading more contacts"
+ctx = "a11y"
+screen = "contacts"
+tier = "T3"
+note = "Busy indicator."
+
+[contacts.title]
+en = "Contacts"
+ctx = "title"
+screen = "contacts"
+tier = "T3"
+note = "Page title, and the name of its list."
+
+[desk.customer]
+en = "The customer"
+ctx = "title"
+screen = "desk"
+tier = "T3"
+note = "Heading over the customer's details on a new ticket."
+
+[desk.customer_email]
+en = "Customer's email address"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+
+[desk.customer_name]
+en = "Customer's name"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+
+[desk.customer_phone]
+en = "Customer's phone number"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+
+[desk.discard]
+en = "Discard the ticket"
+ctx = "a11y"
+screen = "desk"
+tier = "T2"
+
+[desk.filter]
+en = "Which tickets to show"
+ctx = "tooltip"
+screen = "desk"
+tier = "T3"
+note = "The ticket filter."
+
+[desk.message]
+en = "Message"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "Field label: the ticket's message."
+
+[desk.new_ticket]
+en = "New ticket"
+ctx = "button"
+screen = "desk"
+tier = "T3"
+
+[desk.not_turned_on]
+en = "The help desk was not turned on"
+ctx = "a11y"
+screen = "desk"
+tier = "T2"
+note = "Name of an error banner."
+
+[desk.raise]
+en = "Raise the ticket"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+
+[desk.raised_banner]
+en = "Ticket raised"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+note = "Name of the banner shown once a ticket is raised."
+
+[desk.raising]
+en = "Raising the ticket"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+note = "Busy indicator."
+
+[desk.settings]
+en = "Settings"
+ctx = "button"
+screen = "desk"
+tier = "T3"
+note = "Opens the help desk's settings."
+
+[desk.settings_a11y]
+en = "Help desk settings"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+
+[desk.ticket_not_raised]
+en = "Ticket not raised"
+ctx = "a11y"
+screen = "desk"
+tier = "T2"
+note = "Name of an error banner."
+
+[desk.tickets]
+en = "Tickets"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+note = "Name of the list of tickets."
+
+[desk.title]
+en = "Help desk"
+ctx = "title"
+screen = "desk"
+tier = "T3"
+note = "Page title."
+
+[desk.turning_on]
+en = "Turning on the help desk"
+ctx = "a11y"
+screen = "desk"
+tier = "T3"
+note = "Busy indicator."
+
+[desk_settings.about_logo]
+en = "About the logo"
+ctx = "a11y"
+screen = "desk_settings"
+tier = "T3"
+note = "Name of the banner about the logo."
+
+[desk_settings.changing_logo]
+en = "Changing the logo"
+ctx = "a11y"
+screen = "desk_settings"
+tier = "T3"
+note = "Busy indicator."
+
+[desk_settings.choose_image]
+en = "Choose an image"
+ctx = "button"
+screen = "desk_settings"
+tier = "T3"
+
+[desk_settings.choose_logo]
+en = "Choose a logo image"
+ctx = "a11y"
+screen = "desk_settings"
+tier = "T3"
+
+[desk_settings.logo]
+en = "Logo"
+ctx = "title"
+screen = "desk_settings"
+tier = "T3"
+note = "Section heading."
+
+[desk_settings.not_saved]
+en = "Settings not saved"
+ctx = "a11y"
+screen = "desk_settings"
+tier = "T2"
+note = "Name of an error banner."
+
+[desk_settings.remove_logo]
+en = "Remove the logo"
+ctx = "a11y"
+screen = "desk_settings"
+tier = "T2"
+
+[desk_settings.save]
+en = "Save the help desk settings"
+ctx = "a11y"
+screen = "desk_settings"
+tier = "T3"
+
+[desk_ticket.changing_status]
+en = "Changing the status"
+ctx = "a11y"
+screen = "desk_ticket"
+tier = "T3"
+note = "Busy indicator."
+
+[desk_ticket.conversation]
+en = "Conversation"
+ctx = "title"
+screen = "desk_ticket"
+tier = "T3"
+note = "Section heading."
+
+[desk_ticket.customer]
+en = "Customer"
+ctx = "title"
+screen = "desk_ticket"
+tier = "T3"
+note = "Section heading."
+
+[desk_ticket.mark_as]
+en = "Mark as {status}"
+ctx = "a11y"
+screen = "desk_ticket"
+tier = "T3"
+args = { status = "str" }
+note = "{status} is a status button's label, such as Waiting on the customer."
+
+[desk_ticket.problem]
+en = "Problem with this ticket"
+ctx = "a11y"
+screen = "desk_ticket"
+tier = "T2"
+note = "Name of an error banner."
+
+[desk_ticket.raised_when]
+en = "Raised {when}"
+ctx = "label"
+screen = "desk_ticket"
+tier = "T3"
+args = { when = "date" }
+note = "{when} is a date and time, already formatted."
+
+[desk_ticket.reply_sent]
+en = "Reply sent"
+ctx = "a11y"
+screen = "desk_ticket"
+tier = "T3"
+note = "Name of the banner shown once a reply is sent."
+
+[desk_ticket.resolved_when]
+en = "Resolved {when}"
+ctx = "label"
+screen = "desk_ticket"
+tier = "T3"
+args = { when = "date" }
+note = "{when} is a date and time, already formatted."
+
+[desk_ticket.status]
+en = "Status"
+ctx = "label"
+screen = "desk_ticket"
+tier = "T3"
+note = "Label over the ticket's status buttons."
+
+[desk_ticket.status_current]
+en = "{status}, current status"
+ctx = "a11y"
+screen = "desk_ticket"
+tier = "T3"
+args = { status = "str" }
+note = "{status} is a status button's label, such as Waiting on the customer."
+
+[devices.confirm_title]
+en = "Sign out?"
+ctx = "title"
+screen = "devices"
+tier = "T2"
+note = "Title of the question before a device is signed out."
+
+[devices.last_active]
+en = "Last active {when}"
+ctx = "label"
+screen = "devices"
+tier = "T3"
+args = { when = "date" }
+note = "{when} is a date and time, already formatted."
+
+[devices.last_active_note]
+en = "A device's last active time is when it last renewed its sign-in, which can trail real use by up to ten minutes."
+ctx = "body"
+screen = "devices"
+tier = "T3"
+
+[devices.row_this_device]
+en = "{device}, this device, {detail}"
+ctx = "a11y"
+screen = "devices"
+tier = "T3"
+args = { device = "str", detail = "str" }
+note = "A row's screen-reader text; {detail} is its platform and last active time."
+
+[devices.sign_out_device]
+en = "Sign out {device}"
+ctx = "a11y"
+screen = "devices"
+tier = "T3"
+args = { device = "str" }
+note = "{device} is the device's name."
+
+[devices.sign_out_everywhere]
+en = "Sign out of every device"
+ctx = "button"
+screen = "devices"
+tier = "T2"
+
+[devices.sign_out_notice]
+en = "Sign-out notice"
+ctx = "a11y"
+screen = "devices"
+tier = "T3"
+note = "Name of the banner about a sign-out."
+
+[devices.signing_out]
+en = "Signing out"
+ctx = "a11y"
+screen = "devices"
+tier = "T3"
+note = "Busy indicator."
+
+[devices.this_device]
+en = "This device"
+ctx = "label"
+screen = "devices"
+tier = "T3"
+note = "Badge on the row of this computer."
+
+[devices.title]
+en = "Signed-in devices"
+ctx = "title"
+screen = "devices"
+tier = "T3"
+note = "Page title, and the name of its list."
+
+[dialer.number]
+en = "Number to call"
+ctx = "label"
+screen = "dialer"
+tier = "T3"
+
+[dialer.placing]
+en = "Placing the call"
+ctx = "a11y"
+screen = "dialer"
+tier = "T3"
+note = "Busy indicator."
+
+[dialer.title]
+en = "Dialler"
+ctx = "title"
+screen = "dialer"
+tier = "T3"
+note = "Page title: the keypad that places a call."
+
+[directory.add]
+en = "Add to the list"
+ctx = "button"
+screen = "directory"
+tier = "T3"
+
+[directory.add_a11y]
+en = "Add to the directory"
+ctx = "a11y"
+screen = "directory"
+tier = "T3"
+
+[directory.add_someone]
+en = "Add someone"
+ctx = "title"
+screen = "directory"
+tier = "T3"
+note = "Section heading."
+
+[directory.name_of]
+en = "Name of {entry}"
+ctx = "a11y"
+screen = "directory"
+tier = "T3"
+args = { entry = "str" }
+note = "{entry} is an entry's title in the directory."
+
+[directory.new_name]
+en = "Name of the person to add"
+ctx = "a11y"
+screen = "directory"
+tier = "T3"
+
+[directory.new_number]
+en = "Phone number of the person to add"
+ctx = "a11y"
+screen = "directory"
+tier = "T3"
+
+[directory.number_of]
+en = "Phone number of {entry}"
+ctx = "a11y"
+screen = "directory"
+tier = "T3"
+args = { entry = "str" }
+note = "{entry} is an entry's title in the directory."
+
+[directory.remove_entry]
+en = "Remove {entry} from the directory"
+ctx = "a11y"
+screen = "directory"
+tier = "T2"
+args = { entry = "str" }
+note = "{entry} is an entry's title in the directory."
+
+[directory.save]
+en = "Save the transfer directory"
+ctx = "a11y"
+screen = "directory"
+tier = "T3"
+
+[directory.save_status]
+en = "Transfer directory save"
+ctx = "a11y"
+screen = "directory"
+tier = "T3"
+note = "Name of the banner that says whether the directory was saved."
+
+[directory.title]
+en = "Transfer directory"
+ctx = "title"
+screen = "directory"
+tier = "T3"
+note = "Page title: the people calls may be transferred to."
+
+[hq.answered]
+en = "District HQ answered: {text}"
+ctx = "a11y"
+screen = "hq"
+tier = "T0"
+args = { text = "str" }
+note = "Screen-reader text of an AI-generated answer. District HQ is the assistant's name: never translated."
+
+[hq.ask_again]
+en = "Ask the question again"
+ctx = "a11y"
+screen = "hq"
+tier = "T3"
+
+[hq.conversation]
+en = "Conversation with District HQ"
+ctx = "a11y"
+screen = "hq"
+tier = "T3"
+note = "District HQ is the assistant's name: never translated."
+
+[hq.help]
+en = "Enter sends. Shift+Enter starts a new line."
+ctx = "a11y"
+screen = "hq"
+tier = "T3"
+note = "Screen-reader help on the question box. Keep the key names Enter and Shift+Enter."
+
+[hq.you_asked]
+en = "You asked: {text}"
+ctx = "a11y"
+screen = "hq"
+tier = "T3"
+args = { text = "str" }
+note = "Screen-reader text of the user's question."
+
+[inbox.matching]
+en = "Matching messages"
+ctx = "title"
+screen = "inbox"
+tier = "T3"
+note = "Section heading, and the name of its list."
+
+[inbox.min_query]
+en = "Type at least {count} characters to search."
+ctx = "body"
+screen = "inbox"
+tier = "T3"
+args = { count = "int" }
+note = "{count} is 2 or more."
+
+[inbox.search]
+en = "Search every message"
+ctx = "placeholder"
+screen = "inbox"
+tier = "T3"
+
+[inbox.search_failed]
+en = "Could not search"
+ctx = "title"
+screen = "inbox"
+tier = "T2"
+note = "Title of an error banner."
+
+[inbox.title]
+en = "Conversations"
+ctx = "title"
+screen = "inbox"
+tier = "T3"
+note = "Page title, and the name of its list."
+
+[inbox.unread]
+en = "unread"
+ctx = "a11y"
+screen = "inbox"
+tier = "T3"
+note = "Lower case: part of a conversation row's screen-reader text."
+
+[incoming_call.answer]
+en = "Answer"
+ctx = "button"
+screen = "incoming_call"
+tier = "T3"
+note = "Answers the incoming call."
+
+[incoming_call.answering]
+en = "Answering"
+ctx = "a11y"
+screen = "incoming_call"
+tier = "T3"
+note = "Busy indicator."
+
+[incoming_call.decline]
+en = "Decline"
+ctx = "button"
+screen = "incoming_call"
+tier = "T3"
+note = "Declines the incoming call."
+
+[incoming_call.landmark]
+en = "Incoming call"
+ctx = "a11y"
+screen = "incoming_call"
+tier = "T3"
+note = "Name of the banner of a call ringing."
+
+[knowledge.added]
+en = "Added {when}"
+ctx = "label"
+screen = "knowledge"
+tier = "T3"
+args = { when = "date" }
+note = "{when} is a date and time, already formatted."
+
+[knowledge.adding]
+en = "Adding"
+ctx = "a11y"
+screen = "knowledge"
+tier = "T3"
+note = "Busy indicator while a document is added."
+
+[knowledge.delete_document]
+en = "{action}: {document}"
+ctx = "a11y"
+screen = "knowledge"
+tier = "T2"
+args = { action = "str", document = "str" }
+note = "{action} is the Delete button's word from the service; {document} is the document's title."
+
+[knowledge.file_unreadable]
+en = "This file could not be read."
+ctx = "error"
+screen = "knowledge"
+tier = "T2"
+
+[knowledge.reading_documents]
+en = "Reading the documents"
+ctx = "a11y"
+screen = "knowledge"
+tier = "T3"
+note = "Busy indicator."
+
+[knowledge.reading_sources]
+en = "Reading where answers come from"
+ctx = "a11y"
+screen = "knowledge"
+tier = "T3"
+note = "Busy indicator."
+
+[knowledge.retry_documents]
+en = "Read the documents again"
+ctx = "a11y"
+screen = "knowledge"
+tier = "T3"
+
+[knowledge.retry_sources]
+en = "Read where answers come from again"
+ctx = "a11y"
+screen = "knowledge"
+tier = "T3"
+
+[members.changing]
+en = "Changing a member"
+ctx = "a11y"
+screen = "members"
+tier = "T3"
+note = "Busy indicator."
+
+[members.renaming]
+en = "Renaming"
+ctx = "a11y"
+screen = "members"
+tier = "T3"
+note = "Busy indicator."
+
+[members.role]
+en = "Role"
+ctx = "a11y"
+screen = "members"
+tier = "T3"
+note = "Name of a member's role picker."
+
+[members.title]
+en = "Members"
+ctx = "title"
+screen = "members"
+tier = "T3"
+note = "Section heading."
+
+[messaging.account_default]
+en = "{account}, default sender, {line}"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+args = { account = "str", line = "str" }
+note = "An account row's screen-reader text; {line} is its numbers and state."
+
+[messaging.accounts]
+en = "Carrier accounts"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "Section heading."
+
+[messaging.add_account]
+en = "Add an account"
+ctx = "button"
+screen = "messaging"
+tier = "T3"
+
+[messaging.add_account_a11y]
+en = "Add a carrier account"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+
+[messaging.carrier]
+en = "Carrier"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "Field label: the phone carrier of the account."
+
+[messaging.check_keys]
+en = "Check these keys"
+ctx = "button"
+screen = "messaging"
+tier = "T3"
+
+[messaging.close_form]
+en = "Close the form"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+
+[messaging.default]
+en = "Default"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "Badge on the default sending account."
+
+[messaging.edit_account]
+en = "Edit this account"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+
+[messaging.keep_account]
+en = "Keep the account"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+note = "Name of the Cancel button of the question before an account is removed."
+
+[messaging.keys]
+en = "Keys"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "Heading over the carrier account's API keys."
+
+[messaging.make_default]
+en = "Make default"
+ctx = "button"
+screen = "messaging"
+tier = "T3"
+
+[messaging.make_default_a11y]
+en = "Make this the default sender"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+
+[messaging.make_default_sender]
+en = "Make it the default sender"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "Check box."
+
+[messaging.mobile_number]
+en = "Mobile number"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+
+[messaging.not_saved]
+en = "Not saved"
+ctx = "a11y"
+screen = "messaging"
+tier = "T2"
+note = "Name of an error banner."
+
+[messaging.numbers]
+en = "Phone numbers, one per line"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+
+[messaging.remove_account]
+en = "Remove this account"
+ctx = "a11y"
+screen = "messaging"
+tier = "T2"
+
+[messaging.save_account]
+en = "Save the carrier account"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+
+[messaging.save_number]
+en = "Save number"
+ctx = "button"
+screen = "messaging"
+tier = "T3"
+
+[messaging.saved]
+en = "Saved"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+note = "Name of the banner shown once a change is saved."
+
+[messaging.saving_number]
+en = "Saving the number"
+ctx = "a11y"
+screen = "messaging"
+tier = "T3"
+note = "Busy indicator."
+
+[messaging.sender_note]
+en = "A channel without a sender of its own sends from the default account."
+ctx = "body"
+screen = "messaging"
+tier = "T3"
+
+[messaging.sender_per_channel]
+en = "Sender for each channel"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "Section heading."
+
+[messaging.whose_account]
+en = "Whose account"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "Field label: whether the account is the user's own or the service's."
+
+[numbers.area_code]
+en = "Area code"
+ctx = "label"
+screen = "numbers"
+tier = "T3"
+
+[numbers.country_code]
+en = "Country code"
+ctx = "label"
+screen = "numbers"
+tier = "T3"
+
+[numbers.find]
+en = "Find a number"
+ctx = "label"
+screen = "numbers"
+tier = "T3"
+note = "The other side of the choice."
+
+[numbers.for_sale]
+en = "Numbers for sale"
+ctx = "title"
+screen = "numbers"
+tier = "T1"
+note = "Section heading, and the name of its list."
+
+[numbers.number_type]
+en = "Number type"
+ctx = "label"
+screen = "numbers"
+tier = "T3"
+note = "Such as local or toll-free."
+
+[numbers.retry_search]
+en = "Try the search again"
+ctx = "a11y"
+screen = "numbers"
+tier = "T3"
+
+[numbers.search]
+en = "Search"
+ctx = "button"
+screen = "numbers"
+tier = "T3"
+
+[numbers.search_a11y]
+en = "Search for numbers"
+ctx = "a11y"
+screen = "numbers"
+tier = "T3"
+
+[numbers.search_hint]
+en = "Type an area code, or search the whole country. Results come from your carrier."
+ctx = "body"
+screen = "numbers"
+tier = "T3"
+
+[numbers.show]
+en = "Show"
+ctx = "a11y"
+screen = "numbers"
+tier = "T3"
+note = "Name of the choice between Your numbers and Find a number."
+
+[numbers.title]
+en = "Phone numbers"
+ctx = "title"
+screen = "numbers"
+tier = "T3"
+note = "Page title."
+
+[numbers.yours]
+en = "Your numbers"
+ctx = "label"
+screen = "numbers"
+tier = "T3"
+note = "One side of the choice, and the name of the list of the workspace's numbers."
+
+[overview.recent_calls]
+en = "Recent calls"
+ctx = "title"
+screen = "overview"
+tier = "T3"
+note = "Section heading, and the name of its list."
+
+[persona.answer_length]
+en = "Answer length"
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "How long the assistant's answers are."
+
+[persona.greeting]
+en = "Greeting"
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "Field label: what the assistant says first."
+
+[persona.language]
+en = "Language"
+ctx = "label"
+screen = "persona"
+tier = "T3"
+
+[persona.personality]
+en = "Personality"
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "Field label: the assistant's personality."
+
+[persona.retry_languages]
+en = "Read the languages again"
+ctx = "a11y"
+screen = "persona"
+tier = "T3"
+
+[persona.voice_engine]
+en = "Voice engine"
+ctx = "label"
+screen = "persona"
+tier = "T3"
+
+[refresh.failed]
+en = "Could not refresh"
+ctx = "a11y"
+screen = "refresh"
+tier = "T2"
+note = "Name of an error banner."
+
+[refresh.refreshing]
+en = "Refreshing"
+ctx = "a11y"
+screen = "refresh"
+tier = "T3"
+note = "Busy indicator."
+
+[report.body]
+en = "Tell us what is wrong with this AI-generated content. We will review it."
+ctx = "body"
+screen = "report"
+tier = "T0"
+
+[report.not_sent]
+en = "Report not sent"
+ctx = "a11y"
+screen = "report"
+tier = "T0"
+note = "Name of an error banner."
+
+[report.title]
+en = "Report AI-generated content"
+ctx = "title"
+screen = "report"
+tier = "T0"
+note = "Title of the dialog that reports an AI-generated answer."
+
+[report.what_is_wrong]
+en = "What is wrong (optional)"
+ctx = "label"
+screen = "report"
+tier = "T0"
+
+[rooms.close_meeting]
+en = "Close the meeting"
+ctx = "a11y"
+screen = "rooms"
+tier = "T3"
+
+[rooms.ended]
+en = "Ended"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "Fact label: when the meeting ended."
+
+[rooms.joining]
+en = "Joining"
+ctx = "a11y"
+screen = "rooms"
+tier = "T3"
+note = "Busy indicator while joining a meeting."
+
+[rooms.mute]
+en = "Mute"
+ctx = "button"
+screen = "rooms"
+tier = "T3"
+note = "Mutes the microphone in a meeting."
+
+[rooms.notice]
+en = "Room notice"
+ctx = "a11y"
+screen = "rooms"
+tier = "T3"
+note = "Name of a banner about the meeting room."
+
+[rooms.problem]
+en = "Room problem"
+ctx = "a11y"
+screen = "rooms"
+tier = "T2"
+note = "Name of an error banner."
+
+[rooms.started]
+en = "Started"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "Fact label: when the meeting started."
+
+[rooms.unmute]
+en = "Unmute"
+ctx = "button"
+screen = "rooms"
+tier = "T3"
+
+[routing.add]
+en = "Add a rule"
+ctx = "button"
+screen = "routing"
+tier = "T3"
+
+[routing.add_a11y]
+en = "Add a routing rule"
+ctx = "a11y"
+screen = "routing"
+tier = "T3"
+
+[routing.engine]
+en = "Engine"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+note = "The voice engine a rule uses."
+
+[routing.instruction]
+en = "Instruction"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+note = "What the assistant does when the rule matches."
+
+[routing.remove_rule]
+en = "Remove {rule}"
+ctx = "a11y"
+screen = "routing"
+tier = "T2"
+args = { rule = "str" }
+note = "{rule} is the rule's heading."
+
+[routing.save]
+en = "Save the routing rules"
+ctx = "a11y"
+screen = "routing"
+tier = "T3"
+
+[routing.save_status]
+en = "Routing rules save"
+ctx = "a11y"
+screen = "routing"
+tier = "T3"
+note = "Name of the banner that says whether the rules were saved."
+
+[routing.title]
+en = "Call routing rules"
+ctx = "title"
+screen = "routing"
+tier = "T3"
+note = "Page title."
+
+[routing.value]
+en = "Value"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+note = "The value a routing rule matches, such as a number or a word."
+
+[scheduling.booking_page]
+en = "Booking page"
+ctx = "label"
+screen = "scheduling"
+tier = "T3"
+
+[scheduling.check_again]
+en = "Check again"
+ctx = "button"
+screen = "scheduling"
+tier = "T3"
+
+[scheduling.last_live]
+en = "Last live"
+ctx = "label"
+screen = "scheduling"
+tier = "T3"
+note = "When the booking pages were last live."
+
+[scheduling.manage_on_web]
+en = "Manage on the web"
+ctx = "button"
+screen = "scheduling"
+tier = "T3"
+
+[scheduling.problem]
+en = "Booking pages problem"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of an error banner."
+
+[scheduling.title]
+en = "Booking pages"
+ctx = "title"
+screen = "scheduling"
+tier = "T3"
+note = "Page title."
+
+[scheduling.turn_on]
+en = "Turn on booking pages"
+ctx = "button"
+screen = "scheduling"
+tier = "T3"
+
+[scheduling.web_note]
+en = "Opens the booking pages on the District AI website in your browser, signed in as you."
+ctx = "body"
+screen = "scheduling"
+tier = "T3"
+
+[scheduling.what_went_wrong]
+en = "What went wrong"
+ctx = "label"
+screen = "scheduling"
+tier = "T3"
+
+[shell.live_updates]
+en = "Live updates"
+ctx = "a11y"
+screen = "shell"
+tier = "T3"
+note = "Name of the banner about the live connection to the service."
+
+[shell.notice]
+en = "Notice"
+ctx = "a11y"
+screen = "shell"
+tier = "T3"
+note = "Name of a banner over every screen."
+
+[shell.refresh]
+en = "Refresh"
+ctx = "button"
+screen = "shell"
+tier = "T3"
+
+[shell.report_bar]
+en = "Report"
+ctx = "a11y"
+screen = "shell"
+tier = "T0"
+note = "Noun: name of the banner about a report of AI-generated content."
+
+[shell.report_sending]
+en = "Sending your report."
+ctx = "body"
+screen = "shell"
+tier = "T0"
+note = "Banner while a report of AI-generated content is sent."
+
+[shell.workspace]
+en = "Workspace"
+ctx = "a11y"
+screen = "shell"
+tier = "T3"
+note = "Name of the workspace picker in the navigation pane."
+
+[shell.workspaces]
+en = "Workspaces"
+ctx = "a11y"
+screen = "shell"
+tier = "T3"
+note = "Name of the banner about the workspaces loading, failing or missing."
+
+[sign_in.button]
+en = "Sign in with your browser"
+ctx = "button"
+screen = "sign_in"
+tier = "T3"
+
+[sign_in.problem]
+en = "Sign-in problem"
+ctx = "a11y"
+screen = "sign_in"
+tier = "T2"
+note = "Name of an error banner."
+
+[sign_in.sign_out_again]
+en = "Sign out again"
+ctx = "button"
+screen = "sign_in"
+tier = "T3"
+note = "Retries a sign-out that failed."
+
+[support.discard]
+en = "Discard"
+ctx = "button"
+screen = "support"
+tier = "T2"
+
+[support.discard_a11y]
+en = "Discard the support request"
+ctx = "a11y"
+screen = "support"
+tier = "T2"
+
+[support.new]
+en = "New request"
+ctx = "button"
+screen = "support"
+tier = "T3"
+
+[support.new_a11y]
+en = "New support request"
+ctx = "a11y"
+screen = "support"
+tier = "T3"
+
+[support.not_sent]
+en = "Request not sent"
+ctx = "a11y"
+screen = "support"
+tier = "T2"
+note = "Name of an error banner."
+
+[support.open]
+en = "Open"
+ctx = "title"
+screen = "support"
+tier = "T3"
+note = "Adjective: heading over the requests that are still open."
+
+[support.open_list]
+en = "Open requests"
+ctx = "a11y"
+screen = "support"
+tier = "T3"
+note = "Name of the list of open requests."
+
+[support.resolved]
+en = "Resolved"
+ctx = "title"
+screen = "support"
+tier = "T3"
+note = "Heading over the requests that are resolved."
+
+[support.resolved_list]
+en = "Resolved requests"
+ctx = "a11y"
+screen = "support"
+tier = "T3"
+note = "Name of the list of resolved requests."
+
+[support.send]
+en = "Send the support request"
+ctx = "a11y"
+screen = "support"
+tier = "T3"
+
+[support.sending]
+en = "Sending the support request"
+ctx = "a11y"
+screen = "support"
+tier = "T3"
+note = "Busy indicator."
+
+[support.sent]
+en = "Request sent"
+ctx = "a11y"
+screen = "support"
+tier = "T3"
+note = "Name of the banner shown once a request is sent."
+
+[support.title]
+en = "Support"
+ctx = "title"
+screen = "support"
+tier = "T3"
+note = "Page title."
+
+[support.topic]
+en = "What it is about"
+ctx = "label"
+screen = "support"
+tier = "T3"
+note = "Field label: the request's topic."
+
+[support.what_is_happening]
+en = "What is happening"
+ctx = "label"
+screen = "support"
+tier = "T3"
+note = "Field label: the request's description."
+
+[support_request.conversation]
+en = "Conversation"
+ctx = "a11y"
+screen = "support_request"
+tier = "T3"
+note = "Name of the list of the request's messages."
+
+[support_request.keep_open]
+en = "Keep it open"
+ctx = "a11y"
+screen = "support_request"
+tier = "T3"
+note = "Name of the Cancel button of the question before a request is resolved."
+
+[support_request.problem]
+en = "Problem with this request"
+ctx = "a11y"
+screen = "support_request"
+tier = "T2"
+note = "Name of an error banner."
+
+[support_request.resolved]
+en = "Request resolved"
+ctx = "a11y"
+screen = "support_request"
+tier = "T3"
+note = "Name of the banner shown once a request is resolved."
+
+[support_request.resolving]
+en = "Marking as resolved"
+ctx = "a11y"
+screen = "support_request"
+tier = "T3"
+note = "Busy indicator."
+
+[thread.loading_older]
+en = "Loading older messages"
+ctx = "a11y"
+screen = "thread"
+tier = "T3"
+note = "Busy indicator."
+
+[thread.no_messages]
+en = "No messages in this conversation yet."
+ctx = "body"
+screen = "thread"
+tier = "T3"
+
+[thread.older]
+en = "Older messages"
+ctx = "button"
+screen = "thread"
+tier = "T3"
+note = "Loads the older messages."
+
+[thread.you]
+en = "You"
+ctx = "a11y"
+screen = "thread"
+tier = "T3"
+note = "The author of the user's own messages, in a message's screen-reader text."
+
+[transcript.line]
+en = "{speaker}: {text}"
+ctx = "a11y"
+screen = "transcript"
+tier = "T3"
+args = { speaker = "str", text = "str" }
+note = "A transcript line's screen-reader text."
+
+[transcript.line_note]
+en = "{speaker}: {text} ({note})"
+ctx = "a11y"
+screen = "transcript"
+tier = "T3"
+args = { speaker = "str", text = "str", note = "str" }
+note = "A transcript line's screen-reader text with its note, such as interrupted."
+
+[tray.open]
+en = "Open District AI"
+ctx = "menu"
+screen = "tray"
+tier = "T3"
+note = "Notification-area icon menu."
+
+[tray.quit]
+en = "Quit"
+ctx = "menu"
+screen = "tray"
+tier = "T3"
+note = "Notification-area icon menu: quits the app."
+
+[tray.sign_out]
+en = "Sign out"
+ctx = "menu"
+screen = "tray"
+tier = "T3"
+note = "Notification-area icon menu."
+
+[tray.still_running]
+en = "District AI is still running in the notification area. Quit from its icon."
+ctx = "notification"
+screen = "tray"
+tier = "T3"
+note = "Shown once, when the window is first closed to the notification area."
+
+[unavailable.back]
+en = "Back"
+ctx = "button"
+screen = "unavailable"
+tier = "T3"
+
+[workflows.campaign_failed]
+en = "Could not change the campaign"
+ctx = "a11y"
+screen = "workflows"
+tier = "T2"
+note = "Name of an error banner."
+
+[workflows.changing_campaign]
+en = "Changing the campaign"
+ctx = "a11y"
+screen = "workflows"
+tier = "T3"
+note = "Busy indicator."
+
+[workflows.hide_runs]
+en = "Hide runs"
+ctx = "button"
+screen = "workflows"
+tier = "T3"
+
+[workflows.hide_runs_of]
+en = "Hide runs of {workflow}"
+ctx = "a11y"
+screen = "workflows"
+tier = "T3"
+args = { workflow = "str" }
+note = "{workflow} is the workflow's name."
+
+[workflows.list]
+en = "Workflows"
+ctx = "a11y"
+screen = "workflows"
+tier = "T3"
+note = "Name of the list of workflows."
+
+[workflows.reading_runs]
+en = "Reading runs"
+ctx = "a11y"
+screen = "workflows"
+tier = "T3"
+note = "Busy indicator while a workflow's runs load."
+
+[workflows.row_off]
+en = "{workflow}, off, {detail}"
+ctx = "a11y"
+screen = "workflows"
+tier = "T3"
+args = { workflow = "str", detail = "str" }
+note = "A workflow row's screen-reader text, for a workflow that is off."
+
+[workflows.row_on]
+en = "{workflow}, on, {detail}"
+ctx = "a11y"
+screen = "workflows"
+tier = "T3"
+args = { workflow = "str", detail = "str" }
+note = "A workflow row's screen-reader text, for a workflow that is on."
+
+[workflows.show_runs]
+en = "Show runs"
+ctx = "button"
+screen = "workflows"
+tier = "T3"
+
+[workflows.show_runs_of]
+en = "Show runs of {workflow}"
+ctx = "a11y"
+screen = "workflows"
+tier = "T3"
+args = { workflow = "str" }
+note = "{workflow} is the workflow's name."
+
+[workflows.workflow_failed]
+en = "Could not change a workflow"
+ctx = "a11y"
+screen = "workflows"
+tier = "T2"
+note = "Name of an error banner."

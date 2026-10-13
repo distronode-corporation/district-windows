@@ -1,4 +1,5 @@
 using DistrictAI.Core;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Billing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -30,7 +31,7 @@ internal sealed class CheckoutWindow
         _browser = browser;
         _window = new Window { Title = CheckoutHost.WindowTitle };
         _view = new WebView2();
-        AutomationProperties.SetName(_view, "Checkout");
+        AutomationProperties.SetName(_view, S.CheckoutView);
         // Closing from the keyboard: Alt+F4 as any window, Ctrl+W while the
         // window's own controls have focus, and the Close button, which Tab
         // reaches. Not Escape: a checkout page uses it to close its own menus.
@@ -40,8 +41,8 @@ internal sealed class CheckoutWindow
             args.Handled = true;
             _window.Close();
         };
-        var close = new Button { Content = "Close", HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(8) };
-        AutomationProperties.SetName(close, "Close checkout");
+        var close = new Button { Content = S.CommonClose, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(8) };
+        AutomationProperties.SetName(close, S.CheckoutClose);
         close.Click += (_, _) => _window.Close();
         var root = new Grid();
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -79,7 +80,7 @@ internal sealed class CheckoutWindow
         core.DocumentTitleChanged += (_, _) =>
             _window.Title = string.IsNullOrWhiteSpace(core.DocumentTitle)
                 ? CheckoutHost.WindowTitle
-                : $"{core.DocumentTitle} ({CheckoutHost.WindowTitle})";
+                : S.CheckoutWindowTitlePage(core.DocumentTitle);
         if (!Navigate(url))
         {
             return false;
