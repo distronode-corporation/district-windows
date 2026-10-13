@@ -1,0 +1,6 @@
+# i18n/tools/l10n.py vendor wrote this; l10n.py vendor --check verifies SHA256SUMS.
+commit = "0ff171072cae20e5f5a79346fdd8d318a4d86446"
+dirty = false
+source = "i18n/tools"
+date = "2026-10-13T19:54:53Z"
+files = ["l10n.py", "frcheck.py", "pseudo.py"]

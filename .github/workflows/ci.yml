@@ -255,6 +255,14 @@ jobs:
       - name: The Store and GitHub manifests are one app under two identities
         run: python3 scripts/check-flavours.py
 
+      # The catalog tools are the bytes tools/l10n/SOURCE.toml names, and every
+      # file generated from a string catalog is what the catalog produces now.
+      - name: The vendored l10n tools are unmodified
+        run: python3 tools/l10n/l10n.py vendor --check --dest tools/l10n
+
+      - name: The generated strings match their catalogs
+        run: python3 scripts/gen-l10n.py --check
+
       # 1.0 offers no sign-up and no purchase in the app, as its Store listing says.
       - name: No sign-up or purchase wording in the app (and the check still catches it)
         run: |
