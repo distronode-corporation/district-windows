@@ -195,6 +195,20 @@ internal sealed partial class InstalledApp : IDisposable
             is { IsOffscreen: false } found ? found : null;
 
     /// <summary>
+    /// SPIKE: the control in the app's window whose AutomationId is
+    /// <paramref name="automationId"/> (AutomationProperties.AutomationId in
+    /// XAML), on screen; waited for. Unlike a name, the id does not change
+    /// with the language. With <paramref name="onScreen"/> false, an element
+    /// scrolled out of view counts too.
+    /// </summary>
+    public AutomationElement FindById(string automationId, TimeSpan timeout, bool onScreen = true) =>
+        Wait.For(
+            () => TryMainWindow()?.FindFirstDescendant(cf => cf.ByAutomationId(automationId)) is { } found && (!onScreen || !found.IsOffscreen) ? found : null,
+            timeout,
+            $"an element with AutomationId \"{automationId}\"",
+            Describe);
+
+    /// <summary>
     /// What UI Automation holds now: the desktop's top-level windows, and the
     /// app's own windows with every element under them.
     /// </summary>

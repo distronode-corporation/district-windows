@@ -33,7 +33,9 @@ pwsh scripts/run-ui-tests.ps1 -Packages .\district-ai-scripted-msix -Scripted -S
 param(
     [Parameter(Mandatory)] [string] $Packages,
     [switch] $Scripted,
-    [string] $Screenshots = ''
+    [string] $Screenshots = '',
+    # SPIKE: another test class's filter, such as FullyQualifiedName~DistrictAI.UiTests.SpikeL10nTests.
+    [string] $Filter = ''
 )
 
 Set-StrictMode -Version Latest
@@ -98,6 +100,7 @@ try {
     } else {
         $filter = 'FullyQualifiedName~DistrictAI.UiTests.SmokeTests'
     }
+    if ($Filter) { $filter = $Filter }
     if ($Screenshots) {
         $env:DISTRICTAI_SCREENSHOTS = [IO.Path]::GetFullPath($Screenshots)
         # The pages are saved at a 1920x1080 client area: the display is made

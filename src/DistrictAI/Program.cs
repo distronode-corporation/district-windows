@@ -29,6 +29,8 @@ public static class Program
             RedirectTo(main, activation);
             return 0;
         }
+        // SPIKE: a PrimaryLanguageOverride from the command line, before any XAML loads.
+        L10n.SpikeLanguages.Apply(Environment.GetCommandLineArgs());
         Application.Start(started =>
         {
             var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());

@@ -46,6 +46,33 @@ public sealed class SmokeTests
         Assert.Equal([app.ProcessId], InstalledApp.RunningProcessIds());
     }
 
+    /// <summary>
+    /// SPIKE: the sign-in page's title and button found by AutomationId, not
+    /// by their English names; and a static x:Bind inside a DataTemplate shows
+    /// its string.
+    /// </summary>
+    [Fact]
+    public void FindsTheSignInControlsByAutomationId()
+    {
+        RequireInstalledApp();
+        using var app = InstalledApp.Launch();
+        _ = app.MainWindow(_startTimeout);
+        // The title is the signed-out one once the core has looked for a session.
+        _ = app.Find(ControlType.Text, WelcomeTitle, _startTimeout);
+
+        var button = app.FindById("SignInButton", _stepTimeout);
+        var title = app.FindById("SignInTitle", _stepTimeout);
+        var template = app.FindById("SpikeTemplateText", _stepTimeout, onScreen: false);
+        var row = app.FindById("SpikeTemplateRow", _stepTimeout, onScreen: false);
+        InstalledApp.Log($"by id: SignInButton \"{button.Name}\" ({button.ControlType}), SignInTitle \"{title.Name}\" ({title.ControlType}), SpikeTemplateText \"{template.Name}\", SpikeTemplateRow \"{row.Name}\"");
+
+        Assert.Equal(ControlType.Button, button.ControlType);
+        Assert.Equal(SignInButton, button.Name);
+        Assert.Equal(WelcomeTitle, title.Name);
+        Assert.Equal("Static x:Bind inside a DataTemplate", template.Name);
+        Assert.Equal("row", row.Name);
+    }
+
     [Fact]
     public void ALinkWhileRunningGoesToTheFirstInstance()
     {
@@ -155,7 +182,7 @@ public sealed class SmokeTests
     /// skip without it, unless DISTRICTAI_UI_TESTS_REQUIRED is 1 (CI sets it),
     /// when they fail.
     /// </summary>
-    private static void RequireInstalledApp()
+    internal static void RequireInstalledApp()
     {
         Assert.SkipUnless(OperatingSystem.IsWindows(), "The UI tests run on Windows only.");
         if (Native.IsPackageInstalled(InstalledApp.Family))

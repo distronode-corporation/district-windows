@@ -68,6 +68,22 @@
     <None Remove="Package.GitHub.appxmanifest" />
   </ItemGroup>
 
+  <!--
+    SPIKE (do not merge): French. Strings\en-US\Resources.resw is a PRIResource
+    by default (the MSIX tooling globs **/*.resw) and always ships, since the
+    manifest's DisplayName and Description are ms-resource: references. The
+    fr-CA one ships only with -p:DistrictFrench=true, which also compiles the
+    French strings in L10n\S.cs.
+  -->
+  <PropertyGroup>
+    <DistrictFrench Condition="'$(DistrictFrench)' == ''">false</DistrictFrench>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <DefineConstants Condition="'$(DistrictFrench)' == 'true'">$(DefineConstants);DISTRICT_FRENCH</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(DistrictFrench)' != 'true'">
+    <PRIResource Remove="Strings\fr-CA\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />

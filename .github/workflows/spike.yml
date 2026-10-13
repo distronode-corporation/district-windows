@@ -1,0 +1,160 @@
+name: Spike (x:Bind strings, fr-CA manifest, AutomationId)
+
+# SPIKE (do not merge). One Windows job that answers four questions in its log:
+#
+# 1. a static {x:Bind l10n:S.Key} at page level and inside a DataTemplate with
+#    x:DataType builds and shows its string, and a key that does not exist
+#    fails the XAML compile (both places tried);
+# 2. which PrimaryLanguageOverride (Windows.Globalization's or the Windows App
+#    SDK's) reaches the packaged app, and what each language API says
+#    (tests/DistrictAI.UiTests/SpikeL10nTests.cs);
+# 3. FlaUI finds controls by AutomationId (SmokeTests.FindsTheSignInControlsByAutomationId);
+# 4. resources.pri, dumped with makepri, with and without -p:DistrictFrench=true,
+#    and the manifest the packaging wrote from Package.appxmanifest's
+#    ms-resource: references.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spike-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+
+jobs:
+  spike:
+    if: ${{ !github.event.repository.private }}
+    runs-on: windows-2025
+    timeout-minutes: 75
+    env:
+      AWS_LC_SYS_PREBUILT_NASM: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the stable toolchain
+        run: rustup toolchain install stable --profile minimal
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          save-if: false
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/libwebrtc/webrtc-win-x64-release.zip
+          key: libwebrtc-win-${{ hashFiles('scripts/fetch-libwebrtc.ps1') }}
+
+      - name: Fetch and verify libwebrtc
+        shell: pwsh
+        run: ./scripts/fetch-libwebrtc.ps1 (Join-Path $env:RUNNER_TEMP 'libwebrtc') -GitHubEnv
+
+      - name: Build district_ffi.dll
+        run: cargo build -p district-ffi --locked --release
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: dotnet restore (locked)
+        run: dotnet restore DistrictAI.slnx -p:Platform=x64
+
+      - name: Find makepri.exe
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $found = @(Get-ChildItem -Recurse -Filter makepri.exe -ErrorAction SilentlyContinue `
+            "${env:ProgramFiles(x86)}\Windows Kits\10\bin", "$env:USERPROFILE\.nuget\packages\microsoft.windows.sdk.buildtools" |
+            Where-Object { $_.FullName -match '\\x64\\' } | Sort-Object FullName)
+          $found | ForEach-Object { Write-Host $_.FullName }
+          if ($found.Count -eq 0) { throw 'no x64 makepri.exe' }
+          "MAKEPRI=$($found[-1].FullName)" >> $env:GITHUB_ENV
+
+      # French: DistrictFrench=true, signed with a throwaway certificate (as
+      # ci.yml does) so the spike's UI tests can install it.
+      - name: Package with -p:DistrictFrench=true (signed, for the UI tests)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $publisher = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity.Publisher
+          $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher `
+            -KeyUsage DigitalSignature -FriendlyName 'District AI spike test package' `
+            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1) `
+            -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
+          $out = Join-Path $env:RUNNER_TEMP 'FrPackages'
+          try {
+            dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+              -p:DistrictFfiProfile=release -warnaserror -p:DistrictFrench=true `
+              -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=true `
+              -p:DebugType=none `
+              "-p:PackageCertificateThumbprint=$($cert.Thumbprint)" "-p:AppxPackageDir=$out\"
+            if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
+            Export-Certificate -Cert $cert -FilePath (Join-Path $out 'District-AI-spike-test.cer') | Out-Null
+          } finally {
+            Remove-Item -Path "Cert:\CurrentUser\My\$($cert.Thumbprint)" -DeleteKey
+          }
+
+      - name: resources.pri and AppxManifest.xml, with DistrictFrench
+        shell: pwsh
+        run: ./scripts/spike-dump-pri.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'FrPackages') -MakePri $env:MAKEPRI -Label 'DistrictFrench=true'
+
+      # English: no DistrictFrench, unsigned, only to read its resources.pri.
+      # A clean obj first, so nothing of the French build is reused.
+      - name: Package without DistrictFrench (unsigned)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Remove-Item -Recurse -Force src/DistrictAI/obj, src/DistrictAI/bin -ErrorAction SilentlyContinue
+          $out = Join-Path $env:RUNNER_TEMP 'EnPackages'
+          dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+            -p:DistrictFfiProfile=release -warnaserror `
+            -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=SideloadOnly `
+            -p:AppxPackageSigningEnabled=false -p:DebugType=none "-p:AppxPackageDir=$out\"
+          if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
+
+      - name: resources.pri and AppxManifest.xml, without DistrictFrench
+        shell: pwsh
+        run: ./scripts/spike-dump-pri.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'EnPackages') -MakePri $env:MAKEPRI -Label 'no DistrictFrench'
+
+      # A key S does not have, at page level and then inside the DataTemplate:
+      # each build should fail, and the step prints the compiler's error.
+      - name: A missing key fails the XAML compile
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $page = 'src/DistrictAI/Views/SignInPage.xaml'
+          $cases = @(
+            @{ Where = 'page level'; From = 'Content="{x:Bind l10n:S.SignInWithBrowser}"'; To = 'Content="{x:Bind l10n:S.NoSuchKey}"' },
+            @{ Where = 'inside the DataTemplate'; From = 'Text="{x:Bind l10n:S.SpikeTemplateText}"'; To = 'Text="{x:Bind l10n:S.NoSuchKeyInTemplate}"' }
+          )
+          foreach ($case in $cases) {
+            $text = Get-Content -Raw $page
+            if (-not $text.Contains($case.From)) { throw "$page has no $($case.From)" }
+            Set-Content -NoNewline -Path $page -Value $text.Replace($case.From, $case.To)
+            try {
+              $log = dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+                -p:DistrictFfiProfile=release -p:DebugType=none 2>&1 | Out-String
+              $code = $LASTEXITCODE
+            } finally {
+              git checkout -- $page
+            }
+            Write-Host "=== $($case.Where): dotnet build exited $code"
+            $log -split "`n" | Where-Object { $_ -match 'error|NoSuchKey' } | Sort-Object -Unique | ForEach-Object { Write-Host $_ }
+            # A warning, not a failure, so the UI tests below still run.
+            if ($code -eq 0) { Write-Host "::warning::a missing key ($($case.Where)) BUILT" } else { Write-Host "VERDICT: a missing key ($($case.Where)) fails the build" }
+          }
+
+      - name: UI tests of the French package (AutomationId, PrimaryLanguageOverride)
+        shell: pwsh
+        timeout-minutes: 20
+        run: >-
+          ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'FrPackages')
+          -Filter 'FullyQualifiedName~DistrictAI.UiTests.SpikeL10nTests|FullyQualifiedName~FindsTheSignInControlsByAutomationId'
