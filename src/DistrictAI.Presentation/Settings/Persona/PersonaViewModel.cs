@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Settings.Persona;
@@ -304,7 +305,7 @@ public sealed partial class PersonaViewModel : ObservableObject
         IsReady = status is SectionStatus.Ready;
         (StatusTitle, StatusBody, StatusAction) = status switch
         {
-            SectionStatus.Failed failed => (failed.Title, Display.Failure(failed.Failure), failed.Failure.Retryable ? "Try again" : string.Empty),
+            SectionStatus.Failed failed => (failed.Title, Display.Failure(failed.Failure), failed.Failure.Retryable ? S.CommonTryAgain : string.Empty),
             SectionStatus.Stale stale => (stale.Title, stale.Body, stale.Action),
             _ => (string.Empty, string.Empty, string.Empty),
         };

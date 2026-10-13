@@ -5,7 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:views="using:DistrictAI.Views"
     xmlns:vm="using:DistrictAI.ViewModels"
-    xmlns:desk="using:DistrictAI.ViewModels.Desk">
+    xmlns:desk="using:DistrictAI.ViewModels.Desk"
+    xmlns:l10n="using:DistrictAI.L10n">
     <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -37,7 +38,7 @@
             <TextBlock
                 VerticalAlignment="Center"
                 Style="{StaticResource BodyStrongTextBlockStyle}"
-                Text="Status" />
+                Text="{x:Bind l10n:S.DeskTicketStatus}" />
             <ItemsControl ItemsSource="{x:Bind ViewModel.Statuses}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -65,7 +66,7 @@
             <ProgressRing
                 Width="20"
                 Height="20"
-                AutomationProperties.Name="Changing the status"
+                AutomationProperties.Name="{x:Bind l10n:S.DeskTicketChangingStatus}"
                 IsActive="{x:Bind ViewModel.StatusChanging, Mode=OneWay}"
                 Visibility="{x:Bind ViewModel.StatusChanging, Mode=OneWay}" />
         </StackPanel>
@@ -74,14 +75,14 @@
 
         <StackPanel Grid.Row="3" Spacing="4">
             <InfoBar
-                AutomationProperties.Name="Problem with this ticket"
+                AutomationProperties.Name="{x:Bind l10n:S.DeskTicketProblem}"
                 CloseButtonCommand="{x:Bind ViewModel.DismissFailuresCommand}"
                 IsClosable="True"
                 IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
                 Message="{x:Bind ViewModel.Failure, Mode=OneWay}"
                 Severity="Error" />
             <InfoBar
-                AutomationProperties.Name="Reply sent"
+                AutomationProperties.Name="{x:Bind l10n:S.DeskTicketReplySent}"
                 IsClosable="False"
                 IsOpen="{x:Bind ViewModel.HasNotifiedNote, Mode=OneWay}"
                 Message="{x:Bind ViewModel.NotifiedNote, Mode=OneWay}"
@@ -93,7 +94,7 @@
                 <TextBlock
                     AutomationProperties.HeadingLevel="Level2"
                     Style="{StaticResource SectionHeaderStyle}"
-                    Text="Customer" />
+                    Text="{x:Bind l10n:S.DeskTicketCustomer}" />
                 <ItemsRepeater ItemsSource="{x:Bind ViewModel.Details}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="8" />
@@ -113,7 +114,7 @@
                 <TextBlock
                     AutomationProperties.HeadingLevel="Level2"
                     Style="{StaticResource SectionHeaderStyle}"
-                    Text="Conversation" />
+                    Text="{x:Bind l10n:S.DeskTicketConversation}" />
                 <ItemsRepeater ItemsSource="{x:Bind ViewModel.Messages}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="8" />
@@ -179,8 +180,8 @@
             <TextBox
                 MaxHeight="160"
                 AcceptsReturn="True"
-                AutomationProperties.Name="Reply"
-                Header="Reply"
+                AutomationProperties.Name="{x:Bind l10n:S.CommonReply}"
+                Header="{x:Bind l10n:S.CommonReply}"
                 IsEnabled="{x:Bind ViewModel.CanWriteReply, Mode=OneWay}"
                 Text="{x:Bind ViewModel.Reply, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 TextWrapping="Wrap" />
@@ -192,13 +193,13 @@
                 <ProgressRing
                     Width="20"
                     Height="20"
-                    AutomationProperties.Name="Sending the reply"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonSendingReply}"
                     IsActive="{x:Bind ViewModel.Sending, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.Sending, Mode=OneWay}" />
                 <Button
-                    AutomationProperties.Name="Send the reply"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonSendReply}"
                     Command="{x:Bind ViewModel.SendReplyCommand}"
-                    Content="Send"
+                    Content="{x:Bind l10n:S.CommonSend}"
                     Style="{StaticResource AccentButtonStyle}" />
             </StackPanel>
         </Grid>

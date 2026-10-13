@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:hq="using:DistrictAI.Views.Hq"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:vm="using:DistrictAI.ViewModels.Hq">
     <Grid
         MaxWidth="{StaticResource ReadingWidth}"
@@ -48,7 +49,7 @@
         <ListView
             x:Name="Conversation"
             Grid.Row="1"
-            AutomationProperties.Name="Conversation with District HQ"
+            AutomationProperties.Name="{x:Bind l10n:S.HqConversation}"
             ItemsSource="{x:Bind ViewModel.Messages}"
             SelectionMode="None"
             Visibility="{x:Bind ViewModel.HasMessages, Mode=OneWay}">
@@ -156,7 +157,7 @@
                     Text="{x:Bind ViewModel.FailureText, Mode=OneWay}"
                     TextWrapping="Wrap" />
                 <Button
-                    AutomationProperties.Name="Ask the question again"
+                    AutomationProperties.Name="{x:Bind l10n:S.HqAskAgain}"
                     Command="{x:Bind ViewModel.RetryCommand}"
                     Content="{x:Bind ViewModel.RetryLabel, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.CanRetry, Mode=OneWay}" />
@@ -225,7 +226,7 @@
                 x:Name="Prompt"
                 MaxHeight="200"
                 AcceptsReturn="True"
-                AutomationProperties.HelpText="Enter sends. Shift+Enter starts a new line."
+                AutomationProperties.HelpText="{x:Bind l10n:S.HqHelp}"
                 AutomationProperties.Name="{x:Bind ViewModel.PromptPlaceholder, Mode=OneWay}"
                 IsSpellCheckEnabled="True"
                 PlaceholderText="{x:Bind ViewModel.PromptPlaceholder, Mode=OneWay}"

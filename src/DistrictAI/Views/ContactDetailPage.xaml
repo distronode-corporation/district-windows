@@ -3,6 +3,7 @@
     x:Class="DistrictAI.Views.ContactDetailPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:views="using:DistrictAI.Views"
     xmlns:vm="using:DistrictAI.ViewModels">
     <Grid>
@@ -24,17 +25,17 @@
                 <!-- A call back, in a build that can carry calls. -->
                 <Button
                     HorizontalAlignment="Left"
-                    AutomationProperties.Name="Call"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonCall}"
                     Command="{x:Bind ViewModel.CallCommand}"
                     Visibility="{x:Bind ViewModel.CanCall, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="Phone" />
-                        <TextBlock Text="Call" />
+                        <TextBlock Text="{x:Bind l10n:S.CommonCall}" />
                     </StackPanel>
                 </Button>
                 <TextBlock
                     Style="{StaticResource CaptionTextBlockStyle}"
-                    Text="Blocked"
+                    Text="{x:Bind l10n:S.ContactBlocked}"
                     Visibility="{x:Bind ViewModel.Changes.Blocked, Mode=OneWay}" />
                 <!-- The changes a member may make; a role that may change nothing sees none of them. -->
                 <StackPanel
@@ -42,12 +43,12 @@
                     Spacing="8"
                     Visibility="{x:Bind ViewModel.Changes.Writable, Mode=OneWay}">
                     <Button
-                        AutomationProperties.Name="Edit contact"
+                        AutomationProperties.Name="{x:Bind l10n:S.ContactEdit}"
                         Command="{x:Bind ViewModel.Changes.StartEditCommand}"
                         IsEnabled="{x:Bind ViewModel.Changes.CanEdit, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <SymbolIcon Symbol="Edit" />
-                            <TextBlock Text="Edit" />
+                            <TextBlock Text="{x:Bind l10n:S.CommonEdit}" />
                         </StackPanel>
                     </Button>
                     <Button
@@ -56,18 +57,18 @@
                         Content="{x:Bind ViewModel.Changes.BlockLabel, Mode=OneWay}"
                         IsEnabled="{x:Bind ViewModel.Changes.CanBlock, Mode=OneWay}" />
                     <Button
-                        AutomationProperties.Name="Delete contact"
+                        AutomationProperties.Name="{x:Bind l10n:S.ContactDelete}"
                         Command="{x:Bind ViewModel.Changes.AskDeleteCommand}"
                         IsEnabled="{x:Bind ViewModel.Changes.CanDelete, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <SymbolIcon Symbol="Delete" />
-                            <TextBlock Text="Delete" />
+                            <TextBlock Text="{x:Bind l10n:S.CommonDelete}" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
                 <TextBlock
                     Style="{StaticResource QuietTextStyle}"
-                    Text="You have read-only access to this workspace, so you cannot change contacts."
+                    Text="{x:Bind l10n:S.ContactReadOnly}"
                     TextWrapping="Wrap"
                     Visibility="{x:Bind ViewModel.Changes.ReadOnly, Mode=OneWay}" />
                 <StackPanel
@@ -85,7 +86,7 @@
                         Text="{x:Bind ViewModel.Changes.BusyText, Mode=OneWay}" />
                 </StackPanel>
                 <InfoBar
-                    AutomationProperties.Name="Problem"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonProblem}"
                     CloseButtonClick="OnFailureClosed"
                     IsClosable="True"
                     IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
@@ -96,7 +97,7 @@
                     <TextBlock
                         AutomationProperties.HeadingLevel="Level2"
                         Style="{StaticResource SectionHeaderStyle}"
-                        Text="Details" />
+                        Text="{x:Bind l10n:S.CommonDetails}" />
                     <ItemsRepeater ItemsSource="{x:Bind ViewModel.Facts}">
                         <ItemsRepeater.Layout>
                             <StackLayout Spacing="8" />
@@ -118,7 +119,7 @@
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level2"
                             Style="{StaticResource SectionHeaderStyle}"
-                            Text="Phone number" />
+                            Text="{x:Bind l10n:S.ContactPhoneNumber}" />
                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.NumberFacts}">
                             <ItemsRepeater.Layout>
                                 <StackLayout Spacing="8" />
@@ -155,21 +156,21 @@
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level2"
                             Style="{StaticResource SectionHeaderStyle}"
-                            Text="Research" />
+                            Text="{x:Bind l10n:S.ContactResearch}" />
                         <TextBlock
                             Style="{StaticResource QuietTextStyle}"
-                            Text="Research looks this contact up on the web and writes a summary. Each run is billed."
+                            Text="{x:Bind l10n:S.ContactResearchNote}"
                             TextWrapping="Wrap" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button
-                                AutomationProperties.Name="Run research"
+                                AutomationProperties.Name="{x:Bind l10n:S.ContactRunResearch}"
                                 Command="{x:Bind ViewModel.Changes.EnrichCommand}"
-                                Content="Run research"
+                                Content="{x:Bind l10n:S.ContactRunResearch}"
                                 IsEnabled="{x:Bind ViewModel.Changes.CanEnrich, Mode=OneWay}" />
                             <Button
-                                AutomationProperties.Name="Clear research"
+                                AutomationProperties.Name="{x:Bind l10n:S.ContactClearResearch}"
                                 Command="{x:Bind ViewModel.Changes.AskClearResearchCommand}"
-                                Content="Clear research"
+                                Content="{x:Bind l10n:S.ContactClearResearch}"
                                 IsEnabled="{x:Bind ViewModel.Changes.CanClearResearch, Mode=OneWay}"
                                 Visibility="{x:Bind ViewModel.Changes.OffersClearResearch, Mode=OneWay}" />
                         </StackPanel>

@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels.Hq;
 
@@ -46,8 +47,8 @@ public sealed record HqMessageItem
 
     /// <summary>What a screen reader says for the line: who said it, then what.</summary>
     public string AccessibleName => IsQuestion
-        ? "You asked: " + Text
-        : IsAnswer ? "District HQ answered: " + Text : Text;
+        ? S.HqYouAsked(Text)
+        : IsAnswer ? S.HqAnswered(Text) : Text;
 
     /// <summary>
     /// The same line when it says the same thing. An answer's paragraphs are

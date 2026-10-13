@@ -4,9 +4,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:calls="using:DistrictAI.Views.Calls"
+    xmlns:l10n="using:DistrictAI.L10n"
     AutomationProperties.LandmarkType="Custom"
-    AutomationProperties.LocalizedLandmarkType="Call"
-    AutomationProperties.Name="Call"
+    AutomationProperties.LocalizedLandmarkType="{x:Bind l10n:S.CallBarLandmark}"
+    AutomationProperties.Name="{x:Bind l10n:S.CallBarLandmark}"
     Visibility="{x:Bind ViewModel.IsShown, Mode=OneWay}">
     <StackPanel
         Padding="24,8"
@@ -15,20 +16,20 @@
         BorderThickness="0,1"
         Spacing="8">
         <InfoBar
-            AutomationProperties.Name="Microphone blocked"
+            AutomationProperties.Name="{x:Bind l10n:S.CallBarMicBlocked}"
             IsClosable="False"
             IsOpen="{x:Bind ViewModel.MicrophoneDenied, Mode=OneWay}"
-            Message="District AI can't use your microphone. Allow microphone access in Windows Settings."
+            Message="{x:Bind l10n:S.CallBarMicBlockedMessage}"
             Severity="Warning">
             <InfoBar.ActionButton>
                 <HyperlinkButton
-                    AutomationProperties.Name="Open microphone settings"
-                    Content="Open microphone settings"
+                    AutomationProperties.Name="{x:Bind l10n:S.CallBarOpenMicSettings}"
+                    Content="{x:Bind l10n:S.CallBarOpenMicSettings}"
                     NavigateUri="ms-settings:privacy-microphone" />
             </InfoBar.ActionButton>
         </InfoBar>
         <InfoBar
-            AutomationProperties.Name="Call connection"
+            AutomationProperties.Name="{x:Bind l10n:S.CallBarConnection}"
             IsClosable="False"
             IsOpen="{x:Bind ViewModel.HasMediaNotice, Mode=OneWay}"
             Message="{x:Bind ViewModel.MediaNotice, Mode=OneWay}"
@@ -68,35 +69,35 @@
                 <ToggleButton
                     AutomationProperties.AcceleratorKey="Control+D"
                     AutomationProperties.AutomationId="MuteButton"
-                    AutomationProperties.Name="Mute"
+                    AutomationProperties.Name="{x:Bind l10n:S.CallBarMute}"
                     IsChecked="{x:Bind ViewModel.Muted, Mode=TwoWay}"
                     IsEnabled="{x:Bind ViewModel.CanMute, Mode=OneWay}"
-                    ToolTipService.ToolTip="Mute (Ctrl+D)"
+                    ToolTipService.ToolTip="{x:Bind l10n:S.CallBarMuteTooltip}"
                     Visibility="{x:Bind ViewModel.CanHangUp, Mode=OneWay}">
                     <SymbolIcon Symbol="Microphone" />
                 </ToggleButton>
                 <Button
                     AutomationProperties.AcceleratorKey="Control+Shift+H"
                     AutomationProperties.AutomationId="HangUpButton"
-                    AutomationProperties.Name="Hang up"
+                    AutomationProperties.Name="{x:Bind l10n:S.CallBarHangUp}"
                     Command="{x:Bind ViewModel.HangUpCommand}"
-                    ToolTipService.ToolTip="Hang up (Ctrl+Shift+H)"
+                    ToolTipService.ToolTip="{x:Bind l10n:S.CallBarHangUpTooltip}"
                     Visibility="{x:Bind ViewModel.CanHangUp, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="HangUp" />
-                        <TextBlock Text="Hang up" />
+                        <TextBlock Text="{x:Bind l10n:S.CallBarHangUp}" />
                     </StackPanel>
                 </Button>
                 <Button
                     AutomationProperties.AutomationId="DismissCallButton"
-                    AutomationProperties.Name="Dismiss"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonDismiss}"
                     Command="{x:Bind ViewModel.DismissCommand}"
-                    Content="Dismiss"
+                    Content="{x:Bind l10n:S.CommonDismiss}"
                     Visibility="{x:Bind ViewModel.CanDismiss, Mode=OneWay}" />
             </StackPanel>
         </Grid>
         <InfoBar
-            AutomationProperties.Name="Call problem"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonCallProblem}"
             IsClosable="False"
             IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
             Message="{x:Bind ViewModel.Failure, Mode=OneWay}"

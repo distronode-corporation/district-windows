@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Desk;
@@ -41,7 +42,7 @@ public sealed partial class DeskViewModel : ObservableObject
 
     /// <summary>The heading.</summary>
     [ObservableProperty]
-    public partial string Title { get; set; } = "Help desk";
+    public partial string Title { get; set; } = S.DeskTitle;
 
     /// <summary>Whether the queue shows: read, and the desk is on.</summary>
     [ObservableProperty]

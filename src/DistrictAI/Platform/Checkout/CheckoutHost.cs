@@ -1,5 +1,6 @@
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Billing;
 using Microsoft.UI.Dispatching;
 using Microsoft.Web.WebView2.Core;
@@ -39,7 +40,7 @@ namespace DistrictAI.Platform.Checkout;
 internal sealed class CheckoutHost : IEmbeddedBrowser
 {
     /// <summary>The window's title, which a screen reader reads.</summary>
-    internal const string WindowTitle = "District AI checkout";
+    internal static string WindowTitle => S.CheckoutWindowTitle;
 
     private readonly DispatcherQueue _queue;
     private readonly Action<string> _handOff;

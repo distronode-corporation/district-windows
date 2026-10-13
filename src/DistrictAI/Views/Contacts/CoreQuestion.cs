@@ -1,3 +1,4 @@
+using DistrictAI.L10n;
 using DistrictAI.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -45,7 +46,7 @@ internal sealed class CoreQuestion
             Title = title,
             Content = new TextBlock { Text = question, TextWrapping = TextWrapping.Wrap },
             PrimaryButtonText = action,
-            CloseButtonText = "Cancel",
+            CloseButtonText = S.CommonCancel,
             // Nothing that removes or hides anything happens on Enter.
             DefaultButton = destructive ? ContentDialogButton.Close : ContentDialogButton.Primary,
         };

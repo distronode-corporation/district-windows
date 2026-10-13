@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.Platform;
 using DistrictAI.ViewModels;
 using Microsoft.UI.Composition.SystemBackdrops;
@@ -136,7 +137,7 @@ public sealed partial class MainWindow : Window
         {
             case ReportStatus.Sending:
                 ReportBar.Severity = InfoBarSeverity.Informational;
-                ReportBar.Message = "Sending your report.";
+                ReportBar.Message = S.ShellReportSending;
                 ReportBar.IsClosable = false;
                 ReportBar.IsOpen = true;
                 break;

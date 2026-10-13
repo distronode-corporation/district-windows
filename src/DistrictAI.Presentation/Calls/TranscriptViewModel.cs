@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels.Calls;
 
@@ -179,7 +180,7 @@ public sealed record TranscriptLineItem(string Id, string Speaker, string Text, 
     public bool HasNote => Note.Length > 0;
 
     /// <summary>What Narrator reads for the line, and announces once it is final.</summary>
-    public string Spoken => HasNote ? $"{Speaker}: {Text} ({Note})" : $"{Speaker}: {Text}";
+    public string Spoken => HasNote ? S.TranscriptLineNote(Speaker, Text, Note) : S.TranscriptLine(Speaker, Text);
 
     internal static TranscriptLineItem From(TranscriptLineView line) =>
         new(line.Id, line.Speaker, line.Text, line.IsFinal, line.Note ?? string.Empty);

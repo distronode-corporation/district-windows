@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:blocked="using:DistrictAI.ViewModels.Blocked"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:views="using:DistrictAI.Views">
     <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
         <Grid.RowDefinitions>
@@ -18,7 +19,7 @@
             Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
         <InfoBar
             Grid.Row="1"
-            AutomationProperties.Name="Problem"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonProblem}"
             CloseButtonClick="OnFailureClosed"
             IsClosable="True"
             IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
@@ -26,7 +27,7 @@
             Severity="Warning" />
         <ListView
             Grid.Row="2"
-            AutomationProperties.Name="Blocked callers"
+            AutomationProperties.Name="{x:Bind l10n:S.BlockedTitle}"
             ItemsSource="{x:Bind ViewModel.Rows}"
             SelectionMode="None"
             Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
@@ -59,7 +60,7 @@
                             Grid.Column="1"
                             Width="20"
                             Height="20"
-                            AutomationProperties.Name="Unblocking"
+                            AutomationProperties.Name="{x:Bind l10n:S.BlockedUnblocking}"
                             IsActive="{x:Bind Unblocking}"
                             Visibility="{x:Bind Unblocking}" />
                         <Button
@@ -67,7 +68,7 @@
                             VerticalAlignment="Center"
                             AutomationProperties.Name="{x:Bind UnblockName}"
                             Click="OnUnblockClick"
-                            Content="Unblock"
+                            Content="{x:Bind l10n:S.BlockedUnblock}"
                             Visibility="{x:Bind ShowUnblock}" />
                     </Grid>
                 </DataTemplate>

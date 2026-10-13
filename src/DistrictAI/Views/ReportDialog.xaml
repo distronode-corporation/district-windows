@@ -3,25 +3,26 @@
     x:Class="DistrictAI.Views.ReportDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Report AI-generated content"
-    CloseButtonText="Cancel"
+    xmlns:l10n="using:DistrictAI.L10n"
+    Title="{x:Bind l10n:S.ReportTitle}"
+    CloseButtonText="{x:Bind l10n:S.CommonCancel}"
     DefaultButton="Primary"
-    PrimaryButtonText="Send"
+    PrimaryButtonText="{x:Bind l10n:S.CommonSend}"
     Style="{StaticResource DefaultContentDialogStyle}">
     <StackPanel MinWidth="360" Spacing="12">
         <!-- Why the report cannot be sent now; the note is kept for next time. -->
         <InfoBar
             x:Name="Refusal"
-            AutomationProperties.Name="Report not sent"
+            AutomationProperties.Name="{x:Bind l10n:S.ReportNotSent}"
             IsClosable="False"
             Severity="Warning" />
-        <TextBlock Text="Tell us what is wrong with this AI-generated content. We will review it." TextWrapping="Wrap" />
+        <TextBlock Text="{x:Bind l10n:S.ReportBody}" TextWrapping="Wrap" />
         <TextBox
             x:Name="Note"
             MinHeight="96"
             AcceptsReturn="True"
-            AutomationProperties.Name="What is wrong (optional)"
-            Header="What is wrong (optional)"
+            AutomationProperties.Name="{x:Bind l10n:S.ReportWhatIsWrong}"
+            Header="{x:Bind l10n:S.ReportWhatIsWrong}"
             MaxLength="2000"
             TextWrapping="Wrap" />
     </StackPanel>

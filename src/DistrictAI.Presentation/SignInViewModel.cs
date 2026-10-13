@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels;
 
@@ -19,7 +20,7 @@ public sealed partial class SignInViewModel : ObservableObject
 
     /// <summary>The heading.</summary>
     [ObservableProperty]
-    public partial string Title { get; set; } = "District AI";
+    public partial string Title { get; set; } = S.BrandDistrictAi;
 
     /// <summary>The text under it.</summary>
     [ObservableProperty]

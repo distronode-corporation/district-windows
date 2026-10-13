@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Blocked;
 using DistrictAI.Views.Contacts;
@@ -46,7 +47,7 @@ public sealed partial class BlockedPage : UserControl
         this,
         _context,
         ViewModel.Confirming,
-        "Unblock " + ViewModel.ConfirmName + "?",
+        S.BlockedConfirmTitle(ViewModel.ConfirmName),
         ViewModel.ConfirmQuestion,
         ViewModel.ConfirmAction,
         destructive: false,

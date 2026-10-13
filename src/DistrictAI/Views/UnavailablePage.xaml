@@ -2,7 +2,8 @@
 <UserControl
     x:Class="DistrictAI.Views.UnavailablePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
     <StackPanel
         MaxWidth="480"
         Padding="24"
@@ -24,8 +25,8 @@
             TextAlignment="Center" />
         <Button
             HorizontalAlignment="Center"
-            AutomationProperties.Name="Back"
+            AutomationProperties.Name="{x:Bind l10n:S.UnavailableBack}"
             Command="{x:Bind ViewModel.BackCommand}"
-            Content="Back" />
+            Content="{x:Bind l10n:S.UnavailableBack}" />
     </StackPanel>
 </UserControl>

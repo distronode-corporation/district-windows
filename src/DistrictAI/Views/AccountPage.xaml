@@ -2,7 +2,8 @@
 <UserControl
     x:Class="DistrictAI.Views.AccountPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
     <ScrollViewer>
         <StackPanel
             MaxWidth="{StaticResource ReadingWidth}"
@@ -11,12 +12,12 @@
             <TextBlock
                 AutomationProperties.HeadingLevel="Level1"
                 Style="{StaticResource TitleTextBlockStyle}"
-                Text="Account" />
+                Text="{x:Bind l10n:S.AccountTitle}" />
 
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"
                 Style="{StaticResource SectionHeaderStyle}"
-                Text="Your account" />
+                Text="{x:Bind l10n:S.AccountYourAccount}" />
             <TextBlock
                 IsTextSelectionEnabled="True"
                 Text="{x:Bind ViewModel.Name, Mode=OneWay}"
@@ -26,26 +27,26 @@
                 Text="{x:Bind ViewModel.Email, Mode=OneWay}"
                 Visibility="{x:Bind ViewModel.HasEmail, Mode=OneWay}" />
             <StackPanel>
-                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="User ID" />
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.AccountUserId}" />
                 <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.UserId, Mode=OneWay}" />
             </StackPanel>
 
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"
                 Style="{StaticResource SectionHeaderStyle}"
-                Text="This computer" />
+                Text="{x:Bind l10n:S.AccountThisComputer}" />
             <StackPanel>
-                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="District AI for Windows" />
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.AccountAppName}" />
                 <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.AppVersion, Mode=OneWay}" />
             </StackPanel>
             <StackPanel>
-                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Device ID" />
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.AccountDeviceId}" />
                 <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.DeviceId, Mode=OneWay}" />
             </StackPanel>
             <ToggleSwitch
                 x:Name="StartupSwitch"
-                AutomationProperties.Name="Start at sign-in"
-                Header="Start at sign-in"
+                AutomationProperties.Name="{x:Bind l10n:S.AccountStartAtSignIn}"
+                Header="{x:Bind l10n:S.AccountStartAtSignIn}"
                 IsEnabled="{x:Bind ViewModel.StartupSwitchEnabled, Mode=OneWay}"
                 IsOn="{x:Bind ViewModel.StartupEnabled, Mode=OneWay}"
                 Toggled="OnStartupToggled" />
@@ -86,32 +87,32 @@
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"
                 Style="{StaticResource SectionHeaderStyle}"
-                Text="Devices" />
+                Text="{x:Bind l10n:S.AccountDevicesTitle}" />
             <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.DevicesCaption, Mode=OneWay}" />
             <Button
-                AutomationProperties.Name="Devices"
+                AutomationProperties.Name="{x:Bind l10n:S.AccountDevicesTitle}"
                 Command="{x:Bind ViewModel.OpenDevicesCommand}"
-                Content="Devices" />
+                Content="{x:Bind l10n:S.AccountDevices}" />
 
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"
                 Style="{StaticResource SectionHeaderStyle}"
-                Text="Sign out" />
+                Text="{x:Bind l10n:S.AccountSignOutTitle}" />
             <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.SignOutCaption, Mode=OneWay}" />
             <Button
-                AutomationProperties.Name="Sign out"
+                AutomationProperties.Name="{x:Bind l10n:S.AccountSignOutTitle}"
                 Command="{x:Bind ViewModel.SignOutCommand}"
-                Content="Sign out" />
+                Content="{x:Bind l10n:S.CommonSignOut}" />
 
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"
                 Style="{StaticResource SectionHeaderStyle}"
-                Text="Delete your account" />
+                Text="{x:Bind l10n:S.AccountDeleteTitle}" />
             <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.DeleteAccountCaption, Mode=OneWay}" />
             <Button
-                AutomationProperties.Name="Delete account"
+                AutomationProperties.Name="{x:Bind l10n:S.AccountDelete}"
                 Command="{x:Bind ViewModel.DeleteAccountCommand}"
-                Content="Delete account" />
+                Content="{x:Bind l10n:S.AccountDelete}" />
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 using DistrictAI.ViewModels.Settings.CallHandling;
 using DistrictAI.ViewModels.Settings.Persona;
@@ -96,7 +97,7 @@ public sealed partial class RoutingRuleItem : ObservableObject
     public partial bool CanEdit { get; set; }
 
     /// <summary>The removal's name for screen readers: which rule it removes.</summary>
-    public string RemoveName => "Remove " + Heading;
+    public string RemoveName => S.RoutingRemoveRule(Heading);
 
     partial void OnHeadingChanged(string value) => OnPropertyChanged(nameof(RemoveName));
 
@@ -201,7 +202,7 @@ public sealed partial class RoutingViewModel : ObservableObject
 
     /// <summary>The heading.</summary>
     [ObservableProperty]
-    public partial string Title { get; set; } = "Call routing rules";
+    public partial string Title { get; set; } = S.RoutingTitle;
 
     /// <summary>What it says under the heading.</summary>
     [ObservableProperty]
@@ -286,7 +287,7 @@ public sealed partial class RoutingViewModel : ObservableObject
         IsLoading = view.Status is SectionStatus.Loading;
         (StatusTitle, StatusBody, StatusAction) = (view.Status, view.Unmodellable) switch
         {
-            (SectionStatus.Failed failed, _) => (failed.Title, Display.Failure(failed.Failure), failed.Failure.Retryable ? "Try again" : string.Empty),
+            (SectionStatus.Failed failed, _) => (failed.Title, Display.Failure(failed.Failure), failed.Failure.Retryable ? S.CommonTryAgain : string.Empty),
             (SectionStatus.Stale stale, _) => (stale.Title, stale.Body, stale.Action),
             (_, { } unmodellable) => (unmodellable.Title, unmodellable.Body, string.Empty),
             _ => (string.Empty, string.Empty, string.Empty),

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Settings.Knowledge;
@@ -35,13 +36,13 @@ public sealed record DocumentItem(string Id, string Title, string Line, bool Fai
             {
                 document.StateLabel,
                 document.Pieces ?? string.Empty,
-                "Added " + Display.When(document.CreatedAt),
+                S.KnowledgeAdded(Display.When(document.CreatedAt)),
                 document.SourceUrl ?? string.Empty,
             }.Where(part => part.Length > 0)),
             document.State == DocumentState.Failed,
             view.ShowDelete,
             view.CanDelete,
-            $"{view.DeleteLabel}: {document.Title}");
+            S.KnowledgeDeleteDocument(view.DeleteLabel, document.Title));
 }
 
 /// <summary>
@@ -54,7 +55,7 @@ public sealed record DocumentItem(string Id, string Title, string Line, bool Fai
 public sealed partial class KnowledgeViewModel : ObservableObject
 {
     /// <summary>What a picked file that could not be read at all says.</summary>
-    internal const string FileUnreadable = "This file could not be read.";
+    internal static string FileUnreadable => S.KnowledgeFileUnreadable;
 
     private readonly TextEcho _titleEcho = new();
     private readonly TextEcho _contentEcho = new();

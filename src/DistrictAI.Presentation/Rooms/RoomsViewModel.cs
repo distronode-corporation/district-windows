@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Rooms;
@@ -227,7 +228,7 @@ public sealed partial class RoomsViewModel : ObservableObject
         HasRoomNotice = RoomNotice.Length > 0;
         CanSpeak = room?.CanSpeak ?? false;
         Muted = room?.Muted ?? true;
-        MuteLabel = Muted ? "Unmute" : "Mute";
+        MuteLabel = Muted ? S.RoomsUnmute : S.RoomsMute;
         CanMute = room?.CanMute ?? false;
         _guestLink = room?.GuestLink;
         HasGuestLink = _guestLink is not null;

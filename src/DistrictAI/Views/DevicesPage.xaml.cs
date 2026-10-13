@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -59,10 +60,10 @@ public sealed partial class DevicesPage : UserControl
         {
             XamlRoot = XamlRoot,
             Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"],
-            Title = "Sign out?",
+            Title = S.DevicesConfirmTitle,
             Content = new TextBlock { Text = ViewModel.ConfirmQuestion, TextWrapping = TextWrapping.Wrap },
             PrimaryButtonText = ViewModel.ConfirmAction,
-            CloseButtonText = "Cancel",
+            CloseButtonText = S.CommonCancel,
             // Nothing irreversible happens on Enter.
             DefaultButton = ContentDialogButton.Close,
         };

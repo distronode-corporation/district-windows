@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:billing="using:DistrictAI.Views.Billing"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:views="using:DistrictAI.Views"
     xmlns:vm="using:DistrictAI.ViewModels.Billing">
     <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
@@ -15,7 +16,7 @@
         <TextBlock
             AutomationProperties.HeadingLevel="Level1"
             Style="{StaticResource TitleTextBlockStyle}"
-            Text="Billing" />
+            Text="{x:Bind l10n:S.BillingTitle}" />
         <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
 
         <ScrollViewer Grid.Row="2" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
@@ -34,13 +35,13 @@
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level2"
                             Style="{StaticResource SectionHeaderStyle}"
-                            Text="Your plan" />
+                            Text="{x:Bind l10n:S.BillingYourPlan}" />
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <TextBlock
                                 Style="{StaticResource BodyStrongTextBlockStyle}"
                                 Text="{x:Bind ViewModel.PlanName, Mode=OneWay}" />
                             <TextBlock
-                                AutomationProperties.Name="Plan status"
+                                AutomationProperties.Name="{x:Bind l10n:S.BillingPlanStatus}"
                                 Style="{StaticResource CaptionTextBlockStyle}"
                                 Text="{x:Bind ViewModel.PlanStatus, Mode=OneWay}"
                                 VerticalAlignment="Center" />
@@ -53,7 +54,7 @@
                             Text="{x:Bind ViewModel.MinutesLine, Mode=OneWay}"
                             Visibility="{x:Bind ViewModel.HasMinutes, Mode=OneWay}" />
                         <ProgressBar
-                            AutomationProperties.Name="Minutes used"
+                            AutomationProperties.Name="{x:Bind l10n:S.BillingMinutesUsed}"
                             Maximum="100"
                             Value="{x:Bind ViewModel.MeterPercent, Mode=OneWay}"
                             Visibility="{x:Bind ViewModel.HasMeter, Mode=OneWay}" />
@@ -81,12 +82,12 @@
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level2"
                             Style="{StaticResource SectionHeaderStyle}"
-                            Text="On this account" />
+                            Text="{x:Bind l10n:S.BillingOnThisAccount}" />
                         <ProgressRing
                             Width="20"
                             Height="20"
                             HorizontalAlignment="Left"
-                            AutomationProperties.Name="Reading the account"
+                            AutomationProperties.Name="{x:Bind l10n:S.BillingReadingAccount}"
                             IsActive="{x:Bind ViewModel.AccountLoading, Mode=OneWay}"
                             Visibility="{x:Bind ViewModel.AccountLoading, Mode=OneWay}" />
                         <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasAccountProblem, Mode=OneWay}">
@@ -114,7 +115,7 @@
                             <TextBlock
                                 AutomationProperties.HeadingLevel="Level3"
                                 Style="{StaticResource BodyStrongTextBlockStyle}"
-                                Text="Invoices" />
+                                Text="{x:Bind l10n:S.BillingInvoices}" />
                             <ItemsControl ItemsSource="{x:Bind ViewModel.Invoices}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:BillingLine">
@@ -129,9 +130,9 @@
                                             </StackPanel>
                                             <Button
                                                 Grid.Column="1"
-                                                AutomationProperties.Name="Open invoice"
+                                                AutomationProperties.Name="{x:Bind l10n:S.BillingInvoiceOpenA11y}"
                                                 Click="OnOpenInvoice"
-                                                Content="Open"
+                                                Content="{x:Bind l10n:S.BillingInvoiceOpen}"
                                                 Tag="{x:Bind InvoiceId}"
                                                 Visibility="{x:Bind CanOpen}" />
                                         </Grid>

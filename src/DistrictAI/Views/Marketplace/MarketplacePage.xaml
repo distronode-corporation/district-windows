@@ -3,6 +3,7 @@
     x:Class="DistrictAI.Views.Marketplace.MarketplacePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:views="using:DistrictAI.Views"
     xmlns:vm="using:DistrictAI.ViewModels.Marketplace">
     <UserControl.Resources>
@@ -45,7 +46,7 @@
             <TextBlock
                 AutomationProperties.HeadingLevel="Level1"
                 Style="{StaticResource TitleTextBlockStyle}"
-                Text="Phone numbers" />
+                Text="{x:Bind l10n:S.NumbersTitle}" />
             <TextBlock
                 Style="{StaticResource QuietTextStyle}"
                 Text="{x:Bind ViewModel.ReadOnlyNote, Mode=OneWay}"
@@ -65,11 +66,11 @@
 
         <RadioButtons
             Grid.Row="1"
-            AutomationProperties.Name="Show"
+            AutomationProperties.Name="{x:Bind l10n:S.NumbersShow}"
             MaxColumns="2"
             SelectedIndex="{x:Bind ViewModel.TabIndex, Mode=TwoWay}">
-            <x:String>Your numbers</x:String>
-            <x:String>Find a number</x:String>
+            <RadioButton Content="{x:Bind l10n:S.NumbersYours}" />
+            <RadioButton Content="{x:Bind l10n:S.NumbersFind}" />
         </RadioButtons>
 
         <!-- The numbers the workspace holds. -->
@@ -85,7 +86,7 @@
                     TextWrapping="Wrap"
                     Visibility="{x:Bind ViewModel.HasPartialNote, Mode=OneWay}" />
                 <ListView
-                    AutomationProperties.Name="Your numbers"
+                    AutomationProperties.Name="{x:Bind l10n:S.NumbersYours}"
                     ItemTemplate="{StaticResource NumberRowTemplate}"
                     ItemsSource="{x:Bind ViewModel.Owned}"
                     SelectionMode="None" />
@@ -106,47 +107,47 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBox
                     MinWidth="120"
-                    AutomationProperties.Name="Area code"
-                    Header="Area code"
+                    AutomationProperties.Name="{x:Bind l10n:S.NumbersAreaCode}"
+                    Header="{x:Bind l10n:S.NumbersAreaCode}"
                     InputScope="Number"
                     KeyDown="OnSearchKeyDown"
                     Text="{x:Bind ViewModel.AreaCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <TextBox
                     MinWidth="120"
-                    AutomationProperties.Name="Country code"
-                    Header="Country code"
+                    AutomationProperties.Name="{x:Bind l10n:S.NumbersCountryCode}"
+                    Header="{x:Bind l10n:S.NumbersCountryCode}"
                     KeyDown="OnSearchKeyDown"
                     Text="{x:Bind ViewModel.Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <ComboBox
                     MinWidth="140"
-                    AutomationProperties.Name="Number type"
-                    Header="Number type"
+                    AutomationProperties.Name="{x:Bind l10n:S.NumbersNumberType}"
+                    Header="{x:Bind l10n:S.NumbersNumberType}"
                     ItemsSource="{x:Bind ViewModel.TypeLabels}"
                     SelectedIndex="{x:Bind ViewModel.TypeIndex, Mode=TwoWay}" />
                 <Button
                     VerticalAlignment="Bottom"
-                    AutomationProperties.Name="Search for numbers"
+                    AutomationProperties.Name="{x:Bind l10n:S.NumbersSearchA11y}"
                     Command="{x:Bind ViewModel.SearchCommand}"
-                    Content="Search" />
+                    Content="{x:Bind l10n:S.NumbersSearch}" />
             </StackPanel>
             <Grid Grid.Row="1">
                 <TextBlock
                     Style="{StaticResource QuietTextStyle}"
-                    Text="Type an area code, or search the whole country. Results come from your carrier."
+                    Text="{x:Bind l10n:S.NumbersSearchHint}"
                     TextWrapping="Wrap"
                     Visibility="{x:Bind ViewModel.SearchIdle, Mode=OneWay}" />
                 <ProgressRing
-                    AutomationProperties.Name="Searching"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonSearching}"
                     IsActive="{x:Bind ViewModel.Searching, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.Searching, Mode=OneWay}" />
                 <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasFound, Mode=OneWay}">
                     <TextBlock
                         AutomationProperties.HeadingLevel="Level2"
                         Style="{StaticResource SectionHeaderStyle}"
-                        Text="Numbers for sale" />
+                        Text="{x:Bind l10n:S.NumbersForSale}" />
                     <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.ProviderLine, Mode=OneWay}" />
                     <ListView
-                        AutomationProperties.Name="Numbers for sale"
+                        AutomationProperties.Name="{x:Bind l10n:S.NumbersForSale}"
                         ItemTemplate="{StaticResource NumberRowTemplate}"
                         ItemsSource="{x:Bind ViewModel.Found}"
                         SelectionMode="None" />
@@ -171,9 +172,9 @@
                         TextWrapping="Wrap" />
                     <Button
                         HorizontalAlignment="Center"
-                        AutomationProperties.Name="Try the search again"
+                        AutomationProperties.Name="{x:Bind l10n:S.NumbersRetrySearch}"
                         Command="{x:Bind ViewModel.SearchCommand}"
-                        Content="Try again"
+                        Content="{x:Bind l10n:S.CommonTryAgain}"
                         Visibility="{x:Bind ViewModel.CanRetrySearch, Mode=OneWay}" />
                 </StackPanel>
             </Grid>

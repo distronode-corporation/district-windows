@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels.Blocked;
 
@@ -18,12 +19,12 @@ public sealed record BlockedRowItem(string ContactId, string Name, string Detail
     public bool ShowUnblock => CanUnblock && !Unblocking;
 
     /// <summary>The Unblock button's name for screen readers: which caller it unblocks.</summary>
-    public string UnblockName => "Unblock " + Name;
+    public string UnblockName => S.BlockedUnblockCaller(Name);
 
     /// <summary>What a screen reader says for the row.</summary>
     public string AccessibleName => string.Join(
         ", ",
-        new[] { Name, Detail, Unblocking ? "unblocking" : string.Empty }.Where(part => part.Length > 0));
+        new[] { Name, Detail, Unblocking ? S.BlockedRowUnblocking : string.Empty }.Where(part => part.Length > 0));
 
     /// <inheritdoc/>
     public override string ToString() => AccessibleName;
@@ -33,7 +34,7 @@ public sealed record BlockedRowItem(string ContactId, string Name, string Detail
         var when = Display.When(row.BlockedAt);
         var detail = string.Join(
             " · ",
-            new[] { row.PhoneNumber ?? string.Empty, when.Length > 0 ? "Blocked " + when : string.Empty }
+            new[] { row.PhoneNumber ?? string.Empty, when.Length > 0 ? S.BlockedBlockedWhen(when) : string.Empty }
                 .Where(part => part.Length > 0));
         return new BlockedRowItem(row.ContactId, row.Name, detail, row.Unblocking, canUnblock);
     }
@@ -59,7 +60,7 @@ public sealed partial class BlockedViewModel : ObservableObject
 
     /// <summary>The heading.</summary>
     [ObservableProperty]
-    public partial string Title { get; set; } = "Blocked callers";
+    public partial string Title { get; set; } = S.BlockedTitle;
 
     /// <summary>Why the last unblock failed, or empty.</summary>
     [ObservableProperty]

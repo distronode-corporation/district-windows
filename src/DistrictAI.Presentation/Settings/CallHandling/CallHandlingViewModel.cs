@@ -3,6 +3,7 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Settings.CallHandling;
@@ -41,7 +42,7 @@ public sealed partial class CallHandlingViewModel : ObservableObject
 
     /// <summary>The heading.</summary>
     [ObservableProperty]
-    public partial string Title { get; set; } = "Call handling";
+    public partial string Title { get; set; } = S.CallHandlingTitle;
 
     /// <summary>The heading over who answers.</summary>
     [ObservableProperty]

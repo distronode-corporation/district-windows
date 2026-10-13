@@ -3,6 +3,7 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels.Billing;
 
@@ -168,8 +169,8 @@ public sealed partial class BillingViewModel : ObservableObject
     internal static string MinutesOf(PlanView? plan) => plan switch
     {
         { MinutesUsed: { } used, IncludedMinutes: { } included } =>
-            string.Format(CultureInfo.CurrentCulture, "{0:N0} of {1:N0} minutes this month", used, included),
-        { MinutesUsed: { } used } => string.Format(CultureInfo.CurrentCulture, "{0:N0} minutes this month", used),
+            S.BillingMinutesOfIncluded(used.ToString("N0", CultureInfo.CurrentCulture), included.ToString("N0", CultureInfo.CurrentCulture)),
+        { MinutesUsed: { } used } => S.BillingMinutesUsedOnly(used.ToString("N0", CultureInfo.CurrentCulture)),
         _ => string.Empty,
     };
 
@@ -198,11 +199,11 @@ public sealed partial class BillingViewModel : ObservableObject
         }
         if (row.RenewsAt is { } renews)
         {
-            parts.Add("renews " + DateOf(renews));
+            parts.Add(S.BillingRenews(DateOf(renews)));
         }
         if (row.EndsAt is { } ends)
         {
-            parts.Add("ends " + DateOf(ends));
+            parts.Add(S.BillingEnds(DateOf(ends)));
         }
         if (row.Coupon is { } coupon)
         {

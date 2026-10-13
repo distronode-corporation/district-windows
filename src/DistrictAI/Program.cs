@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using DistrictAI.L10n;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
@@ -29,6 +30,9 @@ public static class Program
             RedirectTo(main, activation);
             return 0;
         }
+        // The language of every string the app writes, before any XAML loads:
+        // English, unless this is a French build and the user's languages pick French.
+        S.Current = Languages.French ? S.Locale.FrCa : S.Locale.En;
         Application.Start(started =>
         {
             var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());

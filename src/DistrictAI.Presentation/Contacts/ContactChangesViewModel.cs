@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels.Contacts;
 
@@ -13,7 +14,7 @@ namespace DistrictAI.ViewModels.Contacts;
 public sealed partial class ContactChangesViewModel : ObservableObject
 {
     /// <summary>What a member whose role cannot change contacts reads instead of the controls, as District AI for Linux words it.</summary>
-    public const string ReadOnlyNote = "You have read-only access to this workspace, so you cannot change contacts.";
+    public static string ReadOnlyNote => S.ContactReadOnly;
 
     private PageContext? _context;
 
@@ -58,7 +59,7 @@ public sealed partial class ContactChangesViewModel : ObservableObject
 
     /// <summary>The block control's words: "Block", or "Unblock" for a blocked caller.</summary>
     [ObservableProperty]
-    public partial string BlockLabel { get; set; } = "Block";
+    public partial string BlockLabel { get; set; } = S.ContactBlock;
 
     /// <summary>What is on its way ("Deleting the contact"), or empty.</summary>
     [ObservableProperty]
@@ -98,7 +99,7 @@ public sealed partial class ContactChangesViewModel : ObservableObject
         CanClearResearch = OffersClearResearch;
         CanBlock = writes?.CanBlock ?? false;
         Blocked = view.Blocked;
-        BlockLabel = view.Blocked ? "Unblock" : "Block";
+        BlockLabel = view.Blocked ? S.ContactUnblock : S.ContactBlock;
         BusyText = view.Busy ?? string.Empty;
         Busy = BusyText.Length > 0;
         Confirming = view.Confirming is not null;

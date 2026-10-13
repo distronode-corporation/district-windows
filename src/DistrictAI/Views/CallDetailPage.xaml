@@ -3,6 +3,7 @@
     x:Class="DistrictAI.Views.CallDetailPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
     xmlns:views="using:DistrictAI.Views"
     xmlns:vm="using:DistrictAI.ViewModels">
     <Grid>
@@ -23,12 +24,12 @@
                 <!-- A call back, in a build that can carry calls. -->
                 <Button
                     HorizontalAlignment="Left"
-                    AutomationProperties.Name="Call"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonCall}"
                     Command="{x:Bind ViewModel.CallCommand}"
                     Visibility="{x:Bind ViewModel.CanCall, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="Phone" />
-                        <TextBlock Text="Call" />
+                        <TextBlock Text="{x:Bind l10n:S.CommonCall}" />
                     </StackPanel>
                 </Button>
                 <views:RefreshStrip x:Name="Refresh" />
@@ -37,7 +38,7 @@
                     <TextBlock
                         AutomationProperties.HeadingLevel="Level2"
                         Style="{StaticResource SectionHeaderStyle}"
-                        Text="Details" />
+                        Text="{x:Bind l10n:S.CommonDetails}" />
                     <ItemsRepeater ItemsSource="{x:Bind ViewModel.Facts}">
                         <ItemsRepeater.Layout>
                             <StackLayout Spacing="8" />
@@ -70,7 +71,7 @@
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level2"
                             Style="{StaticResource SectionHeaderStyle}"
-                            Text="Analysis" />
+                            Text="{x:Bind l10n:S.CallDetailAnalysis}" />
                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.Analysis}">
                             <ItemsRepeater.Layout>
                                 <StackLayout Spacing="8" />
@@ -93,7 +94,7 @@
                         <TextBlock
                             AutomationProperties.HeadingLevel="Level2"
                             Style="{StaticResource SectionHeaderStyle}"
-                            Text="Follow-up sent" />
+                            Text="{x:Bind l10n:S.CallDetailFollowUpSent}" />
                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.FollowUp}">
                             <ItemsRepeater.Layout>
                                 <StackLayout Spacing="8" />
@@ -122,10 +123,10 @@
                     <TextBlock
                         AutomationProperties.HeadingLevel="Level2"
                         Style="{StaticResource SectionHeaderStyle}"
-                        Text="Transcript" />
+                        Text="{x:Bind l10n:S.CallDetailTranscript}" />
                     <ProgressRing
                         HorizontalAlignment="Left"
-                        AutomationProperties.Name="Loading the transcript"
+                        AutomationProperties.Name="{x:Bind l10n:S.CallDetailLoadingTranscript}"
                         IsActive="{x:Bind ViewModel.TranscriptLoading, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.TranscriptLoading, Mode=OneWay}" />
                     <TextBlock
@@ -138,9 +139,9 @@
                         Text="{x:Bind ViewModel.TranscriptMessage, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.HasTranscriptMessage, Mode=OneWay}" />
                     <Button
-                        AutomationProperties.Name="Try loading the transcript again"
+                        AutomationProperties.Name="{x:Bind l10n:S.CallDetailRetryTranscript}"
                         Command="{x:Bind ViewModel.RetryTranscriptCommand}"
-                        Content="Try again"
+                        Content="{x:Bind l10n:S.CommonTryAgain}"
                         Visibility="{x:Bind ViewModel.CanRetryTranscript, Mode=OneWay}" />
                 </StackPanel>
             </StackPanel>

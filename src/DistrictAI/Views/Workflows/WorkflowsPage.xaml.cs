@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Workflows;
 using Microsoft.UI.Xaml;
@@ -65,7 +66,7 @@ public sealed partial class WorkflowsPage : UserControl
             Title = ViewModel.ConfirmTitle,
             Content = new TextBlock { Text = ViewModel.ConfirmBody, TextWrapping = TextWrapping.Wrap },
             PrimaryButtonText = ViewModel.ConfirmAction,
-            CloseButtonText = "Cancel",
+            CloseButtonText = S.CommonCancel,
             // Resuming spends credit and pausing stops calls: neither happens on Enter.
             DefaultButton = ContentDialogButton.Close,
         };

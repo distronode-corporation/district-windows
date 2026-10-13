@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 
 namespace DistrictAI.ViewModels;
 
@@ -10,8 +11,8 @@ internal static class Display
     /// <summary>The words on a Report button for <paramref name="availability"/>, or empty when there is none.</summary>
     internal static string ReportLabel(ReportAvailability availability) => availability switch
     {
-        ReportAvailability.InApp => "Report",
-        ReportAvailability.OnWeb => "Report on the web",
+        ReportAvailability.InApp => S.CommonReport,
+        ReportAvailability.OnWeb => S.CommonReportOnWeb,
         ReportAvailability.Hidden => string.Empty,
         // An availability a later core adds: no button until this build knows it.
         _ => string.Empty,

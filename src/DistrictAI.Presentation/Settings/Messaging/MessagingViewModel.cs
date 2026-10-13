@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Settings.Messaging;
@@ -531,7 +532,7 @@ public sealed record MessagingAccountItem(
     bool Enabled)
 {
     /// <summary>What a screen reader says for the row.</summary>
-    public string AccessibleName => IsDefault ? $"{Label}, default sender, {Line}" : $"{Label}, {Line}";
+    public string AccessibleName => IsDefault ? S.MessagingAccountDefault(Label, Line) : $"{Label}, {Line}";
 
     internal static MessagingAccountItem From(MessagingAccountView account, bool enabled) => new(
         account.Id,

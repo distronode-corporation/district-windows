@@ -260,8 +260,10 @@ jobs:
       - name: The vendored l10n tools are unmodified
         run: python3 tools/l10n/l10n.py vendor --check --dest tools/l10n
 
-      - name: The generated strings match their catalogs
-        run: python3 scripts/gen-l10n.py --check
+      - name: The generated strings match their catalogs (and the XAML check still catches a missing string)
+        run: |
+          python3 scripts/gen-l10n.py --self-test
+          python3 scripts/gen-l10n.py --check
 
       # 1.0 offers no sign-up and no purchase in the app, as its Store listing says.
       - name: No sign-up or purchase wording in the app (and the check still catches it)
