@@ -96,7 +96,7 @@ pub use crate::contacts::{
     CONTACT_FAILED_TITLE, ContactDetailView, ContactFormInput, ContactFormView,
     ContactQuestionView, ContactRowView, ContactWritesView, ContactsAction, ContactsView,
 };
-pub use crate::core::{Core, StartConfig, StartError};
+pub use crate::core::{Core, StartConfig, StartError, speaks_french};
 pub use crate::events::UiEvent;
 pub use crate::guard::{
     DISCARD_ACTION, DISCARD_BODY, DISCARD_TITLE, DiscardView, Held, KEEP_EDITING, leaves_unsaved,

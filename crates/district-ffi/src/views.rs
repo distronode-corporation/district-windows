@@ -3,6 +3,7 @@
 //! Report action that goes with it.
 
 use district_core::{Capabilities, FailureText, Paging};
+use district_l10n::{Locale, WireCategory, wire_label};
 use serde::Serialize;
 
 /// Why something could not be read or done, in the core's words.
@@ -259,9 +260,26 @@ pub(crate) fn ai_summary(raw: &str) -> Option<String> {
     (!not_text).then(|| trimmed.to_owned())
 }
 
+/// What a screen shows for `raw`, a value the service stores in English in
+/// one of the core's vocabularies (a call's status, its sentiment): its label,
+/// in the core's language (`district_l10n::wire_label`).
+///
+/// A value the vocabulary does not hold reads as [`humanize`] has always
+/// written it, not as the vocabulary's "Other": the service stores values the
+/// vocabulary does not list yet (a transfer status of `completed` in the
+/// core's own contract fixtures), and those keep their words until it does.
+pub(crate) fn wire(category: WireCategory, raw: &str) -> String {
+    let unknown = wire_label(category, "", Locale::En);
+    if wire_label(category, raw, Locale::En) == unknown {
+        return humanize(raw);
+    }
+    wire_label(category, raw, district_l10n::current())
+}
+
 /// A status value the service wrote in its own form (`no-answer`,
 /// `caller_requested_human`) as a sentence starts it: `No answer`, `Caller
-/// requested human`. The Linux app's `humanize`.
+/// requested human`. The Linux app's `humanize`. Only for values no
+/// vocabulary of the core's holds yet; [`wire`] for the rest.
 pub(crate) fn humanize(raw: &str) -> String {
     let words = raw.trim().replace(['-', '_'], " ");
     let mut chars = words.chars();
@@ -285,6 +303,17 @@ mod tests {
             assert_eq!(ai_summary(raw), None, "{raw}");
         }
         assert_eq!(ai_summary("   "), None);
+    }
+
+    #[test]
+    fn a_wire_value_reads_as_its_label_and_an_unlisted_one_as_before() {
+        // The two labels the portal words differently from `humanize`.
+        assert_eq!(wire(WireCategory::Sentiment, "negative"), "Friction");
+        assert_eq!(wire(WireCategory::TransferStatus, "success"), "Transferred");
+        assert_eq!(wire(WireCategory::CallStatus, " No-Answer "), "No answer");
+        // Not in the vocabulary: as the service stored it, in words.
+        assert_eq!(wire(WireCategory::TransferStatus, "completed"), "Completed");
+        assert_eq!(wire(WireCategory::Disposition, " "), "");
     }
 
     #[test]

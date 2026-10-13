@@ -198,6 +198,7 @@ fn config() -> CoreConfig {
         calls_available: false,
         // As the app builds it: Windows buys in the app.
         in_app_purchases: true,
+        locale: district_core::Locale::En,
     }
 }
 

@@ -80,7 +80,8 @@ public sealed partial class App : Application, IDisposable
             ApplicationData.Current.LocalFolder.Path,
             AppVersion(),
             Environment.MachineName,
-            Package.Current.Id.FamilyName);
+            Package.Current.Id.FamilyName,
+            L10n.Languages.ForCore());
         // Whether the other copy of the app is installed too, asked once: both
         // answer the browser's sign-in, so with both, sign-in is held.
         _ = CheckCopiesAsync(queue);

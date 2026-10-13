@@ -84,6 +84,9 @@ public sealed class CoreHostTests : IDisposable
     /// <summary>Credentials of their own, apart from any installed copy of the app.</summary>
     private const string Namespace = "DistrictAI.Core.Tests_0";
 
+    /// <summary>The languages the tests start the core with: English, as every English assert expects.</summary>
+    private static readonly string[] _english = ["en-US"];
+
     private readonly string _dataDir = Path.Combine(Path.GetTempPath(), "district-tests-" + Guid.NewGuid().ToString("N"));
 
     public void Dispose()
@@ -92,6 +95,16 @@ public sealed class CoreHostTests : IDisposable
         {
             Directory.Delete(_dataDir, recursive: true);
         }
+    }
+
+    [Fact]
+    public void TheUserLanguagesPutTheOverrideFirstAndNameEachOnce()
+    {
+        Assert.Equal(["fr-CA", "en-US"], CoreHost.UserLanguages("fr-CA", ["en-US", "fr-ca"]));
+        Assert.Equal(["en-US", "fr-CA"], CoreHost.UserLanguages(null, ["en-US", " fr-CA "]));
+        Assert.Equal(["de-DE"], CoreHost.UserLanguages("  ", ["de-DE", "", "DE-de"]));
+        Assert.Empty(CoreHost.UserLanguages(string.Empty, []));
+        Assert.Throws<ArgumentNullException>(() => CoreHost.UserLanguages(null, null!));
     }
 
     private static async Task Eventually(string what, Func<bool> done)
@@ -123,7 +136,7 @@ public sealed class CoreHostTests : IDisposable
         var rendered = new List<CoreSnapshot>();
         host.Changed += (_, snapshot) => rendered.Add(snapshot);
 
-        host.Start(_dataDir, "0.1.0", "Test PC", Namespace);
+        host.Start(_dataDir, "0.1.0", "Test PC", Namespace, _english);
         // Nothing in the store: the start-up check signs out without a request.
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
         await Eventually("a render queued", () => dispatcher.Pending > 0);
@@ -163,7 +176,7 @@ public sealed class CoreHostTests : IDisposable
         // Not started: the core has nothing to wait for.
         await host.SuspendAsync().WaitAsync(TimeSpan.FromMilliseconds(500), cancel);
         host.Resume();
-        host.Start(_dataDir, "0.1.0", null, Namespace);
+        host.Start(_dataDir, "0.1.0", null, Namespace, _english);
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
         await host.DisposeAsync();
         // Disposed: a notification that arrives late reaches nothing.
@@ -178,7 +191,7 @@ public sealed class CoreHostTests : IDisposable
         await using var host = new CoreHost(dispatcher, new RecordingBrowser());
         var rendered = 0;
         host.Changed += (_, _) => rendered++;
-        host.Start(_dataDir, "0.1.0", null, Namespace);
+        host.Start(_dataDir, "0.1.0", null, Namespace, _english);
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
         Assert.Equal(0, dispatcher.Pending);
 
@@ -203,8 +216,8 @@ public sealed class CoreHostTests : IDisposable
     public async Task StartingTwiceIsRefusedAndShuttingDownTwiceIsNot()
     {
         var host = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
-        host.Start(_dataDir, "0.1.0", null, Namespace);
-        Assert.Throws<StartException.AlreadyStarted>(() => host.Start(_dataDir, "0.1.0", null, Namespace));
+        host.Start(_dataDir, "0.1.0", null, Namespace, _english);
+        Assert.Throws<StartException.AlreadyStarted>(() => host.Start(_dataDir, "0.1.0", null, Namespace, _english));
         await host.DisposeAsync();
         await host.DisposeAsync();
     }
@@ -275,7 +288,7 @@ public sealed class CoreHostTests : IDisposable
         await using var host = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
         // Before the core starts, and for an id it never showed.
         host.ActivateNotification("call:call-1", "answer");
-        host.Start(_dataDir, "0.1.0", null, Namespace);
+        host.Start(_dataDir, "0.1.0", null, Namespace, _english);
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
         host.ActivateNotification("call:call-1", null);
         host.ActivateNotification("message:m-1", "decline");
