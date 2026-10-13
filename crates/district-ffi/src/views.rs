@@ -142,11 +142,6 @@ pub struct AiTextView {
     pub text: String,
 }
 
-/// The heading of a call's AI summary, as the iOS app words it.
-pub const AI_SUMMARY: &str = "AI summary";
-/// The heading of a contact's AI research, the dossier.
-pub const AI_DOSSIER: &str = "AI dossier";
-
 impl AiTextView {
     /// `text` under `label`.
     pub(crate) fn new(label: &str, text: String) -> Self {

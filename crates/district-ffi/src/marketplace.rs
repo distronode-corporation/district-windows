@@ -16,16 +16,12 @@ use district_core::{
 use district_model::{AvailableNumber, OwnedNumber};
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, LoadStatus, humanize};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
-
-/// The page's heading, the navigation entry's.
-pub const MARKETPLACE_TITLE: &str = "Phone numbers";
-/// The line over the search's results, naming the carrier.
-const OFFERED_BY: &str = "Offered by";
 
 /// The phone numbers screen.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -62,12 +58,12 @@ pub struct MarketplaceView {
 impl Default for MarketplaceView {
     fn default() -> Self {
         Self {
-            title: MARKETPLACE_TITLE.to_owned(),
+            title: s::marketplace_title(l()).to_owned(),
             tab: NumbersTab::Owned,
-            read_only_note: MarketplaceScreen::READ_ONLY_VIEWER.to_owned(),
+            read_only_note: cs::marketplace_read_only_viewer(l()).to_owned(),
             offers_web: false,
-            web_action: MarketplaceScreen::WEB_ACTION.to_owned(),
-            web_caption: MarketplaceScreen::WEB_CAPTION.to_owned(),
+            web_action: cs::marketplace_web_action(l()).to_owned(),
+            web_caption: cs::marketplace_web_caption(l()).to_owned(),
             owned_status: LoadStatus::Loading,
             owned_empty: None,
             owned: Vec::new(),
@@ -138,7 +134,7 @@ impl From<&NumberSearchForm> for NumberFormView {
             area_code: form.area_code.clone(),
             country: form.country.clone(),
             number_type: form.number_type.clone(),
-            number_types: NumberSearchForm::NUMBER_TYPES
+            number_types: NumberSearchForm::number_types()
                 .iter()
                 .map(|(value, label)| NumberTypeView {
                     value: (*value).to_owned(),
@@ -249,14 +245,18 @@ fn marketplace_view(screen: &MarketplaceScreen, capabilities: &Capabilities) -> 
     match &screen.owned {
         OwnedNumbersList::NotLoaded | OwnedNumbersList::Loading => {}
         OwnedNumbersList::Failed(failure) => {
-            view.owned_status = LoadStatus::failed(OwnedNumbersList::FAILED_TITLE, failure);
+            view.owned_status =
+                LoadStatus::failed(cs::marketplace_owned_failed_title(l()), failure);
         }
         OwnedNumbersList::Ready(held) => {
             view.owned_status = LoadStatus::Ready;
             let note = held.partial_note();
             if held.numbers.is_empty() {
-                let body = note.unwrap_or_else(|| OwnedNumbersList::EMPTY_BODY.to_owned());
-                view.owned_empty = Some(EmptyView::new(OwnedNumbersList::EMPTY_TITLE, &body));
+                let body = note.unwrap_or_else(|| cs::marketplace_owned_empty_body(l()).to_owned());
+                view.owned_empty = Some(EmptyView::new(
+                    cs::marketplace_owned_empty_title(l()),
+                    &body,
+                ));
             } else {
                 view.partial_note = note;
             }
@@ -277,21 +277,21 @@ fn search_view(search: &NumberSearchState) -> NumberSearchView {
         NumberSearchState::Idle => NumberSearchView::Idle,
         NumberSearchState::Searching => NumberSearchView::Searching,
         NumberSearchState::Ready { numbers, .. } if numbers.is_empty() => status(
-            NumberSearchState::NONE_TITLE,
-            NumberSearchState::NONE_BODY,
+            cs::marketplace_search_none_title(l()),
+            cs::marketplace_search_none_body(l()),
             false,
         ),
         NumberSearchState::Ready { provider, numbers } => NumberSearchView::Found {
-            provider_line: format!("{OFFERED_BY} {}", humanize(provider)),
+            provider_line: s::marketplace_offered_by(l(), &humanize(provider)),
             numbers: numbers.iter().map(available_row).collect(),
         },
         NumberSearchState::NotConfigured(message) => {
-            status(NumberSearchState::NOT_CONFIGURED_TITLE, message, false)
+            status(cs::marketplace_not_configured_title(l()), message, false)
         }
         NumberSearchState::Failed(failure) => {
             let failure = FailureView::from(failure);
             status(
-                NumberSearchState::FAILED_TITLE,
+                cs::marketplace_search_failed_title(l()),
                 &failure.message,
                 failure.retryable,
             )
@@ -301,7 +301,7 @@ fn search_view(search: &NumberSearchState) -> NumberSearchView {
 
 /// A number type as it reads: the core's label, or the service's word.
 fn type_label(raw: &str) -> String {
-    NumberSearchForm::NUMBER_TYPES
+    NumberSearchForm::number_types()
         .iter()
         .find(|(wire, _)| *wire == raw)
         .map_or_else(|| humanize(raw), |(_, label)| (*label).to_owned())
@@ -333,7 +333,7 @@ fn line(parts: &[Option<String>], separator: &str) -> String {
 
 /// What the carrier charges a month, as quoted.
 fn monthly(amount: Option<f64>, currency: Option<&str>) -> Option<String> {
-    price_label(amount, currency).map(|amount| format!("{amount} a month"))
+    price_label(amount, currency).map(|amount| s::marketplace_monthly(l(), &amount))
 }
 
 fn owned_row(number: &OwnedNumber) -> NumberRowView {

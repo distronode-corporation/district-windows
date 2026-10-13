@@ -4,17 +4,13 @@
 //! over, the full transcript the service keeps.
 //!
 //! Every word is the core's ([`LiveTranscript`]'s constants, its `status()`
-//! and `speaker_label()`), except [`UNAVAILABLE`], for the one state the
+//! and `speaker_label()`), except `transcript.unavailable`, for the one state the
 //! core leaves to the app: no live transcript for this call.
 
 use district_core::{FinalTranscript, LiveTranscript, LiveTranscriptPhase};
 use serde::Serialize;
 
-/// What shows when no live transcript can be shown for the call. The core
-/// has no words for this state (its `status()` is `None`); the call log has
-/// the transcript once the call is over.
-pub const UNAVAILABLE: &str =
-    "No live transcript for this call. Its transcript is in the call log after the call.";
+use crate::l10n::{cs, l, s};
 
 /// The live transcript of the call on this desktop.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -24,7 +20,7 @@ pub struct TranscriptView {
     /// Where it stands.
     pub phase: TranscriptPhase,
     /// The line under the heading: "Connecting.", "Live", "Reconnecting.",
-    /// "Call ended"; or, when no live transcript can be shown, [`UNAVAILABLE`].
+    /// "Call ended"; or, when no live transcript can be shown, `transcript.unavailable`.
     pub status: String,
     /// The lines said so far, in order.
     pub lines: Vec<TranscriptLineView>,
@@ -106,17 +102,20 @@ pub(crate) fn transcript_view(transcript: &LiveTranscript) -> TranscriptView {
             is_final: segment.is_final,
             note: segment
                 .interrupted
-                .then(|| LiveTranscript::INTERRUPTED.to_owned()),
+                .then(|| cs::transcript_interrupted(l()).to_owned()),
         })
         .collect();
     TranscriptView {
-        heading: LiveTranscript::HEADING.to_owned(),
+        heading: cs::transcript_heading(l()).to_owned(),
         phase,
-        status: transcript.status().unwrap_or(UNAVAILABLE).to_owned(),
+        status: transcript
+            .status()
+            .unwrap_or(s::transcript_unavailable(l()))
+            .to_owned(),
         waiting: (phase == TranscriptPhase::Live && lines.is_empty())
-            .then(|| LiveTranscript::WAITING.to_owned()),
+            .then(|| cs::transcript_waiting(l()).to_owned()),
         lines,
-        incomplete: (!transcript.is_complete()).then(|| LiveTranscript::INCOMPLETE.to_owned()),
+        incomplete: (!transcript.is_complete()).then(|| cs::transcript_incomplete(l()).to_owned()),
         full: full_view(transcript.final_transcript()),
     }
 }
@@ -131,10 +130,10 @@ fn full_view(full: &FinalTranscript) -> Option<FullTranscriptView> {
     match full {
         FinalTranscript::NotRequested => None,
         FinalTranscript::Fetching { .. } => {
-            Some(view(true, None, Some(LiveTranscript::LOADING_FULL)))
+            Some(view(true, None, Some(cs::transcript_loading_full(l()))))
         }
         FinalTranscript::Loaded(text) => Some(view(false, Some(text), None)),
-        FinalTranscript::Empty => Some(view(false, None, Some(LiveTranscript::NO_TRANSCRIPT))),
+        FinalTranscript::Empty => Some(view(false, None, Some(cs::transcript_no_transcript(l())))),
         FinalTranscript::Failed(failure) => Some(view(false, None, Some(&failure.message))),
     }
 }

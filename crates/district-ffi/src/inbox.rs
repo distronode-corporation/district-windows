@@ -2,8 +2,8 @@
 //! thread view show. The reply box under a conversation is crate::composer's.
 
 use district_core::{
-    Capabilities, ConversationList, Conversations, InboxScreen, SearchState, ThreadHistory,
-    ThreadScreen, format_call_duration, format_phone_number,
+    Capabilities, ConversationList, InboxScreen, SearchState, ThreadHistory, ThreadScreen,
+    format_call_duration, format_phone_number,
 };
 use district_model::{
     ConversationSummary, MESSAGE_SEARCH_MIN_QUERY_LENGTH, MessageSearchHit, ThreadRef,
@@ -12,13 +12,11 @@ use district_model::{
 use serde::Serialize;
 
 use crate::composer::{ComposerView, composer, read_only_note};
+use crate::l10n::{cs, l, s};
 use crate::views::{
-    AI_SUMMARY, AiTextView, EmptyView, FailureView, LoadStatus, ReportAvailability, ai_summary,
-    failure, humanize,
+    AiTextView, EmptyView, FailureView, LoadStatus, ReportAvailability, ai_summary, failure,
+    humanize,
 };
-
-/// The heading of a conversation that could not be read, as the Linux app words it.
-pub const THREAD_FAILED_TITLE: &str = "Could not load this conversation";
 
 /// The inbox: the conversations, and the search over every message.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -203,9 +201,9 @@ fn can_open(thread_key: &str) -> bool {
 /// What a channel is called, as the Linux app names it.
 fn channel(event_type: &str) -> &'static str {
     match event_type {
-        "email" => "Email",
+        "email" => s::inbox_channel_email(l()),
         "whatsapp" => "WhatsApp",
-        _ => "Text message",
+        _ => s::inbox_channel_text(l()),
     }
 }
 
@@ -214,7 +212,7 @@ fn channel(event_type: &str) -> &'static str {
 fn preview(body: &str, direction: &str) -> String {
     let text = one_line(body);
     if direction == "outbound" {
-        format!("You: {text}")
+        s::inbox_preview_ours(l(), &text)
     } else {
         text
     }
@@ -261,10 +259,15 @@ fn search_view(search: &SearchState) -> SearchView {
         truncated: search.truncated,
         failure: failure(search.failure.as_ref()),
         min_query_length: u32::try_from(MESSAGE_SEARCH_MIN_QUERY_LENGTH).unwrap_or(u32::MAX),
-        empty: none.then(|| EmptyView::new(SearchState::NONE_TITLE, SearchState::NONE_BODY)),
+        empty: none.then(|| {
+            EmptyView::new(
+                cs::inbox_search_none_title(l()),
+                cs::inbox_search_none_body(l()),
+            )
+        }),
         truncated_note: search
             .truncated
-            .then(|| SearchState::TRUNCATED_NOTE.to_owned()),
+            .then(|| cs::inbox_search_truncated(l()).to_owned()),
     }
 }
 
@@ -283,7 +286,7 @@ pub(crate) fn inbox_view(inbox: &InboxScreen) -> InboxView {
     match &inbox.list {
         ConversationList::NotLoaded | ConversationList::Loading => {}
         ConversationList::Failed(failure) => {
-            view.status = LoadStatus::failed(ConversationList::FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(cs::inbox_failed_title(l()), failure);
         }
         ConversationList::Ready(list) => {
             view.status = LoadStatus::Ready;
@@ -291,8 +294,8 @@ pub(crate) fn inbox_view(inbox: &InboxScreen) -> InboxView {
             view.empty = list
                 .threads
                 .is_empty()
-                .then(|| EmptyView::new(Conversations::EMPTY_TITLE, Conversations::EMPTY_BODY));
-            view.partial_note = list.partial.then(|| Conversations::PARTIAL_NOTE.to_owned());
+                .then(|| EmptyView::new(cs::inbox_empty_title(l()), cs::inbox_empty_body(l())));
+            view.partial_note = list.partial.then(|| cs::inbox_partial_note(l()).to_owned());
             view.refreshing = list.refreshing;
             view.refresh_failure = failure(list.refresh_failure.as_ref());
         }
@@ -308,35 +311,37 @@ fn delivery(event: &TimelineEvent) -> Option<String> {
     Some(
         match event.status.as_str() {
             "" => return None,
-            "queued" | "accepted" | "sending" | "scheduled" => "Sending",
-            "sent" => "Sent",
-            "delivered" => "Delivered",
-            "read" => "Read",
-            "failed" | "undelivered" | "canceled" => NOT_DELIVERED,
+            "queued" | "accepted" | "sending" | "scheduled" => s::inbox_delivery_sending(l()),
+            "sent" => s::inbox_delivery_sent(l()),
+            "delivered" => s::inbox_delivery_delivered(l()),
+            "read" => s::inbox_delivery_read(l()),
+            "failed" | "undelivered" | "canceled" => s::inbox_not_delivered(l()),
             other => return Some(humanize(other)),
         }
         .to_owned(),
     )
 }
 
-const NOT_DELIVERED: &str = "Not delivered";
-
 /// The line for a call in a conversation, as the Linux app words it.
 fn call_line(event: &TimelineEvent) -> String {
     if event.is_missed_call() {
-        return "Missed call".to_owned();
+        return s::inbox_call_missed(l()).to_owned();
     }
-    let direction = if event.direction == "outbound" {
-        "Outgoing call"
-    } else {
-        "Incoming call"
-    };
+    let outgoing = event.direction == "outbound";
     match event
         .duration
         .and_then(|seconds| u64::try_from(seconds).ok())
     {
-        Some(seconds) if seconds > 0 => format!("{direction}, {}", format_call_duration(seconds)),
-        _ => direction.to_owned(),
+        Some(seconds) if seconds > 0 => {
+            let lasted = format_call_duration(seconds);
+            if outgoing {
+                s::inbox_call_outgoing_lasted(l(), &lasted)
+            } else {
+                s::inbox_call_incoming_lasted(l(), &lasted)
+            }
+        }
+        _ if outgoing => s::inbox_call_outgoing(l()).to_owned(),
+        _ => s::inbox_call_incoming(l()).to_owned(),
     }
 }
 
@@ -349,14 +354,16 @@ fn file_name(url: &str) -> String {
                 .rfind(|part| !part.is_empty())
                 .map(str::to_owned)
         })
-        .unwrap_or_else(|| "image".to_owned())
+        .unwrap_or_else(|| s::inbox_unnamed_image(l()).to_owned())
 }
 
 fn images_attached(count: usize) -> Option<String> {
     match count {
         0 => None,
-        1 => Some("1 image attached".to_owned()),
-        count => Some(format!("{count} images attached")),
+        count => Some(s::inbox_images_attached(
+            l(),
+            i64::try_from(count).unwrap_or(i64::MAX),
+        )),
     }
 }
 
@@ -374,7 +381,7 @@ fn timeline_item(event: &TimelineEvent, capabilities: &Capabilities) -> Timeline
                 .clone()
                 .filter(|subject| !subject.trim().is_empty()),
             channel_label: channel(&event.event_type).to_owned(),
-            delivery_failed: delivery.as_deref() == Some(NOT_DELIVERED),
+            delivery_failed: delivery.as_deref() == Some(s::inbox_not_delivered(l())),
             delivery,
             attachments_label: images_attached(event.media_urls.len()),
         }
@@ -389,7 +396,7 @@ fn timeline_item(event: &TimelineEvent, capabilities: &Capabilities) -> Timeline
         TimelineKind::CallEvent {
             call_id: Some(event.id.clone()),
             title: call_line(event),
-            summary: summary.map(|text| AiTextView::new(AI_SUMMARY, text)),
+            summary: summary.map(|text| AiTextView::new(s::views_ai_summary(l()), text)),
             missed,
         }
     };
@@ -426,7 +433,7 @@ pub(crate) fn thread_view(
     match screen.map(|screen| &screen.history) {
         None | Some(ThreadHistory::Loading) => {}
         Some(ThreadHistory::Failed(failure)) => {
-            view.status = LoadStatus::failed(THREAD_FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(s::inbox_thread_failed_title(l()), failure);
         }
         Some(ThreadHistory::Ready(events)) => {
             view.status = LoadStatus::Ready;
@@ -471,7 +478,10 @@ mod tests {
         assert_eq!(delivered("sent").as_deref(), Some("Sent"));
         assert_eq!(delivered("delivered").as_deref(), Some("Delivered"));
         assert_eq!(delivered("read").as_deref(), Some("Read"));
-        assert_eq!(delivered("undelivered").as_deref(), Some(NOT_DELIVERED));
+        assert_eq!(
+            delivered("undelivered").as_deref(),
+            Some(s::inbox_not_delivered(l()))
+        );
         assert_eq!(delivered("bounced_soft").as_deref(), Some("Bounced soft"));
         assert_eq!(delivered(""), None);
         assert_eq!(delivery(&event("sms", "inbound", "received", None)), None);

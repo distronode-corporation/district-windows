@@ -19,27 +19,19 @@
 use district_core::{Event, Model, SessionState, SignedIn, WorkspacesState};
 use serde::Serialize;
 
-/// The question's heading.
-pub const DISCARD_TITLE: &str = "Discard your changes?";
-/// What discarding does.
-pub const DISCARD_BODY: &str =
-    "What you changed in this section has not been saved, and leaving it drops those changes.";
-/// The button that discards them.
-pub const DISCARD_ACTION: &str = "Discard";
-/// The button that stays.
-pub const KEEP_EDITING: &str = "Keep editing";
+use crate::l10n::{l, s};
 
 /// The question, while one is asked: a move away from a settings section with
 /// unsaved changes is held until it is answered.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct DiscardView {
-    /// The heading, [`DISCARD_TITLE`].
+    /// The heading, `guard.discard_title`.
     pub title: String,
-    /// The text under it, [`DISCARD_BODY`].
+    /// The text under it, `guard.discard_body`.
     pub body: String,
-    /// The button that sends `UiEvent::DiscardChanges`, [`DISCARD_ACTION`].
+    /// The button that sends `UiEvent::DiscardChanges`, `guard.discard_action`.
     pub discard_label: String,
-    /// The button that sends `UiEvent::KeepEditing`, [`KEEP_EDITING`]: the
+    /// The button that sends `UiEvent::KeepEditing`, `guard.keep_editing`: the
     /// default, and what closing the question means.
     pub keep_label: String,
 }
@@ -48,10 +40,10 @@ impl DiscardView {
     /// The question in the Linux app's words.
     pub(crate) fn new() -> Self {
         Self {
-            title: DISCARD_TITLE.to_owned(),
-            body: DISCARD_BODY.to_owned(),
-            discard_label: DISCARD_ACTION.to_owned(),
-            keep_label: KEEP_EDITING.to_owned(),
+            title: s::guard_discard_title(l()).to_owned(),
+            body: s::guard_discard_body(l()).to_owned(),
+            discard_label: s::guard_discard_action(l()).to_owned(),
+            keep_label: s::guard_keep_editing(l()).to_owned(),
         }
     }
 }

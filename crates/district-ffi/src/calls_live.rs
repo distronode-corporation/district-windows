@@ -10,10 +10,11 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use district_core::{
-    ActiveCall, CallDirection, CallEnd, CallPhase, DialerScreen, IncomingRing, MediaOwner,
-    MediaSession, MicrophoneState, Notification, RingEnd, RingPhase, SignedIn, WorkspacesState,
+    ActiveCall, CallDirection, CallEnd, CallPhase, IncomingRing, MediaOwner, MediaSession,
+    MicrophoneState, RingEnd, RingPhase, SignedIn, WorkspacesState,
 };
 
+use crate::l10n::{cs, l, s};
 use crate::transcript::{TranscriptView, transcript_view};
 use crate::views::FailureView;
 
@@ -137,10 +138,10 @@ pub fn dialer_view(signed_in: &SignedIn) -> DialerView {
         }),
         note: signed_in
             .media_busy()
-            .then(|| DialerScreen::BUSY_NOTE.to_owned()),
+            .then(|| cs::dialer_busy_note(l()).to_owned()),
         formatted: dialer.formatted(),
-        hint: DialerScreen::HINT.to_owned(),
-        microphone_note: DialerScreen::MICROPHONE_NOTE.to_owned(),
+        hint: cs::dialer_hint(l()).to_owned(),
+        microphone_note: cs::dialer_microphone_note(l()).to_owned(),
     }
 }
 
@@ -190,7 +191,7 @@ fn call_view(call: &ActiveCall, session: Option<&MediaSession>, now: SystemTime)
         microphone_denied,
         outbound: is_outbound(&call.direction),
         can_mute: !over && session.is_some(),
-        ended_note: (over && call.was_answered()).then(|| ActiveCall::ENDED_NOTE.to_owned()),
+        ended_note: (over && call.was_answered()).then(|| cs::call_ended_note(l()).to_owned()),
         media_notice: session.and_then(MediaSession::notice).map(str::to_owned),
         transcript: call.transcript().map(transcript_view),
     }
@@ -213,22 +214,22 @@ pub fn incoming_ring_view(signed_in: &SignedIn) -> Option<IncomingRingView> {
 
 fn ring_view(ring: &IncomingRing, elsewhere: Option<&str>) -> IncomingRingView {
     let title = match &ring.phase {
-        RingPhase::Waiting => Notification::WAITING_TITLE,
-        RingPhase::Ended(RingEnd::Missed) => Notification::MISSED_TITLE,
+        RingPhase::Waiting => cs::live_waiting_title(l()),
+        RingPhase::Ended(RingEnd::Missed) => cs::live_missed_title(l()),
         RingPhase::Ringing
         | RingPhase::Answering
-        | RingPhase::Ended(RingEnd::CallEnded | RingEnd::AnswerFailed(_)) => IncomingRing::TITLE,
+        | RingPhase::Ended(RingEnd::CallEnded | RingEnd::AnswerFailed(_)) => cs::ringing_title(l()),
     };
     IncomingRingView {
         call_id: ring.call_id.clone(),
         caller: match elsewhere {
-            Some(workspace) => format!("{title} in {workspace}"),
+            Some(workspace) => s::calls_live_ringing_in(l(), title, workspace),
             None => title.to_owned(),
         },
         detail: Some(ring.message()),
         note: ring
             .can_answer()
-            .then(|| IncomingRing::MICROPHONE_NOTE.to_owned()),
+            .then(|| cs::ringing_microphone_note(l()).to_owned()),
         show_answer: matches!(ring.phase, RingPhase::Ringing | RingPhase::Answering),
         can_answer: ring.can_answer(),
         can_decline: ring.can_decline(),
@@ -282,8 +283,8 @@ mod tests {
     use district_api::{ApiError, RetryReason};
     use district_auth::AccessClaims;
     use district_core::{
-        CallEvent, CoreConfig, DialerEvent, Effect, Event, FailureText, MediaEvent, MediaUpdate,
-        Model, SessionState, Ticket,
+        CallEvent, CoreConfig, DialerEvent, DialerScreen, Effect, Event, FailureText, MediaEvent,
+        MediaUpdate, Model, Notification, SessionState, Ticket,
     };
     use district_model::{DialResponse, WorkspaceListResponse};
     use serde_json::json;

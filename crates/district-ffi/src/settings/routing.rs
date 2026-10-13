@@ -19,18 +19,13 @@ use super::call_handling::QuestionView;
 use super::{
     ChoiceView, PickerView, SaveNoticeView, SectionStatus, save_notice, section_status, unlisted,
 };
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::EmptyView;
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
 pub(crate) const BUILT: bool = true;
-
-/// The section's heading: the hub row's title, which opens it.
-pub const ROUTING_TITLE: &str = "Call routing rules";
-/// What the section says under its heading.
-pub const ROUTING_INTRO: &str = "Which callers get which voice and instruction. Rules are \
-    checked in this order, and saving replaces every rule stored.";
 
 /// The keys of a rule the builder reads and writes. Any other key a stored
 /// rule holds goes back as it came.
@@ -65,13 +60,13 @@ pub(crate) fn rule_line(rule: &RoutingRule) -> String {
     let field = rule.get(RoutingRuleField::Field);
     let voice = rule.get(RoutingRuleField::Voice);
     let condition = if field.is_empty() {
-        "No condition set here".to_owned()
+        s::routing_no_condition(l()).to_owned()
     } else {
-        format!(
-            "{} {} \"{}\"",
-            key_words(field),
+        s::routing_condition(
+            l(),
+            &key_words(field),
             rule.get(RoutingRuleField::Operator),
-            rule.get(RoutingRuleField::Value)
+            rule.get(RoutingRuleField::Value),
         )
     };
     if voice.is_empty() {
@@ -90,18 +85,13 @@ pub(crate) fn kept_keys(rule: &RoutingRule) -> Option<String> {
         .map(|key| key_words(key))
         .collect();
     kept.sort();
-    (!kept.is_empty()).then(|| {
-        format!(
-            "Also stored: {}. Kept as they are when the rules are saved.",
-            kept.join(", ")
-        )
-    })
+    (!kept.is_empty()).then(|| s::routing_kept_keys(l(), &kept.join(", ")))
 }
 
 /// A rule's engine, in words: the persona's own when none is set.
 pub(crate) fn engine_words(rule: &RoutingRule) -> String {
     match rule.get(RoutingRuleField::Model) {
-        "" => "The persona's own".to_owned(),
+        "" => s::routing_engine_default(l()).to_owned(),
         model => model.to_owned(),
     }
 }
@@ -172,9 +162,9 @@ pub struct RoutingRuleView {
 /// The routing rules section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct RoutingView {
-    /// The heading, [`ROUTING_TITLE`].
+    /// The heading, `routing.title`.
     pub title: String,
-    /// What it says under the heading, [`ROUTING_INTRO`].
+    /// What it says under the heading, `routing.intro`.
     pub intro: String,
     /// Where the page stands. No list is offered before the settings are
     /// read: a list not built from them could only save over them.
@@ -204,8 +194,8 @@ impl Default for RoutingView {
     /// The section before anything is read.
     fn default() -> Self {
         Self {
-            title: ROUTING_TITLE.to_owned(),
-            intro: ROUTING_INTRO.to_owned(),
+            title: s::routing_title(l()).to_owned(),
+            intro: s::routing_intro(l()).to_owned(),
             status: SectionStatus::Loading,
             unmodellable: None,
             rules: Vec::new(),
@@ -300,23 +290,23 @@ fn picker(label: &str, values: &[&str], words: fn(&str) -> String, stored: &str)
 fn rule_view(index: usize, rule: &RoutingRule) -> RoutingRuleView {
     RoutingRuleView {
         index: u32::try_from(index).unwrap_or(u32::MAX),
-        heading: format!("Rule {}", index + 1),
+        heading: s::routing_rule_heading(l(), i64::try_from(index + 1).unwrap_or(i64::MAX)),
         summary: rule_line(rule),
         field: picker(
-            "Caller detail",
+            s::routing_picker_field(l()),
             ROUTING_FIELDS,
             key_words,
             rule.get(RoutingRuleField::Field),
         ),
         operator: picker(
-            "Compared by",
+            s::routing_picker_operator(l()),
             ROUTING_OPERATORS,
             key_words,
             rule.get(RoutingRuleField::Operator),
         ),
         value: rule.get(RoutingRuleField::Value).to_owned(),
         voice: picker(
-            "Voice",
+            s::routing_picker_voice(l()),
             ROUTING_VOICES,
             str::to_owned,
             rule.get(RoutingRuleField::Voice),
@@ -347,8 +337,8 @@ pub(crate) fn routing_view(
     }
     if section.unmodellable() {
         view.unmodellable = Some(EmptyView::new(
-            RoutingRulesSection::UNMODELLABLE_TITLE,
-            RoutingRulesSection::UNMODELLABLE_BODY,
+            cs::routing_unmodellable_title(l()),
+            cs::routing_unmodellable_body(l()),
         ));
         return view;
     }
@@ -358,12 +348,9 @@ pub(crate) fn routing_view(
         .enumerate()
         .map(|(index, rule)| rule_view(index, rule))
         .collect();
-    view.empty = rules.is_empty().then(|| {
-        EmptyView::new(
-            RoutingRulesSection::EMPTY_TITLE,
-            RoutingRulesSection::EMPTY_BODY,
-        )
-    });
+    view.empty = rules
+        .is_empty()
+        .then(|| EmptyView::new(cs::routing_empty_title(l()), cs::routing_empty_body(l())));
     view.can_edit = capabilities.can_change && section.editable();
     view.can_save = capabilities.can_change && section.can_save();
     view.saving = section.save.is_busy();
@@ -414,6 +401,6 @@ mod tests {
         assert_eq!(other.picker.selected, "Orpheus");
         assert_eq!(other.picker.selected_label, "Orpheus");
         let blank = picker("Voice", ROUTING_VOICES, str::to_owned, " ");
-        assert_eq!(blank.picker.selected_label, super::super::NOT_CHOSEN);
+        assert_eq!(blank.picker.selected_label, s::settings_not_chosen(l()));
     }
 }

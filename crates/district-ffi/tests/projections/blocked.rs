@@ -2,7 +2,8 @@
 //! after the core's question.
 
 use district_core::{ContactWritten, ContactsEvent};
-use district_ffi::blocked::{BLOCKED_EMPTY_BODY, BlockedAction, BlockedView};
+use district_ffi::blocked::{BlockedAction, BlockedView};
+use district_ffi::l10n::{l, s};
 use district_model::ContactBlockResponse;
 
 use super::contacts::{blocked_answer, the_contact_blocked};
@@ -171,7 +172,7 @@ fn the_list_names_each_caller_once() {
     );
     assert!(shown.can_unblock);
     let empty = view(&read(open(signed_in()), json!([])));
-    assert_eq!(empty.empty.unwrap().body, BLOCKED_EMPTY_BODY);
+    assert_eq!(empty.empty.unwrap().body, s::blocked_empty_body(l()));
 }
 
 /// Unblocking asks first, sends once however often it is confirmed, and

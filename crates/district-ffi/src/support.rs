@@ -18,23 +18,13 @@ use district_core::{
 use district_model::{SupportMessage, SupportRequestKind, SupportRequestSummary};
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, LoadStatus, failure};
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
 pub(crate) const BUILT: bool = true;
-
-/// The list page's heading.
-pub const SUPPORT_TITLE: &str = "Support";
-/// The heading of a request not read yet, or that could not be read.
-pub const REQUEST_TITLE: &str = "Support request";
-/// The heading when a request could not be read, as the Linux app words it.
-pub const REQUEST_FAILED_TITLE: &str = "Could not load this request";
-/// What a request still being opened shows in place of its reference.
-pub const NOT_FILED_YET: &str = "Not filed yet";
-/// The form's heading.
-pub const COMPOSE_TITLE: &str = "New support request";
 
 /// The support requests, and the form raising one.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -68,7 +58,7 @@ pub struct SupportView {
 impl Default for SupportView {
     fn default() -> Self {
         Self {
-            title: SUPPORT_TITLE.to_owned(),
+            title: s::support_title(l()).to_owned(),
             status: LoadStatus::Loading,
             empty: None,
             open: Vec::new(),
@@ -91,7 +81,7 @@ pub struct SupportRowView {
     pub key: String,
     /// The subject.
     pub subject: String,
-    /// Its support desk key (`DA-42`), or [`NOT_FILED_YET`].
+    /// Its support desk key (`DA-42`), or `support.not_filed_yet`.
     pub reference: String,
     /// Where it stands, in the support desk's own word, shown as it is.
     pub status: String,
@@ -171,13 +161,13 @@ pub struct SupportComposeView {
 /// One support request.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct SupportRequestView {
-    /// The heading: the subject once read, [`REQUEST_TITLE`] before.
+    /// The heading: the subject once read, `support.request_title` before.
     pub title: String,
     /// The key the page was opened by.
     pub key: String,
     /// Where the read stands.
     pub status: LoadStatus,
-    /// Its support desk key (`DA-42`), or [`NOT_FILED_YET`]. Empty until read.
+    /// Its support desk key (`DA-42`), or `support.not_filed_yet`. Empty until read.
     pub reference: String,
     /// Where it stands, in the support desk's own word. Empty until read.
     pub status_name: String,
@@ -219,7 +209,7 @@ pub struct SupportRequestView {
 impl Default for SupportRequestView {
     fn default() -> Self {
         Self {
-            title: REQUEST_TITLE.to_owned(),
+            title: s::support_request_title(l()).to_owned(),
             key: String::new(),
             status: LoadStatus::Loading,
             reference: String::new(),
@@ -236,8 +226,8 @@ impl Default for SupportRequestView {
             can_close: false,
             closing: false,
             confirming_close: false,
-            close_question: SupportRequestScreen::CLOSE_QUESTION.to_owned(),
-            close_action: SupportRequestScreen::CLOSE_ACTION.to_owned(),
+            close_question: cs::support_close_question(l()).to_owned(),
+            close_action: cs::support_close_action(l()).to_owned(),
             close_failure: None,
             closed_message: None,
         }
@@ -367,19 +357,19 @@ fn support_view(support: &SupportScreen) -> SupportView {
     match &support.list {
         SupportList::NotLoaded | SupportList::Loading => {}
         SupportList::Failed(failure) => {
-            view.status = LoadStatus::failed(SupportList::FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(cs::support_failed_title(l()), failure);
         }
         SupportList::Ready(requests) => {
             view.status = LoadStatus::Ready;
             view.empty = requests
                 .requests
                 .is_empty()
-                .then(|| EmptyView::new(SupportList::EMPTY_TITLE, SupportList::EMPTY_BODY));
+                .then(|| EmptyView::new(cs::support_empty_title(l()), cs::support_empty_body(l())));
             view.open = requests.open().into_iter().map(row).collect();
             view.resolved = requests.resolved().into_iter().map(row).collect();
             view.capped_note = requests
                 .capped()
-                .then(|| district_core::SupportRequests::CAPPED.to_owned());
+                .then(|| cs::support_capped(l()).to_owned());
             view.refreshing = requests.refreshing;
             view.refresh_failure = failure(requests.refresh_failure.as_ref());
         }
@@ -401,7 +391,7 @@ fn row(request: &SupportRequestSummary) -> SupportRowView {
 fn reference(issue_key: Option<&str>) -> String {
     issue_key
         .filter(|key| !key.trim().is_empty())
-        .unwrap_or(NOT_FILED_YET)
+        .unwrap_or(s::support_not_filed_yet(l()))
         .to_owned()
 }
 
@@ -409,8 +399,8 @@ fn compose_view(compose: &SupportCompose) -> SupportComposeView {
     let form = &compose.form;
     let can_submit = form.can_submit();
     SupportComposeView {
-        title: COMPOSE_TITLE.to_owned(),
-        kinds: SupportForm::KINDS
+        title: s::support_compose_title(l()).to_owned(),
+        kinds: SupportForm::kinds()
             .iter()
             .map(|(kind, label)| SupportKindView {
                 kind: (*kind).into(),
@@ -431,8 +421,10 @@ fn compose_view(compose: &SupportCompose) -> SupportComposeView {
 
 /// What the form needs, from the core's own bounds, as the Linux app says it.
 fn needs() -> String {
-    format!(
-        "A subject of {SUPPORT_SUBJECT_MIN} to {SUPPORT_SUBJECT_MAX} characters, and a message."
+    s::support_compose_needs(
+        l(),
+        i64::try_from(SUPPORT_SUBJECT_MIN).unwrap_or(i64::MAX),
+        i64::try_from(SUPPORT_SUBJECT_MAX).unwrap_or(i64::MAX),
     )
 }
 
@@ -479,7 +471,7 @@ fn request_view(screen: &SupportRequestScreen) -> SupportRequestView {
 }
 
 fn failed(failure: &FailureText) -> LoadStatus {
-    LoadStatus::failed(REQUEST_FAILED_TITLE, failure)
+    LoadStatus::failed(s::support_request_failed_title(l()), failure)
 }
 
 fn message(message: &SupportMessage) -> SupportMessageView {
@@ -510,8 +502,8 @@ mod tests {
     #[test]
     fn a_reference_is_the_key_or_that_there_is_none_yet() {
         assert_eq!(reference(Some("DA-42")), "DA-42");
-        assert_eq!(reference(Some(" ")), NOT_FILED_YET);
-        assert_eq!(reference(None), NOT_FILED_YET);
+        assert_eq!(reference(Some(" ")), s::support_not_filed_yet(l()));
+        assert_eq!(reference(None), s::support_not_filed_yet(l()));
         assert_eq!(limit(usize::MAX), u32::MAX);
         assert_eq!(needs(), "A subject of 3 to 200 characters, and a message.");
     }

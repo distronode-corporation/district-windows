@@ -15,6 +15,7 @@ use district_core::{
 };
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 pub use crate::rich_text::{RichBlock, RichRun, RichTextView};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, ReportAvailability};
@@ -22,30 +23,10 @@ use crate::views::{EmptyView, FailureView, ReportAvailability};
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
 
-/// The page's heading, as the navigation pane names it.
-pub const TITLE: &str = "District HQ";
-/// The prompt box's placeholder, and its accessible name.
-pub const PROMPT_PLACEHOLDER: &str = "Ask District HQ";
-/// The button that sends the prompt.
-pub const ASK_ACTION: &str = "Ask";
-/// The button that sends a failed prompt again.
-pub const RETRY_ACTION: &str = "Try again";
-/// The line under the prompt box: every question is a billed model run, and
-/// nothing changes until the member confirms it.
-pub const FOOTNOTE: &str = "Each question is answered by an AI model, which is billed. A change \
-    it proposes is made only when you confirm it.";
-/// The note under a proposed change for a member whose role cannot make it.
-pub const VIEWER_NOTE: &str = "Nothing has been changed. Only an agency or client member of this \
-    workspace can confirm a change.";
-/// The note under a change whose confirmation failed: whether it was made is
-/// not known, which is the member's to check before confirming again.
-pub const UNKNOWN_NOTE: &str =
-    "The change may have been made before the answer was lost. Check before confirming again.";
-
 /// The District HQ screen.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct HqView {
-    /// The heading, [`TITLE`].
+    /// The heading, `hq.title`.
     pub title: String,
     /// What an empty conversation says, while nothing has been asked.
     pub empty: Option<EmptyView>,
@@ -65,13 +46,13 @@ pub struct HqView {
     /// Whether a prompt can be sent now: not while one is being answered or a
     /// change applied.
     pub can_ask: bool,
-    /// The prompt box's placeholder, [`PROMPT_PLACEHOLDER`].
+    /// The prompt box's placeholder, `hq.prompt_placeholder`.
     pub prompt_placeholder: String,
-    /// The send button's label, [`ASK_ACTION`].
+    /// The send button's label, `hq.ask_action`.
     pub ask_label: String,
-    /// The "Try again" button's label, [`RETRY_ACTION`].
+    /// The "Try again" button's label, `hq.retry_action`.
     pub retry_label: String,
-    /// The line under the prompt box, [`FOOTNOTE`].
+    /// The line under the prompt box, `hq.footnote`.
     pub footnote: String,
 }
 
@@ -187,40 +168,40 @@ fn hq_view(hq: &HqScreen, capabilities: &Capabilities) -> HqView {
     };
     let can_retry = controls.can_retry && failure.as_ref().is_some_and(|f| f.retryable);
     let card = hq.phase.proposal().map(|proposal| HqCardView {
-        title: HqScreen::CONFIRM_TITLE.to_owned(),
+        title: cs::hq_confirm_title(l()).to_owned(),
         summary: proposal.summary.clone(),
         note: card_note(&hq.phase, controls.can_confirm).map(str::to_owned),
-        applying: matches!(hq.phase, HqPhase::Applying(_)).then(|| HqScreen::APPLYING.to_owned()),
+        applying: matches!(hq.phase, HqPhase::Applying(_)).then(|| cs::hq_applying(l()).to_owned()),
         failure: match &hq.phase {
             HqPhase::ConfirmFailed { failure, .. } => Some(failure.into()),
             _ => None,
         },
-        confirm_label: HqScreen::CONFIRM_ACTION.to_owned(),
-        dismiss_label: HqScreen::DISMISS_ACTION.to_owned(),
+        confirm_label: cs::hq_confirm_action(l()).to_owned(),
+        dismiss_label: cs::hq_dismiss_action(l()).to_owned(),
         can_confirm: controls.can_confirm,
         can_dismiss: controls.can_dismiss,
     });
     HqView {
-        title: TITLE.to_owned(),
+        title: s::hq_title(l()).to_owned(),
         empty: hq
             .transcript
             .is_empty()
-            .then(|| EmptyView::new(HqScreen::EMPTY_TITLE, HqScreen::EMPTY_BODY)),
+            .then(|| EmptyView::new(cs::hq_empty_title(l()), cs::hq_empty_body(l()))),
         messages: hq
             .transcript
             .iter()
             .zip(0u32..)
             .map(|(message, index)| message_view(message, index, capabilities))
             .collect(),
-        thinking: (hq.phase == HqPhase::Thinking).then(|| HqScreen::THINKING.to_owned()),
+        thinking: (hq.phase == HqPhase::Thinking).then(|| cs::hq_thinking(l()).to_owned()),
         failure,
         can_retry,
         card,
         can_ask: controls.can_ask,
-        prompt_placeholder: PROMPT_PLACEHOLDER.to_owned(),
-        ask_label: ASK_ACTION.to_owned(),
-        retry_label: RETRY_ACTION.to_owned(),
-        footnote: FOOTNOTE.to_owned(),
+        prompt_placeholder: s::hq_prompt_placeholder(l()).to_owned(),
+        ask_label: s::hq_ask_action(l()).to_owned(),
+        retry_label: s::hq_retry_action(l()).to_owned(),
+        footnote: s::hq_footnote(l()).to_owned(),
     }
 }
 
@@ -229,9 +210,9 @@ fn hq_view(hq: &HqScreen, capabilities: &Capabilities) -> HqView {
 /// confirmation was sent and its answer lost; nothing while it is applied.
 fn card_note(phase: &HqPhase, can_confirm: bool) -> Option<&'static str> {
     match phase {
-        HqPhase::Confirming(_) if can_confirm => Some(HqScreen::CONFIRM_NOTE),
-        HqPhase::Confirming(_) => Some(VIEWER_NOTE),
-        HqPhase::ConfirmFailed { .. } => Some(UNKNOWN_NOTE),
+        HqPhase::Confirming(_) if can_confirm => Some(cs::hq_confirm_note(l())),
+        HqPhase::Confirming(_) => Some(s::hq_viewer_note(l())),
+        HqPhase::ConfirmFailed { .. } => Some(s::hq_unknown_note(l())),
         HqPhase::Idle | HqPhase::Thinking | HqPhase::Applying(_) | HqPhase::Failed(_) => None,
     }
 }
@@ -267,8 +248,11 @@ impl HqView {
             retryable: true,
         };
         Self {
-            title: TITLE.to_owned(),
-            empty: Some(EmptyView::new(HqScreen::EMPTY_TITLE, HqScreen::EMPTY_BODY)),
+            title: s::hq_title(l()).to_owned(),
+            empty: Some(EmptyView::new(
+                cs::hq_empty_title(l()),
+                cs::hq_empty_body(l()),
+            )),
             messages: vec![
                 HqMessageView::Question {
                     index: 0,
@@ -287,25 +271,25 @@ impl HqView {
                     applied: true,
                 },
             ],
-            thinking: Some(HqScreen::THINKING.to_owned()),
+            thinking: Some(cs::hq_thinking(l()).to_owned()),
             failure: Some(failure.clone()),
             can_retry: true,
             card: Some(HqCardView {
-                title: HqScreen::CONFIRM_TITLE.to_owned(),
+                title: cs::hq_confirm_title(l()).to_owned(),
                 summary: "Update the greeting.".to_owned(),
-                note: Some(UNKNOWN_NOTE.to_owned()),
-                applying: Some(HqScreen::APPLYING.to_owned()),
+                note: Some(s::hq_unknown_note(l()).to_owned()),
+                applying: Some(cs::hq_applying(l()).to_owned()),
                 failure: Some(failure),
-                confirm_label: HqScreen::CONFIRM_ACTION.to_owned(),
-                dismiss_label: HqScreen::DISMISS_ACTION.to_owned(),
+                confirm_label: cs::hq_confirm_action(l()).to_owned(),
+                dismiss_label: cs::hq_dismiss_action(l()).to_owned(),
                 can_confirm: true,
                 can_dismiss: true,
             }),
             can_ask: true,
-            prompt_placeholder: PROMPT_PLACEHOLDER.to_owned(),
-            ask_label: ASK_ACTION.to_owned(),
-            retry_label: RETRY_ACTION.to_owned(),
-            footnote: FOOTNOTE.to_owned(),
+            prompt_placeholder: s::hq_prompt_placeholder(l()).to_owned(),
+            ask_label: s::hq_ask_action(l()).to_owned(),
+            retry_label: s::hq_retry_action(l()).to_owned(),
+            footnote: s::hq_footnote(l()).to_owned(),
         }
     }
 }
@@ -338,12 +322,12 @@ mod tests {
     fn the_card_note_says_what_is_known() {
         let confirming = HqPhase::Confirming(proposal());
         assert_eq!(card_note(&confirming, true), Some(HqScreen::CONFIRM_NOTE));
-        assert_eq!(card_note(&confirming, false), Some(VIEWER_NOTE));
+        assert_eq!(card_note(&confirming, false), Some(s::hq_viewer_note(l())));
         let failed = HqPhase::ConfirmFailed {
             proposal: proposal(),
             failure: failure(true),
         };
-        assert_eq!(card_note(&failed, true), Some(UNKNOWN_NOTE));
+        assert_eq!(card_note(&failed, true), Some(s::hq_unknown_note(l())));
         for phase in [
             HqPhase::Idle,
             HqPhase::Thinking,

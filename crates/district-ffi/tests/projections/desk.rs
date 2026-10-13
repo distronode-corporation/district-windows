@@ -6,10 +6,10 @@ use district_api::ErrorDetail;
 use district_core::DeskEvent;
 use district_ffi::LoadStatus;
 use district_ffi::desk::{
-    DESK_TITLE, DeskAction, DeskFilter, DeskSettingsView, DeskStatus, DeskTicketView, DeskView,
-    LOGO_TYPE_REFUSED, NO_CUSTOMER, NOTIFIED, PickedFileView, TICKET_FAILED_TITLE,
+    DeskAction, DeskFilter, DeskSettingsView, DeskStatus, DeskTicketView, DeskView, PickedFileView,
     desk_logo_problem,
 };
+use district_ffi::l10n::{l, s};
 use district_model::{DeskLogoRemovalResponse, DeskSettingsResponse, DeskTicketsResponse};
 
 use super::*;
@@ -646,7 +646,7 @@ fn a_role_narrowed_to_viewer_leaves_an_open_ticket() {
 #[test]
 fn a_desk_that_is_off_says_so_rather_than_empty() {
     let shown = queue_view(&off());
-    assert_eq!(shown.title, DESK_TITLE);
+    assert_eq!(shown.title, s::desk_title(l()));
     assert_eq!(shown.status, LoadStatus::Ready);
     let switched_off = shown.off.expect("the switched-off state");
     assert_eq!(switched_off.title, "The help desk is off");
@@ -691,7 +691,7 @@ fn the_queue_counts_and_filters_the_whole_queue() {
         rows,
         [
             ("T-41", "Contract Test Caller", "Open"),
-            ("T-42", NO_CUSTOMER, "Waiting"),
+            ("T-42", s::desk_no_customer(l()), "Waiting"),
             ("T-43", "billing@example.com", "Resolved"),
         ]
     );
@@ -796,7 +796,7 @@ fn a_ticket_replies_once_and_changes_status_one_at_a_time() {
         sending(),
         Ok(contracts::json("district-desk-ticket-reply.json")),
     ));
-    assert_eq!(done.notified_note.as_deref(), Some(NOTIFIED));
+    assert_eq!(done.notified_note.as_deref(), Some(s::desk_notified(l())));
     assert_eq!(done.reply, "");
     assert_eq!(done.reference_line, "T-41 \u{b7} Waiting on the customer");
 
@@ -827,7 +827,7 @@ fn a_ticket_replies_once_and_changes_status_one_at_a_time() {
     let LoadStatus::Failed { title, failure } = missing.status else {
         panic!("not failed");
     };
-    assert_eq!(title, TICKET_FAILED_TITLE);
+    assert_eq!(title, s::desk_ticket_failed_title(l()));
     assert_eq!(failure.message, "Ticket not found.");
 }
 
@@ -880,7 +880,7 @@ fn the_settings_save_once_and_the_logo_is_one_change_at_a_time() {
 fn a_gif_logo_and_one_too_large_are_refused_before_the_core() {
     assert_eq!(
         desk_logo_problem(picked("logo.gif", GIF)).as_deref(),
-        Some(LOGO_TYPE_REFUSED)
+        Some(s::desk_logo_type_refused(l()))
     );
     let mut large = PNG.to_vec();
     large.resize(5 * 1024 * 1024 + 1, 0);

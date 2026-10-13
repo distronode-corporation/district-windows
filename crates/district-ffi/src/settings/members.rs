@@ -22,46 +22,17 @@ use district_model::{MemberRole, WorkspaceMember};
 use serde::Serialize;
 
 use super::{SaveNoticeView, SectionStatus, save_notice};
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::humanize;
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
 
-/// The section's heading: its row's title in the hub, which opens it.
-pub const TITLE: &str = "Members";
-/// The heading of a failed read of the members.
-pub const FAILED_TITLE: &str = "Could not load the members";
-/// The note for a member who may not change who belongs here.
-pub const AGENCY_ONLY: &str =
-    "Only an agency member can add members, change their roles or remove them.";
-/// The add form's heading.
-pub const ADD_HEADING: &str = "Add a member";
-/// The address box's label.
-pub const EMAIL_LABEL: &str = "Email address";
-/// The role picker's label.
-pub const ROLE_LABEL: &str = "Role";
-/// The add button.
-pub const ADD_ACTION: &str = "Add";
-/// A member's remove button.
-pub const REMOVE_FROM_WORKSPACE: &str = "Remove from this workspace";
-/// The removal question's button that keeps the member.
-pub const CANCEL: &str = "Cancel";
-/// The rename form's heading.
-pub const RENAME_HEADING: &str = "The workspace's name";
-/// The label of the name now.
-pub const CURRENT_NAME: &str = "Now";
-/// The new name box's label.
-pub const NEW_NAME: &str = "New name";
-/// The rename button.
-pub const RENAME_ACTION: &str = "Rename the workspace";
-/// A role this app does not know, which the core treats as no access.
-pub const UNKNOWN_ROLE: &str = "A role this app does not know, which it treats as no access.";
-
 /// The members section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct MembersView {
-    /// The heading, [`TITLE`].
+    /// The heading, `members.title`.
     pub title: String,
     /// Where the list stands; the section shows only when ready.
     pub status: SectionStatus,
@@ -69,7 +40,7 @@ pub struct MembersView {
     pub members: Vec<MemberRowView>,
     /// Whether a change of a member is on its way (show a progress ring).
     pub changing: bool,
-    /// [`AGENCY_ONLY`], for a member who may not manage members.
+    /// `members.agency_only`, for a member who may not manage members.
     pub read_only_note: Option<String>,
     /// How the last change ended, until dismissed.
     pub notice: Option<SaveNoticeView>,
@@ -140,20 +111,20 @@ pub struct MemberRowView {
     /// Whether their role can be changed and they can be removed now: an
     /// agency member, with nothing on its way.
     pub can_change: bool,
-    /// [`REMOVE_FROM_WORKSPACE`].
+    /// `members.remove_from_workspace`.
     pub remove_label: String,
 }
 
 /// The add form.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct AddMemberView {
-    /// [`ADD_HEADING`].
+    /// `members.add_heading`.
     pub heading: String,
-    /// [`EMAIL_LABEL`].
+    /// `members.email_label`.
     pub email_label: String,
     /// The address, as typed.
     pub email: String,
-    /// [`ROLE_LABEL`].
+    /// `members.role_label`.
     pub role_label: String,
     /// The role it will get.
     pub role: MemberRoleView,
@@ -165,21 +136,21 @@ pub struct AddMemberView {
     pub rejected: Option<String>,
     /// That adding someone sends no invitation, in the core's words.
     pub note: String,
-    /// [`ADD_ACTION`].
+    /// `members.add_action`.
     pub add_label: String,
 }
 
 /// The rename form.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct RenameView {
-    /// [`RENAME_HEADING`].
+    /// `members.rename_heading`.
     pub heading: String,
-    /// [`CURRENT_NAME`].
+    /// `members.current_name`.
     pub current_label: String,
     /// The name now: the one the service stored at the last rename, else the
     /// switcher's.
     pub current: String,
-    /// [`NEW_NAME`].
+    /// `members.new_name`.
     pub new_label: String,
     /// The new name, as typed.
     pub new_name: String,
@@ -189,7 +160,7 @@ pub struct RenameView {
     pub can_rename: bool,
     /// Whether a rename is on its way (show a progress ring).
     pub renaming: bool,
-    /// [`RENAME_ACTION`].
+    /// `members.rename_action`.
     pub rename_label: String,
 }
 
@@ -299,7 +270,7 @@ fn role_line(raw: &str) -> String {
             let (name, does) = member_role_label(role);
             format!("{name} \u{b7} {does}")
         }
-        None => format!("{} \u{b7} {UNKNOWN_ROLE}", humanize(raw)),
+        None => format!("{} \u{b7} {}", humanize(raw), s::members_unknown_role(l())),
     }
 }
 
@@ -317,7 +288,7 @@ fn members_view(
         None | Some(MemberList::Loading) => (SectionStatus::Loading, &[]),
         Some(MemberList::Failed(failure)) => (
             SectionStatus::Failed {
-                title: FAILED_TITLE.to_owned(),
+                title: s::members_failed_title(l()).to_owned(),
                 failure: failure.into(),
             },
             &[],
@@ -325,7 +296,7 @@ fn members_view(
         Some(MemberList::Ready(members)) => (SectionStatus::Ready, members),
     };
     MembersView {
-        title: TITLE.to_owned(),
+        title: s::members_title(l()).to_owned(),
         status,
         members: listed
             .iter()
@@ -334,11 +305,11 @@ fn members_view(
                 role_line: role_line(&member.role),
                 role: stored_role(&member.role).map(MemberRoleView::from),
                 can_change: manage && !busy,
-                remove_label: REMOVE_FROM_WORKSPACE.to_owned(),
+                remove_label: s::members_remove_from_workspace(l()).to_owned(),
             })
             .collect(),
         changing: busy && last != Some(Write::Rename),
-        read_only_note: (!manage).then(|| AGENCY_ONLY.to_owned()),
+        read_only_note: (!manage).then(|| s::members_agency_only(l()).to_owned()),
         notice: section.and_then(|s| save_notice(&s.write)),
         roles: ROLES
             .into_iter()
@@ -352,39 +323,39 @@ fn members_view(
             })
             .collect(),
         add: section.filter(|_| manage).map(|s| AddMemberView {
-            heading: ADD_HEADING.to_owned(),
-            email_label: EMAIL_LABEL.to_owned(),
+            heading: s::members_add_heading(l()).to_owned(),
+            email_label: s::members_email_label(l()).to_owned(),
             email: s.email.clone(),
-            role_label: ROLE_LABEL.to_owned(),
+            role_label: s::members_role_label(l()).to_owned(),
             role: s.role.into(),
             editable: !busy,
             can_add: s.can_add(),
             rejected: s
                 .add_rejected
-                .then(|| MembersSection::ADD_REJECTED.to_owned()),
-            note: MembersSection::NO_INVITATION.to_owned(),
-            add_label: ADD_ACTION.to_owned(),
+                .then(|| cs::members_add_rejected(l()).to_owned()),
+            note: cs::members_no_invitation(l()).to_owned(),
+            add_label: s::members_add_action(l()).to_owned(),
         }),
         rename: section
             .filter(|_| capabilities.can_rename_workspace)
             .map(|s| RenameView {
-                heading: RENAME_HEADING.to_owned(),
-                current_label: CURRENT_NAME.to_owned(),
+                heading: s::members_rename_heading(l()).to_owned(),
+                current_label: s::members_current_name(l()).to_owned(),
                 current: s.stored_name.clone().unwrap_or_else(|| name.to_owned()),
-                new_label: NEW_NAME.to_owned(),
+                new_label: s::members_new_name(l()).to_owned(),
                 new_name: s.new_name.clone(),
                 editable: !busy,
                 can_rename: s.can_rename(),
                 renaming: busy && last == Some(Write::Rename),
-                rename_label: RENAME_ACTION.to_owned(),
+                rename_label: s::members_rename_action(l()).to_owned(),
             }),
         confirm_remove: section.and_then(|s| s.confirming.as_ref()).map(|email| {
             RemoveQuestionView {
                 email: email.clone(),
-                title: MembersSection::REMOVE_TITLE.to_owned(),
+                title: cs::members_remove_title(l()).to_owned(),
                 body: MembersSection::remove_body(email),
-                remove_label: MembersSection::REMOVE_ACTION.to_owned(),
-                cancel_label: CANCEL.to_owned(),
+                remove_label: cs::members_remove_action(l()).to_owned(),
+                cancel_label: s::members_cancel(l()).to_owned(),
             }
         }),
     }
@@ -405,7 +376,10 @@ mod tests {
     #[test]
     fn a_role_is_named_or_said_to_be_unknown() {
         assert!(role_line("AGENCY ").starts_with("Agency \u{b7} Full access"));
-        assert_eq!(role_line("owner"), format!("Owner \u{b7} {UNKNOWN_ROLE}"));
+        assert_eq!(
+            role_line("owner"),
+            format!("Owner \u{b7} {}", s::members_unknown_role(l()))
+        );
         assert_eq!(stored_role("Viewer"), Some(MemberRole::Viewer));
         for role in ROLES {
             assert_eq!(MemberRole::from(MemberRoleView::from(role)), role);

@@ -15,12 +15,7 @@
 
 use serde::Serialize;
 
-/// The button's words, as the service's own sign-in page puts them.
-pub const CREATE_ACCOUNT_LABEL: &str = "Create an account";
-/// The line under it: what the button does, since it cannot open the
-/// register page itself.
-pub const CREATE_ACCOUNT_NOTE: &str = "Your browser opens the District AI sign-in page, which \
-    offers Create an account. When the account is made, you come back here signed in.";
+use crate::l10n::{l, s};
 
 /// The way to a new account, on a signed-out sign-in page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -34,8 +29,8 @@ pub struct CreateAccountView {
 /// The way to a new account, offered wherever browser sign-in is.
 pub(crate) fn create_account(sign_in: bool) -> Option<CreateAccountView> {
     sign_in.then(|| CreateAccountView {
-        label: CREATE_ACCOUNT_LABEL.to_owned(),
-        note: CREATE_ACCOUNT_NOTE.to_owned(),
+        label: s::welcome_create_account_label(l()).to_owned(),
+        note: s::welcome_create_account_note(l()).to_owned(),
     })
 }
 

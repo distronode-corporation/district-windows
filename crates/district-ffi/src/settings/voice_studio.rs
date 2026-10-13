@@ -27,18 +27,15 @@ use district_core::{
 use district_model::{StudioRecipe, VoiceStudioResponse};
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
-use crate::settings::{
-    ChoiceView, PickerView, READ_AGAIN, STALE_TITLE, SaveNoticeView, SectionStatus, unlisted,
-};
+use crate::settings::{ChoiceView, PickerView, SaveNoticeView, SectionStatus, unlisted};
 use crate::views::FactView;
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
 pub(crate) const BUILT: bool = true;
 
-/// The page's heading: the hub row's name for the section.
-pub const VOICE_STUDIO_TITLE: &str = "Voice";
 /// The Stable tier, as the core names it.
 pub const TIER_STABLE: &str = "stable";
 /// The Latest tier.
@@ -55,7 +52,7 @@ pub const SLIDER_SCALE: f64 = 1000.0;
 /// The Voice section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct VoiceStudioView {
-    /// The heading, [`VOICE_STUDIO_TITLE`].
+    /// The heading, `voice_studio.title`.
     pub title: String,
     /// Where the page stands (the settings kit's): being read, failed
     /// ("Could not load Voice Studio", with "Try again" when the core says it
@@ -401,7 +398,7 @@ fn voice_studio_view(section: Option<&VoiceStudioSection>, can_change: bool) -> 
         None | Some((_, VoiceStudioLoad::Loading)) => (SectionStatus::Loading, None),
         Some((_, VoiceStudioLoad::Failed(failure))) => (
             SectionStatus::Failed {
-                title: VoiceStudioSection::FAILED_TITLE.to_owned(),
+                title: cs::voice_studio_failed_title(l()).to_owned(),
                 failure: failure.into(),
             },
             None,
@@ -413,9 +410,9 @@ fn voice_studio_view(section: Option<&VoiceStudioSection>, can_change: bool) -> 
         {
             (
                 SectionStatus::Stale {
-                    title: STALE_TITLE.to_owned(),
-                    body: VoiceStudioSection::SAVED_STALE.to_owned(),
-                    action: READ_AGAIN.to_owned(),
+                    title: s::settings_stale_title(l()).to_owned(),
+                    body: cs::voice_studio_saved_stale(l()).to_owned(),
+                    action: s::settings_read_again(l()).to_owned(),
                 },
                 None,
             )
@@ -426,7 +423,7 @@ fn voice_studio_view(section: Option<&VoiceStudioSection>, can_change: bool) -> 
         ),
     };
     VoiceStudioView {
-        title: VOICE_STUDIO_TITLE.to_owned(),
+        title: s::voice_studio_title(l()).to_owned(),
         status,
         studio,
     }
@@ -580,7 +577,7 @@ fn editor_view(ready: &StudioReady) -> StudioEditorView {
                 label: if group.is_empty() {
                     option.label.clone()
                 } else {
-                    format!("{} ({group})", option.label)
+                    s::voice_studio_option_in_group(l(), &option.label, group)
                 },
             })
             .collect();
@@ -743,7 +740,7 @@ mod tests {
     #[test]
     fn the_sample_has_nothing_read() {
         let view = sample();
-        assert_eq!(view.title, VOICE_STUDIO_TITLE);
+        assert_eq!(view.title, s::voice_studio_title(l()));
         assert_eq!(view.status, SectionStatus::Loading);
         assert_eq!(view.studio, None);
     }

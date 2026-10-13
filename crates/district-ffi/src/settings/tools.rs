@@ -19,36 +19,23 @@ use district_core::{
 use serde::Serialize;
 
 use super::{SaveNoticeView, SectionStatus, save_notice, section_status};
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
 
-/// The section's heading: its row's title in the hub, which opens it.
-pub const TITLE: &str = "Skills";
-/// The tools' heading, as the Linux app words it.
-pub const TOOLS_HEADING: &str = "On a call";
-/// What the tools are, and what saving them does, as the Linux app words it.
-pub const TOOLS_NOTE: &str =
-    "What the receptionist may do. Saving replaces the stored list with these switches.";
-/// The tools' save button.
-pub const SAVE_TOOLS: &str = "Save skills";
-/// The research part's heading, as the Linux app words it.
-pub const RESEARCH_HEADING: &str = "Research contacts";
-/// The research part's save button, as the Linux app words it.
-pub const SAVE_RESEARCH: &str = "Save research setting";
-
 /// The Skills section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct ToolsView {
-    /// The heading, [`TITLE`].
+    /// The heading, `tools.title`.
     pub title: String,
     /// Where the page stands; the form shows only when [`SectionStatus::Ready`].
     /// A save of either part that landed and was not read back says so here.
     pub status: SectionStatus,
-    /// The tools' heading, [`TOOLS_HEADING`].
+    /// The tools' heading, `tools.heading`.
     pub tools_heading: String,
-    /// What the tools are, [`TOOLS_NOTE`].
+    /// What the tools are, `tools.note`.
     pub tools_note: String,
     /// A switch per tool: those the core names, in its order, then each stored
     /// id it has no name for, in the stored order. Empty until read.
@@ -62,9 +49,9 @@ pub struct ToolsView {
     /// Whether the tools' Save works: a switch differs from what is stored, and
     /// nothing is on its way.
     pub can_save_tools: bool,
-    /// The tools' save button, [`SAVE_TOOLS`].
+    /// The tools' save button, `tools.save_tools`.
     pub save_tools_label: String,
-    /// The research part's heading, [`RESEARCH_HEADING`].
+    /// The research part's heading, `tools.research_heading`.
     pub research_heading: String,
     /// The research switch's title, in the core's words.
     pub research_title: String,
@@ -78,7 +65,7 @@ pub struct ToolsView {
     pub research_saving: bool,
     /// Whether its Save works.
     pub can_save_research: bool,
-    /// Its save button, [`SAVE_RESEARCH`].
+    /// Its save button, `tools.save_research`.
     pub save_research_label: String,
 }
 
@@ -153,24 +140,24 @@ fn tools_view(section: Option<&ToolsSection>) -> ToolsView {
         section_status(&s.config, save)
     });
     ToolsView {
-        title: TITLE.to_owned(),
+        title: s::tools_title(l()).to_owned(),
         status,
-        tools_heading: TOOLS_HEADING.to_owned(),
-        tools_note: TOOLS_NOTE.to_owned(),
+        tools_heading: s::tools_heading(l()).to_owned(),
+        tools_note: s::tools_note(l()).to_owned(),
         tools: section.map_or_else(Vec::new, |s| s.rows().iter().map(tool_row).collect()),
         editable: section.is_some_and(ToolsSection::editable),
         tools_notice: section.and_then(|s| save_notice(&s.tools_save)),
         tools_saving: section.is_some_and(|s| s.tools_save.is_busy()),
         can_save_tools: section.is_some_and(ToolsSection::can_save_tools),
-        save_tools_label: SAVE_TOOLS.to_owned(),
-        research_heading: RESEARCH_HEADING.to_owned(),
-        research_title: ToolsSection::ENRICHMENT_TITLE.to_owned(),
-        research_body: ToolsSection::ENRICHMENT_BODY.to_owned(),
+        save_tools_label: s::tools_save_tools(l()).to_owned(),
+        research_heading: s::tools_research_heading(l()).to_owned(),
+        research_title: cs::tools_enrichment_title(l()).to_owned(),
+        research_body: cs::tools_enrichment_body(l()).to_owned(),
         research_enabled: section.is_some_and(ToolsSection::enrichment_enabled),
         research_notice: section.and_then(|s| save_notice(&s.enrichment_save)),
         research_saving: section.is_some_and(|s| s.enrichment_save.is_busy()),
         can_save_research: section.is_some_and(ToolsSection::can_save_enrichment),
-        save_research_label: SAVE_RESEARCH.to_owned(),
+        save_research_label: s::tools_save_research(l()).to_owned(),
     }
 }
 

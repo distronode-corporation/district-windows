@@ -16,56 +16,19 @@
 
 use district_core::{
     Capabilities, CoreConfig, DisconnectReason, Event, FailureText, MediaConnection, MediaSession,
-    MeetingList, MeetingRecord, MicrophoneState, Model, RoomsEvent, RoomsScreen, Route, SignedIn,
+    MeetingList, MeetingRecord, MicrophoneState, Model, RoomsEvent, Route, SignedIn,
     WorkspacesState, format_duration, is_in_progress,
 };
 use district_model::{MeetRoomName, MeetingDetail, MeetingSummary};
 use serde::Serialize;
 use serde_json::Value;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FactView, FailureView, LoadStatus, ReportAvailability, humanize};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
-
-/// The page's heading, the navigation entry's.
-pub const ROOMS_TITLE: &str = "Meeting rooms";
-/// The room name box's label.
-pub const ROOM_NAME_LABEL: &str = "Room name";
-/// The button that joins the room named.
-pub const JOIN_LABEL: &str = "Join";
-/// The button that copies the guest link.
-pub const COPY_GUEST_LINK: &str = "Copy guest link";
-/// What the guest link is for, beside its button.
-pub const GUEST_LINK_HINT: &str = "Copy a link that lets someone without an account join this room";
-/// What shows once the guest link is on the clipboard.
-pub const GUEST_LINK_COPIED: &str = "Guest link copied.";
-/// The button that leaves the room.
-pub const LEAVE_LABEL: &str = "Leave the room";
-/// The meetings' heading.
-pub const MEETINGS_TITLE: &str = "Meetings";
-/// What the meetings are.
-pub const MEETINGS_DESCRIPTION: &str = "The most recent meetings held in this workspace's rooms. \
-    Open one to read its minutes and transcript.";
-/// The badge on a meeting still running.
-pub const IN_PROGRESS: &str = "In progress";
-/// The button that joins a meeting still running.
-pub const REJOIN_LABEL: &str = "Rejoin";
-/// The record's heading before it is read.
-pub const RECORD_TITLE: &str = "Meeting";
-/// The heading of a record that could not be read.
-pub const RECORD_FAILED_TITLE: &str = "Could not load this meeting";
-/// The record's minutes heading.
-pub const MINUTES_TITLE: &str = "Minutes";
-/// The record's action items heading.
-pub const ACTION_ITEMS_TITLE: &str = "Action items";
-/// The record's transcript heading.
-pub const TRANSCRIPT_TITLE: &str = "Transcript";
-/// How a person in the room with no name is shown.
-pub const A_GUEST: &str = "A guest";
-/// The line when nobody else has joined.
-pub const NOBODY_ELSE: &str = "Nobody else is here yet.";
 
 /// The meeting rooms screen.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -295,7 +258,7 @@ pub(crate) fn rooms_view(signed_in: &SignedIn, config: &CoreConfig) -> RoomsView
             (LoadStatus::Loading, None, Vec::new(), false)
         }
         MeetingList::Failed(failure) => (
-            LoadStatus::failed(MeetingList::FAILED_TITLE, failure),
+            LoadStatus::failed(cs::rooms_failed_title(l()), failure),
             None,
             Vec::new(),
             false,
@@ -307,7 +270,7 @@ pub(crate) fn rooms_view(signed_in: &SignedIn, config: &CoreConfig) -> RoomsView
             LoadStatus::Ready,
             meetings
                 .is_empty()
-                .then(|| EmptyView::new(MeetingList::EMPTY_TITLE, MeetingList::EMPTY_BODY)),
+                .then(|| EmptyView::new(cs::rooms_empty_title(l()), cs::rooms_empty_body(l()))),
             meetings
                 .iter()
                 .map(|meeting| meeting_row(meeting, !busy, workspace_id.as_deref()))
@@ -316,34 +279,31 @@ pub(crate) fn rooms_view(signed_in: &SignedIn, config: &CoreConfig) -> RoomsView
         ),
     };
     RoomsView {
-        title: ROOMS_TITLE.to_owned(),
-        start_title: RoomsScreen::START_TITLE.to_owned(),
-        room_name_label: ROOM_NAME_LABEL.to_owned(),
+        title: s::rooms_title(l()).to_owned(),
+        start_title: cs::rooms_start_title(l()).to_owned(),
+        room_name_label: s::rooms_room_name_label(l()).to_owned(),
         room_name: rooms.room_name.clone(),
         name_note: rooms
             .name_preview()
-            .unwrap_or_else(|| RoomsScreen::NAME_HINT.to_owned()),
+            .unwrap_or_else(|| cs::rooms_name_hint(l()).to_owned()),
         role_note: if speaker {
-            RoomsScreen::COMPANION_NOTE
+            cs::rooms_companion_note(l())
         } else {
-            RoomsScreen::LISTENER_NOTE
+            cs::rooms_listener_note(l())
         }
         .to_owned(),
         busy_note: (busy && rooms.joining.is_none() && rooms.room.is_none())
-            .then(|| RoomsScreen::BUSY_NOTE.to_owned()),
-        join_label: JOIN_LABEL.to_owned(),
+            .then(|| cs::rooms_busy_note(l()).to_owned()),
+        join_label: s::rooms_join_label(l()).to_owned(),
         can_join: rooms.can_start() && !busy,
         joining: rooms.joining.is_some(),
         failure,
         room: rooms.room.as_ref().map(|room| RoomView {
-            title: format!(
-                "Room \"{}\"",
-                MeetRoomName::display_name(room.room.as_str())
-            ),
+            title: s::rooms_room_title(l(), MeetRoomName::display_name(room.room.as_str())),
             ..room_view(signed_in.room_session(), speaker, room.guest_link(config))
         }),
-        meetings_title: MEETINGS_TITLE.to_owned(),
-        meetings_description: MEETINGS_DESCRIPTION.to_owned(),
+        meetings_title: s::rooms_meetings_title(l()).to_owned(),
+        meetings_description: s::rooms_meetings_description(l()).to_owned(),
         meetings_status,
         meetings_empty,
         meetings,
@@ -367,17 +327,22 @@ fn room_view(
             session
                 .people()
                 .iter()
-                .map(|person| person.name.clone().unwrap_or_else(|| A_GUEST.to_owned()))
+                .map(|person| {
+                    person
+                        .name
+                        .clone()
+                        .unwrap_or_else(|| s::rooms_a_guest(l()).to_owned())
+                })
                 .collect()
         })
         .unwrap_or_default();
     let mut people_line = if people.is_empty() {
-        NOBODY_ELSE.to_owned()
+        s::rooms_nobody_else(l()).to_owned()
     } else {
-        format!("With {}.", people.join(", "))
+        s::rooms_with_people(l(), &people.join(", "))
     };
     if session.is_some_and(MediaSession::service_present) {
-        people_line = format!("{people_line} {}", RoomsScreen::COMPANION_NOTE);
+        people_line = format!("{people_line} {}", cs::rooms_companion_note(l()));
     }
     let microphone = session.map_or(MicrophoneState::Off, |session| session.microphone);
     RoomView {
@@ -388,9 +353,9 @@ fn room_view(
         notice: session
             .and_then(|session| {
                 if session.microphone == MicrophoneState::Unavailable {
-                    Some(MediaSession::MICROPHONE_UNAVAILABLE)
+                    Some(cs::media_microphone_unavailable(l()))
                 } else if session.encryption_failed {
-                    Some(MediaSession::ENCRYPTION_FAILED)
+                    Some(cs::media_encryption_failed(l()))
                 } else {
                     None
                 }
@@ -404,19 +369,19 @@ fn room_view(
                     && session.microphone != MicrophoneState::Unavailable
             }),
         guest_link,
-        copy_link_label: COPY_GUEST_LINK.to_owned(),
-        copy_link_hint: GUEST_LINK_HINT.to_owned(),
-        copied_note: GUEST_LINK_COPIED.to_owned(),
-        leave_label: LEAVE_LABEL.to_owned(),
+        copy_link_label: s::rooms_copy_guest_link(l()).to_owned(),
+        copy_link_hint: s::rooms_guest_link_hint(l()).to_owned(),
+        copied_note: s::rooms_guest_link_copied(l()).to_owned(),
+        leave_label: s::rooms_leave_label(l()).to_owned(),
     }
 }
 
 /// Where the room's connection stands, in words.
 fn connection_words(connection: MediaConnection) -> &'static str {
     match connection {
-        MediaConnection::Connecting => "Joining the room.",
-        MediaConnection::Connected => "In the room.",
-        MediaConnection::Reconnecting => MediaSession::RECONNECTING,
+        MediaConnection::Connecting => s::rooms_joining(l()),
+        MediaConnection::Connected => s::rooms_in_room(l()),
+        MediaConnection::Reconnecting => cs::media_reconnecting(l()),
     }
 }
 
@@ -437,10 +402,11 @@ fn length_and_people(duration_sec: i64, people: usize) -> String {
     if duration_sec > 0 {
         parts.push(format_duration(duration_sec));
     }
-    match people {
-        0 => {}
-        1 => parts.push("1 person".to_owned()),
-        count => parts.push(format!("{count} people")),
+    if people > 0 {
+        parts.push(s::rooms_people(
+            l(),
+            i64::try_from(people).unwrap_or(i64::MAX),
+        ));
     }
     parts.join(", ")
 }
@@ -461,7 +427,7 @@ fn meeting_row(
 ) -> MeetingRowView {
     let running = is_in_progress(meeting);
     let minutes = if running {
-        Some(MeetingList::NO_MINUTES_YET)
+        Some(cs::rooms_no_minutes_yet(l()))
     } else {
         meeting.summary_preview.as_deref()
     }
@@ -487,27 +453,27 @@ fn meeting_row(
             usize::try_from(meeting.participant_count.max(0)).unwrap_or(usize::MAX),
         ),
         minutes,
-        in_progress: running.then(|| IN_PROGRESS.to_owned()),
+        in_progress: running.then(|| s::rooms_in_progress(l()).to_owned()),
         can_rejoin: can_join && rejoinable(meeting, workspace_id),
-        rejoin_label: REJOIN_LABEL.to_owned(),
+        rejoin_label: s::rooms_rejoin_label(l()).to_owned(),
     }
 }
 
 fn record_view(record: &MeetingRecord, capabilities: &Capabilities) -> MeetingRecordView {
     let mut view = MeetingRecordView {
         meeting_id: String::new(),
-        title: RECORD_TITLE.to_owned(),
+        title: s::rooms_record_title(l()).to_owned(),
         status: LoadStatus::Loading,
         facts: Vec::new(),
         started_at: None,
         ended_at: None,
-        minutes_title: MINUTES_TITLE.to_owned(),
+        minutes_title: s::rooms_minutes_title(l()).to_owned(),
         minutes: String::new(),
         minutes_report: ReportAvailability::Hidden,
-        action_items_title: ACTION_ITEMS_TITLE.to_owned(),
+        action_items_title: s::rooms_action_items_title(l()).to_owned(),
         action_items: Vec::new(),
         action_items_report: ReportAvailability::Hidden,
-        transcript_title: TRANSCRIPT_TITLE.to_owned(),
+        transcript_title: s::rooms_transcript_title(l()).to_owned(),
         transcript: None,
     };
     match record {
@@ -525,12 +491,15 @@ fn record_view(record: &MeetingRecord, capabilities: &Capabilities) -> MeetingRe
                 title: meeting_title(meeting.title.as_deref(), &meeting.room_name),
                 status: LoadStatus::Ready,
                 facts: crate::views::facts([
-                    ("Status", Some(humanize(&meeting.status))),
+                    (s::rooms_fact_status(l()), Some(humanize(&meeting.status))),
                     (
-                        "Length",
+                        s::rooms_fact_length(l()),
                         (meeting.duration_sec > 0).then(|| format_duration(meeting.duration_sec)),
                     ),
-                    ("People", (!people.is_empty()).then(|| people.join(", "))),
+                    (
+                        s::rooms_fact_people(l()),
+                        (!people.is_empty()).then(|| people.join(", ")),
+                    ),
                 ]),
                 started_at: meeting.started_at.clone(),
                 ended_at: meeting.ended_at.clone(),
@@ -553,7 +522,7 @@ fn record_view(record: &MeetingRecord, capabilities: &Capabilities) -> MeetingRe
 }
 
 fn failed(failure: &FailureText) -> LoadStatus {
-    LoadStatus::failed(RECORD_FAILED_TITLE, failure)
+    LoadStatus::failed(s::rooms_record_failed_title(l()), failure)
 }
 
 /// The minutes, or why there are none (a meeting not over yet has not had
@@ -565,8 +534,8 @@ fn minutes(meeting: &MeetingDetail) -> (String, bool) {
         .filter(|text| !text.trim().is_empty())
     {
         Some(summary) => (summary.to_owned(), true),
-        None if meeting.ended_at.is_none() => (MeetingList::NO_MINUTES_YET.to_owned(), false),
-        None => (MeetingRecord::NO_MINUTES.to_owned(), false),
+        None if meeting.ended_at.is_none() => (cs::rooms_no_minutes_yet(l()).to_owned(), false),
+        None => (cs::rooms_no_minutes(l()).to_owned(), false),
     }
 }
 
@@ -600,7 +569,7 @@ fn action_items(items: Option<&Value>) -> Vec<String> {
                 .then(|| text_of(item, &["owner", "assignee"]))
                 .flatten();
             Some(match owner {
-                Some(owner) => format!("{text} ({owner})"),
+                Some(owner) => s::rooms_action_item_owner(l(), &text, &owner),
                 None => text,
             })
         })
@@ -623,7 +592,7 @@ fn participant_names(people: Option<&Value>) -> Vec<String> {
 pub(crate) fn sample() -> RoomsView {
     let room = room_view(None, true, Some("https://example.com/meet".to_owned()));
     RoomsView {
-        title: ROOMS_TITLE.to_owned(),
+        title: s::rooms_title(l()).to_owned(),
         start_title: String::new(),
         room_name_label: String::new(),
         room_name: String::new(),

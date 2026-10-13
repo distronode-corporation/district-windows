@@ -18,6 +18,7 @@ use district_model::{SupportRequestFiling, SupportRequestKind, ThreadRef};
 use serde::Serialize;
 
 use crate::events::UiEvent;
+use crate::l10n::{l, s};
 use crate::views::ReportTarget;
 
 /// The subject every report is raised under, which the support desk sorts on.
@@ -31,11 +32,6 @@ pub const PREAMBLE: &str = "AI-generated content was reported from the District 
 /// What the message says when no note was added, so an absent note does not
 /// read as a lost one.
 pub const NO_NOTE: &str = "No note was added.";
-
-/// Why a Report is refused while a support request is being written. One
-/// sentence, which the report dialog shows over the note it keeps.
-pub const DRAFT_OPEN: &str =
-    "Send or discard the support request you are writing in Support, then report this.";
 
 /// The report this session started, while it is under way or until its outcome
 /// is dismissed.
@@ -154,10 +150,10 @@ fn member_draft_typed(support: &SupportScreen) -> bool {
     })
 }
 
-/// Why a Report would be refused now ([`DRAFT_OPEN`]), or `None` when it
+/// Why a Report would be refused now (`report.draft_open`), or `None` when it
 /// would be sent.
 pub(crate) fn refusal(signed_in: &SignedIn) -> Option<String> {
-    member_draft_typed(&signed_in.support).then(|| DRAFT_OPEN.to_owned())
+    member_draft_typed(&signed_in.support).then(|| s::report_draft_open(l()).to_owned())
 }
 
 /// The core events `action` is, as the actor sends them, given the model they
@@ -201,9 +197,9 @@ pub fn ui_events(model: &Model, reporting: &mut bool, action: UiEvent) -> Vec<Ev
 /// The confirmation of a report raised, as the iOS app words it.
 fn confirmation(filing: &SupportRequestFiling) -> &'static str {
     match filing {
-        SupportRequestFiling::Filed(_) => "Reported. We'll review it.",
-        SupportRequestFiling::Deduplicated => "You have already reported this. We'll review it.",
-        SupportRequestFiling::Pending => "Reported. We have it and it is catching up.",
+        SupportRequestFiling::Filed(_) => s::report_filed(l()),
+        SupportRequestFiling::Deduplicated => s::report_deduplicated(l()),
+        SupportRequestFiling::Pending => s::report_pending(l()),
     }
 }
 

@@ -8,13 +8,8 @@ use serde::Serialize;
 
 use crate::billing::{PurchaseView, purchase_view};
 use crate::calls::{CallRowView, call_row};
+use crate::l10n::{l, s};
 use crate::views::{FactView, FailureView, LoadStatus};
-
-/// The heading of an overview that could not be read, as the Linux app words it.
-pub const OVERVIEW_FAILED_TITLE: &str = "Could not load the overview";
-/// What the recent calls say when there are none, as the Linux app words it.
-pub const NO_RECENT_CALLS: &str =
-    "No calls yet. They appear here as your receptionist answers them.";
 
 /// The overview.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -107,7 +102,7 @@ pub(crate) fn overview_view(signed_in: &SignedIn) -> OverviewView {
     match &signed_in.overview {
         OverviewScreen::Loading => {}
         OverviewScreen::Failed(failure) => {
-            view.status = LoadStatus::failed(OVERVIEW_FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(s::overview_failed_title(l()), failure);
         }
         OverviewScreen::Loaded(content) => {
             let overview = &content.overview;
@@ -120,16 +115,28 @@ pub(crate) fn overview_view(signed_in: &SignedIn) -> OverviewView {
                 status: LoadStatus::Ready,
                 workspace_name: workspaces.active().name.clone(),
                 metrics: vec![
-                    metric(figures.total_calls.to_string(), "Calls"),
-                    metric(figures.calls_this_week.to_string(), "Calls this week"),
-                    metric(figures.total_contacts.to_string(), "Contacts"),
-                    metric(overview.avg_duration_label.clone(), "Average call"),
+                    metric(
+                        figures.total_calls.to_string(),
+                        s::overview_metric_calls(l()),
+                    ),
+                    metric(
+                        figures.calls_this_week.to_string(),
+                        s::overview_metric_calls_this_week(l()),
+                    ),
+                    metric(
+                        figures.total_contacts.to_string(),
+                        s::overview_metric_contacts(l()),
+                    ),
+                    metric(
+                        overview.avg_duration_label.clone(),
+                        s::overview_metric_average_call(l()),
+                    ),
                 ],
                 recent_calls: overview.recent_calls.iter().map(call_row).collect(),
                 recent_calls_empty: overview
                     .recent_calls
                     .is_empty()
-                    .then(|| NO_RECENT_CALLS.to_owned()),
+                    .then(|| s::overview_no_recent_calls(l()).to_owned()),
                 read_only_badge: content.read_only_badge().map(str::to_owned),
                 finish_setup: content.show_finish_setup.then(|| FinishSetupView {
                     title: FINISH_SETUP_TITLE.to_owned(),
