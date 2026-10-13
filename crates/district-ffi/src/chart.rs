@@ -12,6 +12,8 @@
 use district_core::{ChartBar, HistoryRow, SentimentShare};
 use serde::Serialize;
 
+use crate::l10n::{l, s};
+
 /// The longest bar, in thousandths of the chart's length.
 pub const FULL: u16 = 1000;
 
@@ -119,7 +121,16 @@ pub struct HistoryMonthView {
 
 /// The column headings of the usage history, as District AI for Linux has
 /// them.
-const HISTORY_HEADINGS: [&str; 4] = ["Month", "", "Call minutes", "Messages"];
+fn history_headings() -> Vec<String> {
+    [
+        s::chart_history_month(l()),
+        "",
+        s::chart_history_minutes(l()),
+        s::chart_history_messages(l()),
+    ]
+    .map(str::to_owned)
+    .to_vec()
+}
 
 /// A fraction from 0 to 1 in thousandths. A bar above zero never rounds to
 /// nothing, and one short of the longest never rounds to as long as it: the
@@ -152,11 +163,8 @@ pub(crate) fn columns(what: &str, bars: &[ChartBar]) -> BarChartView {
         .collect::<Vec<_>>()
         .join(", ");
     let summary = match bars.iter().max_by_key(|bar| bar.value) {
-        Some(most) => format!(
-            "{what}: {each}. The most was {}, on {}.",
-            most.value, most.label
-        ),
-        None => format!("{what}: nothing to show."),
+        Some(most) => s::chart_columns_summary(l(), what, &each, most.value, &most.label),
+        None => s::chart_nothing(l(), what),
     };
     chart(summary, bars)
 }
@@ -164,14 +172,14 @@ pub(crate) fn columns(what: &str, bars: &[ChartBar]) -> BarChartView {
 /// `bars` as rows, named `what` ("Call funnel"): each bar and its value.
 pub(crate) fn rows(what: &str, bars: &[ChartBar]) -> BarChartView {
     let summary = if bars.is_empty() {
-        format!("{what}: nothing to show.")
+        s::chart_nothing(l(), what)
     } else {
         let each = bars
             .iter()
             .map(|bar| format!("{} {}", bar.label, bar.value))
             .collect::<Vec<_>>()
             .join(", ");
-        format!("{what}: {each}.")
+        s::chart_each(l(), what, &each)
     };
     chart(summary, bars)
 }
@@ -206,10 +214,10 @@ pub(crate) fn sentiment(bands: &[SentimentShare]) -> SentimentChartView {
     let legend =
         |band: &SentimentShare| format!("{} {} ({})", band.label, band.value, percent(band.share));
     let summary = if bands.is_empty() {
-        "Caller sentiment: nothing to show.".to_owned()
+        s::chart_nothing(l(), s::analytics_sentiment_title(l()))
     } else {
         let each = bands.iter().map(legend).collect::<Vec<_>>().join(", ");
-        format!("Caller sentiment: {each}.")
+        s::chart_each(l(), s::analytics_sentiment_title(l()), &each)
     };
     SentimentChartView {
         summary,
@@ -217,7 +225,7 @@ pub(crate) fn sentiment(bands: &[SentimentShare]) -> SentimentChartView {
             .iter()
             .map(|band| SentimentBandView {
                 label: band.label.clone(),
-                legend: format!("{}: {} ({})", band.label, band.value, percent(band.share)),
+                legend: s::chart_legend(l(), &band.label, band.value, &percent(band.share)),
                 per_mille: per_mille(band.share),
                 tone: SentimentTone::of(&band.label),
             })
@@ -228,20 +236,17 @@ pub(crate) fn sentiment(bands: &[SentimentShare]) -> SentimentChartView {
 /// The usage history of `rows`, which the core scaled against each other.
 pub(crate) fn history(rows: &[HistoryRow]) -> HistoryChartView {
     let line = |row: &HistoryRow| {
-        format!(
-            "{}: {} call minutes, {} messages",
-            row.month, row.minutes_text, row.messages_text
-        )
+        s::chart_history_line(l(), &row.month, &row.minutes_text, &row.messages_text)
     };
     let summary = if rows.is_empty() {
-        "Recent months: nothing to show.".to_owned()
+        s::chart_nothing(l(), s::analytics_history_title(l()))
     } else {
         let each = rows.iter().map(line).collect::<Vec<_>>().join("; ");
-        format!("Recent months: {each}.")
+        s::chart_each(l(), s::analytics_history_title(l()), &each)
     };
     HistoryChartView {
         summary,
-        headings: HISTORY_HEADINGS.map(str::to_owned).to_vec(),
+        headings: history_headings(),
         months: rows
             .iter()
             .map(|row| HistoryMonthView {

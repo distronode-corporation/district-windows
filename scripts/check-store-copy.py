@@ -36,8 +36,15 @@ Where the scan looks, and what counts as a user-facing string there:
     src/DistrictAI.Presentation/**/*.cs
                                     the same, in the view models
     **/*.resw                       every <value> of a resource file
+    crates/*/l10n/*.toml,           every string catalog (i18n/README.md in the
+    src/*/l10n/*.toml               monorepo): each entry's English and, once
+                                    written, its French, every plural form;
+                                    the entry's `screen` names the screen it
+                                    is shown on (CATALOG_SCREENS)
     crates/district-ffi/src/**/*.rs Rust string literals, which become the
-                                    projections' text; comments are skipped
+                                    projections' text; comments are skipped.
+                                    The code generated from a catalog
+                                    (GENERATED) is not read: its catalog is
     crates/district-ffi/tests/snapshots/*.json
                                     every string value, at any depth (object
                                     keys are field names, not copy, and are
@@ -69,6 +76,7 @@ import json
 import re
 import sys
 import tempfile
+import tomllib
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
@@ -125,6 +133,29 @@ SCREEN_SOURCES: dict[str, tuple[str, ...]] = {
     ),
 }
 assert set(SCREEN_SOURCES) == ALLOWED_SCREENS
+
+# The catalog entries that are each allowed screen's own, by the `screen` field
+# an entry of that catalog has. Any other entry belongs to no allowed screen.
+CATALOG_SCREENS: dict[str, tuple[tuple[str, str], ...]] = {
+    "Billing": (("crates/district-ffi/l10n/ffi.toml", "billing"),),
+    "Checkout": (("crates/district-ffi/l10n/ffi.toml", "checkout"),),
+    "Marketplace": (("crates/district-ffi/l10n/ffi.toml", "marketplace"),),
+    "Session": (("crates/district-ffi/l10n/ffi.toml", "welcome"),),
+}
+assert set(CATALOG_SCREENS) == ALLOWED_SCREENS
+
+# Code generated from a catalog, which the scan leaves to the catalog itself.
+GENERATED = (
+    "crates/district-ffi/src/generated/",
+)
+
+
+def screen_of_entry(path: str, screen: str) -> str | None:
+    """The allowed screen a catalog entry of `path` with `screen` is on, or None."""
+    for allowed, entries in CATALOG_SCREENS.items():
+        if (path, screen) in entries:
+            return allowed
+    return None
 
 # Parts of other screens that may say SCREEN_WORDS, by the JSON path of the
 # snapshot value that holds them (the value itself, or anything under it).
@@ -484,6 +515,54 @@ def scan_snapshot(path: str, text: str) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
+# String catalogs
+
+def scan_catalog(path: str, text: str) -> list[Finding]:
+    """Findings in every English and French text of a catalog's entries.
+
+    A table with an `en` key is an entry; its `screen` decides which wording it
+    may use (CATALOG_SCREENS). A finding's line is that of the text's own key
+    (`en = `, `fr.other = `) under the entry's `[header]`.
+    """
+    data = tomllib.loads(text)
+    lines = text.splitlines()
+    found: list[Finding] = []
+
+    def line_of(key: str, field: str) -> int:
+        header = f"[{key}]"
+        start = next((i for i, line in enumerate(lines) if line.strip() == header), 0)
+        for i in range(start + 1, len(lines)):
+            if lines[i].startswith("["):
+                break
+            if re.match(rf"{re.escape(field)}\s*=", lines[i]):
+                return i + 1
+        return start + 1
+
+    def walk(table: dict, prefix: tuple[str, ...]) -> None:
+        for name, value in table.items():
+            if not isinstance(value, dict) or (not prefix and name == "meta"):
+                continue
+            if "en" not in value:
+                walk(value, prefix + (name,))
+                continue
+            key = ".".join(prefix + (name,))
+            screen = value.get("screen") if isinstance(value.get("screen"), str) else ""
+            phrases = phrases_for_screen(screen_of_entry(path, screen))
+            for lang in ("en", "fr"):
+                forms = value.get(lang)
+                texts = forms.items() if isinstance(forms, dict) else [("", forms)]
+                for form, body in texts:
+                    if not isinstance(body, str):
+                        continue
+                    field = f"{lang}.{form}" if form else lang
+                    for m in phrases.finditer(body):
+                        found.append(Finding(path, line_of(key, field), m.group(0), f"catalog entry {key} ({field})"))
+
+    walk(data, ())
+    return found
+
+
+# ---------------------------------------------------------------------------
 
 SNAPSHOTS = "crates/district-ffi/tests/snapshots/*.json"
 SKIP_DIRS = {"bin", "obj", "target", ".git", "AppPackages"}
@@ -503,14 +582,18 @@ def scan_tree(root: Path) -> tuple[int, list[Finding]]:
         ("src/DistrictAI.Presentation/**/*.cs", scan_csharp),
         ("**/*.resw", scan_resw),
         ("crates/district-ffi/src/**/*.rs", scan_rust),
+        ("crates/*/l10n/*.toml", scan_catalog),
+        ("src/*/l10n/*.toml", scan_catalog),
         (SNAPSHOTS, scan_snapshot),
     ]
     scanned = 0
     found: list[Finding] = []
     for pattern, scan in plan:
         for path in _files(root, pattern):
-            scanned += 1
             rel = path.relative_to(root).as_posix()
+            if rel.startswith(GENERATED):
+                continue
+            scanned += 1
             found.extend(scan(rel, path.read_text(encoding="utf-8-sig")))
     return scanned, found
 
@@ -644,7 +727,8 @@ def self_test() -> int:
         failed += 1
         print(f"self-test: a key that is not an identifier should be quoted in the JSON path, got {[f.key for f in got]}")
 
-    # The tree walk reads the six places and nothing else, and ALLOW excuses by
+    # The tree walk reads the seven places and nothing else (not the code a
+    # catalog generates), and ALLOW excuses by
     # exact path:line and reports a stale entry.
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -661,22 +745,28 @@ def self_test() -> int:
             "crates/district-ffi/tests/snapshots/billing.json": '{"screen": {"Billing": {"view": {"cta": "Subscribe", "x": "Buy"}}}}\n',
             "crates/district-ffi/tests/snapshots/nested/x.json": '{"t": "Buy"}\n',
             "crates/district-ffi/tests/fixtures/x.json": '{"t": "Buy"}\n',
+            "crates/district-ffi/l10n/ffi.toml": (
+                '[meta]\ncatalog = "ffi"\n\n[welcome.a]\nen = "Sign up"\nctx = "button"\nscreen = "welcome"\n\n'
+                '[calls.b]\nen = "Call"\nfr = "Buy"\nctx = "button"\nscreen = "calls"\n\n'
+                '[billing.c]\nen = "Buy"\nctx = "button"\nscreen = "billing"\n'
+            ),
+            "crates/district-ffi/src/generated/strings.rs": 'const S: &str = "Buy";\n',
         }.items():
             path = root / rel
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(body, encoding="utf-8")
         scanned, found = scan_tree(root)
-        expect("tree", found, 6)
-        if scanned != 6:
+        expect("tree", found, 8)
+        if scanned != 7:
             failed += 1
-            print(f"self-test: the tree walk should read 6 files, read {scanned}")
+            print(f"self-test: the tree walk should read 7 files, read {scanned}")
         left, stale = verdict(found, {
             "src/DistrictAI/A.cs:1": "test",
             "crates/district-ffi/tests/snapshots/billing.json:$.screen.Billing.view.x": "test",
             "src/DistrictAI/A.cs:2": "stale",
         })
         total += 1
-        if len(left) != 4 or stale != ["src/DistrictAI/A.cs:2"]:
+        if len(left) != 6 or stale != ["src/DistrictAI/A.cs:2"]:
             failed += 1
             print(f"self-test: ALLOW should excuse one finding and report one stale key, got {left} {stale}")
 
@@ -734,6 +824,32 @@ def self_test() -> int:
     ]:
         expect(f"overview part {pointer_doc}", scan_snapshot("s.json", json.dumps(pointer_doc)), want)
     expect(".resw stays on the full rule", scan_resw("src/DistrictAI/Strings/en-US/Resources.resw", "<root><data name=\"a\"><value>Price</value></data></root>\n"), 1)
+
+    # Catalogs: every phrase, in English and in French and in each plural form,
+    # on a screen that is no allowed one's; the allowed words on each allowed
+    # screen's entries, and the words refused everywhere still refused there.
+    ffi = "crates/district-ffi/l10n/ffi.toml"
+
+    def entry(screen: str, field: str, text: str) -> str:
+        return f'[meta]\ncatalog = "ffi"\n\n[area.key]\nctx = "label"\nscreen = "{screen}"\n{field} = {json.dumps(text)}\nen.other = "x"\n'
+
+    for phrase in phrases:
+        for field in ("en", "fr", "fr.other"):
+            body = entry("calls", field, f"{phrase} now").replace('en.other = "x"\n', "" if field == "en" else 'en = "x"\n')
+            expect(f"catalog {field} {phrase!r}", scan_catalog(ffi, body), 1)
+    for screen, entries in CATALOG_SCREENS.items():
+        for path, catalog_screen in entries:
+            for word in allowed_words:
+                body = f'[meta]\ncatalog = "c"\n\n[a.b]\nen = "{word} here"\nfr = "{word} ici"\nctx = "label"\nscreen = "{catalog_screen}"\n'
+                expect(f"catalog {screen} allows {word!r}", scan_catalog(path, body), 0)
+                expect(f"catalog {screen}'s screen elsewhere refuses {word!r}", scan_catalog("src/Other/l10n/x.toml", body), 2)
+            body = f'[meta]\ncatalog = "c"\n\n[a.b]\nen = "Buy now"\nctx = "label"\nscreen = "{catalog_screen}"\n'
+            expect(f"catalog {screen} refuses 'Buy'", scan_catalog(path, body), 1)
+    got = scan_catalog(ffi, '[meta]\ncatalog = "ffi"\n\n[a.one]\nen = "fine"\nctx = "label"\nscreen = "x"\n\n[a.two]\nctx = "label"\nscreen = "x"\nen = "fine"\nfr = "Buy"\n')
+    total += 1
+    if [f.key for f in got] != [f"{ffi}:13"]:
+        failed += 1
+        print(f"self-test: a catalog finding should name the line of its own key, got {[f.key for f in got]}")
 
     if failed:
         print(f"self-test FAILED: {failed} of {total} cases")

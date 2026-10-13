@@ -13,6 +13,7 @@ use serde::Serialize;
 
 use crate::calls_live::{ActiveCallView, IncomingRingView, active_call_view, incoming_ring_view};
 use crate::guard::DiscardView;
+use crate::l10n::{l, s};
 use crate::nav::{NavView, nav_view};
 use crate::report::{ReportStatus, refusal, report_status};
 use crate::views::humanize;
@@ -222,9 +223,9 @@ pub(crate) fn shell_for(
 
 fn role_label(raw: &str) -> String {
     match WorkspaceRole::from_wire(raw) {
-        Some(WorkspaceRole::Agency) => "Agency".to_owned(),
-        Some(WorkspaceRole::Client) => "Client".to_owned(),
-        Some(WorkspaceRole::Viewer) => "Viewer".to_owned(),
+        Some(WorkspaceRole::Agency) => s::shell_role_agency(l()).to_owned(),
+        Some(WorkspaceRole::Client) => s::shell_role_client(l()).to_owned(),
+        Some(WorkspaceRole::Viewer) => s::shell_role_viewer(l()).to_owned(),
         None => humanize(raw),
     }
 }

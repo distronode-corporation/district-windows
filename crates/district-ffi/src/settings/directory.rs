@@ -19,6 +19,7 @@ use serde::Serialize;
 
 use super::call_handling::QuestionView;
 use super::{SaveNoticeView, SectionStatus, save_notice, section_status};
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::EmptyView;
 
@@ -26,16 +27,10 @@ use crate::views::EmptyView;
 /// sets it; until then [`crate::nav::built`] says no for its routes.
 pub(crate) const BUILT: bool = true;
 
-/// The section's heading: the hub row's title, which opens it.
-pub const DIRECTORY_TITLE: &str = "Transfer directory";
-/// What the section says under its heading.
-pub const DIRECTORY_INTRO: &str = "Who the receptionist can put a live caller through to. \
-    Saving replaces the whole directory.";
-
 /// An entry's heading: its name, or that it has none.
 pub(crate) fn entry_title(entry: &DirectoryEntry) -> String {
     match entry.name().trim() {
-        "" => "No name".to_owned(),
+        "" => s::directory_no_name(l()).to_owned(),
         name => name.to_owned(),
     }
 }
@@ -44,7 +39,7 @@ pub(crate) fn entry_title(entry: &DirectoryEntry) -> String {
 /// none.
 pub(crate) fn entry_line(entry: &DirectoryEntry) -> String {
     match entry.phone_number().trim() {
-        "" => "No phone number, so nobody can be put through".to_owned(),
+        "" => s::directory_no_number(l()).to_owned(),
         number => format_phone_number(number),
     }
 }
@@ -102,9 +97,9 @@ pub struct DirectoryEntryView {
 /// The transfer directory section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct DirectoryView {
-    /// The heading, [`DIRECTORY_TITLE`].
+    /// The heading, `directory.title`.
     pub title: String,
-    /// What it says under the heading, [`DIRECTORY_INTRO`].
+    /// What it says under the heading, `directory.intro`.
     pub intro: String,
     /// Where the page stands. No list is offered before the settings are
     /// read: a list not built from them could only save over them.
@@ -142,8 +137,8 @@ impl Default for DirectoryView {
     /// The section before anything is read.
     fn default() -> Self {
         Self {
-            title: DIRECTORY_TITLE.to_owned(),
-            intro: DIRECTORY_INTRO.to_owned(),
+            title: s::directory_title(l()).to_owned(),
+            intro: s::directory_intro(l()).to_owned(),
             status: SectionStatus::Loading,
             unmodellable: None,
             entries: Vec::new(),
@@ -252,8 +247,8 @@ pub(crate) fn directory_view(
     }
     if section.unmodellable() {
         view.unmodellable = Some(EmptyView::new(
-            DirectorySection::UNMODELLABLE_TITLE,
-            DirectorySection::UNMODELLABLE_BODY,
+            cs::directory_unmodellable_title(l()),
+            cs::directory_unmodellable_body(l()),
         ));
         return view;
     }
@@ -269,15 +264,18 @@ pub(crate) fn directory_view(
             phone_number: entry.phone_number().to_owned(),
         })
         .collect();
-    view.empty = entries
-        .is_empty()
-        .then(|| EmptyView::new(DirectorySection::EMPTY_TITLE, DirectorySection::EMPTY_BODY));
+    view.empty = entries.is_empty().then(|| {
+        EmptyView::new(
+            cs::directory_empty_title(l()),
+            cs::directory_empty_body(l()),
+        )
+    });
     view.incomplete = incomplete_note(section.incomplete_count());
     view.new_name.clone_from(&section.new_name);
     view.new_phone_number.clone_from(&section.new_phone_number);
     view.add_rejected = section
         .add_rejected
-        .then(|| DirectorySection::ADD_REJECTED.to_owned());
+        .then(|| cs::directory_add_rejected(l()).to_owned());
     view.can_edit = capabilities.can_change && section.editable();
     view.can_save = capabilities.can_change && section.can_save();
     view.saving = section.save.is_busy();

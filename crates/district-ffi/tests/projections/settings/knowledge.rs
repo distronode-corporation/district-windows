@@ -1,9 +1,10 @@
 //! The Knowledge section (src/settings/knowledge.rs).
 
 use district_core::{Effect, Event, KnowledgeEvent, Route, WorkspaceSection};
+use district_ffi::l10n::{l, s};
 use district_ffi::settings::knowledge::{
-    DocumentState, FILE_NOT_TEXT, FILE_TOO_LARGE, KnowledgeAction, KnowledgeFileRead,
-    KnowledgeModeChoice, KnowledgeView, MAX_FILE_BYTES, PickedFileView, knowledge_file,
+    DocumentState, KnowledgeAction, KnowledgeFileRead, KnowledgeModeChoice, KnowledgeView,
+    MAX_FILE_BYTES, PickedFileView, knowledge_file,
 };
 use district_ffi::{Held, NavDestination, ScreenView, UiEvent, leaves_unsaved, screen_view};
 use district_model::KnowledgeMode;
@@ -410,13 +411,13 @@ fn a_text_file_fills_the_form_and_others_are_refused() {
     assert_eq!(
         knowledge_file(picked("scan.txt", b"%PDF-1.7\n", 9)),
         KnowledgeFileRead::Refused {
-            reason: FILE_NOT_TEXT.to_owned()
+            reason: s::knowledge_file_not_text(l()).to_owned()
         }
     );
     assert_eq!(
         knowledge_file(picked("big.txt", b"a", MAX_FILE_BYTES + 1)),
         KnowledgeFileRead::Refused {
-            reason: FILE_TOO_LARGE.to_owned()
+            reason: s::knowledge_file_too_large(l()).to_owned()
         }
     );
 }

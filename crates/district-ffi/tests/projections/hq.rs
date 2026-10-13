@@ -3,6 +3,7 @@
 use district_core::{HqEvent, SignedIn};
 use district_ffi::ReportTarget;
 use district_ffi::hq::{HqAction, HqMessageView, HqView, RichBlock};
+use district_ffi::l10n::{l, s};
 
 use super::*;
 
@@ -225,7 +226,7 @@ fn a_viewer_asks_but_never_confirms() {
     let card = shown.card.expect("the proposal is shown");
     assert!(!card.can_confirm);
     assert!(card.can_dismiss);
-    assert_eq!(card.note.as_deref(), Some(district_ffi::hq::VIEWER_NOTE));
+    assert_eq!(card.note.as_deref(), Some(s::hq_viewer_note(l())));
     assert!(shown.can_ask);
     assert!(shown.messages.iter().any(|message| matches!(
         message,

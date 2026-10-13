@@ -17,14 +17,12 @@ use district_core::{
 };
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{FailureView, LoadStatus, failure};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
-
-/// The page's heading, the navigation entry's.
-pub const SCHEDULING_TITLE: &str = "Booking pages";
 
 /// Where the booking pages stand, which picks the card's icon.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
@@ -99,7 +97,7 @@ pub struct SchedulingView {
 impl Default for SchedulingView {
     fn default() -> Self {
         Self {
-            title: SCHEDULING_TITLE.to_owned(),
+            title: s::scheduling_title(l()).to_owned(),
             status: LoadStatus::Loading,
             state: None,
             message: String::new(),
@@ -162,7 +160,7 @@ fn scheduling_view(screen: &SchedulingScreen) -> SchedulingView {
     match &screen.status {
         SchedulingStatus::NotLoaded | SchedulingStatus::Loading => {}
         SchedulingStatus::Failed(failure) => {
-            view.status = LoadStatus::failed(SchedulingStatus::FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(cs::scheduling_failed_title(l()), failure);
         }
         SchedulingStatus::Ready { status, refreshing } => {
             let shown = screen

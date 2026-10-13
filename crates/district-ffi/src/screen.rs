@@ -15,26 +15,12 @@ use crate::calls::{CallDetailView, CallsView, call_detail_view, calls_view};
 use crate::calls_live::{DialerView, dialer_view};
 use crate::contacts::{ContactDetailView, ContactsView, contact_detail_view, contacts_view};
 use crate::inbox::{InboxView, ThreadView, inbox_view, thread_view};
+use crate::l10n::{l, s};
 use crate::overview::{OverviewView, overview_view};
 use crate::{
     analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling, settings, support,
     workflows,
 };
-
-/// The heading of the signed-out screen on a first run.
-pub const WELCOME_TITLE: &str = "Welcome to District AI";
-/// Its body.
-pub const WELCOME_BODY: &str = "Sign in with your District AI account. Signing in happens in \
-    your browser, so this app never sees your password.";
-/// The body after a sign-out that went as it should.
-pub const SIGNED_OUT_BODY: &str = "Sign in again whenever you are ready.";
-/// A note under a start-up check that will try again by itself.
-pub const RETRYING: &str = "District AI will try again by itself.";
-
-/// The heading of a screen this version does not have.
-pub const UNAVAILABLE_TITLE: &str = "Not in this version yet";
-/// Its body.
-pub const UNAVAILABLE_BODY: &str = "Use the web dashboard or the District AI phone apps for this.";
 
 /// What the screen inside the frame shows.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
@@ -217,9 +203,9 @@ pub enum ScreenView {
     /// A screen of the core this version has no page for: an area whose
     /// packet has not built it yet, and the dialler in a build without calls.
     Unavailable {
-        /// [`UNAVAILABLE_TITLE`].
+        /// `screen.unavailable_title`.
         title: String,
-        /// [`UNAVAILABLE_BODY`].
+        /// `screen.unavailable_body`.
         body: String,
     },
 }
@@ -227,8 +213,8 @@ pub enum ScreenView {
 impl ScreenView {
     pub(crate) fn unavailable() -> Self {
         Self::Unavailable {
-            title: UNAVAILABLE_TITLE.to_owned(),
-            body: UNAVAILABLE_BODY.to_owned(),
+            title: s::screen_unavailable_title(l()).to_owned(),
+            body: s::screen_unavailable_body(l()).to_owned(),
         }
     }
 }
@@ -404,7 +390,7 @@ pub(crate) fn session_view(
         SessionState::Restoring(restoring) => {
             let mut body = restoring.message();
             if restoring.retry_in.is_some() && !restoring.checking {
-                body = format!("{body} {RETRYING}");
+                body = format!("{body} {}", s::screen_retrying(l()));
             }
             SessionScreen {
                 body,
@@ -415,11 +401,14 @@ pub(crate) fn session_view(
         }
         SessionState::SignedOut(signed_out) => {
             let (title, body) = match &signed_out.why {
-                SignedOutWhy::NeverSignedIn => (WELCOME_TITLE, WELCOME_BODY.to_owned()),
+                SignedOutWhy::NeverSignedIn => (
+                    s::screen_welcome_title(l()),
+                    s::screen_welcome_body(l()).to_owned(),
+                ),
                 SignedOutWhy::SignedOut(outcome) => {
                     let details = outcome.details();
                     let body = if details.is_empty() {
-                        SIGNED_OUT_BODY.to_owned()
+                        s::screen_signed_out_body(l()).to_owned()
                     } else {
                         details.join("\n\n")
                     };
@@ -441,21 +430,17 @@ pub(crate) fn session_view(
             }
         }
         SessionState::SigningIn(signing_in) => SessionScreen {
-            title: "Signing in".to_owned(),
+            title: s::screen_signing_in(l()).to_owned(),
             body: signing_in.phase.message().to_owned(),
             busy: true,
             cancel: signing_in.can_cancel(),
             ..nothing
         },
         SessionState::SigningOut(signing_out) => SessionScreen {
-            title: "Signing out".to_owned(),
+            title: s::screen_signing_out(l()).to_owned(),
             body: match signing_out.scope {
-                SignOutScope::ThisDevice => {
-                    "Telling District AI, then removing your sign-in from this computer."
-                }
-                SignOutScope::Everywhere => {
-                    "Every device is signed out. Removing your sign-in from this computer."
-                }
+                SignOutScope::ThisDevice => s::screen_signing_out_this_device(l()),
+                SignOutScope::Everywhere => s::screen_signing_out_everywhere(l()),
             }
             .to_owned(),
             busy: true,
@@ -486,8 +471,8 @@ mod tests {
         assert_eq!(
             view,
             ScreenView::Unavailable {
-                title: UNAVAILABLE_TITLE.to_owned(),
-                body: UNAVAILABLE_BODY.to_owned(),
+                title: s::screen_unavailable_title(l()).to_owned(),
+                body: s::screen_unavailable_body(l()).to_owned(),
             }
         );
     }
@@ -508,7 +493,7 @@ mod tests {
             service: ServiceSignOut::Done,
             removed: Ok(()),
         });
-        assert_eq!(clean.body, SIGNED_OUT_BODY);
+        assert_eq!(clean.body, s::screen_signed_out_body(l()));
         assert!(clean.sign_in);
         assert!(!clean.retry_sign_out);
 
@@ -517,7 +502,7 @@ mod tests {
             service: ServiceSignOut::Stranded(StoreErrorKind::Locked),
             removed: Err(StoreErrorKind::Locked),
         });
-        assert_ne!(messy.body, SIGNED_OUT_BODY);
+        assert_ne!(messy.body, s::screen_signed_out_body(l()));
         assert!(messy.retry_sign_out);
     }
 

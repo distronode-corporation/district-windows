@@ -1,8 +1,9 @@
 //! Reporting AI-generated content (src/report.rs).
 
 use district_core::SupportForm;
+use district_ffi::l10n::{l, s};
 use district_ffi::support::{SupportAction, SupportKind};
-use district_ffi::{DRAFT_OPEN, ReportStatus, ReportTarget};
+use district_ffi::{ReportStatus, ReportTarget};
 
 use super::calls::on_call;
 use super::support::{composing, typed};
@@ -95,7 +96,10 @@ fn a_report_is_refused_while_a_support_draft_is_typed() {
     let draft = support_form(&drafting);
     assert!(draft.is_some());
     let shell = shell_view(&drafting.model, drafting.reporting);
-    assert_eq!(shell.report_refusal.as_deref(), Some(DRAFT_OPEN));
+    assert_eq!(
+        shell.report_refusal.as_deref(),
+        Some(s::report_draft_open(l()))
+    );
 
     let refused = reported(drafting);
     assert!(!refused.reporting);
@@ -103,7 +107,10 @@ fn a_report_is_refused_while_a_support_draft_is_typed() {
     assert_eq!(support_form(&refused), draft);
     let shell = shell_view(&refused.model, refused.reporting);
     assert_eq!(shell.report, None);
-    assert_eq!(shell.report_refusal.as_deref(), Some(DRAFT_OPEN));
+    assert_eq!(
+        shell.report_refusal.as_deref(),
+        Some(s::report_draft_open(l()))
+    );
 
     let dismissed = refused.ui(UiEvent::DismissReport);
     assert_eq!(support_form(&dismissed), draft);

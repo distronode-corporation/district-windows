@@ -4221,16 +4221,16 @@ class FfiConverterTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView> {
 /// The add form.
 /// </summary>
 /// <param name="Heading">
-/// [`ADD_HEADING`].
+/// `members.add_heading`.
 /// </param>
 /// <param name="EmailLabel">
-/// [`EMAIL_LABEL`].
+/// `members.email_label`.
 /// </param>
 /// <param name="Email">
 /// The address, as typed.
 /// </param>
 /// <param name="RoleLabel">
-/// [`ROLE_LABEL`].
+/// `members.role_label`.
 /// </param>
 /// <param name="Role">
 /// The role it will get.
@@ -4248,15 +4248,15 @@ class FfiConverterTypeActiveCallView: FfiConverterRustBuffer<ActiveCallView> {
 /// That adding someone sends no invitation, in the core's words.
 /// </param>
 /// <param name="AddLabel">
-/// [`ADD_ACTION`].
+/// `members.add_action`.
 /// </param>
 public record AddMemberView (
     /// <summary>
-    /// [`ADD_HEADING`].
+    /// `members.add_heading`.
     /// </summary>
     string Heading, 
     /// <summary>
-    /// [`EMAIL_LABEL`].
+    /// `members.email_label`.
     /// </summary>
     string EmailLabel, 
     /// <summary>
@@ -4264,7 +4264,7 @@ public record AddMemberView (
     /// </summary>
     string Email, 
     /// <summary>
-    /// [`ROLE_LABEL`].
+    /// `members.role_label`.
     /// </summary>
     string RoleLabel, 
     /// <summary>
@@ -4288,7 +4288,7 @@ public record AddMemberView (
     /// </summary>
     string Note, 
     /// <summary>
-    /// [`ADD_ACTION`].
+    /// `members.add_action`.
     /// </summary>
     string AddLabel
 ) {
@@ -4639,13 +4639,13 @@ class FfiConverterTypeAttachmentView: FfiConverterRustBuffer<AttachmentView> {
 /// Whether Stop shows.
 /// </param>
 /// <param name="Cooling">
-/// [`COOLING`], while another audition must wait.
+/// `persona.cooling`, while another audition must wait.
 /// </param>
 /// <param name="StartLabel">
-/// [`START_ACTION`].
+/// `persona.start_action`.
 /// </param>
 /// <param name="StopLabel">
-/// [`STOP_ACTION`].
+/// `persona.stop_action`.
 /// </param>
 public record AuditionView (
     /// <summary>
@@ -4681,15 +4681,15 @@ public record AuditionView (
     /// </summary>
     bool ShowStop, 
     /// <summary>
-    /// [`COOLING`], while another audition must wait.
+    /// `persona.cooling`, while another audition must wait.
     /// </summary>
     string? Cooling, 
     /// <summary>
-    /// [`START_ACTION`].
+    /// `persona.start_action`.
     /// </summary>
     string StartLabel, 
     /// <summary>
-    /// [`STOP_ACTION`].
+    /// `persona.stop_action`.
     /// </summary>
     string StopLabel
 ) {
@@ -4750,17 +4750,17 @@ class FfiConverterTypeAuditionView: FfiConverterRustBuffer<AuditionView> {
 /// The member's own availability.
 /// </summary>
 /// <param name="Heading">
-/// The heading, [`AVAILABILITY_HEADING`].
+/// The heading, `call_handling.availability_heading`.
 /// </param>
 /// <param name="Note">
-/// What it is for, [`AVAILABILITY_NOTE`].
+/// What it is for, `call_handling.availability_note`.
 /// </param>
 /// <param name="Status">
 /// Where its read stands, on its own: a failed read offers a retry and no
 /// switch.
 /// </param>
 /// <param name="Label">
-/// The switch's label, [`AVAILABILITY_LABEL`].
+/// The switch's label, `call_handling.availability_label`.
 /// </param>
 /// <param name="Available">
 /// Whether the member's devices ring for this workspace.
@@ -4785,11 +4785,11 @@ class FfiConverterTypeAuditionView: FfiConverterRustBuffer<AuditionView> {
 /// </param>
 public record AvailabilityPanelView (
     /// <summary>
-    /// The heading, [`AVAILABILITY_HEADING`].
+    /// The heading, `call_handling.availability_heading`.
     /// </summary>
     string Heading, 
     /// <summary>
-    /// What it is for, [`AVAILABILITY_NOTE`].
+    /// What it is for, `call_handling.availability_note`.
     /// </summary>
     string Note, 
     /// <summary>
@@ -4798,7 +4798,7 @@ public record AvailabilityPanelView (
     /// </summary>
     LoadStatus Status, 
     /// <summary>
-    /// The switch's label, [`AVAILABILITY_LABEL`].
+    /// The switch's label, `call_handling.availability_label`.
     /// </summary>
     string Label, 
     /// <summary>
@@ -5164,7 +5164,7 @@ class FfiConverterTypeBlockedRowView: FfiConverterRustBuffer<BlockedRowView> {
 /// The blocked callers screen.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`BLOCKED_TITLE`].
+/// The heading, `blocked.title`.
 /// </param>
 /// <param name="Status">
 /// Where the read stands.
@@ -5186,7 +5186,7 @@ class FfiConverterTypeBlockedRowView: FfiConverterRustBuffer<BlockedRowView> {
 /// </param>
 public record BlockedView (
     /// <summary>
-    /// The heading, [`BLOCKED_TITLE`].
+    /// The heading, `blocked.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -5481,13 +5481,13 @@ class FfiConverterTypeCallHandlingModeView: FfiConverterRustBuffer<CallHandlingM
 /// The call handling section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`CALL_HANDLING_TITLE`].
+/// The heading, `call_handling.title`.
 /// </param>
 /// <param name="HandlingHeading">
-/// The heading over who answers, [`HANDLING_HEADING`].
+/// The heading over who answers, `call_handling.handling_heading`.
 /// </param>
 /// <param name="HandlingNote">
-/// What that part is for, [`HANDLING_NOTE`].
+/// What that part is for, `call_handling.handling_note`.
 /// </param>
 /// <param name="Status">
 /// Where the read of who answers stands. A failed read offers a retry and
@@ -5499,10 +5499,10 @@ class FfiConverterTypeCallHandlingModeView: FfiConverterRustBuffer<CallHandlingM
 /// </param>
 /// <param name="UnknownMode">
 /// A stored mode this app does not know, as the core keeps it, under
-/// [`UNKNOWN_MODE_TITLE`].
+/// `call_handling.unknown_mode_title`.
 /// </param>
 /// <param name="RingLabel">
-/// The ring's label, [`RING_LABEL`].
+/// The ring's label, `call_handling.ring_label`.
 /// </param>
 /// <param name="RingHint">
 /// The hint under it: the range the service accepts.
@@ -5543,15 +5543,15 @@ class FfiConverterTypeCallHandlingModeView: FfiConverterRustBuffer<CallHandlingM
 /// </param>
 public record CallHandlingView (
     /// <summary>
-    /// The heading, [`CALL_HANDLING_TITLE`].
+    /// The heading, `call_handling.title`.
     /// </summary>
     string Title, 
     /// <summary>
-    /// The heading over who answers, [`HANDLING_HEADING`].
+    /// The heading over who answers, `call_handling.handling_heading`.
     /// </summary>
     string HandlingHeading, 
     /// <summary>
-    /// What that part is for, [`HANDLING_NOTE`].
+    /// What that part is for, `call_handling.handling_note`.
     /// </summary>
     string HandlingNote, 
     /// <summary>
@@ -5566,11 +5566,11 @@ public record CallHandlingView (
     CallHandlingModeView[] Modes, 
     /// <summary>
     /// A stored mode this app does not know, as the core keeps it, under
-    /// [`UNKNOWN_MODE_TITLE`].
+    /// `call_handling.unknown_mode_title`.
     /// </summary>
     string? UnknownMode, 
     /// <summary>
-    /// The ring's label, [`RING_LABEL`].
+    /// The ring's label, `call_handling.ring_label`.
     /// </summary>
     string RingLabel, 
     /// <summary>
@@ -6197,7 +6197,7 @@ class FfiConverterTypeCarrierChoiceView: FfiConverterRustBuffer<CarrierChoiceVie
 /// </param>
 /// <param name="Picker">
 /// The accounts to choose from, and the one chosen ("" for none of its
-/// own, which reads [`DEFAULT_SENDER`]).
+/// own, which reads `messaging.default_sender`).
 /// </param>
 public record ChannelSenderView (
     /// <summary>
@@ -6210,7 +6210,7 @@ public record ChannelSenderView (
     string Label, 
     /// <summary>
     /// The accounts to choose from, and the one chosen ("" for none of its
-    /// own, which reads [`DEFAULT_SENDER`]).
+    /// own, which reads `messaging.default_sender`).
     /// </summary>
     PickerView Picker
 ) {
@@ -7437,7 +7437,7 @@ class FfiConverterTypeCreateAccountView: FfiConverterRustBuffer<CreateAccountVie
 /// The owner's mobile number box.
 /// </summary>
 /// <param name="Heading">
-/// [`CREATOR_HEADING`].
+/// `messaging.creator_heading`.
 /// </param>
 /// <param name="Help">
 /// What it is for; the saved number is never shown.
@@ -7453,7 +7453,7 @@ class FfiConverterTypeCreateAccountView: FfiConverterRustBuffer<CreateAccountVie
 /// </param>
 public record CreatorCellView (
     /// <summary>
-    /// [`CREATOR_HEADING`].
+    /// `messaging.creator_heading`.
     /// </summary>
     string Heading, 
     /// <summary>
@@ -7512,10 +7512,10 @@ class FfiConverterTypeCreatorCellView: FfiConverterRustBuffer<CreatorCellView> {
 /// The form raising a ticket for a customer.
 /// </summary>
 /// <param name="Title">
-/// The form's heading, [`COMPOSE_TITLE`].
+/// The form's heading, `desk.compose_title`.
 /// </param>
 /// <param name="SubmitLabel">
-/// The button that raises it, [`COMPOSE_SUBMIT`].
+/// The button that raises it, `desk.compose_submit`.
 /// </param>
 /// <param name="Subject">
 /// The subject, as typed.
@@ -7533,7 +7533,7 @@ class FfiConverterTypeCreatorCellView: FfiConverterRustBuffer<CreatorCellView> {
 /// The customer's phone number, as typed.
 /// </param>
 /// <param name="CustomerNote">
-/// What the form says about the customer's details, [`CUSTOMER_NOTE`].
+/// What the form says about the customer's details, `desk.customer_note`.
 /// </param>
 /// <param name="SubjectMax">
 /// The longest subject the service takes, for the box's limit.
@@ -7557,11 +7557,11 @@ class FfiConverterTypeCreatorCellView: FfiConverterRustBuffer<CreatorCellView> {
 /// </param>
 public record DeskComposeView (
     /// <summary>
-    /// The form's heading, [`COMPOSE_TITLE`].
+    /// The form's heading, `desk.compose_title`.
     /// </summary>
     string Title, 
     /// <summary>
-    /// The button that raises it, [`COMPOSE_SUBMIT`].
+    /// The button that raises it, `desk.compose_submit`.
     /// </summary>
     string SubmitLabel, 
     /// <summary>
@@ -7585,7 +7585,7 @@ public record DeskComposeView (
     /// </summary>
     string RequesterPhone, 
     /// <summary>
-    /// What the form says about the customer's details, [`CUSTOMER_NOTE`].
+    /// What the form says about the customer's details, `desk.customer_note`.
     /// </summary>
     string CustomerNote, 
     /// <summary>
@@ -7912,7 +7912,7 @@ class FfiConverterTypeDeskOffView: FfiConverterRustBuffer<DeskOffView> {
 /// What a person calls it (`T-41`).
 /// </param>
 /// <param name="Requester">
-/// Who raised it, as far as it says, or [`NO_CUSTOMER`].
+/// Who raised it, as far as it says, or `desk.no_customer`.
 /// </param>
 /// <param name="StatusLabel">
 /// Its status, short, as the Linux app badges it in a row ("Waiting").
@@ -7937,7 +7937,7 @@ public record DeskRowView (
     /// </summary>
     string Reference, 
     /// <summary>
-    /// Who raised it, as far as it says, or [`NO_CUSTOMER`].
+    /// Who raised it, as far as it says, or `desk.no_customer`.
     /// </summary>
     string Requester, 
     /// <summary>
@@ -7998,10 +7998,10 @@ class FfiConverterTypeDeskRowView: FfiConverterRustBuffer<DeskRowView> {
 /// The desk's settings and its logo.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`SETTINGS_TITLE`].
+/// The heading, `desk.settings_title`.
 /// </param>
 /// <param name="Intro">
-/// What the settings say under their heading, [`SETTINGS_INTRO`].
+/// What the settings say under their heading, `desk.settings_intro`.
 /// </param>
 /// <param name="Status">
 /// Where the read stands. No form is offered before the settings are
@@ -8043,7 +8043,7 @@ class FfiConverterTypeDeskRowView: FfiConverterRustBuffer<DeskRowView> {
 /// Why the last save failed.
 /// </param>
 /// <param name="LogoHelp">
-/// What the logo is and what the service takes, [`LOGO_HELP`].
+/// What the logo is and what the service takes, `desk.logo_help`.
 /// </param>
 /// <param name="LogoLine">
 /// Whether there is a logo, in words. Empty until read.
@@ -8074,11 +8074,11 @@ class FfiConverterTypeDeskRowView: FfiConverterRustBuffer<DeskRowView> {
 /// </param>
 public record DeskSettingsView (
     /// <summary>
-    /// The heading, [`SETTINGS_TITLE`].
+    /// The heading, `desk.settings_title`.
     /// </summary>
     string Title, 
     /// <summary>
-    /// What the settings say under their heading, [`SETTINGS_INTRO`].
+    /// What the settings say under their heading, `desk.settings_intro`.
     /// </summary>
     string Intro, 
     /// <summary>
@@ -8133,7 +8133,7 @@ public record DeskSettingsView (
     /// </summary>
     FailureView? SaveFailure, 
     /// <summary>
-    /// What the logo is and what the service takes, [`LOGO_HELP`].
+    /// What the logo is and what the service takes, `desk.logo_help`.
     /// </summary>
     string LogoHelp, 
     /// <summary>
@@ -8320,7 +8320,7 @@ class FfiConverterTypeDeskStatusChoiceView: FfiConverterRustBuffer<DeskStatusCho
 /// One ticket, its conversation, its status and the reply.
 /// </summary>
 /// <param name="Title">
-/// The heading: the subject once read, [`TICKET_TITLE`] before.
+/// The heading: the subject once read, `desk.ticket_title` before.
 /// </param>
 /// <param name="TicketId">
 /// The ticket the page was opened for.
@@ -8383,7 +8383,7 @@ class FfiConverterTypeDeskStatusChoiceView: FfiConverterRustBuffer<DeskStatusCho
 /// </param>
 public record DeskTicketView (
     /// <summary>
-    /// The heading: the subject once read, [`TICKET_TITLE`] before.
+    /// The heading: the subject once read, `desk.ticket_title` before.
     /// </summary>
     string Title, 
     /// <summary>
@@ -8545,7 +8545,7 @@ class FfiConverterTypeDeskTicketView: FfiConverterRustBuffer<DeskTicketView> {
 /// The queue, with the form that raises a ticket.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`DESK_TITLE`].
+/// The heading, `desk.title`.
 /// </param>
 /// <param name="Status">
 /// Where the queue's read stands. A desk that is off is read: see `off`.
@@ -8587,7 +8587,7 @@ class FfiConverterTypeDeskTicketView: FfiConverterRustBuffer<DeskTicketView> {
 /// </param>
 public record DeskView (
     /// <summary>
-    /// The heading, [`DESK_TITLE`].
+    /// The heading, `desk.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -9096,10 +9096,10 @@ class FfiConverterTypeDirectoryEntryView: FfiConverterRustBuffer<DirectoryEntryV
 /// The transfer directory section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`DIRECTORY_TITLE`].
+/// The heading, `directory.title`.
 /// </param>
 /// <param name="Intro">
-/// What it says under the heading, [`DIRECTORY_INTRO`].
+/// What it says under the heading, `directory.intro`.
 /// </param>
 /// <param name="Status">
 /// Where the page stands. No list is offered before the settings are
@@ -9146,11 +9146,11 @@ class FfiConverterTypeDirectoryEntryView: FfiConverterRustBuffer<DirectoryEntryV
 /// </param>
 public record DirectoryView (
     /// <summary>
-    /// The heading, [`DIRECTORY_TITLE`].
+    /// The heading, `directory.title`.
     /// </summary>
     string Title, 
     /// <summary>
-    /// What it says under the heading, [`DIRECTORY_INTRO`].
+    /// What it says under the heading, `directory.intro`.
     /// </summary>
     string Intro, 
     /// <summary>
@@ -9280,33 +9280,33 @@ class FfiConverterTypeDirectoryView: FfiConverterRustBuffer<DirectoryView> {
 /// unsaved changes is held until it is answered.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`DISCARD_TITLE`].
+/// The heading, `guard.discard_title`.
 /// </param>
 /// <param name="Body">
-/// The text under it, [`DISCARD_BODY`].
+/// The text under it, `guard.discard_body`.
 /// </param>
 /// <param name="DiscardLabel">
-/// The button that sends `UiEvent::DiscardChanges`, [`DISCARD_ACTION`].
+/// The button that sends `UiEvent::DiscardChanges`, `guard.discard_action`.
 /// </param>
 /// <param name="KeepLabel">
-/// The button that sends `UiEvent::KeepEditing`, [`KEEP_EDITING`]: the
+/// The button that sends `UiEvent::KeepEditing`, `guard.keep_editing`: the
 /// default, and what closing the question means.
 /// </param>
 public record DiscardView (
     /// <summary>
-    /// The heading, [`DISCARD_TITLE`].
+    /// The heading, `guard.discard_title`.
     /// </summary>
     string Title, 
     /// <summary>
-    /// The text under it, [`DISCARD_BODY`].
+    /// The text under it, `guard.discard_body`.
     /// </summary>
     string Body, 
     /// <summary>
-    /// The button that sends `UiEvent::DiscardChanges`, [`DISCARD_ACTION`].
+    /// The button that sends `UiEvent::DiscardChanges`, `guard.discard_action`.
     /// </summary>
     string DiscardLabel, 
     /// <summary>
-    /// The button that sends `UiEvent::KeepEditing`, [`KEEP_EDITING`]: the
+    /// The button that sends `UiEvent::KeepEditing`, `guard.keep_editing`: the
     /// default, and what closing the question means.
     /// </summary>
     string KeepLabel
@@ -9988,7 +9988,7 @@ class FfiConverterTypeHqCardView: FfiConverterRustBuffer<HqCardView> {
 /// The District HQ screen.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`TITLE`].
+/// The heading, `hq.title`.
 /// </param>
 /// <param name="Empty">
 /// What an empty conversation says, while nothing has been asked.
@@ -10016,20 +10016,20 @@ class FfiConverterTypeHqCardView: FfiConverterRustBuffer<HqCardView> {
 /// change applied.
 /// </param>
 /// <param name="PromptPlaceholder">
-/// The prompt box's placeholder, [`PROMPT_PLACEHOLDER`].
+/// The prompt box's placeholder, `hq.prompt_placeholder`.
 /// </param>
 /// <param name="AskLabel">
-/// The send button's label, [`ASK_ACTION`].
+/// The send button's label, `hq.ask_action`.
 /// </param>
 /// <param name="RetryLabel">
-/// The "Try again" button's label, [`RETRY_ACTION`].
+/// The "Try again" button's label, `hq.retry_action`.
 /// </param>
 /// <param name="Footnote">
-/// The line under the prompt box, [`FOOTNOTE`].
+/// The line under the prompt box, `hq.footnote`.
 /// </param>
 public record HqView (
     /// <summary>
-    /// The heading, [`TITLE`].
+    /// The heading, `hq.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -10065,19 +10065,19 @@ public record HqView (
     /// </summary>
     bool CanAsk, 
     /// <summary>
-    /// The prompt box's placeholder, [`PROMPT_PLACEHOLDER`].
+    /// The prompt box's placeholder, `hq.prompt_placeholder`.
     /// </summary>
     string PromptPlaceholder, 
     /// <summary>
-    /// The send button's label, [`ASK_ACTION`].
+    /// The send button's label, `hq.ask_action`.
     /// </summary>
     string AskLabel, 
     /// <summary>
-    /// The "Try again" button's label, [`RETRY_ACTION`].
+    /// The "Try again" button's label, `hq.retry_action`.
     /// </summary>
     string RetryLabel, 
     /// <summary>
-    /// The line under the prompt box, [`FOOTNOTE`].
+    /// The line under the prompt box, `hq.footnote`.
     /// </summary>
     string Footnote
 ) {
@@ -10595,7 +10595,7 @@ class FfiConverterTypeKeyFieldView: FfiConverterRustBuffer<KeyFieldView> {
 /// The confirming button.
 /// </param>
 /// <param name="CancelLabel">
-/// The button that answers no, [`CANCEL`].
+/// The button that answers no, `knowledge.cancel`.
 /// </param>
 /// <param name="Destructive">
 /// Whether it destroys something (a delete), rather than moves where
@@ -10615,7 +10615,7 @@ public record KnowledgeConfirmView (
     /// </summary>
     string Action, 
     /// <summary>
-    /// The button that answers no, [`CANCEL`].
+    /// The button that answers no, `knowledge.cancel`.
     /// </summary>
     string CancelLabel, 
     /// <summary>
@@ -10823,7 +10823,7 @@ class FfiConverterTypeKnowledgeModeChoiceView: FfiConverterRustBuffer<KnowledgeM
 /// The knowledge base section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`TITLE`].
+/// The heading, `knowledge.title`.
 /// </param>
 /// <param name="ViewerNote">
 /// For a viewer, that this is read only and who may change it; else none.
@@ -10832,7 +10832,7 @@ class FfiConverterTypeKnowledgeModeChoiceView: FfiConverterRustBuffer<KnowledgeM
 /// How the last add, delete or change of mode ended, until dismissed.
 /// </param>
 /// <param name="ModeHeading">
-/// The mode's heading, [`MODE_HEADING`].
+/// The mode's heading, `knowledge.mode_heading`.
 /// </param>
 /// <param name="ModeLoading">
 /// Whether the mode is being read (show a progress ring).
@@ -10852,7 +10852,7 @@ class FfiConverterTypeKnowledgeModeChoiceView: FfiConverterRustBuffer<KnowledgeM
 /// A stored mode this app does not know, as stored ("Stored as ...").
 /// </param>
 /// <param name="ModeUnknownTitle">
-/// The heading over it, [`MODE_UNKNOWN_TITLE`].
+/// The heading over it, `knowledge.mode_unknown_title`.
 /// </param>
 /// <param name="CanChangeMode">
 /// Whether a mode can be chosen: read, the member may change it, and
@@ -10862,19 +10862,19 @@ class FfiConverterTypeKnowledgeModeChoiceView: FfiConverterRustBuffer<KnowledgeM
 /// Whether the add form shows: the member may change the workspace.
 /// </param>
 /// <param name="AddHeading">
-/// The add form's heading, [`ADD_HEADING`].
+/// The add form's heading, `knowledge.add_heading`.
 /// </param>
 /// <param name="AddBilled">
 /// That adding is billed by length and sent once, in the core's words.
 /// </param>
 /// <param name="TitleLabel">
-/// The title box's label, [`TITLE_LABEL`].
+/// The title box's label, `knowledge.title_label`.
 /// </param>
 /// <param name="DraftTitle">
 /// The new document's title, as typed.
 /// </param>
 /// <param name="ContentLabel">
-/// The text box's label, [`CONTENT_LABEL`].
+/// The text box's label, `knowledge.content_label`.
 /// </param>
 /// <param name="DraftContent">
 /// The new document's text, as typed.
@@ -10894,22 +10894,22 @@ class FfiConverterTypeKnowledgeModeChoiceView: FfiConverterRustBuffer<KnowledgeM
 /// missing when it is pressed too early.
 /// </param>
 /// <param name="AddLabel">
-/// The add button, [`ADD_ACTION`].
+/// The add button, `knowledge.add_action`.
 /// </param>
 /// <param name="FileLabel">
-/// The button that reads a text file into the form, [`FILE_ACTION`].
+/// The button that reads a text file into the form, `knowledge.file_action`.
 /// </param>
 /// <param name="FileHint">
-/// What it takes, [`FILE_HINT`].
+/// What it takes, `knowledge.file_hint`.
 /// </param>
 /// <param name="DocumentsHeading">
-/// The documents' heading, [`DOCUMENTS_HEADING`].
+/// The documents' heading, `knowledge.documents_heading`.
 /// </param>
 /// <param name="DocumentsLoading">
 /// Whether the documents are being read.
 /// </param>
 /// <param name="DocumentsFailedTitle">
-/// When they could not be read, [`DOCUMENTS_FAILED`].
+/// When they could not be read, `knowledge.documents_failed`.
 /// </param>
 /// <param name="DocumentsFailure">
 /// Why.
@@ -10928,7 +10928,7 @@ class FfiConverterTypeKnowledgeModeChoiceView: FfiConverterRustBuffer<KnowledgeM
 /// Whether it can be pressed now: nothing on its way.
 /// </param>
 /// <param name="DeleteLabel">
-/// The delete button's name, [`DELETE_LABEL`].
+/// The delete button's name, `knowledge.delete_label`.
 /// </param>
 /// <param name="Confirm">
 /// The question asked before a delete or a switch to the linked mode,
@@ -10936,7 +10936,7 @@ class FfiConverterTypeKnowledgeModeChoiceView: FfiConverterRustBuffer<KnowledgeM
 /// </param>
 public record KnowledgeView (
     /// <summary>
-    /// The heading, [`TITLE`].
+    /// The heading, `knowledge.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -10948,7 +10948,7 @@ public record KnowledgeView (
     /// </summary>
     SaveNoticeView? Notice, 
     /// <summary>
-    /// The mode's heading, [`MODE_HEADING`].
+    /// The mode's heading, `knowledge.mode_heading`.
     /// </summary>
     string ModeHeading, 
     /// <summary>
@@ -10974,7 +10974,7 @@ public record KnowledgeView (
     /// </summary>
     string? ModeUnknown, 
     /// <summary>
-    /// The heading over it, [`MODE_UNKNOWN_TITLE`].
+    /// The heading over it, `knowledge.mode_unknown_title`.
     /// </summary>
     string ModeUnknownTitle, 
     /// <summary>
@@ -10987,7 +10987,7 @@ public record KnowledgeView (
     /// </summary>
     bool ShowAdd, 
     /// <summary>
-    /// The add form's heading, [`ADD_HEADING`].
+    /// The add form's heading, `knowledge.add_heading`.
     /// </summary>
     string AddHeading, 
     /// <summary>
@@ -10995,7 +10995,7 @@ public record KnowledgeView (
     /// </summary>
     string AddBilled, 
     /// <summary>
-    /// The title box's label, [`TITLE_LABEL`].
+    /// The title box's label, `knowledge.title_label`.
     /// </summary>
     string TitleLabel, 
     /// <summary>
@@ -11003,7 +11003,7 @@ public record KnowledgeView (
     /// </summary>
     string DraftTitle, 
     /// <summary>
-    /// The text box's label, [`CONTENT_LABEL`].
+    /// The text box's label, `knowledge.content_label`.
     /// </summary>
     string ContentLabel, 
     /// <summary>
@@ -11029,19 +11029,19 @@ public record KnowledgeView (
     /// </summary>
     bool AddEnabled, 
     /// <summary>
-    /// The add button, [`ADD_ACTION`].
+    /// The add button, `knowledge.add_action`.
     /// </summary>
     string AddLabel, 
     /// <summary>
-    /// The button that reads a text file into the form, [`FILE_ACTION`].
+    /// The button that reads a text file into the form, `knowledge.file_action`.
     /// </summary>
     string FileLabel, 
     /// <summary>
-    /// What it takes, [`FILE_HINT`].
+    /// What it takes, `knowledge.file_hint`.
     /// </summary>
     string FileHint, 
     /// <summary>
-    /// The documents' heading, [`DOCUMENTS_HEADING`].
+    /// The documents' heading, `knowledge.documents_heading`.
     /// </summary>
     string DocumentsHeading, 
     /// <summary>
@@ -11049,7 +11049,7 @@ public record KnowledgeView (
     /// </summary>
     bool DocumentsLoading, 
     /// <summary>
-    /// When they could not be read, [`DOCUMENTS_FAILED`].
+    /// When they could not be read, `knowledge.documents_failed`.
     /// </summary>
     string? DocumentsFailedTitle, 
     /// <summary>
@@ -11074,7 +11074,7 @@ public record KnowledgeView (
     /// </summary>
     bool CanDelete, 
     /// <summary>
-    /// The delete button's name, [`DELETE_LABEL`].
+    /// The delete button's name, `knowledge.delete_label`.
     /// </summary>
     string DeleteLabel, 
     /// <summary>
@@ -11259,10 +11259,10 @@ class FfiConverterTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerView> {
 /// The numbers Distronode holds for the workspace.
 /// </summary>
 /// <param name="Heading">
-/// [`MANAGED_HEADING`].
+/// `messaging.managed_heading`.
 /// </param>
 /// <param name="Body">
-/// [`MANAGED_BODY`].
+/// `messaging.managed_body`.
 /// </param>
 /// <param name="Carrier">
 /// The carrier, or "Distronode".
@@ -11272,11 +11272,11 @@ class FfiConverterTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerView> {
 /// </param>
 public record ManagedNumbersView (
     /// <summary>
-    /// [`MANAGED_HEADING`].
+    /// `messaging.managed_heading`.
     /// </summary>
     string Heading, 
     /// <summary>
-    /// [`MANAGED_BODY`].
+    /// `messaging.managed_body`.
     /// </summary>
     string Body, 
     /// <summary>
@@ -11766,7 +11766,7 @@ class FfiConverterTypeMeetingRowView: FfiConverterRustBuffer<MeetingRowView> {
 /// agency member, with nothing on its way.
 /// </param>
 /// <param name="RemoveLabel">
-/// [`REMOVE_FROM_WORKSPACE`].
+/// `members.remove_from_workspace`.
 /// </param>
 public record MemberRowView (
     /// <summary>
@@ -11787,7 +11787,7 @@ public record MemberRowView (
     /// </summary>
     bool CanChange, 
     /// <summary>
-    /// [`REMOVE_FROM_WORKSPACE`].
+    /// `members.remove_from_workspace`.
     /// </summary>
     string RemoveLabel
 ) {
@@ -11830,7 +11830,7 @@ class FfiConverterTypeMemberRowView: FfiConverterRustBuffer<MemberRowView> {
 /// The members section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`TITLE`].
+/// The heading, `members.title`.
 /// </param>
 /// <param name="Status">
 /// Where the list stands; the section shows only when ready.
@@ -11842,7 +11842,7 @@ class FfiConverterTypeMemberRowView: FfiConverterRustBuffer<MemberRowView> {
 /// Whether a change of a member is on its way (show a progress ring).
 /// </param>
 /// <param name="ReadOnlyNote">
-/// [`AGENCY_ONLY`], for a member who may not manage members.
+/// `members.agency_only`, for a member who may not manage members.
 /// </param>
 /// <param name="Notice">
 /// How the last change ended, until dismissed.
@@ -11861,7 +11861,7 @@ class FfiConverterTypeMemberRowView: FfiConverterRustBuffer<MemberRowView> {
 /// </param>
 public record MembersView (
     /// <summary>
-    /// The heading, [`TITLE`].
+    /// The heading, `members.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -11877,7 +11877,7 @@ public record MembersView (
     /// </summary>
     bool Changing, 
     /// <summary>
-    /// [`AGENCY_ONLY`], for a member who may not manage members.
+    /// `members.agency_only`, for a member who may not manage members.
     /// </summary>
     string? ReadOnlyNote, 
     /// <summary>
@@ -12314,7 +12314,7 @@ class FfiConverterTypeMessagingFormView: FfiConverterRustBuffer<MessagingFormVie
 /// The messaging accounts section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`MESSAGING_TITLE`].
+/// The heading, `messaging.title`.
 /// </param>
 /// <param name="Status">
 /// Being read, failed, or read.
@@ -12360,7 +12360,7 @@ class FfiConverterTypeMessagingFormView: FfiConverterRustBuffer<MessagingFormVie
 /// </param>
 public record MessagingView (
     /// <summary>
-    /// The heading, [`MESSAGING_TITLE`].
+    /// The heading, `messaging.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -13341,7 +13341,7 @@ class FfiConverterTypePeriodChoiceView: FfiConverterRustBuffer<PeriodChoiceView>
 /// Where the engine and the voice are changed.
 /// </param>
 /// <param name="StudioLabel">
-/// The button that opens Voice Studio, [`OPEN_STUDIO`].
+/// The button that opens Voice Studio, `persona.open_studio`.
 /// </param>
 /// <param name="Language">
 /// The languages the stored engine speaks.
@@ -13359,7 +13359,7 @@ public record PersonaEngineView (
     /// </summary>
     string StudioHint, 
     /// <summary>
-    /// The button that opens Voice Studio, [`OPEN_STUDIO`].
+    /// The button that opens Voice Studio, `persona.open_studio`.
     /// </summary>
     string StudioLabel, 
     /// <summary>
@@ -13410,13 +13410,13 @@ class FfiConverterTypePersonaEngineView: FfiConverterRustBuffer<PersonaEngineVie
 /// The persona section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`TITLE`].
+/// The heading, `persona.title`.
 /// </param>
 /// <param name="Status">
 /// Where the page stands; the form shows only when [`SectionStatus::Ready`].
 /// </param>
 /// <param name="TextsHeading">
-/// The texts' heading, [`TEXTS_HEADING`].
+/// The texts' heading, `persona.texts_heading`.
 /// </param>
 /// <param name="Name">
 /// The receptionist's name, as on screen.
@@ -13434,7 +13434,7 @@ class FfiConverterTypePersonaEngineView: FfiConverterRustBuffer<PersonaEngineVie
 /// The line under the texts: clearing a box saves it empty.
 /// </param>
 /// <param name="EngineHeading">
-/// The language half's heading, [`ENGINE_HEADING`].
+/// The language half's heading, `persona.engine_heading`.
 /// </param>
 /// <param name="Engine">
 /// The language half, once the settings and the options are both read.
@@ -13462,7 +13462,7 @@ class FfiConverterTypePersonaEngineView: FfiConverterRustBuffer<PersonaEngineVie
 /// Whether "Save" works: something changed, and nothing is on its way.
 /// </param>
 /// <param name="SaveLabel">
-/// The save button, [`SAVE_ACTION`].
+/// The save button, `persona.save_action`.
 /// </param>
 /// <param name="CanPreview">
 /// Whether "Try this receptionist" is offered: it needs the options.
@@ -13471,14 +13471,14 @@ class FfiConverterTypePersonaEngineView: FfiConverterRustBuffer<PersonaEngineVie
 /// Whether it can be pressed now: no audition dialog open.
 /// </param>
 /// <param name="PreviewLabel">
-/// The audition button, [`PREVIEW_ACTION`].
+/// The audition button, `persona.preview_action`.
 /// </param>
 /// <param name="Audition">
 /// The audition dialog, while it is open.
 /// </param>
 public record PersonaView (
     /// <summary>
-    /// The heading, [`TITLE`].
+    /// The heading, `persona.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -13486,7 +13486,7 @@ public record PersonaView (
     /// </summary>
     SectionStatus Status, 
     /// <summary>
-    /// The texts' heading, [`TEXTS_HEADING`].
+    /// The texts' heading, `persona.texts_heading`.
     /// </summary>
     string TextsHeading, 
     /// <summary>
@@ -13510,7 +13510,7 @@ public record PersonaView (
     /// </summary>
     string ClearHint, 
     /// <summary>
-    /// The language half's heading, [`ENGINE_HEADING`].
+    /// The language half's heading, `persona.engine_heading`.
     /// </summary>
     string EngineHeading, 
     /// <summary>
@@ -13547,7 +13547,7 @@ public record PersonaView (
     /// </summary>
     bool CanSave, 
     /// <summary>
-    /// The save button, [`SAVE_ACTION`].
+    /// The save button, `persona.save_action`.
     /// </summary>
     string SaveLabel, 
     /// <summary>
@@ -13559,7 +13559,7 @@ public record PersonaView (
     /// </summary>
     bool PreviewEnabled, 
     /// <summary>
-    /// The audition button, [`PREVIEW_ACTION`].
+    /// The audition button, `persona.preview_action`.
     /// </summary>
     string PreviewLabel, 
     /// <summary>
@@ -13722,7 +13722,7 @@ class FfiConverterTypePickedFileView: FfiConverterRustBuffer<PickedFileView> {
 /// </param>
 /// <param name="SelectedLabel">
 /// What the chosen value reads: its choice's label, else the value as
-/// stored, else [`NOT_CHOSEN`].
+/// stored, else `settings.not_chosen`.
 /// </param>
 public record PickerView (
     /// <summary>
@@ -13735,7 +13735,7 @@ public record PickerView (
     string Selected, 
     /// <summary>
     /// What the chosen value reads: its choice's label, else the value as
-    /// stored, else [`NOT_CHOSEN`].
+    /// stored, else `settings.not_chosen`.
     /// </summary>
     string SelectedLabel
 ) {
@@ -14235,17 +14235,17 @@ class FfiConverterTypeRemoveQuestionView: FfiConverterRustBuffer<RemoveQuestionV
 /// The rename form.
 /// </summary>
 /// <param name="Heading">
-/// [`RENAME_HEADING`].
+/// `members.rename_heading`.
 /// </param>
 /// <param name="CurrentLabel">
-/// [`CURRENT_NAME`].
+/// `members.current_name`.
 /// </param>
 /// <param name="Current">
 /// The name now: the one the service stored at the last rename, else the
 /// switcher's.
 /// </param>
 /// <param name="NewLabel">
-/// [`NEW_NAME`].
+/// `members.new_name`.
 /// </param>
 /// <param name="NewName">
 /// The new name, as typed.
@@ -14260,15 +14260,15 @@ class FfiConverterTypeRemoveQuestionView: FfiConverterRustBuffer<RemoveQuestionV
 /// Whether a rename is on its way (show a progress ring).
 /// </param>
 /// <param name="RenameLabel">
-/// [`RENAME_ACTION`].
+/// `members.rename_action`.
 /// </param>
 public record RenameView (
     /// <summary>
-    /// [`RENAME_HEADING`].
+    /// `members.rename_heading`.
     /// </summary>
     string Heading, 
     /// <summary>
-    /// [`CURRENT_NAME`].
+    /// `members.current_name`.
     /// </summary>
     string CurrentLabel, 
     /// <summary>
@@ -14277,7 +14277,7 @@ public record RenameView (
     /// </summary>
     string Current, 
     /// <summary>
-    /// [`NEW_NAME`].
+    /// `members.new_name`.
     /// </summary>
     string NewLabel, 
     /// <summary>
@@ -14297,7 +14297,7 @@ public record RenameView (
     /// </summary>
     bool Renaming, 
     /// <summary>
-    /// [`RENAME_ACTION`].
+    /// `members.rename_action`.
     /// </summary>
     string RenameLabel
 ) {
@@ -15189,10 +15189,10 @@ class FfiConverterTypeRoutingRuleView: FfiConverterRustBuffer<RoutingRuleView> {
 /// The routing rules section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`ROUTING_TITLE`].
+/// The heading, `routing.title`.
 /// </param>
 /// <param name="Intro">
-/// What it says under the heading, [`ROUTING_INTRO`].
+/// What it says under the heading, `routing.intro`.
 /// </param>
 /// <param name="Status">
 /// Where the page stands. No list is offered before the settings are
@@ -15227,11 +15227,11 @@ class FfiConverterTypeRoutingRuleView: FfiConverterRustBuffer<RoutingRuleView> {
 /// </param>
 public record RoutingView (
     /// <summary>
-    /// The heading, [`ROUTING_TITLE`].
+    /// The heading, `routing.title`.
     /// </summary>
     string Title, 
     /// <summary>
-    /// What it says under the heading, [`ROUTING_INTRO`].
+    /// What it says under the heading, `routing.intro`.
     /// </summary>
     string Intro, 
     /// <summary>
@@ -16247,7 +16247,7 @@ class FfiConverterTypeSettingsGroupView: FfiConverterRustBuffer<SettingsGroupVie
 /// groups, and the note under them.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`SETTINGS_TITLE`].
+/// The heading, `settings.title`.
 /// </param>
 /// <param name="Groups">
 /// The groups, District Studio's first, each with its rows in the core's
@@ -16259,7 +16259,7 @@ class FfiConverterTypeSettingsGroupView: FfiConverterRustBuffer<SettingsGroupVie
 /// </param>
 public record SettingsHubView (
     /// <summary>
-    /// The heading, [`SETTINGS_TITLE`].
+    /// The heading, `settings.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -17830,7 +17830,7 @@ class FfiConverterTypeSupportMessageView: FfiConverterRustBuffer<SupportMessageV
 /// One support request.
 /// </summary>
 /// <param name="Title">
-/// The heading: the subject once read, [`REQUEST_TITLE`] before.
+/// The heading: the subject once read, `support.request_title` before.
 /// </param>
 /// <param name="Key">
 /// The key the page was opened by.
@@ -17839,7 +17839,7 @@ class FfiConverterTypeSupportMessageView: FfiConverterRustBuffer<SupportMessageV
 /// Where the read stands.
 /// </param>
 /// <param name="Reference">
-/// Its support desk key (`DA-42`), or [`NOT_FILED_YET`]. Empty until read.
+/// Its support desk key (`DA-42`), or `support.not_filed_yet`. Empty until read.
 /// </param>
 /// <param name="StatusName">
 /// Where it stands, in the support desk's own word. Empty until read.
@@ -17895,7 +17895,7 @@ class FfiConverterTypeSupportMessageView: FfiConverterRustBuffer<SupportMessageV
 /// </param>
 public record SupportRequestView (
     /// <summary>
-    /// The heading: the subject once read, [`REQUEST_TITLE`] before.
+    /// The heading: the subject once read, `support.request_title` before.
     /// </summary>
     string Title, 
     /// <summary>
@@ -17907,7 +17907,7 @@ public record SupportRequestView (
     /// </summary>
     LoadStatus Status, 
     /// <summary>
-    /// Its support desk key (`DA-42`), or [`NOT_FILED_YET`]. Empty until read.
+    /// Its support desk key (`DA-42`), or `support.not_filed_yet`. Empty until read.
     /// </summary>
     string Reference, 
     /// <summary>
@@ -18074,7 +18074,7 @@ class FfiConverterTypeSupportRequestView: FfiConverterRustBuffer<SupportRequestV
 /// The subject.
 /// </param>
 /// <param name="Reference">
-/// Its support desk key (`DA-42`), or [`NOT_FILED_YET`].
+/// Its support desk key (`DA-42`), or `support.not_filed_yet`.
 /// </param>
 /// <param name="Status">
 /// Where it stands, in the support desk's own word, shown as it is.
@@ -18093,7 +18093,7 @@ public record SupportRowView (
     /// </summary>
     string Subject, 
     /// <summary>
-    /// Its support desk key (`DA-42`), or [`NOT_FILED_YET`].
+    /// Its support desk key (`DA-42`), or `support.not_filed_yet`.
     /// </summary>
     string Reference, 
     /// <summary>
@@ -18706,17 +18706,17 @@ class FfiConverterTypeToolRowView: FfiConverterRustBuffer<ToolRowView> {
 /// The Skills section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`TITLE`].
+/// The heading, `tools.title`.
 /// </param>
 /// <param name="Status">
 /// Where the page stands; the form shows only when [`SectionStatus::Ready`].
 /// A save of either part that landed and was not read back says so here.
 /// </param>
 /// <param name="ToolsHeading">
-/// The tools' heading, [`TOOLS_HEADING`].
+/// The tools' heading, `tools.heading`.
 /// </param>
 /// <param name="ToolsNote">
-/// What the tools are, [`TOOLS_NOTE`].
+/// What the tools are, `tools.note`.
 /// </param>
 /// <param name="Tools">
 /// A switch per tool: those the core names, in its order, then each stored
@@ -18736,10 +18736,10 @@ class FfiConverterTypeToolRowView: FfiConverterRustBuffer<ToolRowView> {
 /// nothing is on its way.
 /// </param>
 /// <param name="SaveToolsLabel">
-/// The tools' save button, [`SAVE_TOOLS`].
+/// The tools' save button, `tools.save_tools`.
 /// </param>
 /// <param name="ResearchHeading">
-/// The research part's heading, [`RESEARCH_HEADING`].
+/// The research part's heading, `tools.research_heading`.
 /// </param>
 /// <param name="ResearchTitle">
 /// The research switch's title, in the core's words.
@@ -18760,11 +18760,11 @@ class FfiConverterTypeToolRowView: FfiConverterRustBuffer<ToolRowView> {
 /// Whether its Save works.
 /// </param>
 /// <param name="SaveResearchLabel">
-/// Its save button, [`SAVE_RESEARCH`].
+/// Its save button, `tools.save_research`.
 /// </param>
 public record ToolsView (
     /// <summary>
-    /// The heading, [`TITLE`].
+    /// The heading, `tools.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -18773,11 +18773,11 @@ public record ToolsView (
     /// </summary>
     SectionStatus Status, 
     /// <summary>
-    /// The tools' heading, [`TOOLS_HEADING`].
+    /// The tools' heading, `tools.heading`.
     /// </summary>
     string ToolsHeading, 
     /// <summary>
-    /// What the tools are, [`TOOLS_NOTE`].
+    /// What the tools are, `tools.note`.
     /// </summary>
     string ToolsNote, 
     /// <summary>
@@ -18803,11 +18803,11 @@ public record ToolsView (
     /// </summary>
     bool CanSaveTools, 
     /// <summary>
-    /// The tools' save button, [`SAVE_TOOLS`].
+    /// The tools' save button, `tools.save_tools`.
     /// </summary>
     string SaveToolsLabel, 
     /// <summary>
-    /// The research part's heading, [`RESEARCH_HEADING`].
+    /// The research part's heading, `tools.research_heading`.
     /// </summary>
     string ResearchHeading, 
     /// <summary>
@@ -18835,7 +18835,7 @@ public record ToolsView (
     /// </summary>
     bool CanSaveResearch, 
     /// <summary>
-    /// Its save button, [`SAVE_RESEARCH`].
+    /// Its save button, `tools.save_research`.
     /// </summary>
     string SaveResearchLabel
 ) {
@@ -19009,7 +19009,7 @@ class FfiConverterTypeTranscriptLineView: FfiConverterRustBuffer<TranscriptLineV
 /// </param>
 /// <param name="Status">
 /// The line under the heading: "Connecting.", "Live", "Reconnecting.",
-/// "Call ended"; or, when no live transcript can be shown, [`UNAVAILABLE`].
+/// "Call ended"; or, when no live transcript can be shown, `transcript.unavailable`.
 /// </param>
 /// <param name="Lines">
 /// The lines said so far, in order.
@@ -19035,7 +19035,7 @@ public record TranscriptView (
     TranscriptPhase Phase, 
     /// <summary>
     /// The line under the heading: "Connecting.", "Live", "Reconnecting.",
-    /// "Call ended"; or, when no live transcript can be shown, [`UNAVAILABLE`].
+    /// "Call ended"; or, when no live transcript can be shown, `transcript.unavailable`.
     /// </summary>
     string Status, 
     /// <summary>
@@ -19253,7 +19253,7 @@ class FfiConverterTypeUsageCardView: FfiConverterRustBuffer<UsageCardView> {
 /// The Voice section.
 /// </summary>
 /// <param name="Title">
-/// The heading, [`VOICE_STUDIO_TITLE`].
+/// The heading, `voice_studio.title`.
 /// </param>
 /// <param name="Status">
 /// Where the page stands (the settings kit's): being read, failed
@@ -19265,7 +19265,7 @@ class FfiConverterTypeUsageCardView: FfiConverterRustBuffer<UsageCardView> {
 /// </param>
 public record VoiceStudioView (
     /// <summary>
-    /// The heading, [`VOICE_STUDIO_TITLE`].
+    /// The heading, `voice_studio.title`.
     /// </summary>
     string Title, 
     /// <summary>
@@ -26073,7 +26073,7 @@ public record SectionStatus {
     
     /// <summary>
     /// A save landed and reading it back failed: "Saved", what to do, and a
-    /// read ([`READ_AGAIN`], `UiEvent::Refresh`), never a save.
+    /// read (`settings.read_again`, `UiEvent::Refresh`), never a save.
     /// </summary>
     public record Stale (
         string Title,

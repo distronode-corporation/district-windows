@@ -15,39 +15,20 @@
 
 use district_core::{
     AvailabilityView as AvailabilityRead, CallHandlingEvent, CallHandlingSection,
-    CallHandlingView as HandlingRead, Capabilities, ConfigLoad, Event, Model, Route, SignedIn,
+    CallHandlingView as HandlingRead, Capabilities, Event, Model, Route, SignedIn,
     WorkspaceSection, call_handling_mode_body, call_handling_mode_label,
 };
 use district_model::{CallHandlingMode, MAX_APP_RING_SECONDS, MIN_APP_RING_SECONDS};
 use serde::Serialize;
 
 use super::{SaveNoticeView, save_notice};
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::LoadStatus;
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
 pub(crate) const BUILT: bool = true;
-
-/// The section's heading: the hub row's title, which opens it.
-pub const CALL_HANDLING_TITLE: &str = "Call handling";
-/// The heading over who answers.
-pub const HANDLING_HEADING: &str = "Who answers";
-/// What that part is for.
-pub const HANDLING_NOTE: &str = "For every member of this workspace.";
-/// The heading of a stored mode this app does not know.
-pub const UNKNOWN_MODE_TITLE: &str = "A setting this app does not know";
-/// The ring's label.
-pub const RING_LABEL: &str = "How long your devices ring";
-/// The heading over the member's own availability.
-pub const AVAILABILITY_HEADING: &str = "Your availability";
-/// What that part is for.
-pub const AVAILABILITY_NOTE: &str =
-    "Whether your own devices ring for this workspace's calls. A change is sent at once.";
-/// The switch's label.
-pub const AVAILABILITY_LABEL: &str = "Ring me for calls";
-/// The heading of a failed availability read.
-pub const AVAILABILITY_FAILED_TITLE: &str = "Could not read whether you are rung";
 
 /// The modes, in the order they are offered.
 const MODES: [CallHandlingMode; 3] = [
@@ -58,7 +39,7 @@ const MODES: [CallHandlingMode; 3] = [
 
 /// A ring, in words.
 pub(crate) fn ring_words(seconds: i64) -> String {
-    format!("{seconds} seconds")
+    s::call_handling_ring_seconds(l(), seconds)
 }
 
 /// The question the core asks before a save that replaces a whole list.
@@ -120,14 +101,14 @@ pub struct CallHandlingModeView {
 /// The member's own availability.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct AvailabilityPanelView {
-    /// The heading, [`AVAILABILITY_HEADING`].
+    /// The heading, `call_handling.availability_heading`.
     pub heading: String,
-    /// What it is for, [`AVAILABILITY_NOTE`].
+    /// What it is for, `call_handling.availability_note`.
     pub note: String,
     /// Where its read stands, on its own: a failed read offers a retry and no
     /// switch.
     pub status: LoadStatus,
-    /// The switch's label, [`AVAILABILITY_LABEL`].
+    /// The switch's label, `call_handling.availability_label`.
     pub label: String,
     /// Whether the member's devices ring for this workspace.
     pub available: bool,
@@ -149,11 +130,11 @@ pub struct AvailabilityPanelView {
 /// The call handling section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct CallHandlingView {
-    /// The heading, [`CALL_HANDLING_TITLE`].
+    /// The heading, `call_handling.title`.
     pub title: String,
-    /// The heading over who answers, [`HANDLING_HEADING`].
+    /// The heading over who answers, `call_handling.handling_heading`.
     pub handling_heading: String,
-    /// What that part is for, [`HANDLING_NOTE`].
+    /// What that part is for, `call_handling.handling_note`.
     pub handling_note: String,
     /// Where the read of who answers stands. A failed read offers a retry and
     /// no control.
@@ -162,9 +143,9 @@ pub struct CallHandlingView {
     /// only the one in force.
     pub modes: Vec<CallHandlingModeView>,
     /// A stored mode this app does not know, as the core keeps it, under
-    /// [`UNKNOWN_MODE_TITLE`].
+    /// `call_handling.unknown_mode_title`.
     pub unknown_mode: Option<String>,
-    /// The ring's label, [`RING_LABEL`].
+    /// The ring's label, `call_handling.ring_label`.
     pub ring_label: String,
     /// The hint under it: the range the service accepts.
     pub ring_hint: String,
@@ -197,14 +178,14 @@ impl Default for CallHandlingView {
     /// The section before anything is read.
     fn default() -> Self {
         Self {
-            title: CALL_HANDLING_TITLE.to_owned(),
-            handling_heading: HANDLING_HEADING.to_owned(),
-            handling_note: HANDLING_NOTE.to_owned(),
+            title: s::call_handling_title(l()).to_owned(),
+            handling_heading: s::call_handling_handling_heading(l()).to_owned(),
+            handling_note: s::call_handling_handling_note(l()).to_owned(),
             status: LoadStatus::Loading,
             modes: Vec::new(),
             unknown_mode: None,
-            ring_label: RING_LABEL.to_owned(),
-            ring_hint: CallHandlingSection::RING_HINT.to_owned(),
+            ring_label: s::call_handling_ring_label(l()).to_owned(),
+            ring_hint: cs::call_handling_ring_hint(l()).to_owned(),
             ring_seconds: MIN_APP_RING_SECONDS,
             ring_words: ring_words(MIN_APP_RING_SECONDS),
             ring_min: MIN_APP_RING_SECONDS,
@@ -216,10 +197,10 @@ impl Default for CallHandlingView {
             notice: None,
             viewer_note: None,
             availability: AvailabilityPanelView {
-                heading: AVAILABILITY_HEADING.to_owned(),
-                note: AVAILABILITY_NOTE.to_owned(),
+                heading: s::call_handling_availability_heading(l()).to_owned(),
+                note: s::call_handling_availability_note(l()).to_owned(),
                 status: LoadStatus::Loading,
-                label: AVAILABILITY_LABEL.to_owned(),
+                label: s::call_handling_availability_label(l()).to_owned(),
                 available: false,
                 show_switch: false,
                 can_toggle: false,
@@ -288,14 +269,14 @@ pub(crate) fn call_handling_view(
     let can_change = capabilities.can_change;
     let mut view = CallHandlingView {
         can_change,
-        viewer_note: (!can_change).then(|| CallHandlingSection::VIEWER.to_owned()),
+        viewer_note: (!can_change).then(|| cs::call_handling_viewer(l()).to_owned()),
         availability: availability_view(section, can_change),
         ..CallHandlingView::default()
     };
     match &section.handling {
         HandlingRead::Loading => {}
         HandlingRead::Failed(why) => {
-            view.status = LoadStatus::failed(ConfigLoad::FAILED_TITLE, why);
+            view.status = LoadStatus::failed(cs::settings_failed_title(l()), why);
         }
         HandlingRead::Ready(stored) => {
             let mode = section.mode();
@@ -312,7 +293,7 @@ pub(crate) fn call_handling_view(
                 .collect();
             view.unknown_mode = mode
                 .is_none()
-                .then(|| format!("Stored as \"{}\".", stored.call_handling));
+                .then(|| s::call_handling_stored_as(l(), &stored.call_handling));
             let seconds = section.ring_seconds().unwrap_or(stored.app_ring_seconds);
             view.ring_seconds = seconds;
             view.ring_words = ring_words(seconds);
@@ -330,7 +311,7 @@ fn availability_view(section: &CallHandlingSection, can_change: bool) -> Availab
     match &section.availability {
         AvailabilityRead::Loading => {}
         AvailabilityRead::Failed(why) => {
-            view.status = LoadStatus::failed(AVAILABILITY_FAILED_TITLE, why);
+            view.status = LoadStatus::failed(s::call_handling_availability_failed_title(l()), why);
         }
         AvailabilityRead::Ready(_) => {
             let blocked = section.availability_blocked();

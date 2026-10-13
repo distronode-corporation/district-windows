@@ -9,6 +9,7 @@ use district_core::{
 use district_model::BlockedContact;
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, LoadStatus, failure};
 
@@ -16,17 +17,10 @@ use crate::views::{EmptyView, FailureView, LoadStatus, failure};
 /// sets it; until then [`crate::nav::built`] says no for its routes.
 pub(crate) const BUILT: bool = true;
 
-/// The screen's heading, as the Linux app words it.
-pub const BLOCKED_TITLE: &str = "Blocked callers";
-
-/// The body of the empty list, as the Linux app words it.
-pub const BLOCKED_EMPTY_BODY: &str =
-    "Callers you block from a contact's page are listed here, where you can unblock them.";
-
 /// The blocked callers screen.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct BlockedView {
-    /// The heading, [`BLOCKED_TITLE`].
+    /// The heading, `blocked.title`.
     pub title: String,
     /// Where the read stands.
     pub status: LoadStatus,
@@ -46,7 +40,7 @@ impl Default for BlockedView {
     /// The screen before anything is read.
     fn default() -> Self {
         Self {
-            title: BLOCKED_TITLE.to_owned(),
+            title: s::blocked_title(l()).to_owned(),
             status: LoadStatus::Loading,
             rows: Vec::new(),
             empty: None,
@@ -150,14 +144,17 @@ pub(crate) fn blocked_view(screen: &BlockedScreen, capabilities: &Capabilities) 
     match &screen.list {
         BlockedList::NotLoaded | BlockedList::Loading => {}
         BlockedList::Failed(failure) => {
-            view.status = LoadStatus::failed(BlockedList::FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(cs::contacts_blocked_failed_title(l()), failure);
         }
         BlockedList::Ready(rows) => {
             view.status = LoadStatus::Ready;
             view.rows = rows.iter().map(|caller| row(caller, screen)).collect();
-            view.empty = rows
-                .is_empty()
-                .then(|| EmptyView::new(BlockedList::EMPTY_TITLE, BLOCKED_EMPTY_BODY));
+            view.empty = rows.is_empty().then(|| {
+                EmptyView::new(
+                    cs::contacts_blocked_empty_title(l()),
+                    s::blocked_empty_body(l()),
+                )
+            });
         }
     }
     view

@@ -33,34 +33,12 @@ use district_model::{
 use serde::Serialize;
 
 use super::{ChoiceView, PickerView, SaveNoticeView, SectionStatus, save_notice};
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, humanize};
 
 /// Whether this version has the section.
 pub(crate) const BUILT: bool = true;
-
-/// The page's heading, as the settings hub names it.
-pub const MESSAGING_TITLE: &str = "Messaging accounts";
-/// The heading when the accounts could not be read.
-pub const FAILED_TITLE: &str = "Could not load the carrier accounts";
-/// What a channel's sender reads when it has none of its own.
-pub const DEFAULT_SENDER: &str = "The default account";
-/// What a channel's sender reads when it names an account not listed.
-pub const UNLISTED_SENDER: &str = "An account that is not listed";
-/// The line under the key boxes when every key must be typed.
-pub const KEYS_NEEDED: &str = "Every key the carrier needs, typed in full.";
-/// The heading over the numbers Distronode holds for the workspace.
-pub const MANAGED_HEADING: &str = "Numbers held by Distronode";
-/// What those numbers are.
-pub const MANAGED_BODY: &str = "Bought for this workspace on Distronode's own carrier account. \
-    They are not an account of this workspace's, so they cannot be chosen as a sender.";
-/// The heading over the channels' senders.
-pub const CHANNELS_HEADING: &str = "Sender for each channel";
-/// What a channel without a sender does.
-pub const CHANNELS_BODY: &str = "A channel without a sender of its own sends from the default \
-    account.";
-/// The heading over the owner's mobile number.
-pub const CREATOR_HEADING: &str = "The owner's mobile number";
 
 const PROVIDERS: [MessagingProvider; 3] = [
     MessagingProvider::Twilio,
@@ -215,7 +193,7 @@ impl From<KeyField> for CredentialField {
 /// The messaging accounts section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct MessagingView {
-    /// The heading, [`MESSAGING_TITLE`].
+    /// The heading, `messaging.title`.
     pub title: String,
     /// Being read, failed, or read.
     pub status: SectionStatus,
@@ -250,7 +228,7 @@ pub struct MessagingView {
 impl Default for MessagingView {
     fn default() -> Self {
         Self {
-            title: MESSAGING_TITLE.to_owned(),
+            title: s::messaging_title(l()).to_owned(),
             status: SectionStatus::Loading,
             viewer_note: None,
             notice: None,
@@ -291,9 +269,9 @@ pub struct MessagingAccountView {
 /// The numbers Distronode holds for the workspace.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct ManagedNumbersView {
-    /// [`MANAGED_HEADING`].
+    /// `messaging.managed_heading`.
     pub heading: String,
-    /// [`MANAGED_BODY`].
+    /// `messaging.managed_body`.
     pub body: String,
     /// The carrier, or "Distronode".
     pub carrier: String,
@@ -309,14 +287,14 @@ pub struct ChannelSenderView {
     /// Its name ("SMS").
     pub label: String,
     /// The accounts to choose from, and the one chosen ("" for none of its
-    /// own, which reads [`DEFAULT_SENDER`]).
+    /// own, which reads `messaging.default_sender`).
     pub picker: PickerView,
 }
 
 /// The owner's mobile number box.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct CreatorCellView {
-    /// [`CREATOR_HEADING`].
+    /// `messaging.creator_heading`.
     pub heading: String,
     /// What it is for; the saved number is never shown.
     pub help: String,
@@ -626,7 +604,7 @@ fn messaging_view(section: &MessagingSection, capabilities: &Capabilities) -> Me
     let can_change = capabilities.can_change;
     let editable = section.can_edit_now();
     let mut view = MessagingView {
-        viewer_note: (!can_change).then(|| MessagingSection::VIEWER.to_owned()),
+        viewer_note: (!can_change).then(|| cs::messaging_viewer(l()).to_owned()),
         notice: save_notice(&section.write),
         busy: section.busy(),
         editable,
@@ -641,7 +619,7 @@ fn messaging_view(section: &MessagingSection, capabilities: &Capabilities) -> Me
         MessagingAccounts::Loading => {}
         MessagingAccounts::Failed(failure) => {
             view.status = SectionStatus::Failed {
-                title: FAILED_TITLE.to_owned(),
+                title: s::messaging_failed_title(l()).to_owned(),
                 failure: failure.into(),
             };
         }
@@ -649,7 +627,10 @@ fn messaging_view(section: &MessagingSection, capabilities: &Capabilities) -> Me
             view.status = SectionStatus::Ready;
             view.offers_add = can_change;
             view.empty = response.accounts.is_empty().then(|| {
-                EmptyView::new(MessagingSection::EMPTY_TITLE, MessagingSection::EMPTY_BODY)
+                EmptyView::new(
+                    cs::messaging_empty_title(l()),
+                    cs::messaging_empty_body(l()),
+                )
             });
             view.accounts = response
                 .accounts
@@ -660,8 +641,8 @@ fn messaging_view(section: &MessagingSection, capabilities: &Capabilities) -> Me
                 .managed_account
                 .as_ref()
                 .map(|managed| ManagedNumbersView {
-                    heading: MANAGED_HEADING.to_owned(),
-                    body: MANAGED_BODY.to_owned(),
+                    heading: s::messaging_managed_heading(l()).to_owned(),
+                    body: s::messaging_managed_body(l()).to_owned(),
                     carrier: managed
                         .provider
                         .as_deref()
@@ -676,8 +657,8 @@ fn messaging_view(section: &MessagingSection, capabilities: &Capabilities) -> Me
             }
             view.channels_editable = can_change;
             view.creator = can_change.then(|| CreatorCellView {
-                heading: CREATOR_HEADING.to_owned(),
-                help: MessagingSection::CREATOR_CELL_HELP.to_owned(),
+                heading: s::messaging_creator_heading(l()).to_owned(),
+                help: cs::messaging_creator_cell_help(l()).to_owned(),
                 number: section.creator_cell.clone(),
                 can_save: editable && !section.creator_cell.trim().is_empty(),
                 saving: section.busy()
@@ -721,7 +702,7 @@ fn source_wire(source: MessagingCredentialSource) -> &'static str {
 /// Numbers, grouped for reading.
 fn numbers_words(numbers: &[String]) -> String {
     if numbers.is_empty() {
-        return "No numbers".to_owned();
+        return s::messaging_no_numbers(l()).to_owned();
     }
     numbers
         .iter()
@@ -774,14 +755,14 @@ fn channel_view(channel: MessagingChannel, response: &MessagingResponse) -> Chan
         .cloned()
         .unwrap_or_default();
     let selected_label = if stored.is_empty() {
-        DEFAULT_SENDER.to_owned()
+        s::messaging_default_sender(l()).to_owned()
     } else {
         response
             .accounts
             .iter()
             .find(|account| account.id == stored)
             .map_or_else(
-                || UNLISTED_SENDER.to_owned(),
+                || s::messaging_unlisted_sender(l()).to_owned(),
                 |account| account.label.clone(),
             )
     };
@@ -805,9 +786,9 @@ fn channel_view(channel: MessagingChannel, response: &MessagingResponse) -> Chan
 
 fn confirm_view(confirm: &MessagingDeleteConfirm) -> MessagingConfirmView {
     MessagingConfirmView {
-        title: MessagingDeleteConfirm::TITLE.to_owned(),
+        title: cs::messaging_delete_title(l()).to_owned(),
         body: confirm.body(),
-        action: MessagingDeleteConfirm::ACTION.to_owned(),
+        action: cs::messaging_delete_action(l()).to_owned(),
     }
 }
 
@@ -815,9 +796,9 @@ fn form_view(form: &MessagingForm, busy: bool) -> MessagingFormView {
     let saving = busy && form.test != CredentialTest::Running;
     MessagingFormView {
         title: if form.account_id.is_some() {
-            "Edit the carrier account"
+            s::messaging_form_edit_title(l())
         } else {
-            "Add a carrier account"
+            s::messaging_form_add_title(l())
         }
         .to_owned(),
         carriers: PROVIDERS
@@ -855,20 +836,20 @@ fn form_view(form: &MessagingForm, busy: bool) -> MessagingFormView {
             })
             .collect(),
         keys_note: if form.secrets_required() {
-            KEYS_NEEDED
+            s::messaging_keys_needed(l())
         } else {
-            MessagingForm::SECRET_KEEP
+            cs::messaging_secret_keep(l())
         }
         .to_owned(),
         carrier_switch: (form.account_id.is_some() && form.secrets_required())
-            .then(|| MessagingForm::PROVIDER_SWITCH.to_owned()),
+            .then(|| cs::messaging_provider_switch(l()).to_owned()),
         phone_numbers: form.phone_numbers.clone(),
-        numbers_help: MessagingForm::NUMBERS_HELP.to_owned(),
+        numbers_help: cs::messaging_numbers_help(l()).to_owned(),
         make_default: form.make_default,
         editable: !busy,
         can_save: !busy && form.can_save(),
         can_test: !busy && form.can_test(),
-        test_hint: (!form.can_test()).then(|| MessagingForm::TEST_NEEDS_EVERY_FIELD.to_owned()),
+        test_hint: (!form.can_test()).then(|| cs::messaging_test_needs_every_field(l()).to_owned()),
         test: key_check(&form.test),
         saving,
     }
@@ -879,24 +860,24 @@ fn key_check(test: &CredentialTest) -> Option<KeyCheckView> {
     let view = |message: String, outcome| Some(KeyCheckView { message, outcome });
     match test {
         CredentialTest::Idle => None,
-        CredentialTest::Running => view("Asking the carrier.".to_owned(), KeyCheckOutcome::Running),
+        CredentialTest::Running => view(
+            s::messaging_keys_asking(l()).to_owned(),
+            KeyCheckOutcome::Running,
+        ),
         CredentialTest::Passed(Some(account)) => view(
-            format!("The carrier accepted these keys, for {account}."),
+            s::messaging_keys_accepted_for(l(), account),
             KeyCheckOutcome::Passed,
         ),
         CredentialTest::Passed(None) => view(
-            "The carrier accepted these keys.".to_owned(),
+            s::messaging_keys_accepted(l()).to_owned(),
             KeyCheckOutcome::Passed,
         ),
         CredentialTest::Rejected(reason) => view(
-            format!("The carrier refused these keys: {reason}"),
+            s::messaging_keys_refused(l(), reason),
             KeyCheckOutcome::Refused,
         ),
         CredentialTest::Unreachable(failure) => view(
-            format!(
-                "The carrier could not be asked, so nothing is known about these keys. {}",
-                FailureView::from(failure).message
-            ),
+            s::messaging_keys_unreachable(l(), &FailureView::from(failure).message),
             KeyCheckOutcome::Unreachable,
         ),
     }

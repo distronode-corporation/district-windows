@@ -23,49 +23,21 @@ use serde::Serialize;
 use super::{
     PickerView, SaveNoticeView, SectionStatus, picker, save_notice, section_status, unlisted,
 };
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::FailureView;
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
 
-/// The section's heading: its row's title in the hub, which opens it.
-pub const TITLE: &str = "Persona";
-/// The texts' heading.
-pub const TEXTS_HEADING: &str = "What it says";
-/// The language half's heading.
-pub const ENGINE_HEADING: &str = "Language and answers";
-/// The line while the options are being read.
-pub const OPTIONS_LOADING: &str = "Reading the languages this workspace may use.";
-/// The button that opens Voice Studio.
-pub const OPEN_STUDIO: &str = "Open Voice Studio";
-/// The button that opens the audition dialog.
-pub const PREVIEW_ACTION: &str = "Try this receptionist";
-/// The save button.
-pub const SAVE_ACTION: &str = "Save";
-/// The audition's Start, which places the billed call.
-pub const START_ACTION: &str = "Start";
-/// The audition's Stop.
-pub const STOP_ACTION: &str = "Stop";
-/// The line while the audition's call is being asked for.
-pub const STARTING: &str = "Starting the call.";
-/// The line while its room is being joined.
-pub const CONNECTING: &str = "Connecting to your receptionist.";
-/// The line while it is on.
-pub const CONNECTED: &str = "On the call with your receptionist.";
-/// The line once it ended.
-pub const ENDED: &str = "The audition ended.";
-/// The line while another audition must wait.
-pub const COOLING: &str = "Another audition can start in a few seconds.";
-
 /// The persona section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct PersonaView {
-    /// The heading, [`TITLE`].
+    /// The heading, `persona.title`.
     pub title: String,
     /// Where the page stands; the form shows only when [`SectionStatus::Ready`].
     pub status: SectionStatus,
-    /// The texts' heading, [`TEXTS_HEADING`].
+    /// The texts' heading, `persona.texts_heading`.
     pub texts_heading: String,
     /// The receptionist's name, as on screen.
     pub name: String,
@@ -77,7 +49,7 @@ pub struct PersonaView {
     pub text_editable: bool,
     /// The line under the texts: clearing a box saves it empty.
     pub clear_hint: String,
-    /// The language half's heading, [`ENGINE_HEADING`].
+    /// The language half's heading, `persona.engine_heading`.
     pub engine_heading: String,
     /// The language half, once the settings and the options are both read.
     pub engine: Option<PersonaEngineView>,
@@ -96,13 +68,13 @@ pub struct PersonaView {
     pub saving: bool,
     /// Whether "Save" works: something changed, and nothing is on its way.
     pub can_save: bool,
-    /// The save button, [`SAVE_ACTION`].
+    /// The save button, `persona.save_action`.
     pub save_label: String,
     /// Whether "Try this receptionist" is offered: it needs the options.
     pub can_preview: bool,
     /// Whether it can be pressed now: no audition dialog open.
     pub preview_enabled: bool,
-    /// The audition button, [`PREVIEW_ACTION`].
+    /// The audition button, `persona.preview_action`.
     pub preview_label: String,
     /// The audition dialog, while it is open.
     pub audition: Option<AuditionView>,
@@ -115,7 +87,7 @@ pub struct PersonaEngineView {
     pub engine_label: String,
     /// Where the engine and the voice are changed.
     pub studio_hint: String,
-    /// The button that opens Voice Studio, [`OPEN_STUDIO`].
+    /// The button that opens Voice Studio, `persona.open_studio`.
     pub studio_label: String,
     /// The languages the stored engine speaks.
     pub language: PickerView,
@@ -143,11 +115,11 @@ pub struct AuditionView {
     pub can_start: bool,
     /// Whether Stop shows.
     pub show_stop: bool,
-    /// [`COOLING`], while another audition must wait.
+    /// `persona.cooling`, while another audition must wait.
     pub cooling: Option<String>,
-    /// [`START_ACTION`].
+    /// `persona.start_action`.
     pub start_label: String,
-    /// [`STOP_ACTION`].
+    /// `persona.stop_action`.
     pub stop_label: String,
 }
 
@@ -264,27 +236,27 @@ fn persona_view(section: Option<&PersonaSection>, media: Option<&MediaSession>) 
         (true, _) => None,
         (false, Some(failure)) => Some(format!(
             "{} {}",
-            PersonaSection::ENGINE_READ_ONLY,
+            cs::persona_engine_read_only(l()),
             FailureView::from(failure).message
         )),
-        (false, None) => Some(OPTIONS_LOADING.to_owned()),
+        (false, None) => Some(s::persona_options_loading(l()).to_owned()),
     };
     PersonaView {
-        title: TITLE.to_owned(),
+        title: s::persona_title(l()).to_owned(),
         status: section.map_or(SectionStatus::Loading, |s| {
             section_status(&s.config, &s.save)
         }),
-        texts_heading: TEXTS_HEADING.to_owned(),
+        texts_heading: s::persona_texts_heading(l()).to_owned(),
         name: text(PersonaText::Name),
         greeting: text(PersonaText::Greeting),
         personality: text(PersonaText::Personality),
         text_editable: section.is_some_and(PersonaSection::text_editable),
-        clear_hint: PersonaSection::CLEAR_HINT.to_owned(),
-        engine_heading: ENGINE_HEADING.to_owned(),
+        clear_hint: cs::persona_clear_hint(l()).to_owned(),
+        engine_heading: s::persona_engine_heading(l()).to_owned(),
         engine: engine.map(|(s, values)| PersonaEngineView {
             engine_label: engine_label(s.engines(), &values.model_id),
-            studio_hint: PersonaSection::STUDIO_HINT.to_owned(),
-            studio_label: OPEN_STUDIO.to_owned(),
+            studio_hint: cs::persona_studio_hint(l()).to_owned(),
+            studio_label: s::persona_open_studio(l()).to_owned(),
             language: picker(s.languages(), &values.language),
             response_length: picker(s.response_lengths(), &values.response_length),
         }),
@@ -297,10 +269,10 @@ fn persona_view(section: Option<&PersonaSection>, media: Option<&MediaSession>) 
         notice: section.and_then(|s| save_notice(&s.save)),
         saving: section.is_some_and(|s| s.save.is_busy()),
         can_save: section.is_some_and(PersonaSection::can_save),
-        save_label: SAVE_ACTION.to_owned(),
+        save_label: s::persona_save_action(l()).to_owned(),
         can_preview: section.is_some_and(PersonaSection::can_preview),
         preview_enabled: section.is_some_and(|s| s.preview.is_none()),
-        preview_label: PREVIEW_ACTION.to_owned(),
+        preview_label: s::persona_preview_action(l()).to_owned(),
         audition: section.and_then(|s| {
             s.preview
                 .as_ref()
@@ -322,9 +294,9 @@ fn engine_label(engines: &[PersonaEngineOption], id: &str) -> String {
 /// the call engine has a session for it.
 fn connection_words(connection: Option<MediaConnection>) -> &'static str {
     match connection {
-        None | Some(MediaConnection::Connecting) => CONNECTING,
-        Some(MediaConnection::Connected) => CONNECTED,
-        Some(MediaConnection::Reconnecting) => MediaSession::RECONNECTING,
+        None | Some(MediaConnection::Connecting) => s::persona_connecting(l()),
+        Some(MediaConnection::Connected) => s::persona_connected(l()),
+        Some(MediaConnection::Reconnecting) => cs::media_reconnecting(l()),
     }
 }
 
@@ -336,7 +308,7 @@ fn audition_view(
 ) -> AuditionView {
     let (state, waiting, failure, start) = match preview {
         PersonaPreview::Idle => (None, false, None, true),
-        PersonaPreview::Minting => (Some(STARTING), true, None, false),
+        PersonaPreview::Minting => (Some(s::persona_starting(l())), true, None, false),
         PersonaPreview::Ready(_) => (
             Some(connection_words(connection)),
             connection != Some(MediaConnection::Connected),
@@ -344,20 +316,20 @@ fn audition_view(
             false,
         ),
         PersonaPreview::Failed(failure) => (None, false, Some(failure.into()), true),
-        PersonaPreview::Ended => (Some(ENDED), false, None, true),
+        PersonaPreview::Ended => (Some(s::persona_ended(l())), false, None, true),
     };
     AuditionView {
-        title: PersonaSection::PREVIEW_TITLE.to_owned(),
-        billed_note: PersonaSection::PREVIEW_BILLED.to_owned(),
+        title: cs::persona_preview_title(l()).to_owned(),
+        billed_note: cs::persona_preview_billed(l()).to_owned(),
         state: state.map(str::to_owned),
         waiting,
         failure,
         show_start: start,
         can_start: section.can_start_preview(),
         show_stop: !start,
-        cooling: (start && section.preview_cooling).then(|| COOLING.to_owned()),
-        start_label: START_ACTION.to_owned(),
-        stop_label: STOP_ACTION.to_owned(),
+        cooling: (start && section.preview_cooling).then(|| s::persona_cooling(l()).to_owned()),
+        start_label: s::persona_start_action(l()).to_owned(),
+        stop_label: s::persona_stop_action(l()).to_owned(),
     }
 }
 
@@ -378,26 +350,29 @@ mod tests {
         let view = persona_view(None, None);
         assert_eq!(view.status, SectionStatus::Loading);
         assert!(!view.text_editable && !view.can_save && !view.can_preview);
-        assert_eq!(view.engine_note.as_deref(), Some(OPTIONS_LOADING));
+        assert_eq!(
+            view.engine_note.as_deref(),
+            Some(s::persona_options_loading(l()))
+        );
         assert_eq!(view.audition, None);
     }
 
     #[test]
     fn an_unknown_engine_is_named_as_stored() {
         assert_eq!(engine_label(&[], "custom-pipeline"), "custom-pipeline");
-        assert_eq!(engine_label(&[], ""), super::super::NOT_CHOSEN);
+        assert_eq!(engine_label(&[], ""), s::settings_not_chosen(l()));
     }
 
     #[test]
     fn a_joined_audition_says_how_its_call_stands() {
-        assert_eq!(connection_words(None), CONNECTING);
+        assert_eq!(connection_words(None), s::persona_connecting(l()));
         assert_eq!(
             connection_words(Some(MediaConnection::Connecting)),
-            CONNECTING
+            s::persona_connecting(l())
         );
         assert_eq!(
             connection_words(Some(MediaConnection::Connected)),
-            CONNECTED
+            s::persona_connected(l())
         );
         assert_eq!(
             connection_words(Some(MediaConnection::Reconnecting)),

@@ -16,6 +16,7 @@ use district_core::{
 use district_model::{CampaignStatus, WorkflowRun, WorkflowSummary};
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, LoadStatus, failure, humanize};
 
@@ -23,18 +24,6 @@ use crate::views::{EmptyView, FailureView, LoadStatus, failure, humanize};
 /// sets it; until then [`crate::nav::built`] says no for its routes.
 pub(crate) const BUILT: bool = true;
 
-/// The page's heading.
-pub const WORKFLOWS_TITLE: &str = "Workflows";
-/// The campaign's batch size row, as the Linux app labels it.
-pub const BATCH_LABEL: &str = "Batch size";
-/// The campaign's goal row, as the Linux app labels it.
-pub const GOAL_LABEL: &str = "Goal";
-/// The line under a workflow that has never run, after its trigger.
-pub const NOT_RUN_YET: &str = "Not run yet";
-/// The note while a page of runs is on its way, as the Linux app words it.
-pub const READING_RUNS: &str = "Reading runs.";
-/// The button that reads the next page of runs.
-pub const MORE_RUNS: &str = "More runs";
 /// Between the parts of a line.
 const DOT: &str = " \u{b7} ";
 
@@ -305,15 +294,18 @@ fn workflows_view(
     let (status, empty, rows) = match &screen.list {
         WorkflowList::NotLoaded | WorkflowList::Loading => (LoadStatus::Loading, None, Vec::new()),
         WorkflowList::Failed(failure) => (
-            LoadStatus::failed(WorkflowList::FAILED_TITLE, failure),
+            LoadStatus::failed(cs::workflows_failed_title(l()), failure),
             None,
             Vec::new(),
         ),
         WorkflowList::Ready(workflows) => (
             LoadStatus::Ready,
-            workflows
-                .is_empty()
-                .then(|| EmptyView::new(WorkflowList::EMPTY_TITLE, WorkflowList::EMPTY_BODY)),
+            workflows.is_empty().then(|| {
+                EmptyView::new(
+                    cs::workflows_empty_title(l()),
+                    cs::workflows_empty_body(l()),
+                )
+            }),
             workflows
                 .iter()
                 .map(|workflow| workflow_row(screen, workflow, controls.can_toggle))
@@ -321,7 +313,7 @@ fn workflows_view(
         ),
     };
     WorkflowsView {
-        title: WORKFLOWS_TITLE.to_owned(),
+        title: s::workflows_title(l()).to_owned(),
         campaign: campaign_view(screen, can_change, controls),
         status,
         empty,
@@ -337,13 +329,13 @@ fn campaign_view(
     controls: WorkflowControls,
 ) -> CampaignView {
     let mut view = CampaignView {
-        title: CampaignCard::TITLE.to_owned(),
+        title: cs::workflows_campaign_title(l()).to_owned(),
         status: LoadStatus::Loading,
         active: false,
         badge: None,
-        batch_label: BATCH_LABEL.to_owned(),
+        batch_label: s::workflows_batch_label(l()).to_owned(),
         batch: String::new(),
-        goal_label: GOAL_LABEL.to_owned(),
+        goal_label: s::workflows_goal_label(l()).to_owned(),
         goal: String::new(),
         show_pause: false,
         can_pause: controls.can_pause,
@@ -354,9 +346,9 @@ fn campaign_view(
         pending: screen.campaign_pending,
         failure: failure(screen.campaign_failure.as_ref()),
         note: if can_change {
-            CampaignCard::WEB_ONLY
+            cs::workflows_campaign_web_only(l())
         } else {
-            CampaignCard::VIEWER
+            cs::workflows_campaign_viewer(l())
         }
         .to_owned(),
         can_change,
@@ -364,7 +356,7 @@ fn campaign_view(
     match &screen.campaign {
         CampaignCard::NotLoaded | CampaignCard::Loading => {}
         CampaignCard::Failed(failure) => {
-            view.status = LoadStatus::failed(CampaignCard::FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(cs::workflows_campaign_failed_title(l()), failure);
         }
         CampaignCard::Ready(status) => ready_campaign(&mut view, status, can_change),
     }
@@ -377,21 +369,21 @@ fn ready_campaign(view: &mut CampaignView, status: &CampaignStatus, can_change: 
     view.active = active;
     view.badge = Some(
         if active {
-            CampaignCard::ACTIVE
+            cs::workflows_campaign_active(l())
         } else {
-            CampaignCard::PAUSED
+            cs::workflows_campaign_paused(l())
         }
         .to_owned(),
     );
     view.batch = status.sdr_batch_size.map_or_else(
-        || CampaignCard::NO_BATCH.to_owned(),
+        || cs::workflows_campaign_no_batch(l()).to_owned(),
         |size| size.to_string(),
     );
     view.goal = status
         .sdr_campaign_goal
         .as_deref()
         .filter(|goal| !goal.trim().is_empty())
-        .unwrap_or(CampaignCard::NO_GOAL)
+        .unwrap_or(cs::workflows_campaign_no_goal(l()))
         .to_owned();
     view.show_pause = active && can_change;
     view.show_resume = !active && can_change;
@@ -413,10 +405,10 @@ fn workflow_row(
     let trigger = trigger_words(&workflow.trigger);
     let detail = match &workflow.latest_run {
         Some(run) => format!(
-            "{trigger}{DOT}Last run {}",
-            humanize(&run.status).to_lowercase()
+            "{trigger}{DOT}{}",
+            s::workflows_last_run(l(), &humanize(&run.status).to_lowercase())
         ),
-        None => format!("{trigger}{DOT}{NOT_RUN_YET}"),
+        None => format!("{trigger}{DOT}{}", s::workflows_not_run_yet(l())),
     };
     WorkflowRowView {
         workflow_id: workflow.id.clone(),
@@ -429,7 +421,7 @@ fn workflow_row(
             .map(|run| run.started_at.clone()),
         switching,
         can_switch: can_toggle && !switching,
-        switch_name: format!("Turn on {}", workflow.name),
+        switch_name: s::workflows_switch_name(l(), &workflow.name),
         expanded,
         runs: expanded.then(|| runs_view(screen.runs.get(&workflow.id))),
     }
@@ -438,9 +430,9 @@ fn workflow_row(
 fn runs_view(history: Option<&RunHistory>) -> RunsView {
     let history = history.cloned().unwrap_or_default();
     let note = if history.loading {
-        Some(READING_RUNS)
+        Some(s::workflows_reading_runs(l()))
     } else if history.failure.is_none() && history.runs.is_empty() {
-        Some(RunHistory::EMPTY)
+        Some(cs::workflows_runs_empty(l()))
     } else {
         None
     };
@@ -450,7 +442,7 @@ fn runs_view(history: Option<&RunHistory>) -> RunsView {
         note: note.map(str::to_owned),
         failure: failure(history.failure.as_ref()),
         can_load_more: history.can_load_more(),
-        more_label: MORE_RUNS.to_owned(),
+        more_label: s::workflows_more_runs(l()).to_owned(),
         // A later page that failed is read again from where it stopped; a
         // first page that failed, only with the whole screen.
         can_retry: !history.loading && history.failure.is_some() && !history.can_load_more(),

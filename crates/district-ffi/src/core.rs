@@ -748,6 +748,7 @@ fn forward<T: Send + 'static>(
 
 #[cfg(test)]
 mod tests {
+    use crate::l10n::{l, s};
     use std::sync::atomic::{AtomicBool, Ordering};
     use std::time::Instant;
 
@@ -758,7 +759,6 @@ mod tests {
     use super::*;
     use crate::host::tests::RecordingHost;
     use crate::screen::SessionScreen;
-    use crate::screen::WELCOME_TITLE;
     use crate::shell::SessionPhase;
 
     #[test]
@@ -1016,7 +1016,7 @@ mod tests {
 
         eventually("signed out", || phase(&core) == SessionPhase::SignedOut).await;
         let view = session_screen(&core).expect("signed out is a session screen");
-        assert_eq!(view.title, WELCOME_TITLE);
+        assert_eq!(view.title, s::screen_welcome_title(l()));
         assert!(view.sign_in);
         assert!(effects.ran(|effect| matches!(effect, Effect::DrainRevokeOutbox)));
         eventually("the host told", || {

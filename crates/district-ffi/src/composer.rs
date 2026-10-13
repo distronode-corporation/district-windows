@@ -16,6 +16,7 @@ use district_model::CHANNEL_SMS;
 use serde::Serialize;
 
 use crate::files::{FilePickView, attachment_pick, picked_attachment};
+use crate::l10n::{l, s};
 use crate::views::{FailureView, ReportAvailability, failure};
 
 /// A picked file, as [`ComposerAction::Attach`] carries it (crate::files).
@@ -23,23 +24,6 @@ pub use crate::files::PickedFileView;
 
 /// Whether this version has the reply box.
 pub(crate) const BUILT: bool = true;
-
-/// The AI button, as District AI for Linux words it.
-pub const DRAFT_REPLY_LABEL: &str = "Draft a reply with AI";
-/// What the AI button does and that each press is billed, as District AI for
-/// Linux's tooltip on the button says it, word for word: the core (2.0.0
-/// included) has no words for this, and nothing in it is Linux-only, so
-/// Windows needs no line of its own. It names a charge to the workspace and
-/// offers nothing to buy, which the store-copy check holds.
-pub const DRAFT_REPLY_NOTE: &str = "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed.";
-/// The heading over a reply the model wrote, while it is in the box.
-pub const AI_DRAFT: &str = "AI draft";
-/// The busy line while a message is on its way.
-pub const SENDING: &str = "Sending";
-/// The busy line while an image uploads.
-pub const UPLOADING: &str = "Uploading the image";
-/// The busy line while the model writes a reply.
-pub const WRITING: &str = "Writing a reply";
 
 /// The reply box under a conversation, for a member who may reply there.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -155,11 +139,11 @@ pub fn composer_pick() -> FilePickView {
 /// What the box is waiting for, as District AI for Linux words it.
 fn busy(composer: &Composer) -> Option<String> {
     let line = if composer.sending {
-        SENDING
+        s::composer_sending(l())
     } else if composer.attaching {
-        UPLOADING
+        s::composer_uploading(l())
     } else if composer.generating {
-        WRITING
+        s::composer_writing(l())
     } else {
         return None;
     };
@@ -185,7 +169,10 @@ pub(crate) fn composer(
                 .enumerate()
                 .map(|(index, url)| AttachmentView {
                     url: url.clone(),
-                    name: format!("Image {}", index + 1),
+                    name: s::composer_attachment_name(
+                        l(),
+                        i64::try_from(index + 1).unwrap_or(i64::MAX),
+                    ),
                 })
                 .collect(),
             show_attach: screen
@@ -201,9 +188,9 @@ pub(crate) fn composer(
             busy: busy(composer),
             failure: failure(composer.failure.as_ref()),
             ai_draft: AiDraftOfferView {
-                label: DRAFT_REPLY_LABEL.to_owned(),
-                billing_note: DRAFT_REPLY_NOTE.to_owned(),
-                draft_label: AI_DRAFT.to_owned(),
+                label: s::composer_draft_reply_label(l()).to_owned(),
+                billing_note: s::composer_draft_reply_note(l()).to_owned(),
+                draft_label: s::composer_ai_draft(l()).to_owned(),
                 report: ReportAvailability::for_content(true, capabilities),
             },
         }
@@ -228,11 +215,11 @@ mod tests {
         let mut composer = Composer::default();
         assert_eq!(busy(&composer), None);
         composer.generating = true;
-        assert_eq!(busy(&composer).as_deref(), Some(WRITING));
+        assert_eq!(busy(&composer).as_deref(), Some(s::composer_writing(l())));
         composer.attaching = true;
-        assert_eq!(busy(&composer).as_deref(), Some(UPLOADING));
+        assert_eq!(busy(&composer).as_deref(), Some(s::composer_uploading(l())));
         composer.sending = true;
-        assert_eq!(busy(&composer).as_deref(), Some(SENDING));
+        assert_eq!(busy(&composer).as_deref(), Some(s::composer_sending(l())));
     }
 
     #[test]

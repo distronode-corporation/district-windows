@@ -14,12 +14,12 @@
 
 use serde::Serialize;
 
+use crate::l10n::{l, s};
+
 /// The Store copy's package name (`Package.appxmanifest`).
 pub const STORE_PACKAGE_NAME: &str = "DistronodeCorporation.42101E4C5A5B6";
 /// The GitHub copy's package name (`Package.GitHub.appxmanifest`).
 pub const GITHUB_PACKAGE_NAME: &str = "Distronode.DistrictAI.GitHub";
-/// The heading of the explanation, as the README and CONTRIBUTING put it.
-pub const BOTH_TITLE: &str = "Install one, not both";
 
 /// Which copy of the app a package is.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
@@ -48,9 +48,9 @@ impl CopyFlavour {
     /// The copy, as a sentence names it.
     fn name(self) -> &'static str {
         match self {
-            Self::Store => "the Microsoft Store copy",
-            Self::GitHub => "the GitHub copy",
-            Self::Other => "a development copy",
+            Self::Store => s::copies_name_store(l()),
+            Self::GitHub => s::copies_name_github(l()),
+            Self::Other => s::copies_name_other(l()),
         }
     }
 }
@@ -103,23 +103,18 @@ pub fn copies_view(this_family: String, scheme_handlers: Vec<String>) -> CopiesV
     };
     let this_name = this_copy.name();
     let label = match this_copy {
-        CopyFlavour::Store => "Microsoft Store copy",
-        CopyFlavour::GitHub => "GitHub copy",
-        CopyFlavour::Other => "development copy",
+        CopyFlavour::Store => s::copies_label_store(l()),
+        CopyFlavour::GitHub => s::copies_label_github(l()),
+        CopyFlavour::Other => s::copies_label_other(l()),
     };
     CopiesView {
         this_copy,
         both_installed: true,
         sign_in_held: true,
-        title: Some(BOTH_TITLE.to_owned()),
-        message: Some(format!(
-            "District AI is installed twice on this computer, {this_name} and {}. Both \
-             answer the browser when you sign in, so signing in is held until one is \
-             uninstalled. Uninstall one in Settings, Apps, then open the other.",
-            other.name()
-        )),
-        this_copy_line: Some(format!("This is {this_name} of District AI.")),
-        window_title: format!("District AI ({label})"),
+        title: Some(s::copies_both_title(l()).to_owned()),
+        message: Some(s::copies_both_message(l(), this_name, other.name())),
+        this_copy_line: Some(s::copies_this_copy_line(l(), this_name)),
+        window_title: s::copies_window_title(l(), label),
     }
 }
 

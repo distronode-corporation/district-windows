@@ -12,20 +12,18 @@
 
 use district_core::{
     AccountSection, BillingEvent, BillingScreen, Event, Model, PlanCard, PlanChoice, PlanStatus,
-    PlanTerm, PlanTier, PromoCode, PurchaseSetting, PurchaseState, Renewal, Route, SignedIn,
-    format_cents, invoice_amount, meter_fraction, minutes_used, overage_note, plan_name,
+    PlanTerm, PlanTier, PromoCode, PurchaseSetting, Renewal, Route, SignedIn, format_cents,
+    invoice_amount, meter_fraction, minutes_used, overage_note, plan_name,
 };
 use district_model::{BillingInvoice, BillingSubscription, WorkspaceBilling};
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{FailureView, LoadStatus, failure};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
-
-/// The page's heading, the navigation entry's.
-pub const BILLING_TITLE: &str = "Billing";
 
 /// The billing screen.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -378,7 +376,7 @@ fn page_of(signed_in: &SignedIn) -> BillingView {
     let (status, refreshing, plan) = match &screen.plan {
         PlanCard::NotLoaded | PlanCard::Loading => (LoadStatus::Loading, false, None),
         PlanCard::Failed(failure) => (
-            LoadStatus::failed(PlanCard::FAILED_TITLE, failure),
+            LoadStatus::failed(cs::billing_failed_title(l()), failure),
             false,
             None,
         ),
@@ -392,19 +390,19 @@ fn page_of(signed_in: &SignedIn) -> BillingView {
         ),
     };
     BillingView {
-        title: BILLING_TITLE.to_owned(),
+        title: s::billing_title(l()).to_owned(),
         status,
         refreshing,
         plan,
         account: section_view(&screen.account),
         note: if purchase.is_some() {
-            PurchaseState::IN_APP_NOTE
+            cs::purchase_in_app_note(l())
         } else {
             BillingScreen::read_only_note(&capabilities)
         }
         .to_owned(),
         offers_web: purchase.is_none() && BillingScreen::offers_web(&capabilities),
-        web_action: BillingScreen::WEB_ACTION.to_owned(),
+        web_action: cs::billing_web_action(l()).to_owned(),
         purchase,
     }
 }
@@ -445,12 +443,12 @@ fn section_view(section: &AccountSection) -> AccountBillingView {
         AccountSection::NotLoaded | AccountSection::Loading => {}
         AccountSection::Unavailable => {
             view.state = AccountBillingState::Unavailable;
-            view.title = Some(AccountSection::UNAVAILABLE_TITLE.to_owned());
-            view.body = Some(AccountSection::UNAVAILABLE_BODY.to_owned());
+            view.title = Some(cs::billing_unavailable_title(l()).to_owned());
+            view.body = Some(cs::billing_unavailable_body(l()).to_owned());
         }
         AccountSection::Failed(failure) => {
             view.state = AccountBillingState::Failed;
-            view.title = Some(AccountSection::FAILED_TITLE.to_owned());
+            view.title = Some(cs::billing_account_failed_title(l()).to_owned());
             view.failure = Some(failure.into());
         }
         AccountSection::Ready(account) => {
@@ -459,14 +457,14 @@ fn section_view(section: &AccountSection) -> AccountBillingView {
             view.no_subscriptions = account
                 .subscriptions
                 .is_empty()
-                .then(|| AccountSection::NO_SUBSCRIPTION.to_owned());
+                .then(|| cs::billing_no_subscription(l()).to_owned());
             view.invoices = account.invoices.iter().map(invoice_row).collect();
             view.no_invoices = account
                 .invoices
                 .is_empty()
-                .then(|| AccountSection::NO_INVOICES.to_owned());
+                .then(|| cs::billing_no_invoices(l()).to_owned());
             view.invoices_truncated = (account.invoices_has_more == Some(true))
-                .then(|| AccountSection::INVOICES_TRUNCATED.to_owned());
+                .then(|| cs::billing_invoices_truncated(l()).to_owned());
         }
     }
     view
@@ -526,29 +524,29 @@ pub(crate) fn purchase_view(signed_in: &SignedIn) -> Option<PurchaseView> {
                 label: term.label().to_owned(),
             })
             .collect(),
-        choose_action: PurchaseState::CHOOSE_PLAN_ACTION.to_owned(),
-        prices_note: PurchaseState::PRICES_NOTE.to_owned(),
-        promo_label: PromoCode::LABEL.to_owned(),
-        promo_invalid: PromoCode::INVALID.to_owned(),
+        choose_action: cs::purchase_choose_plan_action(l()).to_owned(),
+        prices_note: cs::purchase_prices_note(l()).to_owned(),
+        promo_label: cs::purchase_promo_label(l()).to_owned(),
+        promo_invalid: cs::purchase_promo_invalid(l()).to_owned(),
         promo_max_len: u32::try_from(PromoCode::MAX_LEN).unwrap_or(u32::MAX),
         offers_manage: signed_in.offers_manage_in_app(),
-        manage_action: PurchaseState::MANAGE_ACTION.to_owned(),
+        manage_action: cs::purchase_manage_action(l()).to_owned(),
         confirming: state.confirming.as_ref().map(|choice| ConfirmPurchaseView {
-            title: PurchaseState::CONFIRM_TITLE.to_owned(),
+            title: cs::purchase_confirm_title(l()).to_owned(),
             body: state.confirm_body().to_owned(),
             plan: choice.tier.label().to_owned(),
             term: choice.term.label().to_owned(),
             promo: choice.promo.as_ref().map(|promo| promo.as_str().to_owned()),
-            action: PurchaseState::CONFIRM_ACTION.to_owned(),
-            cancel: PurchaseState::CANCEL_ACTION.to_owned(),
+            action: cs::purchase_confirm_action(l()).to_owned(),
+            cancel: cs::purchase_cancel_action(l()).to_owned(),
         }),
         opening: state.opening(),
-        opening_label: PurchaseState::OPENING.to_owned(),
+        opening_label: cs::purchase_opening(l()).to_owned(),
         enabled: !state.minting(),
         notice: failure(state.notice.as_ref()),
         in_browser_note: state
             .in_browser
-            .then(|| PurchaseState::IN_BROWSER.to_owned()),
+            .then(|| cs::purchase_in_browser(l()).to_owned()),
     })
 }
 
@@ -557,7 +555,7 @@ pub(crate) fn purchase_view(signed_in: &SignedIn) -> Option<PurchaseView> {
 #[cfg(test)]
 pub(crate) fn sample() -> BillingView {
     BillingView {
-        title: BILLING_TITLE.to_owned(),
+        title: s::billing_title(l()).to_owned(),
         status: LoadStatus::Ready,
         refreshing: true,
         plan: Some(PlanView {
@@ -594,9 +592,9 @@ pub(crate) fn sample() -> BillingView {
             no_invoices: None,
             invoices_truncated: Some("older".to_owned()),
         },
-        note: PurchaseState::IN_APP_NOTE.to_owned(),
+        note: cs::purchase_in_app_note(l()).to_owned(),
         offers_web: false,
-        web_action: BillingScreen::WEB_ACTION.to_owned(),
+        web_action: cs::billing_web_action(l()).to_owned(),
         purchase: Some(PurchaseView {
             plans: vec![PlanOptionView {
                 tier: PlanTierView::VoicePro,
@@ -606,27 +604,27 @@ pub(crate) fn sample() -> BillingView {
                 term: PlanTermView::Annual,
                 label: "Annual".to_owned(),
             }],
-            choose_action: PurchaseState::CHOOSE_PLAN_ACTION.to_owned(),
-            prices_note: PurchaseState::PRICES_NOTE.to_owned(),
-            promo_label: PromoCode::LABEL.to_owned(),
-            promo_invalid: PromoCode::INVALID.to_owned(),
+            choose_action: cs::purchase_choose_plan_action(l()).to_owned(),
+            prices_note: cs::purchase_prices_note(l()).to_owned(),
+            promo_label: cs::purchase_promo_label(l()).to_owned(),
+            promo_invalid: cs::purchase_promo_invalid(l()).to_owned(),
             promo_max_len: 40,
             offers_manage: true,
-            manage_action: PurchaseState::MANAGE_ACTION.to_owned(),
+            manage_action: cs::purchase_manage_action(l()).to_owned(),
             confirming: Some(ConfirmPurchaseView {
-                title: PurchaseState::CONFIRM_TITLE.to_owned(),
-                body: PurchaseState::CONFIRM_BODY.to_owned(),
+                title: cs::purchase_confirm_title(l()).to_owned(),
+                body: cs::purchase_confirm_body(l()).to_owned(),
                 plan: "Voice Pro".to_owned(),
                 term: "Annual".to_owned(),
                 promo: Some("SAVE".to_owned()),
-                action: PurchaseState::CONFIRM_ACTION.to_owned(),
-                cancel: PurchaseState::CANCEL_ACTION.to_owned(),
+                action: cs::purchase_confirm_action(l()).to_owned(),
+                cancel: cs::purchase_cancel_action(l()).to_owned(),
             }),
             opening: true,
-            opening_label: PurchaseState::OPENING.to_owned(),
+            opening_label: cs::purchase_opening(l()).to_owned(),
             enabled: false,
             notice: None,
-            in_browser_note: Some(PurchaseState::IN_BROWSER.to_owned()),
+            in_browser_note: Some(cs::purchase_in_browser(l()).to_owned()),
         }),
     }
 }

@@ -1,0 +1,2400 @@
+[meta]
+catalog = "ffi"
+platform = "rust"
+apple = false
+
+[analytics.calls_title]
+en = "Calls"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+note = "The call card's heading before its figures are read."
+
+[analytics.figure_abandoned]
+en = "Abandoned"
+ctx = "label"
+screen = "analytics"
+tier = "T3"
+note = "A figure's caption on Analytics."
+
+[analytics.figure_average_call]
+en = "Average call"
+ctx = "label"
+screen = "analytics"
+tier = "T3"
+note = "A figure's caption on Analytics."
+
+[analytics.figure_calls]
+en = "Calls"
+ctx = "label"
+screen = "analytics"
+tier = "T3"
+note = "A figure's caption on Analytics."
+
+[analytics.figure_converted]
+en = "Converted"
+ctx = "label"
+screen = "analytics"
+tier = "T3"
+note = "A figure's caption on Analytics."
+
+[analytics.figure_missed]
+en = "Missed"
+ctx = "label"
+screen = "analytics"
+tier = "T3"
+note = "A figure's caption on Analytics."
+
+[analytics.funnel_title]
+en = "Call funnel"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+note = "The funnel's heading."
+
+[analytics.history_title]
+en = "Recent months"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+note = "The usage history card's heading."
+
+[analytics.per_day]
+en = "Calls per day"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+note = "The trend chart's name in the shorter periods: one bar a day."
+
+[analytics.per_week]
+en = "Calls per week"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+note = "The trend chart's name in the 90-day period: one bar a week."
+
+[analytics.period_label]
+en = "Period"
+ctx = "label"
+screen = "analytics"
+tier = "T3"
+note = "The period chooser's label."
+
+[analytics.report_title]
+en = "Calls over {range}"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+args = { range = "str" }
+note = "The heading of the figures; {range} is the period (\"7 days\")."
+
+[analytics.sentiment_title]
+en = "Caller sentiment"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+note = "The sentiment breakdown's heading."
+
+[analytics.title]
+en = "Analytics"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+note = "The page's heading, the navigation entry's."
+
+[analytics.usage_title]
+en = "This month's usage"
+ctx = "title"
+screen = "analytics"
+tier = "T3"
+note = "This month's usage card's heading."
+
+[billing.title]
+en = "Billing"
+ctx = "title"
+screen = "billing"
+tier = "T1"
+note = "The page's heading, the navigation entry's."
+
+[blocked.empty_body]
+en = "Callers you block from a contact's page are listed here, where you can unblock them."
+ctx = "body"
+screen = "blocked"
+tier = "T3"
+note = "The body of the empty list, as the Linux app words it."
+
+[blocked.title]
+en = "Blocked callers"
+ctx = "title"
+screen = "blocked"
+tier = "T3"
+note = "The screen's heading, as the Linux app words it."
+
+[call_handling.availability_failed_title]
+en = "Could not read whether you are rung"
+ctx = "error"
+screen = "call_handling"
+tier = "T2"
+note = "The heading of a failed availability read."
+
+[call_handling.availability_heading]
+en = "Your availability"
+ctx = "title"
+screen = "call_handling"
+tier = "T3"
+note = "The heading over the member's own availability."
+
+[call_handling.availability_label]
+en = "Ring me for calls"
+ctx = "label"
+screen = "call_handling"
+tier = "T3"
+note = "The switch's label."
+
+[call_handling.availability_note]
+en = "Whether your own devices ring for this workspace's calls. A change is sent at once."
+ctx = "body"
+screen = "call_handling"
+tier = "T3"
+note = "What that part is for."
+
+[call_handling.handling_heading]
+en = "Who answers"
+ctx = "title"
+screen = "call_handling"
+tier = "T3"
+note = "The heading over who answers."
+
+[call_handling.handling_note]
+en = "For every member of this workspace."
+ctx = "body"
+screen = "call_handling"
+tier = "T3"
+note = "What that part is for."
+
+[call_handling.ring_label]
+en = "How long your devices ring"
+ctx = "label"
+screen = "call_handling"
+tier = "T3"
+note = "The ring's label."
+
+[call_handling.ring_seconds]
+en = "{seconds} seconds"
+ctx = "label"
+screen = "call_handling"
+tier = "T3"
+args = { seconds = "int" }
+note = "How long your devices ring, a choice of 15 seconds or more."
+
+[call_handling.stored_as]
+en = "Stored as \"{value}\"."
+ctx = "body"
+screen = "call_handling"
+tier = "T3"
+args = { value = "str" }
+note = "A call handling setting this app does not know, as the service stores it."
+
+[call_handling.title]
+en = "Call handling"
+ctx = "title"
+screen = "call_handling"
+tier = "T3"
+note = "The section's heading: the hub row's title, which opens it."
+
+[call_handling.unknown_mode_title]
+en = "A setting this app does not know"
+ctx = "title"
+screen = "call_handling"
+tier = "T3"
+note = "The heading of a stored mode this app does not know."
+
+[calls.call_failed_title]
+en = "Could not load this call"
+ctx = "error"
+screen = "calls"
+tier = "T2"
+note = "The heading of a call that could not be read, as the Linux app words it."
+
+[calls.fact_action_items]
+en = "Action items"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A heading of the call's AI analysis, over a bulleted list."
+
+[calls.fact_callers_number]
+en = "Caller's number"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "On a call that came in: the caller's number."
+
+[calls.fact_carrier]
+en = "Carrier"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact about a phone number, on a call's or a contact's page."
+
+[calls.fact_direction]
+en = "Direction"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact's name on a call's page."
+
+[calls.fact_email_sent_to]
+en = "Email sent to"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "The follow-up sent after the call: the address an email went to, or the text message sent."
+
+[calls.fact_key_points]
+en = "Key points"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A heading of the call's AI analysis, over a bulleted list."
+
+[calls.fact_line_type]
+en = "Line type"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact about a phone number, on a call's or a contact's page."
+
+[calls.fact_location]
+en = "Location"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact about a phone number, on a call's or a contact's page."
+
+[calls.fact_objections]
+en = "Objections"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A heading of the call's AI analysis, over a bulleted list."
+
+[calls.fact_outcome]
+en = "Outcome"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact's name on a call's page."
+
+[calls.fact_placed_from]
+en = "Placed from"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "On a call placed from the workspace: the number it was placed from."
+
+[calls.fact_sentiment]
+en = "Sentiment"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact's name on a call's page."
+
+[calls.fact_status]
+en = "Status"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact's name on a call's page."
+
+[calls.fact_text_message]
+en = "Text message"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "The follow-up sent after the call: the address an email went to, or the text message sent."
+
+[calls.fact_topics]
+en = "Topics"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A heading of the call's AI analysis, over a bulleted list."
+
+[calls.fact_transfer]
+en = "Transfer"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact's name on a call's page."
+
+[calls.fact_transfer_reason]
+en = "Why it was transferred"
+ctx = "label"
+screen = "calls"
+tier = "T3"
+note = "A fact's name on a call's page."
+
+[calls_live.ringing_in]
+en = "{caller} in {workspace}"
+ctx = "notification"
+screen = "calls_live"
+tier = "T3"
+args = { caller = "str", workspace = "str" }
+note = "Who is calling, when the call is for another of your workspaces: {caller} is the caller line, {workspace} the workspace's name."
+
+[chart.columns_summary]
+en = "{what}: {each}. The most was {most}, on {when}."
+ctx = "a11y"
+screen = "chart"
+tier = "T3"
+args = { what = "str", each = "str", most = "int", when = "str" }
+note = "What a screen reader says for a chart. {what} is the chart's name (\"Calls per day\"), {each} each bar as \"label value\", comma-separated, and {most} the largest value, on the bar {when}."
+
+[chart.each]
+en = "{what}: {each}."
+ctx = "a11y"
+screen = "chart"
+tier = "T3"
+args = { what = "str", each = "str" }
+note = "What a screen reader says for a chart. {what} is its name, {each} each bar as \"label value\", comma-separated."
+
+[chart.history_line]
+en = "{month}: {minutes} call minutes, {messages} messages"
+ctx = "a11y"
+screen = "chart"
+tier = "T3"
+args = { month = "str", minutes = "str", messages = "str" }
+note = "What a screen reader says for a chart. One month of the usage history; {minutes} and {messages} are already-formatted numbers."
+
+[chart.history_messages]
+en = "Messages"
+ctx = "label"
+screen = "chart"
+tier = "T3"
+note = "A column heading of the usage history table."
+
+[chart.history_minutes]
+en = "Call minutes"
+ctx = "label"
+screen = "chart"
+tier = "T3"
+note = "A column heading of the usage history table."
+
+[chart.history_month]
+en = "Month"
+ctx = "label"
+screen = "chart"
+tier = "T3"
+note = "A column heading of the usage history table."
+
+[chart.legend]
+en = "{label}: {value} ({percent})"
+ctx = "format"
+screen = "chart"
+tier = "T3"
+args = { label = "str", value = "int", percent = "percent" }
+note = "A sentiment chart's legend line: the band, its count and its share (\"44%\")."
+
+[chart.nothing]
+en = "{what}: nothing to show."
+ctx = "a11y"
+screen = "chart"
+tier = "T3"
+args = { what = "str" }
+note = "What a screen reader says for a chart. A chart with no data; {what} is its name."
+
+[composer.ai_draft]
+en = "AI draft"
+ctx = "label"
+screen = "composer"
+tier = "T3"
+note = "The heading over a reply the model wrote, while it is in the box."
+
+[composer.attachment_name]
+en = "Image {number}"
+ctx = "label"
+screen = "composer"
+tier = "T3"
+args = { number = "int" }
+note = "An image attached to the reply, by its place."
+
+[composer.draft_reply_label]
+en = "Draft a reply with AI"
+ctx = "button"
+screen = "composer"
+tier = "T3"
+note = "The AI button, as District AI for Linux words it."
+
+[composer.draft_reply_note]
+en = "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed."
+ctx = "body"
+screen = "composer"
+tier = "T3"
+note = "What the AI button does and that each press is billed, as District AI for Linux's tooltip on the button says it, word for word: the core (2.0.0 included) has no words for this, and nothing in it is Linux-only, so Windows needs no line of its own. It names a charge to the workspace and offers nothing to buy, which the store-copy check holds."
+
+[composer.sending]
+en = "Sending"
+ctx = "label"
+screen = "composer"
+tier = "T3"
+note = "The busy line while a message is on its way."
+
+[composer.uploading]
+en = "Uploading the image"
+ctx = "label"
+screen = "composer"
+tier = "T3"
+note = "The busy line while an image uploads."
+
+[composer.writing]
+en = "Writing a reply"
+ctx = "label"
+screen = "composer"
+tier = "T3"
+note = "The busy line while the model writes a reply."
+
+[contacts.busy_block]
+en = "Blocking the caller"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "What the contact screen says while this change is on its way."
+
+[contacts.busy_clear_intel]
+en = "Clearing research"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "What the contact screen says while this change is on its way."
+
+[contacts.busy_delete]
+en = "Deleting the contact"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "What the contact screen says while this change is on its way."
+
+[contacts.busy_enrich]
+en = "Starting research"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "What the contact screen says while this change is on its way."
+
+[contacts.busy_save]
+en = "Saving the contact"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "What the contact screen says while this change is on its way."
+
+[contacts.busy_unblock]
+en = "Unblocking the caller"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "What the contact screen says while this change is on its way."
+
+[contacts.contact_failed_title]
+en = "Could not load this contact"
+ctx = "error"
+screen = "contacts"
+tier = "T2"
+note = "The heading of a contact that could not be read, as the Linux app words it."
+
+[contacts.count]
+en.one = "{count} contact"
+en.other = "{count} contacts"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+args = { count = "int" }
+note = "The number of contacts, under the contacts list's heading."
+
+[contacts.fact_budget]
+en = "Budget"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "A fact's name on a contact's page."
+
+[contacts.fact_company]
+en = "Company"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "A fact's name on a contact's page."
+
+[contacts.fact_email]
+en = "Email address"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "A fact's name on a contact's page."
+
+[contacts.fact_industry]
+en = "Industry"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "A fact's name on a contact's page."
+
+[contacts.fact_latest_context]
+en = "Latest context"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "A fact's name on a contact's page."
+
+[contacts.fact_phone]
+en = "Phone number"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "A fact's name on a contact's page."
+
+[contacts.fact_timeline]
+en = "Timeline"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "A fact's name on a contact's page."
+
+[contacts.fact_website]
+en = "Website"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "A fact's name on a contact's page."
+
+[contacts.finding]
+en = "{heading}: {value}"
+ctx = "format"
+screen = "contacts"
+tier = "T3"
+args = { heading = "str", value = "str" }
+note = "One line of what contact research found: its heading (a research field, as the service names it) and what was found."
+
+[contacts.form_add]
+en = "Add"
+ctx = "button"
+screen = "contacts"
+tier = "T3"
+note = "The add-a-contact form's button."
+
+[contacts.form_add_title]
+en = "Add contact"
+ctx = "title"
+screen = "contacts"
+tier = "T3"
+note = "The heading of the form that adds a contact."
+
+[contacts.form_edit_title]
+en = "Edit contact"
+ctx = "title"
+screen = "contacts"
+tier = "T3"
+note = "The heading of the form that changes a contact."
+
+[contacts.form_save]
+en = "Save"
+ctx = "button"
+screen = "contacts"
+tier = "T3"
+note = "The edit-a-contact form's button."
+
+[contacts.research_complete]
+en = "Complete"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "Where a contact research run stands: complete."
+
+[contacts.research_failed]
+en = "Did not finish"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "Where a contact research run stands: failed."
+
+[contacts.research_queued]
+en = "Queued"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "Where a contact research run stands: pending."
+
+[contacts.research_searching]
+en = "Searching the web"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "Where a contact research run stands: crawling."
+
+[contacts.research_writing]
+en = "Writing the summary"
+ctx = "label"
+screen = "contacts"
+tier = "T3"
+note = "Where a contact research run stands: synthesizing."
+
+[copies.both_message]
+en = "District AI is installed twice on this computer, {this_copy} and {other_copy}. Both answer the browser when you sign in, so signing in is held until one is uninstalled. Uninstall one in Settings, Apps, then open the other."
+ctx = "body"
+screen = "copies"
+tier = "T2"
+args = { this_copy = "str", other_copy = "str" }
+note = "Why sign-in is held while two copies of the app are installed. \"Settings, Apps\" names the Windows Settings page."
+
+[copies.both_title]
+en = "Install one, not both"
+ctx = "title"
+screen = "copies"
+tier = "T3"
+note = "The heading of the explanation, as the README and CONTRIBUTING put it."
+
+[copies.label_github]
+en = "GitHub copy"
+ctx = "label"
+screen = "copies"
+tier = "T3"
+note = "A copy of the app, in brackets after \"District AI\" in the window's title."
+
+[copies.label_other]
+en = "development copy"
+ctx = "label"
+screen = "copies"
+tier = "T3"
+note = "A copy of the app, in brackets after \"District AI\" in the window's title."
+
+[copies.label_store]
+en = "Microsoft Store copy"
+ctx = "label"
+screen = "copies"
+tier = "T3"
+note = "A copy of the app, in brackets after \"District AI\" in the window's title."
+
+[copies.name_github]
+en = "the GitHub copy"
+ctx = "label"
+screen = "copies"
+tier = "T3"
+note = "A copy of the app, as a noun phrase with its article, said inside the copies sentences ({this_copy}, {other_copy}, {copy})."
+
+[copies.name_other]
+en = "a development copy"
+ctx = "label"
+screen = "copies"
+tier = "T3"
+note = "A copy of the app, as a noun phrase with its article, said inside the copies sentences ({this_copy}, {other_copy}, {copy})."
+
+[copies.name_store]
+en = "the Microsoft Store copy"
+ctx = "label"
+screen = "copies"
+tier = "T3"
+note = "A copy of the app, as a noun phrase with its article, said inside the copies sentences ({this_copy}, {other_copy}, {copy})."
+
+[copies.this_copy_line]
+en = "This is {copy} of District AI."
+ctx = "body"
+screen = "copies"
+tier = "T3"
+args = { copy = "str" }
+note = "Under the sign-in page while two copies are installed."
+
+[copies.window_title]
+en = "District AI ({copy})"
+ctx = "title"
+screen = "copies"
+tier = "T3"
+args = { copy = "str" }
+note = "The window's title while two copies are installed: which copy this is."
+
+[desk.brand_label]
+en = "Name customers see"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "The name box, as the Linux app words it."
+
+[desk.compose_needs]
+en = "A subject of {min} to {max} characters, and a message."
+ctx = "body"
+screen = "desk"
+tier = "T3"
+args = { min = "int", max = "int" }
+note = "What the new-ticket form needs before it can be raised."
+
+[desk.compose_submit]
+en = "Raise"
+ctx = "button"
+screen = "desk"
+tier = "T3"
+note = "The form's button that raises the ticket, as the Linux app words it."
+
+[desk.compose_title]
+en = "New ticket"
+ctx = "title"
+screen = "desk"
+tier = "T3"
+note = "The form raising a ticket: its heading, as the Linux app words it."
+
+[desk.customer_note]
+en = "Optional. Replies are emailed to the address given here, when the desk emails customers."
+ctx = "body"
+screen = "desk"
+tier = "T3"
+note = "What the form says about the customer's details, as the Linux app words it."
+
+[desk.enabled_label]
+en = "Take tickets"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "The \"desk on\" switch, as the Linux app words it."
+
+[desk.enabled_note]
+en = "While the desk is off, no tickets are recorded."
+ctx = "body"
+screen = "desk"
+tier = "T3"
+note = "The note under the \"desk on\" switch, as the Linux app words it."
+
+[desk.fact_email]
+en = "Email address"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "A fact about a ticket's customer."
+
+[desk.fact_name]
+en = "Name"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "A fact about a ticket's customer."
+
+[desk.fact_phone]
+en = "Phone number"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "A fact about a ticket's customer."
+
+[desk.fact_source]
+en = "Came in by"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "A fact about a ticket's customer: the channel it came in by."
+
+[desk.filter_count]
+en = "{filter} ({count})"
+ctx = "format"
+screen = "desk"
+tier = "T3"
+args = { filter = "str", count = "int" }
+note = "A queue filter with how many tickets it holds: \"Open (3)\"."
+
+[desk.filter_every]
+en = "Every ticket"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "The help desk queue's filter that shows every ticket."
+
+[desk.logo_empty]
+en = "This file is empty."
+ctx = "error"
+screen = "desk"
+tier = "T2"
+note = "Why a picked logo is refused when the file holds nothing."
+
+[desk.logo_help]
+en = "Shown to customers on the help desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions."
+ctx = "body"
+screen = "desk"
+tier = "T3"
+note = "What the logo is and what the service takes, as the Linux app words it."
+
+[desk.logo_none]
+en = "No logo yet."
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "The logo's line when there is none, as the Linux app words it."
+
+[desk.logo_published]
+en = "A logo is published."
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "The logo's line when one is published, as the Linux app words it."
+
+[desk.logo_too_large]
+en = "The logo must be {megabytes} MB or smaller."
+ctx = "error"
+screen = "desk"
+tier = "T2"
+args = { megabytes = "int" }
+note = "A help desk logo over the size limit."
+
+[desk.logo_type_refused]
+en = "The logo must be a PNG, JPEG or WebP image."
+ctx = "error"
+screen = "desk"
+tier = "T2"
+note = "Why a picked logo is refused for its type (a GIF among them), naming the types the Linux app offers as a logo."
+
+[desk.no_customer]
+en = "No customer details"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "A row whose ticket names no customer, as the Linux app words it."
+
+[desk.not_notified]
+en = "The customer was not emailed this reply."
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "The note after a reply the customer was not emailed, as the Linux app words it."
+
+[desk.notified]
+en = "The customer was emailed your reply."
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "The note after a reply the customer was emailed, as the Linux app words it."
+
+[desk.notify_label]
+en = "Email customers your replies"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "The \"email customers\" switch, as the Linux app words it."
+
+[desk.settings_intro]
+en = "Leave the name blank to show customers the workspace's own name."
+ctx = "body"
+screen = "desk"
+tier = "T3"
+note = "What the settings say under their heading, as the Linux app words it."
+
+[desk.settings_title]
+en = "Help desk settings"
+ctx = "title"
+screen = "desk"
+tier = "T3"
+note = "The settings page's heading."
+
+[desk.status_waiting_short]
+en = "Waiting"
+ctx = "label"
+screen = "desk"
+tier = "T3"
+note = "A ticket waiting on the customer, in a row of the queue where there is little room."
+
+[desk.ticket_failed_title]
+en = "Could not load this ticket"
+ctx = "error"
+screen = "desk"
+tier = "T2"
+note = "The heading when a ticket could not be read, as the Linux app words it."
+
+[desk.ticket_title]
+en = "Ticket"
+ctx = "title"
+screen = "desk"
+tier = "T3"
+note = "A ticket's heading before it is read, as the Linux app words it."
+
+[desk.title]
+en = "Help desk"
+ctx = "title"
+screen = "desk"
+tier = "T3"
+note = "The queue's heading, as the Linux app words it."
+
+[directory.intro]
+en = "Who the receptionist can put a live caller through to. Saving replaces the whole directory."
+ctx = "body"
+screen = "directory"
+tier = "T3"
+note = "What the section says under its heading."
+
+[directory.no_name]
+en = "No name"
+ctx = "label"
+screen = "directory"
+tier = "T3"
+note = "A transfer directory entry with no name yet."
+
+[directory.no_number]
+en = "No phone number, so nobody can be put through"
+ctx = "label"
+screen = "directory"
+tier = "T3"
+note = "A transfer directory entry with no number yet."
+
+[directory.title]
+en = "Transfer directory"
+ctx = "title"
+screen = "directory"
+tier = "T3"
+note = "The section's heading: the hub row's title, which opens it."
+
+[guard.discard_action]
+en = "Discard"
+ctx = "button"
+screen = "guard"
+tier = "T2"
+note = "The button that discards them."
+
+[guard.discard_body]
+en = "What you changed in this section has not been saved, and leaving it drops those changes."
+ctx = "body"
+screen = "guard"
+tier = "T2"
+note = "What discarding does."
+
+[guard.discard_title]
+en = "Discard your changes?"
+ctx = "title"
+screen = "guard"
+tier = "T2"
+note = "The question's heading."
+
+[guard.keep_editing]
+en = "Keep editing"
+ctx = "button"
+screen = "guard"
+tier = "T3"
+note = "The button that stays."
+
+[hq.ask_action]
+en = "Ask"
+ctx = "button"
+screen = "hq"
+tier = "T3"
+note = "The button that sends the prompt."
+
+[hq.footnote]
+en = "Each question is answered by an AI model, which is billed. A change it proposes is made only when you confirm it."
+ctx = "body"
+screen = "hq"
+tier = "T3"
+note = "The line under the prompt box: every question is a billed model run, and nothing changes until the member confirms it."
+
+[hq.prompt_placeholder]
+en = "Ask District HQ"
+ctx = "placeholder"
+screen = "hq"
+tier = "T3"
+note = "The prompt box's placeholder, and its accessible name."
+
+[hq.retry_action]
+en = "Try again"
+ctx = "button"
+screen = "hq"
+tier = "T3"
+note = "The button that sends a failed prompt again."
+
+[hq.title]
+en = "District HQ"
+ctx = "title"
+screen = "hq"
+tier = "T3"
+note = "The page's heading, as the navigation pane names it."
+
+[hq.unknown_note]
+en = "The change may have been made before the answer was lost. Check before confirming again."
+ctx = "body"
+screen = "hq"
+tier = "T3"
+note = "The note under a change whose confirmation failed: whether it was made is not known, which is the member's to check before confirming again."
+
+[hq.viewer_note]
+en = "Nothing has been changed. Only an agency or client member of this workspace can confirm a change."
+ctx = "body"
+screen = "hq"
+tier = "T3"
+note = "The note under a proposed change for a member whose role cannot make it."
+
+[inbox.call_incoming]
+en = "Incoming call"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "A call taken, as a line in a conversation, when nobody talked."
+
+[inbox.call_incoming_lasted]
+en = "Incoming call, {duration}"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+args = { duration = "duration" }
+note = "A call taken, as a line in a conversation, with how long it lasted (\"1m 5s\")."
+
+[inbox.call_missed]
+en = "Missed call"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "A missed call, as a line in a conversation."
+
+[inbox.call_outgoing]
+en = "Outgoing call"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "A call placed, as a line in a conversation, when nobody talked."
+
+[inbox.call_outgoing_lasted]
+en = "Outgoing call, {duration}"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+args = { duration = "duration" }
+note = "A call placed, as a line in a conversation, with how long it lasted (\"1m 5s\")."
+
+[inbox.channel_email]
+en = "Email"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "A conversation's channel."
+
+[inbox.channel_text]
+en = "Text message"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "A conversation's channel: SMS."
+
+[inbox.delivery_delivered]
+en = "Delivered"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "Where an outbound message got to: delivered."
+
+[inbox.delivery_read]
+en = "Read"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "Where an outbound message got to: read."
+
+[inbox.delivery_sending]
+en = "Sending"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "Where an outbound message got to: queued or being sent."
+
+[inbox.delivery_sent]
+en = "Sent"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "Where an outbound message got to: sent."
+
+[inbox.images_attached]
+en.one = "{count} image attached"
+en.other = "{count} images attached"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+args = { count = "int" }
+note = "Under a message: how many images it carries."
+
+[inbox.not_delivered]
+en = "Not delivered"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+
+[inbox.preview_ours]
+en = "You: {text}"
+ctx = "format"
+screen = "inbox"
+tier = "T3"
+args = { text = "str" }
+note = "A conversation's last message when the workspace sent it."
+
+[inbox.thread_failed_title]
+en = "Could not load this conversation"
+ctx = "error"
+screen = "inbox"
+tier = "T2"
+note = "The heading of a conversation that could not be read, as the Linux app words it."
+
+[inbox.unnamed_image]
+en = "image"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+note = "The name of an attached image whose address names no file."
+
+[knowledge.add_action]
+en = "Add document"
+ctx = "button"
+screen = "knowledge"
+tier = "T3"
+note = "The add button, as the Linux app words it."
+
+[knowledge.add_heading]
+en = "Add a document"
+ctx = "title"
+screen = "knowledge"
+tier = "T3"
+note = "The add form's heading, as the Linux app words it."
+
+[knowledge.cancel]
+en = "Cancel"
+ctx = "button"
+screen = "knowledge"
+tier = "T3"
+note = "The question's button that answers no."
+
+[knowledge.content_label]
+en = "The document's text"
+ctx = "label"
+screen = "knowledge"
+tier = "T3"
+note = "The text box's label, as the Linux app words it."
+
+[knowledge.delete_label]
+en = "Delete this document"
+ctx = "button"
+screen = "knowledge"
+tier = "T2"
+note = "A document's delete button, as the Linux app names it."
+
+[knowledge.documents_failed]
+en = "Could not load the documents"
+ctx = "error"
+screen = "knowledge"
+tier = "T2"
+note = "The heading when the documents could not be read, as the Linux app words it."
+
+[knowledge.documents_heading]
+en = "Documents"
+ctx = "title"
+screen = "knowledge"
+tier = "T3"
+note = "The documents' heading, as the Linux app words it."
+
+[knowledge.file_action]
+en = "Read a text file"
+ctx = "button"
+screen = "knowledge"
+tier = "T3"
+note = "The button that fills the form from a text file."
+
+[knowledge.file_empty]
+en = "This file is empty."
+ctx = "error"
+screen = "knowledge"
+tier = "T2"
+note = "Why a picked file is refused when it holds nothing."
+
+[knowledge.file_hint]
+en = "A plain text file (.txt or .md) of up to 1 MB fills the title and the text. Nothing is added until you press Add document."
+ctx = "body"
+screen = "knowledge"
+tier = "T3"
+note = "What a file fills, what it may be, and that nothing is sent yet."
+
+[knowledge.file_no_text]
+en = "This file has no text to add."
+ctx = "error"
+screen = "knowledge"
+tier = "T2"
+note = "Why a picked file is refused when it holds no words."
+
+[knowledge.file_not_text]
+en = "Only a plain text file (.txt or .md) can be read in. Copy the text of another kind of document into the box instead."
+ctx = "error"
+screen = "knowledge"
+tier = "T2"
+note = "Why a picked file is refused when it is not plain text."
+
+[knowledge.file_too_large]
+en = "The file must be 1 MB or smaller."
+ctx = "error"
+screen = "knowledge"
+tier = "T2"
+note = "Why a picked file is refused for its size."
+
+[knowledge.mode_heading]
+en = "Where answers come from"
+ctx = "title"
+screen = "knowledge"
+tier = "T3"
+note = "The mode's heading, as the Linux app words it."
+
+[knowledge.mode_unknown_title]
+en = "A setting this app does not know"
+ctx = "title"
+screen = "knowledge"
+tier = "T3"
+note = "The heading of a stored mode this app does not know, as the Linux app words it."
+
+[knowledge.pieces]
+en.one = "{count} piece"
+en.other = "{count} pieces"
+ctx = "label"
+screen = "knowledge"
+tier = "T3"
+args = { count = "int" }
+note = "How many pieces a knowledge document was split into for the receptionist to search."
+
+[knowledge.stored_as]
+en = "Stored as \"{value}\"."
+ctx = "body"
+screen = "knowledge"
+tier = "T3"
+args = { value = "str" }
+note = "A knowledge mode this app does not know, as the service stores it."
+
+[knowledge.title]
+en = "Knowledge"
+ctx = "title"
+screen = "knowledge"
+tier = "T3"
+note = "The section's heading: its row's title in the hub, which opens it."
+
+[knowledge.title_label]
+en = "Title"
+ctx = "label"
+screen = "knowledge"
+tier = "T3"
+note = "The title box's label."
+
+[marketplace.monthly]
+en = "{amount} a month"
+ctx = "label"
+screen = "marketplace"
+tier = "T1"
+args = { amount = "money" }
+note = "What the carrier charges a month for a number; {amount} is the quoted price."
+
+[marketplace.offered_by]
+en = "Offered by {provider}"
+ctx = "label"
+screen = "marketplace"
+tier = "T3"
+args = { provider = "str" }
+note = "Who offers a number on the market: {provider} is the carrier's name."
+
+[marketplace.title]
+en = "Phone numbers"
+ctx = "title"
+screen = "marketplace"
+tier = "T3"
+note = "The page's heading, the navigation entry's."
+
+[members.add_action]
+en = "Add"
+ctx = "button"
+screen = "members"
+tier = "T3"
+note = "The add button."
+
+[members.add_heading]
+en = "Add a member"
+ctx = "title"
+screen = "members"
+tier = "T3"
+note = "The add form's heading."
+
+[members.agency_only]
+en = "Only an agency member can add members, change their roles or remove them."
+ctx = "label"
+screen = "members"
+tier = "T3"
+note = "The note for a member who may not change who belongs here."
+
+[members.cancel]
+en = "Cancel"
+ctx = "button"
+screen = "members"
+tier = "T3"
+note = "The removal question's button that keeps the member."
+
+[members.current_name]
+en = "Now"
+ctx = "label"
+screen = "members"
+tier = "T3"
+note = "The label of the name now."
+
+[members.email_label]
+en = "Email address"
+ctx = "label"
+screen = "members"
+tier = "T3"
+note = "The address box's label."
+
+[members.failed_title]
+en = "Could not load the members"
+ctx = "error"
+screen = "members"
+tier = "T2"
+note = "The heading of a failed read of the members."
+
+[members.new_name]
+en = "New name"
+ctx = "label"
+screen = "members"
+tier = "T3"
+note = "The new name box's label."
+
+[members.remove_from_workspace]
+en = "Remove from this workspace"
+ctx = "button"
+screen = "members"
+tier = "T2"
+note = "A member's remove button."
+
+[members.rename_action]
+en = "Rename the workspace"
+ctx = "button"
+screen = "members"
+tier = "T3"
+note = "The rename button."
+
+[members.rename_heading]
+en = "The workspace's name"
+ctx = "title"
+screen = "members"
+tier = "T3"
+note = "The rename form's heading."
+
+[members.role_label]
+en = "Role"
+ctx = "label"
+screen = "members"
+tier = "T3"
+note = "The role picker's label."
+
+[members.title]
+en = "Members"
+ctx = "title"
+screen = "members"
+tier = "T3"
+note = "The section's heading: its row's title in the hub, which opens it."
+
+[members.unknown_role]
+en = "A role this app does not know, which it treats as no access."
+ctx = "label"
+screen = "members"
+tier = "T3"
+note = "A role this app does not know, which the core treats as no access."
+
+[messaging.channels_body]
+en = "A channel without a sender of its own sends from the default account."
+ctx = "body"
+screen = "messaging"
+tier = "T3"
+note = "What a channel without a sender does."
+
+[messaging.channels_heading]
+en = "Sender for each channel"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "The heading over the channels' senders."
+
+[messaging.creator_heading]
+en = "The owner's mobile number"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "The heading over the owner's mobile number."
+
+[messaging.default_sender]
+en = "The default account"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "What a channel's sender reads when it has none of its own."
+
+[messaging.failed_title]
+en = "Could not load the carrier accounts"
+ctx = "error"
+screen = "messaging"
+tier = "T2"
+note = "The heading when the accounts could not be read."
+
+[messaging.form_add_title]
+en = "Add a carrier account"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "The heading of the form that adds a carrier account."
+
+[messaging.form_edit_title]
+en = "Edit the carrier account"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "The heading of the form that changes a carrier account."
+
+[messaging.keys_accepted]
+en = "The carrier accepted these keys."
+ctx = "body"
+screen = "messaging"
+tier = "T3"
+note = "The keys work; the carrier named no account."
+
+[messaging.keys_accepted_for]
+en = "The carrier accepted these keys, for {account}."
+ctx = "body"
+screen = "messaging"
+tier = "T3"
+args = { account = "str" }
+note = "The keys work. {account} is the carrier account they belong to, as the carrier names it."
+
+[messaging.keys_asking]
+en = "Asking the carrier."
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "While the carrier is asked whether the typed keys work."
+
+[messaging.keys_needed]
+en = "Every key the carrier needs, typed in full."
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "The line under the key boxes when every key must be typed."
+
+[messaging.keys_refused]
+en = "The carrier refused these keys: {reason}"
+ctx = "error"
+screen = "messaging"
+tier = "T2"
+args = { reason = "str" }
+note = "The keys do not work. {reason} is the carrier's own reason, in its words."
+
+[messaging.keys_unreachable]
+en = "The carrier could not be asked, so nothing is known about these keys. {failure}"
+ctx = "error"
+screen = "messaging"
+tier = "T2"
+args = { failure = "str" }
+note = "{failure} is why, a sentence of the app's own."
+
+[messaging.managed_body]
+en = "Bought for this workspace on Distronode's own carrier account. They are not an account of this workspace's, so they cannot be chosen as a sender."
+ctx = "body"
+screen = "messaging"
+tier = "T3"
+note = "What those numbers are."
+
+[messaging.managed_heading]
+en = "Numbers held by Distronode"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "The heading over the numbers Distronode holds for the workspace."
+
+[messaging.no_numbers]
+en = "No numbers"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "A carrier account, or the numbers Distronode holds, with no phone number yet."
+
+[messaging.title]
+en = "Messaging accounts"
+ctx = "title"
+screen = "messaging"
+tier = "T3"
+note = "The page's heading, as the settings hub names it."
+
+[messaging.unlisted_sender]
+en = "An account that is not listed"
+ctx = "label"
+screen = "messaging"
+tier = "T3"
+note = "What a channel's sender reads when it names an account not listed."
+
+[nav.account]
+en = "Account"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.analytics]
+en = "Analytics"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.billing]
+en = "Billing"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.calls]
+en = "Calls"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.contacts]
+en = "Contacts"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.desk]
+en = "Help desk"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.hq]
+en = "District HQ"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens. District HQ is a product name."
+
+[nav.inbox]
+en = "Inbox"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.inbox_unread]
+en = "Inbox, {count} unread"
+ctx = "a11y"
+screen = "nav"
+tier = "T3"
+args = { count = "int" }
+note = "What a screen reader says for the Inbox entry while it has unread conversations."
+
+[nav.marketplace]
+en = "Phone numbers"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.overview]
+en = "Overview"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.rooms]
+en = "Meeting rooms"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.scheduling]
+en = "Booking pages"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.settings]
+en = "Workspace settings"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.support]
+en = "Support"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.workflows]
+en = "Workflows"
+ctx = "menu"
+screen = "nav"
+tier = "T3"
+note = "An entry of the navigation pane, and the name of the page it opens."
+
+[nav.workspace_heading]
+en = "Workspace"
+ctx = "title"
+screen = "nav"
+tier = "T3"
+note = "The heading over the workspace's areas in the navigation pane."
+
+[overview.failed_title]
+en = "Could not load the overview"
+ctx = "error"
+screen = "overview"
+tier = "T2"
+note = "The heading of an overview that could not be read, as the Linux app words it."
+
+[overview.metric_average_call]
+en = "Average call"
+ctx = "label"
+screen = "overview"
+tier = "T3"
+note = "A figure's caption on the overview."
+
+[overview.metric_calls]
+en = "Calls"
+ctx = "label"
+screen = "overview"
+tier = "T3"
+note = "A figure's caption on the overview."
+
+[overview.metric_calls_this_week]
+en = "Calls this week"
+ctx = "label"
+screen = "overview"
+tier = "T3"
+note = "A figure's caption on the overview."
+
+[overview.metric_contacts]
+en = "Contacts"
+ctx = "label"
+screen = "overview"
+tier = "T3"
+note = "A figure's caption on the overview."
+
+[overview.no_recent_calls]
+en = "No calls yet. They appear here as your receptionist answers them."
+ctx = "label"
+screen = "overview"
+tier = "T3"
+note = "What the recent calls say when there are none, as the Linux app words it."
+
+[persona.connected]
+en = "On the call with your receptionist."
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "The line while it is on."
+
+[persona.connecting]
+en = "Connecting to your receptionist."
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "The line while its room is being joined."
+
+[persona.cooling]
+en = "Another audition can start in a few seconds."
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "The line while another audition must wait."
+
+[persona.ended]
+en = "The audition ended."
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "The line once it ended."
+
+[persona.engine_heading]
+en = "Language and answers"
+ctx = "title"
+screen = "persona"
+tier = "T3"
+note = "The language half's heading."
+
+[persona.open_studio]
+en = "Open Voice Studio"
+ctx = "button"
+screen = "persona"
+tier = "T3"
+note = "The button that opens Voice Studio."
+
+[persona.options_loading]
+en = "Reading the languages this workspace may use."
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "The line while the options are being read."
+
+[persona.preview_action]
+en = "Try this receptionist"
+ctx = "button"
+screen = "persona"
+tier = "T3"
+note = "The button that opens the audition dialog."
+
+[persona.save_action]
+en = "Save"
+ctx = "button"
+screen = "persona"
+tier = "T3"
+note = "The save button."
+
+[persona.start_action]
+en = "Start"
+ctx = "button"
+screen = "persona"
+tier = "T3"
+note = "The audition's Start, which places the billed call."
+
+[persona.starting]
+en = "Starting the call."
+ctx = "label"
+screen = "persona"
+tier = "T3"
+note = "The line while the audition's call is being asked for."
+
+[persona.stop_action]
+en = "Stop"
+ctx = "button"
+screen = "persona"
+tier = "T3"
+note = "The audition's Stop."
+
+[persona.texts_heading]
+en = "What it says"
+ctx = "title"
+screen = "persona"
+tier = "T3"
+note = "The texts' heading."
+
+[persona.title]
+en = "Persona"
+ctx = "title"
+screen = "persona"
+tier = "T3"
+note = "The section's heading: its row's title in the hub, which opens it."
+
+[report.deduplicated]
+en = "You have already reported this. We'll review it."
+ctx = "toast"
+screen = "report"
+tier = "T3"
+note = "The same content was reported before."
+
+[report.draft_open]
+en = "Send or discard the support request you are writing in Support, then report this."
+ctx = "error"
+screen = "report"
+tier = "T2"
+note = "Why a Report is refused while a support request is being written. One sentence, which the report dialog shows over the note it keeps."
+
+[report.filed]
+en = "Reported. We'll review it."
+ctx = "toast"
+screen = "report"
+tier = "T3"
+note = "A report of AI-generated content was raised."
+
+[report.pending]
+en = "Reported. We have it and it is catching up."
+ctx = "toast"
+screen = "report"
+tier = "T3"
+note = "The report was taken and is still being filed."
+
+[rooms.a_guest]
+en = "A guest"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "How a person in the room with no name is shown."
+
+[rooms.action_item_owner]
+en = "{item} ({owner})"
+ctx = "format"
+screen = "rooms"
+tier = "T3"
+args = { item = "str", owner = "str" }
+note = "A meeting's action item with whose it is."
+
+[rooms.action_items_title]
+en = "Action items"
+ctx = "title"
+screen = "rooms"
+tier = "T3"
+note = "The record's action items heading."
+
+[rooms.copy_guest_link]
+en = "Copy guest link"
+ctx = "button"
+screen = "rooms"
+tier = "T3"
+note = "The button that copies the guest link."
+
+[rooms.fact_length]
+en = "Length"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "A fact on a meeting's record."
+
+[rooms.fact_people]
+en = "People"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "A fact on a meeting's record."
+
+[rooms.fact_status]
+en = "Status"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "A fact on a meeting's record."
+
+[rooms.guest_link_copied]
+en = "Guest link copied."
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "What shows once the guest link is on the clipboard."
+
+[rooms.guest_link_hint]
+en = "Copy a link that lets someone without an account join this room"
+ctx = "body"
+screen = "rooms"
+tier = "T3"
+note = "What the guest link is for, beside its button."
+
+[rooms.in_progress]
+en = "In progress"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "The badge on a meeting still running."
+
+[rooms.in_room]
+en = "In the room."
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "Where the room's connection stands: connected."
+
+[rooms.join_label]
+en = "Join"
+ctx = "button"
+screen = "rooms"
+tier = "T3"
+note = "The button that joins the room named."
+
+[rooms.joining]
+en = "Joining the room."
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "Where the room's connection stands: connecting."
+
+[rooms.leave_label]
+en = "Leave the room"
+ctx = "button"
+screen = "rooms"
+tier = "T3"
+note = "The button that leaves the room."
+
+[rooms.meetings_description]
+en = "The most recent meetings held in this workspace's rooms. Open one to read its minutes and transcript."
+ctx = "body"
+screen = "rooms"
+tier = "T3"
+note = "What the meetings are."
+
+[rooms.meetings_title]
+en = "Meetings"
+ctx = "title"
+screen = "rooms"
+tier = "T3"
+note = "The meetings' heading."
+
+[rooms.minutes_title]
+en = "Minutes"
+ctx = "title"
+screen = "rooms"
+tier = "T3"
+note = "The record's minutes heading."
+
+[rooms.nobody_else]
+en = "Nobody else is here yet."
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "The line when nobody else has joined."
+
+[rooms.people]
+en.one = "{count} person"
+en.other = "{count} people"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+args = { count = "int" }
+note = "How many took part in a meeting, after its length in the list of meetings."
+
+[rooms.record_failed_title]
+en = "Could not load this meeting"
+ctx = "error"
+screen = "rooms"
+tier = "T2"
+note = "The heading of a record that could not be read."
+
+[rooms.record_title]
+en = "Meeting"
+ctx = "title"
+screen = "rooms"
+tier = "T3"
+note = "The record's heading before it is read."
+
+[rooms.rejoin_label]
+en = "Rejoin"
+ctx = "button"
+screen = "rooms"
+tier = "T3"
+note = "The button that joins a meeting still running."
+
+[rooms.room_name_label]
+en = "Room name"
+ctx = "label"
+screen = "rooms"
+tier = "T3"
+note = "The room name box's label."
+
+[rooms.room_title]
+en = "Room \"{name}\""
+ctx = "title"
+screen = "rooms"
+tier = "T3"
+args = { name = "str" }
+note = "The heading of the meeting room you are in; {name} is the room's name."
+
+[rooms.title]
+en = "Meeting rooms"
+ctx = "title"
+screen = "rooms"
+tier = "T3"
+note = "The page's heading, the navigation entry's."
+
+[rooms.transcript_title]
+en = "Transcript"
+ctx = "title"
+screen = "rooms"
+tier = "T3"
+note = "The record's transcript heading."
+
+[rooms.with_people]
+en = "With {people}."
+ctx = "body"
+screen = "rooms"
+tier = "T3"
+args = { people = "str" }
+note = "Who else is in the room; {people} is their names, comma-separated."
+
+[routing.condition]
+en = "{field} {operator} \"{value}\""
+ctx = "format"
+screen = "routing"
+tier = "T3"
+args = { field = "str", operator = "str", value = "str" }
+note = "What a routing rule matches: the caller detail, how it is compared and the value, as stored (\"Estimated value greater than \\\"500\\\"\")."
+
+[routing.engine_default]
+en = "The persona's own"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+note = "A routing rule's engine when it sets none: the persona's."
+
+[routing.intro]
+en = "Which callers get which voice and instruction. Rules are checked in this order, and saving replaces every rule stored."
+ctx = "body"
+screen = "routing"
+tier = "T3"
+note = "What the section says under its heading."
+
+[routing.kept_keys]
+en = "Also stored: {keys}. Kept as they are when the rules are saved."
+ctx = "body"
+screen = "routing"
+tier = "T3"
+args = { keys = "str" }
+note = "A routing rule holds more than this screen edits; {keys} are those keys, in words, comma-separated."
+
+[routing.no_condition]
+en = "No condition set here"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+note = "The line under a routing rule that matches no caller detail yet."
+
+[routing.picker_field]
+en = "Caller detail"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+note = "A routing rule's picker: which caller detail it compares."
+
+[routing.picker_operator]
+en = "Compared by"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+note = "A routing rule's picker: how the detail is compared."
+
+[routing.picker_voice]
+en = "Voice"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+note = "A routing rule's picker: the voice the caller gets."
+
+[routing.rule_heading]
+en = "Rule {number}"
+ctx = "title"
+screen = "routing"
+tier = "T3"
+args = { number = "int" }
+note = "A routing rule's heading, by its place in the order."
+
+[routing.title]
+en = "Call routing rules"
+ctx = "title"
+screen = "routing"
+tier = "T3"
+note = "The section's heading: the hub row's title, which opens it."
+
+[scheduling.title]
+en = "Booking pages"
+ctx = "title"
+screen = "scheduling"
+tier = "T3"
+note = "The page's heading, the navigation entry's."
+
+[screen.retrying]
+en = "District AI will try again by itself."
+ctx = "label"
+screen = "screen"
+tier = "T3"
+note = "A note under a start-up check that will try again by itself."
+
+[screen.signed_out_body]
+en = "Sign in again whenever you are ready."
+ctx = "body"
+screen = "screen"
+tier = "T3"
+note = "The body after a sign-out that went as it should."
+
+[screen.signing_in]
+en = "Signing in"
+ctx = "title"
+screen = "screen"
+tier = "T3"
+note = "The sign-in page's heading while sign-in is under way in the browser."
+
+[screen.signing_out]
+en = "Signing out"
+ctx = "title"
+screen = "screen"
+tier = "T3"
+note = "The sign-in page's heading while signing out."
+
+[screen.signing_out_everywhere]
+en = "Every device is signed out. Removing your sign-in from this computer."
+ctx = "body"
+screen = "screen"
+tier = "T3"
+note = "While signing out of every device."
+
+[screen.signing_out_this_device]
+en = "Telling District AI, then removing your sign-in from this computer."
+ctx = "body"
+screen = "screen"
+tier = "T3"
+note = "While signing out of this computer only."
+
+[screen.unavailable_body]
+en = "Use the web dashboard or the District AI phone apps for this."
+ctx = "body"
+screen = "screen"
+tier = "T3"
+note = "Its body."
+
+[screen.unavailable_title]
+en = "Not in this version yet"
+ctx = "title"
+screen = "screen"
+tier = "T3"
+note = "The heading of a screen this version does not have."
+
+[screen.welcome_body]
+en = "Sign in with your District AI account. Signing in happens in your browser, so this app never sees your password."
+ctx = "body"
+screen = "screen"
+tier = "T3"
+note = "Its body."
+
+[screen.welcome_title]
+en = "Welcome to District AI"
+ctx = "title"
+screen = "screen"
+tier = "T3"
+note = "The heading of the signed-out screen on a first run."
+
+[settings.not_chosen]
+en = "Not chosen"
+ctx = "label"
+screen = "settings"
+tier = "T3"
+note = "What a picker shows for a stored value that is empty."
+
+[settings.read_again]
+en = "Read them again"
+ctx = "button"
+screen = "settings"
+tier = "T3"
+note = "The button that reads a section's settings again, after such a save."
+
+[settings.stale_title]
+en = "Saved"
+ctx = "title"
+screen = "settings"
+tier = "T3"
+note = "The heading of a section whose save landed and whose settings could not be read back. Not a failure: the save is done."
+
+[settings.title]
+en = "Workspace settings"
+ctx = "title"
+screen = "settings"
+tier = "T3"
+note = "The hub's heading, as the navigation pane names it."
+
+[shell.role_agency]
+en = "Agency"
+ctx = "label"
+screen = "shell"
+tier = "T3"
+note = "A workspace member's role, under the workspace's name in the workspace picker."
+
+[shell.role_client]
+en = "Client"
+ctx = "label"
+screen = "shell"
+tier = "T3"
+note = "A workspace member's role, under the workspace's name in the workspace picker."
+
+[shell.role_viewer]
+en = "Viewer"
+ctx = "label"
+screen = "shell"
+tier = "T3"
+note = "A workspace member's role, under the workspace's name in the workspace picker."
+
+[support.compose_needs]
+en = "A subject of {min} to {max} characters, and a message."
+ctx = "body"
+screen = "support"
+tier = "T3"
+args = { min = "int", max = "int" }
+note = "What the support request form needs before it can be sent."
+
+[support.compose_title]
+en = "New support request"
+ctx = "title"
+screen = "support"
+tier = "T3"
+note = "The form's heading."
+
+[support.not_filed_yet]
+en = "Not filed yet"
+ctx = "label"
+screen = "support"
+tier = "T3"
+note = "What a request still being opened shows in place of its reference."
+
+[support.request_failed_title]
+en = "Could not load this request"
+ctx = "error"
+screen = "support"
+tier = "T2"
+note = "The heading when a request could not be read, as the Linux app words it."
+
+[support.request_title]
+en = "Support request"
+ctx = "title"
+screen = "support"
+tier = "T3"
+note = "The heading of a request not read yet, or that could not be read."
+
+[support.title]
+en = "Support"
+ctx = "title"
+screen = "support"
+tier = "T3"
+note = "The list page's heading."
+
+[tools.heading]
+en = "On a call"
+ctx = "title"
+screen = "tools"
+tier = "T3"
+note = "The tools' heading, as the Linux app words it."
+
+[tools.note]
+en = "What the receptionist may do. Saving replaces the stored list with these switches."
+ctx = "body"
+screen = "tools"
+tier = "T3"
+note = "What the tools are, and what saving them does, as the Linux app words it."
+
+[tools.research_heading]
+en = "Research contacts"
+ctx = "title"
+screen = "tools"
+tier = "T3"
+note = "The research part's heading, as the Linux app words it."
+
+[tools.save_research]
+en = "Save research setting"
+ctx = "button"
+screen = "tools"
+tier = "T3"
+note = "The research part's save button, as the Linux app words it."
+
+[tools.save_tools]
+en = "Save skills"
+ctx = "button"
+screen = "tools"
+tier = "T3"
+note = "The tools' save button."
+
+[tools.title]
+en = "Skills"
+ctx = "title"
+screen = "tools"
+tier = "T3"
+note = "The section's heading: its row's title in the hub, which opens it."
+
+[transcript.unavailable]
+en = "No live transcript for this call. Its transcript is in the call log after the call."
+ctx = "label"
+screen = "transcript"
+tier = "T3"
+note = "What shows when no live transcript can be shown for the call. The core has no words for this state (its `status()` is `None`); the call log has the transcript once the call is over."
+
+[views.ai_dossier]
+en = "AI dossier"
+ctx = "label"
+screen = "views"
+tier = "T3"
+note = "The heading of a contact's AI research, the dossier."
+
+[views.ai_summary]
+en = "AI summary"
+ctx = "label"
+screen = "views"
+tier = "T3"
+note = "The heading of a call's AI summary, as the iOS app words it."
+
+[voice_studio.option_in_group]
+en = "{option} ({group})"
+ctx = "format"
+screen = "voice_studio"
+tier = "T3"
+args = { option = "str", group = "str" }
+note = "A voice or engine choice with the group it belongs to."
+
+[voice_studio.title]
+en = "Voice"
+ctx = "title"
+screen = "voice_studio"
+tier = "T3"
+note = "The page's heading: the hub row's name for the section."
+
+[welcome.create_account_label]
+en = "Create an account"
+ctx = "button"
+screen = "welcome"
+tier = "T3"
+note = "The button's words, as the service's own sign-in page puts them."
+
+[welcome.create_account_note]
+en = "Your browser opens the District AI sign-in page, which offers Create an account. When the account is made, you come back here signed in."
+ctx = "body"
+screen = "welcome"
+tier = "T3"
+note = "The line under it: what the button does, since it cannot open the register page itself."
+
+[workflows.batch_label]
+en = "Batch size"
+ctx = "label"
+screen = "workflows"
+tier = "T3"
+note = "The campaign's batch size row, as the Linux app labels it."
+
+[workflows.goal_label]
+en = "Goal"
+ctx = "label"
+screen = "workflows"
+tier = "T3"
+note = "The campaign's goal row, as the Linux app labels it."
+
+[workflows.last_run]
+en = "Last run {status}"
+ctx = "label"
+screen = "workflows"
+tier = "T3"
+args = { status = "str" }
+note = "How a workflow's latest run went; {status} is the run's status, in lower case."
+
+[workflows.more_runs]
+en = "More runs"
+ctx = "button"
+screen = "workflows"
+tier = "T3"
+note = "The button that reads the next page of runs."
+
+[workflows.not_run_yet]
+en = "Not run yet"
+ctx = "label"
+screen = "workflows"
+tier = "T3"
+note = "The line under a workflow that has never run, after its trigger."
+
+[workflows.reading_runs]
+en = "Reading runs."
+ctx = "label"
+screen = "workflows"
+tier = "T3"
+note = "The note while a page of runs is on its way, as the Linux app words it."
+
+[workflows.switch_name]
+en = "Turn on {workflow}"
+ctx = "a11y"
+screen = "workflows"
+tier = "T3"
+args = { workflow = "str" }
+note = "What a screen reader says for a workflow's on/off switch."
+
+[workflows.title]
+en = "Workflows"
+ctx = "title"
+screen = "workflows"
+tier = "T3"
+note = "The page's heading."

@@ -26,54 +26,18 @@ use super::{SaveNoticeView, save_notice};
 /// A picked file, as [`knowledge_file`] reads it (crate::files).
 pub use crate::files::PickedFileView;
 use crate::files::{FileKind, FilePickView, file_kind};
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, humanize};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
 
-/// The section's heading: its row's title in the hub, which opens it.
-pub const TITLE: &str = "Knowledge";
-/// The mode's heading, as the Linux app words it.
-pub const MODE_HEADING: &str = "Where answers come from";
-/// The heading of a stored mode this app does not know, as the Linux app words it.
-pub const MODE_UNKNOWN_TITLE: &str = "A setting this app does not know";
-/// The add form's heading, as the Linux app words it.
-pub const ADD_HEADING: &str = "Add a document";
-/// The title box's label.
-pub const TITLE_LABEL: &str = "Title";
-/// The text box's label, as the Linux app words it.
-pub const CONTENT_LABEL: &str = "The document's text";
-/// The add button, as the Linux app words it.
-pub const ADD_ACTION: &str = "Add document";
-/// The button that fills the form from a text file.
-pub const FILE_ACTION: &str = "Read a text file";
-/// What a file fills, what it may be, and that nothing is sent yet.
-pub const FILE_HINT: &str = "A plain text file (.txt or .md) of up to 1 MB fills the title and \
-    the text. Nothing is added until you press Add document.";
-/// The documents' heading, as the Linux app words it.
-pub const DOCUMENTS_HEADING: &str = "Documents";
-/// The heading when the documents could not be read, as the Linux app words it.
-pub const DOCUMENTS_FAILED: &str = "Could not load the documents";
-/// A document's delete button, as the Linux app names it.
-pub const DELETE_LABEL: &str = "Delete this document";
-/// The question's button that answers no.
-pub const CANCEL: &str = "Cancel";
-
 /// The extensions the file chooser offers: plain text only.
 pub const FILE_EXTENSIONS: [&str; 2] = [".txt", ".md"];
 /// The largest file read in, in bytes. The service takes any length and bills
 /// by it, so this app keeps a file to a size a person would paste.
 pub const MAX_FILE_BYTES: u64 = 1024 * 1024;
-/// Why a picked file is refused when it holds nothing.
-pub const FILE_EMPTY: &str = "This file is empty.";
-/// Why a picked file is refused when it holds no words.
-pub const FILE_NO_TEXT: &str = "This file has no text to add.";
-/// Why a picked file is refused when it is not plain text.
-pub const FILE_NOT_TEXT: &str = "Only a plain text file (.txt or .md) can be read in. Copy the \
-    text of another kind of document into the box instead.";
-/// Why a picked file is refused for its size.
-pub const FILE_TOO_LARGE: &str = "The file must be 1 MB or smaller.";
 
 /// The longest title the service keeps, in characters.
 const TITLE_CHARS: usize = 200;
@@ -81,13 +45,13 @@ const TITLE_CHARS: usize = 200;
 /// The knowledge base section.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct KnowledgeView {
-    /// The heading, [`TITLE`].
+    /// The heading, `knowledge.title`.
     pub title: String,
     /// For a viewer, that this is read only and who may change it; else none.
     pub viewer_note: Option<String>,
     /// How the last add, delete or change of mode ended, until dismissed.
     pub notice: Option<SaveNoticeView>,
-    /// The mode's heading, [`MODE_HEADING`].
+    /// The mode's heading, `knowledge.mode_heading`.
     pub mode_heading: String,
     /// Whether the mode is being read (show a progress ring).
     pub mode_loading: bool,
@@ -101,22 +65,22 @@ pub struct KnowledgeView {
     pub modes: Vec<KnowledgeModeChoiceView>,
     /// A stored mode this app does not know, as stored ("Stored as ...").
     pub mode_unknown: Option<String>,
-    /// The heading over it, [`MODE_UNKNOWN_TITLE`].
+    /// The heading over it, `knowledge.mode_unknown_title`.
     pub mode_unknown_title: String,
     /// Whether a mode can be chosen: read, the member may change it, and
     /// nothing on its way.
     pub can_change_mode: bool,
     /// Whether the add form shows: the member may change the workspace.
     pub show_add: bool,
-    /// The add form's heading, [`ADD_HEADING`].
+    /// The add form's heading, `knowledge.add_heading`.
     pub add_heading: String,
     /// That adding is billed by length and sent once, in the core's words.
     pub add_billed: String,
-    /// The title box's label, [`TITLE_LABEL`].
+    /// The title box's label, `knowledge.title_label`.
     pub title_label: String,
     /// The new document's title, as typed.
     pub draft_title: String,
-    /// The text box's label, [`CONTENT_LABEL`].
+    /// The text box's label, `knowledge.content_label`.
     pub content_label: String,
     /// The new document's text, as typed.
     pub draft_content: String,
@@ -130,17 +94,17 @@ pub struct KnowledgeView {
     /// Whether Add can be pressed: nothing on its way. The core says what is
     /// missing when it is pressed too early.
     pub add_enabled: bool,
-    /// The add button, [`ADD_ACTION`].
+    /// The add button, `knowledge.add_action`.
     pub add_label: String,
-    /// The button that reads a text file into the form, [`FILE_ACTION`].
+    /// The button that reads a text file into the form, `knowledge.file_action`.
     pub file_label: String,
-    /// What it takes, [`FILE_HINT`].
+    /// What it takes, `knowledge.file_hint`.
     pub file_hint: String,
-    /// The documents' heading, [`DOCUMENTS_HEADING`].
+    /// The documents' heading, `knowledge.documents_heading`.
     pub documents_heading: String,
     /// Whether the documents are being read.
     pub documents_loading: bool,
-    /// When they could not be read, [`DOCUMENTS_FAILED`].
+    /// When they could not be read, `knowledge.documents_failed`.
     pub documents_failed_title: Option<String>,
     /// Why.
     pub documents_failure: Option<FailureView>,
@@ -153,7 +117,7 @@ pub struct KnowledgeView {
     pub show_delete: bool,
     /// Whether it can be pressed now: nothing on its way.
     pub can_delete: bool,
-    /// The delete button's name, [`DELETE_LABEL`].
+    /// The delete button's name, `knowledge.delete_label`.
     pub delete_label: String,
     /// The question asked before a delete or a switch to the linked mode,
     /// while it is.
@@ -236,7 +200,7 @@ pub struct KnowledgeConfirmView {
     pub body: String,
     /// The confirming button.
     pub action: String,
-    /// The button that answers no, [`CANCEL`].
+    /// The button that answers no, `knowledge.cancel`.
     pub cancel_label: String,
     /// Whether it destroys something (a delete), rather than moves where
     /// questions go.
@@ -320,13 +284,13 @@ fn knowledge_view(section: Option<&KnowledgeSection>, can_change: bool) -> Knowl
         .iter()
         .any(|choice| stored == Some(KnowledgeMode::from(*choice).as_str()));
     KnowledgeView {
-        title: TITLE.to_owned(),
-        viewer_note: (!can_change).then(|| KnowledgeSection::VIEWER.to_owned()),
+        title: s::knowledge_title(l()).to_owned(),
+        viewer_note: (!can_change).then(|| cs::knowledge_viewer(l()).to_owned()),
         notice: section.and_then(|s| save_notice(&s.write)),
-        mode_heading: MODE_HEADING.to_owned(),
+        mode_heading: s::knowledge_mode_heading(l()).to_owned(),
         mode_loading: *mode == KnowledgeModeView::Loading,
         mode_unavailable: matches!(mode, KnowledgeModeView::Failed(_))
-            .then(|| KnowledgeSection::MODE_UNAVAILABLE.to_owned()),
+            .then(|| cs::knowledge_mode_unavailable(l()).to_owned()),
         mode_failure: match mode {
             KnowledgeModeView::Failed(failure) => Some(failure.into()),
             _ => None,
@@ -334,29 +298,29 @@ fn knowledge_view(section: Option<&KnowledgeSection>, can_change: bool) -> Knowl
         modes: stored.map_or_else(Vec::new, |stored| mode_choices(stored, can_change)),
         mode_unknown: stored
             .filter(|_| !known)
-            .map(|stored| format!("Stored as \"{stored}\".")),
-        mode_unknown_title: MODE_UNKNOWN_TITLE.to_owned(),
+            .map(|stored| s::knowledge_stored_as(l(), stored)),
+        mode_unknown_title: s::knowledge_mode_unknown_title(l()).to_owned(),
         can_change_mode: can_change && section.is_some_and(KnowledgeSection::can_change_mode),
         show_add: can_change,
-        add_heading: ADD_HEADING.to_owned(),
-        add_billed: KnowledgeSection::ADD_BILLED.to_owned(),
-        title_label: TITLE_LABEL.to_owned(),
+        add_heading: s::knowledge_add_heading(l()).to_owned(),
+        add_billed: cs::knowledge_add_billed(l()).to_owned(),
+        title_label: s::knowledge_title_label(l()).to_owned(),
         draft_title: section.map_or_else(String::new, |s| s.title.clone()),
-        content_label: CONTENT_LABEL.to_owned(),
+        content_label: s::knowledge_content_label(l()).to_owned(),
         draft_content: section.map_or_else(String::new, |s| s.content.clone()),
         draft_editable: section.is_some() && !busy,
         add_rejected: section
             .filter(|s| s.add_rejected)
-            .map(|_| KnowledgeSection::ADD_REJECTED.to_owned()),
+            .map(|_| cs::knowledge_add_rejected(l()).to_owned()),
         adding: busy && section.and_then(|s| s.last_write) == Some(KnowledgeWrite::Add),
         add_enabled: section.is_some() && !busy,
-        add_label: ADD_ACTION.to_owned(),
-        file_label: FILE_ACTION.to_owned(),
-        file_hint: FILE_HINT.to_owned(),
-        documents_heading: DOCUMENTS_HEADING.to_owned(),
+        add_label: s::knowledge_add_action(l()).to_owned(),
+        file_label: s::knowledge_file_action(l()).to_owned(),
+        file_hint: s::knowledge_file_hint(l()).to_owned(),
+        documents_heading: s::knowledge_documents_heading(l()).to_owned(),
         documents_loading: *documents == KnowledgeDocuments::Loading,
         documents_failed_title: matches!(documents, KnowledgeDocuments::Failed(_))
-            .then(|| DOCUMENTS_FAILED.to_owned()),
+            .then(|| s::knowledge_documents_failed(l()).to_owned()),
         documents_failure: match documents {
             KnowledgeDocuments::Failed(failure) => Some(failure.into()),
             _ => None,
@@ -365,11 +329,15 @@ fn knowledge_view(section: Option<&KnowledgeSection>, can_change: bool) -> Knowl
             KnowledgeDocuments::Ready(documents) => documents.iter().map(document).collect(),
             _ => Vec::new(),
         },
-        empty: matches!(documents, KnowledgeDocuments::Ready(list) if list.is_empty())
-            .then(|| EmptyView::new(KnowledgeSection::EMPTY_TITLE, KnowledgeSection::EMPTY_BODY)),
+        empty: matches!(documents, KnowledgeDocuments::Ready(list) if list.is_empty()).then(|| {
+            EmptyView::new(
+                cs::knowledge_empty_title(l()),
+                cs::knowledge_empty_body(l()),
+            )
+        }),
         show_delete: can_change,
         can_delete: can_change && section.is_some() && !busy,
-        delete_label: DELETE_LABEL.to_owned(),
+        delete_label: s::knowledge_delete_label(l()).to_owned(),
         confirm: section
             .and_then(|s| s.confirming.as_ref())
             .map(confirm_view),
@@ -408,8 +376,7 @@ fn document(document: &KnowledgeDocument) -> KnowledgeDocumentView {
         state_label: humanize(&document.status),
         pieces: match document.chunk_count {
             count if count <= 0 => None,
-            1 => Some("1 piece".to_owned()),
-            count => Some(format!("{count} pieces")),
+            count => Some(s::knowledge_pieces(l(), count)),
         },
         created_at: document.created_at.clone(),
         source_url: document.source_url.clone(),
@@ -422,7 +389,7 @@ fn confirm_view(confirm: &KnowledgeConfirm) -> KnowledgeConfirmView {
         title: confirm.title().to_owned(),
         body: confirm.body(),
         action: confirm.action().to_owned(),
-        cancel_label: CANCEL.to_owned(),
+        cancel_label: s::knowledge_cancel(l()).to_owned(),
         destructive: matches!(confirm, KnowledgeConfirm::Delete { .. }),
     }
 }
@@ -476,24 +443,24 @@ pub fn knowledge_file(file: PickedFileView) -> KnowledgeFileRead {
 fn read_text(file: &PickedFileView) -> Result<String, &'static str> {
     let bytes = file.bytes.as_slice();
     if file.size > MAX_FILE_BYTES || bytes.len() as u64 > MAX_FILE_BYTES {
-        return Err(FILE_TOO_LARGE);
+        return Err(s::knowledge_file_too_large(l()));
     }
     if bytes.is_empty() {
-        return Err(FILE_EMPTY);
+        return Err(s::knowledge_file_empty(l()));
     }
     if file_kind(bytes.iter().take(12).copied().collect()) != FileKind::Unknown {
-        return Err(FILE_NOT_TEXT);
+        return Err(s::knowledge_file_not_text(l()));
     }
-    let text = decode(bytes).ok_or(FILE_NOT_TEXT)?;
+    let text = decode(bytes).ok_or(s::knowledge_file_not_text(l()))?;
     if text
         .chars()
         .any(|c| c.is_control() && !matches!(c, '\t' | '\n' | '\r' | '\u{c}'))
     {
-        return Err(FILE_NOT_TEXT);
+        return Err(s::knowledge_file_not_text(l()));
     }
     let text = text.replace("\r\n", "\n");
     if text.trim().is_empty() {
-        return Err(FILE_NO_TEXT);
+        return Err(s::knowledge_file_no_text(l()));
     }
     Ok(text)
 }
@@ -623,7 +590,7 @@ mod tests {
 
     #[test]
     fn a_file_that_is_not_text_is_refused_by_its_bytes() {
-        let not_text = refused(FILE_NOT_TEXT);
+        let not_text = refused(s::knowledge_file_not_text(l()));
         for (name, bytes) in [
             ("scan.txt", b"%PDF-1.7\n%\xe2\xe3\xcf\xd3".as_slice()),
             ("photo.md", b"\x89PNG\r\n\x1a\n\0\0\0\rIHDR".as_slice()),
@@ -639,16 +606,19 @@ mod tests {
 
     #[test]
     fn an_empty_or_large_file_is_refused() {
-        assert_eq!(knowledge_file(file("empty.txt", b"")), refused(FILE_EMPTY));
+        assert_eq!(
+            knowledge_file(file("empty.txt", b"")),
+            refused(s::knowledge_file_empty(l()))
+        );
         assert_eq!(
             knowledge_file(file("blank.txt", b" \r\n\t ")),
-            refused(FILE_NO_TEXT)
+            refused(s::knowledge_file_no_text(l()))
         );
         let cap = usize::try_from(MAX_FILE_BYTES).unwrap();
         let mut large = vec![b'a'; cap + 1];
         assert_eq!(
             knowledge_file(file("large.txt", &large)),
-            refused(FILE_TOO_LARGE)
+            refused(s::knowledge_file_too_large(l()))
         );
         large.truncate(cap);
         assert!(matches!(
@@ -658,7 +628,10 @@ mod tests {
         // Windows says it is larger than what was read: still too large.
         let mut said = file("large.txt", b"short");
         said.size = MAX_FILE_BYTES + 10;
-        assert_eq!(knowledge_file(said), refused(FILE_TOO_LARGE));
+        assert_eq!(
+            knowledge_file(said),
+            refused(s::knowledge_file_too_large(l()))
+        );
     }
 
     #[test]

@@ -10,6 +10,7 @@
 use district_core::{Capabilities, Route, SignedIn, WorkspaceSection, WorkspacesState};
 use serde::Serialize;
 
+use crate::l10n::{l, s};
 use crate::{
     analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling, settings, support,
     workflows,
@@ -150,28 +151,33 @@ fn rows() -> [Row; 15] {
         }
     }
     [
-        row(D::Overview, Main, "Overview", "\u{E80F}"),
-        row(D::Inbox, Main, "Inbox", "\u{E715}"),
-        row(D::Calls, Main, "Calls", "\u{E717}"),
-        row(D::Contacts, Main, "Contacts", "\u{E716}"),
-        row(D::Hq, Workspace, "District HQ", "\u{E8BD}"),
-        row(D::Analytics, Workspace, "Analytics", "\u{E9D2}"),
-        row(D::Marketplace, Workspace, "Phone numbers", "\u{E8EA}"),
-        row(D::Billing, Workspace, "Billing", "\u{E8A5}"),
-        row(D::Workflows, Workspace, "Workflows", "\u{E9F5}"),
-        row(D::Scheduling, Workspace, "Booking pages", "\u{E787}"),
-        row(D::Desk, Workspace, "Help desk", "\u{E897}"),
-        row(D::Support, Workspace, "Support", "\u{E9CE}"),
-        row(D::Rooms, Workspace, "Meeting rooms", "\u{E714}"),
-        row(D::Settings, Workspace, "Workspace settings", "\u{E713}"),
-        row(D::Account, Account, "Account", "\u{E77B}"),
+        row(D::Overview, Main, s::nav_overview(l()), "\u{E80F}"),
+        row(D::Inbox, Main, s::nav_inbox(l()), "\u{E715}"),
+        row(D::Calls, Main, s::nav_calls(l()), "\u{E717}"),
+        row(D::Contacts, Main, s::nav_contacts(l()), "\u{E716}"),
+        row(D::Hq, Workspace, s::nav_hq(l()), "\u{E8BD}"),
+        row(D::Analytics, Workspace, s::nav_analytics(l()), "\u{E9D2}"),
+        row(
+            D::Marketplace,
+            Workspace,
+            s::nav_marketplace(l()),
+            "\u{E8EA}",
+        ),
+        row(D::Billing, Workspace, s::nav_billing(l()), "\u{E8A5}"),
+        row(D::Workflows, Workspace, s::nav_workflows(l()), "\u{E9F5}"),
+        row(D::Scheduling, Workspace, s::nav_scheduling(l()), "\u{E787}"),
+        row(D::Desk, Workspace, s::nav_desk(l()), "\u{E897}"),
+        row(D::Support, Workspace, s::nav_support(l()), "\u{E9CE}"),
+        row(D::Rooms, Workspace, s::nav_rooms(l()), "\u{E714}"),
+        row(D::Settings, Workspace, s::nav_settings(l()), "\u{E713}"),
+        row(D::Account, Account, s::nav_account(l()), "\u{E77B}"),
     ]
 }
 
 /// The heading above `section`.
 fn heading(section: NavSection) -> Option<String> {
     match section {
-        NavSection::Workspace => Some("Workspace".to_owned()),
+        NavSection::Workspace => Some(s::nav_workspace_heading(l()).to_owned()),
         NavSection::Main | NavSection::Account => None,
     }
 }
@@ -260,7 +266,7 @@ pub(crate) fn nav_for(
             label: row.label.to_owned(),
             glyph: row.glyph.to_owned(),
             automation_name: match row.destination {
-                NavDestination::Inbox if unread > 0 => format!("Inbox, {unread} unread"),
+                NavDestination::Inbox if unread > 0 => s::nav_inbox_unread(l(), i64::from(unread)),
                 _ => row.label.to_owned(),
             },
             selected: selected == Some(row.destination),

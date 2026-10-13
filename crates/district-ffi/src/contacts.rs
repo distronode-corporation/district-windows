@@ -15,13 +15,11 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 
 use crate::calls::{dialable, number_facts};
+use crate::l10n::{cs, l, s};
 use crate::views::{
-    AI_DOSSIER, AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView,
-    ReportAvailability, facts, failure, humanize,
+    AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView, ReportAvailability,
+    facts, failure, humanize,
 };
-
-/// The heading of a contact that could not be read, as the Linux app words it.
-pub const CONTACT_FAILED_TITLE: &str = "Could not load this contact";
 
 /// The separator between the parts of one line.
 const DOT: &str = " \u{b7} ";
@@ -80,8 +78,8 @@ impl FormKind {
     /// The heading and the button, as the Linux app words them.
     fn words(self) -> (&'static str, &'static str) {
         match self {
-            Self::Create => ("Add contact", "Add"),
-            Self::Edit => ("Edit contact", "Save"),
+            Self::Create => (s::contacts_form_add_title(l()), s::contacts_form_add(l())),
+            Self::Edit => (s::contacts_form_edit_title(l()), s::contacts_form_save(l())),
         }
     }
 }
@@ -163,12 +161,12 @@ pub struct ContactWritesView {
 /// it.
 fn busy_words(action: ContactAction) -> &'static str {
     match action {
-        ContactAction::Save => "Saving the contact",
-        ContactAction::Delete => "Deleting the contact",
-        ContactAction::Enrich => "Starting research",
-        ContactAction::ClearIntel => "Clearing research",
-        ContactAction::Block => "Blocking the caller",
-        ContactAction::Unblock => "Unblocking the caller",
+        ContactAction::Save => s::contacts_busy_save(l()),
+        ContactAction::Delete => s::contacts_busy_delete(l()),
+        ContactAction::Enrich => s::contacts_busy_enrich(l()),
+        ContactAction::ClearIntel => s::contacts_busy_clear_intel(l()),
+        ContactAction::Block => s::contacts_busy_block(l()),
+        ContactAction::Unblock => s::contacts_busy_unblock(l()),
     }
 }
 
@@ -309,10 +307,7 @@ pub struct ContactDetailView {
 }
 
 fn count(total: i64) -> String {
-    match total {
-        1 => "1 contact".to_owned(),
-        total => format!("{total} contacts"),
-    }
+    s::contacts_count(l(), total)
 }
 
 fn contact_row(contact: &Contact) -> ContactRowView {
@@ -350,16 +345,15 @@ pub(crate) fn contacts_view(
     match &contacts.list {
         ContactList::NotLoaded | ContactList::Loading => nothing,
         ContactList::Failed(failure) => ContactsView {
-            status: LoadStatus::failed(ContactList::FAILED_TITLE, failure),
+            status: LoadStatus::failed(cs::contacts_failed_title(l()), failure),
             ..nothing
         },
         ContactList::Ready(rows) => ContactsView {
             status: LoadStatus::Ready,
             rows: rows.contacts.iter().map(contact_row).collect(),
-            empty: rows
-                .contacts
-                .is_empty()
-                .then(|| EmptyView::new(ContactList::EMPTY_TITLE, ContactList::EMPTY_BODY)),
+            empty: rows.contacts.is_empty().then(|| {
+                EmptyView::new(cs::contacts_empty_title(l()), cs::contacts_empty_body(l()))
+            }),
             total_label: (!rows.contacts.is_empty()).then(|| count(rows.total)),
             paging: (&rows.paging).into(),
             ..nothing
@@ -372,11 +366,11 @@ fn research_status(contact: &Contact) -> Option<String> {
     let status = contact.dgi_status.as_deref()?;
     Some(
         match status {
-            district_model::DGI_PENDING => "Queued",
-            district_model::DGI_CRAWLING => "Searching the web",
-            district_model::DGI_SYNTHESIZING => "Writing the summary",
-            district_model::DGI_COMPLETE => "Complete",
-            district_model::DGI_FAILED => "Did not finish",
+            district_model::DGI_PENDING => s::contacts_research_queued(l()),
+            district_model::DGI_CRAWLING => s::contacts_research_searching(l()),
+            district_model::DGI_SYNTHESIZING => s::contacts_research_writing(l()),
+            district_model::DGI_COMPLETE => s::contacts_research_complete(l()),
+            district_model::DGI_FAILED => s::contacts_research_failed(l()),
             other => return Some(humanize(other)),
         }
         .to_owned(),
@@ -402,7 +396,7 @@ fn findings(intelligence: &Map<String, Value>) -> Vec<String> {
                 }
                 other => text(other),
             }?;
-            (!shown.trim().is_empty()).then(|| format!("{}: {shown}", humanize(key)))
+            (!shown.trim().is_empty()).then(|| s::contacts_finding(l(), &humanize(key), &shown))
         })
         .collect()
 }
@@ -411,19 +405,25 @@ fn contact_facts(contact: &Contact) -> Vec<FactView> {
     let company = contact.company.as_ref();
     facts([
         (
-            "Phone number",
+            s::contacts_fact_phone(l()),
             contact.phone_number.as_deref().map(format_phone_number),
         ),
-        ("Email address", contact.email.clone()),
-        ("Company", company.and_then(|company| company.name.clone())),
+        (s::contacts_fact_email(l()), contact.email.clone()),
         (
-            "Industry",
+            s::contacts_fact_company(l()),
+            company.and_then(|company| company.name.clone()),
+        ),
+        (
+            s::contacts_fact_industry(l()),
             company.and_then(|company| company.industry.clone()),
         ),
-        ("Website", contact.website.clone()),
-        ("Budget", contact.budget.clone()),
-        ("Timeline", contact.timeline.clone()),
-        ("Latest context", contact.latest_context_summary.clone()),
+        (s::contacts_fact_website(l()), contact.website.clone()),
+        (s::contacts_fact_budget(l()), contact.budget.clone()),
+        (s::contacts_fact_timeline(l()), contact.timeline.clone()),
+        (
+            s::contacts_fact_latest_context(l()),
+            contact.latest_context_summary.clone(),
+        ),
     ])
 }
 
@@ -467,7 +467,7 @@ pub(crate) fn contact_detail_view(
     match &screen.contact {
         ContactView::Loading => {}
         ContactView::Failed(failure) => {
-            view.status = LoadStatus::failed(CONTACT_FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(s::contacts_contact_failed_title(l()), failure);
         }
         ContactView::Ready(details) => {
             let contact = &details.contact;
@@ -476,8 +476,8 @@ pub(crate) fn contact_detail_view(
                 .as_ref()
                 .map(findings)
                 .unwrap_or_default();
-            let dossier =
-                (!found.is_empty()).then(|| AiTextView::new(AI_DOSSIER, found.join("\n")));
+            let dossier = (!found.is_empty())
+                .then(|| AiTextView::new(s::views_ai_dossier(l()), found.join("\n")));
             let [location, line_type, carrier] = number_facts(details.phone_intel.as_ref());
             view = ContactDetailView {
                 status: LoadStatus::Ready,

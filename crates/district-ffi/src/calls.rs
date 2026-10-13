@@ -8,13 +8,11 @@ use district_l10n::WireCategory;
 use district_model::{CallAnalysis, CallSummary, PhoneIntel};
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::views::{
-    AI_SUMMARY, AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView,
-    ReportAvailability, ai_summary, facts, failure, humanize, wire,
+    AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView, ReportAvailability,
+    ai_summary, facts, failure, humanize, wire,
 };
-
-/// The heading of a call that could not be read, as the Linux app words it.
-pub const CALL_FAILED_TITLE: &str = "Could not load this call";
 
 /// The separator between the parts of one line.
 const DOT: &str = " \u{b7} ";
@@ -111,7 +109,7 @@ impl From<&TranscriptView> for TranscriptState {
             TranscriptView::Loading => Self::Loading,
             TranscriptView::Ready(text) => Self::Ready { text: text.clone() },
             TranscriptView::Absent => Self::Absent {
-                message: TranscriptView::ABSENT.to_owned(),
+                message: cs::calls_transcript_absent(l()).to_owned(),
             },
             TranscriptView::Failed(failure) => Self::Failed {
                 failure: failure.into(),
@@ -131,7 +129,7 @@ pub(crate) fn calls_view(log: &CallLog) -> CallsView {
     match log {
         CallLog::NotLoaded | CallLog::Loading => nothing,
         CallLog::Failed(failure) => CallsView {
-            status: LoadStatus::failed(CallLog::FAILED_TITLE, failure),
+            status: LoadStatus::failed(cs::calls_failed_title(l()), failure),
             ..nothing
         },
         CallLog::Ready(rows) => CallsView {
@@ -140,7 +138,7 @@ pub(crate) fn calls_view(log: &CallLog) -> CallsView {
             empty: rows
                 .calls
                 .is_empty()
-                .then(|| EmptyView::new(CallLog::EMPTY_TITLE, CallLog::EMPTY_BODY)),
+                .then(|| EmptyView::new(cs::calls_empty_title(l()), cs::calls_empty_body(l()))),
             paging: (&rows.paging).into(),
         },
     }
@@ -215,32 +213,38 @@ fn location(intel: &PhoneIntel) -> Option<String> {
 /// What is known about a phone number: where, what kind of line, whose.
 pub(crate) fn number_facts(intel: Option<&PhoneIntel>) -> [(&'static str, Option<String>); 3] {
     [
-        ("Location", intel.and_then(location)),
+        (s::calls_fact_location(l()), intel.and_then(location)),
         (
-            "Line type",
+            s::calls_fact_line_type(l()),
             intel
                 .and_then(|intel| intel.line_type.as_deref())
                 .map(humanize),
         ),
-        ("Carrier", intel.and_then(|intel| intel.carrier.clone())),
+        (
+            s::calls_fact_carrier(l()),
+            intel.and_then(|intel| intel.carrier.clone()),
+        ),
     ]
 }
 
 fn call_facts(call: &CallSummary) -> Vec<FactView> {
     let [location, line_type, carrier] = number_facts(call.phone_intel.as_ref());
     facts([
-        ("Status", Some(wire(WireCategory::CallStatus, &call.status))),
         (
-            "Direction",
+            s::calls_fact_status(l()),
+            Some(wire(WireCategory::CallStatus, &call.status)),
+        ),
+        (
+            s::calls_fact_direction(l()),
             call.direction
                 .as_deref()
                 .map(|raw| wire(WireCategory::CallDirection, raw)),
         ),
         (
             if outbound(call) {
-                "Placed from"
+                s::calls_fact_placed_from(l())
             } else {
-                "Caller's number"
+                s::calls_fact_callers_number(l())
             },
             call.from.as_deref().map(format_phone_number),
         ),
@@ -248,25 +252,25 @@ fn call_facts(call: &CallSummary) -> Vec<FactView> {
         line_type,
         carrier,
         (
-            "Sentiment",
+            s::calls_fact_sentiment(l()),
             call.sentiment
                 .as_deref()
                 .map(|raw| wire(WireCategory::Sentiment, raw)),
         ),
         (
-            "Outcome",
+            s::calls_fact_outcome(l()),
             call.disposition
                 .as_deref()
                 .map(|raw| wire(WireCategory::Disposition, raw)),
         ),
         (
-            "Transfer",
+            s::calls_fact_transfer(l()),
             call.transfer_status
                 .as_deref()
                 .map(|raw| wire(WireCategory::TransferStatus, raw)),
         ),
         (
-            "Why it was transferred",
+            s::calls_fact_transfer_reason(l()),
             call.transfer_reason.as_deref().map(humanize),
         ),
     ])
@@ -286,10 +290,13 @@ fn analysis(analysis: Option<&CallAnalysis>) -> Vec<FactView> {
         )
     };
     facts([
-        ("Key points", bullets(&analysis.key_points)),
-        ("Action items", bullets(&analysis.action_items)),
-        ("Objections", bullets(&analysis.objections)),
-        ("Topics", bullets(&analysis.topics)),
+        (s::calls_fact_key_points(l()), bullets(&analysis.key_points)),
+        (
+            s::calls_fact_action_items(l()),
+            bullets(&analysis.action_items),
+        ),
+        (s::calls_fact_objections(l()), bullets(&analysis.objections)),
+        (s::calls_fact_topics(l()), bullets(&analysis.topics)),
     ])
 }
 
@@ -339,7 +346,9 @@ pub(crate) fn call_detail_view(
     };
     match &screen.call {
         CallView::Loading => {}
-        CallView::Failed(failure) => view.status = LoadStatus::failed(CALL_FAILED_TITLE, failure),
+        CallView::Failed(failure) => {
+            view.status = LoadStatus::failed(s::calls_call_failed_title(l()), failure)
+        }
         CallView::Ready(call) => {
             let summary = ai_summary(&call.summary).or_else(|| ai_summary(&call.ai_summary));
             let follow_up = call.follow_up.as_ref();
@@ -350,14 +359,17 @@ pub(crate) fn call_detail_view(
                 duration_label: duration(call),
                 facts: call_facts(call),
                 report: ReportAvailability::for_content(summary.is_some(), capabilities),
-                summary: summary.map(|text| AiTextView::new(AI_SUMMARY, text)),
+                summary: summary.map(|text| AiTextView::new(s::views_ai_summary(l()), text)),
                 analysis: analysis(call.analysis.as_ref()),
                 follow_up: facts([
                     (
-                        "Email sent to",
+                        s::calls_fact_email_sent_to(l()),
                         follow_up.and_then(|sent| sent.email.clone()),
                     ),
-                    ("Text message", follow_up.and_then(|sent| sent.sms.clone())),
+                    (
+                        s::calls_fact_text_message(l()),
+                        follow_up.and_then(|sent| sent.sms.clone()),
+                    ),
                 ]),
                 // The caller's own number on a call that came in; on one placed,
                 // the number dialled when the row names it rather than a contact.

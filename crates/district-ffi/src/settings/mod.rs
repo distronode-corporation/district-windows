@@ -13,6 +13,7 @@ use district_core::{
 use district_model::PersonaLabelledValue;
 use serde::Serialize;
 
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::FailureView;
 
@@ -32,14 +33,6 @@ pub mod voice_studio;
 // choices come from the core. The Linux app's settings_kit.rs and
 // save_notice.rs, as views.
 
-/// The heading of a section whose save landed and whose settings could not be
-/// read back. Not a failure: the save is done.
-pub const STALE_TITLE: &str = "Saved";
-/// The button that reads a section's settings again, after such a save.
-pub const READ_AGAIN: &str = "Read them again";
-/// What a picker shows for a stored value that is empty.
-pub const NOT_CHOSEN: &str = "Not chosen";
-
 /// Where a section's page stands: being read, failed, saved but not read
 /// back, or the form.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
@@ -55,13 +48,13 @@ pub enum SectionStatus {
         failure: FailureView,
     },
     /// A save landed and reading it back failed: "Saved", what to do, and a
-    /// read ([`READ_AGAIN`], `UiEvent::Refresh`), never a save.
+    /// read (`settings.read_again`, `UiEvent::Refresh`), never a save.
     Stale {
-        /// [`STALE_TITLE`].
+        /// `settings.stale_title`.
         title: String,
         /// The core's words.
         body: String,
-        /// [`READ_AGAIN`].
+        /// `settings.read_again`.
         action: String,
     },
     /// Read: the form shows.
@@ -74,12 +67,12 @@ pub(crate) fn section_status(load: &ConfigLoad, save: &SaveState) -> SectionStat
     match (load, save) {
         (ConfigLoad::Loading, _) => SectionStatus::Loading,
         (ConfigLoad::Failed(_), SaveState::SavedButStale(_)) => SectionStatus::Stale {
-            title: STALE_TITLE.to_owned(),
-            body: SaveState::SAVED_STALE.to_owned(),
-            action: READ_AGAIN.to_owned(),
+            title: s::settings_stale_title(l()).to_owned(),
+            body: cs::settings_saved_stale(l()).to_owned(),
+            action: s::settings_read_again(l()).to_owned(),
         },
         (ConfigLoad::Failed(failure), _) => SectionStatus::Failed {
-            title: ConfigLoad::FAILED_TITLE.to_owned(),
+            title: cs::settings_failed_title(l()).to_owned(),
             failure: failure.into(),
         },
         (ConfigLoad::Ready(_), _) => SectionStatus::Ready,
@@ -100,7 +93,7 @@ pub struct SaveNoticeView {
 pub(crate) fn save_notice(save: &SaveState) -> Option<SaveNoticeView> {
     match save {
         SaveState::Saved => Some(SaveNoticeView {
-            message: SaveState::SAVED.to_owned(),
+            message: cs::settings_saved(l()).to_owned(),
             saved: true,
         }),
         SaveState::Failed(failure) => Some(SaveNoticeView {
@@ -129,14 +122,14 @@ pub struct PickerView {
     /// The value chosen now.
     pub selected: String,
     /// What the chosen value reads: its choice's label, else the value as
-    /// stored, else [`NOT_CHOSEN`].
+    /// stored, else `settings.not_chosen`.
     pub selected_label: String,
 }
 
 /// What the picker shows for `value` when no choice lists it.
 pub(crate) fn unlisted(value: &str) -> String {
     if value.trim().is_empty() {
-        NOT_CHOSEN.to_owned()
+        s::settings_not_chosen(l()).to_owned()
     } else {
         value.to_owned()
     }
@@ -163,14 +156,11 @@ pub(crate) fn picker(list: &[PersonaLabelledValue], selected: &str) -> PickerVie
 /// Whether this version has the hub.
 pub(crate) const BUILT: bool = true;
 
-/// The hub's heading, as the navigation pane names it.
-pub const SETTINGS_TITLE: &str = "Workspace settings";
-
 /// The workspace settings hub: the sections the member's role may open, in
 /// groups, and the note under them.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct SettingsHubView {
-    /// The heading, [`SETTINGS_TITLE`].
+    /// The heading, `settings.title`.
     pub title: String,
     /// The groups, District Studio's first, each with its rows in the core's
     /// order. A group with no row for this role is left out.
@@ -313,7 +303,7 @@ fn hub_view(capabilities: &Capabilities) -> SettingsHubView {
         }
     }
     SettingsHubView {
-        title: SETTINGS_TITLE.to_owned(),
+        title: s::settings_title(l()).to_owned(),
         groups: groups.into_iter().map(|(_, group)| group).collect(),
         note: settings_note(capabilities).to_owned(),
     }

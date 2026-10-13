@@ -30,6 +30,7 @@ use district_model::{DeskMessage, DeskTicketDetail, DeskTicketStatus, DeskTicket
 use serde::Serialize;
 
 use crate::files::{LOGO_TYPES, picked_attachment};
+use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FactView, FailureView, LoadStatus, facts, failure, humanize};
 
@@ -39,55 +40,10 @@ pub use crate::files::PickedFileView;
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
 
-/// The queue's heading, as the Linux app words it.
-pub const DESK_TITLE: &str = "Help desk";
-/// A ticket's heading before it is read, as the Linux app words it.
-pub const TICKET_TITLE: &str = "Ticket";
-/// The heading when a ticket could not be read, as the Linux app words it.
-pub const TICKET_FAILED_TITLE: &str = "Could not load this ticket";
-/// The settings page's heading.
-pub const SETTINGS_TITLE: &str = "Help desk settings";
-/// What the settings say under their heading, as the Linux app words it.
-pub const SETTINGS_INTRO: &str = "Leave the name blank to show customers the workspace's own name.";
-/// The form raising a ticket: its heading, as the Linux app words it.
-pub const COMPOSE_TITLE: &str = "New ticket";
-/// The form's button that raises the ticket, as the Linux app words it.
-pub const COMPOSE_SUBMIT: &str = "Raise";
-/// What the form says about the customer's details, as the Linux app words it.
-pub const CUSTOMER_NOTE: &str =
-    "Optional. Replies are emailed to the address given here, when the desk emails customers.";
-/// A row whose ticket names no customer, as the Linux app words it.
-pub const NO_CUSTOMER: &str = "No customer details";
-/// The "desk on" switch, as the Linux app words it.
-pub const ENABLED_LABEL: &str = "Take tickets";
-/// The note under the "desk on" switch, as the Linux app words it.
-pub const ENABLED_NOTE: &str = "While the desk is off, no tickets are recorded.";
-/// The "email customers" switch, as the Linux app words it.
-pub const NOTIFY_LABEL: &str = "Email customers your replies";
-/// The name box, as the Linux app words it.
-pub const BRAND_LABEL: &str = "Name customers see";
-/// The logo's line when one is published, as the Linux app words it.
-pub const LOGO_PUBLISHED: &str = "A logo is published.";
-/// The logo's line when there is none, as the Linux app words it.
-pub const LOGO_NONE: &str = "No logo yet.";
-/// What the logo is and what the service takes, as the Linux app words it.
-pub const LOGO_HELP: &str = "Shown to customers on the help desk's pages. A PNG, JPEG or WebP \
-    image; District AI checks its size and dimensions.";
-/// Why a picked logo is refused for its type (a GIF among them), naming the
-/// types the Linux app offers as a logo.
-pub const LOGO_TYPE_REFUSED: &str = "The logo must be a PNG, JPEG or WebP image.";
-/// Why a picked logo is refused when the file holds nothing.
-pub const LOGO_EMPTY: &str = "This file is empty.";
-/// The note after a reply the customer was emailed, as the Linux app words it.
-pub const NOTIFIED: &str = "The customer was emailed your reply.";
-/// The note after a reply the customer was not emailed, as the Linux app
-/// words it.
-pub const NOT_NOTIFIED: &str = "The customer was not emailed this reply.";
-
 /// The queue, with the form that raises a ticket.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct DeskView {
-    /// The heading, [`DESK_TITLE`].
+    /// The heading, `desk.title`.
     pub title: String,
     /// Where the queue's read stands. A desk that is off is read: see `off`.
     pub status: LoadStatus,
@@ -121,7 +77,7 @@ impl Default for DeskView {
     /// The queue before anything is read.
     fn default() -> Self {
         Self {
-            title: DESK_TITLE.to_owned(),
+            title: s::desk_title(l()).to_owned(),
             status: LoadStatus::Loading,
             off: None,
             filters: filters(None, None),
@@ -244,7 +200,7 @@ pub struct DeskRowView {
     pub subject: String,
     /// What a person calls it (`T-41`).
     pub reference: String,
-    /// Who raised it, as far as it says, or [`NO_CUSTOMER`].
+    /// Who raised it, as far as it says, or `desk.no_customer`.
     pub requester: String,
     /// Its status, short, as the Linux app badges it in a row ("Waiting").
     pub status_label: String,
@@ -257,9 +213,9 @@ pub struct DeskRowView {
 /// The form raising a ticket for a customer.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct DeskComposeView {
-    /// The form's heading, [`COMPOSE_TITLE`].
+    /// The form's heading, `desk.compose_title`.
     pub title: String,
-    /// The button that raises it, [`COMPOSE_SUBMIT`].
+    /// The button that raises it, `desk.compose_submit`.
     pub submit_label: String,
     /// The subject, as typed.
     pub subject: String,
@@ -271,7 +227,7 @@ pub struct DeskComposeView {
     pub requester_email: String,
     /// The customer's phone number, as typed.
     pub requester_phone: String,
-    /// What the form says about the customer's details, [`CUSTOMER_NOTE`].
+    /// What the form says about the customer's details, `desk.customer_note`.
     pub customer_note: String,
     /// The longest subject the service takes, for the box's limit.
     pub subject_max: u32,
@@ -292,7 +248,7 @@ pub struct DeskComposeView {
 /// One ticket, its conversation, its status and the reply.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct DeskTicketView {
-    /// The heading: the subject once read, [`TICKET_TITLE`] before.
+    /// The heading: the subject once read, `desk.ticket_title` before.
     pub title: String,
     /// The ticket the page was opened for.
     pub ticket_id: String,
@@ -341,7 +297,7 @@ impl Default for DeskTicketView {
     /// A ticket not read yet.
     fn default() -> Self {
         Self {
-            title: TICKET_TITLE.to_owned(),
+            title: s::desk_ticket_title(l()).to_owned(),
             ticket_id: String::new(),
             status: LoadStatus::Loading,
             reference_line: String::new(),
@@ -394,9 +350,9 @@ pub struct DeskMessageView {
 /// The desk's settings and its logo.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct DeskSettingsView {
-    /// The heading, [`SETTINGS_TITLE`].
+    /// The heading, `desk.settings_title`.
     pub title: String,
-    /// What the settings say under their heading, [`SETTINGS_INTRO`].
+    /// What the settings say under their heading, `desk.settings_intro`.
     pub intro: String,
     /// Where the read stands. No form is offered before the settings are
     /// read: one not built from them could only save over them.
@@ -425,7 +381,7 @@ pub struct DeskSettingsView {
     pub saving: bool,
     /// Why the last save failed.
     pub save_failure: Option<FailureView>,
-    /// What the logo is and what the service takes, [`LOGO_HELP`].
+    /// What the logo is and what the service takes, `desk.logo_help`.
     pub logo_help: String,
     /// Whether there is a logo, in words. Empty until read.
     pub logo_line: String,
@@ -452,21 +408,21 @@ impl Default for DeskSettingsView {
     /// The settings before they are read.
     fn default() -> Self {
         Self {
-            title: SETTINGS_TITLE.to_owned(),
-            intro: SETTINGS_INTRO.to_owned(),
+            title: s::desk_settings_title(l()).to_owned(),
+            intro: s::desk_settings_intro(l()).to_owned(),
             status: LoadStatus::Loading,
-            enabled_label: ENABLED_LABEL.to_owned(),
-            enabled_note: ENABLED_NOTE.to_owned(),
+            enabled_label: s::desk_enabled_label(l()).to_owned(),
+            enabled_note: s::desk_enabled_note(l()).to_owned(),
             enabled: false,
-            notify_label: NOTIFY_LABEL.to_owned(),
+            notify_label: s::desk_notify_label(l()).to_owned(),
             notify_customers_by_email: false,
-            brand_label: BRAND_LABEL.to_owned(),
+            brand_label: s::desk_brand_label(l()).to_owned(),
             brand_name: String::new(),
             can_edit: false,
             can_save: false,
             saving: false,
             save_failure: None,
-            logo_help: LOGO_HELP.to_owned(),
+            logo_help: s::desk_logo_help(l()).to_owned(),
             logo_line: String::new(),
             logo_url: None,
             can_choose_logo: false,
@@ -634,13 +590,13 @@ fn logo_problem(file: &PickedFileView) -> Option<String> {
     };
     let mime_type = picked_attachment(head).mime_type;
     if file.bytes.is_empty() {
-        Some(LOGO_EMPTY.to_owned())
+        Some(s::desk_logo_empty(l()).to_owned())
     } else if !LOGO_TYPES.contains(&mime_type.as_str()) {
-        Some(LOGO_TYPE_REFUSED.to_owned())
+        Some(s::desk_logo_type_refused(l()).to_owned())
     } else if file.bytes.len() > MAX_ATTACHMENT_BYTES {
-        Some(format!(
-            "The logo must be {} MB or smaller.",
-            MAX_ATTACHMENT_BYTES / (1024 * 1024)
+        Some(s::desk_logo_too_large(
+            l(),
+            i64::try_from(MAX_ATTACHMENT_BYTES / (1024 * 1024)).unwrap_or(i64::MAX),
         ))
     } else {
         None
@@ -686,7 +642,10 @@ fn filters(queue: Option<&DeskTickets>, chosen: Option<DeskTicketStatus>) -> Vec
         .map(|filter| {
             let status = filter.status();
             let (words, count) = match status {
-                None => ("Every ticket", queue.map(|queue| queue.tickets.len())),
+                None => (
+                    s::desk_filter_every(l()),
+                    queue.map(|queue| queue.tickets.len()),
+                ),
                 Some(status) => (
                     desk_status_label(status),
                     queue.map(|queue| queue.count(status)),
@@ -695,7 +654,9 @@ fn filters(queue: Option<&DeskTickets>, chosen: Option<DeskTicketStatus>) -> Vec
             DeskFilterView {
                 filter,
                 label: match count {
-                    Some(count) => format!("{words} ({count})"),
+                    Some(count) => {
+                        s::desk_filter_count(l(), words, i64::try_from(count).unwrap_or(i64::MAX))
+                    }
                     None => words.to_owned(),
                 },
                 selected: status == chosen,
@@ -716,14 +677,14 @@ fn desk_view(desk: &DeskScreen, capabilities: &Capabilities) -> DeskView {
     match &desk.queue {
         DeskQueue::NotLoaded | DeskQueue::Loading => {}
         DeskQueue::Failed(failure) => {
-            view.status = LoadStatus::failed(DeskQueue::FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(cs::desk_failed_title(l()), failure);
         }
         DeskQueue::Off => {
             view.status = LoadStatus::Ready;
             view.off = Some(DeskOffView {
-                title: DeskQueue::OFF_TITLE.to_owned(),
-                body: DeskQueue::OFF_BODY.to_owned(),
-                turn_on: DeskQueue::TURN_ON.to_owned(),
+                title: cs::desk_off_title(l()).to_owned(),
+                body: cs::desk_off_body(l()).to_owned(),
+                turn_on: cs::desk_turn_on(l()).to_owned(),
                 can_turn_on: allowed && !desk.enabling,
                 enabling: desk.enabling,
                 failure: failure(desk.enable_failure.as_ref()),
@@ -742,9 +703,9 @@ fn desk_view(desk: &DeskScreen, capabilities: &Capabilities) -> DeskView {
             view.empty = queue
                 .tickets
                 .is_empty()
-                .then(|| EmptyView::new(DeskQueue::EMPTY_TITLE, DeskQueue::EMPTY_BODY));
+                .then(|| EmptyView::new(cs::desk_empty_title(l()), cs::desk_empty_body(l())));
             view.none_matching = (!queue.tickets.is_empty() && view.rows.is_empty())
-                .then(|| DeskQueue::NONE_MATCHING.to_owned());
+                .then(|| cs::desk_none_matching(l()).to_owned());
             view.refreshing = queue.refreshing;
             view.can_start = allowed && desk.compose.is_none();
         }
@@ -754,7 +715,7 @@ fn desk_view(desk: &DeskScreen, capabilities: &Capabilities) -> DeskView {
 }
 
 /// Who raised `ticket`, as far as it says: its name, email address or phone
-/// number, the first it has, or [`NO_CUSTOMER`].
+/// number, the first it has, or `desk.no_customer`.
 fn requester(ticket: &DeskTicketSummary) -> String {
     [
         &ticket.requester_name,
@@ -765,7 +726,7 @@ fn requester(ticket: &DeskTicketSummary) -> String {
     .flatten()
     .find(|value| !value.trim().is_empty())
     .map_or_else(
-        || NO_CUSTOMER.to_owned(),
+        || s::desk_no_customer(l()).to_owned(),
         |value| format_phone_number(value),
     )
 }
@@ -783,7 +744,7 @@ fn status_label(status: &str) -> String {
 /// customer's, which the ticket itself says in full.
 fn short_status_label(status: &str) -> String {
     match desk_status(status) {
-        Some(DeskTicketStatus::Waiting) => "Waiting".to_owned(),
+        Some(DeskTicketStatus::Waiting) => s::desk_status_waiting_short(l()).to_owned(),
         _ => status_label(status),
     }
 }
@@ -802,7 +763,11 @@ fn row(ticket: &DeskTicketSummary) -> DeskRowView {
 
 /// What the form needs, from the core's own bounds, as the Linux app says it.
 fn needs() -> String {
-    format!("A subject of {DESK_SUBJECT_MIN} to {DESK_SUBJECT_MAX} characters, and a message.")
+    s::desk_compose_needs(
+        l(),
+        i64::try_from(DESK_SUBJECT_MIN).unwrap_or(i64::MAX),
+        i64::try_from(DESK_SUBJECT_MAX).unwrap_or(i64::MAX),
+    )
 }
 
 /// A bound of the core's, as the box's character limit.
@@ -814,14 +779,14 @@ fn compose_view(compose: &DeskCompose) -> DeskComposeView {
     let form = &compose.form;
     let can_submit = form.can_submit();
     DeskComposeView {
-        title: COMPOSE_TITLE.to_owned(),
-        submit_label: COMPOSE_SUBMIT.to_owned(),
+        title: s::desk_compose_title(l()).to_owned(),
+        submit_label: s::desk_compose_submit(l()).to_owned(),
         subject: form.subject.clone(),
         message: form.message.clone(),
         requester_name: form.requester_name.clone(),
         requester_email: form.requester_email.clone(),
         requester_phone: form.requester_phone.clone(),
-        customer_note: CUSTOMER_NOTE.to_owned(),
+        customer_note: s::desk_customer_note(l()).to_owned(),
         subject_max: limit(DESK_SUBJECT_MAX),
         message_max: limit(DESK_MESSAGE_MAX),
         needs: (!can_submit).then(needs),
@@ -833,20 +798,27 @@ fn compose_view(compose: &DeskCompose) -> DeskComposeView {
 
 /// Whether the customer was emailed the last reply, in words, when known.
 fn notified_note(notified: Option<bool>) -> Option<String> {
-    notified.map(|emailed| if emailed { NOTIFIED } else { NOT_NOTIFIED }.to_owned())
+    notified.map(|emailed| {
+        if emailed {
+            s::desk_notified(l())
+        } else {
+            s::desk_not_notified(l())
+        }
+        .to_owned()
+    })
 }
 
 /// The ticket's details, as the Linux app lists them: only those it has. Its
 /// dates go separately, for the app to say in local time.
 fn details(ticket: &DeskTicketDetail) -> Vec<FactView> {
     facts([
-        ("Name", ticket.requester_name.clone()),
-        ("Email address", ticket.requester_email.clone()),
+        (s::desk_fact_name(l()), ticket.requester_name.clone()),
+        (s::desk_fact_email(l()), ticket.requester_email.clone()),
         (
-            "Phone number",
+            s::desk_fact_phone(l()),
             ticket.requester_phone.as_deref().map(format_phone_number),
         ),
-        ("Came in by", Some(humanize(&ticket.source))),
+        (s::desk_fact_source(l()), Some(humanize(&ticket.source))),
     ])
 }
 
@@ -879,7 +851,7 @@ fn ticket_view(screen: &DeskTicketScreen, capabilities: &Capabilities) -> DeskTi
     match &screen.ticket {
         DeskTicketRead::Loading => {}
         DeskTicketRead::Failed(failure) => {
-            view.status = LoadStatus::failed(TICKET_FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(s::desk_ticket_failed_title(l()), failure);
         }
         DeskTicketRead::Ready(detail) => {
             view.status = LoadStatus::Ready;
@@ -914,7 +886,7 @@ fn settings_view(
     match settings {
         None | Some(DeskSettingsRead::Loading) => {}
         Some(DeskSettingsRead::Failed(failure)) => {
-            view.status = LoadStatus::failed(DeskSettingsRead::FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(cs::desk_settings_failed_title(l()), failure);
         }
         Some(DeskSettingsRead::Ready(form)) => {
             draw_form(&mut view, form, capabilities.can_use_desk);
@@ -937,7 +909,12 @@ fn draw_form(view: &mut DeskSettingsView, form: &DeskSettingsForm, allowed: bool
     view.can_save = allowed && !writing && form.is_dirty();
     view.saving = form.saving;
     view.save_failure = failure(form.save_failure.as_ref());
-    view.logo_line = if has_logo { LOGO_PUBLISHED } else { LOGO_NONE }.to_owned();
+    view.logo_line = if has_logo {
+        s::desk_logo_published(l())
+    } else {
+        s::desk_logo_none(l())
+    }
+    .to_owned();
     view.logo_url = form.stored.public_logo_url.clone();
     view.can_choose_logo = allowed && !writing;
     view.show_remove_logo = has_logo;
@@ -946,7 +923,7 @@ fn draw_form(view: &mut DeskSettingsView, form: &DeskSettingsForm, allowed: bool
     view.logo_failure = failure(form.logo_failure.as_ref());
     view.logo_file_kept = form
         .logo_file_kept
-        .then(|| DeskSettingsForm::LOGO_FILE_KEPT.to_owned());
+        .then(|| cs::desk_logo_file_kept(l()).to_owned());
 }
 
 #[cfg(test)]
@@ -979,8 +956,14 @@ mod tests {
     fn the_words_the_core_has_no_sentence_for() {
         assert_eq!(needs(), "A subject of 3 to 200 characters, and a message.");
         assert_eq!(limit(usize::MAX), u32::MAX);
-        assert_eq!(notified_note(Some(true)).as_deref(), Some(NOTIFIED));
-        assert_eq!(notified_note(Some(false)).as_deref(), Some(NOT_NOTIFIED));
+        assert_eq!(
+            notified_note(Some(true)).as_deref(),
+            Some(s::desk_notified(l()))
+        );
+        assert_eq!(
+            notified_note(Some(false)).as_deref(),
+            Some(s::desk_not_notified(l()))
+        );
         assert_eq!(notified_note(None), None);
         assert_eq!(status_label("waiting"), "Waiting on the customer");
         assert_eq!(short_status_label("waiting"), "Waiting");
@@ -996,7 +979,7 @@ mod tests {
         for (name, bytes) in [("logo.png", PNG), ("logo.jpg", JPEG), ("logo.webp", WEBP)] {
             assert_eq!(desk_logo_problem(file(name, bytes)), None, "{name}");
         }
-        let refused = Some(LOGO_TYPE_REFUSED.to_owned());
+        let refused = Some(s::desk_logo_type_refused(l()).to_owned());
         assert_eq!(desk_logo_problem(file("logo.gif", GIF)), refused);
         assert_eq!(desk_logo_problem(file("logo.png", GIF)), refused);
         assert_eq!(

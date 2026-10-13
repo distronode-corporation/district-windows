@@ -1,11 +1,12 @@
 //! The account screen and the devices signed in to the account.
 
 use district_core::{
-    AccountView as CoreAccount, Confirmation, DeviceRow, DevicesList, DevicesScreen, PresenceState,
+    AccountView as CoreAccount, Confirmation, DeviceRow, DevicesList, DevicesScreen,
     PurchaseSetting, SignedIn,
 };
 use serde::Serialize;
 
+use crate::l10n::{cs, l};
 use crate::views::{EmptyView, FailureView, LoadStatus, failure};
 
 /// The account screen: who is signed in, on which installation, with which
@@ -62,16 +63,16 @@ impl From<CoreAccount> for AccountView {
             user_id: account.user_id,
             email: None,
             name: None,
-            sign_out_caption: CoreAccount::SIGN_OUT_CAPTION.to_owned(),
-            devices_caption: CoreAccount::DEVICES_CAPTION.to_owned(),
-            delete_account_caption: CoreAccount::DELETE_ACCOUNT_CAPTION.to_owned(),
+            sign_out_caption: cs::account_sign_out_caption(l()).to_owned(),
+            devices_caption: cs::account_devices_caption(l()).to_owned(),
+            delete_account_caption: cs::account_delete_account_caption(l()).to_owned(),
             ring_on_this_computer: None,
-            ring_setting_label: PresenceState::SETTING_LABEL.to_owned(),
-            ring_setting_body: PresenceState::SETTING_BODY.to_owned(),
+            ring_setting_label: cs::presence_setting_label(l()).to_owned(),
+            ring_setting_body: cs::presence_setting_body(l()).to_owned(),
             ring_setting_message: None,
             purchases_on: None,
-            purchases_label: PurchaseSetting::LABEL.to_owned(),
-            purchases_body: PurchaseSetting::BODY.to_owned(),
+            purchases_label: cs::purchase_setting_label(l()).to_owned(),
+            purchases_body: cs::purchase_setting_body(l()).to_owned(),
             purchases_on_label: PurchaseSetting::SignInEveryTime.label().to_owned(),
             purchases_off_label: PurchaseSetting::Off.label().to_owned(),
         }
@@ -181,19 +182,19 @@ pub(crate) fn devices_view(screen: &DevicesScreen) -> DevicesView {
         empty: None,
         nothing_revoked_note: screen
             .nothing_revoked
-            .then(|| DevicesScreen::NOTHING_REVOKED.to_owned()),
+            .then(|| cs::devices_nothing_revoked(l()).to_owned()),
     };
     match &screen.list {
         DevicesList::Loading => {}
         DevicesList::Failed(failure) => {
-            view.status = LoadStatus::failed(DevicesList::FAILED_TITLE, failure);
+            view.status = LoadStatus::failed(cs::devices_failed_title(l()), failure);
         }
         DevicesList::Ready(rows) => {
             view.status = LoadStatus::Ready;
             view.rows = rows.iter().map(device_row).collect();
             view.empty = rows
                 .is_empty()
-                .then(|| EmptyView::new(DevicesList::EMPTY_TITLE, DevicesList::EMPTY_BODY));
+                .then(|| EmptyView::new(cs::devices_empty_title(l()), cs::devices_empty_body(l())));
         }
     }
     view
