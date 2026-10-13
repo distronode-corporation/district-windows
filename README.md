@@ -12,6 +12,10 @@ receptionist from Distronode. It is a WinUI 3 app written in C#, and everything 
 > also carries the Store package and a test build for sideloading, for testing (see
 > [Releases](#releases)).
 
+**Links:** [GitLab mirror](https://gitlab.com/distronode-corporation/district-windows)
+(read-only mirror; issues and pull requests live on GitHub),
+[CHANGELOG](CHANGELOG.md).
+
 ## What it is for
 
 The app is a desktop window onto a District AI workspace: the inbox, calls and their
