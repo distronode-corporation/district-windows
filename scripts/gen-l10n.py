@@ -33,6 +33,7 @@ import importlib.util
 import re
 import subprocess
 import sys
+import tempfile
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -59,6 +60,23 @@ ACCESSOR_TESTS = [
     ("crates/district-ffi/l10n/ffi.toml", "crate::l10n::s", "crates/district-ffi/src/generated/accessors.rs"),
 ]
 
+# The package manifest's strings (`ms-resource:AppDisplayName`), as .resw files
+# the resw backend writes: (catalog, the backend's `name`, where each language's
+# file goes). The English is a resource of the app project. The French lives
+# outside the project folder, because the MSIX tooling indexes every .resw
+# under it into resources.pri, a `PRIResource Remove` notwithstanding:
+# DistrictAI.csproj links it in only with -p:DistrictFrench=true.
+RESW = [
+    (
+        "src/DistrictAI/l10n/manifest.toml",
+        "Resources",
+        {
+            "en-US": "src/DistrictAI/Strings/en-US/Resources.resw",
+            "fr-CA": "src/DistrictAI.Strings/fr-CA/Resources.resw",
+        },
+    ),
+]
+
 # The XAML namespace the pages reach the generated class through.
 XMLNS = 'xmlns:l10n="using:DistrictAI.L10n"'
 XMLNS_ANY = re.compile(r'xmlns:l10n="([^"]*)"')
@@ -68,9 +86,15 @@ MEMBER = re.compile(r"^\s*public static string ([A-Za-z_][A-Za-z0-9_]*)\b", re.M
 COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 
 
-def run(args: list[str]) -> int:
-    """Runs the vendored tool with `args`, from the repository root."""
-    return subprocess.run([sys.executable, "-I", str(TOOL), *args], cwd=ROOT, check=False).returncode
+def run(args: list[str], quiet: bool = False) -> int:
+    """Runs the vendored tool with `args`, from the repository root; with
+    `quiet`, what it prints is shown only when it fails."""
+    done = subprocess.run(
+        [sys.executable, "-I", str(TOOL), *args], cwd=ROOT, check=False, capture_output=quiet, text=True
+    )
+    if quiet and done.returncode != 0:
+        print(done.stdout + done.stderr, file=sys.stderr, end="")
+    return done.returncode
 
 
 def load_tool():
@@ -295,9 +319,35 @@ def main(argv: list[str] | None = None) -> int:
         elif not path.is_file() or path.read_text(encoding="utf-8") != text:
             print(f"gen-l10n: {out} is not what {catalog} produces; run python3 scripts/gen-l10n.py", file=sys.stderr)
             failed = True
+    for catalog, name, outputs in RESW:
+        if not resw(catalog, name, outputs, args.check):
+            failed = True
     if not check_all_xaml():
         failed = True
     return 1 if failed else 0
+
+
+def resw(catalog: str, name: str, outputs: dict[str, str], check: bool) -> bool:
+    """Writes (or, with `check`, compares) the .resw files of `catalog`, each
+    language's where `outputs` puts it. False on a problem, said on stderr."""
+    if run(["check" if check else "fmt", catalog]) != 0:
+        print(f"gen-l10n: {catalog} is not a valid, canonical catalog", file=sys.stderr)
+        return False
+    with tempfile.TemporaryDirectory() as tmp:
+        if run(["gen", "--backend", "resw", "--out", tmp, "--opt", f"name={name}", catalog], quiet=True) != 0:
+            print(f"gen-l10n: resw from {catalog} failed", file=sys.stderr)
+            return False
+        ok = True
+        for folder, out in outputs.items():
+            text = (Path(tmp) / folder / f"{name}.resw").read_text(encoding="utf-8")
+            path = ROOT / out
+            if not check:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+            elif not path.is_file() or path.read_text(encoding="utf-8") != text:
+                print(f"gen-l10n: {out} is not what {catalog} produces; run python3 scripts/gen-l10n.py", file=sys.stderr)
+                ok = False
+        return ok
 
 
 if __name__ == "__main__":
