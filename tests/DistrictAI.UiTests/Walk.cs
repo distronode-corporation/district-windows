@@ -18,33 +18,42 @@ internal static class Walk
     /// <summary>How long a page has to open and finish loading.</summary>
     public static readonly TimeSpan PageTimeout = TimeSpan.FromSeconds(30);
 
-    /// <summary>What a page that failed shows (StatusPanel, UnavailablePage, the core's failure titles).</summary>
-    public static readonly string[] FailureTexts = ["Something went wrong", "Could not load", "Not in this version yet"];
+    /// <summary>
+    /// The AutomationIds of what a page that failed shows: a failed load's
+    /// title (StatusPanel, and the pages that show their own), the
+    /// unavailable page's title, and "Try again".
+    /// </summary>
+    public static readonly string[] FailureIds = ["FailureTitle", "UnavailableTitle", "TryAgainButton"];
+
+    /// <summary>The AutomationId of the "Loading" ring a page shows until it has loaded.</summary>
+    public const string LoadingId = "LoadingRing";
 
     /// <summary>
-    /// Opens a page with <paramref name="open"/> and checks it: its heading
-    /// (<paramref name="expected"/>, or any), loaded, no failure, then saves
-    /// it when screenshots are on. With <paramref name="editName"/>, the
-    /// page is ready only once a text box of that name shows. Problems go in
+    /// Opens a page with <paramref name="open"/>, which returns the heading
+    /// the page must show (or null for any), and checks it: that heading,
+    /// with the AutomationId <paramref name="headingId"/> when one is given,
+    /// loaded, no failure, then saves it when screenshots are on. With
+    /// <paramref name="editId"/>, the page is ready only once the text box
+    /// with that AutomationId shows. Problems go in
     /// <paramref name="problems"/>; false when the app has ended.
     /// </summary>
-    public static bool Visit(InstalledApp app, nint handle, string name, Action open, string? expected, string? shots, int index, List<string> problems, string? editName = null)
+    public static bool VisitPage(InstalledApp app, nint handle, string name, Func<string?> open, string? headingId, string? shots, int index, List<string> problems, string? editId = null)
     {
         var clock = Stopwatch.StartNew();
         try
         {
-            open();
+            var expected = open();
             InstalledApp.Log($"opened \"{name}\"");
-            var heading = Heading(app, expected, PageTimeout);
+            var heading = Heading(app, expected, PageTimeout, headingId);
             // Loaded: the status panel's progress ring gone.
             _ = Wait.For(
-                () => app.TryFind(ControlType.ProgressBar, "Loading") is null ? heading : null,
+                () => app.TryFindById(LoadingId) is null ? heading : null,
                 PageTimeout,
                 $"\"{name}\" to finish loading",
                 app.Describe);
-            if (editName is not null)
+            if (editId is not null)
             {
-                _ = app.Find(ControlType.Edit, editName, PageTimeout);
+                _ = app.FindById(editId, PageTimeout);
             }
             if (Failure(app) is { } failure)
             {
@@ -74,10 +83,24 @@ internal static class Walk
     /// <summary>The names of the pane's entries, in order (headings and separators are not entries).</summary>
     public static string[] NavEntries(AutomationElement window) =>
         [.. window.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
-            .Where(item => item.ClassName.EndsWith(".NavigationViewItem", StringComparison.Ordinal) || item.ClassName == "NavigationViewItem")
+            .Where(IsNavItem)
             .Select(item => item.Name)
             .Where(name => name.Length > 0)
             .Distinct()];
+
+    /// <summary>
+    /// The pane's entries, in order: each one's AutomationId, "Nav" and its
+    /// destination ("NavCalls", MainWindow.Nav.cs), and its name.
+    /// </summary>
+    public static (string Id, string Name)[] NavItems(AutomationElement window) =>
+        [.. window.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
+            .Where(IsNavItem)
+            .Select(item => (Id: item.Properties.AutomationId.ValueOrDefault ?? string.Empty, Name: NameOf(item)))
+            .Where(entry => entry.Id.StartsWith("Nav", StringComparison.Ordinal) && entry.Name.Length > 0)
+            .DistinctBy(entry => entry.Id)];
+
+    private static bool IsNavItem(AutomationElement item) =>
+        item.ClassName.EndsWith(".NavigationViewItem", StringComparison.Ordinal) || item.ClassName == "NavigationViewItem";
 
     /// <summary>
     /// Opens the hub's row for <paramref name="title"/>, as a click on it does.
@@ -96,10 +119,37 @@ internal static class Walk
         Activate(row);
     }
 
+    /// <summary>
+    /// Opens the hub's row whose title has the AutomationId
+    /// <paramref name="rowId"/> ("SettingsRowPersona"), as a click on it does,
+    /// and returns that title: the heading its page shows.
+    /// </summary>
+    public static string OpenSettingsRowById(InstalledApp app, string rowId)
+    {
+        var title = app.FindById(rowId, PageTimeout);
+        var name = NameOf(title);
+        Activate(ListItemOf(app, title));
+        return name;
+    }
+
+    /// <summary>The list row <paramref name="element"/> is in, or the element itself when it is in none.</summary>
+    private static AutomationElement ListItemOf(InstalledApp app, AutomationElement element)
+    {
+        var walker = app.Automation.TreeWalkerFactory.GetControlViewWalker();
+        for (var at = walker.GetParent(element); at is not null; at = walker.GetParent(at))
+        {
+            if (at.Properties.ControlType.ValueOrDefault == ControlType.ListItem)
+            {
+                return at;
+            }
+        }
+        return element;
+    }
+
     /// <summary>Opens the Inbox's first conversation, as a click on it does.</summary>
     public static void OpenFirstConversation(InstalledApp app)
     {
-        var list = app.Find(ControlType.List, "Conversations", PageTimeout);
+        var list = app.FindById("ConversationList", PageTimeout);
         var first = Wait.For(
             () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
             PageTimeout,
@@ -111,6 +161,40 @@ internal static class Walk
     /// <summary>Chooses the entry named <paramref name="entry"/>, as a click does.</summary>
     public static void Open(InstalledApp app, string entry) =>
         Activate(app.Find(ControlType.ListItem, entry, PageTimeout));
+
+    /// <summary>
+    /// Chooses the entry whose AutomationId is <paramref name="navId"/>
+    /// ("NavCalls"), as a click does, and returns its name.
+    /// </summary>
+    public static string OpenById(InstalledApp app, string navId)
+    {
+        var item = app.FindById(navId, PageTimeout);
+        var name = NameOf(item);
+        Activate(item);
+        return name;
+    }
+
+    /// <summary>
+    /// Chooses the entry whose AutomationId is <paramref name="navId"/> until
+    /// its page shows the entry's own name as its heading, as
+    /// <see cref="OpenUntil"/> does by name.
+    /// </summary>
+    public static void OpenUntilById(InstalledApp app, string navId)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            var name = OpenById(app, navId);
+            try
+            {
+                _ = Heading(app, name, TimeSpan.FromSeconds(10));
+                return;
+            }
+            catch (TimeoutException) when (attempt < 3)
+            {
+                InstalledApp.Log(FormattableString.Invariant($"\"{name}\" did not open (attempt {attempt}): choosing it again"));
+            }
+        }
+    }
 
     /// <summary>
     /// Chooses the entry named <paramref name="entry"/> until its page shows
@@ -206,24 +290,31 @@ internal static class Walk
 
     /// <summary>
     /// The page's level-one heading: <paramref name="expected"/>, or any
-    /// heading when no text is expected, but never the unavailable page's.
+    /// heading when no text is expected; with <paramref name="id"/>, only the
+    /// heading with that AutomationId.
     /// </summary>
-    public static AutomationElement Heading(InstalledApp app, string? expected, TimeSpan timeout) =>
+    public static AutomationElement Heading(InstalledApp app, string? expected, TimeSpan timeout, string? id = null) =>
         Wait.For(
-            () => TryHeading(app, expected),
+            () => TryHeading(app, expected, id),
             timeout,
-            expected is null ? "a level-one heading" : $"the heading \"{expected}\"",
+            (expected, id) switch
+            {
+                (null, null) => "a level-one heading",
+                (null, { } wanted) => $"the heading with AutomationId \"{wanted}\"",
+                ({ } text, _) => $"the heading \"{text}\"",
+            },
             app.Describe);
 
     /// <summary>What <see cref="Heading"/> finds, now, or null.</summary>
-    public static AutomationElement? TryHeading(InstalledApp app, string? expected) =>
+    public static AutomationElement? TryHeading(InstalledApp app, string? expected, string? id = null) =>
         app.TryMainWindow()
             ?.FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
             .FirstOrDefault(text =>
                 !text.Properties.IsOffscreen.ValueOrDefault
                 && text.Properties.HeadingLevel.ValueOrDefault == HeadingLevel.Level1
                 && NameOf(text) is { Length: > 0 } name
-                && (expected is null || name == expected));
+                && (expected is null || name == expected)
+                && (id is null || text.Properties.AutomationId.ValueOrDefault == id));
 
     /// <summary>
     /// The element's name, or empty when UI Automation has none for it: a text
@@ -240,14 +331,11 @@ internal static class Walk
         {
             return "no window";
         }
-        if (window.FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName("Try again"))) is { IsOffscreen: false })
-        {
-            return "Try again";
-        }
-        return window.FindAllDescendants(cf => cf.ByControlType(ControlType.Text))
-            .Where(text => !text.Properties.IsOffscreen.ValueOrDefault)
-            .Select(NameOf)
-            .FirstOrDefault(name => FailureTexts.Any(failure => name.StartsWith(failure, StringComparison.Ordinal)));
+        return FailureIds
+            .Select(id => InstalledApp.TryFindByIdIn(window, id))
+            .OfType<AutomationElement>()
+            .Select(found => NameOf(found) is { Length: > 0 } name ? name : found.Properties.AutomationId.ValueOrDefault ?? "?")
+            .FirstOrDefault();
     }
 
     /// <summary>

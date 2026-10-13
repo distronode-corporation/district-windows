@@ -19,17 +19,16 @@ public sealed class SmokeTests
 
     private static readonly TimeSpan _stepTimeout = TimeSpan.FromSeconds(30);
 
-    // The sign-in page's button (Views/SignInPage.xaml) and error bar, and the
-    // signed-out heading district-ffi gives a first run (screen.rs, WELCOME_TITLE).
-    private const string SignInButton = "Sign in with your browser";
-    private const string SignInProblem = "Sign-in problem";
-    private const string WelcomeTitle = "Welcome to District AI";
+    // The AutomationIds (Views/SignInPage.xaml) of the sign-in page's button,
+    // its heading and its error bar: the same in every language.
+    private const string SignInButton = "SignInButton";
+    private const string SignInTitle = "SignInTitle";
+    private const string SignInProblem = "SignInProblem";
 
-    // TrayIcon.cs: the icon's callback message (WM_APP + 1) and id, and App.TrayMenu's items.
+    // TrayIcon.cs: the icon's callback message (WM_APP + 1) and id. App.TrayMenu
+    // holds Open and Quit, in that order, while signed out.
     private const uint TrayCallbackMessage = Native.WmApp + 1;
     private const int TrayIconId = 1;
-    private const string TrayOpen = "Open District AI";
-    private const string TrayQuit = "Quit";
 
     [Fact]
     public void StartsAndShowsTheSignInPage()
@@ -38,10 +37,17 @@ public sealed class SmokeTests
         using var app = InstalledApp.Launch();
 
         var window = app.MainWindow(_startTimeout);
-        var button = app.Find(ControlType.Button, SignInButton, _startTimeout);
-        _ = app.Find(ControlType.Text, WelcomeTitle, _stepTimeout);
+        var button = app.FindById(SignInButton, _startTimeout);
+        // The signed-out heading district-ffi gives a first run (screen.rs, WELCOME_TITLE).
+        var title = Wait.For(
+            () => app.TryFindById(SignInTitle) is { } found && Walk.NameOf(found).Length > 0 ? found : null,
+            _stepTimeout,
+            "the sign-in page's heading",
+            app.Describe);
+        InstalledApp.Log($"sign-in page: \"{title.Name}\", button \"{button.Name}\"");
 
-        Assert.True(button.IsEnabled, $"\"{SignInButton}\" is disabled.{Environment.NewLine}{app.Describe()}");
+        Assert.Equal(ControlType.Button, button.ControlType);
+        Assert.True(button.IsEnabled, $"{SignInButton} is disabled.{Environment.NewLine}{app.Describe()}");
         Assert.True(Native.IsWindowVisible(window.Properties.NativeWindowHandle.Value), "the window is not visible");
         Assert.Equal([app.ProcessId], InstalledApp.RunningProcessIds());
     }
@@ -52,7 +58,7 @@ public sealed class SmokeTests
         RequireInstalledApp();
         using var app = InstalledApp.Launch();
         var window = app.MainWindow(_startTimeout);
-        _ = app.Find(ControlType.Button, SignInButton, _startTimeout);
+        _ = app.FindById(SignInButton, _startTimeout);
         var handle = window.Properties.NativeWindowHandle.Value;
 
         // A sign-in answer nobody asked for: the core says so on the sign-in
@@ -64,10 +70,10 @@ public sealed class SmokeTests
             () =>
             {
                 others.UnionWith(InstalledApp.RunningProcessIds().Where(id => id != app.ProcessId));
-                return app.TryFind(null, SignInProblem);
+                return app.TryFindById(SignInProblem);
             },
             _stepTimeout,
-            $"\"{SignInProblem}\" after the link",
+            $"{SignInProblem} after the link",
             app.Describe);
         InstalledApp.Log($"other District AI processes seen meanwhile: [{string.Join(", ", others)}]");
 
@@ -78,8 +84,8 @@ public sealed class SmokeTests
 
         // And the first still answers: its window's thread, and its UI.
         Assert.True(Native.Responds(handle, TimeSpan.FromSeconds(5)), "the window did not answer WM_NULL within 5 s");
-        var button = app.Find(ControlType.Button, SignInButton, _stepTimeout);
-        Assert.True(button.IsEnabled, $"\"{SignInButton}\" is disabled after the link.{Environment.NewLine}{app.Describe()}");
+        var button = app.FindById(SignInButton, _stepTimeout);
+        Assert.True(button.IsEnabled, $"{SignInButton} is disabled after the link.{Environment.NewLine}{app.Describe()}");
         Assert.Equal([app.ProcessId], InstalledApp.RunningProcessIds());
     }
 
@@ -89,7 +95,7 @@ public sealed class SmokeTests
         RequireInstalledApp();
         using var app = InstalledApp.Launch();
         var window = app.MainWindow(_startTimeout);
-        _ = app.Find(ControlType.Button, SignInButton, _startTimeout);
+        _ = app.FindById(SignInButton, _startTimeout);
         var handle = window.Properties.NativeWindowHandle.Value;
 
         window.Close();
@@ -107,7 +113,7 @@ public sealed class SmokeTests
         Assert.True(
             Wait.Until(() => Native.IsWindowVisible(handle), _stepTimeout),
             $"starting the app again did not show its window.{Environment.NewLine}{app.Describe()}");
-        _ = app.Find(ControlType.Button, SignInButton, _stepTimeout);
+        _ = app.FindById(SignInButton, _stepTimeout);
         Assert.True(
             Wait.Until(() => InstalledApp.RunningProcessIds().SequenceEqual([app.ProcessId]), _stepTimeout),
             $"expected only the first instance ({app.ProcessId}) to be left.{Environment.NewLine}{app.Describe()}");
@@ -119,7 +125,7 @@ public sealed class SmokeTests
         RequireInstalledApp();
         using var app = InstalledApp.Launch();
         var window = app.MainWindow(_startTimeout);
-        _ = app.Find(ControlType.Button, SignInButton, _startTimeout);
+        _ = app.FindById(SignInButton, _startTimeout);
         var handle = window.Properties.NativeWindowHandle.Value;
 
         // What Explorer sends the window when its icon is right-clicked
@@ -137,12 +143,14 @@ public sealed class SmokeTests
             _stepTimeout,
             "the tray menu",
             app.Describe);
-        var items = menu.FindAllDescendants(cf => cf.ByControlType(ControlType.MenuItem)).Select(item => item.Name).ToArray();
-        InstalledApp.Log($"tray menu items: [{string.Join(", ", items)}]");
-        Assert.Equal([TrayOpen, TrayQuit], items);
+        // A Win32 menu's items carry no AutomationId the app sets, so they are
+        // known by place: Open, then Quit (the separator is no item).
+        var items = menu.FindAllDescendants(cf => cf.ByControlType(ControlType.MenuItem));
+        InstalledApp.Log($"tray menu items: [{string.Join(", ", items.Select(item => $"\"{item.Name}\" id={item.Properties.AutomationId.ValueOrDefault}"))}]");
+        Assert.Equal(2, items.Length);
+        Assert.All(items, item => Assert.False(string.IsNullOrEmpty(item.Name), "a tray menu item has no name"));
 
-        var quit = menu.FindFirstDescendant(cf => cf.ByControlType(ControlType.MenuItem).And(cf.ByName(TrayQuit)));
-        Assert.NotNull(quit);
+        var quit = items[^1];
         _ = quit.AsMenuItem().Invoke();
         Assert.True(
             Wait.Until(() => !app.IsRunning, _stepTimeout),

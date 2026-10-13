@@ -195,6 +195,34 @@ internal sealed partial class InstalledApp : IDisposable
             is { IsOffscreen: false } found ? found : null;
 
     /// <summary>
+    /// The control in the app's window whose AutomationId is
+    /// <paramref name="automationId"/> (AutomationProperties.AutomationId in
+    /// the XAML), on screen; waited for. Unlike a name, the id is the same in
+    /// every language. With <paramref name="onScreen"/> false, an element
+    /// scrolled out of view counts too.
+    /// </summary>
+    public AutomationElement FindById(string automationId, TimeSpan timeout, bool onScreen = true) =>
+        Wait.For(
+            () => TryFindById(automationId, onScreen),
+            timeout,
+            $"an element with AutomationId \"{automationId}\"",
+            Describe);
+
+    /// <summary>What <see cref="FindById"/> finds, now, or null.</summary>
+    public AutomationElement? TryFindById(string automationId, bool onScreen = true) =>
+        TryMainWindow() is { } window ? TryFindByIdIn(window, automationId, onScreen) : null;
+
+    /// <summary>
+    /// The first element under <paramref name="scope"/> whose AutomationId is
+    /// <paramref name="automationId"/>, on screen (or any, with
+    /// <paramref name="onScreen"/> false), now, or null. An id can repeat (each
+    /// page's "Try again"), so the first one showing is the one.
+    /// </summary>
+    public static AutomationElement? TryFindByIdIn(AutomationElement scope, string automationId, bool onScreen = true) =>
+        scope.FindAllDescendants(cf => cf.ByAutomationId(automationId))
+            .FirstOrDefault(found => !onScreen || !found.Properties.IsOffscreen.ValueOrDefault);
+
+    /// <summary>
     /// What UI Automation holds now: the desktop's top-level windows, and the
     /// app's own windows with every element under them.
     /// </summary>

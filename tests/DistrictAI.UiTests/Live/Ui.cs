@@ -46,10 +46,10 @@ internal static class Ui
         app.TryMainWindow() is { } window
         && UiTests.Walk.NavEntries(window).Any(name => name == entry || name.StartsWith(entry + ",", StringComparison.Ordinal));
 
-    /// <summary>Waits until no "Loading" ring shows.</summary>
+    /// <summary>Waits until no "Loading" ring shows (by its AutomationId).</summary>
     public static void Loaded(InstalledApp app) =>
         _ = Wait.For(
-            () => app.TryFind(ControlType.ProgressBar, "Loading") is null ? (object)true : null,
+            () => app.TryFindById(UiTests.Walk.LoadingId) is null ? (object)true : null,
             Step,
             "the page to finish loading",
             app.Describe);

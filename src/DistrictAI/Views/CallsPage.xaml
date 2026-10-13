@@ -24,6 +24,7 @@
             <Button
                 Grid.Column="1"
                 VerticalAlignment="Center"
+                AutomationProperties.AutomationId="PlaceCallButton"
                 AutomationProperties.Name="Place a call"
                 Command="{x:Bind ViewModel.PlaceCallCommand}"
                 Visibility="{x:Bind ViewModel.CanPlaceCall, Mode=OneWay}">

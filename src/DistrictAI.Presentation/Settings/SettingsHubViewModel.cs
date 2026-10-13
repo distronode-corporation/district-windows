@@ -12,6 +12,12 @@ public sealed record SettingsRowItem(SettingsSection Section, string Title, stri
 {
     /// <summary>What a screen reader says for the row: its title, then what it holds.</summary>
     public string AccessibleName => Title + ". " + Subtitle;
+
+    /// <summary>
+    /// The UI Automation id of the row's title ("SettingsRowPersona"): the
+    /// same in every language, for the UI tests.
+    /// </summary>
+    public string AutomationId => $"SettingsRow{Section}";
 }
 
 /// <summary>A group of the hub, under its heading.</summary>

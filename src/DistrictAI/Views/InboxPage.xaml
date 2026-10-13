@@ -13,6 +13,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock
+            AutomationProperties.AutomationId="InboxHeading"
             AutomationProperties.HeadingLevel="Level1"
             Style="{StaticResource TitleTextBlockStyle}"
             Text="Conversations" />
@@ -34,6 +35,7 @@
         <!-- The conversations. -->
         <ListView
             Grid.Row="3"
+            AutomationProperties.AutomationId="ConversationList"
             AutomationProperties.Name="Conversations"
             IsItemClickEnabled="True"
             ItemClick="OnThreadClick"

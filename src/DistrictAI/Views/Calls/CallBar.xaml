@@ -67,6 +67,7 @@
                 Spacing="8">
                 <ToggleButton
                     AutomationProperties.AcceleratorKey="Control+D"
+                    AutomationProperties.AutomationId="MuteButton"
                     AutomationProperties.Name="Mute"
                     IsChecked="{x:Bind ViewModel.Muted, Mode=TwoWay}"
                     IsEnabled="{x:Bind ViewModel.CanMute, Mode=OneWay}"
@@ -76,6 +77,7 @@
                 </ToggleButton>
                 <Button
                     AutomationProperties.AcceleratorKey="Control+Shift+H"
+                    AutomationProperties.AutomationId="HangUpButton"
                     AutomationProperties.Name="Hang up"
                     Command="{x:Bind ViewModel.HangUpCommand}"
                     ToolTipService.ToolTip="Hang up (Ctrl+Shift+H)"
@@ -86,6 +88,7 @@
                     </StackPanel>
                 </Button>
                 <Button
+                    AutomationProperties.AutomationId="DismissCallButton"
                     AutomationProperties.Name="Dismiss"
                     Command="{x:Bind ViewModel.DismissCommand}"
                     Content="Dismiss"

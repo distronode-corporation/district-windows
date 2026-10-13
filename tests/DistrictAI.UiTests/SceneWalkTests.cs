@@ -31,46 +31,50 @@ public sealed class SceneWalkTests
     private static readonly TimeSpan _startTimeout = TimeSpan.FromSeconds(90);
 
     /// <summary>
-    /// The pages whose heading is not their pane entry's own name, by the start
-    /// of the entry's name (the inbox's name carries its unread count). Every
-    /// other entry's page must show its entry's name as its level-one heading,
-    /// so building an area adds nothing here.
+    /// The pages whose heading is not their pane entry's own name, by the
+    /// entry's AutomationId (MainWindow.Nav.cs): the heading's text, or the
+    /// heading's own AutomationId. Every other entry's page must show its
+    /// entry's name as its level-one heading, so building an area adds nothing
+    /// here. Nothing here is English: the walk reads each name from the app.
     /// </summary>
-    private static readonly (string Entry, string Heading)[] _headings =
+    private static readonly (string NavId, string? Heading, string? HeadingId)[] _headings =
     [
-        ("Overview", WorkspaceName),
-        ("Inbox", "Conversations"),
+        ("NavOverview", WorkspaceName, null),
+        ("NavInbox", null, "InboxHeading"),
     ];
 
     /// <summary>
     /// Pages a button on another page opens, not a pane entry: from the page
-    /// of <c>Entry</c>, the button named <c>Button</c>, and the heading it
-    /// shows, and, for a panel on the same page, the text box that shows it
-    /// open (or null). Walked when the button is there (its area built).
+    /// of the entry <c>NavId</c>, the button whose AutomationId is
+    /// <c>ButtonId</c>; the page it shows, by its heading's AutomationId, or
+    /// null for a panel on the same page (whose heading stays the entry's
+    /// name); and the text box that shows such a panel open (or null). Walked
+    /// when the button is there (its area built).
     /// </summary>
-    private static readonly (string Entry, string Button, string Heading, string? Edit)[] _subPages =
+    private static readonly (string NavId, string ButtonId, string? HeadingId, string? EditId)[] _subPages =
     [
-        ("Contacts", "Blocked callers", "Blocked callers", null),
+        ("NavContacts", "BlockedCallersButton", "BlockedHeading", null),
         // The plan chooser opens on the billing page itself; nothing is bought.
-        ("Billing", "Choose a plan", "Billing", "Promotion code"),
+        ("NavBilling", "ChoosePlanButton", null, "PromoCodeBox"),
     ];
 
     /// <summary>
-    /// The settings sections built so far, by their hub row's title: each is
-    /// opened from the Workspace settings hub, and its page's level-one
-    /// heading must be that title. A section's packet adds its row here.
+    /// The settings sections built so far, by their hub row's AutomationId
+    /// ("SettingsRow" and the core's SettingsSection): each is opened from
+    /// the Workspace settings hub, and its page's level-one heading must be
+    /// the row's title. A section's packet adds its row here.
     /// </summary>
     private static readonly string[] _settingsSections =
     [
-        "Persona",
-        "Voice",
-        "Messaging accounts",
-        "Members",
-        "Call handling",
-        "Call routing rules",
-        "Transfer directory",
-        "Skills",
-        "Knowledge",
+        "SettingsRowPersona",
+        "SettingsRowVoiceStudio",
+        "SettingsRowMessaging",
+        "SettingsRowMembers",
+        "SettingsRowCallHandling",
+        "SettingsRowRouting",
+        "SettingsRowDirectory",
+        "SettingsRowTools",
+        "SettingsRowKnowledge",
     ];
 
     /// <summary>
@@ -82,8 +86,8 @@ public sealed class SceneWalkTests
     /// </summary>
     public const string ConversationTitle = "Contract Test Caller";
 
-    /// <summary>The reply box's UI Automation name (Views/Composer/ComposerBox.xaml).</summary>
-    public const string ReplyBoxName = "Reply";
+    /// <summary>The reply box's AutomationId (Views/Composer/ComposerBox.xaml).</summary>
+    public const string ReplyBoxId = "ReplyBox";
 
     [Fact]
     public void EveryOfferedAreaOpensAndFillsIn()
@@ -97,11 +101,11 @@ public sealed class SceneWalkTests
         // Signed in by the scene, on the overview.
         _ = Heading(app, WorkspaceName, _startTimeout);
         var entries = Wait.For(
-            () => NavEntries(window) is { Length: >= 5 } found ? found : null,
+            () => NavItems(window) is { Length: >= 5 } found ? found : null,
             PageTimeout,
             "the navigation pane's entries",
             app.Describe);
-        InstalledApp.Log($"the pane offers {entries.Length}: [{string.Join(", ", entries)}]");
+        InstalledApp.Log($"the pane offers {entries.Length}: [{string.Join(", ", entries.Select(entry => $"{entry.Id} \"{entry.Name}\""))}]");
 
         if (shots is { Length: > 0 })
         {
@@ -112,42 +116,55 @@ public sealed class SceneWalkTests
 
         var problems = new List<string>();
         var index = 0;
-        foreach (var entry in entries)
+        foreach (var (navId, entry) in entries)
         {
-            var expected = _headings.FirstOrDefault(known => entry.StartsWith(known.Entry, StringComparison.Ordinal)).Heading ?? entry;
-            if (!Visit(app, handle, entry, () => Open(app, entry), expected, shots, ++index, problems))
+            var known = _headings.FirstOrDefault(known => known.NavId == navId);
+            string? OpenEntry()
+            {
+                var name = OpenById(app, navId);
+                return known.NavId is null ? name : known.Heading;
+            }
+            if (!VisitPage(app, handle, entry, OpenEntry, known.HeadingId, shots, ++index, problems))
             {
                 break;
             }
             // The reply box lives in a conversation, not behind a pane entry:
             // from the Inbox, the first conversation is opened and its box
-            // waited for by name.
-            if (entry.StartsWith("Inbox", StringComparison.Ordinal)
-                && !Visit(app, handle, "Conversation", () => OpenFirstConversation(app), ConversationTitle, shots, ++index, problems, ReplyBoxName))
+            // waited for by id.
+            if (navId == "NavInbox"
+                && !VisitPage(app, handle, "Conversation", () => { OpenFirstConversation(app); return ConversationTitle; }, null, shots, ++index, problems, ReplyBoxId))
             {
                 break;
             }
             // The built settings sections, each from the hub's row, and back to
             // the hub for the next.
-            if (entry.StartsWith("Workspace settings", StringComparison.Ordinal))
+            if (navId == "NavSettings")
             {
                 foreach (var section in _settingsSections)
                 {
-                    if (!Visit(app, handle, section, () => OpenSettingsRow(app, section), section, shots, ++index, problems)
-                        || !Visit(app, handle, entry, () => Open(app, entry), entry, null, index, problems))
+                    // The row's title names the page (and its screenshot), as
+                    // the page's heading must.
+                    var title = app.TryFindById(section) is { } row ? NameOf(row) : section;
+                    if (!VisitPage(app, handle, title, () => OpenSettingsRowById(app, section), null, shots, ++index, problems)
+                        || !VisitPage(app, handle, entry, () => OpenById(app, navId), null, null, index, problems))
                     {
                         break;
                     }
                 }
             }
-            foreach (var sub in _subPages.Where(sub => entry.StartsWith(sub.Entry, StringComparison.Ordinal)))
+            foreach (var sub in _subPages.Where(sub => sub.NavId == navId))
             {
-                if (app.TryFind(ControlType.Button, sub.Button) is null)
+                if (app.TryFindById(sub.ButtonId) is not { } button)
                 {
-                    InstalledApp.Log($"\"{entry}\" has no \"{sub.Button}\" button: not walked");
+                    InstalledApp.Log($"\"{entry}\" has no {sub.ButtonId}: not walked");
                     continue;
                 }
-                if (!Visit(app, handle, sub.Button, () => app.Find(ControlType.Button, sub.Button, PageTimeout).AsButton().Invoke(), sub.Heading, shots, ++index, problems, sub.Edit))
+                string? OpenSub()
+                {
+                    app.FindById(sub.ButtonId, PageTimeout).AsButton().Invoke();
+                    return sub.HeadingId is null ? entry : null;
+                }
+                if (!VisitPage(app, handle, NameOf(button), OpenSub, sub.HeadingId, shots, ++index, problems, sub.EditId))
                 {
                     break;
                 }
@@ -182,24 +199,25 @@ public sealed class SceneWalkTests
             SizeClient(handle, 1920, 1080);
         }
 
-        OpenUntil(app, "Calls", "Calls");
-        app.Find(ControlType.Button, "Place a call", PageTimeout).AsButton().Invoke();
-        app.Find(ControlType.Edit, "Number to call", PageTimeout).AsTextBox().Text = "+12125550142";
+        OpenUntilById(app, "NavCalls");
+        app.FindById("PlaceCallButton", PageTimeout).AsButton().Invoke();
+        app.FindById("DialNumberBox", PageTimeout).AsTextBox().Text = "+12125550142";
         Wait.For(
-            () => app.TryFind(ControlType.Button, "Call") is { IsEnabled: true } call ? call : null,
+            () => app.TryFindById("DialCallButton") is { IsEnabled: true } call ? call : null,
             PageTimeout,
             "Call to work",
             app.Describe).AsButton().Invoke();
 
-        _ = app.Find(null, "Live transcript", PageTimeout);
+        _ = app.FindById("TranscriptHeading", PageTimeout);
         _ = app.Find(ControlType.Text, "I'd like to book a cleaning on Thursday.", PageTimeout);
         InstalledApp.Log("the call strip shows the live transcript");
         if (shots is { Length: > 0 })
         {
             Save(handle, Path.Combine(shots, "90-live-transcript.png"), clientOnly: true);
         }
-        app.Find(ControlType.Button, "Hang up", PageTimeout).AsButton().Invoke();
-        _ = app.Find(ControlType.Text, "Call ended", PageTimeout);
+        app.FindById("HangUpButton", PageTimeout).AsButton().Invoke();
+        // Ended: the call bar offers Dismiss in place of Hang up.
+        _ = app.FindById("DismissCallButton", PageTimeout);
         Assert.True(app.IsRunning, "the app ended during the call");
     }
 
@@ -222,17 +240,17 @@ public sealed class SceneWalkTests
         var handle = window.Properties.NativeWindowHandle.Value;
         _ = Heading(app, WorkspaceName, _startTimeout);
 
-        OpenUntil(app, "Calls", "Calls");
-        app.Find(ControlType.Button, "Place a call", PageTimeout).AsButton().Invoke();
-        app.Find(ControlType.Edit, "Number to call", PageTimeout).AsTextBox().Text = "+12125550142";
+        OpenUntilById(app, "NavCalls");
+        app.FindById("PlaceCallButton", PageTimeout).AsButton().Invoke();
+        app.FindById("DialNumberBox", PageTimeout).AsTextBox().Text = "+12125550142";
         Wait.For(
-            () => app.TryFind(ControlType.Button, "Call") is { IsEnabled: true } call ? call : null,
+            () => app.TryFindById("DialCallButton") is { IsEnabled: true } call ? call : null,
             PageTimeout,
             "Call to work",
             app.Describe).AsButton().Invoke();
-        _ = app.Find(null, "Live transcript", PageTimeout);
+        _ = app.FindById("TranscriptHeading", PageTimeout);
         var mute = Wait.For(
-            () => app.TryFind(ControlType.Button, "Mute") is { IsEnabled: true } found && found.Patterns.Toggle.IsSupported ? found : null,
+            () => app.TryFindById("MuteButton") is { IsEnabled: true } found && found.Patterns.Toggle.IsSupported ? found : null,
             PageTimeout,
             "the call bar's Mute, enabled",
             app.Describe);
@@ -255,13 +273,13 @@ public sealed class SceneWalkTests
         InstalledApp.Log($"Ctrl+D: Mute {start}");
 
         Shortcut(handle, VirtualKeyShort.KEY_H, VirtualKeyShort.CONTROL, VirtualKeyShort.SHIFT);
-        _ = app.Find(ControlType.Text, "Call ended", PageTimeout);
+        _ = app.FindById("DismissCallButton", PageTimeout);
         InstalledApp.Log("Ctrl+Shift+H: the call ended");
         Assert.True(app.IsRunning, "the app ended during the call");
     }
 
     private static ToggleState? MuteState(InstalledApp app) =>
-        app.TryFind(ControlType.Button, "Mute") is { } mute && mute.Patterns.Toggle.IsSupported
+        app.TryFindById("MuteButton") is { } mute && mute.Patterns.Toggle.IsSupported
             ? mute.Patterns.Toggle.Pattern.ToggleState.Value
             : null;
 
@@ -294,7 +312,7 @@ public sealed class SceneWalkTests
             SizeClient(handle, 1920, 1080);
         }
 
-        OpenUntil(app, "Meeting rooms", "Meeting rooms");
+        OpenUntilById(app, "NavRooms");
         var row = Wait.For(
             () => window.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
                 .FirstOrDefault(item => item.Name.StartsWith("Weekly review", StringComparison.Ordinal)),
@@ -302,15 +320,15 @@ public sealed class SceneWalkTests
             "the meeting \"Weekly review\"",
             app.Describe);
         Activate(row);
-        _ = app.Find(ControlType.Text, "Minutes", PageTimeout);
-        _ = app.Find(ControlType.Text, "Action items", PageTimeout);
-        _ = app.Find(ControlType.Button, "Report", PageTimeout);
+        _ = app.FindById("MinutesHeading", PageTimeout);
+        _ = app.FindById("ActionItemsHeading", PageTimeout);
+        _ = app.FindById("MinutesReportButton", PageTimeout);
         InstalledApp.Log("the meeting record shows its minutes and action items, with Report");
         if (shots is { Length: > 0 })
         {
             Save(handle, Path.Combine(shots, "91-meeting-record.png"), clientOnly: true);
         }
-        app.Find(ControlType.Button, "Close the meeting", PageTimeout).AsButton().Invoke();
+        app.FindById("CloseMeetingButton", PageTimeout).AsButton().Invoke();
         Assert.True(app.IsRunning, "the app ended in the meeting rooms");
     }
 

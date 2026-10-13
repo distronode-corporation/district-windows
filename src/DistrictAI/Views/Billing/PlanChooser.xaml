@@ -12,6 +12,7 @@
     <StackPanel Spacing="12">
         <StackPanel Orientation="Horizontal" Spacing="12">
             <Button
+                AutomationProperties.AutomationId="ChoosePlanButton"
                 AutomationProperties.Name="{x:Bind ViewModel.ChooseAction, Mode=OneWay}"
                 Command="{x:Bind ViewModel.OpenChooserCommand}"
                 Content="{x:Bind ViewModel.ChooseAction, Mode=OneWay}"
@@ -60,6 +61,7 @@
                     ItemsSource="{x:Bind ViewModel.TermNames, Mode=OneWay}"
                     SelectedIndex="{x:Bind ViewModel.SelectedTerm, Mode=TwoWay}" />
                 <TextBox
+                    AutomationProperties.AutomationId="PromoCodeBox"
                     AutomationProperties.Name="Promotion code"
                     Header="{x:Bind ViewModel.PromoLabel, Mode=OneWay}"
                     MaxLength="64"

@@ -11,11 +11,13 @@
         VerticalAlignment="Center"
         Spacing="12">
         <ProgressRing
+            AutomationProperties.AutomationId="LoadingRing"
             AutomationProperties.Name="Loading"
             IsActive="{x:Bind State.Loading, Mode=OneWay}"
             Visibility="{x:Bind State.Loading, Mode=OneWay}" />
         <StackPanel Spacing="8" Visibility="{x:Bind State.Failed, Mode=OneWay}">
             <TextBlock
+                AutomationProperties.AutomationId="FailureTitle"
                 AutomationProperties.HeadingLevel="Level2"
                 HorizontalAlignment="Center"
                 Style="{StaticResource SubtitleTextBlockStyle}"
@@ -35,6 +37,7 @@
                 Visibility="{x:Bind State.HasRegionsLine, Mode=OneWay}" />
             <Button
                 HorizontalAlignment="Center"
+                AutomationProperties.AutomationId="TryAgainButton"
                 AutomationProperties.Name="Try again"
                 Command="{x:Bind State.RetryCommand}"
                 Content="Try again"

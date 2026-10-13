@@ -10,6 +10,7 @@
         VerticalAlignment="Center"
         Spacing="12">
         <TextBlock
+            AutomationProperties.AutomationId="UnavailableTitle"
             AutomationProperties.HeadingLevel="Level1"
             HorizontalAlignment="Center"
             Style="{StaticResource SubtitleTextBlockStyle}"

@@ -34,6 +34,7 @@ public sealed class SettingsHubViewModelTests
             [SettingsSection.Persona, SettingsSection.VoiceStudio],
             model.Groups[0].Rows.Select(row => row.Section));
         Assert.Equal("Persona. The receptionist's name.", model.Groups[0].Rows[0].AccessibleName);
+        Assert.Equal("SettingsRowVoiceStudio", model.Groups[0].Rows[1].AutomationId);
     }
 
     [Fact]

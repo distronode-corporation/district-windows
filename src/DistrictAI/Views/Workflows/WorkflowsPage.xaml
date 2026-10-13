@@ -206,6 +206,7 @@
                                         IsEnabled="{x:Bind CanLoadMore}"
                                         Visibility="{x:Bind CanLoadMore}" />
                                     <Button
+                                        AutomationProperties.AutomationId="TryAgainButton"
                                         AutomationProperties.Name="Try again"
                                         Click="OnRetryRunsClick"
                                         Content="Try again"

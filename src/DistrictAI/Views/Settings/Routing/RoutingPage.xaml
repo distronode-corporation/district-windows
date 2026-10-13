@@ -21,6 +21,7 @@
 
             <ProgressRing
                 HorizontalAlignment="Left"
+                AutomationProperties.AutomationId="LoadingRing"
                 AutomationProperties.Name="Loading"
                 IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                 Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />

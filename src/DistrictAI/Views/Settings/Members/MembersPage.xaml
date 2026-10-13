@@ -17,6 +17,7 @@
 
             <ProgressRing
                 HorizontalAlignment="Left"
+                AutomationProperties.AutomationId="LoadingRing"
                 AutomationProperties.Name="Loading"
                 IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                 Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
@@ -29,6 +30,7 @@
                     TextWrapping="Wrap" />
                 <TextBlock Text="{x:Bind ViewModel.StatusBody, Mode=OneWay}" TextWrapping="Wrap" />
                 <Button
+                    AutomationProperties.AutomationId="TryAgainButton"
                     AutomationProperties.Name="Try again"
                     Command="{x:Bind ViewModel.RetryCommand}"
                     Content="Try again"

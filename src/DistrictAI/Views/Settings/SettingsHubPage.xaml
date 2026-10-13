@@ -42,7 +42,10 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Spacing="2">
-                                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Title}" />
+                                                <TextBlock
+                                                    AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                    Text="{x:Bind Title}" />
                                                 <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Subtitle}" />
                                             </StackPanel>
                                             <FontIcon
