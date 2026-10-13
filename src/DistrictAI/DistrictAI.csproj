@@ -74,6 +74,11 @@
     manifest's DisplayName and Description are ms-resource: references. The
     fr-CA one ships only with -p:DistrictFrench=true, which also compiles the
     French strings in L10n\S.cs.
+
+    Run 1 of the spike kept the fr-CA file at Strings\fr-CA and removed it from
+    PRIResource without DistrictFrench, yet resources.pri still held FR-CA. Run
+    2 keeps it outside this project's folder (src\DistrictAI.Strings) and adds
+    it, linked into Strings\fr-CA, only with DistrictFrench.
   -->
   <PropertyGroup>
     <DistrictFrench Condition="'$(DistrictFrench)' == ''">false</DistrictFrench>
@@ -82,6 +87,9 @@
   </PropertyGroup>
   <ItemGroup Condition="'$(DistrictFrench)' != 'true'">
     <PRIResource Remove="Strings\fr-CA\**" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(DistrictFrench)' == 'true'">
+    <PRIResource Include="..\DistrictAI.Strings\fr-CA\Resources.resw" Link="Strings\fr-CA\Resources.resw" />
   </ItemGroup>
 
   <ItemGroup>

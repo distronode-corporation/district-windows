@@ -35,7 +35,7 @@ param(
     [switch] $Scripted,
     [string] $Screenshots = '',
     # SPIKE: another test class's filter, such as FullyQualifiedName~DistrictAI.UiTests.SpikeL10nTests.
-    [string] $Filter = ''
+    [string] $TestFilter = ''
 )
 
 Set-StrictMode -Version Latest
@@ -100,7 +100,8 @@ try {
     } else {
         $filter = 'FullyQualifiedName~DistrictAI.UiTests.SmokeTests'
     }
-    if ($Filter) { $filter = $Filter }
+    # PowerShell names are case-insensitive: $TestFilter, not $Filter, or the line above overwrites it.
+    if ($TestFilter) { $filter = $TestFilter }
     if ($Screenshots) {
         $env:DISTRICTAI_SCREENSHOTS = [IO.Path]::GetFullPath($Screenshots)
         # The pages are saved at a 1920x1080 client area: the display is made

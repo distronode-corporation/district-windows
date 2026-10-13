@@ -106,6 +106,30 @@ jobs:
         shell: pwsh
         run: ./scripts/spike-dump-pri.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'FrPackages') -MakePri $env:MAKEPRI -Label 'DistrictFrench=true'
 
+      # Run 1 found FR-CA in resources.pri without DistrictFrench. Which
+      # PRIResource items MSBuild evaluates, each way, and (with a copy put back
+      # at Strings\fr-CA for the check only) whether the Remove takes it out.
+      - name: PRIResource items, each way
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $project = 'src/DistrictAI/DistrictAI.csproj'
+          foreach ($french in 'false', 'true') {
+            Write-Host "=== PRIResource with DistrictFrench=$french"
+            dotnet msbuild $project -p:Platform=x64 -p:Configuration=Release -p:DistrictFrench=$french -getItem:PRIResource
+          }
+          New-Item -ItemType Directory -Force src/DistrictAI/Strings/fr-CA | Out-Null
+          Copy-Item src/DistrictAI.Strings/fr-CA/Resources.resw src/DistrictAI/Strings/fr-CA/Resources.resw
+          try {
+            Write-Host "=== PRIResource with DistrictFrench=false and a copy at src/DistrictAI/Strings/fr-CA (the run 1 layout)"
+            dotnet msbuild $project -p:Platform=x64 -p:Configuration=Release -p:DistrictFrench=false -getItem:PRIResource
+          } finally {
+            Remove-Item -Recurse -Force src/DistrictAI/Strings/fr-CA
+          }
+          Write-Host "=== priconfig and layout files the French build left in obj"
+          Get-ChildItem -Recurse src/DistrictAI/obj -Include '*.priconfig.xml', 'priconfig*.xml', '*.layout.resfiles', '*.resfiles', 'filemap.prilayout*' -ErrorAction SilentlyContinue |
+            ForEach-Object { Write-Host "--- $($_.FullName)"; Get-Content $_.FullName -TotalCount 60 | ForEach-Object { Write-Host "  $_" } }
+
       # English: no DistrictFrench, unsigned, only to read its resources.pri.
       # A clean obj first, so nothing of the French build is reused.
       - name: Package without DistrictFrench (unsigned)
@@ -132,6 +156,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $page = 'src/DistrictAI/Views/SignInPage.xaml'
           $cases = @(
+            @{ Where = 'control, no key changed'; From = 'Content="{x:Bind l10n:S.SignInWithBrowser}"'; To = 'Content="{x:Bind l10n:S.SignInWithBrowser}"' },
             @{ Where = 'page level'; From = 'Content="{x:Bind l10n:S.SignInWithBrowser}"'; To = 'Content="{x:Bind l10n:S.NoSuchKey}"' },
             @{ Where = 'inside the DataTemplate'; From = 'Text="{x:Bind l10n:S.SpikeTemplateText}"'; To = 'Text="{x:Bind l10n:S.NoSuchKeyInTemplate}"' }
           )
@@ -149,6 +174,7 @@ jobs:
             Write-Host "=== $($case.Where): dotnet build exited $code"
             $log -split "`n" | Where-Object { $_ -match 'error|NoSuchKey' } | Sort-Object -Unique | ForEach-Object { Write-Host $_ }
             # A warning, not a failure, so the UI tests below still run.
+            if ($case.From -eq $case.To) { Write-Host "VERDICT: the control build exited $code (0 expected)"; continue }
             if ($code -eq 0) { Write-Host "::warning::a missing key ($($case.Where)) BUILT" } else { Write-Host "VERDICT: a missing key ($($case.Where)) fails the build" }
           }
 
@@ -157,4 +183,4 @@ jobs:
         timeout-minutes: 20
         run: >-
           ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'FrPackages')
-          -Filter 'FullyQualifiedName~DistrictAI.UiTests.SpikeL10nTests|FullyQualifiedName~FindsTheSignInControlsByAutomationId'
+          -TestFilter 'FullyQualifiedName~DistrictAI.UiTests.SpikeL10nTests|FullyQualifiedName~FindsTheSignInControlsByAutomationId'
