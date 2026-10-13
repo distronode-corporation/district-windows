@@ -7,6 +7,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-10-13
+
+### Changed
+
+- The shared core is district-core-rust 3.1.1.
+
+### Fixed
+
+- The Billing page names your plan ("Voice Pro") instead of showing its internal key
+  ("VoicePro").
+
 ## [2.0.0] - 2026-10-12
 
 ### Added

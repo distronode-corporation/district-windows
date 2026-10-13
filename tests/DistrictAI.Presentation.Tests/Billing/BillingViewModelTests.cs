@@ -9,7 +9,7 @@ public sealed class BillingViewModelTests
     private const string ConfirmBody = "Payment is handled by Stripe, District AI's payment processor.";
 
     private static PlanView Plan() => new(
-        Name: "VoicePro",
+        Name: "Voice Pro",
         Status: "Active",
         StatusCaption: null,
         OverageNote: "Minutes beyond your plan are billed automatically.",
@@ -94,7 +94,7 @@ public sealed class BillingViewModelTests
         var (model, _) = Attached();
         model.Show(View(Purchase()));
         Assert.True(model.Load.Ready);
-        Assert.Equal("VoicePro", model.PlanName);
+        Assert.Equal("Voice Pro", model.PlanName);
         Assert.Equal("Active", model.PlanStatus);
         Assert.False(model.HasPlanCaption);
         Assert.True(model.HasOverageNote);

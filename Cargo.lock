@@ -543,8 +543,8 @@ dependencies = [
 
 [[package]]
 name = "district-api"
-version = "3.1.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.0#1462d3fdd026267dd4c62333a9ffd452c63cf367"
+version = "3.1.1"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.1#771df89f0945f8a9499ca19c4937b6b473ae2919"
 dependencies = [
  "district-model",
  "httpdate",
@@ -557,8 +557,8 @@ dependencies = [
 
 [[package]]
 name = "district-auth"
-version = "3.1.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.0#1462d3fdd026267dd4c62333a9ffd452c63cf367"
+version = "3.1.1"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.1#771df89f0945f8a9499ca19c4937b6b473ae2919"
 dependencies = [
  "base64 0.22.1",
  "district-api",
@@ -576,8 +576,8 @@ dependencies = [
 
 [[package]]
 name = "district-call"
-version = "3.1.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.0#1462d3fdd026267dd4c62333a9ffd452c63cf367"
+version = "3.1.1"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.1#771df89f0945f8a9499ca19c4937b6b473ae2919"
 dependencies = [
  "district-core",
  "futures-util",
@@ -590,8 +590,8 @@ dependencies = [
 
 [[package]]
 name = "district-core"
-version = "3.1.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.0#1462d3fdd026267dd4c62333a9ffd452c63cf367"
+version = "3.1.1"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.1#771df89f0945f8a9499ca19c4937b6b473ae2919"
 dependencies = [
  "district-api",
  "district-auth",
@@ -628,8 +628,8 @@ dependencies = [
 
 [[package]]
 name = "district-host"
-version = "3.1.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.0#1462d3fdd026267dd4c62333a9ffd452c63cf367"
+version = "3.1.1"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.1#771df89f0945f8a9499ca19c4937b6b473ae2919"
 dependencies = [
  "district-auth",
  "district-core",
@@ -642,8 +642,8 @@ dependencies = [
 
 [[package]]
 name = "district-live"
-version = "3.1.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.0#1462d3fdd026267dd4c62333a9ffd452c63cf367"
+version = "3.1.1"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.1#771df89f0945f8a9499ca19c4937b6b473ae2919"
 dependencies = [
  "district-api",
  "district-model",
@@ -662,8 +662,8 @@ dependencies = [
 
 [[package]]
 name = "district-model"
-version = "3.1.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.0#1462d3fdd026267dd4c62333a9ffd452c63cf367"
+version = "3.1.1"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v3.1.1#771df89f0945f8a9499ca19c4937b6b473ae2919"
 dependencies = [
  "serde",
  "serde_json",
