@@ -192,6 +192,11 @@ jobs:
     env:
       AWS_LC_SYS_PREBUILT_NASM: "1"
       VERSION: ${{ needs.guard.outputs.version }}
+      # French (fr-CA): every package built here passes it as
+      # -p:DistrictFrench, and "Each package declares French exactly when it
+      # should" holds the packages to it. "true" only at the 3.0 cut, once
+      # every catalog has reviewed French.
+      DISTRICT_FRENCH: "false"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -238,7 +243,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $out = Join-Path $env:RUNNER_TEMP 'StorePackage'
           dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
-            -p:DistrictFfiProfile=release -warnaserror `
+            -p:DistrictFfiProfile=release -warnaserror "-p:DistrictFrench=$env:DISTRICT_FRENCH" `
             -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=StoreUpload `
             -p:AppxBundle=Never -p:AppxPackageSigningEnabled=false -p:PublishReadyToRun=true `
             -p:AppxSymbolPackageEnabled=false -p:DebugType=none "-p:AppxPackageDir=$out\"
@@ -263,7 +268,7 @@ jobs:
           $out = Join-Path $env:RUNNER_TEMP 'SideloadPackage'
           try {
             dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
-              -p:DistrictFfiProfile=release -warnaserror `
+              -p:DistrictFfiProfile=release -warnaserror "-p:DistrictFrench=$env:DISTRICT_FRENCH" `
               -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=SideloadOnly `
               -p:AppxBundle=Never -p:AppxPackageSigningEnabled=true -p:PublishReadyToRun=true `
               -p:AppxSymbolPackageEnabled=false -p:DebugType=none `
@@ -286,7 +291,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $out = Join-Path $env:RUNNER_TEMP 'GitHubPackage'
           dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
-            -p:DistrictFfiProfile=release -warnaserror -p:DistrictFlavour=GitHub `
+            -p:DistrictFfiProfile=release -warnaserror -p:DistrictFlavour=GitHub "-p:DistrictFrench=$env:DISTRICT_FRENCH" `
             -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=SideloadOnly `
             -p:AppxBundle=Never -p:AppxPackageSigningEnabled=false -p:PublishReadyToRun=true `
             -p:AppxSymbolPackageEnabled=false -p:DebugType=none "-p:AppxPackageDir=$out\"
@@ -367,6 +372,32 @@ jobs:
           if ($githubMsix.Count -ne 1) { throw "expected one GitHub flavour MSIX, found $($githubMsix.Count)" }
           Test-Msix $githubMsix[0].FullName 'github' $github
           if ((Get-AuthenticodeSignature $githubMsix[0].FullName).SignerCertificate) { throw 'the GitHub flavour package is signed; this release carries it unsigned' }
+
+      # French reaches no one before the 3.0 cut: with DISTRICT_FRENCH false no
+      # package may declare fr-CA, in its manifest or in resources.pri (a
+      # .resw under the project folder reaches resources.pri whatever the
+      # project file says, which is why the French one lives outside it). With
+      # it true, every package must, and every catalog must have reviewed
+      # French (`l10n.py check --require fr-CA`).
+      - name: Each package declares French exactly when it should
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python scripts/check-languages.py --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'check-languages.py failed its self-test' }
+          if ($env:DISTRICT_FRENCH -eq 'true') {
+            $catalogs = @(Get-ChildItem crates/*/l10n/*.toml, src/*/l10n/*.toml | ForEach-Object { $_.FullName })
+            python tools/l10n/l10n.py check --require fr-CA @catalogs
+            if ($LASTEXITCODE -ne 0) { throw 'French is on, but a catalog lacks reviewed French' }
+          }
+          $packages = @(
+            (Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'StorePackage') -Filter '*.msixupload')
+            (Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'SideloadPackage') -Filter 'DistrictAI_*.msix')
+            (Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'GitHubPackage') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
+          ) | ForEach-Object { $_.FullName }
+          if ($packages.Count -ne 3) { throw "expected three packages, found $($packages.Count)" }
+          python scripts/check-languages.py --french $env:DISTRICT_FRENCH @packages
+          if ($LASTEXITCODE -ne 0) { throw "a package's languages disagree with DISTRICT_FRENCH=$env:DISTRICT_FRENCH" }
 
       # district-ffi's `scripted` feature (made-up data for the UI walk and the
       # Store screenshots) never ships: not in the DLL this job built, nor in

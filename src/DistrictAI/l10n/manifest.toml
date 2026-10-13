@@ -1,0 +1,27 @@
+[meta]
+catalog = "manifest"
+platform = "csharp"
+apple = false
+
+[app.description]
+en = "District AI is your AI receptionist. See your calls, messages and contacts, and place and answer calls from your computer."
+ctx = "store"
+screen = "manifest"
+tier = "T0"
+note = "The package's description (Package.appxmanifest, VisualElements/@Description), which Windows shows for the app. ms-resource:AppDescription."
+
+[app.display_name]
+en = "District AI"
+ctx = "store"
+screen = "manifest"
+tier = "T0"
+fixed = true
+note = "The app's name (Properties/DisplayName and VisualElements/@DisplayName). ms-resource:AppDisplayName."
+
+[app.display_name_github]
+en = "District AI (GitHub)"
+ctx = "store"
+screen = "manifest"
+tier = "T0"
+fixed = true
+note = "The GitHub flavour's name (Package.GitHub.appxmanifest). ms-resource:AppDisplayNameGithub."

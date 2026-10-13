@@ -72,11 +72,24 @@
     French (fr-CA). Off unless the build passes -p:DistrictFrench=true, which
     defines DISTRICT_FRENCH: without it the app and the core speak English
     whatever the user's languages (L10n/Languages.cs).
+
+    The manifest's DisplayName and Description are ms-resource: references
+    to Strings\en-US\Resources.resw, a resource of this project (every .resw
+    under the project folder is one, and always ships). The French one is
+    generated outside the project folder, in ..\DistrictAI.Strings\fr-CA, and
+    linked in only with DistrictFrench: a PRIResource Remove does not keep a
+    .resw under the project folder out of resources.pri (proved in the
+    spike, PR #67). Both come from l10n\manifest.toml (scripts/gen-l10n.py).
+    release.yml checks every package declares fr-CA exactly when it should.
   -->
   <PropertyGroup>
     <DistrictFrench Condition="'$(DistrictFrench)' == ''">false</DistrictFrench>
+    <DefaultLanguage>en-US</DefaultLanguage>
     <DefineConstants Condition="'$(DistrictFrench)' == 'true'">$(DefineConstants);DISTRICT_FRENCH</DefineConstants>
   </PropertyGroup>
+  <ItemGroup Condition="'$(DistrictFrench)' == 'true'">
+    <PRIResource Include="..\DistrictAI.Strings\fr-CA\Resources.resw" Link="Strings\fr-CA\Resources.resw" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" />

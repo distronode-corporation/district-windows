@@ -25,7 +25,7 @@
     ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>District AI</DisplayName>
+    <DisplayName>ms-resource:AppDisplayName</DisplayName>
     <PublisherDisplayName>Distronode</PublisherDisplayName>
     <!--
       Each logo below names a resource, not a file: the Assets folder holds it
@@ -47,8 +47,8 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="District AI"
-        Description="District AI is your AI receptionist. See your calls, messages and contacts, and place and answer calls from your computer."
+        DisplayName="ms-resource:AppDisplayName"
+        Description="ms-resource:AppDescription"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

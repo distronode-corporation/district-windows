@@ -17,10 +17,17 @@ compared.
 
 The ids that Windows scopes to a package (Application/@Id, the startup task's
 TaskId) may be equal in both; the protocol is the same scheme on purpose.
+
+The display names and the description are `ms-resource:Name` references to
+src/DistrictAI/Strings/en-US/Resources.resw (generated from
+src/DistrictAI/l10n/manifest.toml): every name either manifest references must
+be a string of that file, or the package would carry a name Windows cannot
+resolve.
 """
 
 from __future__ import annotations
 
+import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -28,6 +35,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 STORE = ROOT / "src/DistrictAI/Package.appxmanifest"
 GITHUB = ROOT / "src/DistrictAI/Package.GitHub.appxmanifest"
+RESW = ROOT / "src/DistrictAI/Strings/en-US/Resources.resw"
 
 FOUNDATION = "{http://schemas.microsoft.com/appx/manifest/foundation/windows10}"
 UAP = "{http://schemas.microsoft.com/appx/manifest/uap/windows10}"
@@ -73,8 +81,22 @@ def normalised(text: str) -> str:
     return ET.canonicalize(ET.tostring(root, encoding="unicode"), strip_text=True)
 
 
-def problems(store: str, github: str) -> list[str]:
+def resource_names(resw: str) -> set[str]:
+    """The names of the strings in a .resw file."""
+    return {data.get("name", "") for data in ET.fromstring(resw).iter("data")}
+
+
+def missing_resources(manifest: str, names: set[str]) -> list[str]:
+    """The `ms-resource:` names `manifest` references that are not in `names`."""
+    return sorted({m.group(1) for m in re.finditer(r"ms-resource:([A-Za-z0-9_./]+)", manifest)} - names)
+
+
+def problems(store: str, github: str, resw: str) -> list[str]:
     found = []
+    names = resource_names(resw)
+    for label, manifest in (("Store", store), ("GitHub", github)):
+        for name in missing_resources(manifest, names):
+            found.append(f"the {label} manifest references ms-resource:{name}, which {RESW.relative_to(ROOT)} does not hold")
     a, b = facts(store), facts(github)
     if a["name"] == b["name"]:
         found.append(f"both flavours have the identity name {a['name']!r}")
@@ -98,6 +120,7 @@ def problems(store: str, github: str) -> list[str]:
 def self_test() -> int:
     store = STORE.read_text(encoding="utf-8")
     github = GITHUB.read_text(encoding="utf-8")
+    resw = RESW.read_text(encoding="utf-8")
     s, g = facts(store), facts(github)
     store_class, github_class = s["classes"][0], g["classes"][0]
     cases = [
@@ -114,9 +137,12 @@ def self_test() -> int:
         ("the startup task's display name changed",
          github.replace('TaskId="DistrictAIStartup" Enabled="false" DisplayName="District AI"',
                         'TaskId="DistrictAIStartup" Enabled="false" DisplayName="Other"'), True),
-        ("the description changed", github.replace('Description="District AI is', 'Description="District AI was'), True),
-        ("only the display name changed", github.replace("<DisplayName>District AI (GitHub)</DisplayName>",
-                                                         "<DisplayName>District AI (other)</DisplayName>"), False),
+        ("the description changed", github.replace('Description="ms-resource:AppDescription"',
+                                                   'Description="ms-resource:AppDisplayName"'), True),
+        ("only the display name changed", github.replace("<DisplayName>ms-resource:AppDisplayNameGithub</DisplayName>",
+                                                         "<DisplayName>ms-resource:AppDisplayName</DisplayName>"), False),
+        ("a display name the resources lack", github.replace("<DisplayName>ms-resource:AppDisplayNameGithub</DisplayName>",
+                                                             "<DisplayName>ms-resource:AppDisplayNameOther</DisplayName>"), True),
     ]
     failed = 0
     for name, variant, expect in cases:
@@ -124,13 +150,18 @@ def self_test() -> int:
             failed += 1
             print(f"self-test: {name}: the mutation did not apply to the GitHub manifest")
             continue
-        found = problems(store, variant)
+        found = problems(store, variant, resw)
         if bool(found) != expect:
             failed += 1
             print(f"self-test: {name}: expected {'a problem' if expect else 'none'}, got {found}")
+    # A .resw without the description: both manifests reference it.
+    without = re.sub(r'<data name="AppDescription".*?</data>', "", resw, flags=re.S)
+    if without == resw or len(problems(store, github, without)) != 2:
+        failed += 1
+        print("self-test: a .resw without AppDescription should be a problem for both manifests")
     if failed:
         return 1
-    print(f"self-test passed: {len(cases)} cases")
+    print(f"self-test passed: {len(cases) + 1} cases")
     return 0
 
 
@@ -140,7 +171,7 @@ def main() -> int:
     if sys.argv[1:]:
         print(__doc__)
         return 2
-    found = problems(STORE.read_text(encoding="utf-8"), GITHUB.read_text(encoding="utf-8"))
+    found = problems(STORE.read_text(encoding="utf-8"), GITHUB.read_text(encoding="utf-8"), RESW.read_text(encoding="utf-8"))
     for line in found:
         print(f"check-flavours: {line}")
     if not found:
