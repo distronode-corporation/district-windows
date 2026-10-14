@@ -392,6 +392,9 @@ public sealed class SchedulingSettingsViewModelTests
         vm.Set("notify_confirmation", false);
         Assert.Single(sink.Sent);
         Assert.False(vm.Groups[0].Switches[0].Enabled);
+        // The switches follow the core in place: the same switch, now on.
+        Assert.Same(reschedule, vm.Groups[0].Switches[1]);
+        Assert.True(reschedule.On);
     }
 
     [Fact]

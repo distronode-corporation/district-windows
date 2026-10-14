@@ -606,7 +606,25 @@ public sealed partial class SettingsNotificationsViewModel : ObservableObject
         {
             return;
         }
-        Display.Sync(Groups, [.. view.Groups.Select(group => NotificationGroupEntry.From(group, view.Editable))]);
+        // The switches are made once and then follow the core in place, so a
+        // switch is never made again under the member's pointer.
+        var fields = view.Groups.SelectMany(group => group.Switches.Select(entry => entry.Field)).ToArray();
+        if (!fields.SequenceEqual(Groups.SelectMany(group => group.Switches.Select(entry => entry.Field))))
+        {
+            Groups.Clear();
+            foreach (var group in view.Groups)
+            {
+                Groups.Add(NotificationGroupEntry.From(group));
+            }
+        }
+        foreach (var entry in view.Groups.SelectMany(group => group.Switches))
+        {
+            if (Groups.SelectMany(group => group.Switches).FirstOrDefault(current => current.Field == entry.Field) is { } current)
+            {
+                current.On = entry.On;
+                current.Enabled = view.Editable;
+            }
+        }
         Notice = view.Notice ?? string.Empty;
         HasNotice = view.Notice is not null;
     }
@@ -631,20 +649,32 @@ public sealed partial class SettingsNotificationsViewModel : ObservableObject
 /// <param name="Switches">Its switches.</param>
 public sealed record NotificationGroupEntry(string Heading, string Description, IReadOnlyList<NotificationSwitchEntry> Switches)
 {
-    internal static NotificationGroupEntry From(NotificationGroupView group, bool editable) =>
-        new(group.Heading, group.Description, [.. group.Switches.Select(entry => new NotificationSwitchEntry(entry.Field, entry.Label, entry.On, editable))]);
+    internal static NotificationGroupEntry From(NotificationGroupView group) =>
+        new(group.Heading, group.Description, [.. group.Switches.Select(entry => new NotificationSwitchEntry(entry.Field, entry.Label))]);
 
     /// <inheritdoc/>
     public override string ToString() => Heading;
 }
 
-/// <summary>One notification's switch.</summary>
-/// <param name="Field">The scheduler's name for it, which keys it.</param>
-/// <param name="Label">"Booking confirmed".</param>
-/// <param name="On">Whether it is on, as the core holds it.</param>
-/// <param name="Enabled">Whether it can be switched: nothing is on its way.</param>
-public sealed record NotificationSwitchEntry(string Field, string Label, bool On, bool Enabled)
+/// <summary>One notification's switch, following the core in place.</summary>
+/// <param name="field">The scheduler's name for it, which keys it.</param>
+/// <param name="label">"A booking is confirmed".</param>
+public sealed partial class NotificationSwitchEntry(string field, string label) : ObservableObject
 {
+    /// <summary>The scheduler's name for it, which keys it.</summary>
+    public string Field { get; } = field;
+
+    /// <summary>"A booking is confirmed".</summary>
+    public string Label { get; } = label;
+
+    /// <summary>Whether it is on, as the core holds it.</summary>
+    [ObservableProperty]
+    public partial bool On { get; set; }
+
+    /// <summary>Whether it can be switched: nothing is on its way.</summary>
+    [ObservableProperty]
+    public partial bool Enabled { get; set; }
+
     /// <summary>The UI Automation id of the switch ("SettingsNotify" and its field).</summary>
     public string AutomationId => "SettingsNotify" + Field;
 

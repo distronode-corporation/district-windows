@@ -23,8 +23,8 @@ public sealed partial class SettingsNotificationsContent : UserControl
 
     // An ItemsRepeater whose template uses x:Bind gives what it makes no
     // DataContext, so each switch carries its notification's field in Tag.
-    // A switch made, or made again, as the core holds it sends nothing: the
-    // view model sends only a change from what the core holds.
+    // A switch set to what the core holds (as it is made, or as the core's
+    // answer comes back) sends nothing: the view model sends only a change.
     private void OnToggled(object sender, RoutedEventArgs e)
     {
         if (sender is ToggleSwitch { Tag: string field } toggle)

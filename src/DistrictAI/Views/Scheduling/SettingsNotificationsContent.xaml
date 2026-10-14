@@ -33,8 +33,8 @@
                                         AutomationProperties.AutomationId="{x:Bind AutomationId}"
                                         AutomationProperties.Name="{x:Bind Label}"
                                         Header="{x:Bind Label}"
-                                        IsEnabled="{x:Bind Enabled}"
-                                        IsOn="{x:Bind On}"
+                                        IsEnabled="{x:Bind Enabled, Mode=OneWay}"
+                                        IsOn="{x:Bind On, Mode=OneWay}"
                                         Tag="{x:Bind Field}"
                                         Toggled="OnToggled" />
                                 </DataTemplate>
