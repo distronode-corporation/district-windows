@@ -414,9 +414,10 @@ fn signed_in(effect: Effect) -> Option<Event> {
 }
 
 /// The scheduling administration's answer to `request`, from its fixture.
-/// The bookings are moved to the days after the scene runs, so that they are
-/// still to come and can be acted on whenever the walk runs. `None` for a
-/// request of a section not built yet, which goes unanswered.
+/// The bookings, and the date overrides, are moved to the days after the
+/// scene runs, so that they are still to come and can be acted on whenever
+/// the walk runs. `None` for a request of a section not built yet, which goes
+/// unanswered.
 fn scheduling_admin(
     request: &district_model::SchedulingAdminRequest,
 ) -> Option<Result<district_model::SchedulingAdminReply, ApiError>> {
@@ -442,9 +443,14 @@ fn scheduling_admin(
             fixture!("district-scheduling-question.json")
         }
         R::SendTestEmail { .. } => fixture!("district-scheduling-test-email.json"),
-        R::DeleteEventType { .. } | R::DeleteQuestion { .. } => {
-            fixture!("district-scheduling-ok.json")
-        }
+        R::CreateRule { .. } | R::PatchRule { .. } => fixture!("district-scheduling-rule.json"),
+        R::Overrides => fixture!("district-scheduling-overrides.json"),
+        R::CreateOverride(_) => fixture!("district-scheduling-override-created.json"),
+        R::DeleteEventType { .. }
+        | R::DeleteQuestion { .. }
+        | R::DeleteRule { .. }
+        | R::DeleteOverride { .. }
+        | R::DeleteOverrideGroup { .. } => fixture!("district-scheduling-ok.json"),
         _ => return None,
     };
     let data = serde_json::from_str::<Value>(text)
@@ -453,11 +459,17 @@ fn scheduling_admin(
         .map(|mut data| {
             if data.get("start_at").is_some() {
                 soon(&mut data, 2);
-            } else if let (R::Bookings(_), Some(items)) =
+            } else if data.get("date").is_some() {
+                soon_day(&mut data, 2);
+            } else if let (R::Bookings(_) | R::Overrides, Some(items)) =
                 (request, data.get_mut("items").and_then(Value::as_array_mut))
             {
-                for (day, booking) in (2..).zip(items.iter_mut()) {
-                    soon(booking, day);
+                for (day, item) in (2..).zip(items.iter_mut()) {
+                    if matches!(request, R::Overrides) {
+                        soon_day(item, day);
+                    } else {
+                        soon(item, day);
+                    }
                 }
             }
             data
@@ -480,6 +492,16 @@ fn soon(booking: &mut Value, days: u64) {
     booking["end_at"] = json!(crate::calls_live::iso_utc(
         start + Duration::from_secs(1800)
     ));
+}
+
+/// The override `item` moved to the day `days` days from today, UTC.
+fn soon_day(item: &mut Value, days: u64) {
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
+    let today = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |since| since.as_secs() / 86_400);
+    let day = crate::calls_live::iso_utc(UNIX_EPOCH + Duration::from_secs((today + days) * 86_400));
+    item["date"] = json!(day[..10]);
 }
 
 /// Call handling as stored: `mode` and `ring` where a save names them, else
@@ -732,6 +754,7 @@ mod tests {
             Route::Workspace(S::Numbers),
             Route::SchedulingAdmin(district_core::SchedulingSection::Overview),
             Route::SchedulingAdmin(district_core::SchedulingSection::EventTypes),
+            Route::SchedulingAdmin(district_core::SchedulingSection::Hours),
             Route::SchedulingAdmin(district_core::SchedulingSection::Bookings),
         ];
         for route in routes.clone() {
@@ -983,6 +1006,86 @@ mod tests {
             panic!("not back on the list");
         };
         assert_eq!(view.rows.len(), 2);
+    }
+
+    /// The working hours open from the booking pages and fill in, the
+    /// overrides still to come; the week's editor reads, a window is added
+    /// and the save lands; the overrides' editor adds a day off and deletes
+    /// one, each landing.
+    #[test]
+    fn the_working_hours_fill_in_and_their_writes_land() {
+        use crate::events::UiEvent;
+        use crate::scheduling_admin::hours::{HoursAction as H, OverrideFormView};
+        use crate::scheduling_admin::{
+            SchedulingAdminAction as A, SchedulingAdminPage as P, SchedulingAdminSection,
+        };
+
+        let mut model = started();
+        let mut run = |action: A| {
+            let mut pending = Vec::new();
+            for event in (UiEvent::SchedulingAdmin { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::SchedulingAdmin { view } = screen else {
+                panic!("not the scheduling administration: {screen:?}");
+            };
+            let P::Hours { view } = view.page else {
+                panic!("not the working hours");
+            };
+            view
+        };
+        let view = run(A::Open {
+            section: SchedulingAdminSection::Hours,
+        });
+        assert_eq!(view.status, crate::views::LoadStatus::Ready);
+        assert_eq!(view.week.len(), 7);
+        assert_eq!(view.overrides.len(), 2);
+        assert!(view.offers_writes);
+
+        let hours = |action| A::Hours { action };
+        let view = run(hours(H::OpenWeek));
+        let week = view.week_editor.expect("the week's editor");
+        assert_eq!(week.days.len(), 7);
+        assert!(week.dialog.can_confirm);
+        let _ = run(hours(H::AddRange { day: 0 }));
+        let view = run(hours(H::SaveWeek));
+        let week = view.week_editor.expect("still open");
+        assert_eq!(week.notice.as_deref(), Some("Working hours saved"));
+        assert_eq!(week.dialog.failure, None);
+        let _ = run(hours(H::CloseDialog));
+
+        let view = run(hours(H::OpenOverrides));
+        let editor = view.overrides_editor.expect("the overrides' editor");
+        assert_eq!(editor.rows.len(), 2);
+        let view = run(hours(H::AddOverride));
+        let form = view
+            .overrides_editor
+            .and_then(|e| e.form)
+            .expect("the add form")
+            .form;
+        let _ = run(hours(H::EditOverride {
+            form: OverrideFormView {
+                date: "2099-12-24".to_owned(),
+                ..form
+            },
+        }));
+        let view = run(hours(H::SaveOverride));
+        let editor = view.overrides_editor.expect("still open");
+        assert_eq!(editor.form, None);
+        assert_eq!(editor.notice.as_deref(), Some("Override added"));
+        let _ = run(hours(H::AskDeleteOverride {
+            key: editor.rows[1].key.clone(),
+        }));
+        let view = run(hours(H::ConfirmDeleteOverride));
+        assert_eq!(
+            view.overrides_editor.and_then(|e| e.notice).as_deref(),
+            Some("Override deleted")
+        );
+        let view = run(hours(H::CloseDialog));
+        assert_eq!(view.overrides_editor, None);
     }
 
     /// Each settings section the walk opens from the hub fills in, and each

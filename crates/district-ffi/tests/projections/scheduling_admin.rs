@@ -19,6 +19,7 @@ use district_model::{SchedulingAdminReply, SchedulingAdminRequest};
 use super::*;
 
 pub(crate) mod event_types;
+pub(crate) mod hours;
 
 /// This area's snapshot cases.
 pub(crate) fn cases() -> Vec<Case> {
@@ -91,7 +92,7 @@ pub(crate) fn cases() -> Vec<Case> {
         (
             "scheduling-admin-section-not-built",
             signed_in().send(Event::Navigate(Route::SchedulingAdmin(
-                SchedulingSection::Hours,
+                SchedulingSection::Calendar,
             ))),
         ),
     ]

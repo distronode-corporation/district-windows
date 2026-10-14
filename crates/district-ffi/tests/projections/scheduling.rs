@@ -253,6 +253,7 @@ fn the_sections_are_listed_once_live() {
         [
             SchedulingAdminSection::Overview,
             SchedulingAdminSection::EventTypes,
+            SchedulingAdminSection::Hours,
             SchedulingAdminSection::Bookings
         ]
     );

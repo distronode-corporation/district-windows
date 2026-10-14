@@ -31,6 +31,12 @@
             "title": "Event types"
           },
           {
+            "section": "Hours",
+            "selected": false,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
             "section": "Bookings",
             "selected": false,
             "subtitle": "Every booking in this workspace, upcoming and past",

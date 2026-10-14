@@ -1,0 +1,120 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Hours": {
+            "view": {
+              "offers_writes": true,
+              "overrides": [],
+              "overrides_editor": null,
+              "overrides_empty": "No overrides ahead.",
+              "overrides_heading": "Date overrides",
+              "overrides_label": "Date overrides",
+              "overrides_status": {
+                "Failed": {
+                  "failure": {
+                    "message": "The booking system did not answer. Try again in a minute.",
+                    "regions_line": null,
+                    "retryable": true
+                  },
+                  "title": "Could not load this section"
+                }
+              },
+              "overrides_subtitle": "Days you are away, or working different hours from usual.",
+              "status": "Ready",
+              "summary": "Wed, 10:30 a.m. to 3:00 p.m.",
+              "times_in": "Times in America/Toronto",
+              "week": [
+                {
+                  "label": "Monday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Tuesday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Wednesday",
+                  "value": "10:30 a.m. to 3:00 p.m."
+                },
+                {
+                  "label": "Thursday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Friday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Saturday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Sunday",
+                  "value": "Not bookable"
+                }
+              ],
+              "week_editor": null,
+              "week_heading": "Working hours",
+              "week_label": "Your working hours"
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Hours",
+            "selected": true,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          }
+        ],
+        "title": "Working hours"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

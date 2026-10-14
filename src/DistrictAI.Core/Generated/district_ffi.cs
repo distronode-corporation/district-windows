@@ -12687,6 +12687,442 @@ class FfiConverterTypeHistoryMonthView: FfiConverterRustBuffer<HistoryMonthView>
 
 
 /// <summary>
+/// One day of the week's editor.
+/// </summary>
+/// <param name="Day">
+/// Which day, 0 for Monday, as the day's actions name it.
+/// </param>
+/// <param name="Name">
+/// "Monday".
+/// </param>
+/// <param name="Ranges">
+/// Its windows, as edited.
+/// </param>
+/// <param name="OffersCopy">
+/// Whether it offers "Copy to all weekdays": Monday to Friday, with a
+/// window to copy.
+/// </param>
+public record HoursDayView (
+    /// <summary>
+    /// Which day, 0 for Monday, as the day's actions name it.
+    /// </summary>
+    uint Day, 
+    /// <summary>
+    /// "Monday".
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Its windows, as edited.
+    /// </summary>
+    HoursRangeView[] Ranges, 
+    /// <summary>
+    /// Whether it offers "Copy to all weekdays": Monday to Friday, with a
+    /// window to copy.
+    /// </summary>
+    bool OffersCopy
+) {
+}
+
+class FfiConverterTypeHoursDayView: FfiConverterRustBuffer<HoursDayView> {
+    public static FfiConverterTypeHoursDayView INSTANCE = new FfiConverterTypeHoursDayView();
+
+    public override HoursDayView Read(BigEndianStream stream) {
+        return new HoursDayView(
+            Day: FfiConverterUInt32.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Ranges: FfiConverterSequenceTypeHoursRangeView.INSTANCE.Read(stream),
+            OffersCopy: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HoursDayView value) {
+        return 0
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Day)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterSequenceTypeHoursRangeView.INSTANCE.AllocationSize(value.Ranges)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersCopy);
+    }
+
+    public override void Write(HoursDayView value, BigEndianStream stream) {
+            FfiConverterUInt32.INSTANCE.Write(value.Day, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterSequenceTypeHoursRangeView.INSTANCE.Write(value.Ranges, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersCopy, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The overrides' editor: the days still to come, each with Delete, asked
+/// once more; Add override; and the add form in place of the list while it
+/// is open. It has no confirm: the form has its own.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("Date overrides"), the way out, and why the last write
+/// failed.
+/// </param>
+/// <param name="Hint">
+/// What it is for.
+/// </param>
+/// <param name="Status">
+/// Where the editor's own read of the overrides stands.
+/// </param>
+/// <param name="Rows">
+/// The days still to come, a run as one row.
+/// </param>
+/// <param name="Empty">
+/// Said when the overrides are read and none is to come.
+/// </param>
+/// <param name="AddLabel">
+/// "Add override", which opens the form.
+/// </param>
+/// <param name="CanChange">
+/// Whether an override can be added or deleted: the overrides are read
+/// and nothing is on its way.
+/// </param>
+/// <param name="DeleteLabel">
+/// "Delete", on each row.
+/// </param>
+/// <param name="Notice">
+/// What the last write came to ("Override added"), until it is put away
+/// (`HoursAction::DismissNotice`).
+/// </param>
+/// <param name="Form">
+/// The add form, while it is open.
+/// </param>
+/// <param name="Delete">
+/// A row's delete, while it is being asked about: a run goes whole, and
+/// says how many days.
+/// </param>
+public record HoursOverridesView (
+    /// <summary>
+    /// Its title ("Date overrides"), the way out, and why the last write
+    /// failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// What it is for.
+    /// </summary>
+    string Hint, 
+    /// <summary>
+    /// Where the editor's own read of the overrides stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The days still to come, a run as one row.
+    /// </summary>
+    OverrideRowView[] Rows, 
+    /// <summary>
+    /// Said when the overrides are read and none is to come.
+    /// </summary>
+    string Empty, 
+    /// <summary>
+    /// "Add override", which opens the form.
+    /// </summary>
+    string AddLabel, 
+    /// <summary>
+    /// Whether an override can be added or deleted: the overrides are read
+    /// and nothing is on its way.
+    /// </summary>
+    bool CanChange, 
+    /// <summary>
+    /// "Delete", on each row.
+    /// </summary>
+    string DeleteLabel, 
+    /// <summary>
+    /// What the last write came to ("Override added"), until it is put away
+    /// (`HoursAction::DismissNotice`).
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// The add form, while it is open.
+    /// </summary>
+    OverrideEditorView? Form, 
+    /// <summary>
+    /// A row's delete, while it is being asked about: a run goes whole, and
+    /// says how many days.
+    /// </summary>
+    SchedulingAskView? Delete
+) {
+}
+
+class FfiConverterTypeHoursOverridesView: FfiConverterRustBuffer<HoursOverridesView> {
+    public static FfiConverterTypeHoursOverridesView INSTANCE = new FfiConverterTypeHoursOverridesView();
+
+    public override HoursOverridesView Read(BigEndianStream stream) {
+        return new HoursOverridesView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Hint: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeOverrideRowView.INSTANCE.Read(stream),
+            Empty: FfiConverterString.INSTANCE.Read(stream),
+            AddLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanChange: FfiConverterBoolean.INSTANCE.Read(stream),
+            DeleteLabel: FfiConverterString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Form: FfiConverterOptionalTypeOverrideEditorView.INSTANCE.Read(stream),
+            Delete: FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HoursOverridesView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Hint)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeOverrideRowView.INSTANCE.AllocationSize(value.Rows)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AddLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChange)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeleteLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeOverrideEditorView.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterOptionalTypeSchedulingAskView.INSTANCE.AllocationSize(value.Delete);
+    }
+
+    public override void Write(HoursOverridesView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.Hint, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeOverrideRowView.INSTANCE.Write(value.Rows, stream);
+            FfiConverterString.INSTANCE.Write(value.Empty, stream);
+            FfiConverterString.INSTANCE.Write(value.AddLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanChange, stream);
+            FfiConverterString.INSTANCE.Write(value.DeleteLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeOverrideEditorView.INSTANCE.Write(value.Form, stream);
+            FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Write(value.Delete, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One window of a day, as typed.
+/// </summary>
+/// <param name="Key">
+/// Which window, as the window's actions name it. A window keeps its key
+/// while it is edited, and the week read again gives every window a new
+/// one.
+/// </param>
+/// <param name="Start">
+/// When it opens, `HH:MM`, as typed.
+/// </param>
+/// <param name="End">
+/// When it closes.
+/// </param>
+/// <param name="Error">
+/// Its fault: a time not `HH:MM`, an end not after its start, or an
+/// overlap with the window before it.
+/// </param>
+public record HoursRangeView (
+    /// <summary>
+    /// Which window, as the window's actions name it. A window keeps its key
+    /// while it is edited, and the week read again gives every window a new
+    /// one.
+    /// </summary>
+    ulong Key, 
+    /// <summary>
+    /// When it opens, `HH:MM`, as typed.
+    /// </summary>
+    string Start, 
+    /// <summary>
+    /// When it closes.
+    /// </summary>
+    string End, 
+    /// <summary>
+    /// Its fault: a time not `HH:MM`, an end not after its start, or an
+    /// overlap with the window before it.
+    /// </summary>
+    string? Error
+) {
+}
+
+class FfiConverterTypeHoursRangeView: FfiConverterRustBuffer<HoursRangeView> {
+    public static FfiConverterTypeHoursRangeView INSTANCE = new FfiConverterTypeHoursRangeView();
+
+    public override HoursRangeView Read(BigEndianStream stream) {
+        return new HoursRangeView(
+            Key: FfiConverterUInt64.INSTANCE.Read(stream),
+            Start: FfiConverterString.INSTANCE.Read(stream),
+            End: FfiConverterString.INSTANCE.Read(stream),
+            Error: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HoursRangeView value) {
+        return 0
+            + FfiConverterUInt64.INSTANCE.AllocationSize(value.Key)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Start)
+            + FfiConverterString.INSTANCE.AllocationSize(value.End)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Error);
+    }
+
+    public override void Write(HoursRangeView value, BigEndianStream stream) {
+            FfiConverterUInt64.INSTANCE.Write(value.Key, stream);
+            FfiConverterString.INSTANCE.Write(value.Start, stream);
+            FfiConverterString.INSTANCE.Write(value.End, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Error, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The week's editor: every day's windows, saved as the difference from what
+/// it read. Its save is the dialog's confirm, offered once the week is read
+/// and every window is sound.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("Your working hours"), the save ("Save", "Saving…"), the
+/// way out and why the save failed.
+/// </param>
+/// <param name="Status">
+/// Where the editor's own read of the week stands.
+/// </param>
+/// <param name="Editable">
+/// Whether the windows can be changed: the week is read and no save is on
+/// its way.
+/// </param>
+/// <param name="Days">
+/// The days, Monday first; none until the week is read.
+/// </param>
+/// <param name="NotBookable">
+/// "Not bookable", on a day with no window.
+/// </param>
+/// <param name="AddRangeLabel">
+/// "Add range", on each day.
+/// </param>
+/// <param name="CopyLabel">
+/// "Copy to all weekdays", on a weekday with a window to copy.
+/// </param>
+/// <param name="ToLabel">
+/// "to", between a window's two times.
+/// </param>
+/// <param name="RemoveLabel">
+/// "Remove", on each window.
+/// </param>
+/// <param name="StartPlaceholder">
+/// A new window's opening, the time box's placeholder.
+/// </param>
+/// <param name="EndPlaceholder">
+/// A new window's closing.
+/// </param>
+/// <param name="Notice">
+/// What the last save came to ("Working hours saved", "Nothing to
+/// save."), until it is put away (`HoursAction::DismissNotice`).
+/// </param>
+public record HoursWeekView (
+    /// <summary>
+    /// Its title ("Your working hours"), the save ("Save", "Saving…"), the
+    /// way out and why the save failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// Where the editor's own read of the week stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Whether the windows can be changed: the week is read and no save is on
+    /// its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// The days, Monday first; none until the week is read.
+    /// </summary>
+    HoursDayView[] Days, 
+    /// <summary>
+    /// "Not bookable", on a day with no window.
+    /// </summary>
+    string NotBookable, 
+    /// <summary>
+    /// "Add range", on each day.
+    /// </summary>
+    string AddRangeLabel, 
+    /// <summary>
+    /// "Copy to all weekdays", on a weekday with a window to copy.
+    /// </summary>
+    string CopyLabel, 
+    /// <summary>
+    /// "to", between a window's two times.
+    /// </summary>
+    string ToLabel, 
+    /// <summary>
+    /// "Remove", on each window.
+    /// </summary>
+    string RemoveLabel, 
+    /// <summary>
+    /// A new window's opening, the time box's placeholder.
+    /// </summary>
+    string StartPlaceholder, 
+    /// <summary>
+    /// A new window's closing.
+    /// </summary>
+    string EndPlaceholder, 
+    /// <summary>
+    /// What the last save came to ("Working hours saved", "Nothing to
+    /// save."), until it is put away (`HoursAction::DismissNotice`).
+    /// </summary>
+    string? Notice
+) {
+}
+
+class FfiConverterTypeHoursWeekView: FfiConverterRustBuffer<HoursWeekView> {
+    public static FfiConverterTypeHoursWeekView INSTANCE = new FfiConverterTypeHoursWeekView();
+
+    public override HoursWeekView Read(BigEndianStream stream) {
+        return new HoursWeekView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Days: FfiConverterSequenceTypeHoursDayView.INSTANCE.Read(stream),
+            NotBookable: FfiConverterString.INSTANCE.Read(stream),
+            AddRangeLabel: FfiConverterString.INSTANCE.Read(stream),
+            CopyLabel: FfiConverterString.INSTANCE.Read(stream),
+            ToLabel: FfiConverterString.INSTANCE.Read(stream),
+            RemoveLabel: FfiConverterString.INSTANCE.Read(stream),
+            StartPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            EndPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HoursWeekView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterSequenceTypeHoursDayView.INSTANCE.AllocationSize(value.Days)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NotBookable)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AddRangeLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopyLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ToLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RemoveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EndPlaceholder)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice);
+    }
+
+    public override void Write(HoursWeekView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterSequenceTypeHoursDayView.INSTANCE.Write(value.Days, stream);
+            FfiConverterString.INSTANCE.Write(value.NotBookable, stream);
+            FfiConverterString.INSTANCE.Write(value.AddRangeLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.CopyLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ToLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RemoveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.StartPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.EndPlaceholder, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The card in front of a change the assistant proposed.
 /// </summary>
 /// <param name="Title">
@@ -16237,6 +16673,342 @@ class FfiConverterTypeNumberTypeView: FfiConverterRustBuffer<NumberTypeView> {
     public override void Write(NumberTypeView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Value, stream);
             FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The add form.
+/// </summary>
+/// <param name="Title">
+/// "Add an override".
+/// </param>
+/// <param name="Form">
+/// The fields, as the core holds them.
+/// </param>
+/// <param name="Kinds">
+/// The kinds of day, the one chosen selected.
+/// </param>
+/// <param name="KindLabel">
+/// "What happens that day".
+/// </param>
+/// <param name="DateLabel">
+/// "First day", or "Date" for custom hours.
+/// </param>
+/// <param name="DatePlaceholder">
+/// The day box's placeholder: today, in the profile's zone.
+/// </param>
+/// <param name="ShowsLastDay">
+/// Whether the last day shows: a day off, which may run on.
+/// </param>
+/// <param name="LastDayLabel">
+/// "Last day".
+/// </param>
+/// <param name="LastDayHint">
+/// "Leave blank for a single day."
+/// </param>
+/// <param name="ShowsHours">
+/// Whether the hours show: custom hours, one day only.
+/// </param>
+/// <param name="HoursLabel">
+/// "Hours that day".
+/// </param>
+/// <param name="ToLabel">
+/// "to", between the two times.
+/// </param>
+/// <param name="StartPlaceholder">
+/// The opening's placeholder.
+/// </param>
+/// <param name="EndPlaceholder">
+/// The closing's placeholder.
+/// </param>
+/// <param name="SaveLabel">
+/// "Add override".
+/// </param>
+/// <param name="CancelLabel">
+/// "Cancel", which closes the form and keeps the dialog.
+/// </param>
+/// <param name="CanSave">
+/// Whether the save can be pressed: nothing is on its way.
+/// </param>
+/// <param name="Validation">
+/// Why the override cannot be sent, before anything was sent.
+/// </param>
+public record OverrideEditorView (
+    /// <summary>
+    /// "Add an override".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The fields, as the core holds them.
+    /// </summary>
+    OverrideFormView Form, 
+    /// <summary>
+    /// The kinds of day, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] Kinds, 
+    /// <summary>
+    /// "What happens that day".
+    /// </summary>
+    string KindLabel, 
+    /// <summary>
+    /// "First day", or "Date" for custom hours.
+    /// </summary>
+    string DateLabel, 
+    /// <summary>
+    /// The day box's placeholder: today, in the profile's zone.
+    /// </summary>
+    string DatePlaceholder, 
+    /// <summary>
+    /// Whether the last day shows: a day off, which may run on.
+    /// </summary>
+    bool ShowsLastDay, 
+    /// <summary>
+    /// "Last day".
+    /// </summary>
+    string LastDayLabel, 
+    /// <summary>
+    /// "Leave blank for a single day."
+    /// </summary>
+    string LastDayHint, 
+    /// <summary>
+    /// Whether the hours show: custom hours, one day only.
+    /// </summary>
+    bool ShowsHours, 
+    /// <summary>
+    /// "Hours that day".
+    /// </summary>
+    string HoursLabel, 
+    /// <summary>
+    /// "to", between the two times.
+    /// </summary>
+    string ToLabel, 
+    /// <summary>
+    /// The opening's placeholder.
+    /// </summary>
+    string StartPlaceholder, 
+    /// <summary>
+    /// The closing's placeholder.
+    /// </summary>
+    string EndPlaceholder, 
+    /// <summary>
+    /// "Add override".
+    /// </summary>
+    string SaveLabel, 
+    /// <summary>
+    /// "Cancel", which closes the form and keeps the dialog.
+    /// </summary>
+    string CancelLabel, 
+    /// <summary>
+    /// Whether the save can be pressed: nothing is on its way.
+    /// </summary>
+    bool CanSave, 
+    /// <summary>
+    /// Why the override cannot be sent, before anything was sent.
+    /// </summary>
+    string? Validation
+) {
+}
+
+class FfiConverterTypeOverrideEditorView: FfiConverterRustBuffer<OverrideEditorView> {
+    public static FfiConverterTypeOverrideEditorView INSTANCE = new FfiConverterTypeOverrideEditorView();
+
+    public override OverrideEditorView Read(BigEndianStream stream) {
+        return new OverrideEditorView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Form: FfiConverterTypeOverrideFormView.INSTANCE.Read(stream),
+            Kinds: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            KindLabel: FfiConverterString.INSTANCE.Read(stream),
+            DateLabel: FfiConverterString.INSTANCE.Read(stream),
+            DatePlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            ShowsLastDay: FfiConverterBoolean.INSTANCE.Read(stream),
+            LastDayLabel: FfiConverterString.INSTANCE.Read(stream),
+            LastDayHint: FfiConverterString.INSTANCE.Read(stream),
+            ShowsHours: FfiConverterBoolean.INSTANCE.Read(stream),
+            HoursLabel: FfiConverterString.INSTANCE.Read(stream),
+            ToLabel: FfiConverterString.INSTANCE.Read(stream),
+            StartPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            EndPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            SaveLabel: FfiConverterString.INSTANCE.Read(stream),
+            CancelLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
+            Validation: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(OverrideEditorView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeOverrideFormView.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Kinds)
+            + FfiConverterString.INSTANCE.AllocationSize(value.KindLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DateLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DatePlaceholder)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowsLastDay)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LastDayLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LastDayHint)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowsHours)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HoursLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ToLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EndPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SaveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CancelLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Validation);
+    }
+
+    public override void Write(OverrideEditorView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeOverrideFormView.INSTANCE.Write(value.Form, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Kinds, stream);
+            FfiConverterString.INSTANCE.Write(value.KindLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DateLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DatePlaceholder, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowsLastDay, stream);
+            FfiConverterString.INSTANCE.Write(value.LastDayLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.LastDayHint, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowsHours, stream);
+            FfiConverterString.INSTANCE.Write(value.HoursLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ToLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.StartPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.EndPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.SaveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.CancelLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Validation, stream);
+    }
+}
+
+
+
+/// <summary>
+/// An override's fields as the form holds them, what a change to the form
+/// sends back whole (`HoursAction::EditOverride`).
+/// </summary>
+/// <param name="Reason">
+/// The kind's wire value: `day_off` or `custom_hours`.
+/// </param>
+/// <param name="Date">
+/// The (first) day, `YYYY-MM-DD`, as typed.
+/// </param>
+/// <param name="EndDate">
+/// A day off's last day, or empty for one day.
+/// </param>
+/// <param name="Start">
+/// Custom hours' opening, `HH:MM`.
+/// </param>
+/// <param name="End">
+/// Custom hours' closing.
+/// </param>
+public record OverrideFormView (
+    /// <summary>
+    /// The kind's wire value: `day_off` or `custom_hours`.
+    /// </summary>
+    string Reason, 
+    /// <summary>
+    /// The (first) day, `YYYY-MM-DD`, as typed.
+    /// </summary>
+    string Date, 
+    /// <summary>
+    /// A day off's last day, or empty for one day.
+    /// </summary>
+    string EndDate, 
+    /// <summary>
+    /// Custom hours' opening, `HH:MM`.
+    /// </summary>
+    string Start, 
+    /// <summary>
+    /// Custom hours' closing.
+    /// </summary>
+    string End
+) {
+}
+
+class FfiConverterTypeOverrideFormView: FfiConverterRustBuffer<OverrideFormView> {
+    public static FfiConverterTypeOverrideFormView INSTANCE = new FfiConverterTypeOverrideFormView();
+
+    public override OverrideFormView Read(BigEndianStream stream) {
+        return new OverrideFormView(
+            Reason: FfiConverterString.INSTANCE.Read(stream),
+            Date: FfiConverterString.INSTANCE.Read(stream),
+            EndDate: FfiConverterString.INSTANCE.Read(stream),
+            Start: FfiConverterString.INSTANCE.Read(stream),
+            End: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(OverrideFormView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Reason)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Date)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EndDate)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Start)
+            + FfiConverterString.INSTANCE.AllocationSize(value.End);
+    }
+
+    public override void Write(OverrideFormView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Reason, stream);
+            FfiConverterString.INSTANCE.Write(value.Date, stream);
+            FfiConverterString.INSTANCE.Write(value.EndDate, stream);
+            FfiConverterString.INSTANCE.Write(value.Start, stream);
+            FfiConverterString.INSTANCE.Write(value.End, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A day, or a run of days, still to come.
+/// </summary>
+/// <param name="Key">
+/// The row, as its delete names it (`HoursAction::AskDeleteOverride`).
+/// </param>
+/// <param name="Dates">
+/// "Sep 24, 2026", or "Dec 24, 2026 to Dec 31, 2026".
+/// </param>
+/// <param name="Hours">
+/// "12:00 p.m. to 4:00 p.m.", "Out of office" or "Unavailable".
+/// </param>
+public record OverrideRowView (
+    /// <summary>
+    /// The row, as its delete names it (`HoursAction::AskDeleteOverride`).
+    /// </summary>
+    string Key, 
+    /// <summary>
+    /// "Sep 24, 2026", or "Dec 24, 2026 to Dec 31, 2026".
+    /// </summary>
+    string Dates, 
+    /// <summary>
+    /// "12:00 p.m. to 4:00 p.m.", "Out of office" or "Unavailable".
+    /// </summary>
+    string Hours
+) {
+}
+
+class FfiConverterTypeOverrideRowView: FfiConverterRustBuffer<OverrideRowView> {
+    public static FfiConverterTypeOverrideRowView INSTANCE = new FfiConverterTypeOverrideRowView();
+
+    public override OverrideRowView Read(BigEndianStream stream) {
+        return new OverrideRowView(
+            Key: FfiConverterString.INSTANCE.Read(stream),
+            Dates: FfiConverterString.INSTANCE.Read(stream),
+            Hours: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(OverrideRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Key)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Dates)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Hours);
+    }
+
+    public override void Write(OverrideRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Key, stream);
+            FfiConverterString.INSTANCE.Write(value.Dates, stream);
+            FfiConverterString.INSTANCE.Write(value.Hours, stream);
     }
 }
 
@@ -20238,6 +21010,193 @@ class FfiConverterTypeSchedulingEventTypesView: FfiConverterRustBuffer<Schedulin
             FfiConverterBoolean.INSTANCE.Write(value.OffersCreate, stream);
             FfiConverterString.INSTANCE.Write(value.CreateLabel, stream);
             FfiConverterOptionalTypeEventTypeEditorView.INSTANCE.Write(value.Create, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The working hours.
+/// </summary>
+/// <param name="TimesIn">
+/// "Times in America/Toronto": the zone of the member's scheduler profile.
+/// </param>
+/// <param name="OffersWrites">
+/// Whether the two editors are offered: the member may change things.
+/// </param>
+/// <param name="WeekLabel">
+/// "Your working hours", which opens the week's editor
+/// (`HoursAction::OpenWeek`).
+/// </param>
+/// <param name="OverridesLabel">
+/// "Date overrides", which opens the overrides' editor
+/// (`HoursAction::OpenOverrides`).
+/// </param>
+/// <param name="WeekHeading">
+/// The week's heading.
+/// </param>
+/// <param name="Status">
+/// Where the read of the week stands: a failed one is a status page.
+/// </param>
+/// <param name="Summary">
+/// "Mon to Fri, 9:00 a.m. to 5:00 p.m.", or that no day is bookable yet;
+/// shown once the week is read.
+/// </param>
+/// <param name="Week">
+/// The week, Monday first, every day: its name, and its hours or "Not
+/// bookable". Empty until read.
+/// </param>
+/// <param name="OverridesHeading">
+/// The overrides' heading.
+/// </param>
+/// <param name="OverridesSubtitle">
+/// What they are.
+/// </param>
+/// <param name="OverridesStatus">
+/// Where the read of the overrides stands; a failure is said on its own
+/// line, under the week.
+/// </param>
+/// <param name="Overrides">
+/// The overrides still to come, a run as one row: its days, and its hours
+/// or why it has none.
+/// </param>
+/// <param name="OverridesEmpty">
+/// Said when the overrides are read and none is to come.
+/// </param>
+/// <param name="WeekEditor">
+/// The week's editor, while it is open.
+/// </param>
+/// <param name="OverridesEditor">
+/// The overrides' editor, while it is open.
+/// </param>
+public record SchedulingHoursView (
+    /// <summary>
+    /// "Times in America/Toronto": the zone of the member's scheduler profile.
+    /// </summary>
+    string TimesIn, 
+    /// <summary>
+    /// Whether the two editors are offered: the member may change things.
+    /// </summary>
+    bool OffersWrites, 
+    /// <summary>
+    /// "Your working hours", which opens the week's editor
+    /// (`HoursAction::OpenWeek`).
+    /// </summary>
+    string WeekLabel, 
+    /// <summary>
+    /// "Date overrides", which opens the overrides' editor
+    /// (`HoursAction::OpenOverrides`).
+    /// </summary>
+    string OverridesLabel, 
+    /// <summary>
+    /// The week's heading.
+    /// </summary>
+    string WeekHeading, 
+    /// <summary>
+    /// Where the read of the week stands: a failed one is a status page.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// "Mon to Fri, 9:00 a.m. to 5:00 p.m.", or that no day is bookable yet;
+    /// shown once the week is read.
+    /// </summary>
+    string Summary, 
+    /// <summary>
+    /// The week, Monday first, every day: its name, and its hours or "Not
+    /// bookable". Empty until read.
+    /// </summary>
+    FactView[] Week, 
+    /// <summary>
+    /// The overrides' heading.
+    /// </summary>
+    string OverridesHeading, 
+    /// <summary>
+    /// What they are.
+    /// </summary>
+    string OverridesSubtitle, 
+    /// <summary>
+    /// Where the read of the overrides stands; a failure is said on its own
+    /// line, under the week.
+    /// </summary>
+    LoadStatus OverridesStatus, 
+    /// <summary>
+    /// The overrides still to come, a run as one row: its days, and its hours
+    /// or why it has none.
+    /// </summary>
+    FactView[] Overrides, 
+    /// <summary>
+    /// Said when the overrides are read and none is to come.
+    /// </summary>
+    string OverridesEmpty, 
+    /// <summary>
+    /// The week's editor, while it is open.
+    /// </summary>
+    HoursWeekView? WeekEditor, 
+    /// <summary>
+    /// The overrides' editor, while it is open.
+    /// </summary>
+    HoursOverridesView? OverridesEditor
+) {
+}
+
+class FfiConverterTypeSchedulingHoursView: FfiConverterRustBuffer<SchedulingHoursView> {
+    public static FfiConverterTypeSchedulingHoursView INSTANCE = new FfiConverterTypeSchedulingHoursView();
+
+    public override SchedulingHoursView Read(BigEndianStream stream) {
+        return new SchedulingHoursView(
+            TimesIn: FfiConverterString.INSTANCE.Read(stream),
+            OffersWrites: FfiConverterBoolean.INSTANCE.Read(stream),
+            WeekLabel: FfiConverterString.INSTANCE.Read(stream),
+            OverridesLabel: FfiConverterString.INSTANCE.Read(stream),
+            WeekHeading: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Summary: FfiConverterString.INSTANCE.Read(stream),
+            Week: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            OverridesHeading: FfiConverterString.INSTANCE.Read(stream),
+            OverridesSubtitle: FfiConverterString.INSTANCE.Read(stream),
+            OverridesStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Overrides: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            OverridesEmpty: FfiConverterString.INSTANCE.Read(stream),
+            WeekEditor: FfiConverterOptionalTypeHoursWeekView.INSTANCE.Read(stream),
+            OverridesEditor: FfiConverterOptionalTypeHoursOverridesView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingHoursView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimesIn)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWrites)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WeekLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OverridesLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WeekHeading)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Week)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OverridesHeading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OverridesSubtitle)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.OverridesStatus)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Overrides)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OverridesEmpty)
+            + FfiConverterOptionalTypeHoursWeekView.INSTANCE.AllocationSize(value.WeekEditor)
+            + FfiConverterOptionalTypeHoursOverridesView.INSTANCE.AllocationSize(value.OverridesEditor);
+    }
+
+    public override void Write(SchedulingHoursView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.TimesIn, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersWrites, stream);
+            FfiConverterString.INSTANCE.Write(value.WeekLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.OverridesLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.WeekHeading, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.Summary, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Week, stream);
+            FfiConverterString.INSTANCE.Write(value.OverridesHeading, stream);
+            FfiConverterString.INSTANCE.Write(value.OverridesSubtitle, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.OverridesStatus, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Overrides, stream);
+            FfiConverterString.INSTANCE.Write(value.OverridesEmpty, stream);
+            FfiConverterOptionalTypeHoursWeekView.INSTANCE.Write(value.WeekEditor, stream);
+            FfiConverterOptionalTypeHoursOverridesView.INSTANCE.Write(value.OverridesEditor, stream);
     }
 }
 
@@ -28555,6 +29514,333 @@ class FfiConverterTypeFileKind: FfiConverterRustBuffer<FileKind> {
 
 
 /// <summary>
+/// Something the member did on the working hours.
+/// </summary>
+public record HoursAction {
+    
+    /// <summary>
+    /// Open the week's editor.
+    /// </summary>
+    public record OpenWeek: HoursAction {}
+    
+    
+    /// <summary>
+    /// Add a window to a day, 9 to 5.
+    /// </summary>
+    public record AddRange (
+        uint Day
+    ) : HoursAction {}
+    
+    /// <summary>
+    /// Take a window off.
+    /// </summary>
+    public record RemoveRange (
+        uint Day,
+        ulong Key
+    ) : HoursAction {}
+    
+    /// <summary>
+    /// A window's opening changed.
+    /// </summary>
+    public record SetRangeStart (
+        uint Day,
+        ulong Key,
+        string Value
+    ) : HoursAction {}
+    
+    /// <summary>
+    /// A window's closing changed.
+    /// </summary>
+    public record SetRangeEnd (
+        uint Day,
+        ulong Key,
+        string Value
+    ) : HoursAction {}
+    
+    /// <summary>
+    /// Give every other weekday this day's windows.
+    /// </summary>
+    public record CopyToWeekdays (
+        uint Day
+    ) : HoursAction {}
+    
+    /// <summary>
+    /// Save the week.
+    /// </summary>
+    public record SaveWeek: HoursAction {}
+    
+    
+    /// <summary>
+    /// Open the overrides' editor, the days still to come as of the press.
+    /// </summary>
+    public record OpenOverrides: HoursAction {}
+    
+    
+    /// <summary>
+    /// Open the add form.
+    /// </summary>
+    public record AddOverride: HoursAction {}
+    
+    
+    /// <summary>
+    /// The add form's fields changed.
+    /// </summary>
+    public record EditOverride (
+        OverrideFormView Form
+    ) : HoursAction {}
+    
+    /// <summary>
+    /// Close the add form.
+    /// </summary>
+    public record CancelOverride: HoursAction {}
+    
+    
+    /// <summary>
+    /// Add the override.
+    /// </summary>
+    public record SaveOverride: HoursAction {}
+    
+    
+    /// <summary>
+    /// Ask about deleting a row.
+    /// </summary>
+    public record AskDeleteOverride (
+        string Key
+    ) : HoursAction {}
+    
+    /// <summary>
+    /// Do not delete it.
+    /// </summary>
+    public record CancelDeleteOverride: HoursAction {}
+    
+    
+    /// <summary>
+    /// Delete it (a run whole).
+    /// </summary>
+    public record ConfirmDeleteOverride: HoursAction {}
+    
+    
+    /// <summary>
+    /// Put away what the last write came to.
+    /// </summary>
+    public record DismissNotice: HoursAction {}
+    
+    
+    /// <summary>
+    /// Close the editor.
+    /// </summary>
+    public record CloseDialog: HoursAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeHoursAction : FfiConverterRustBuffer<HoursAction>{
+    public static FfiConverterRustBuffer<HoursAction> INSTANCE = new FfiConverterTypeHoursAction();
+
+    public override HoursAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new HoursAction.OpenWeek(
+                );
+            case 2:
+                return new HoursAction.AddRange(
+                    FfiConverterUInt32.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new HoursAction.RemoveRange(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterUInt64.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new HoursAction.SetRangeStart(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterUInt64.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new HoursAction.SetRangeEnd(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterUInt64.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new HoursAction.CopyToWeekdays(
+                    FfiConverterUInt32.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new HoursAction.SaveWeek(
+                );
+            case 8:
+                return new HoursAction.OpenOverrides(
+                );
+            case 9:
+                return new HoursAction.AddOverride(
+                );
+            case 10:
+                return new HoursAction.EditOverride(
+                    FfiConverterTypeOverrideFormView.INSTANCE.Read(stream)
+                );
+            case 11:
+                return new HoursAction.CancelOverride(
+                );
+            case 12:
+                return new HoursAction.SaveOverride(
+                );
+            case 13:
+                return new HoursAction.AskDeleteOverride(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 14:
+                return new HoursAction.CancelDeleteOverride(
+                );
+            case 15:
+                return new HoursAction.ConfirmDeleteOverride(
+                );
+            case 16:
+                return new HoursAction.DismissNotice(
+                );
+            case 17:
+                return new HoursAction.CloseDialog(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHoursAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(HoursAction value) {
+        switch (value) {
+            case HoursAction.OpenWeek variant_value:
+                return 4;
+            case HoursAction.AddRange variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Day);
+            case HoursAction.RemoveRange variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Day)
+                    + FfiConverterUInt64.INSTANCE.AllocationSize(variant_value.Key);
+            case HoursAction.SetRangeStart variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Day)
+                    + FfiConverterUInt64.INSTANCE.AllocationSize(variant_value.Key)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case HoursAction.SetRangeEnd variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Day)
+                    + FfiConverterUInt64.INSTANCE.AllocationSize(variant_value.Key)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case HoursAction.CopyToWeekdays variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Day);
+            case HoursAction.SaveWeek variant_value:
+                return 4;
+            case HoursAction.OpenOverrides variant_value:
+                return 4;
+            case HoursAction.AddOverride variant_value:
+                return 4;
+            case HoursAction.EditOverride variant_value:
+                return 4
+                    + FfiConverterTypeOverrideFormView.INSTANCE.AllocationSize(variant_value.Form);
+            case HoursAction.CancelOverride variant_value:
+                return 4;
+            case HoursAction.SaveOverride variant_value:
+                return 4;
+            case HoursAction.AskDeleteOverride variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Key);
+            case HoursAction.CancelDeleteOverride variant_value:
+                return 4;
+            case HoursAction.ConfirmDeleteOverride variant_value:
+                return 4;
+            case HoursAction.DismissNotice variant_value:
+                return 4;
+            case HoursAction.CloseDialog variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHoursAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(HoursAction value, BigEndianStream stream) {
+        switch (value) {
+            case HoursAction.OpenWeek variant_value:
+                stream.WriteInt(1);
+                break;
+            case HoursAction.AddRange variant_value:
+                stream.WriteInt(2);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Day, stream);
+                break;
+            case HoursAction.RemoveRange variant_value:
+                stream.WriteInt(3);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Day, stream);
+                FfiConverterUInt64.INSTANCE.Write(variant_value.Key, stream);
+                break;
+            case HoursAction.SetRangeStart variant_value:
+                stream.WriteInt(4);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Day, stream);
+                FfiConverterUInt64.INSTANCE.Write(variant_value.Key, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case HoursAction.SetRangeEnd variant_value:
+                stream.WriteInt(5);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Day, stream);
+                FfiConverterUInt64.INSTANCE.Write(variant_value.Key, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case HoursAction.CopyToWeekdays variant_value:
+                stream.WriteInt(6);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Day, stream);
+                break;
+            case HoursAction.SaveWeek variant_value:
+                stream.WriteInt(7);
+                break;
+            case HoursAction.OpenOverrides variant_value:
+                stream.WriteInt(8);
+                break;
+            case HoursAction.AddOverride variant_value:
+                stream.WriteInt(9);
+                break;
+            case HoursAction.EditOverride variant_value:
+                stream.WriteInt(10);
+                FfiConverterTypeOverrideFormView.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case HoursAction.CancelOverride variant_value:
+                stream.WriteInt(11);
+                break;
+            case HoursAction.SaveOverride variant_value:
+                stream.WriteInt(12);
+                break;
+            case HoursAction.AskDeleteOverride variant_value:
+                stream.WriteInt(13);
+                FfiConverterString.INSTANCE.Write(variant_value.Key, stream);
+                break;
+            case HoursAction.CancelDeleteOverride variant_value:
+                stream.WriteInt(14);
+                break;
+            case HoursAction.ConfirmDeleteOverride variant_value:
+                stream.WriteInt(15);
+                break;
+            case HoursAction.DismissNotice variant_value:
+                stream.WriteInt(16);
+                break;
+            case HoursAction.CloseDialog variant_value:
+                stream.WriteInt(17);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHoursAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the member did on District HQ.
 /// </summary>
 public record HqAction {
@@ -32542,6 +33828,13 @@ public record SchedulingAdminAction {
     ) : SchedulingAdminAction {}
     
     /// <summary>
+    /// On the working hours.
+    /// </summary>
+    public record Hours (
+        HoursAction Action
+    ) : SchedulingAdminAction {}
+    
+    /// <summary>
     /// Open one booking from the list.
     /// </summary>
     public record OpenBooking (
@@ -32589,14 +33882,18 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                     FfiConverterTypeEventTypeAction.INSTANCE.Read(stream)
                 );
             case 5:
+                return new SchedulingAdminAction.Hours(
+                    FfiConverterTypeHoursAction.INSTANCE.Read(stream)
+                );
+            case 6:
                 return new SchedulingAdminAction.OpenBooking(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 6:
+            case 7:
                 return new SchedulingAdminAction.Bookings(
                     FfiConverterTypeBookingsAction.INSTANCE.Read(stream)
                 );
-            case 7:
+            case 8:
                 return new SchedulingAdminAction.Booking(
                     FfiConverterTypeBookingAction.INSTANCE.Read(stream)
                 );
@@ -32619,6 +33916,9 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.EventType variant_value:
                 return 4
                     + FfiConverterTypeEventTypeAction.INSTANCE.AllocationSize(variant_value.Action);
+            case SchedulingAdminAction.Hours variant_value:
+                return 4
+                    + FfiConverterTypeHoursAction.INSTANCE.AllocationSize(variant_value.Action);
             case SchedulingAdminAction.OpenBooking variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.BookingId);
@@ -32651,16 +33951,20 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                 stream.WriteInt(4);
                 FfiConverterTypeEventTypeAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
-            case SchedulingAdminAction.OpenBooking variant_value:
+            case SchedulingAdminAction.Hours variant_value:
                 stream.WriteInt(5);
+                FfiConverterTypeHoursAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SchedulingAdminAction.OpenBooking variant_value:
+                stream.WriteInt(6);
                 FfiConverterString.INSTANCE.Write(variant_value.BookingId, stream);
                 break;
             case SchedulingAdminAction.Bookings variant_value:
-                stream.WriteInt(6);
+                stream.WriteInt(7);
                 FfiConverterTypeBookingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case SchedulingAdminAction.Booking variant_value:
-                stream.WriteInt(7);
+                stream.WriteInt(8);
                 FfiConverterTypeBookingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -32703,6 +34007,13 @@ public record SchedulingAdminPage {
     ) : SchedulingAdminPage {}
     
     /// <summary>
+    /// The working hours.
+    /// </summary>
+    public record Hours (
+        SchedulingHoursView View
+    ) : SchedulingAdminPage {}
+    
+    /// <summary>
     /// The bookings list.
     /// </summary>
     public record Bookings (
@@ -32739,10 +34050,14 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                     FfiConverterTypeSchedulingEventTypeView.INSTANCE.Read(stream)
                 );
             case 4:
+                return new SchedulingAdminPage.Hours(
+                    FfiConverterTypeSchedulingHoursView.INSTANCE.Read(stream)
+                );
+            case 5:
                 return new SchedulingAdminPage.Bookings(
                     FfiConverterTypeSchedulingBookingsView.INSTANCE.Read(stream)
                 );
-            case 5:
+            case 6:
                 return new SchedulingAdminPage.Booking(
                     FfiConverterTypeSchedulingBookingView.INSTANCE.Read(stream)
                 );
@@ -32762,6 +34077,9 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.EventType variant_value:
                 return 4
                     + FfiConverterTypeSchedulingEventTypeView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.Hours variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingHoursView.INSTANCE.AllocationSize(variant_value.View);
             case SchedulingAdminPage.Bookings variant_value:
                 return 4
                     + FfiConverterTypeSchedulingBookingsView.INSTANCE.AllocationSize(variant_value.View);
@@ -32787,12 +34105,16 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                 stream.WriteInt(3);
                 FfiConverterTypeSchedulingEventTypeView.INSTANCE.Write(variant_value.View, stream);
                 break;
-            case SchedulingAdminPage.Bookings variant_value:
+            case SchedulingAdminPage.Hours variant_value:
                 stream.WriteInt(4);
+                FfiConverterTypeSchedulingHoursView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.Bookings variant_value:
+                stream.WriteInt(5);
                 FfiConverterTypeSchedulingBookingsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case SchedulingAdminPage.Booking variant_value:
-                stream.WriteInt(5);
+                stream.WriteInt(6);
                 FfiConverterTypeSchedulingBookingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             default:
@@ -37886,6 +39208,68 @@ class FfiConverterOptionalTypeHistoryChartView: FfiConverterRustBuffer<HistoryCh
 
 
 
+class FfiConverterOptionalTypeHoursOverridesView: FfiConverterRustBuffer<HoursOverridesView?> {
+    public static FfiConverterOptionalTypeHoursOverridesView INSTANCE = new FfiConverterOptionalTypeHoursOverridesView();
+
+    public override HoursOverridesView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeHoursOverridesView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(HoursOverridesView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeHoursOverridesView.INSTANCE.AllocationSize((HoursOverridesView)value);
+        }
+    }
+
+    public override void Write(HoursOverridesView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeHoursOverridesView.INSTANCE.Write((HoursOverridesView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeHoursWeekView: FfiConverterRustBuffer<HoursWeekView?> {
+    public static FfiConverterOptionalTypeHoursWeekView INSTANCE = new FfiConverterOptionalTypeHoursWeekView();
+
+    public override HoursWeekView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeHoursWeekView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(HoursWeekView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeHoursWeekView.INSTANCE.AllocationSize((HoursWeekView)value);
+        }
+    }
+
+    public override void Write(HoursWeekView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeHoursWeekView.INSTANCE.Write((HoursWeekView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeHqCardView: FfiConverterRustBuffer<HqCardView?> {
     public static FfiConverterOptionalTypeHqCardView INSTANCE = new FfiConverterOptionalTypeHqCardView();
 
@@ -38220,6 +39604,37 @@ class FfiConverterOptionalTypeNumberManageView: FfiConverterRustBuffer<NumberMan
         } else {
             stream.WriteByte(1);
             FfiConverterTypeNumberManageView.INSTANCE.Write((NumberManageView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeOverrideEditorView: FfiConverterRustBuffer<OverrideEditorView?> {
+    public static FfiConverterOptionalTypeOverrideEditorView INSTANCE = new FfiConverterOptionalTypeOverrideEditorView();
+
+    public override OverrideEditorView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeOverrideEditorView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(OverrideEditorView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeOverrideEditorView.INSTANCE.AllocationSize((OverrideEditorView)value);
+        }
+    }
+
+    public override void Write(OverrideEditorView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeOverrideEditorView.INSTANCE.Write((OverrideEditorView)value, stream);
         }
     }
 }
@@ -40228,6 +41643,98 @@ class FfiConverterSequenceTypeHistoryMonthView: FfiConverterRustBuffer<HistoryMo
 
 
 
+class FfiConverterSequenceTypeHoursDayView: FfiConverterRustBuffer<HoursDayView[]> {
+    public static FfiConverterSequenceTypeHoursDayView INSTANCE = new FfiConverterSequenceTypeHoursDayView();
+
+    public override HoursDayView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new HoursDayView[length];
+        var readFn = FfiConverterTypeHoursDayView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(HoursDayView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeHoursDayView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(HoursDayView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeHoursDayView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeHoursRangeView: FfiConverterRustBuffer<HoursRangeView[]> {
+    public static FfiConverterSequenceTypeHoursRangeView INSTANCE = new FfiConverterSequenceTypeHoursRangeView();
+
+    public override HoursRangeView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new HoursRangeView[length];
+        var readFn = FfiConverterTypeHoursRangeView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(HoursRangeView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeHoursRangeView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(HoursRangeView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeHoursRangeView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeInvoiceRowView: FfiConverterRustBuffer<InvoiceRowView[]> {
     public static FfiConverterSequenceTypeInvoiceRowView INSTANCE = new FfiConverterSequenceTypeInvoiceRowView();
 
@@ -40773,6 +42280,52 @@ class FfiConverterSequenceTypeNumberTypeView: FfiConverterRustBuffer<NumberTypeV
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeNumberTypeView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeOverrideRowView: FfiConverterRustBuffer<OverrideRowView[]> {
+    public static FfiConverterSequenceTypeOverrideRowView INSTANCE = new FfiConverterSequenceTypeOverrideRowView();
+
+    public override OverrideRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new OverrideRowView[length];
+        var readFn = FfiConverterTypeOverrideRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(OverrideRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeOverrideRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(OverrideRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeOverrideRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
