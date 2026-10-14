@@ -42,7 +42,7 @@
         "owned_empty": null,
         "owned_status": "Ready",
         "partial_note": null,
-        "read_only_note": "This screen is read only. Ask an agency or client member of this workspace to add or release a number.",
+        "read_only_note": "Carrier setup and number changes need an agency or client role. Ask someone on this workspace who has one.",
         "refreshing": false,
         "search": "Idle",
         "tab": "Owned",

@@ -162,7 +162,7 @@ fn a_viewer_is_told_who_can() {
     assert!(!view.offers_web);
     assert!(
         view.read_only_note
-            .starts_with("This screen is read only. Ask")
+            .starts_with("Carrier setup and number changes need an agency or client role.")
     );
     let before = session.pending.len();
     let tried = session.ui(action(MarketplaceAction::OpenWeb));

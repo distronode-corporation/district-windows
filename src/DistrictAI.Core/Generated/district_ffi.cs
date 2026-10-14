@@ -23912,7 +23912,12 @@ public enum NumbersTab: int {
     /// <summary>
     /// The numbers for sale.
     /// </summary>
-    Search
+    Search,
+    /// <summary>
+    /// The carrier accounts, SIP trunks, one-time passcodes and messaging
+    /// registrations.
+    /// </summary>
+    Carrier
 }
 
 class FfiConverterTypeNumbersTab: FfiConverterRustBuffer<NumbersTab> {
@@ -23923,6 +23928,7 @@ class FfiConverterTypeNumbersTab: FfiConverterRustBuffer<NumbersTab> {
         switch (value) {
             case 1: return NumbersTab.Owned;
             case 2: return NumbersTab.Search;
+            case 3: return NumbersTab.Carrier;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumbersTab.Read()", value));
         }
     }
@@ -23935,6 +23941,7 @@ class FfiConverterTypeNumbersTab: FfiConverterRustBuffer<NumbersTab> {
         switch (value) {
             case NumbersTab.Owned: stream.WriteInt(1); break;
             case NumbersTab.Search: stream.WriteInt(2); break;
+            case NumbersTab.Carrier: stream.WriteInt(3); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumbersTab.Write()", value));
         }
     }
