@@ -12,7 +12,7 @@ use crate::shell::TabView;
 use crate::views::ReportTarget;
 use crate::{
     analytics, billing, blocked, composer, contacts, desk, hq, marketplace, rooms, scheduling,
-    settings, support, workflows,
+    scheduling_admin, settings, support, workflows,
 };
 
 /// Something the user did in the window. Most are one core event
@@ -211,6 +211,11 @@ pub enum UiEvent {
         /// What.
         action: crate::scheduling::SchedulingAction,
     },
+    /// Something done in the booking scheduler's administration.
+    SchedulingAdmin {
+        /// What.
+        action: crate::scheduling_admin::SchedulingAdminAction,
+    },
     /// Something done on the help desk.
     Desk {
         /// What.
@@ -358,6 +363,7 @@ impl UiEvent {
             UiEvent::Billing { action } => return billing::events(action),
             UiEvent::Workflows { action } => return workflows::events(action),
             UiEvent::Scheduling { action } => return scheduling::events(action),
+            UiEvent::SchedulingAdmin { action } => return scheduling_admin::events(action),
             UiEvent::Desk { action } => return desk::events(action),
             UiEvent::Support { action } => return support::events(action),
             UiEvent::Rooms { action } => return rooms::events(action),
@@ -582,6 +588,11 @@ mod tests {
             },
             UiEvent::Scheduling {
                 action: crate::scheduling::SchedulingAction::ManageOnWeb,
+            },
+            UiEvent::SchedulingAdmin {
+                action: crate::scheduling_admin::SchedulingAdminAction::Open {
+                    section: crate::scheduling_admin::SchedulingAdminSection::Bookings,
+                },
             },
             UiEvent::Desk {
                 action: crate::desk::DeskAction::OpenSettings,

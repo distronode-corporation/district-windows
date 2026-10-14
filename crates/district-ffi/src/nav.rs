@@ -12,8 +12,8 @@ use serde::Serialize;
 
 use crate::l10n::{l, s};
 use crate::{
-    analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling, settings, support,
-    workflows,
+    analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling, scheduling_admin,
+    settings, support, workflows,
 };
 
 /// What the navigation pane shows: its groups, top to bottom, each with at
@@ -220,8 +220,7 @@ pub(crate) fn built(route: &Route) -> bool {
             WorkspaceSection::Members => settings::members::BUILT,
             WorkspaceSection::Numbers => settings::numbers::BUILT,
         },
-        // Scheduling administration has no page in this version yet.
-        Route::SchedulingAdmin(_) => false,
+        Route::SchedulingAdmin(section) => scheduling_admin::built(section),
     }
 }
 

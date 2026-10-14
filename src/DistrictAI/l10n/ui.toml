@@ -1899,6 +1899,20 @@ ctx = "label"
 screen = "scheduling"
 tier = "T3"
 
+[scheduling.bookings_views]
+en = "Which bookings"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the choice between upcoming, past, cancelled and all bookings."
+
+[scheduling.change_notice]
+en = "Booking change"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the banner that says what a change to a booking came to (cancelled, moved, new host)."
+
 [scheduling.check_again]
 en = "Check again"
 ctx = "button"
@@ -1924,6 +1938,13 @@ ctx = "a11y"
 screen = "scheduling"
 tier = "T2"
 note = "Name of an error banner."
+
+[scheduling.sections]
+en = "Sections"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the navigation between the sections of the booking scheduler's administration (Overview, Bookings...)."
 
 [scheduling.title]
 en = "Booking pages"

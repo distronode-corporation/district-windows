@@ -18,8 +18,8 @@ use crate::inbox::{InboxView, ThreadView, inbox_view, thread_view};
 use crate::l10n::{l, s};
 use crate::overview::{OverviewView, overview_view};
 use crate::{
-    analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling, settings, support,
-    workflows,
+    analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling, scheduling_admin,
+    settings, support, workflows,
 };
 
 /// What the screen inside the frame shows.
@@ -120,6 +120,12 @@ pub enum ScreenView {
     Scheduling {
         /// The page.
         view: crate::scheduling::SchedulingView,
+    },
+    /// A section of the booking scheduler's administration, or a detail
+    /// under one.
+    SchedulingAdmin {
+        /// The page.
+        view: crate::scheduling_admin::SchedulingAdminView,
     },
     /// The help desk's tickets.
     Desk {
@@ -336,8 +342,7 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
             settings::messaging::screen(model, signed_in)
         }
         Route::Workspace(WorkspaceSection::Members) => settings::members::screen(model, signed_in),
-        // Scheduling administration has no page in this version yet.
-        Route::SchedulingAdmin(_) => ScreenView::unavailable(),
+        Route::SchedulingAdmin(section) => scheduling_admin::screen(model, signed_in, section),
     }
 }
 
@@ -558,6 +563,9 @@ mod tests {
                     title: "Scheduling".to_owned(),
                     ..Default::default()
                 },
+            },
+            ScreenView::SchedulingAdmin {
+                view: crate::scheduling_admin::sample(),
             },
             ScreenView::Desk {
                 view: crate::desk::DeskView {

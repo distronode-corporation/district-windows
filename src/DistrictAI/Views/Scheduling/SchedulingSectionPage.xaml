@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.SchedulingSectionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:local="using:DistrictAI.Views.Scheduling"
+    xmlns:sched="using:DistrictAI.ViewModels.Scheduling">
+    <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock
+            AutomationProperties.AutomationId="SchedulingAdminHeading"
+            AutomationProperties.HeadingLevel="Level1"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+            TextWrapping="Wrap" />
+
+        <!-- The section navigation: every section this version has, in the web dashboard's order. -->
+        <RadioButtons
+            x:Name="SectionChooser"
+            Grid.Row="1"
+            AutomationProperties.AutomationId="SchedulingSections"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingSections}"
+            ItemsSource="{x:Bind ViewModel.Sections}"
+            MaxColumns="8"
+            SelectedIndex="{x:Bind ViewModel.SelectedSection, Mode=OneWay}"
+            SelectionChanged="OnSectionChanged">
+            <RadioButtons.ItemTemplate>
+                <DataTemplate x:DataType="sched:SchedulingSectionEntry">
+                    <RadioButton
+                        AutomationProperties.AutomationId="{x:Bind TabAutomationId}"
+                        AutomationProperties.HelpText="{x:Bind Subtitle}"
+                        AutomationProperties.Name="{x:Bind Title}"
+                        Content="{x:Bind Title}" />
+                </DataTemplate>
+            </RadioButtons.ItemTemplate>
+        </RadioButtons>
+
+        <!-- The section's own page: exactly one shows. A section's pull request adds its control here. -->
+        <local:SchedulingOverviewPanel
+            x:Name="OverviewPanel"
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.ShowsOverview, Mode=OneWay}" />
+        <local:SchedulingBookingsPanel
+            x:Name="BookingsPanel"
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.ShowsBookings, Mode=OneWay}" />
+        <local:SchedulingBookingPanel
+            x:Name="BookingPanel"
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.ShowsBooking, Mode=OneWay}" />
+    </Grid>
+</UserControl>

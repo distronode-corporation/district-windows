@@ -1,0 +1,121 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Overview": {
+            "view": {
+              "coming_up": [
+                {
+                  "id": "bk-contract-1",
+                  "status_label": "Confirmed",
+                  "subtitle": "Dana Booker · Phone consultation",
+                  "tone": "Success",
+                  "when": "Sep 14, 2026, 9:00 a.m."
+                },
+                {
+                  "id": "bk-contract-2",
+                  "status_label": "Cancelled",
+                  "subtitle": "Someone · Booking",
+                  "tone": "Danger",
+                  "when": "Sep 15, 2026, 2:00 p.m."
+                }
+              ],
+              "coming_up_empty": "No bookings yet. Share your booking page and they will appear here.",
+              "coming_up_heading": "Coming up",
+              "coming_up_status": "Ready",
+              "desk": [
+                {
+                  "failure": null,
+                  "label": "Booking page",
+                  "lines": [
+                    "https://book.example.com/book/phone-consultation"
+                  ],
+                  "state": "Lines"
+                },
+                {
+                  "failure": {
+                    "message": "The booking system did not answer. Try again in a minute.",
+                    "regions_line": null,
+                    "retryable": true
+                  },
+                  "label": "Calendar",
+                  "lines": [],
+                  "state": "Failed"
+                },
+                {
+                  "failure": null,
+                  "label": "Working hours",
+                  "lines": [
+                    "Wed, 10:30 a.m. to 3:00 p.m."
+                  ],
+                  "state": "Lines"
+                },
+                {
+                  "failure": null,
+                  "label": "Event types",
+                  "lines": [
+                    "2 event types, 1 active",
+                    "Phone consultation"
+                  ],
+                  "state": "Lines"
+                },
+                {
+                  "failure": null,
+                  "label": "Next booking",
+                  "lines": [
+                    "Sep 14, 2026, 9:00 a.m., Dana Booker, Phone consultation"
+                  ],
+                  "state": "Lines"
+                }
+              ],
+              "desk_heading": "Your booking desk",
+              "times_in": "Times in America/Toronto"
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": true,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          }
+        ],
+        "title": "Overview"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

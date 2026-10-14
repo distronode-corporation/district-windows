@@ -2645,6 +2645,15 @@ pub fn routing_title(l: Locale) -> &'static str {
     }
 }
 
+/// `scheduling.failed_title`
+#[must_use]
+pub fn scheduling_failed_title(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Could not load this section",
+        Locale::FrCa => "Could not load this section",
+    }
+}
+
 /// `scheduling.title`
 #[must_use]
 pub fn scheduling_title(l: Locale) -> &'static str {

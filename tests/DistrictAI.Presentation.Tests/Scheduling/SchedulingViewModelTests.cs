@@ -17,7 +17,8 @@ public sealed class SchedulingViewModelTests
         bool offersCheck = false,
         bool offersWeb = true,
         bool webEnabled = true,
-        bool opening = false) =>
+        bool opening = false,
+        SchedulingSectionEntryView[]? sections = null) =>
         new(
             Title: "Booking pages",
             Status: status ?? new LoadStatus.Ready(),
@@ -33,7 +34,9 @@ public sealed class SchedulingViewModelTests
             OffersCheck: offersCheck,
             OffersWeb: offersWeb,
             WebEnabled: webEnabled,
-            Opening: opening);
+            Opening: opening,
+            SectionsHeading: "Manage",
+            Sections: sections ?? []);
 
     private static (SchedulingViewModel Model, RecordingSink Sink) Attached()
     {
@@ -131,6 +134,29 @@ public sealed class SchedulingViewModelTests
         Assert.Equal("\uE946", SchedulingViewModel.GlyphFor(SchedulingState.SwitchedOff));
         Assert.Equal("\uE946", SchedulingViewModel.GlyphFor(SchedulingState.Unknown));
         Assert.Equal(string.Empty, SchedulingViewModel.GlyphFor(null));
+    }
+
+    [Fact]
+    public void LiveBookingPagesListTheirSectionsEachOpeningItsPage()
+    {
+        var (model, sink) = Attached();
+        model.Show(View(sections:
+        [
+            new SchedulingSectionEntryView(SchedulingAdminSection.Overview, "Overview", "Your booking desk", false),
+            new SchedulingSectionEntryView(SchedulingAdminSection.Bookings, "Bookings", "Every booking", false),
+        ]));
+        Assert.True(model.HasSections);
+        Assert.Equal("Manage", model.SectionsHeading);
+        Assert.Equal(2, model.Sections.Count);
+        Assert.Equal("SchedulingSectionBookings", model.Sections[1].AutomationId);
+        Assert.Equal("Bookings. Every booking", model.Sections[1].ToString());
+        model.OpenSection(model.Sections[1]);
+        Assert.Equal(
+            [new UiEvent.SchedulingAdmin(new SchedulingAdminAction.Open(SchedulingAdminSection.Bookings))],
+            sink.Sent);
+        model.Show(View());
+        Assert.False(model.HasSections);
+        Assert.Empty(model.Sections);
     }
 
     [Fact]

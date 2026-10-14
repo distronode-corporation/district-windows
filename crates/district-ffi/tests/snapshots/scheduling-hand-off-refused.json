@@ -17,6 +17,21 @@
         "opening": false,
         "problem": null,
         "refreshing": false,
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          }
+        ],
+        "sections_heading": "Manage",
         "state": "Live",
         "status": "Ready",
         "title": "Booking pages",

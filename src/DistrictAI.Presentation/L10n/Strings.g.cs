@@ -859,6 +859,12 @@ namespace DistrictAI.L10n
         /// <summary><c>scheduling.booking_page</c></summary>
         public static string SchedulingBookingPage => Current == Locale.FrCa ? "Booking page" : "Booking page";
 
+        /// <summary><c>scheduling.bookings_views</c></summary>
+        public static string SchedulingBookingsViews => Current == Locale.FrCa ? "Which bookings" : "Which bookings";
+
+        /// <summary><c>scheduling.change_notice</c></summary>
+        public static string SchedulingChangeNotice => Current == Locale.FrCa ? "Booking change" : "Booking change";
+
         /// <summary><c>scheduling.check_again</c></summary>
         public static string SchedulingCheckAgain => Current == Locale.FrCa ? "Check again" : "Check again";
 
@@ -870,6 +876,9 @@ namespace DistrictAI.L10n
 
         /// <summary><c>scheduling.problem</c></summary>
         public static string SchedulingProblem => Current == Locale.FrCa ? "Booking pages problem" : "Booking pages problem";
+
+        /// <summary><c>scheduling.sections</c></summary>
+        public static string SchedulingSections => Current == Locale.FrCa ? "Sections" : "Sections";
 
         /// <summary><c>scheduling.title</c></summary>
         public static string SchedulingTitle => Current == Locale.FrCa ? "Booking pages" : "Booking pages";

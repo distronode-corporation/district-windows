@@ -78,6 +78,19 @@ public sealed class SceneWalkTests
     ];
 
     /// <summary>
+    /// The booking scheduler's sections built so far, by their row's
+    /// AutomationId on the Booking pages page ("SchedulingSection" and the
+    /// core's section): each is opened from that page (the scene's booking
+    /// pages are live), and its page's level-one heading must be the row's
+    /// title. A section's pull request adds its row here.
+    /// </summary>
+    private static readonly string[] _schedulingSections =
+    [
+        "SchedulingSectionOverview",
+        "SchedulingSectionBookings",
+    ];
+
+    /// <summary>
     /// The conversation the Inbox opens first: the scene answers the inbox with
     /// the core's district-conversations.json, whose first thread is this
     /// contact's (the thread page's heading), and its timeline and draft from
@@ -144,6 +157,20 @@ public sealed class SceneWalkTests
                 {
                     // The row's title names the page (and its screenshot), as
                     // the page's heading must.
+                    var title = app.TryFindById(section) is { } row ? NameOf(row) : section;
+                    if (!VisitPage(app, handle, title, () => OpenSettingsRowById(app, section), null, shots, ++index, problems)
+                        || !VisitPage(app, handle, entry, () => OpenById(app, navId), null, null, index, problems))
+                    {
+                        break;
+                    }
+                }
+            }
+            // The built scheduling sections, each from the booking pages'
+            // row, and back to the booking pages for the next.
+            if (navId == "NavScheduling")
+            {
+                foreach (var section in _schedulingSections)
+                {
                     var title = app.TryFindById(section) is { } row ? NameOf(row) : section;
                     if (!VisitPage(app, handle, title, () => OpenSettingsRowById(app, section), null, shots, ++index, problems)
                         || !VisitPage(app, handle, entry, () => OpenById(app, navId), null, null, index, problems))
@@ -400,6 +427,51 @@ public sealed class SceneWalkTests
             "the release confirmation stayed open after Escape");
         Assert.NotNull(window);
         Assert.True(app.IsRunning, "the app ended on the phone numbers");
+    }
+
+    /// <summary>
+    /// The bookings' main flow: the list opens from the Booking pages page, a
+    /// booking still to come offers "Cancel booking", which asks first, and
+    /// Escape closes the question without cancelling anything (the dialog's
+    /// own confirm is never pressed); then the booking opens, with what its
+    /// booker answered. The scene moves its bookings to the days after it
+    /// runs (scripted.rs, scheduling_admin), so they can be acted on.
+    /// </summary>
+    [Fact]
+    public void ABookingOpensAndCancellingItAsksFirst()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        var bookings = OpenSettingsRowById(app, "SchedulingSectionBookings");
+        _ = Heading(app, bookings, PageTimeout, "SchedulingAdminHeading");
+        var list = app.FindById("SchedulingBookingsList", PageTimeout);
+        app.FindById("BookingCancelButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("CancelBookingDialog", PageTimeout);
+        _ = app.FindById("CancelBookingReason", PageTimeout);
+        InstalledApp.Log("Cancel booking asks first");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CancelBookingDialog") is null, PageTimeout),
+            "the cancel question stayed open after Escape");
+
+        var first = Wait.For(
+            () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
+            PageTimeout,
+            "a booking in the list",
+            app.Describe);
+        Activate(first);
+        // The booking's own page (an ItemsRepeater, which holds the answers,
+        // is not in the UI Automation tree; its rows are).
+        _ = Heading(app, null, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("SchedulingBookingWhen", PageTimeout);
+        _ = app.FindById("SchedulingBookingCancelButton", PageTimeout);
+        InstalledApp.Log("the booking shows its answers and offers the cancel");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the bookings");
     }
 
     /// <summary>

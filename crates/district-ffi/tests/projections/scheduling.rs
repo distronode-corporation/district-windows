@@ -240,16 +240,25 @@ fn each_action_is_its_core_event() {
     }
 }
 
-/// Scheduling administration has no page in this version yet: its routes
-/// show the screen that says so.
+/// Live, the booking pages list the administration's built sections; before,
+/// none (every section's read would be refused).
 #[test]
-fn scheduling_administration_is_unavailable() {
-    let session = signed_in().send(Event::Navigate(Route::SchedulingAdmin(
-        district_core::SchedulingSection::Overview,
-    )));
-    assert!(
-        matches!(screen_view(&session.model), ScreenView::Unavailable { .. }),
-        "{:?}",
-        screen_view(&session.model)
+fn the_sections_are_listed_once_live() {
+    use district_ffi::scheduling_admin::SchedulingAdminSection;
+    let live = view(&live(signed_in()));
+    assert_eq!(live.sections_heading, "Manage");
+    let listed: Vec<SchedulingAdminSection> = live.sections.iter().map(|s| s.section).collect();
+    assert_eq!(
+        listed,
+        [
+            SchedulingAdminSection::Overview,
+            SchedulingAdminSection::Bookings
+        ]
     );
+    assert!(live.sections.iter().all(|s| !s.selected));
+    let not_set_up = view(&fixture(
+        signed_in(),
+        "district-scheduling-status-legacy.json",
+    ));
+    assert!(not_set_up.sections.is_empty());
 }

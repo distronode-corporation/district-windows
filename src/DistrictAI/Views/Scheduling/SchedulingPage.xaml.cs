@@ -6,8 +6,9 @@ using Microsoft.UI.Xaml.Controls;
 namespace DistrictAI.Views.Scheduling;
 
 /// <summary>
-/// The booking pages: where they stand, turning them on, and managing them on
-/// the web, signed in, through the core's hand-off.
+/// The booking pages: where they stand, turning them on, the sections of their
+/// administration built natively (each a row that opens its page), and
+/// managing the rest on the web, signed in, through the core's hand-off.
 /// </summary>
 public sealed partial class SchedulingPage : UserControl
 {
@@ -25,4 +26,12 @@ public sealed partial class SchedulingPage : UserControl
     internal void Attach(PageContext context) => ViewModel.Attach(context);
 
     internal void Show(SchedulingView view) => ViewModel.Show(view);
+
+    private void OnSectionClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is SchedulingSectionEntry section)
+        {
+            ViewModel.OpenSection(section);
+        }
+    }
 }

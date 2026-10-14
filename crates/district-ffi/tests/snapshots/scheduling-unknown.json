@@ -13,6 +13,8 @@
         "opening": false,
         "problem": null,
         "refreshing": false,
+        "sections": [],
+        "sections_heading": "Manage",
         "state": "Unknown",
         "status": "Ready",
         "title": "Booking pages",
