@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels.Inbox;
 
@@ -28,6 +29,9 @@ public sealed record ComposeChannelItem(string Name, string Address);
 /// </summary>
 public sealed partial class ComposeViewModel : ObservableObject
 {
+    private readonly TextEcho _queryEcho = new();
+    private readonly TextEcho _subjectEcho = new();
+    private readonly TextEcho _bodyEcho = new();
     private PageContext? _context;
 
     /// <summary>Whether the fields are being filled from the core, not typed in.</summary>
@@ -166,10 +170,9 @@ public sealed partial class ComposeViewModel : ObservableObject
     internal void Attach(PageContext context) => _context = context;
 
     /// <summary>
-    /// Shows the core's form, or closes it. What is typed is filled only as
-    /// the form opens or when the core's differs (a recipient chosen clears
-    /// nothing typed): writing back what was just typed could only move the
-    /// caret.
+    /// Shows the core's form, or closes it. A field takes the core's value only
+    /// when it is newer than what was typed (<see cref="TextEcho"/>): writing
+    /// back what was just typed could only move the caret.
     /// </summary>
     internal void Show(ComposeView? view)
     {
@@ -179,15 +182,15 @@ public sealed partial class ComposeViewModel : ObservableObject
             return;
         }
         _filling = true;
-        if (!IsOpen || !string.Equals(Query, view.Query, StringComparison.Ordinal))
+        if (_queryEcho.Write(view.Query, Query))
         {
             Query = view.Query;
         }
-        if (!IsOpen || !string.Equals(Subject, view.Subject, StringComparison.Ordinal))
+        if (_subjectEcho.Write(view.Subject, Subject))
         {
             Subject = view.Subject;
         }
-        if (!IsOpen || !string.Equals(Body, view.Body, StringComparison.Ordinal))
+        if (_bodyEcho.Write(view.Body, Body))
         {
             Body = view.Body;
         }
@@ -224,26 +227,27 @@ public sealed partial class ComposeViewModel : ObservableObject
         IsOpen = true;
     }
 
-    partial void OnQueryChanged(string value) => Typed(new ComposeAction.Query(value));
+    partial void OnQueryChanged(string value) => Typed(_queryEcho, value, new ComposeAction.Query(value));
 
-    partial void OnSubjectChanged(string value) => Typed(new ComposeAction.EditSubject(value));
+    partial void OnSubjectChanged(string value) => Typed(_subjectEcho, value, new ComposeAction.EditSubject(value));
 
-    partial void OnBodyChanged(string value) => Typed(new ComposeAction.EditBody(value));
+    partial void OnBodyChanged(string value) => Typed(_bodyEcho, value, new ComposeAction.EditBody(value));
 
     partial void OnChannelChanged(int value)
     {
         if (value >= 0)
         {
-            Typed(new ComposeAction.SelectChannel((uint)value));
+            Typed(null, string.Empty, new ComposeAction.SelectChannel((uint)value));
         }
     }
 
-    private void Typed(ComposeAction action)
+    private void Typed(TextEcho? echo, string value, ComposeAction action)
     {
         if (_filling || !IsOpen)
         {
             return;
         }
+        echo?.Typed(value);
         Send(action);
     }
 
