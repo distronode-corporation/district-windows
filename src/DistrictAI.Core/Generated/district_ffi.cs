@@ -10794,7 +10794,8 @@ class FfiConverterTypeDeskView: FfiConverterRustBuffer<DeskView> {
 /// Its platform ("Windows", "iOS").
 /// </param>
 /// <param name="LastActiveLabel">
-/// "Last active ..." in the service's words, or "Signed in recently".
+/// "Last active Aug 15, 2026" in the core's words (the day its sign-in was
+/// last renewed, in UTC), or "Signed in recently".
 /// </param>
 /// <param name="IsThisDevice">
 /// Whether it is this computer.
@@ -10817,7 +10818,8 @@ public record DeviceRowView (
     /// </summary>
     string Platform, 
     /// <summary>
-    /// "Last active ..." in the service's words, or "Signed in recently".
+    /// "Last active Aug 15, 2026" in the core's words (the day its sign-in was
+    /// last renewed, in UTC), or "Signed in recently".
     /// </summary>
     string LastActiveLabel, 
     /// <summary>

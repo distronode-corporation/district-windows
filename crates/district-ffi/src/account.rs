@@ -131,7 +131,8 @@ pub struct DeviceRowView {
     pub name: String,
     /// Its platform ("Windows", "iOS").
     pub platform: String,
-    /// "Last active ..." in the service's words, or "Signed in recently".
+    /// "Last active Aug 15, 2026" in the core's words (the day its sign-in was
+    /// last renewed, in UTC), or "Signed in recently".
     pub last_active_label: String,
     /// Whether it is this computer.
     pub is_this_device: bool,
