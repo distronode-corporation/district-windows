@@ -54,6 +54,12 @@
             "title": "Overview"
           },
           {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
             "section": "Bookings",
             "selected": false,
             "subtitle": "Every booking in this workspace, upcoming and past",

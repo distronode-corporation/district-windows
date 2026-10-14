@@ -433,6 +433,18 @@ fn scheduling_admin(
         R::CancelBooking { .. } | R::RescheduleBooking { .. } | R::ReassignBooking { .. } => {
             fixture!("district-scheduling-booking.json")
         }
+        R::EventType { .. } | R::CreateEventType { .. } | R::PatchEventType { .. } => {
+            fixture!("district-scheduling-event-type.json")
+        }
+        R::Hosts { .. } | R::SetHosts { .. } => fixture!("district-scheduling-hosts.json"),
+        R::Questions { .. } => fixture!("district-scheduling-questions.json"),
+        R::CreateQuestion { .. } | R::PatchQuestion { .. } => {
+            fixture!("district-scheduling-question.json")
+        }
+        R::SendTestEmail { .. } => fixture!("district-scheduling-test-email.json"),
+        R::DeleteEventType { .. } | R::DeleteQuestion { .. } => {
+            fixture!("district-scheduling-ok.json")
+        }
         _ => return None,
     };
     let data = serde_json::from_str::<Value>(text)
@@ -719,6 +731,7 @@ mod tests {
             Route::Workspace(S::Members),
             Route::Workspace(S::Numbers),
             Route::SchedulingAdmin(district_core::SchedulingSection::Overview),
+            Route::SchedulingAdmin(district_core::SchedulingSection::EventTypes),
             Route::SchedulingAdmin(district_core::SchedulingSection::Bookings),
         ];
         for route in routes.clone() {
@@ -838,6 +851,138 @@ mod tests {
         };
         assert_eq!(view.notice.as_deref(), Some("Booking cancelled"));
         assert!(!view.offers_cancel);
+    }
+
+    /// The event types open from the booking pages and fill in; a create
+    /// lands, one event type opens with its hosts and questions, and each of
+    /// its writes is answered: the editor and the hosts close on their save,
+    /// the state actions and the questions say what they came to, and a
+    /// delete goes back to the list.
+    #[test]
+    fn the_event_types_fill_in_and_their_writes_land() {
+        use crate::events::UiEvent;
+        use crate::scheduling_admin::event_types::{EventTypeAction as E, EventTypesAction};
+        use crate::scheduling_admin::{
+            SchedulingAdminAction as A, SchedulingAdminPage as P, SchedulingAdminSection,
+        };
+
+        let mut model = started();
+        let mut run = |action: A| {
+            let mut pending = Vec::new();
+            for event in (UiEvent::SchedulingAdmin { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::SchedulingAdmin { view } = screen else {
+                panic!("not the scheduling administration: {screen:?}");
+            };
+            view.page
+        };
+        let P::EventTypes { view } = run(A::Open {
+            section: SchedulingAdminSection::EventTypes,
+        }) else {
+            panic!("not the event types");
+        };
+        assert_eq!(view.rows.len(), 2);
+        assert!(view.offers_create);
+        let list = |action| A::EventTypes { action };
+        let P::EventTypes { view } = run(list(EventTypesAction::OpenCreate)) else {
+            panic!("not the event types");
+        };
+        let mut form = view.create.expect("the create form").form;
+        form.name = "Intro call".to_owned();
+        let _ = run(list(EventTypesAction::EditForm { form }));
+        let P::EventTypes { view } = run(list(EventTypesAction::Save)) else {
+            panic!("not the event types");
+        };
+        assert_eq!(view.create, None);
+
+        let detail = |action| A::EventType { action };
+        let P::EventType { view } = run(A::OpenEventType {
+            slug: view.rows[0].slug.clone(),
+        }) else {
+            panic!("not an event type");
+        };
+        assert!(view.offers_writes);
+        assert_eq!(view.hosts.len(), 2);
+        assert_eq!(view.questions.len(), 2);
+        assert_eq!(view.hosts_status, crate::views::LoadStatus::Ready);
+
+        let _ = run(detail(E::OpenEditor));
+        let P::EventType { view } = run(detail(E::Save)) else {
+            panic!("not an event type");
+        };
+        assert_eq!(view.editor, None);
+
+        let _ = run(detail(E::OpenActions));
+        let P::EventType { view } = run(detail(E::ToggleActive)) else {
+            panic!("not an event type");
+        };
+        let actions = view.actions.expect("the state actions");
+        assert_eq!(actions.notice.as_deref(), Some("Event type turned off"));
+        let P::EventType { view } = run(detail(E::SendTestEmail {
+            kind: "confirmation".to_owned(),
+        })) else {
+            panic!("not an event type");
+        };
+        assert!(
+            view.actions
+                .and_then(|a| a.notice)
+                .is_some_and(|n| n.contains("contract@example.com"))
+        );
+        let _ = run(detail(E::CloseDialog));
+
+        let P::EventType { view } = run(detail(E::OpenHosts)) else {
+            panic!("not an event type");
+        };
+        let hosts = view.hosts_dialog.expect("the hosts");
+        assert_eq!(hosts.hosts.len(), 2);
+        assert!(hosts.dialog.can_confirm);
+        let P::EventType { view } = run(detail(E::SaveHosts)) else {
+            panic!("not an event type");
+        };
+        assert_eq!(view.hosts_dialog, None);
+
+        let _ = run(detail(E::OpenQuestions));
+        let P::EventType { view } = run(detail(E::AddQuestion)) else {
+            panic!("not an event type");
+        };
+        let mut question = view
+            .questions_dialog
+            .and_then(|q| q.form)
+            .expect("the question form")
+            .form;
+        question.label = "Which day suits you?".to_owned();
+        let _ = run(detail(E::EditQuestionForm { form: question }));
+        let P::EventType { view } = run(detail(E::SaveQuestion)) else {
+            panic!("not an event type");
+        };
+        let questions = view.questions_dialog.expect("the questions");
+        assert_eq!(questions.form, None);
+        assert_eq!(questions.notice.as_deref(), Some("Question added"));
+        let _ = run(detail(E::AskDeleteQuestion {
+            id: questions.questions[0].id.clone(),
+        }));
+        let P::EventType { view } = run(detail(E::ConfirmDeleteQuestion)) else {
+            panic!("not an event type");
+        };
+        assert_eq!(
+            view.questions_dialog.and_then(|q| q.notice).as_deref(),
+            Some("Question deleted")
+        );
+        let _ = run(detail(E::CloseDialog));
+
+        let _ = run(detail(E::OpenActions));
+        let P::EventType { view } = run(detail(E::AskDelete)) else {
+            panic!("not an event type");
+        };
+        assert!(view.actions.is_some_and(|a| a.delete.is_some()));
+        let P::EventTypes { view } = run(detail(E::ConfirmDelete)) else {
+            panic!("not back on the list");
+        };
+        assert_eq!(view.rows.len(), 2);
     }
 
     /// Each settings section the walk opens from the hub fills in, and each

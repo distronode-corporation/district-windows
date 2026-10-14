@@ -43,6 +43,7 @@
 //!   scheduler profile, which each section names ("Times in ...").
 
 pub mod bookings;
+pub mod event_types;
 pub mod overview;
 
 use std::time::SystemTime;
@@ -112,13 +113,9 @@ impl SchedulingAdminSection {
     pub(crate) fn built(self) -> bool {
         match self {
             Self::Overview => overview::BUILT,
+            Self::EventTypes => event_types::BUILT,
             Self::Bookings => bookings::BUILT,
-            Self::EventTypes
-            | Self::Hours
-            | Self::Calendar
-            | Self::Team
-            | Self::Settings
-            | Self::Developer => false,
+            Self::Hours | Self::Calendar | Self::Team | Self::Settings | Self::Developer => false,
         }
     }
 }
@@ -185,6 +182,16 @@ pub enum SchedulingAdminPage {
         /// The page.
         view: overview::SchedulingOverviewView,
     },
+    /// The event types list.
+    EventTypes {
+        /// The page.
+        view: event_types::SchedulingEventTypesView,
+    },
+    /// One event type.
+    EventType {
+        /// The page.
+        view: event_types::SchedulingEventTypeView,
+    },
     /// The bookings list.
     Bookings {
         /// The page.
@@ -206,6 +213,21 @@ pub enum SchedulingAdminAction {
     Open {
         /// Which.
         section: SchedulingAdminSection,
+    },
+    /// Open one event type from the list.
+    OpenEventType {
+        /// The event type's slug.
+        slug: String,
+    },
+    /// On the event types list.
+    EventTypes {
+        /// What.
+        action: event_types::EventTypesAction,
+    },
+    /// On one event type.
+    EventType {
+        /// What.
+        action: event_types::EventTypeAction,
     },
     /// Open one booking from the list.
     OpenBooking {
@@ -237,6 +259,11 @@ pub(crate) fn events_at(action: SchedulingAdminAction, now: SystemTime) -> Vec<E
         SchedulingAdminAction::Open { section } => {
             vec![Event::Navigate(Route::SchedulingAdmin(section.section()))]
         }
+        SchedulingAdminAction::OpenEventType { slug } => vec![Event::Navigate(
+            Route::SchedulingAdmin(SchedulingSection::EventType { slug }),
+        )],
+        SchedulingAdminAction::EventTypes { action } => event_types::events(action),
+        SchedulingAdminAction::EventType { action } => event_types::detail_events(action),
         SchedulingAdminAction::OpenBooking { booking_id } => vec![Event::Navigate(
             Route::SchedulingAdmin(SchedulingSection::Booking { id: booking_id }),
         )],
@@ -265,12 +292,12 @@ pub(crate) fn screen_at(
     let can_change = signed_in.capabilities().can_change;
     let page = match section {
         SchedulingSection::Overview => overview::page(admin, now),
+        SchedulingSection::EventTypes => event_types::list_page(admin, can_change),
+        SchedulingSection::EventType { slug } => event_types::detail_page(admin, slug, can_change),
         SchedulingSection::Bookings => bookings::list_page(admin, can_change, now),
         SchedulingSection::Booking { id } => bookings::detail_page(admin, id, can_change, now),
         // Not built yet: each section's pull request replaces its arm.
-        SchedulingSection::EventTypes
-        | SchedulingSection::EventType { .. }
-        | SchedulingSection::Hours
+        SchedulingSection::Hours
         | SchedulingSection::Calendar
         | SchedulingSection::Team
         | SchedulingSection::Settings
@@ -424,22 +451,26 @@ mod tests {
             listed,
             [
                 SchedulingAdminSection::Overview,
+                SchedulingAdminSection::EventTypes,
                 SchedulingAdminSection::Bookings
             ]
         );
         let selected = entries(Some(SchedulingAdminSection::Bookings));
         assert!(!selected[0].selected);
-        assert!(selected[1].selected);
-        assert_eq!(selected[1].title, "Bookings");
-        assert!(!selected[1].subtitle.is_empty());
+        assert!(selected[2].selected);
+        assert_eq!(selected[2].title, "Bookings");
+        assert!(!selected[2].subtitle.is_empty());
         assert!(built(&SchedulingSection::Booking { id: "b".to_owned() }));
+        assert!(built(&SchedulingSection::EventType {
+            slug: "s".to_owned()
+        }));
         for entry in ALL {
             assert_eq!(built(&entry.section()), listed.contains(&entry));
         }
     }
 
     #[test]
-    fn opening_a_section_or_a_booking_navigates() {
+    fn opening_a_section_a_booking_or_an_event_type_navigates() {
         assert_eq!(
             events(SchedulingAdminAction::Open {
                 section: SchedulingAdminSection::Bookings
@@ -455,6 +486,16 @@ mod tests {
             [Event::Navigate(Route::SchedulingAdmin(
                 SchedulingSection::Booking {
                     id: "bk-1".to_owned()
+                }
+            ))]
+        );
+        assert_eq!(
+            events(SchedulingAdminAction::OpenEventType {
+                slug: "intro".to_owned()
+            }),
+            [Event::Navigate(Route::SchedulingAdmin(
+                SchedulingSection::EventType {
+                    slug: "intro".to_owned()
                 }
             ))]
         );
