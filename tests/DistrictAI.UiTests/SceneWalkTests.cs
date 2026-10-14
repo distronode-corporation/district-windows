@@ -654,13 +654,25 @@ public sealed class SceneWalkTests
         app.FindById("CaldavUsername", PageTimeout).AsTextBox().Text = "ada@example.com";
         app.FindById("CaldavPassword", PageTimeout).Focus();
         Keyboard.Type("scripted-app-password");
-        var connect = Wait.For(
+        // The keys go through the input queue and Connect through UI
+        // Automation, which can overtake them: a connect that arrived before
+        // the password is refused for want of one, and the last key typed
+        // then puts the refusal away. So the walk waits for the queue, and a
+        // connect that found the box still empty is pressed once more.
+        FlaUI.Core.Input.Wait.UntilInputIsProcessed(TimeSpan.FromSeconds(1));
+        AutomationElement ConnectButton() => Wait.For(
             () => caldav.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
             PageTimeout,
             "Connect calendar to work",
             app.Describe);
-        Press(connect);
+        Press(ConnectButton());
+        if (!Wait.Until(() => app.TryFindById("CaldavNotice") is not null, TimeSpan.FromSeconds(5)))
+        {
+            InstalledApp.Log("the connect overtook the password; pressed again");
+            Press(ConnectButton());
+        }
         _ = app.FindById("CaldavNotice", PageTimeout);
+        Assert.Null(app.TryFindById("CaldavPasswordError"));
         InstalledApp.Log("the CalDAV account connected");
         Keyboard.Type(VirtualKeyShort.ESCAPE);
         Assert.True(
