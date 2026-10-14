@@ -464,7 +464,10 @@ public sealed class SceneWalkTests
             "a booking in the list",
             app.Describe);
         Activate(first);
-        _ = app.FindById("SchedulingBookingAnswers", PageTimeout);
+        // The booking's own page (an ItemsRepeater, which holds the answers,
+        // is not in the UI Automation tree; its rows are).
+        _ = Heading(app, null, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("SchedulingBookingWhen", PageTimeout);
         _ = app.FindById("SchedulingBookingCancelButton", PageTimeout);
         InstalledApp.Log("the booking shows its answers and offers the cancel");
         Assert.Null(Failure(app));
