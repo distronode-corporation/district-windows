@@ -23726,16 +23726,6 @@ class FfiConverterTypeSchedulingTeamView: FfiConverterRustBuffer<SchedulingTeamV
 /// Whether "Check again" is offered: only where reading again could
 /// change the answer.
 /// </param>
-/// <param name="OffersWeb">
-/// Whether "Manage on the web" is offered.
-/// </param>
-/// <param name="WebEnabled">
-/// Whether "Manage on the web" can be pressed: not while the link is
-/// being asked for. While the browser is awaited a press starts over.
-/// </param>
-/// <param name="Opening">
-/// Whether the hand-off to the web is under way (show progress).
-/// </param>
 /// <param name="SectionsHeading">
 /// The heading over the sections, "Manage".
 /// </param>
@@ -23795,19 +23785,6 @@ public record SchedulingView (
     /// </summary>
     bool OffersCheck, 
     /// <summary>
-    /// Whether "Manage on the web" is offered.
-    /// </summary>
-    bool OffersWeb, 
-    /// <summary>
-    /// Whether "Manage on the web" can be pressed: not while the link is
-    /// being asked for. While the browser is awaited a press starts over.
-    /// </summary>
-    bool WebEnabled, 
-    /// <summary>
-    /// Whether the hand-off to the web is under way (show progress).
-    /// </summary>
-    bool Opening, 
-    /// <summary>
     /// The heading over the sections, "Manage".
     /// </summary>
     string SectionsHeading, 
@@ -23837,9 +23814,6 @@ class FfiConverterTypeSchedulingView: FfiConverterRustBuffer<SchedulingView> {
             OffersEnable: FfiConverterBoolean.INSTANCE.Read(stream),
             Enabling: FfiConverterBoolean.INSTANCE.Read(stream),
             OffersCheck: FfiConverterBoolean.INSTANCE.Read(stream),
-            OffersWeb: FfiConverterBoolean.INSTANCE.Read(stream),
-            WebEnabled: FfiConverterBoolean.INSTANCE.Read(stream),
-            Opening: FfiConverterBoolean.INSTANCE.Read(stream),
             SectionsHeading: FfiConverterString.INSTANCE.Read(stream),
             Sections: FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.Read(stream)
         );
@@ -23859,9 +23833,6 @@ class FfiConverterTypeSchedulingView: FfiConverterRustBuffer<SchedulingView> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersEnable)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enabling)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersCheck)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWeb)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.WebEnabled)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Opening)
             + FfiConverterString.INSTANCE.AllocationSize(value.SectionsHeading)
             + FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.AllocationSize(value.Sections);
     }
@@ -23879,9 +23850,6 @@ class FfiConverterTypeSchedulingView: FfiConverterRustBuffer<SchedulingView> {
             FfiConverterBoolean.INSTANCE.Write(value.OffersEnable, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Enabling, stream);
             FfiConverterBoolean.INSTANCE.Write(value.OffersCheck, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.OffersWeb, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.WebEnabled, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Opening, stream);
             FfiConverterString.INSTANCE.Write(value.SectionsHeading, stream);
             FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.Write(value.Sections, stream);
     }
@@ -38976,10 +38944,6 @@ public enum SchedulingAction: int {
     /// </summary>
     Open,
     /// <summary>
-    /// Manage the booking pages on the web dashboard, signed in.
-    /// </summary>
-    ManageOnWeb,
-    /// <summary>
     /// Turn booking pages on.
     /// </summary>
     Enable,
@@ -39000,10 +38964,9 @@ class FfiConverterTypeSchedulingAction: FfiConverterRustBuffer<SchedulingAction>
         var value = stream.ReadInt();
         switch (value) {
             case 1: return SchedulingAction.Open;
-            case 2: return SchedulingAction.ManageOnWeb;
-            case 3: return SchedulingAction.Enable;
-            case 4: return SchedulingAction.CheckAgain;
-            case 5: return SchedulingAction.DismissNotice;
+            case 2: return SchedulingAction.Enable;
+            case 3: return SchedulingAction.CheckAgain;
+            case 4: return SchedulingAction.DismissNotice;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAction.Read()", value));
         }
     }
@@ -39015,10 +38978,9 @@ class FfiConverterTypeSchedulingAction: FfiConverterRustBuffer<SchedulingAction>
     public override void Write(SchedulingAction value, BigEndianStream stream) {
         switch (value) {
             case SchedulingAction.Open: stream.WriteInt(1); break;
-            case SchedulingAction.ManageOnWeb: stream.WriteInt(2); break;
-            case SchedulingAction.Enable: stream.WriteInt(3); break;
-            case SchedulingAction.CheckAgain: stream.WriteInt(4); break;
-            case SchedulingAction.DismissNotice: stream.WriteInt(5); break;
+            case SchedulingAction.Enable: stream.WriteInt(2); break;
+            case SchedulingAction.CheckAgain: stream.WriteInt(3); break;
+            case SchedulingAction.DismissNotice: stream.WriteInt(4); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAction.Write()", value));
         }
     }

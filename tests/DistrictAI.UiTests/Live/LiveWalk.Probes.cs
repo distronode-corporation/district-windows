@@ -1,57 +1,29 @@
 using System.Diagnostics;
-using System.Net;
 using FlaUI.Core.Definitions;
 using Microsoft.Win32;
 
 namespace DistrictAI.UiTests.Live;
 
-/// <summary>Booking pages' hand-off, a room, and the themes.</summary>
+/// <summary>Booking pages' sections, a room, and the themes.</summary>
 internal sealed partial class LiveWalk
 {
     private const string PersonalizeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
 
     /// <summary>
-    /// Manage on the web: the app opens the hand-off's start link; the walk
-    /// answers it as a browser would (a GET, redirects off) and opens the
-    /// districtai://handoff answer; the app then opens the signed-in link,
-    /// which is checked by host and path only, and never opened or logged.
+    /// Booking pages: their administration is native, each section opening its
+    /// own page; Settings shows the booking page it read, with its Edit.
+    /// Nothing is changed.
     /// </summary>
     private Outcome Scheduling(Check check)
     {
         _ = Ui.Go(App, "Booking pages", "Booking pages");
-        var mark = Urls.Mark();
-        Ui.Press(App, "Manage on the web");
-        var clock = Stopwatch.StartNew();
-        var start = Urls.WaitFor(mark, uri => LaunchedUrls.IsOurs(uri, "/dashboard/handoff/start"), TimeSpan.FromSeconds(10), "the hand-off's start link");
-        var startMark = Urls.Mark();
-
-        using var http = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false }) { Timeout = TimeSpan.FromSeconds(10) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) DistrictAI-win-smoke");
-        using var response = http.GetAsync(start).GetAwaiter().GetResult();
-        var status = (int)response.StatusCode;
+        Ui.Press(App, "Settings");
         Check.Expect(
-            response.StatusCode is HttpStatusCode.Found or HttpStatusCode.SeeOther or HttpStatusCode.TemporaryRedirect or HttpStatusCode.Moved,
-            $"the start link answered {status}, not a redirect");
-        var location = response.Headers.Location;
-        Check.Expect(
-            location is { IsAbsoluteUri: true } && location.Scheme == "districtai" && location.Host == "handoff",
-            "the start link's redirect is not a districtai://handoff link");
-        using (Process.Start(new ProcessStartInfo(location!.OriginalString) { UseShellExecute = true }))
-        {
-        }
-        var answeredIn = clock.Elapsed;
-        InstalledApp.Log($"answered the hand-off in {answeredIn.TotalSeconds:F1} s");
-        // The core waits 10 s for the answer before it asks for an unbound link.
-        Check.Expect(answeredIn < TimeSpan.FromSeconds(9), $"the hand-off was answered after {answeredIn.TotalSeconds:F0} s, past the core's wait");
-
-        _ = Urls.WaitFor(
-            startMark,
-            uri => LaunchedUrls.IsOurs(uri, "/dashboard/handoff") && !uri.AbsolutePath.StartsWith("/dashboard/handoff/start", StringComparison.Ordinal),
-            TimeSpan.FromSeconds(30),
-            "the signed-in booking pages link (/dashboard/handoff)");
+            Wait.Until(() => App.TryFind(null, "Edit") is not null, TimeSpan.FromSeconds(30)),
+            "the settings did not show the booking page they read");
         Check.Expect(App.TryFind(null, "Booking pages problem") is null, "\"Booking pages problem\" shows");
         check.Shot();
-        return Outcome.Pass("Manage on the web opened the start link; its redirect came back as districtai://handoff; the app then opened www.distronode.com/dashboard/handoff (not opened, not logged)");
+        return Outcome.Pass("the booking pages listed their sections, and Settings showed the booking page it read (nothing changed)");
     }
 
     /// <summary>

@@ -10,8 +10,8 @@
 //! Every write here touches only the member's own calendars, so a viewer may
 //! make them too: someone who cannot connect a calendar cannot be booked.
 //!
-//! Connecting Google or Microsoft leaves the app, as the booking pages'
-//! "Manage on the web" does: the core asks the scheduler for a single-use
+//! Connecting Google or Microsoft leaves the app, the one hand-off to the
+//! browser the booking pages keep: the core asks the scheduler for a single-use
 //! sign-in and its runner opens the provider's consent page in the browser at
 //! once ([`UiHost::open_url`](crate::UiHost::open_url)). The link never
 //! reaches these views. The browser comes back to the web dashboard, never to

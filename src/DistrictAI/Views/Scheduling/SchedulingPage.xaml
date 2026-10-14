@@ -78,12 +78,6 @@
                         Command="{x:Bind ViewModel.CheckAgainCommand}"
                         Content="{x:Bind l10n:S.SchedulingCheckAgain}"
                         Visibility="{x:Bind ViewModel.OffersCheck, Mode=OneWay}" />
-                    <Button
-                        AutomationProperties.Name="{x:Bind l10n:S.SchedulingManageOnWeb}"
-                        Command="{x:Bind ViewModel.ManageOnWebCommand}"
-                        Content="{x:Bind l10n:S.SchedulingManageOnWeb}"
-                        Style="{StaticResource AccentButtonStyle}"
-                        Visibility="{x:Bind ViewModel.OffersWeb, Mode=OneWay}" />
                     <ProgressRing
                         Width="20"
                         Height="20"
@@ -91,11 +85,6 @@
                         IsActive="{x:Bind ViewModel.Busy, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.Busy, Mode=OneWay}" />
                 </StackPanel>
-                <TextBlock
-                    Style="{StaticResource QuietTextStyle}"
-                    Text="{x:Bind l10n:S.SchedulingWebNote}"
-                    TextWrapping="Wrap"
-                    Visibility="{x:Bind ViewModel.OffersWeb, Mode=OneWay}" />
 
                 <!-- The administration's sections built natively, once the booking pages are live. -->
                 <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasSections, Mode=OneWay}">

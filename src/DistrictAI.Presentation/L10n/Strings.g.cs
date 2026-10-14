@@ -904,9 +904,6 @@ namespace DistrictAI.L10n
         /// <summary><c>scheduling.last_live</c></summary>
         public static string SchedulingLastLive => Current == Locale.FrCa ? "Last live" : "Last live";
 
-        /// <summary><c>scheduling.manage_on_web</c></summary>
-        public static string SchedulingManageOnWeb => Current == Locale.FrCa ? "Manage on the web" : "Manage on the web";
-
         /// <summary><c>scheduling.problem</c></summary>
         public static string SchedulingProblem => Current == Locale.FrCa ? "Booking pages problem" : "Booking pages problem";
 
@@ -930,9 +927,6 @@ namespace DistrictAI.L10n
 
         /// <summary><c>scheduling.turn_on</c></summary>
         public static string SchedulingTurnOn => Current == Locale.FrCa ? "Turn on booking pages" : "Turn on booking pages";
-
-        /// <summary><c>scheduling.web_note</c></summary>
-        public static string SchedulingWebNote => Current == Locale.FrCa ? "Opens the booking pages on the District AI website in your browser, signed in as you." : "Opens the booking pages on the District AI website in your browser, signed in as you.";
 
         /// <summary><c>scheduling.webhook_notice</c></summary>
         public static string SchedulingWebhookNotice => Current == Locale.FrCa ? "Webhook change" : "Webhook change";

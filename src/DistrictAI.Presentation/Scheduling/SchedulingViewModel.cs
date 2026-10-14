@@ -7,10 +7,9 @@ namespace DistrictAI.ViewModels.Scheduling;
 
 /// <summary>
 /// The booking pages: where they stand, turning them on where the service
-/// says this member may, once live the sections of their administration
-/// built natively (each opening its own page), and managing the rest on the
-/// web, signed in, through the core's hand-off. Copied from the core's
-/// <see cref="SchedulingView"/>; the one-time link never reaches this page.
+/// says this member may, and once live the sections of their administration,
+/// each native and opening its own page. Copied from the core's
+/// <see cref="SchedulingView"/>.
 /// </summary>
 public sealed partial class SchedulingViewModel : ObservableObject
 {
@@ -72,16 +71,7 @@ public sealed partial class SchedulingViewModel : ObservableObject
     [ObservableProperty]
     public partial bool OffersCheck { get; set; }
 
-    /// <summary>Whether "Manage on the web" shows.</summary>
-    [ObservableProperty]
-    public partial bool OffersWeb { get; set; }
-
-    /// <summary>Whether "Manage on the web" works (not while the link is being asked for).</summary>
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(ManageOnWebCommand))]
-    public partial bool CanManageOnWeb { get; set; }
-
-    /// <summary>Whether turning them on or the hand-off is under way.</summary>
+    /// <summary>Whether turning them on is under way.</summary>
     [ObservableProperty]
     public partial bool Busy { get; set; }
 
@@ -118,9 +108,7 @@ public sealed partial class SchedulingViewModel : ObservableObject
         OffersEnable = view.OffersEnable;
         CanEnable = view.OffersEnable && !view.Enabling;
         OffersCheck = view.OffersCheck;
-        OffersWeb = view.OffersWeb;
-        CanManageOnWeb = view.OffersWeb && view.WebEnabled;
-        Busy = view.Enabling || view.Opening;
+        Busy = view.Enabling;
         SectionsHeading = view.SectionsHeading;
         Display.Sync(Sections, [.. view.Sections.Select(SchedulingSectionEntry.From)]);
         HasSections = Sections.Count > 0;
@@ -145,8 +133,6 @@ public sealed partial class SchedulingViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanEnable))]
     private void Enable() => Send(SchedulingAction.Enable);
 
-    [RelayCommand(CanExecute = nameof(CanManageOnWeb))]
-    private void ManageOnWeb() => Send(SchedulingAction.ManageOnWeb);
 
     [RelayCommand]
     private void CheckAgain() => Send(SchedulingAction.CheckAgain);
