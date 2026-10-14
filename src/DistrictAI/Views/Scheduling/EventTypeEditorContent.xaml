@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.EventTypeEditorContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
+    <StackPanel MinWidth="400" Spacing="12">
+        <TextBox
+            AutomationProperties.AutomationId="EventTypeEditorName"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.NameLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.NameLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+            PlaceholderText="{x:Bind ViewModel.Words.NamePlaceholder, Mode=OneWay}"
+            Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+        <!-- The booking page's address: made from the name on a create, never changed after. -->
+        <StackPanel Spacing="2">
+            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.Words.BookingPageLabel, Mode=OneWay}" />
+            <TextBlock
+                AutomationProperties.AutomationId="EventTypeEditorBookingPage"
+                AutomationProperties.HelpText="{x:Bind ViewModel.Words.BookingPageHint, Mode=OneWay}"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.BookingPageLabel, Mode=OneWay}"
+                IsTextSelectionEnabled="True"
+                Text="{x:Bind ViewModel.BookingPage, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.Words.BookingPageHint, Mode=OneWay}"
+                TextWrapping="Wrap" />
+        </StackPanel>
+
+        <TextBox
+            AcceptsReturn="True"
+            AutomationProperties.AutomationId="EventTypeEditorDescription"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.DescriptionLabel, Mode=OneWay}"
+            Description="{x:Bind ViewModel.Words.DescriptionHint, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.DescriptionLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+            MinHeight="64"
+            Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.ShowsAll, Mode=OneWay}" />
+
+        <StackPanel Spacing="2">
+            <TextBox
+                AutomationProperties.AutomationId="EventTypeEditorDuration"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.DurationLabel, Mode=OneWay}"
+                Description="{x:Bind ViewModel.Words.DurationHint, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.DurationLabel, Mode=OneWay}"
+                InputScope="Number"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                Text="{x:Bind ViewModel.Duration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                AutomationProperties.AutomationId="EventTypeEditorDurationShown"
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.DurationShown, Mode=OneWay}" />
+        </StackPanel>
+
+        <TextBox
+            AutomationProperties.AutomationId="EventTypeEditorInterval"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.IntervalLabel, Mode=OneWay}"
+            Description="{x:Bind ViewModel.Words.IntervalHint, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.IntervalLabel, Mode=OneWay}"
+            InputScope="Number"
+            IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+            Text="{x:Bind ViewModel.Interval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Visibility="{x:Bind ViewModel.ShowsAll, Mode=OneWay}" />
+
+        <ComboBox
+            x:Name="LocationChooser"
+            HorizontalAlignment="Stretch"
+            AutomationProperties.AutomationId="EventTypeEditorLocation"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.LocationLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.LocationLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+            ItemsSource="{x:Bind ViewModel.Locations}"
+            SelectedIndex="{x:Bind ViewModel.LocationIndex, Mode=OneWay}"
+            SelectionChanged="OnLocationChanged" />
+
+        <TextBox
+            AutomationProperties.AutomationId="EventTypeEditorLocationValue"
+            AutomationProperties.Name="{x:Bind ViewModel.LocationValueLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.LocationValueLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+            Text="{x:Bind ViewModel.LocationValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Visibility="{x:Bind ViewModel.HasLocationValue, Mode=OneWay}" />
+
+        <!-- An edit's switches and limits. -->
+        <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.ShowsAll, Mode=OneWay}">
+            <ToggleSwitch
+                AutomationProperties.AutomationId="EventTypeEditorActive"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.ActiveLabel, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.ActiveLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                IsOn="{x:Bind ViewModel.IsActive, Mode=TwoWay}" />
+            <ToggleSwitch
+                AutomationProperties.AutomationId="EventTypeEditorListed"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.ListedLabel, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.ListedLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                IsOn="{x:Bind ViewModel.IsPublic, Mode=TwoWay}" />
+            <ToggleSwitch
+                AutomationProperties.AutomationId="EventTypeEditorShowTaken"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.ShowTakenLabel, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.ShowTakenLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                IsOn="{x:Bind ViewModel.ShowTakenSlots, Mode=TwoWay}" />
+            <TextBox
+                AutomationProperties.AutomationId="EventTypeEditorBufferBefore"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.BufferBeforeLabel, Mode=OneWay}"
+                Description="{x:Bind ViewModel.Words.BufferBeforeHint, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.BufferBeforeLabel, Mode=OneWay}"
+                InputScope="Number"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                Text="{x:Bind ViewModel.BufferBefore, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.AutomationId="EventTypeEditorBufferAfter"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.BufferAfterLabel, Mode=OneWay}"
+                Description="{x:Bind ViewModel.Words.BufferAfterHint, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.BufferAfterLabel, Mode=OneWay}"
+                InputScope="Number"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                Text="{x:Bind ViewModel.BufferAfter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.AutomationId="EventTypeEditorMinNotice"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.MinNoticeLabel, Mode=OneWay}"
+                Description="{x:Bind ViewModel.Words.MinNoticeHint, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.MinNoticeLabel, Mode=OneWay}"
+                InputScope="Number"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                Text="{x:Bind ViewModel.MinNotice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.AutomationId="EventTypeEditorMaxFuture"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.MaxFutureLabel, Mode=OneWay}"
+                Description="{x:Bind ViewModel.Words.MaxFutureHint, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.MaxFutureLabel, Mode=OneWay}"
+                InputScope="Number"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                Text="{x:Bind ViewModel.MaxFutureDays, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.AutomationId="EventTypeEditorMaxActive"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.MaxActiveLabel, Mode=OneWay}"
+                Description="{x:Bind ViewModel.Words.MaxActiveHint, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.MaxActiveLabel, Mode=OneWay}"
+                InputScope="Number"
+                IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
+                Text="{x:Bind ViewModel.MaxActiveBookings, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+
+        <TextBlock
+            AutomationProperties.AutomationId="EventTypeEditorValidation"
+            AutomationProperties.LiveSetting="Polite"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Text="{x:Bind ViewModel.Validation, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.HasValidation, Mode=OneWay}" />
+        <InfoBar
+            AutomationProperties.AutomationId="EventTypeEditorFailure"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.Dialog.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Dialog.Failure, Mode=OneWay}"
+            Severity="Error" />
+        <ProgressRing
+            Width="20"
+            Height="20"
+            HorizontalAlignment="Left"
+            AutomationProperties.AutomationId="EventTypeEditorWorking"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+            IsActive="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>

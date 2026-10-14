@@ -26,6 +26,12 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     /// <summary>The overview.</summary>
     public SchedulingOverviewViewModel Overview { get; } = new();
 
+    /// <summary>The event types.</summary>
+    public SchedulingEventTypesViewModel EventTypes { get; } = new();
+
+    /// <summary>One event type.</summary>
+    public SchedulingEventTypeViewModel EventType { get; } = new();
+
     /// <summary>The bookings.</summary>
     public SchedulingBookingsViewModel Bookings { get; } = new();
 
@@ -44,6 +50,14 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowsOverview { get; set; }
 
+    /// <summary>Whether the event types show.</summary>
+    [ObservableProperty]
+    public partial bool ShowsEventTypes { get; set; }
+
+    /// <summary>Whether one event type shows.</summary>
+    [ObservableProperty]
+    public partial bool ShowsEventType { get; set; }
+
     /// <summary>Whether the bookings show.</summary>
     [ObservableProperty]
     public partial bool ShowsBookings { get; set; }
@@ -55,6 +69,8 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     internal void Attach(PageContext context)
     {
         _context = context;
+        EventTypes.Attach(context);
+        EventType.Attach(context);
         Bookings.Attach(context);
         Booking.Attach(context);
     }
@@ -65,12 +81,30 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         Display.Sync(Sections, [.. view.Sections.Select(SchedulingSectionEntry.From)]);
         SelectedSection = Array.FindIndex(view.Sections, section => section.Selected);
         ShowsOverview = view.Page is SchedulingAdminPage.Overview;
+        ShowsEventTypes = view.Page is SchedulingAdminPage.EventTypes;
+        ShowsEventType = view.Page is SchedulingAdminPage.EventType;
         ShowsBookings = view.Page is SchedulingAdminPage.Bookings;
         ShowsBooking = view.Page is SchedulingAdminPage.Booking;
+        // A section left with a dialog open (a deleted event type goes back
+        // to its list) closes it.
+        if (!ShowsEventTypes)
+        {
+            EventTypes.Leave();
+        }
+        if (!ShowsEventType)
+        {
+            EventType.Leave();
+        }
         switch (view.Page)
         {
             case SchedulingAdminPage.Overview overview:
                 Overview.Show(overview.View);
+                break;
+            case SchedulingAdminPage.EventTypes eventTypes:
+                EventTypes.Show(eventTypes.View);
+                break;
+            case SchedulingAdminPage.EventType eventType:
+                EventType.Show(eventType.View);
                 break;
             case SchedulingAdminPage.Bookings bookings:
                 Bookings.Show(bookings.View);

@@ -1919,6 +1919,34 @@ ctx = "button"
 screen = "scheduling"
 tier = "T3"
 
+[scheduling.event_type_notice]
+en = "Event type change"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the banner that says what the last change to an event type or its booking questions came to (turned off, archived, question added)."
+
+[scheduling.event_types_list]
+en = "Event types"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the list of event types, the kinds of meeting a customer can book."
+
+[scheduling.host_role]
+en = "Role"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the choice of a host's role on an event type (required, rotation, optional)."
+
+[scheduling.hosts_add]
+en = "Add a host"
+ctx = "title"
+screen = "scheduling"
+tier = "T3"
+note = "Heading over the people who could be added as hosts of an event type, each with an Add button."
+
 [scheduling.last_live]
 en = "Last live"
 ctx = "label"

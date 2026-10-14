@@ -868,6 +868,18 @@ namespace DistrictAI.L10n
         /// <summary><c>scheduling.check_again</c></summary>
         public static string SchedulingCheckAgain => Current == Locale.FrCa ? "Check again" : "Check again";
 
+        /// <summary><c>scheduling.event_type_notice</c></summary>
+        public static string SchedulingEventTypeNotice => Current == Locale.FrCa ? "Event type change" : "Event type change";
+
+        /// <summary><c>scheduling.event_types_list</c></summary>
+        public static string SchedulingEventTypesList => Current == Locale.FrCa ? "Event types" : "Event types";
+
+        /// <summary><c>scheduling.host_role</c></summary>
+        public static string SchedulingHostRole => Current == Locale.FrCa ? "Role" : "Role";
+
+        /// <summary><c>scheduling.hosts_add</c></summary>
+        public static string SchedulingHostsAdd => Current == Locale.FrCa ? "Add a host" : "Add a host";
+
         /// <summary><c>scheduling.last_live</c></summary>
         public static string SchedulingLastLive => Current == Locale.FrCa ? "Last live" : "Last live";
 
