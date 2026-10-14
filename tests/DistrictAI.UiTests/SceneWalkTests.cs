@@ -383,7 +383,7 @@ public sealed class SceneWalkTests
         var window = app.MainWindow(_startTimeout);
         _ = Heading(app, WorkspaceName, _startTimeout);
 
-        OpenUntilById(app, "NavMarketplace");
+        _ = OpenById(app, "NavMarketplace");
         var owned = app.FindById("OwnedNumbers", PageTimeout);
         var release = Wait.For(
             () => owned.FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName("Release this number"))),
