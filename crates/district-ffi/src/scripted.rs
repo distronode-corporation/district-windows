@@ -653,6 +653,7 @@ mod tests {
             Route::Workspace(S::Messaging),
             Route::Workspace(S::Members),
             Route::Workspace(S::Numbers),
+            Route::SchedulingAdmin(district_core::SchedulingSection::Overview),
         ];
         for route in routes.clone() {
             let _ = after(&mut model, Event::Navigate(route.clone()));

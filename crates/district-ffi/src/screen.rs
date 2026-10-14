@@ -336,6 +336,8 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
             settings::messaging::screen(model, signed_in)
         }
         Route::Workspace(WorkspaceSection::Members) => settings::members::screen(model, signed_in),
+        // Scheduling administration has no page in this version yet.
+        Route::SchedulingAdmin(_) => ScreenView::unavailable(),
     }
 }
 

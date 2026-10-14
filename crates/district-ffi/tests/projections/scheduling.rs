@@ -239,3 +239,17 @@ fn each_action_is_its_core_event() {
         assert_eq!(action(sent).events(), [event]);
     }
 }
+
+/// Scheduling administration has no page in this version yet: its routes
+/// show the screen that says so.
+#[test]
+fn scheduling_administration_is_unavailable() {
+    let session = signed_in().send(Event::Navigate(Route::SchedulingAdmin(
+        district_core::SchedulingSection::Overview,
+    )));
+    assert!(
+        matches!(screen_view(&session.model), ScreenView::Unavailable { .. }),
+        "{:?}",
+        screen_view(&session.model)
+    );
+}
