@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.SchedulingTeamPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:sched="using:DistrictAI.ViewModels.Scheduling"
+    xmlns:views="using:DistrictAI.Views">
+    <Grid>
+        <ScrollViewer AutomationProperties.AutomationId="SchedulingTeam">
+            <StackPanel
+                MaxWidth="{StaticResource ReadingWidth}"
+                HorizontalAlignment="Left"
+                Spacing="12">
+                <!-- Who left the workspace while still holding bookings: never said when the roles could not be read. -->
+                <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.HasStranded, Mode=OneWay}">
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="{x:Bind ViewModel.StrandedHeading, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                        <TextBlock
+                            AutomationProperties.AutomationId="SchedulingTeamStranded"
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Text="{x:Bind ViewModel.Stranded, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <!-- The members: a failed read is a status page, never an empty list. -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="{x:Bind ViewModel.MembersHeading, Mode=OneWay}" />
+                        <TextBlock
+                            AutomationProperties.AutomationId="SchedulingTeamRolesUnread"
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Text="{x:Bind ViewModel.MembersDegraded, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind ViewModel.HasMembersDegraded, Mode=OneWay}" />
+                        <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
+                        <TextBlock
+                            AutomationProperties.AutomationId="SchedulingTeamMembersEmpty"
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.MembersEmpty, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind ViewModel.ShowMembersEmpty, Mode=OneWay}" />
+                        <ItemsRepeater
+                            AutomationProperties.AutomationId="SchedulingTeamMembers"
+                            ItemsSource="{x:Bind ViewModel.Members}"
+                            Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Spacing="8" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="sched:TeamMemberEntry">
+                                    <Grid
+                                        AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                        AutomationProperties.Name="{x:Bind AccessibleName}"
+                                        ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="2">
+                                            <TextBlock
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                Text="{x:Bind Name}"
+                                                TextWrapping="Wrap" />
+                                            <TextBlock
+                                                IsTextSelectionEnabled="True"
+                                                Style="{StaticResource QuietTextStyle}"
+                                                Text="{x:Bind Subtitle}"
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            Text="{x:Bind StateLabel}"
+                                            Visibility="{x:Bind IsSuccess}" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            Text="{x:Bind StateLabel}"
+                                            Visibility="{x:Bind IsNeutral}" />
+                                        <Button
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            AutomationProperties.AutomationId="TeamArchive"
+                                            AutomationProperties.Name="{x:Bind ArchiveName}"
+                                            Click="OnArchiveClick"
+                                            Content="{x:Bind ArchiveLabel}"
+                                            Tag="{x:Bind Email}"
+                                            Visibility="{x:Bind OffersArchive}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Border>
+
+                <!-- The teams: their read fails alone, said in their card. -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="{x:Bind ViewModel.TeamsHeading, Mode=OneWay}" />
+                        <TextBlock
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.TeamsSubtitle, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.AutomationId="SchedulingTeamTeamsLoading"
+                            AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+                            IsActive="{x:Bind ViewModel.TeamsLoading, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.TeamsLoading, Mode=OneWay}" />
+                        <TextBlock
+                            AutomationProperties.AutomationId="SchedulingTeamTeamsFailure"
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Text="{x:Bind ViewModel.TeamsFailure, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind ViewModel.TeamsFailed, Mode=OneWay}" />
+                        <TextBlock
+                            AutomationProperties.AutomationId="SchedulingTeamTeamsEmpty"
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.TeamsEmpty, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.ShowTeamsEmpty, Mode=OneWay}" />
+                        <ItemsRepeater AutomationProperties.AutomationId="SchedulingTeamTeams" ItemsSource="{x:Bind ViewModel.Teams}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Spacing="8" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="sched:TeamEntry">
+                                    <Grid
+                                        AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                        AutomationProperties.Name="{x:Bind AccessibleName}"
+                                        ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                                            <TextBlock
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                Text="{x:Bind Name}"
+                                                TextWrapping="Wrap" />
+                                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind MemberCount}" />
+                                        </StackPanel>
+                                        <Button
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            AutomationProperties.AutomationId="TeamEdit"
+                                            AutomationProperties.Name="{x:Bind EditName}"
+                                            Click="OnEditClick"
+                                            Content="{x:Bind EditLabel}"
+                                            Tag="{x:Bind Id}"
+                                            Visibility="{x:Bind OffersWrites}" />
+                                        <Button
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            AutomationProperties.AutomationId="TeamHosts"
+                                            AutomationProperties.Name="{x:Bind HostsName}"
+                                            Click="OnHostsClick"
+                                            Content="{x:Bind HostsLabel}"
+                                            Tag="{x:Bind Id}"
+                                            Visibility="{x:Bind OffersWrites}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                        <!-- Offered to a member who may change things, over teams that were read. -->
+                        <Button
+                            AutomationProperties.AutomationId="TeamCreateButton"
+                            AutomationProperties.Name="{x:Bind ViewModel.CreateLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenCreateCommand, Mode=OneWay}"
+                            Content="{x:Bind ViewModel.CreateLabel, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Visibility="{x:Bind ViewModel.OffersCreate, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

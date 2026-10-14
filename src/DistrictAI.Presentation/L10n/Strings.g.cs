@@ -907,6 +907,9 @@ namespace DistrictAI.L10n
         /// <summary><c>scheduling.sections</c></summary>
         public static string SchedulingSections => Current == Locale.FrCa ? "Sections" : "Sections";
 
+        /// <summary><c>scheduling.team_notice</c></summary>
+        public static string SchedulingTeamNotice => Current == Locale.FrCa ? "Team change" : "Team change";
+
         /// <summary><c>scheduling.title</c></summary>
         public static string SchedulingTitle => Current == Locale.FrCa ? "Booking pages" : "Booking pages";
 

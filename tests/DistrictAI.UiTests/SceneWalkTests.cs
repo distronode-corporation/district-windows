@@ -91,6 +91,7 @@ public sealed class SceneWalkTests
         "SchedulingSectionHours",
         "SchedulingSectionBookings",
         "SchedulingSectionCalendar",
+        "SchedulingSectionTeam",
     ];
 
     /// <summary>
@@ -688,6 +689,136 @@ public sealed class SceneWalkTests
             "the disconnect stayed asked after Escape");
         Assert.Null(Failure(app));
         Assert.True(app.IsRunning, "the app ended in the calendars");
+    }
+
+    /// <summary>
+    /// The team's main flow, each row's button pressed and its effect seen:
+    /// the section opens from the Booking pages page with the members and the
+    /// teams read, and names the scene's host, who is not a workspace member;
+    /// that host's Archive account opens their archive, whose confirm asks
+    /// once more in the dialog (its own confirm off meanwhile) before the
+    /// archive lands. Below the members, Sales's Edit opens Sales's name and a
+    /// rename lands; Create team saves a typed name; Sales's Hosts open its
+    /// hosts, where a routing priority that is not a whole number comes back
+    /// refused and a whole one is saved, and Remove asks first, in the
+    /// dialog, before the removal lands. Escape closes each dialog.
+    /// </summary>
+    [Fact]
+    public void TheTeamsRowsActAndRemovingAHostAsksFirst()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        var team = OpenSettingsRowById(app, "SchedulingSectionTeam");
+        _ = Heading(app, team, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("SchedulingTeamStranded", PageTimeout, onScreen: false);
+        InstalledApp.Log("the members show, the host who left named at the top");
+
+        // The host's row: its archive is asked once, in the dialog, then lands.
+        ScrollTo(app, "SchedulingTeam", 0);
+        Press(app.FindById("TeamArchive", PageTimeout, onScreen: false));
+        var archive = app.FindById("TeamArchiveDialog", PageTimeout);
+        AutomationElement ArchiveConfirm() => Wait.For(
+            () => archive.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")),
+            PageTimeout,
+            "the archive's Archive account",
+            app.Describe);
+        Assert.True(
+            Wait.Until(() => ArchiveConfirm().IsEnabled, PageTimeout),
+            "Archive account stayed off with nothing in the way");
+        Press(ArchiveConfirm());
+        _ = app.FindById("TeamArchiveAskTitle", PageTimeout, onScreen: false);
+        Assert.False(ArchiveConfirm().IsEnabled, "the archive could be asked twice");
+        InstalledApp.Log("Archive account asks once more");
+        Press(app.FindById("TeamArchiveConfirm", PageTimeout, onScreen: false));
+        _ = app.FindById("TeamArchiveNotice", PageTimeout, onScreen: false);
+        Assert.Null(app.TryFindById("TeamArchiveAskTitle", onScreen: false));
+        Assert.Null(app.TryFindById("TeamArchiveFailure", onScreen: false));
+        InstalledApp.Log("the account was archived");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("TeamArchiveDialog", onScreen: false) is null, PageTimeout),
+            "the archive stayed open after Escape");
+
+        // Sales's Edit opens Sales's own name, and a rename lands.
+        ScrollTo(app, "SchedulingTeam", 100);
+        Press(app.FindById("TeamEdit", PageTimeout, onScreen: false));
+        var editor = app.FindById("TeamEditorDialog", PageTimeout);
+        Assert.Equal("Sales", editor.Name);
+        app.FindById("TeamEditorName", PageTimeout).AsTextBox().Text = "Sales desk";
+        Press(Wait.For(
+            () => editor.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "Save name to work",
+            app.Describe));
+        _ = app.FindById("TeamEditorNotice", PageTimeout, onScreen: false);
+        Assert.Null(app.TryFindById("TeamEditorFailure", onScreen: false));
+        InstalledApp.Log("the team was renamed");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("TeamEditorDialog", onScreen: false) is null, PageTimeout),
+            "the team's name stayed open after Escape");
+
+        ScrollTo(app, "SchedulingTeam", 100);
+        Press(app.FindById("TeamCreateButton", PageTimeout, onScreen: false));
+        var create = app.FindById("TeamEditorDialog", PageTimeout);
+        app.FindById("TeamEditorName", PageTimeout).AsTextBox().Text = "Front desk";
+        Press(Wait.For(
+            () => create.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "Create team to work",
+            app.Describe));
+        _ = app.FindById("TeamEditorNotice", PageTimeout, onScreen: false);
+        InstalledApp.Log("the team was created");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("TeamEditorDialog", onScreen: false) is null, PageTimeout),
+            "the new team's name stayed open after Escape");
+
+        // Sales's Hosts: each host's box and buttons reach the core.
+        ScrollTo(app, "SchedulingTeam", 100);
+        Press(app.FindById("TeamHosts", PageTimeout, onScreen: false));
+        var hosts = app.FindById("TeamHostsDialog", PageTimeout);
+        Assert.Equal("Sales", hosts.Name);
+        var priority = app.FindById("TeamHostPriority", PageTimeout, onScreen: false).AsTextBox();
+        priority.Text = "first";
+        Press(app.FindById("TeamHostSave", PageTimeout, onScreen: false));
+        _ = app.FindById("TeamPriorityError", PageTimeout, onScreen: false);
+        priority.Text = "2";
+        Assert.True(
+            Wait.Until(() => app.TryFindById("TeamPriorityError", onScreen: false) is null, PageTimeout),
+            "the priority's refusal stayed after it was retyped");
+        Press(Wait.For(
+            () => app.TryFindById("TeamHostSave", onScreen: false) is { IsEnabled: true } save ? save : null,
+            PageTimeout,
+            "Save priority to work",
+            app.Describe));
+        _ = app.FindById("TeamHostsNotice", PageTimeout, onScreen: false);
+        Assert.Null(app.TryFindById("TeamHostsFailure", onScreen: false));
+        InstalledApp.Log("the routing priority was refused, then saved");
+        Press(Wait.For(
+            () => app.TryFindById("TeamHostRemove", onScreen: false) is { IsEnabled: true } remove ? remove : null,
+            PageTimeout,
+            "Remove to work",
+            app.Describe));
+        _ = app.FindById("TeamRemoveTitle", PageTimeout, onScreen: false);
+        InstalledApp.Log("Remove asks first");
+        Press(app.FindById("TeamRemoveConfirm", PageTimeout, onScreen: false));
+        Assert.True(
+            Wait.Until(() => app.TryFindById("TeamRemoveConfirm", onScreen: false) is null, PageTimeout),
+            "the removal stayed asked after its confirm");
+        _ = app.FindById("TeamHostsNotice", PageTimeout, onScreen: false);
+        Assert.Null(app.TryFindById("TeamHostsFailure", onScreen: false));
+        InstalledApp.Log("the host was removed");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("TeamHostsDialog", onScreen: false) is null, PageTimeout),
+            "the hosts stayed open after Escape");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the team");
     }
 
     /// <summary>

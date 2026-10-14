@@ -69,5 +69,9 @@
             x:Name="CalendarPanel"
             Grid.Row="2"
             Visibility="{x:Bind ViewModel.ShowsCalendar, Mode=OneWay}" />
+        <local:SchedulingTeamPanel
+            x:Name="TeamPanel"
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.ShowsTeam, Mode=OneWay}" />
     </Grid>
 </UserControl>
