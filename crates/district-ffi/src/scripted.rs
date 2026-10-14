@@ -469,6 +469,12 @@ fn scheduling_admin(
         | R::PatchTeamMember { .. } => fixture!("district-scheduling-team.json"),
         R::UpcomingBookings { .. } => fixture!("district-scheduling-user-upcoming.json"),
         R::ArchiveUser { .. } => fixture!("district-scheduling-user-archive.json"),
+        R::ApiKeys => fixture!("district-scheduling-api-keys.json"),
+        R::CreateApiKey { .. } => fixture!("district-scheduling-api-key-created.json"),
+        R::OauthConnections => fixture!("district-scheduling-oauth-connections.json"),
+        R::Webhooks => fixture!("district-scheduling-webhooks.json"),
+        R::CreateWebhook { .. } => fixture!("district-scheduling-webhook-created.json"),
+        R::WebhookDeliveries { .. } => fixture!("district-scheduling-webhook-deliveries.json"),
         R::CancelBooking { .. } | R::RescheduleBooking { .. } | R::ReassignBooking { .. } => {
             fixture!("district-scheduling-booking.json")
         }
@@ -493,7 +499,11 @@ fn scheduling_admin(
         | R::SetDestination { .. }
         | R::DeleteConnection { .. }
         | R::DeleteTeam { .. }
-        | R::RemoveTeamMember { .. } => fixture!("district-scheduling-ok.json"),
+        | R::RemoveTeamMember { .. }
+        | R::DeleteApiKey { .. }
+        | R::DeleteOauthConnection { .. }
+        | R::PatchWebhook { .. }
+        | R::DeleteWebhook { .. } => fixture!("district-scheduling-ok.json"),
         _ => return None,
     };
     let data = serde_json::from_str::<Value>(text)
@@ -867,6 +877,7 @@ mod tests {
             Route::SchedulingAdmin(district_core::SchedulingSection::Bookings),
             Route::SchedulingAdmin(district_core::SchedulingSection::Calendar),
             Route::SchedulingAdmin(district_core::SchedulingSection::Team),
+            Route::SchedulingAdmin(district_core::SchedulingSection::Developer),
         ];
         for route in routes.clone() {
             let _ = after(&mut model, Event::Navigate(route.clone()));
@@ -1504,6 +1515,138 @@ mod tests {
             view.editor.expect("still open").notice.as_deref(),
             Some("Team deleted")
         );
+    }
+
+    /// Developer opens from the booking pages and fills in; a key is made
+    /// and shown once, and a key is revoked, asked once more; on the apps
+    /// tab the MCP address shows and an app is revoked; on the webhooks tab a
+    /// webhook's deliveries open, a webhook's events are saved, one is added
+    /// and its signing secret shown once, and one is deleted.
+    #[test]
+    fn developer_fills_in_and_its_writes_land() {
+        use crate::events::UiEvent;
+        use crate::scheduling_admin::developer::{DeveloperAction as D, DeveloperTabView};
+        use crate::scheduling_admin::{
+            SchedulingAdminAction as A, SchedulingAdminPage as P, SchedulingAdminSection,
+        };
+
+        let mut model = started();
+        let mut send = |action: UiEvent| {
+            let mut pending = Vec::new();
+            for event in action.events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::SchedulingAdmin { view } = screen else {
+                panic!("not the scheduling administration: {screen:?}");
+            };
+            let P::Developer { view } = view.page else {
+                panic!("not Developer");
+            };
+            view
+        };
+        let view = send(UiEvent::SchedulingAdmin {
+            action: A::Open {
+                section: SchedulingAdminSection::Developer,
+            },
+        });
+        let mut run = |action: D| {
+            send(UiEvent::SchedulingAdmin {
+                action: A::Developer { action },
+            })
+        };
+        assert_eq!(view.keys_status, crate::views::LoadStatus::Ready);
+        assert_eq!(view.keys.len(), 2);
+        assert!(view.offers_writes);
+
+        let _ = run(D::OpenCreateKey);
+        let _ = run(D::EditKeyName {
+            name: "Zapier".to_owned(),
+        });
+        let view = run(D::CreateKey);
+        let made = view.key_dialog.expect("still open");
+        let shown = made.minted.expect("the key, shown once");
+        assert!(!shown.value.is_empty());
+        let view = run(D::KeyCopied);
+        assert_eq!(
+            view.key_dialog
+                .expect("open")
+                .minted
+                .expect("shown")
+                .copy_label,
+            "Copied"
+        );
+        assert_eq!(run(D::CloseDialog).key_dialog, None);
+
+        let view = run(D::AskRevokeKey {
+            key_id: "key-contract-2".to_owned(),
+        });
+        assert!(view.removal.is_some());
+        let view = run(D::ConfirmRemoval);
+        assert!(view.removal.is_none() && !view.removing);
+        assert_eq!(view.removal_failure, None);
+
+        let view = run(D::SelectTab {
+            tab: DeveloperTabView::Apps,
+        });
+        assert_eq!(view.apps_status, crate::views::LoadStatus::Ready);
+        assert!(
+            view.mcp.is_some(),
+            "the scene's scheduler has a public address"
+        );
+        let _ = run(D::AskRevokeApp {
+            connection_id: "oauth-contract-1".to_owned(),
+        });
+        let view = run(D::ConfirmRemoval);
+        assert!(view.removal.is_none() && view.removal_failure.is_none());
+
+        let view = run(D::SelectTab {
+            tab: DeveloperTabView::Webhooks,
+        });
+        assert_eq!(view.webhooks.len(), 2);
+        let view = run(D::ToggleDeliveries {
+            webhook_id: "wh-contract-1".to_owned(),
+        });
+        let deliveries = view.deliveries.expect("open");
+        assert_eq!(deliveries.status, crate::views::LoadStatus::Ready);
+        assert_eq!(deliveries.rows.len(), 2);
+        // Closed again before the save: a save reads the webhooks again and
+        // forgets every webhook's deliveries, but the core leaves an open one
+        // open, its deliveries loading with nothing on its way.
+        let view = run(D::ToggleDeliveries {
+            webhook_id: "wh-contract-1".to_owned(),
+        });
+        assert_eq!(view.deliveries, None);
+        let _ = run(D::OpenEditWebhook {
+            webhook_id: "wh-contract-1".to_owned(),
+        });
+        let _ = run(D::ToggleEvent {
+            event: "booking.rescheduled".to_owned(),
+        });
+        let view = run(D::SaveWebhook);
+        assert_eq!(
+            view.webhook_dialog.expect("still open").notice.as_deref(),
+            Some("Webhook updated")
+        );
+        let _ = run(D::CloseDialog);
+        let _ = run(D::OpenCreateWebhook);
+        let _ = run(D::EditWebhookUrl {
+            url: "https://hooks.example.com/bookings".to_owned(),
+        });
+        let _ = run(D::ToggleEvent {
+            event: "booking.created".to_owned(),
+        });
+        let view = run(D::SaveWebhook);
+        let added = view.webhook_dialog.expect("still open");
+        assert!(added.minted.is_some_and(|secret| !secret.value.is_empty()));
+        let _ = run(D::CloseDialog);
+        let _ = run(D::AskDeleteWebhook {
+            webhook_id: "wh-contract-2".to_owned(),
+        });
+        let view = run(D::ConfirmRemoval);
+        assert!(view.removal.is_none() && view.removal_failure.is_none());
     }
 
     /// Each settings section the walk opens from the hub fills in, and each

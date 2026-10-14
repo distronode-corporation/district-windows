@@ -150,6 +150,12 @@
             "selected": true,
             "subtitle": "The hosts who can be booked, and the teams they route through",
             "title": "Team"
+          },
+          {
+            "section": "Developer",
+            "selected": false,
+            "subtitle": "API keys, connected apps and webhooks",
+            "title": "Developer"
           }
         ],
         "title": "Team"

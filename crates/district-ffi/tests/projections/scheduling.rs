@@ -256,7 +256,8 @@ fn the_sections_are_listed_once_live() {
             SchedulingAdminSection::Hours,
             SchedulingAdminSection::Bookings,
             SchedulingAdminSection::Calendar,
-            SchedulingAdminSection::Team
+            SchedulingAdminSection::Team,
+            SchedulingAdminSection::Developer
         ]
     );
     assert!(live.sections.iter().all(|s| !s.selected));

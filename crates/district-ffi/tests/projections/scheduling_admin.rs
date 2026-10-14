@@ -19,6 +19,7 @@ use district_model::{SchedulingAdminReply, SchedulingAdminRequest};
 use super::*;
 
 pub(crate) mod calendar;
+pub(crate) mod developer;
 pub(crate) mod event_types;
 pub(crate) mod hours;
 pub(crate) mod team;
