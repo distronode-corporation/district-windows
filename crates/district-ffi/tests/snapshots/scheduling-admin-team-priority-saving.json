@@ -1,0 +1,192 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Team": {
+            "view": {
+              "archive": null,
+              "archive_label": "Archive account",
+              "create_label": "Create team",
+              "edit_label": "Edit",
+              "editor": null,
+              "hosts": {
+                "add_label": "Host",
+                "add_none": "Every host is already in this team.",
+                "add_placeholder": "Choose a host",
+                "candidates": [],
+                "dialog": {
+                  "body": "",
+                  "can_confirm": false,
+                  "close": "Done",
+                  "confirm": "Add member",
+                  "destructive": false,
+                  "failure": null,
+                  "title": "Sales",
+                  "working": true
+                },
+                "editable": false,
+                "empty": "No hosts yet. Nothing routes through this team until one is added.",
+                "hint": "A lower routing priority is offered a booking first.",
+                "hosts": [
+                  {
+                    "email": "contract@example.com",
+                    "name": "Contract Member",
+                    "priority": "0",
+                    "user_id": "sched-user-contract"
+                  },
+                  {
+                    "email": "rotation@example.com",
+                    "name": "Rotation Host",
+                    "priority": "2",
+                    "user_id": "sched-user-rotation"
+                  }
+                ],
+                "notice": null,
+                "priority_error": null,
+                "priority_label": "Routing priority",
+                "remove": null,
+                "remove_label": "Remove",
+                "save_priority_label": "Save priority",
+                "team_id": "team-contract-1",
+                "users_status": "Ready"
+              },
+              "hosts_label": "Hosts",
+              "members": [
+                {
+                  "archive_user_id": null,
+                  "email": "founder@example.com",
+                  "name": "founder",
+                  "state_label": "Not set up yet",
+                  "subtitle": "founder@example.com · Agency",
+                  "tone": "Neutral"
+                },
+                {
+                  "archive_user_id": null,
+                  "email": "operator@example.com",
+                  "name": "operator",
+                  "state_label": "Not set up yet",
+                  "subtitle": "operator@example.com · Client",
+                  "tone": "Neutral"
+                },
+                {
+                  "archive_user_id": null,
+                  "email": "auditor@example.com",
+                  "name": "auditor",
+                  "state_label": "Not set up yet",
+                  "subtitle": "auditor@example.com · Viewer",
+                  "tone": "Neutral"
+                },
+                {
+                  "archive_user_id": "sched-user-contract",
+                  "email": "Contract@Example.com",
+                  "name": "Contract Member",
+                  "state_label": "Host",
+                  "subtitle": "Contract@Example.com · Agency",
+                  "tone": "Success"
+                },
+                {
+                  "archive_user_id": null,
+                  "email": "gone@example.com",
+                  "name": "Former Host",
+                  "state_label": "Archived",
+                  "subtitle": "gone@example.com · Removed from the workspace",
+                  "tone": "Neutral"
+                }
+              ],
+              "members_degraded": null,
+              "members_empty": "Nobody else is in this workspace yet.",
+              "members_heading": "Members",
+              "offers_create": true,
+              "offers_writes": true,
+              "status": "Ready",
+              "stranded": null,
+              "stranded_heading": "Someone who has left still has bookings",
+              "teams": [
+                {
+                  "id": "team-contract-1",
+                  "member_count": "2 members",
+                  "name": "Sales"
+                },
+                {
+                  "id": "team-contract-2",
+                  "member_count": "0 members",
+                  "name": "Support"
+                }
+              ],
+              "teams_empty": "No teams yet.",
+              "teams_heading": "Teams",
+              "teams_status": "Ready",
+              "teams_subtitle": "A team rotates bookings through its hosts, in routing-priority order."
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Hours",
+            "selected": false,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          },
+          {
+            "section": "Calendar",
+            "selected": false,
+            "subtitle": "The accounts bookings are written to and checked against",
+            "title": "Calendar"
+          },
+          {
+            "section": "Team",
+            "selected": true,
+            "subtitle": "The hosts who can be booked, and the teams they route through",
+            "title": "Team"
+          }
+        ],
+        "title": "Team"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

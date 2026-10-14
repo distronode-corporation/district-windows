@@ -141,6 +141,12 @@
             "selected": false,
             "subtitle": "The accounts bookings are written to and checked against",
             "title": "Calendar"
+          },
+          {
+            "section": "Team",
+            "selected": false,
+            "subtitle": "The hosts who can be booked, and the teams they route through",
+            "title": "Team"
           }
         ],
         "title": "Event type"

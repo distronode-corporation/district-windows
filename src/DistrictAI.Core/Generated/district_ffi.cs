@@ -22215,6 +22215,253 @@ class FfiConverterTypeSchedulingSectionEntryView: FfiConverterRustBuffer<Schedul
 
 
 /// <summary>
+/// The team.
+/// </summary>
+/// <param name="Status">
+/// Where the read of the members stands: the scheduler's users and the
+/// workspace's members, both. A failed one is a status page, never an
+/// empty list.
+/// </param>
+/// <param name="StrandedHeading">
+/// The stranded notice's heading.
+/// </param>
+/// <param name="Stranded">
+/// Who left the workspace while still a host, and what to do; `None` when
+/// nobody did, or when the workspace's members could not be read.
+/// </param>
+/// <param name="MembersHeading">
+/// The members' heading.
+/// </param>
+/// <param name="MembersDegraded">
+/// That the workspace's members could not be read, so no role is shown;
+/// `None` when they were.
+/// </param>
+/// <param name="Members">
+/// The people, once read.
+/// </param>
+/// <param name="MembersEmpty">
+/// Said when the members are read and there are none.
+/// </param>
+/// <param name="ArchiveLabel">
+/// "Archive account", on the rows that offer it.
+/// </param>
+/// <param name="TeamsHeading">
+/// The teams' heading.
+/// </param>
+/// <param name="TeamsSubtitle">
+/// What a team is.
+/// </param>
+/// <param name="TeamsStatus">
+/// Where the read of the teams stands; a failure is said in their card.
+/// </param>
+/// <param name="Teams">
+/// The teams, once read.
+/// </param>
+/// <param name="TeamsEmpty">
+/// Said when the teams are read and there are none.
+/// </param>
+/// <param name="OffersWrites">
+/// Whether Edit and Hosts are offered on each team: the member may change
+/// things.
+/// </param>
+/// <param name="OffersCreate">
+/// Whether "Create team" is offered: the member may change things and the
+/// teams were read.
+/// </param>
+/// <param name="CreateLabel">
+/// "Create team" (`TeamAction::OpenCreate`).
+/// </param>
+/// <param name="EditLabel">
+/// "Edit", on each team (`TeamAction::OpenEditor`).
+/// </param>
+/// <param name="HostsLabel">
+/// "Hosts", on each team (`TeamAction::OpenMembers`).
+/// </param>
+/// <param name="Editor">
+/// A team's name, while its dialog is open.
+/// </param>
+/// <param name="Hosts">
+/// A team's hosts, while their dialog is open.
+/// </param>
+/// <param name="Archive">
+/// An account's archive, while its dialog is open.
+/// </param>
+public record SchedulingTeamView (
+    /// <summary>
+    /// Where the read of the members stands: the scheduler's users and the
+    /// workspace's members, both. A failed one is a status page, never an
+    /// empty list.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The stranded notice's heading.
+    /// </summary>
+    string StrandedHeading, 
+    /// <summary>
+    /// Who left the workspace while still a host, and what to do; `None` when
+    /// nobody did, or when the workspace's members could not be read.
+    /// </summary>
+    string? Stranded, 
+    /// <summary>
+    /// The members' heading.
+    /// </summary>
+    string MembersHeading, 
+    /// <summary>
+    /// That the workspace's members could not be read, so no role is shown;
+    /// `None` when they were.
+    /// </summary>
+    string? MembersDegraded, 
+    /// <summary>
+    /// The people, once read.
+    /// </summary>
+    TeamMemberRowView[] Members, 
+    /// <summary>
+    /// Said when the members are read and there are none.
+    /// </summary>
+    string MembersEmpty, 
+    /// <summary>
+    /// "Archive account", on the rows that offer it.
+    /// </summary>
+    string ArchiveLabel, 
+    /// <summary>
+    /// The teams' heading.
+    /// </summary>
+    string TeamsHeading, 
+    /// <summary>
+    /// What a team is.
+    /// </summary>
+    string TeamsSubtitle, 
+    /// <summary>
+    /// Where the read of the teams stands; a failure is said in their card.
+    /// </summary>
+    LoadStatus TeamsStatus, 
+    /// <summary>
+    /// The teams, once read.
+    /// </summary>
+    TeamRowView[] Teams, 
+    /// <summary>
+    /// Said when the teams are read and there are none.
+    /// </summary>
+    string TeamsEmpty, 
+    /// <summary>
+    /// Whether Edit and Hosts are offered on each team: the member may change
+    /// things.
+    /// </summary>
+    bool OffersWrites, 
+    /// <summary>
+    /// Whether "Create team" is offered: the member may change things and the
+    /// teams were read.
+    /// </summary>
+    bool OffersCreate, 
+    /// <summary>
+    /// "Create team" (`TeamAction::OpenCreate`).
+    /// </summary>
+    string CreateLabel, 
+    /// <summary>
+    /// "Edit", on each team (`TeamAction::OpenEditor`).
+    /// </summary>
+    string EditLabel, 
+    /// <summary>
+    /// "Hosts", on each team (`TeamAction::OpenMembers`).
+    /// </summary>
+    string HostsLabel, 
+    /// <summary>
+    /// A team's name, while its dialog is open.
+    /// </summary>
+    TeamEditorView? Editor, 
+    /// <summary>
+    /// A team's hosts, while their dialog is open.
+    /// </summary>
+    TeamHostsView? Hosts, 
+    /// <summary>
+    /// An account's archive, while its dialog is open.
+    /// </summary>
+    TeamArchiveView? Archive
+) {
+}
+
+class FfiConverterTypeSchedulingTeamView: FfiConverterRustBuffer<SchedulingTeamView> {
+    public static FfiConverterTypeSchedulingTeamView INSTANCE = new FfiConverterTypeSchedulingTeamView();
+
+    public override SchedulingTeamView Read(BigEndianStream stream) {
+        return new SchedulingTeamView(
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            StrandedHeading: FfiConverterString.INSTANCE.Read(stream),
+            Stranded: FfiConverterOptionalString.INSTANCE.Read(stream),
+            MembersHeading: FfiConverterString.INSTANCE.Read(stream),
+            MembersDegraded: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Members: FfiConverterSequenceTypeTeamMemberRowView.INSTANCE.Read(stream),
+            MembersEmpty: FfiConverterString.INSTANCE.Read(stream),
+            ArchiveLabel: FfiConverterString.INSTANCE.Read(stream),
+            TeamsHeading: FfiConverterString.INSTANCE.Read(stream),
+            TeamsSubtitle: FfiConverterString.INSTANCE.Read(stream),
+            TeamsStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Teams: FfiConverterSequenceTypeTeamRowView.INSTANCE.Read(stream),
+            TeamsEmpty: FfiConverterString.INSTANCE.Read(stream),
+            OffersWrites: FfiConverterBoolean.INSTANCE.Read(stream),
+            OffersCreate: FfiConverterBoolean.INSTANCE.Read(stream),
+            CreateLabel: FfiConverterString.INSTANCE.Read(stream),
+            EditLabel: FfiConverterString.INSTANCE.Read(stream),
+            HostsLabel: FfiConverterString.INSTANCE.Read(stream),
+            Editor: FfiConverterOptionalTypeTeamEditorView.INSTANCE.Read(stream),
+            Hosts: FfiConverterOptionalTypeTeamHostsView.INSTANCE.Read(stream),
+            Archive: FfiConverterOptionalTypeTeamArchiveView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingTeamView value) {
+        return 0
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StrandedHeading)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Stranded)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MembersHeading)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.MembersDegraded)
+            + FfiConverterSequenceTypeTeamMemberRowView.INSTANCE.AllocationSize(value.Members)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MembersEmpty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ArchiveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TeamsHeading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TeamsSubtitle)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.TeamsStatus)
+            + FfiConverterSequenceTypeTeamRowView.INSTANCE.AllocationSize(value.Teams)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TeamsEmpty)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWrites)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersCreate)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CreateLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EditLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HostsLabel)
+            + FfiConverterOptionalTypeTeamEditorView.INSTANCE.AllocationSize(value.Editor)
+            + FfiConverterOptionalTypeTeamHostsView.INSTANCE.AllocationSize(value.Hosts)
+            + FfiConverterOptionalTypeTeamArchiveView.INSTANCE.AllocationSize(value.Archive);
+    }
+
+    public override void Write(SchedulingTeamView value, BigEndianStream stream) {
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.StrandedHeading, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Stranded, stream);
+            FfiConverterString.INSTANCE.Write(value.MembersHeading, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.MembersDegraded, stream);
+            FfiConverterSequenceTypeTeamMemberRowView.INSTANCE.Write(value.Members, stream);
+            FfiConverterString.INSTANCE.Write(value.MembersEmpty, stream);
+            FfiConverterString.INSTANCE.Write(value.ArchiveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.TeamsHeading, stream);
+            FfiConverterString.INSTANCE.Write(value.TeamsSubtitle, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.TeamsStatus, stream);
+            FfiConverterSequenceTypeTeamRowView.INSTANCE.Write(value.Teams, stream);
+            FfiConverterString.INSTANCE.Write(value.TeamsEmpty, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersWrites, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersCreate, stream);
+            FfiConverterString.INSTANCE.Write(value.CreateLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.EditLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.HostsLabel, stream);
+            FfiConverterOptionalTypeTeamEditorView.INSTANCE.Write(value.Editor, stream);
+            FfiConverterOptionalTypeTeamHostsView.INSTANCE.Write(value.Hosts, stream);
+            FfiConverterOptionalTypeTeamArchiveView.INSTANCE.Write(value.Archive, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The booking pages screen.
 /// </summary>
 /// <param name="Title">
@@ -25187,6 +25434,685 @@ class FfiConverterTypeSupportView: FfiConverterRustBuffer<SupportView> {
 
 
 /// <summary>
+/// Archiving a scheduler account: what archiving does, why it cannot be done
+/// yet, and each upcoming booking that stands in the way. Its confirm asks
+/// once more; the dialog stays open saying the account is closed.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("Archive Ann's account?"), what archiving does, the confirm
+/// ("Archive account", destructive, offered once the upcoming bookings
+/// were read and there are none, and until the account is archived),
+/// "Keep account" and why the archive failed.
+/// </param>
+/// <param name="Status">
+/// Where the read of the upcoming bookings stands.
+/// </param>
+/// <param name="Blocked">
+/// Why it cannot be archived yet: still counting, or bookings to move
+/// first.
+/// </param>
+/// <param name="Bookings">
+/// The upcoming bookings in the way.
+/// </param>
+/// <param name="Notice">
+/// What the archive came to, once it landed.
+/// </param>
+/// <param name="Ask">
+/// The archive, while it is asked about once more.
+/// </param>
+public record TeamArchiveView (
+    /// <summary>
+    /// Its title ("Archive Ann's account?"), what archiving does, the confirm
+    /// ("Archive account", destructive, offered once the upcoming bookings
+    /// were read and there are none, and until the account is archived),
+    /// "Keep account" and why the archive failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// Where the read of the upcoming bookings stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Why it cannot be archived yet: still counting, or bookings to move
+    /// first.
+    /// </summary>
+    string? Blocked, 
+    /// <summary>
+    /// The upcoming bookings in the way.
+    /// </summary>
+    UpcomingBookingView[] Bookings, 
+    /// <summary>
+    /// What the archive came to, once it landed.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// The archive, while it is asked about once more.
+    /// </summary>
+    SchedulingAskView? Ask
+) {
+}
+
+class FfiConverterTypeTeamArchiveView: FfiConverterRustBuffer<TeamArchiveView> {
+    public static FfiConverterTypeTeamArchiveView INSTANCE = new FfiConverterTypeTeamArchiveView();
+
+    public override TeamArchiveView Read(BigEndianStream stream) {
+        return new TeamArchiveView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Blocked: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Bookings: FfiConverterSequenceTypeUpcomingBookingView.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Ask: FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TeamArchiveView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Blocked)
+            + FfiConverterSequenceTypeUpcomingBookingView.INSTANCE.AllocationSize(value.Bookings)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeSchedulingAskView.INSTANCE.AllocationSize(value.Ask);
+    }
+
+    public override void Write(TeamArchiveView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Blocked, stream);
+            FfiConverterSequenceTypeUpcomingBookingView.INSTANCE.Write(value.Bookings, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Write(value.Ask, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A team's name: creating a team, or renaming one and, apart from the
+/// rename, deleting it. Its save is the dialog's confirm; the dialog stays
+/// open saying what the save came to.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("New team", or the team's name), the save ("Create team",
+/// "Save name"), the way out ("Cancel", or "Done" for a team) and why the
+/// last write failed.
+/// </param>
+/// <param name="Hint">
+/// What a team is.
+/// </param>
+/// <param name="NameLabel">
+/// "Name".
+/// </param>
+/// <param name="NamePlaceholder">
+/// The name's placeholder.
+/// </param>
+/// <param name="Name">
+/// The name, as the core holds it.
+/// </param>
+/// <param name="NameError">
+/// Why the name cannot be sent, before anything was sent.
+/// </param>
+/// <param name="SlugHint">
+/// That a team's booking-page address cannot change here; `None` on a
+/// create.
+/// </param>
+/// <param name="ShowsDelete">
+/// Whether "Delete team" shows: a team, not a create.
+/// </param>
+/// <param name="DeleteLabel">
+/// "Delete team" (`TeamAction::AskDelete`).
+/// </param>
+/// <param name="CanDelete">
+/// Whether it can be pressed: nothing is on its way.
+/// </param>
+/// <param name="Editable">
+/// Whether the name can be changed: nothing is on its way.
+/// </param>
+/// <param name="Notice">
+/// What the last write came to ("Team renamed"), once it landed.
+/// </param>
+/// <param name="Delete">
+/// The delete, while it is being asked about: "Delete Sales?".
+/// </param>
+public record TeamEditorView (
+    /// <summary>
+    /// Its title ("New team", or the team's name), the save ("Create team",
+    /// "Save name"), the way out ("Cancel", or "Done" for a team) and why the
+    /// last write failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// What a team is.
+    /// </summary>
+    string Hint, 
+    /// <summary>
+    /// "Name".
+    /// </summary>
+    string NameLabel, 
+    /// <summary>
+    /// The name's placeholder.
+    /// </summary>
+    string NamePlaceholder, 
+    /// <summary>
+    /// The name, as the core holds it.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Why the name cannot be sent, before anything was sent.
+    /// </summary>
+    string? NameError, 
+    /// <summary>
+    /// That a team's booking-page address cannot change here; `None` on a
+    /// create.
+    /// </summary>
+    string? SlugHint, 
+    /// <summary>
+    /// Whether "Delete team" shows: a team, not a create.
+    /// </summary>
+    bool ShowsDelete, 
+    /// <summary>
+    /// "Delete team" (`TeamAction::AskDelete`).
+    /// </summary>
+    string DeleteLabel, 
+    /// <summary>
+    /// Whether it can be pressed: nothing is on its way.
+    /// </summary>
+    bool CanDelete, 
+    /// <summary>
+    /// Whether the name can be changed: nothing is on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the last write came to ("Team renamed"), once it landed.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// The delete, while it is being asked about: "Delete Sales?".
+    /// </summary>
+    SchedulingAskView? Delete
+) {
+}
+
+class FfiConverterTypeTeamEditorView: FfiConverterRustBuffer<TeamEditorView> {
+    public static FfiConverterTypeTeamEditorView INSTANCE = new FfiConverterTypeTeamEditorView();
+
+    public override TeamEditorView Read(BigEndianStream stream) {
+        return new TeamEditorView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Hint: FfiConverterString.INSTANCE.Read(stream),
+            NameLabel: FfiConverterString.INSTANCE.Read(stream),
+            NamePlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            NameError: FfiConverterOptionalString.INSTANCE.Read(stream),
+            SlugHint: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ShowsDelete: FfiConverterBoolean.INSTANCE.Read(stream),
+            DeleteLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanDelete: FfiConverterBoolean.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Delete: FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TeamEditorView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Hint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NameLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NamePlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NameError)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.SlugHint)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowsDelete)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeleteLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDelete)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeSchedulingAskView.INSTANCE.AllocationSize(value.Delete);
+    }
+
+    public override void Write(TeamEditorView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.Hint, stream);
+            FfiConverterString.INSTANCE.Write(value.NameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.NamePlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NameError, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.SlugHint, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowsDelete, stream);
+            FfiConverterString.INSTANCE.Write(value.DeleteLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDelete, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Write(value.Delete, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One host of a team.
+/// </summary>
+/// <param name="UserId">
+/// Their scheduler user id.
+/// </param>
+/// <param name="Name">
+/// Their name, or their address for a blank one.
+/// </param>
+/// <param name="Email">
+/// Their address.
+/// </param>
+/// <param name="Priority">
+/// Their routing priority, as typed.
+/// </param>
+public record TeamHostRowView (
+    /// <summary>
+    /// Their scheduler user id.
+    /// </summary>
+    string UserId, 
+    /// <summary>
+    /// Their name, or their address for a blank one.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Their address.
+    /// </summary>
+    string Email, 
+    /// <summary>
+    /// Their routing priority, as typed.
+    /// </summary>
+    string Priority
+) {
+}
+
+class FfiConverterTypeTeamHostRowView: FfiConverterRustBuffer<TeamHostRowView> {
+    public static FfiConverterTypeTeamHostRowView INSTANCE = new FfiConverterTypeTeamHostRowView();
+
+    public override TeamHostRowView Read(BigEndianStream stream) {
+        return new TeamHostRowView(
+            UserId: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Email: FfiConverterString.INSTANCE.Read(stream),
+            Priority: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TeamHostRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.UserId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Email)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Priority);
+    }
+
+    public override void Write(TeamHostRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.UserId, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Email, stream);
+            FfiConverterString.INSTANCE.Write(value.Priority, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A team's hosts: each with their routing priority, Save priority and
+/// Remove (asked once more), and the people who could be added, one to pick,
+/// added by the dialog's confirm. Every control saves on its own, so the way
+/// out is "Done".
+/// </summary>
+/// <param name="Dialog">
+/// Its title (the team's name), the add ("Add member", offered once
+/// someone is picked), "Done" and why the last write failed.
+/// </param>
+/// <param name="Hint">
+/// That a lower routing priority is offered a booking first.
+/// </param>
+/// <param name="TeamId">
+/// The team's id, which its hosts' actions are about.
+/// </param>
+/// <param name="Hosts">
+/// The hosts, as the team was last answered, with their priorities as
+/// typed.
+/// </param>
+/// <param name="Empty">
+/// Said when the team has no host.
+/// </param>
+/// <param name="PriorityLabel">
+/// "Routing priority".
+/// </param>
+/// <param name="SavePriorityLabel">
+/// "Save priority", on each host.
+/// </param>
+/// <param name="RemoveLabel">
+/// "Remove", on each host.
+/// </param>
+/// <param name="PriorityError">
+/// Why a priority cannot be sent, before anything was sent.
+/// </param>
+/// <param name="UsersStatus">
+/// Where the read of the people who could be added stands.
+/// </param>
+/// <param name="AddLabel">
+/// "Host", over the people who could be added.
+/// </param>
+/// <param name="AddPlaceholder">
+/// "Choose a host".
+/// </param>
+/// <param name="Candidates">
+/// The people who could be added (not archived, not in the team), the
+/// one picked selected.
+/// </param>
+/// <param name="AddNone">
+/// Said when they were read and everyone is in the team already.
+/// </param>
+/// <param name="Editable">
+/// Whether the hosts and the choice can be changed: nothing is on its
+/// way.
+/// </param>
+/// <param name="Notice">
+/// What the last write came to ("Host added to the team"), once it
+/// landed.
+/// </param>
+/// <param name="Remove">
+/// A host's removal, while it is being asked about.
+/// </param>
+public record TeamHostsView (
+    /// <summary>
+    /// Its title (the team's name), the add ("Add member", offered once
+    /// someone is picked), "Done" and why the last write failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// That a lower routing priority is offered a booking first.
+    /// </summary>
+    string Hint, 
+    /// <summary>
+    /// The team's id, which its hosts' actions are about.
+    /// </summary>
+    string TeamId, 
+    /// <summary>
+    /// The hosts, as the team was last answered, with their priorities as
+    /// typed.
+    /// </summary>
+    TeamHostRowView[] Hosts, 
+    /// <summary>
+    /// Said when the team has no host.
+    /// </summary>
+    string Empty, 
+    /// <summary>
+    /// "Routing priority".
+    /// </summary>
+    string PriorityLabel, 
+    /// <summary>
+    /// "Save priority", on each host.
+    /// </summary>
+    string SavePriorityLabel, 
+    /// <summary>
+    /// "Remove", on each host.
+    /// </summary>
+    string RemoveLabel, 
+    /// <summary>
+    /// Why a priority cannot be sent, before anything was sent.
+    /// </summary>
+    string? PriorityError, 
+    /// <summary>
+    /// Where the read of the people who could be added stands.
+    /// </summary>
+    LoadStatus UsersStatus, 
+    /// <summary>
+    /// "Host", over the people who could be added.
+    /// </summary>
+    string AddLabel, 
+    /// <summary>
+    /// "Choose a host".
+    /// </summary>
+    string AddPlaceholder, 
+    /// <summary>
+    /// The people who could be added (not archived, not in the team), the
+    /// one picked selected.
+    /// </summary>
+    ChoiceRowView[] Candidates, 
+    /// <summary>
+    /// Said when they were read and everyone is in the team already.
+    /// </summary>
+    string? AddNone, 
+    /// <summary>
+    /// Whether the hosts and the choice can be changed: nothing is on its
+    /// way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the last write came to ("Host added to the team"), once it
+    /// landed.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// A host's removal, while it is being asked about.
+    /// </summary>
+    SchedulingAskView? Remove
+) {
+}
+
+class FfiConverterTypeTeamHostsView: FfiConverterRustBuffer<TeamHostsView> {
+    public static FfiConverterTypeTeamHostsView INSTANCE = new FfiConverterTypeTeamHostsView();
+
+    public override TeamHostsView Read(BigEndianStream stream) {
+        return new TeamHostsView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Hint: FfiConverterString.INSTANCE.Read(stream),
+            TeamId: FfiConverterString.INSTANCE.Read(stream),
+            Hosts: FfiConverterSequenceTypeTeamHostRowView.INSTANCE.Read(stream),
+            Empty: FfiConverterString.INSTANCE.Read(stream),
+            PriorityLabel: FfiConverterString.INSTANCE.Read(stream),
+            SavePriorityLabel: FfiConverterString.INSTANCE.Read(stream),
+            RemoveLabel: FfiConverterString.INSTANCE.Read(stream),
+            PriorityError: FfiConverterOptionalString.INSTANCE.Read(stream),
+            UsersStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            AddLabel: FfiConverterString.INSTANCE.Read(stream),
+            AddPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            Candidates: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            AddNone: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Remove: FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TeamHostsView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Hint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TeamId)
+            + FfiConverterSequenceTypeTeamHostRowView.INSTANCE.AllocationSize(value.Hosts)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PriorityLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SavePriorityLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RemoveLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.PriorityError)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.UsersStatus)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AddLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AddPlaceholder)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Candidates)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.AddNone)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeSchedulingAskView.INSTANCE.AllocationSize(value.Remove);
+    }
+
+    public override void Write(TeamHostsView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.Hint, stream);
+            FfiConverterString.INSTANCE.Write(value.TeamId, stream);
+            FfiConverterSequenceTypeTeamHostRowView.INSTANCE.Write(value.Hosts, stream);
+            FfiConverterString.INSTANCE.Write(value.Empty, stream);
+            FfiConverterString.INSTANCE.Write(value.PriorityLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.SavePriorityLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RemoveLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.PriorityError, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.UsersStatus, stream);
+            FfiConverterString.INSTANCE.Write(value.AddLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.AddPlaceholder, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Candidates, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.AddNone, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Write(value.Remove, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One person: a workspace member, a scheduler user, or both.
+/// </summary>
+/// <param name="Email">
+/// Their address, which keys the row.
+/// </param>
+/// <param name="Name">
+/// Their name: the scheduler's, else the address before its `@`.
+/// </param>
+/// <param name="Subtitle">
+/// Their address, and their workspace role unless the members could not
+/// be read: "ann@example.com · Agency".
+/// </param>
+/// <param name="StateLabel">
+/// Where they stand with the scheduler: "Host", "Not set up yet",
+/// "Archived".
+/// </param>
+/// <param name="Tone">
+/// Its tone.
+/// </param>
+/// <param name="ArchiveUserId">
+/// Their scheduler account, when Archive account is offered for it
+/// (`TeamAction::OpenArchive`): a member who may change things, and a
+/// live account.
+/// </param>
+public record TeamMemberRowView (
+    /// <summary>
+    /// Their address, which keys the row.
+    /// </summary>
+    string Email, 
+    /// <summary>
+    /// Their name: the scheduler's, else the address before its `@`.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Their address, and their workspace role unless the members could not
+    /// be read: "ann@example.com · Agency".
+    /// </summary>
+    string Subtitle, 
+    /// <summary>
+    /// Where they stand with the scheduler: "Host", "Not set up yet",
+    /// "Archived".
+    /// </summary>
+    string StateLabel, 
+    /// <summary>
+    /// Its tone.
+    /// </summary>
+    RunTone Tone, 
+    /// <summary>
+    /// Their scheduler account, when Archive account is offered for it
+    /// (`TeamAction::OpenArchive`): a member who may change things, and a
+    /// live account.
+    /// </summary>
+    string? ArchiveUserId
+) {
+}
+
+class FfiConverterTypeTeamMemberRowView: FfiConverterRustBuffer<TeamMemberRowView> {
+    public static FfiConverterTypeTeamMemberRowView INSTANCE = new FfiConverterTypeTeamMemberRowView();
+
+    public override TeamMemberRowView Read(BigEndianStream stream) {
+        return new TeamMemberRowView(
+            Email: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Subtitle: FfiConverterString.INSTANCE.Read(stream),
+            StateLabel: FfiConverterString.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeRunTone.INSTANCE.Read(stream),
+            ArchiveUserId: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TeamMemberRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Email)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subtitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StateLabel)
+            + FfiConverterTypeRunTone.INSTANCE.AllocationSize(value.Tone)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ArchiveUserId);
+    }
+
+    public override void Write(TeamMemberRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Email, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Subtitle, stream);
+            FfiConverterString.INSTANCE.Write(value.StateLabel, stream);
+            FfiConverterTypeRunTone.INSTANCE.Write(value.Tone, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ArchiveUserId, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One team.
+/// </summary>
+/// <param name="Id">
+/// Its id, which its Edit and Hosts name.
+/// </param>
+/// <param name="Name">
+/// Its name.
+/// </param>
+/// <param name="MemberCount">
+/// How many hosts it has: "2 members".
+/// </param>
+public record TeamRowView (
+    /// <summary>
+    /// Its id, which its Edit and Hosts name.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// How many hosts it has: "2 members".
+    /// </summary>
+    string MemberCount
+) {
+}
+
+class FfiConverterTypeTeamRowView: FfiConverterRustBuffer<TeamRowView> {
+    public static FfiConverterTypeTeamRowView INSTANCE = new FfiConverterTypeTeamRowView();
+
+    public override TeamRowView Read(BigEndianStream stream) {
+        return new TeamRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            MemberCount: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TeamRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MemberCount);
+    }
+
+    public override void Write(TeamRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.MemberCount, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One term in the chooser.
 /// </summary>
 /// <param name="Term">
@@ -26320,6 +27246,71 @@ class FfiConverterTypeUnblockQuestionView: FfiConverterRustBuffer<UnblockQuestio
             FfiConverterString.INSTANCE.Write(value.Name, stream);
             FfiConverterString.INSTANCE.Write(value.Question, stream);
             FfiConverterString.INSTANCE.Write(value.Action, stream);
+    }
+}
+
+
+
+/// <summary>
+/// An upcoming booking that stands in the way of an archive.
+/// </summary>
+/// <param name="Id">
+/// Its id.
+/// </param>
+/// <param name="EventType">
+/// Its event type's name.
+/// </param>
+/// <param name="Attendee">
+/// Who booked it.
+/// </param>
+/// <param name="StartAt">
+/// When it starts, as the scheduler sent it (ISO 8601).
+/// </param>
+public record UpcomingBookingView (
+    /// <summary>
+    /// Its id.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Its event type's name.
+    /// </summary>
+    string EventType, 
+    /// <summary>
+    /// Who booked it.
+    /// </summary>
+    string Attendee, 
+    /// <summary>
+    /// When it starts, as the scheduler sent it (ISO 8601).
+    /// </summary>
+    string StartAt
+) {
+}
+
+class FfiConverterTypeUpcomingBookingView: FfiConverterRustBuffer<UpcomingBookingView> {
+    public static FfiConverterTypeUpcomingBookingView INSTANCE = new FfiConverterTypeUpcomingBookingView();
+
+    public override UpcomingBookingView Read(BigEndianStream stream) {
+        return new UpcomingBookingView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            EventType: FfiConverterString.INSTANCE.Read(stream),
+            Attendee: FfiConverterString.INSTANCE.Read(stream),
+            StartAt: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(UpcomingBookingView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EventType)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Attendee)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartAt);
+    }
+
+    public override void Write(UpcomingBookingView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.EventType, stream);
+            FfiConverterString.INSTANCE.Write(value.Attendee, stream);
+            FfiConverterString.INSTANCE.Write(value.StartAt, stream);
     }
 }
 
@@ -34978,6 +35969,13 @@ public record SchedulingAdminAction {
         CalendarAction Action
     ) : SchedulingAdminAction {}
     
+    /// <summary>
+    /// On the team.
+    /// </summary>
+    public record Team (
+        TeamAction Action
+    ) : SchedulingAdminAction {}
+    
 
     
 }
@@ -35024,6 +36022,10 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                 return new SchedulingAdminAction.Calendar(
                     FfiConverterTypeCalendarAction.INSTANCE.Read(stream)
                 );
+            case 10:
+                return new SchedulingAdminAction.Team(
+                    FfiConverterTypeTeamAction.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.Read()", value));
         }
@@ -35058,6 +36060,9 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.Calendar variant_value:
                 return 4
                     + FfiConverterTypeCalendarAction.INSTANCE.AllocationSize(variant_value.Action);
+            case SchedulingAdminAction.Team variant_value:
+                return 4
+                    + FfiConverterTypeTeamAction.INSTANCE.AllocationSize(variant_value.Action);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.AllocationSize()", value));
         }
@@ -35100,6 +36105,10 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.Calendar variant_value:
                 stream.WriteInt(9);
                 FfiConverterTypeCalendarAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SchedulingAdminAction.Team variant_value:
+                stream.WriteInt(10);
+                FfiConverterTypeTeamAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.Write()", value));
@@ -35168,6 +36177,13 @@ public record SchedulingAdminPage {
         SchedulingCalendarView View
     ) : SchedulingAdminPage {}
     
+    /// <summary>
+    /// The scheduler's users and teams.
+    /// </summary>
+    public record Team (
+        SchedulingTeamView View
+    ) : SchedulingAdminPage {}
+    
 
     
 }
@@ -35206,6 +36222,10 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                 return new SchedulingAdminPage.Calendar(
                     FfiConverterTypeSchedulingCalendarView.INSTANCE.Read(stream)
                 );
+            case 8:
+                return new SchedulingAdminPage.Team(
+                    FfiConverterTypeSchedulingTeamView.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.Read()", value));
         }
@@ -35234,6 +36254,9 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.Calendar variant_value:
                 return 4
                     + FfiConverterTypeSchedulingCalendarView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.Team variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingTeamView.INSTANCE.AllocationSize(variant_value.View);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.AllocationSize()", value));
         }
@@ -35268,6 +36291,10 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.Calendar variant_value:
                 stream.WriteInt(7);
                 FfiConverterTypeSchedulingCalendarView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.Team variant_value:
+                stream.WriteInt(8);
+                FfiConverterTypeSchedulingTeamView.INSTANCE.Write(variant_value.View, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.Write()", value));
@@ -37236,6 +38263,363 @@ class FfiConverterTypeTabView: FfiConverterRustBuffer<TabView> {
             case TabView.Contacts: stream.WriteInt(4); break;
             case TabView.Account: stream.WriteInt(5); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTabView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did on the team.
+/// </summary>
+public record TeamAction {
+    
+    /// <summary>
+    /// Open the create form.
+    /// </summary>
+    public record OpenCreate: TeamAction {}
+    
+    
+    /// <summary>
+    /// Open a team's name.
+    /// </summary>
+    public record OpenEditor (
+        string TeamId
+    ) : TeamAction {}
+    
+    /// <summary>
+    /// The name changed.
+    /// </summary>
+    public record EditName (
+        string Name
+    ) : TeamAction {}
+    
+    /// <summary>
+    /// Create the team, or save its name.
+    /// </summary>
+    public record SaveName: TeamAction {}
+    
+    
+    /// <summary>
+    /// Ask about deleting the team.
+    /// </summary>
+    public record AskDelete: TeamAction {}
+    
+    
+    /// <summary>
+    /// Keep it.
+    /// </summary>
+    public record CancelDelete: TeamAction {}
+    
+    
+    /// <summary>
+    /// Delete it.
+    /// </summary>
+    public record ConfirmDelete: TeamAction {}
+    
+    
+    /// <summary>
+    /// Open a team's hosts.
+    /// </summary>
+    public record OpenMembers (
+        string TeamId
+    ) : TeamAction {}
+    
+    /// <summary>
+    /// Pick someone to add.
+    /// </summary>
+    public record Pick (
+        string UserId
+    ) : TeamAction {}
+    
+    /// <summary>
+    /// Add the one picked.
+    /// </summary>
+    public record AddMember: TeamAction {}
+    
+    
+    /// <summary>
+    /// A host's routing priority changed.
+    /// </summary>
+    public record EditPriority (
+        string UserId,
+        string Value
+    ) : TeamAction {}
+    
+    /// <summary>
+    /// Save a host's routing priority.
+    /// </summary>
+    public record SavePriority (
+        string UserId
+    ) : TeamAction {}
+    
+    /// <summary>
+    /// Ask about removing a host.
+    /// </summary>
+    public record AskRemove (
+        string UserId
+    ) : TeamAction {}
+    
+    /// <summary>
+    /// Keep them.
+    /// </summary>
+    public record CancelRemove: TeamAction {}
+    
+    
+    /// <summary>
+    /// Remove them.
+    /// </summary>
+    public record ConfirmRemove: TeamAction {}
+    
+    
+    /// <summary>
+    /// Open the archive of a person's scheduler account.
+    /// </summary>
+    public record OpenArchive (
+        string UserId
+    ) : TeamAction {}
+    
+    /// <summary>
+    /// Ask about the archive once more.
+    /// </summary>
+    public record AskArchive: TeamAction {}
+    
+    
+    /// <summary>
+    /// Keep the account.
+    /// </summary>
+    public record CancelArchive: TeamAction {}
+    
+    
+    /// <summary>
+    /// Archive it.
+    /// </summary>
+    public record ConfirmArchive: TeamAction {}
+    
+    
+    /// <summary>
+    /// Close the dialog open.
+    /// </summary>
+    public record CloseDialog: TeamAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeTeamAction : FfiConverterRustBuffer<TeamAction>{
+    public static FfiConverterRustBuffer<TeamAction> INSTANCE = new FfiConverterTypeTeamAction();
+
+    public override TeamAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new TeamAction.OpenCreate(
+                );
+            case 2:
+                return new TeamAction.OpenEditor(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new TeamAction.EditName(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new TeamAction.SaveName(
+                );
+            case 5:
+                return new TeamAction.AskDelete(
+                );
+            case 6:
+                return new TeamAction.CancelDelete(
+                );
+            case 7:
+                return new TeamAction.ConfirmDelete(
+                );
+            case 8:
+                return new TeamAction.OpenMembers(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new TeamAction.Pick(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 10:
+                return new TeamAction.AddMember(
+                );
+            case 11:
+                return new TeamAction.EditPriority(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 12:
+                return new TeamAction.SavePriority(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 13:
+                return new TeamAction.AskRemove(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 14:
+                return new TeamAction.CancelRemove(
+                );
+            case 15:
+                return new TeamAction.ConfirmRemove(
+                );
+            case 16:
+                return new TeamAction.OpenArchive(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 17:
+                return new TeamAction.AskArchive(
+                );
+            case 18:
+                return new TeamAction.CancelArchive(
+                );
+            case 19:
+                return new TeamAction.ConfirmArchive(
+                );
+            case 20:
+                return new TeamAction.CloseDialog(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTeamAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(TeamAction value) {
+        switch (value) {
+            case TeamAction.OpenCreate variant_value:
+                return 4;
+            case TeamAction.OpenEditor variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.TeamId);
+            case TeamAction.EditName variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name);
+            case TeamAction.SaveName variant_value:
+                return 4;
+            case TeamAction.AskDelete variant_value:
+                return 4;
+            case TeamAction.CancelDelete variant_value:
+                return 4;
+            case TeamAction.ConfirmDelete variant_value:
+                return 4;
+            case TeamAction.OpenMembers variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.TeamId);
+            case TeamAction.Pick variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId);
+            case TeamAction.AddMember variant_value:
+                return 4;
+            case TeamAction.EditPriority variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case TeamAction.SavePriority variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId);
+            case TeamAction.AskRemove variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId);
+            case TeamAction.CancelRemove variant_value:
+                return 4;
+            case TeamAction.ConfirmRemove variant_value:
+                return 4;
+            case TeamAction.OpenArchive variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId);
+            case TeamAction.AskArchive variant_value:
+                return 4;
+            case TeamAction.CancelArchive variant_value:
+                return 4;
+            case TeamAction.ConfirmArchive variant_value:
+                return 4;
+            case TeamAction.CloseDialog variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTeamAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(TeamAction value, BigEndianStream stream) {
+        switch (value) {
+            case TeamAction.OpenCreate variant_value:
+                stream.WriteInt(1);
+                break;
+            case TeamAction.OpenEditor variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.TeamId, stream);
+                break;
+            case TeamAction.EditName variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
+                break;
+            case TeamAction.SaveName variant_value:
+                stream.WriteInt(4);
+                break;
+            case TeamAction.AskDelete variant_value:
+                stream.WriteInt(5);
+                break;
+            case TeamAction.CancelDelete variant_value:
+                stream.WriteInt(6);
+                break;
+            case TeamAction.ConfirmDelete variant_value:
+                stream.WriteInt(7);
+                break;
+            case TeamAction.OpenMembers variant_value:
+                stream.WriteInt(8);
+                FfiConverterString.INSTANCE.Write(variant_value.TeamId, stream);
+                break;
+            case TeamAction.Pick variant_value:
+                stream.WriteInt(9);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                break;
+            case TeamAction.AddMember variant_value:
+                stream.WriteInt(10);
+                break;
+            case TeamAction.EditPriority variant_value:
+                stream.WriteInt(11);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case TeamAction.SavePriority variant_value:
+                stream.WriteInt(12);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                break;
+            case TeamAction.AskRemove variant_value:
+                stream.WriteInt(13);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                break;
+            case TeamAction.CancelRemove variant_value:
+                stream.WriteInt(14);
+                break;
+            case TeamAction.ConfirmRemove variant_value:
+                stream.WriteInt(15);
+                break;
+            case TeamAction.OpenArchive variant_value:
+                stream.WriteInt(16);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                break;
+            case TeamAction.AskArchive variant_value:
+                stream.WriteInt(17);
+                break;
+            case TeamAction.CancelArchive variant_value:
+                stream.WriteInt(18);
+                break;
+            case TeamAction.ConfirmArchive variant_value:
+                stream.WriteInt(19);
+                break;
+            case TeamAction.CloseDialog variant_value:
+                stream.WriteInt(20);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTeamAction.Write()", value));
         }
     }
 }
@@ -41414,6 +42798,99 @@ class FfiConverterOptionalTypeSupportComposeView: FfiConverterRustBuffer<Support
 
 
 
+class FfiConverterOptionalTypeTeamArchiveView: FfiConverterRustBuffer<TeamArchiveView?> {
+    public static FfiConverterOptionalTypeTeamArchiveView INSTANCE = new FfiConverterOptionalTypeTeamArchiveView();
+
+    public override TeamArchiveView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTeamArchiveView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TeamArchiveView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTeamArchiveView.INSTANCE.AllocationSize((TeamArchiveView)value);
+        }
+    }
+
+    public override void Write(TeamArchiveView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTeamArchiveView.INSTANCE.Write((TeamArchiveView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeTeamEditorView: FfiConverterRustBuffer<TeamEditorView?> {
+    public static FfiConverterOptionalTypeTeamEditorView INSTANCE = new FfiConverterOptionalTypeTeamEditorView();
+
+    public override TeamEditorView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTeamEditorView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TeamEditorView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTeamEditorView.INSTANCE.AllocationSize((TeamEditorView)value);
+        }
+    }
+
+    public override void Write(TeamEditorView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTeamEditorView.INSTANCE.Write((TeamEditorView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeTeamHostsView: FfiConverterRustBuffer<TeamHostsView?> {
+    public static FfiConverterOptionalTypeTeamHostsView INSTANCE = new FfiConverterOptionalTypeTeamHostsView();
+
+    public override TeamHostsView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTeamHostsView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TeamHostsView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTeamHostsView.INSTANCE.AllocationSize((TeamHostsView)value);
+        }
+    }
+
+    public override void Write(TeamHostsView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTeamHostsView.INSTANCE.Write((TeamHostsView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeTranscriptView: FfiConverterRustBuffer<TranscriptView?> {
     public static FfiConverterOptionalTypeTranscriptView INSTANCE = new FfiConverterOptionalTypeTranscriptView();
 
@@ -44667,6 +46144,144 @@ class FfiConverterSequenceTypeSupportRowView: FfiConverterRustBuffer<SupportRowV
 
 
 
+class FfiConverterSequenceTypeTeamHostRowView: FfiConverterRustBuffer<TeamHostRowView[]> {
+    public static FfiConverterSequenceTypeTeamHostRowView INSTANCE = new FfiConverterSequenceTypeTeamHostRowView();
+
+    public override TeamHostRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new TeamHostRowView[length];
+        var readFn = FfiConverterTypeTeamHostRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(TeamHostRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeTeamHostRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(TeamHostRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeTeamHostRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeTeamMemberRowView: FfiConverterRustBuffer<TeamMemberRowView[]> {
+    public static FfiConverterSequenceTypeTeamMemberRowView INSTANCE = new FfiConverterSequenceTypeTeamMemberRowView();
+
+    public override TeamMemberRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new TeamMemberRowView[length];
+        var readFn = FfiConverterTypeTeamMemberRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(TeamMemberRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeTeamMemberRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(TeamMemberRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeTeamMemberRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeTeamRowView: FfiConverterRustBuffer<TeamRowView[]> {
+    public static FfiConverterSequenceTypeTeamRowView INSTANCE = new FfiConverterSequenceTypeTeamRowView();
+
+    public override TeamRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new TeamRowView[length];
+        var readFn = FfiConverterTypeTeamRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(TeamRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeTeamRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(TeamRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeTeamRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeTermOptionView: FfiConverterRustBuffer<TermOptionView[]> {
     public static FfiConverterSequenceTypeTermOptionView INSTANCE = new FfiConverterSequenceTypeTermOptionView();
 
@@ -44890,6 +46505,52 @@ class FfiConverterSequenceTypeTranscriptLineView: FfiConverterRustBuffer<Transcr
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeTranscriptLineView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeUpcomingBookingView: FfiConverterRustBuffer<UpcomingBookingView[]> {
+    public static FfiConverterSequenceTypeUpcomingBookingView INSTANCE = new FfiConverterSequenceTypeUpcomingBookingView();
+
+    public override UpcomingBookingView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new UpcomingBookingView[length];
+        var readFn = FfiConverterTypeUpcomingBookingView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(UpcomingBookingView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeUpcomingBookingView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(UpcomingBookingView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeUpcomingBookingView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
