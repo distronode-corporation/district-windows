@@ -720,8 +720,38 @@ public sealed class InboxViewModelTests
         LoadStatus? status = null,
         ThreadRowView[]? threads = null,
         string? partialNote = null,
-        SearchView? search = null) =>
-        new(status ?? V.Ready, threads ?? [V.ThreadRow()], null, partialNote, false, null, search ?? V.Search(), "Reply on the web.");
+        SearchView? search = null,
+        bool canCompose = true) =>
+        new(
+            status ?? V.Ready,
+            threads ?? [V.ThreadRow()],
+            null,
+            partialNote,
+            false,
+            null,
+            search ?? V.Search(),
+            "Reply on the web.",
+            new ComposeEntryView(canCompose, "New message"),
+            null);
+
+    [Fact]
+    public void NewMessageOpensTheCoresFormOnlyWhenOffered()
+    {
+        var (context, sink) = Pages.Context();
+        var inbox = new InboxViewModel();
+        inbox.Attach(context);
+        inbox.Show(View(canCompose: false));
+        Assert.False(inbox.CanCompose);
+        inbox.NewMessageCommand.Execute(null);
+        Assert.Empty(sink.Sent);
+
+        inbox.Show(View());
+        Assert.True(inbox.CanCompose);
+        Assert.Equal("New message", inbox.ComposeLabel);
+        Assert.False(inbox.Compose.IsOpen);
+        inbox.NewMessageCommand.Execute(null);
+        Assert.Equal(new UiEvent.Compose(new ComposeAction.Open()), Assert.Single(sink.Sent));
+    }
 
     [Fact]
     public void ItShowsTheConversations()
