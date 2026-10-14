@@ -22,7 +22,9 @@ public sealed partial class CalendarPickerContent : UserControl
 
     private void OnConflictClick(object sender, RoutedEventArgs e)
     {
-        if (sender is CheckBox box && box.DataContext is CalendarRowEntry row)
+        // An ItemsRepeater whose template uses x:Bind gives what it makes no
+        // DataContext, so each switch carries its calendar's id in Tag.
+        if (sender is CheckBox { Tag: string id } box && ViewModel.Calendars.FirstOrDefault(row => row.Id == id) is { } row)
         {
             ViewModel.SetCheckConflicts(row, box.IsChecked == true);
         }

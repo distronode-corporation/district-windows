@@ -58,7 +58,8 @@
                                 Click="OnConflictClick"
                                 Content="{x:Bind Name}"
                                 IsChecked="{x:Bind ChecksConflicts}"
-                                IsEnabled="{x:Bind Enabled}" />
+                                IsEnabled="{x:Bind Enabled}"
+                                Tag="{x:Bind Id}" />
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>

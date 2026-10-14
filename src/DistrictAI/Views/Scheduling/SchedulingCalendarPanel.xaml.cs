@@ -64,7 +64,12 @@ public sealed partial class SchedulingCalendarPanel : UserControl
         return body;
     }
 
-    private static CalendarConnectionEntry? CardOf(object sender) => (sender as FrameworkElement)?.DataContext as CalendarConnectionEntry;
+    // An ItemsRepeater whose template uses x:Bind gives what it makes no
+    // DataContext, so each row's button carries its row's id in Tag.
+    private static string? IdOf(object sender) => (sender as FrameworkElement)?.Tag as string;
+
+    private CalendarConnectionEntry? CardOf(object sender) =>
+        IdOf(sender) is { } id ? ViewModel.Connections.FirstOrDefault(card => card.Id == id) : null;
 
     private void OnChooseClick(object sender, RoutedEventArgs e)
     {
@@ -84,7 +89,7 @@ public sealed partial class SchedulingCalendarPanel : UserControl
 
     private void OnConnectClick(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is CalendarProviderEntry provider)
+        if (IdOf(sender) is { } id && ViewModel.Providers.FirstOrDefault(entry => entry.Provider == id) is { } provider)
         {
             ViewModel.Connect(provider);
         }

@@ -53,12 +53,14 @@
                                             AutomationProperties.AutomationId="CalendarChoose"
                                             AutomationProperties.Name="{x:Bind ChooseName}"
                                             Click="OnChooseClick"
-                                            Content="{x:Bind ChooseLabel}" />
+                                            Content="{x:Bind ChooseLabel}"
+                                            Tag="{x:Bind Id}" />
                                         <Button
                                             AutomationProperties.AutomationId="CalendarDisconnect"
                                             AutomationProperties.Name="{x:Bind DisconnectName}"
                                             Click="OnDisconnectClick"
                                             Content="{x:Bind DisconnectLabel}"
+                                            Tag="{x:Bind Id}"
                                             Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                             IsEnabled="{x:Bind CanDisconnect}" />
                                     </StackPanel>
@@ -122,7 +124,8 @@
                                             AutomationProperties.Name="{x:Bind Label}"
                                             Click="OnConnectClick"
                                             Content="{x:Bind Label}"
-                                            IsEnabled="{x:Bind Enabled}" />
+                                            IsEnabled="{x:Bind Enabled}"
+                                            Tag="{x:Bind Provider}" />
                                     </DataTemplate>
                                 </ItemsRepeater.ItemTemplate>
                             </ItemsRepeater>
