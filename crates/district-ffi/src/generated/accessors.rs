@@ -606,6 +606,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::routing_rule_heading(Locale::FrCa, 1204), "Rule 1\u{00A0}204");
     assert_eq!(s::routing_title(Locale::En), "Call routing rules");
     assert_eq!(s::routing_title(Locale::FrCa), "Call routing rules");
+    assert_eq!(s::scheduling_failed_title(Locale::En), "Could not load this section");
+    assert_eq!(s::scheduling_failed_title(Locale::FrCa), "Could not load this section");
     assert_eq!(s::scheduling_title(Locale::En), "Booking pages");
     assert_eq!(s::scheduling_title(Locale::FrCa), "Booking pages");
     assert_eq!(s::screen_retrying(Locale::En), "District AI will try again by itself.");

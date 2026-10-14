@@ -58,6 +58,7 @@ pub mod hq;
 pub mod marketplace;
 pub mod rooms;
 pub mod scheduling;
+pub mod scheduling_admin;
 pub mod settings;
 pub mod support;
 pub mod workflows;

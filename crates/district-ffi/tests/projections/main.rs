@@ -41,6 +41,7 @@ mod marketplace;
 mod numbers;
 mod rooms;
 mod scheduling;
+mod scheduling_admin;
 mod settings;
 mod support;
 mod workflows;
@@ -125,6 +126,7 @@ fn cases() -> Vec<Case> {
         billing::cases(),
         workflows::cases(),
         scheduling::cases(),
+        scheduling_admin::cases(),
         desk::cases(),
         support::cases(),
         rooms::cases(),

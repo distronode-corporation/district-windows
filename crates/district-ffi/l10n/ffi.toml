@@ -2059,6 +2059,13 @@ screen = "routing"
 tier = "T3"
 note = "The section's heading: the hub row's title, which opens it."
 
+[scheduling.failed_title]
+en = "Could not load this section"
+ctx = "title"
+screen = "scheduling"
+tier = "T3"
+note = "Heading over why a section of the booking scheduler's administration could not be read."
+
 [scheduling.title]
 en = "Booking pages"
 ctx = "title"

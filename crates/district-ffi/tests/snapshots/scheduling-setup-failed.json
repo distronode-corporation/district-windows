@@ -13,6 +13,8 @@
         "opening": false,
         "problem": "cloudflare refused the dns record (HTTP 403)",
         "refreshing": false,
+        "sections": [],
+        "sections_heading": "Manage",
         "state": "SetupFailed",
         "status": "Ready",
         "title": "Booking pages",

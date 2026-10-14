@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
@@ -6,9 +7,10 @@ namespace DistrictAI.ViewModels.Scheduling;
 
 /// <summary>
 /// The booking pages: where they stand, turning them on where the service
-/// says this member may, and managing them on the web, signed in, through the
-/// core's hand-off. Copied from the core's <see cref="SchedulingView"/>; the
-/// one-time link never reaches this page.
+/// says this member may, once live the sections of their administration
+/// built natively (each opening its own page), and managing the rest on the
+/// web, signed in, through the core's hand-off. Copied from the core's
+/// <see cref="SchedulingView"/>; the one-time link never reaches this page.
 /// </summary>
 public sealed partial class SchedulingViewModel : ObservableObject
 {
@@ -83,6 +85,17 @@ public sealed partial class SchedulingViewModel : ObservableObject
     [ObservableProperty]
     public partial bool Busy { get; set; }
 
+    /// <summary>The administration's sections, once the booking pages are live.</summary>
+    public ObservableCollection<SchedulingSectionEntry> Sections { get; } = [];
+
+    /// <summary>The heading over them, "Manage".</summary>
+    [ObservableProperty]
+    public partial string SectionsHeading { get; set; } = string.Empty;
+
+    /// <summary>Whether there are <see cref="Sections"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasSections { get; set; }
+
     internal void Attach(PageContext context)
     {
         _context = context;
@@ -108,7 +121,13 @@ public sealed partial class SchedulingViewModel : ObservableObject
         OffersWeb = view.OffersWeb;
         CanManageOnWeb = view.OffersWeb && view.WebEnabled;
         Busy = view.Enabling || view.Opening;
+        SectionsHeading = view.SectionsHeading;
+        Display.Sync(Sections, [.. view.Sections.Select(SchedulingSectionEntry.From)]);
+        HasSections = Sections.Count > 0;
     }
+
+    /// <summary>Opens <paramref name="section"/>'s page.</summary>
+    internal void OpenSection(SchedulingSectionEntry section) => _context?.Send(SchedulingSectionEntry.Open(section.Section));
 
     /// <summary>The icon for <paramref name="state"/>, as District AI for Linux picks it.</summary>
     internal static string GlyphFor(SchedulingState? state) => state switch

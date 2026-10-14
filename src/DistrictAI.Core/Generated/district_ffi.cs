@@ -5737,6 +5737,241 @@ class FfiConverterTypeBlockedView: FfiConverterRustBuffer<BlockedView> {
 
 
 /// <summary>
+/// One row of the booking desk.
+/// </summary>
+/// <param name="Label">
+/// The row's label ("Booking page", "Calendar").
+/// </param>
+/// <param name="State">
+/// What it shows.
+/// </param>
+/// <param name="Lines">
+/// The value's lines, or the hint alone. Empty while loading or failed.
+/// </param>
+/// <param name="Failure">
+/// Why its read failed.
+/// </param>
+public record BookingDeskRowView (
+    /// <summary>
+    /// The row's label ("Booking page", "Calendar").
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// What it shows.
+    /// </summary>
+    BookingDeskRowState State, 
+    /// <summary>
+    /// The value's lines, or the hint alone. Empty while loading or failed.
+    /// </summary>
+    string[] Lines, 
+    /// <summary>
+    /// Why its read failed.
+    /// </summary>
+    FailureView? Failure
+) {
+}
+
+class FfiConverterTypeBookingDeskRowView: FfiConverterRustBuffer<BookingDeskRowView> {
+    public static FfiConverterTypeBookingDeskRowView INSTANCE = new FfiConverterTypeBookingDeskRowView();
+
+    public override BookingDeskRowView Read(BigEndianStream stream) {
+        return new BookingDeskRowView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            State: FfiConverterTypeBookingDeskRowState.INSTANCE.Read(stream),
+            Lines: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(BookingDeskRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterTypeBookingDeskRowState.INSTANCE.AllocationSize(value.State)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Lines)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
+    }
+
+    public override void Write(BookingDeskRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterTypeBookingDeskRowState.INSTANCE.Write(value.State, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.Lines, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One booking in the list.
+/// </summary>
+/// <param name="Id">
+/// The booking's id, which opens it (`SchedulingAdminAction::OpenBooking`).
+/// </param>
+/// <param name="When">
+/// When it starts, a date and a time in the profile's zone.
+/// </param>
+/// <param name="Subtitle">
+/// Who, what and with whom.
+/// </param>
+/// <param name="Email">
+/// The first attendee's address, or empty.
+/// </param>
+/// <param name="StatusLabel">
+/// The status badge's label.
+/// </param>
+/// <param name="Tone">
+/// Its tone.
+/// </param>
+/// <param name="CanCancel">
+/// Whether "Cancel booking" is offered on it.
+/// </param>
+/// <param name="CanReschedule">
+/// Whether "Move booking" is offered on it.
+/// </param>
+/// <param name="CanReassign">
+/// Whether "Change host" is offered on it.
+/// </param>
+public record BookingRowView (
+    /// <summary>
+    /// The booking's id, which opens it (`SchedulingAdminAction::OpenBooking`).
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// When it starts, a date and a time in the profile's zone.
+    /// </summary>
+    string When, 
+    /// <summary>
+    /// Who, what and with whom.
+    /// </summary>
+    string Subtitle, 
+    /// <summary>
+    /// The first attendee's address, or empty.
+    /// </summary>
+    string Email, 
+    /// <summary>
+    /// The status badge's label.
+    /// </summary>
+    string StatusLabel, 
+    /// <summary>
+    /// Its tone.
+    /// </summary>
+    RunTone Tone, 
+    /// <summary>
+    /// Whether "Cancel booking" is offered on it.
+    /// </summary>
+    bool CanCancel, 
+    /// <summary>
+    /// Whether "Move booking" is offered on it.
+    /// </summary>
+    bool CanReschedule, 
+    /// <summary>
+    /// Whether "Change host" is offered on it.
+    /// </summary>
+    bool CanReassign
+) {
+}
+
+class FfiConverterTypeBookingRowView: FfiConverterRustBuffer<BookingRowView> {
+    public static FfiConverterTypeBookingRowView INSTANCE = new FfiConverterTypeBookingRowView();
+
+    public override BookingRowView Read(BigEndianStream stream) {
+        return new BookingRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            When: FfiConverterString.INSTANCE.Read(stream),
+            Subtitle: FfiConverterString.INSTANCE.Read(stream),
+            Email: FfiConverterString.INSTANCE.Read(stream),
+            StatusLabel: FfiConverterString.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeRunTone.INSTANCE.Read(stream),
+            CanCancel: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanReschedule: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanReassign: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(BookingRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.When)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subtitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Email)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StatusLabel)
+            + FfiConverterTypeRunTone.INSTANCE.AllocationSize(value.Tone)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanCancel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanReschedule)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanReassign);
+    }
+
+    public override void Write(BookingRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.When, stream);
+            FfiConverterString.INSTANCE.Write(value.Subtitle, stream);
+            FfiConverterString.INSTANCE.Write(value.Email, stream);
+            FfiConverterString.INSTANCE.Write(value.StatusLabel, stream);
+            FfiConverterTypeRunTone.INSTANCE.Write(value.Tone, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanCancel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanReschedule, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanReassign, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One view of the list, as a tab.
+/// </summary>
+/// <param name="Tab">
+/// Which (`BookingsAction::SelectTab`).
+/// </param>
+/// <param name="Label">
+/// Its label.
+/// </param>
+/// <param name="Selected">
+/// Whether it is the view showing.
+/// </param>
+public record BookingsTabView (
+    /// <summary>
+    /// Which (`BookingsAction::SelectTab`).
+    /// </summary>
+    BookingsTab Tab, 
+    /// <summary>
+    /// Its label.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether it is the view showing.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeBookingsTabView: FfiConverterRustBuffer<BookingsTabView> {
+    public static FfiConverterTypeBookingsTabView INSTANCE = new FfiConverterTypeBookingsTabView();
+
+    public override BookingsTabView Read(BigEndianStream stream) {
+        return new BookingsTabView(
+            Tab: FfiConverterTypeBookingsTab.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(BookingsTabView value) {
+        return 0
+            + FfiConverterTypeBookingsTab.INSTANCE.AllocationSize(value.Tab)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(BookingsTabView value, BigEndianStream stream) {
+            FfiConverterTypeBookingsTab.INSTANCE.Write(value.Tab, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One call.
 /// </summary>
 /// <param name="CallId">
@@ -6623,6 +6858,81 @@ class FfiConverterTypeCampaignView: FfiConverterRustBuffer<CampaignView> {
 
 
 /// <summary>
+/// Cancelling a booking, with an optional reason for the attendee's email.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, body, buttons and write.
+/// </param>
+/// <param name="ReasonLabel">
+/// The reason field's label.
+/// </param>
+/// <param name="ReasonHint">
+/// Under it: optional, and it goes in the email.
+/// </param>
+/// <param name="Reason">
+/// The reason, as typed.
+/// </param>
+/// <param name="ReasonRejected">
+/// Why the reason cannot be sent (too long), before anything was sent.
+/// </param>
+public record CancelDialogView (
+    /// <summary>
+    /// Its title, body, buttons and write.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// The reason field's label.
+    /// </summary>
+    string ReasonLabel, 
+    /// <summary>
+    /// Under it: optional, and it goes in the email.
+    /// </summary>
+    string ReasonHint, 
+    /// <summary>
+    /// The reason, as typed.
+    /// </summary>
+    string Reason, 
+    /// <summary>
+    /// Why the reason cannot be sent (too long), before anything was sent.
+    /// </summary>
+    string? ReasonRejected
+) {
+}
+
+class FfiConverterTypeCancelDialogView: FfiConverterRustBuffer<CancelDialogView> {
+    public static FfiConverterTypeCancelDialogView INSTANCE = new FfiConverterTypeCancelDialogView();
+
+    public override CancelDialogView Read(BigEndianStream stream) {
+        return new CancelDialogView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            ReasonLabel: FfiConverterString.INSTANCE.Read(stream),
+            ReasonHint: FfiConverterString.INSTANCE.Read(stream),
+            Reason: FfiConverterString.INSTANCE.Read(stream),
+            ReasonRejected: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CancelDialogView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ReasonLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ReasonHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Reason)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReasonRejected);
+    }
+
+    public override void Write(CancelDialogView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.ReasonLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ReasonHint, stream);
+            FfiConverterString.INSTANCE.Write(value.Reason, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ReasonRejected, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One carrier account.
 /// </summary>
 /// <param name="Carrier">
@@ -7022,6 +7332,61 @@ class FfiConverterTypeChartBarView: FfiConverterRustBuffer<ChartBarView> {
 
 
 /// <summary>
+/// One choice in a dialog's list: a time, or a host.
+/// </summary>
+/// <param name="Value">
+/// What is sent when it is chosen: the time's start, the host's id.
+/// </param>
+/// <param name="Label">
+/// What it reads.
+/// </param>
+/// <param name="Selected">
+/// Whether it is chosen.
+/// </param>
+public record ChoiceRowView (
+    /// <summary>
+    /// What is sent when it is chosen: the time's start, the host's id.
+    /// </summary>
+    string Value, 
+    /// <summary>
+    /// What it reads.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether it is chosen.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeChoiceRowView: FfiConverterRustBuffer<ChoiceRowView> {
+    public static FfiConverterTypeChoiceRowView INSTANCE = new FfiConverterTypeChoiceRowView();
+
+    public override ChoiceRowView Read(BigEndianStream stream) {
+        return new ChoiceRowView(
+            Value: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ChoiceRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(ChoiceRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One choice of a picker.
 /// </summary>
 /// <param name="Value">
@@ -7061,6 +7426,81 @@ class FfiConverterTypeChoiceView: FfiConverterRustBuffer<ChoiceView> {
     public override void Write(ChoiceView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Value, stream);
             FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One booking under "Coming up".
+/// </summary>
+/// <param name="Id">
+/// The booking's id.
+/// </param>
+/// <param name="When">
+/// When: "Today 2:30 p.m.", "Tomorrow 10:00 a.m." or the date and time.
+/// </param>
+/// <param name="Subtitle">
+/// Who booked, and what.
+/// </param>
+/// <param name="StatusLabel">
+/// The status badge's label.
+/// </param>
+/// <param name="Tone">
+/// The badge's tone.
+/// </param>
+public record ComingUpRowView (
+    /// <summary>
+    /// The booking's id.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// When: "Today 2:30 p.m.", "Tomorrow 10:00 a.m." or the date and time.
+    /// </summary>
+    string When, 
+    /// <summary>
+    /// Who booked, and what.
+    /// </summary>
+    string Subtitle, 
+    /// <summary>
+    /// The status badge's label.
+    /// </summary>
+    string StatusLabel, 
+    /// <summary>
+    /// The badge's tone.
+    /// </summary>
+    RunTone Tone
+) {
+}
+
+class FfiConverterTypeComingUpRowView: FfiConverterRustBuffer<ComingUpRowView> {
+    public static FfiConverterTypeComingUpRowView INSTANCE = new FfiConverterTypeComingUpRowView();
+
+    public override ComingUpRowView Read(BigEndianStream stream) {
+        return new ComingUpRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            When: FfiConverterString.INSTANCE.Read(stream),
+            Subtitle: FfiConverterString.INSTANCE.Read(stream),
+            StatusLabel: FfiConverterString.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeRunTone.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ComingUpRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.When)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subtitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StatusLabel)
+            + FfiConverterTypeRunTone.INSTANCE.AllocationSize(value.Tone);
+    }
+
+    public override void Write(ComingUpRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.When, stream);
+            FfiConverterString.INSTANCE.Write(value.Subtitle, stream);
+            FfiConverterString.INSTANCE.Write(value.StatusLabel, stream);
+            FfiConverterTypeRunTone.INSTANCE.Write(value.Tone, stream);
     }
 }
 
@@ -10093,6 +10533,117 @@ class FfiConverterTypeDialerView: FfiConverterRustBuffer<DialerView> {
             FfiConverterString.INSTANCE.Write(value.Formatted, stream);
             FfiConverterString.INSTANCE.Write(value.Hint, stream);
             FfiConverterString.INSTANCE.Write(value.MicrophoneNote, stream);
+    }
+}
+
+
+
+/// <summary>
+/// What every confirm-once dialog shows besides its own fields.
+/// </summary>
+/// <param name="Title">
+/// The question: "Cancel this booking?".
+/// </param>
+/// <param name="Body">
+/// What saying yes does.
+/// </param>
+/// <param name="Confirm">
+/// The confirm button.
+/// </param>
+/// <param name="Close">
+/// The way out.
+/// </param>
+/// <param name="CanConfirm">
+/// Whether the confirm can be pressed now: what it needs is chosen, and
+/// nothing is on its way.
+/// </param>
+/// <param name="Working">
+/// Whether the write is on its way (show progress; the way out still
+/// works, and the write still lands).
+/// </param>
+/// <param name="Destructive">
+/// Whether the confirm undoes something for a customer, so that it is
+/// never the default button.
+/// </param>
+/// <param name="Failure">
+/// Why the write was refused, in the dialog; the edits are kept.
+/// </param>
+public record DialogView (
+    /// <summary>
+    /// The question: "Cancel this booking?".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What saying yes does.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The confirm button.
+    /// </summary>
+    string Confirm, 
+    /// <summary>
+    /// The way out.
+    /// </summary>
+    string Close, 
+    /// <summary>
+    /// Whether the confirm can be pressed now: what it needs is chosen, and
+    /// nothing is on its way.
+    /// </summary>
+    bool CanConfirm, 
+    /// <summary>
+    /// Whether the write is on its way (show progress; the way out still
+    /// works, and the write still lands).
+    /// </summary>
+    bool Working, 
+    /// <summary>
+    /// Whether the confirm undoes something for a customer, so that it is
+    /// never the default button.
+    /// </summary>
+    bool Destructive, 
+    /// <summary>
+    /// Why the write was refused, in the dialog; the edits are kept.
+    /// </summary>
+    FailureView? Failure
+) {
+}
+
+class FfiConverterTypeDialogView: FfiConverterRustBuffer<DialogView> {
+    public static FfiConverterTypeDialogView INSTANCE = new FfiConverterTypeDialogView();
+
+    public override DialogView Read(BigEndianStream stream) {
+        return new DialogView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Confirm: FfiConverterString.INSTANCE.Read(stream),
+            Close: FfiConverterString.INSTANCE.Read(stream),
+            CanConfirm: FfiConverterBoolean.INSTANCE.Read(stream),
+            Working: FfiConverterBoolean.INSTANCE.Read(stream),
+            Destructive: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DialogView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Confirm)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Close)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanConfirm)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Working)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Destructive)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
+    }
+
+    public override void Write(DialogView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.Confirm, stream);
+            FfiConverterString.INSTANCE.Write(value.Close, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanConfirm, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Working, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Destructive, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
     }
 }
 
@@ -15698,6 +16249,83 @@ class FfiConverterTypeQuestionView: FfiConverterRustBuffer<QuestionView> {
 
 
 /// <summary>
+/// Handing a booking to another host.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, body, buttons and write.
+/// </param>
+/// <param name="HostLabel">
+/// The host list's label.
+/// </param>
+/// <param name="HostsStatus">
+/// Where the read of the candidates stands; a failed one offers "Try
+/// again" (`BookingsAction::RetryDialogRead`).
+/// </param>
+/// <param name="Hosts">
+/// The scheduler's users who are not archived and not its host now.
+/// </param>
+/// <param name="NoHosts">
+/// Said when nobody else can take it: a fact, not a failure.
+/// </param>
+public record ReassignDialogView (
+    /// <summary>
+    /// Its title, body, buttons and write.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// The host list's label.
+    /// </summary>
+    string HostLabel, 
+    /// <summary>
+    /// Where the read of the candidates stands; a failed one offers "Try
+    /// again" (`BookingsAction::RetryDialogRead`).
+    /// </summary>
+    LoadStatus HostsStatus, 
+    /// <summary>
+    /// The scheduler's users who are not archived and not its host now.
+    /// </summary>
+    ChoiceRowView[] Hosts, 
+    /// <summary>
+    /// Said when nobody else can take it: a fact, not a failure.
+    /// </summary>
+    string NoHosts
+) {
+}
+
+class FfiConverterTypeReassignDialogView: FfiConverterRustBuffer<ReassignDialogView> {
+    public static FfiConverterTypeReassignDialogView INSTANCE = new FfiConverterTypeReassignDialogView();
+
+    public override ReassignDialogView Read(BigEndianStream stream) {
+        return new ReassignDialogView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            HostLabel: FfiConverterString.INSTANCE.Read(stream),
+            HostsStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Hosts: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            NoHosts: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ReassignDialogView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HostLabel)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.HostsStatus)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Hosts)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NoHosts);
+    }
+
+    public override void Write(ReassignDialogView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.HostLabel, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.HostsStatus, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Hosts, stream);
+            FfiConverterString.INSTANCE.Write(value.NoHosts, stream);
+    }
+}
+
+
+
+/// <summary>
 /// "Remove this member?"
 /// </summary>
 /// <param name="Email">
@@ -16131,6 +16759,133 @@ class FfiConverterTypeReportDialogView: FfiConverterRustBuffer<ReportDialogView>
             FfiConverterString.INSTANCE.Write(value.Send, stream);
             FfiConverterString.INSTANCE.Write(value.Cancel, stream);
             FfiConverterUInt32.INSTANCE.Write(value.NoteLimit, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Moving a booking to another free time, on a day the member picks.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, body, buttons and write.
+/// </param>
+/// <param name="TimesIn">
+/// "Times in America/Toronto": the zone the day and its times are in.
+/// </param>
+/// <param name="DayLabel">
+/// The day picker's label.
+/// </param>
+/// <param name="Day">
+/// The day whose times show, `YYYY-MM-DD` (`BookingsAction::PickDay`).
+/// </param>
+/// <param name="DayText">
+/// The day as a reader names it.
+/// </param>
+/// <param name="TimeLabel">
+/// The times' label.
+/// </param>
+/// <param name="SlotsStatus">
+/// Where the read of the day's times stands; a failed one offers "Try
+/// again" (`BookingsAction::RetryDialogRead`).
+/// </param>
+/// <param name="Slots">
+/// The day's free times.
+/// </param>
+/// <param name="NoSlots">
+/// Said when the day has no free time.
+/// </param>
+/// <param name="SelectionRejected">
+/// "Pick a time.", for a confirm with none chosen.
+/// </param>
+public record RescheduleDialogView (
+    /// <summary>
+    /// Its title, body, buttons and write.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// "Times in America/Toronto": the zone the day and its times are in.
+    /// </summary>
+    string TimesIn, 
+    /// <summary>
+    /// The day picker's label.
+    /// </summary>
+    string DayLabel, 
+    /// <summary>
+    /// The day whose times show, `YYYY-MM-DD` (`BookingsAction::PickDay`).
+    /// </summary>
+    string Day, 
+    /// <summary>
+    /// The day as a reader names it.
+    /// </summary>
+    string DayText, 
+    /// <summary>
+    /// The times' label.
+    /// </summary>
+    string TimeLabel, 
+    /// <summary>
+    /// Where the read of the day's times stands; a failed one offers "Try
+    /// again" (`BookingsAction::RetryDialogRead`).
+    /// </summary>
+    LoadStatus SlotsStatus, 
+    /// <summary>
+    /// The day's free times.
+    /// </summary>
+    ChoiceRowView[] Slots, 
+    /// <summary>
+    /// Said when the day has no free time.
+    /// </summary>
+    string NoSlots, 
+    /// <summary>
+    /// "Pick a time.", for a confirm with none chosen.
+    /// </summary>
+    string? SelectionRejected
+) {
+}
+
+class FfiConverterTypeRescheduleDialogView: FfiConverterRustBuffer<RescheduleDialogView> {
+    public static FfiConverterTypeRescheduleDialogView INSTANCE = new FfiConverterTypeRescheduleDialogView();
+
+    public override RescheduleDialogView Read(BigEndianStream stream) {
+        return new RescheduleDialogView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            TimesIn: FfiConverterString.INSTANCE.Read(stream),
+            DayLabel: FfiConverterString.INSTANCE.Read(stream),
+            Day: FfiConverterString.INSTANCE.Read(stream),
+            DayText: FfiConverterString.INSTANCE.Read(stream),
+            TimeLabel: FfiConverterString.INSTANCE.Read(stream),
+            SlotsStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Slots: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            NoSlots: FfiConverterString.INSTANCE.Read(stream),
+            SelectionRejected: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RescheduleDialogView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimesIn)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DayLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Day)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DayText)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimeLabel)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.SlotsStatus)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Slots)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NoSlots)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.SelectionRejected);
+    }
+
+    public override void Write(RescheduleDialogView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.TimesIn, stream);
+            FfiConverterString.INSTANCE.Write(value.DayLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Day, stream);
+            FfiConverterString.INSTANCE.Write(value.DayText, stream);
+            FfiConverterString.INSTANCE.Write(value.TimeLabel, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.SlotsStatus, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Slots, stream);
+            FfiConverterString.INSTANCE.Write(value.NoSlots, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.SelectionRejected, stream);
     }
 }
 
@@ -17224,6 +17979,533 @@ class FfiConverterTypeSaveNoticeView: FfiConverterRustBuffer<SaveNoticeView> {
 
 
 /// <summary>
+/// A page of the administration: the section showing, under its title and
+/// the section navigation.
+/// </summary>
+/// <param name="Title">
+/// The page's heading: the section's title ("Bookings"), or a detail's
+/// ("Booking").
+/// </param>
+/// <param name="Sections">
+/// The section navigation: every built section, the one showing selected.
+/// </param>
+/// <param name="Page">
+/// The section's own page.
+/// </param>
+public record SchedulingAdminView (
+    /// <summary>
+    /// The page's heading: the section's title ("Bookings"), or a detail's
+    /// ("Booking").
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The section navigation: every built section, the one showing selected.
+    /// </summary>
+    SchedulingSectionEntryView[] Sections, 
+    /// <summary>
+    /// The section's own page.
+    /// </summary>
+    SchedulingAdminPage Page
+) {
+}
+
+class FfiConverterTypeSchedulingAdminView: FfiConverterRustBuffer<SchedulingAdminView> {
+    public static FfiConverterTypeSchedulingAdminView INSTANCE = new FfiConverterTypeSchedulingAdminView();
+
+    public override SchedulingAdminView Read(BigEndianStream stream) {
+        return new SchedulingAdminView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Sections: FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.Read(stream),
+            Page: FfiConverterTypeSchedulingAdminPage.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingAdminView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.AllocationSize(value.Sections)
+            + FfiConverterTypeSchedulingAdminPage.INSTANCE.AllocationSize(value.Page);
+    }
+
+    public override void Write(SchedulingAdminView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.Write(value.Sections, stream);
+            FfiConverterTypeSchedulingAdminPage.INSTANCE.Write(value.Page, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One booking: what the booker answered, and the cancel.
+/// </summary>
+/// <param name="Id">
+/// The booking's id.
+/// </param>
+/// <param name="Summary">
+/// Its row from the list (when, who, status), when the list has it.
+/// </param>
+/// <param name="Status">
+/// Where the read of the answers stands.
+/// </param>
+/// <param name="AnswersHeading">
+/// The answers' heading.
+/// </param>
+/// <param name="Answers">
+/// The answers to the event type's questions, a blank one said as such.
+/// </param>
+/// <param name="NoQuestions">
+/// Said when the event type asks nothing.
+/// </param>
+/// <param name="ManageHeading">
+/// The heading over the cancel, "Manage".
+/// </param>
+/// <param name="OffersCancel">
+/// Whether "Cancel booking" is offered: the member may change things and
+/// the booking can still be cancelled.
+/// </param>
+/// <param name="CancelLabel">
+/// "Cancel booking".
+/// </param>
+/// <param name="Notice">
+/// "Booking cancelled", once the cancel has landed, until it is put away
+/// (`BookingAction::CloseDialog`).
+/// </param>
+/// <param name="Cancel">
+/// The cancel dialog, while it is open.
+/// </param>
+public record SchedulingBookingView (
+    /// <summary>
+    /// The booking's id.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Its row from the list (when, who, status), when the list has it.
+    /// </summary>
+    BookingRowView? Summary, 
+    /// <summary>
+    /// Where the read of the answers stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The answers' heading.
+    /// </summary>
+    string AnswersHeading, 
+    /// <summary>
+    /// The answers to the event type's questions, a blank one said as such.
+    /// </summary>
+    FactView[] Answers, 
+    /// <summary>
+    /// Said when the event type asks nothing.
+    /// </summary>
+    string NoQuestions, 
+    /// <summary>
+    /// The heading over the cancel, "Manage".
+    /// </summary>
+    string ManageHeading, 
+    /// <summary>
+    /// Whether "Cancel booking" is offered: the member may change things and
+    /// the booking can still be cancelled.
+    /// </summary>
+    bool OffersCancel, 
+    /// <summary>
+    /// "Cancel booking".
+    /// </summary>
+    string CancelLabel, 
+    /// <summary>
+    /// "Booking cancelled", once the cancel has landed, until it is put away
+    /// (`BookingAction::CloseDialog`).
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// The cancel dialog, while it is open.
+    /// </summary>
+    CancelDialogView? Cancel
+) {
+}
+
+class FfiConverterTypeSchedulingBookingView: FfiConverterRustBuffer<SchedulingBookingView> {
+    public static FfiConverterTypeSchedulingBookingView INSTANCE = new FfiConverterTypeSchedulingBookingView();
+
+    public override SchedulingBookingView Read(BigEndianStream stream) {
+        return new SchedulingBookingView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Summary: FfiConverterOptionalTypeBookingRowView.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            AnswersHeading: FfiConverterString.INSTANCE.Read(stream),
+            Answers: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            NoQuestions: FfiConverterString.INSTANCE.Read(stream),
+            ManageHeading: FfiConverterString.INSTANCE.Read(stream),
+            OffersCancel: FfiConverterBoolean.INSTANCE.Read(stream),
+            CancelLabel: FfiConverterString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Cancel: FfiConverterOptionalTypeCancelDialogView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingBookingView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterOptionalTypeBookingRowView.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AnswersHeading)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Answers)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NoQuestions)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ManageHeading)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersCancel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CancelLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeCancelDialogView.INSTANCE.AllocationSize(value.Cancel);
+    }
+
+    public override void Write(SchedulingBookingView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterOptionalTypeBookingRowView.INSTANCE.Write(value.Summary, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.AnswersHeading, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Answers, stream);
+            FfiConverterString.INSTANCE.Write(value.NoQuestions, stream);
+            FfiConverterString.INSTANCE.Write(value.ManageHeading, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersCancel, stream);
+            FfiConverterString.INSTANCE.Write(value.CancelLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeCancelDialogView.INSTANCE.Write(value.Cancel, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The bookings list.
+/// </summary>
+/// <param name="TimesIn">
+/// "Times in America/Toronto".
+/// </param>
+/// <param name="Tabs">
+/// The views, the one showing selected.
+/// </param>
+/// <param name="Status">
+/// Where the first page's read stands.
+/// </param>
+/// <param name="Rows">
+/// The bookings read so far.
+/// </param>
+/// <param name="Empty">
+/// What the list says when the view has nothing.
+/// </param>
+/// <param name="Paging">
+/// "Load more" at the end of the list, and why the last page failed.
+/// </param>
+/// <param name="LoadMore">
+/// "Load more", or "Loading…" while the next page is on its way.
+/// </param>
+/// <param name="CancelLabel">
+/// The row action that opens the cancel dialog, "Cancel booking".
+/// </param>
+/// <param name="RescheduleLabel">
+/// The row action that opens the move dialog, "Move booking".
+/// </param>
+/// <param name="ReassignLabel">
+/// The row action that opens the host dialog, "Change host".
+/// </param>
+/// <param name="Notice">
+/// What the last write came to ("Booking cancelled"), once its dialog has
+/// closed, until it is put away (`BookingsAction::CloseDialog`).
+/// </param>
+/// <param name="Cancel">
+/// The cancel dialog, while it is open.
+/// </param>
+/// <param name="Reschedule">
+/// The move dialog, while it is open.
+/// </param>
+/// <param name="Reassign">
+/// The host dialog, while it is open.
+/// </param>
+public record SchedulingBookingsView (
+    /// <summary>
+    /// "Times in America/Toronto".
+    /// </summary>
+    string TimesIn, 
+    /// <summary>
+    /// The views, the one showing selected.
+    /// </summary>
+    BookingsTabView[] Tabs, 
+    /// <summary>
+    /// Where the first page's read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The bookings read so far.
+    /// </summary>
+    BookingRowView[] Rows, 
+    /// <summary>
+    /// What the list says when the view has nothing.
+    /// </summary>
+    EmptyView Empty, 
+    /// <summary>
+    /// "Load more" at the end of the list, and why the last page failed.
+    /// </summary>
+    PagingView Paging, 
+    /// <summary>
+    /// "Load more", or "Loading…" while the next page is on its way.
+    /// </summary>
+    string LoadMore, 
+    /// <summary>
+    /// The row action that opens the cancel dialog, "Cancel booking".
+    /// </summary>
+    string CancelLabel, 
+    /// <summary>
+    /// The row action that opens the move dialog, "Move booking".
+    /// </summary>
+    string RescheduleLabel, 
+    /// <summary>
+    /// The row action that opens the host dialog, "Change host".
+    /// </summary>
+    string ReassignLabel, 
+    /// <summary>
+    /// What the last write came to ("Booking cancelled"), once its dialog has
+    /// closed, until it is put away (`BookingsAction::CloseDialog`).
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// The cancel dialog, while it is open.
+    /// </summary>
+    CancelDialogView? Cancel, 
+    /// <summary>
+    /// The move dialog, while it is open.
+    /// </summary>
+    RescheduleDialogView? Reschedule, 
+    /// <summary>
+    /// The host dialog, while it is open.
+    /// </summary>
+    ReassignDialogView? Reassign
+) {
+}
+
+class FfiConverterTypeSchedulingBookingsView: FfiConverterRustBuffer<SchedulingBookingsView> {
+    public static FfiConverterTypeSchedulingBookingsView INSTANCE = new FfiConverterTypeSchedulingBookingsView();
+
+    public override SchedulingBookingsView Read(BigEndianStream stream) {
+        return new SchedulingBookingsView(
+            TimesIn: FfiConverterString.INSTANCE.Read(stream),
+            Tabs: FfiConverterSequenceTypeBookingsTabView.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeBookingRowView.INSTANCE.Read(stream),
+            Empty: FfiConverterTypeEmptyView.INSTANCE.Read(stream),
+            Paging: FfiConverterTypePagingView.INSTANCE.Read(stream),
+            LoadMore: FfiConverterString.INSTANCE.Read(stream),
+            CancelLabel: FfiConverterString.INSTANCE.Read(stream),
+            RescheduleLabel: FfiConverterString.INSTANCE.Read(stream),
+            ReassignLabel: FfiConverterString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Cancel: FfiConverterOptionalTypeCancelDialogView.INSTANCE.Read(stream),
+            Reschedule: FfiConverterOptionalTypeRescheduleDialogView.INSTANCE.Read(stream),
+            Reassign: FfiConverterOptionalTypeReassignDialogView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingBookingsView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimesIn)
+            + FfiConverterSequenceTypeBookingsTabView.INSTANCE.AllocationSize(value.Tabs)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeBookingRowView.INSTANCE.AllocationSize(value.Rows)
+            + FfiConverterTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterTypePagingView.INSTANCE.AllocationSize(value.Paging)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LoadMore)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CancelLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RescheduleLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ReassignLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeCancelDialogView.INSTANCE.AllocationSize(value.Cancel)
+            + FfiConverterOptionalTypeRescheduleDialogView.INSTANCE.AllocationSize(value.Reschedule)
+            + FfiConverterOptionalTypeReassignDialogView.INSTANCE.AllocationSize(value.Reassign);
+    }
+
+    public override void Write(SchedulingBookingsView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.TimesIn, stream);
+            FfiConverterSequenceTypeBookingsTabView.INSTANCE.Write(value.Tabs, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeBookingRowView.INSTANCE.Write(value.Rows, stream);
+            FfiConverterTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterTypePagingView.INSTANCE.Write(value.Paging, stream);
+            FfiConverterString.INSTANCE.Write(value.LoadMore, stream);
+            FfiConverterString.INSTANCE.Write(value.CancelLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RescheduleLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ReassignLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeCancelDialogView.INSTANCE.Write(value.Cancel, stream);
+            FfiConverterOptionalTypeRescheduleDialogView.INSTANCE.Write(value.Reschedule, stream);
+            FfiConverterOptionalTypeReassignDialogView.INSTANCE.Write(value.Reassign, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The overview's page.
+/// </summary>
+/// <param name="TimesIn">
+/// "Times in America/Toronto": the zone every time here is in.
+/// </param>
+/// <param name="DeskHeading">
+/// The desk card's heading, "Your booking desk".
+/// </param>
+/// <param name="Desk">
+/// The desk's five rows, each labelled in every state.
+/// </param>
+/// <param name="ComingUpHeading">
+/// The second card's heading, "Coming up".
+/// </param>
+/// <param name="ComingUpStatus">
+/// Where the read of the next bookings stands. A failure is shown in the
+/// card, in the danger tone; the desk above still shows.
+/// </param>
+/// <param name="ComingUp">
+/// The next bookings, soonest first, once read.
+/// </param>
+/// <param name="ComingUpEmpty">
+/// Said when nothing is coming up.
+/// </param>
+public record SchedulingOverviewView (
+    /// <summary>
+    /// "Times in America/Toronto": the zone every time here is in.
+    /// </summary>
+    string TimesIn, 
+    /// <summary>
+    /// The desk card's heading, "Your booking desk".
+    /// </summary>
+    string DeskHeading, 
+    /// <summary>
+    /// The desk's five rows, each labelled in every state.
+    /// </summary>
+    BookingDeskRowView[] Desk, 
+    /// <summary>
+    /// The second card's heading, "Coming up".
+    /// </summary>
+    string ComingUpHeading, 
+    /// <summary>
+    /// Where the read of the next bookings stands. A failure is shown in the
+    /// card, in the danger tone; the desk above still shows.
+    /// </summary>
+    LoadStatus ComingUpStatus, 
+    /// <summary>
+    /// The next bookings, soonest first, once read.
+    /// </summary>
+    ComingUpRowView[] ComingUp, 
+    /// <summary>
+    /// Said when nothing is coming up.
+    /// </summary>
+    string ComingUpEmpty
+) {
+}
+
+class FfiConverterTypeSchedulingOverviewView: FfiConverterRustBuffer<SchedulingOverviewView> {
+    public static FfiConverterTypeSchedulingOverviewView INSTANCE = new FfiConverterTypeSchedulingOverviewView();
+
+    public override SchedulingOverviewView Read(BigEndianStream stream) {
+        return new SchedulingOverviewView(
+            TimesIn: FfiConverterString.INSTANCE.Read(stream),
+            DeskHeading: FfiConverterString.INSTANCE.Read(stream),
+            Desk: FfiConverterSequenceTypeBookingDeskRowView.INSTANCE.Read(stream),
+            ComingUpHeading: FfiConverterString.INSTANCE.Read(stream),
+            ComingUpStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            ComingUp: FfiConverterSequenceTypeComingUpRowView.INSTANCE.Read(stream),
+            ComingUpEmpty: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingOverviewView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimesIn)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeskHeading)
+            + FfiConverterSequenceTypeBookingDeskRowView.INSTANCE.AllocationSize(value.Desk)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ComingUpHeading)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.ComingUpStatus)
+            + FfiConverterSequenceTypeComingUpRowView.INSTANCE.AllocationSize(value.ComingUp)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ComingUpEmpty);
+    }
+
+    public override void Write(SchedulingOverviewView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.TimesIn, stream);
+            FfiConverterString.INSTANCE.Write(value.DeskHeading, stream);
+            FfiConverterSequenceTypeBookingDeskRowView.INSTANCE.Write(value.Desk, stream);
+            FfiConverterString.INSTANCE.Write(value.ComingUpHeading, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.ComingUpStatus, stream);
+            FfiConverterSequenceTypeComingUpRowView.INSTANCE.Write(value.ComingUp, stream);
+            FfiConverterString.INSTANCE.Write(value.ComingUpEmpty, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One entry of the section navigation, and one row of the booking pages
+/// screen's list.
+/// </summary>
+/// <param name="Section">
+/// The section it opens (`SchedulingAdminAction::Open`).
+/// </param>
+/// <param name="Title">
+/// Its title, the web dashboard's name for it.
+/// </param>
+/// <param name="Subtitle">
+/// What it holds, the row's second line.
+/// </param>
+/// <param name="Selected">
+/// Whether it is the section showing.
+/// </param>
+public record SchedulingSectionEntryView (
+    /// <summary>
+    /// The section it opens (`SchedulingAdminAction::Open`).
+    /// </summary>
+    SchedulingAdminSection Section, 
+    /// <summary>
+    /// Its title, the web dashboard's name for it.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What it holds, the row's second line.
+    /// </summary>
+    string Subtitle, 
+    /// <summary>
+    /// Whether it is the section showing.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeSchedulingSectionEntryView: FfiConverterRustBuffer<SchedulingSectionEntryView> {
+    public static FfiConverterTypeSchedulingSectionEntryView INSTANCE = new FfiConverterTypeSchedulingSectionEntryView();
+
+    public override SchedulingSectionEntryView Read(BigEndianStream stream) {
+        return new SchedulingSectionEntryView(
+            Section: FfiConverterTypeSchedulingAdminSection.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Subtitle: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingSectionEntryView value) {
+        return 0
+            + FfiConverterTypeSchedulingAdminSection.INSTANCE.AllocationSize(value.Section)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subtitle)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(SchedulingSectionEntryView value, BigEndianStream stream) {
+            FfiConverterTypeSchedulingAdminSection.INSTANCE.Write(value.Section, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Subtitle, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The booking pages screen.
 /// </summary>
 /// <param name="Title">
@@ -17272,6 +18554,14 @@ class FfiConverterTypeSaveNoticeView: FfiConverterRustBuffer<SaveNoticeView> {
 /// </param>
 /// <param name="Opening">
 /// Whether the hand-off to the web is under way (show progress).
+/// </param>
+/// <param name="SectionsHeading">
+/// The heading over the sections, "Manage".
+/// </param>
+/// <param name="Sections">
+/// The administration's sections built in this version, each a row that
+/// opens it (`SchedulingAdminAction::Open`). Only while the booking pages
+/// are live: before, every section's read is refused.
 /// </param>
 public record SchedulingView (
     /// <summary>
@@ -17335,7 +18625,17 @@ public record SchedulingView (
     /// <summary>
     /// Whether the hand-off to the web is under way (show progress).
     /// </summary>
-    bool Opening
+    bool Opening, 
+    /// <summary>
+    /// The heading over the sections, "Manage".
+    /// </summary>
+    string SectionsHeading, 
+    /// <summary>
+    /// The administration's sections built in this version, each a row that
+    /// opens it (`SchedulingAdminAction::Open`). Only while the booking pages
+    /// are live: before, every section's read is refused.
+    /// </summary>
+    SchedulingSectionEntryView[] Sections
 ) {
 }
 
@@ -17358,7 +18658,9 @@ class FfiConverterTypeSchedulingView: FfiConverterRustBuffer<SchedulingView> {
             OffersCheck: FfiConverterBoolean.INSTANCE.Read(stream),
             OffersWeb: FfiConverterBoolean.INSTANCE.Read(stream),
             WebEnabled: FfiConverterBoolean.INSTANCE.Read(stream),
-            Opening: FfiConverterBoolean.INSTANCE.Read(stream)
+            Opening: FfiConverterBoolean.INSTANCE.Read(stream),
+            SectionsHeading: FfiConverterString.INSTANCE.Read(stream),
+            Sections: FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.Read(stream)
         );
     }
 
@@ -17378,7 +18680,9 @@ class FfiConverterTypeSchedulingView: FfiConverterRustBuffer<SchedulingView> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersCheck)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWeb)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.WebEnabled)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Opening);
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Opening)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SectionsHeading)
+            + FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.AllocationSize(value.Sections);
     }
 
     public override void Write(SchedulingView value, BigEndianStream stream) {
@@ -17397,6 +18701,8 @@ class FfiConverterTypeSchedulingView: FfiConverterRustBuffer<SchedulingView> {
             FfiConverterBoolean.INSTANCE.Write(value.OffersWeb, stream);
             FfiConverterBoolean.INSTANCE.Write(value.WebEnabled, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Opening, stream);
+            FfiConverterString.INSTANCE.Write(value.SectionsHeading, stream);
+            FfiConverterSequenceTypeSchedulingSectionEntryView.INSTANCE.Write(value.Sections, stream);
     }
 }
 
@@ -22443,6 +23749,463 @@ class FfiConverterTypeBlockedAction : FfiConverterRustBuffer<BlockedAction>{
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBlockedAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did on one booking.
+/// </summary>
+public record BookingAction {
+    
+    /// <summary>
+    /// Open the cancel dialog.
+    /// </summary>
+    public record OpenCancel: BookingAction {}
+    
+    
+    /// <summary>
+    /// Its reason changed.
+    /// </summary>
+    public record EditCancelReason (
+        string Reason
+    ) : BookingAction {}
+    
+    /// <summary>
+    /// Its confirm.
+    /// </summary>
+    public record Confirm: BookingAction {}
+    
+    
+    /// <summary>
+    /// Close it, or put away what its write came to.
+    /// </summary>
+    public record CloseDialog: BookingAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeBookingAction : FfiConverterRustBuffer<BookingAction>{
+    public static FfiConverterRustBuffer<BookingAction> INSTANCE = new FfiConverterTypeBookingAction();
+
+    public override BookingAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new BookingAction.OpenCancel(
+                );
+            case 2:
+                return new BookingAction.EditCancelReason(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new BookingAction.Confirm(
+                );
+            case 4:
+                return new BookingAction.CloseDialog(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(BookingAction value) {
+        switch (value) {
+            case BookingAction.OpenCancel variant_value:
+                return 4;
+            case BookingAction.EditCancelReason variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Reason);
+            case BookingAction.Confirm variant_value:
+                return 4;
+            case BookingAction.CloseDialog variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(BookingAction value, BigEndianStream stream) {
+        switch (value) {
+            case BookingAction.OpenCancel variant_value:
+                stream.WriteInt(1);
+                break;
+            case BookingAction.EditCancelReason variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Reason, stream);
+                break;
+            case BookingAction.Confirm variant_value:
+                stream.WriteInt(3);
+                break;
+            case BookingAction.CloseDialog variant_value:
+                stream.WriteInt(4);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// What a row of the desk shows.
+/// </summary>
+public enum BookingDeskRowState: int {
+    /// <summary>
+    /// Its read is on its way (a placeholder under the label).
+    /// </summary>
+    Loading,
+    /// <summary>
+    /// Its read failed: `failure`, in the danger tone.
+    /// </summary>
+    Failed,
+    /// <summary>
+    /// Its value: the first line, and any after it.
+    /// </summary>
+    Lines,
+    /// <summary>
+    /// Nothing set up yet: the one line, in the muted tone.
+    /// </summary>
+    Hint
+}
+
+class FfiConverterTypeBookingDeskRowState: FfiConverterRustBuffer<BookingDeskRowState> {
+    public static FfiConverterTypeBookingDeskRowState INSTANCE = new FfiConverterTypeBookingDeskRowState();
+
+    public override BookingDeskRowState Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return BookingDeskRowState.Loading;
+            case 2: return BookingDeskRowState.Failed;
+            case 3: return BookingDeskRowState.Lines;
+            case 4: return BookingDeskRowState.Hint;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingDeskRowState.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(BookingDeskRowState value) {
+        return 4;
+    }
+
+    public override void Write(BookingDeskRowState value, BigEndianStream stream) {
+        switch (value) {
+            case BookingDeskRowState.Loading: stream.WriteInt(1); break;
+            case BookingDeskRowState.Failed: stream.WriteInt(2); break;
+            case BookingDeskRowState.Lines: stream.WriteInt(3); break;
+            case BookingDeskRowState.Hint: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingDeskRowState.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did on the bookings list.
+/// </summary>
+public record BookingsAction {
+    
+    /// <summary>
+    /// Show another view, read from its first page.
+    /// </summary>
+    public record SelectTab (
+        BookingsTab Tab
+    ) : BookingsAction {}
+    
+    /// <summary>
+    /// Read the next page.
+    /// </summary>
+    public record LoadMore: BookingsAction {}
+    
+    
+    /// <summary>
+    /// Open the cancel dialog for a booking.
+    /// </summary>
+    public record OpenCancel (
+        string BookingId
+    ) : BookingsAction {}
+    
+    /// <summary>
+    /// Open the move dialog for a booking, on today in the profile's zone.
+    /// </summary>
+    public record OpenReschedule (
+        string BookingId
+    ) : BookingsAction {}
+    
+    /// <summary>
+    /// Open the host dialog for a booking.
+    /// </summary>
+    public record OpenReassign (
+        string BookingId
+    ) : BookingsAction {}
+    
+    /// <summary>
+    /// The cancel dialog's reason changed.
+    /// </summary>
+    public record EditCancelReason (
+        string Reason
+    ) : BookingsAction {}
+    
+    /// <summary>
+    /// The move dialog's day changed, `YYYY-MM-DD`. A value that is not a
+    /// day is no event.
+    /// </summary>
+    public record PickDay (
+        string Day
+    ) : BookingsAction {}
+    
+    /// <summary>
+    /// A time was chosen, by its start.
+    /// </summary>
+    public record PickSlot (
+        string Start
+    ) : BookingsAction {}
+    
+    /// <summary>
+    /// A host was chosen.
+    /// </summary>
+    public record PickHost (
+        string HostId
+    ) : BookingsAction {}
+    
+    /// <summary>
+    /// Read the dialog's times or hosts again, after a failure.
+    /// </summary>
+    public record RetryDialogRead: BookingsAction {}
+    
+    
+    /// <summary>
+    /// The dialog's confirm.
+    /// </summary>
+    public record Confirm: BookingsAction {}
+    
+    
+    /// <summary>
+    /// Close the dialog, or put away what its write came to.
+    /// </summary>
+    public record CloseDialog: BookingsAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeBookingsAction : FfiConverterRustBuffer<BookingsAction>{
+    public static FfiConverterRustBuffer<BookingsAction> INSTANCE = new FfiConverterTypeBookingsAction();
+
+    public override BookingsAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new BookingsAction.SelectTab(
+                    FfiConverterTypeBookingsTab.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new BookingsAction.LoadMore(
+                );
+            case 3:
+                return new BookingsAction.OpenCancel(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new BookingsAction.OpenReschedule(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new BookingsAction.OpenReassign(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new BookingsAction.EditCancelReason(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new BookingsAction.PickDay(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new BookingsAction.PickSlot(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new BookingsAction.PickHost(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 10:
+                return new BookingsAction.RetryDialogRead(
+                );
+            case 11:
+                return new BookingsAction.Confirm(
+                );
+            case 12:
+                return new BookingsAction.CloseDialog(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingsAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(BookingsAction value) {
+        switch (value) {
+            case BookingsAction.SelectTab variant_value:
+                return 4
+                    + FfiConverterTypeBookingsTab.INSTANCE.AllocationSize(variant_value.Tab);
+            case BookingsAction.LoadMore variant_value:
+                return 4;
+            case BookingsAction.OpenCancel variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.BookingId);
+            case BookingsAction.OpenReschedule variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.BookingId);
+            case BookingsAction.OpenReassign variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.BookingId);
+            case BookingsAction.EditCancelReason variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Reason);
+            case BookingsAction.PickDay variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Day);
+            case BookingsAction.PickSlot variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Start);
+            case BookingsAction.PickHost variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.HostId);
+            case BookingsAction.RetryDialogRead variant_value:
+                return 4;
+            case BookingsAction.Confirm variant_value:
+                return 4;
+            case BookingsAction.CloseDialog variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingsAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(BookingsAction value, BigEndianStream stream) {
+        switch (value) {
+            case BookingsAction.SelectTab variant_value:
+                stream.WriteInt(1);
+                FfiConverterTypeBookingsTab.INSTANCE.Write(variant_value.Tab, stream);
+                break;
+            case BookingsAction.LoadMore variant_value:
+                stream.WriteInt(2);
+                break;
+            case BookingsAction.OpenCancel variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.BookingId, stream);
+                break;
+            case BookingsAction.OpenReschedule variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.BookingId, stream);
+                break;
+            case BookingsAction.OpenReassign variant_value:
+                stream.WriteInt(5);
+                FfiConverterString.INSTANCE.Write(variant_value.BookingId, stream);
+                break;
+            case BookingsAction.EditCancelReason variant_value:
+                stream.WriteInt(6);
+                FfiConverterString.INSTANCE.Write(variant_value.Reason, stream);
+                break;
+            case BookingsAction.PickDay variant_value:
+                stream.WriteInt(7);
+                FfiConverterString.INSTANCE.Write(variant_value.Day, stream);
+                break;
+            case BookingsAction.PickSlot variant_value:
+                stream.WriteInt(8);
+                FfiConverterString.INSTANCE.Write(variant_value.Start, stream);
+                break;
+            case BookingsAction.PickHost variant_value:
+                stream.WriteInt(9);
+                FfiConverterString.INSTANCE.Write(variant_value.HostId, stream);
+                break;
+            case BookingsAction.RetryDialogRead variant_value:
+                stream.WriteInt(10);
+                break;
+            case BookingsAction.Confirm variant_value:
+                stream.WriteInt(11);
+                break;
+            case BookingsAction.CloseDialog variant_value:
+                stream.WriteInt(12);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingsAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Which bookings the list shows.
+/// </summary>
+public enum BookingsTab: int {
+    /// <summary>
+    /// Confirmed and still to come, soonest first.
+    /// </summary>
+    Upcoming,
+    /// <summary>
+    /// Confirmed and over, newest first.
+    /// </summary>
+    Past,
+    /// <summary>
+    /// Cancelled, newest first.
+    /// </summary>
+    Cancelled,
+    /// <summary>
+    /// Every booking, newest first.
+    /// </summary>
+    All
+}
+
+class FfiConverterTypeBookingsTab: FfiConverterRustBuffer<BookingsTab> {
+    public static FfiConverterTypeBookingsTab INSTANCE = new FfiConverterTypeBookingsTab();
+
+    public override BookingsTab Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return BookingsTab.Upcoming;
+            case 2: return BookingsTab.Past;
+            case 3: return BookingsTab.Cancelled;
+            case 4: return BookingsTab.All;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingsTab.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(BookingsTab value) {
+        return 4;
+    }
+
+    public override void Write(BookingsTab value, BigEndianStream stream) {
+        switch (value) {
+            case BookingsTab.Upcoming: stream.WriteInt(1); break;
+            case BookingsTab.Past: stream.WriteInt(2); break;
+            case BookingsTab.Cancelled: stream.WriteInt(3); break;
+            case BookingsTab.All: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingsTab.Write()", value));
         }
     }
 }
@@ -28207,6 +29970,299 @@ class FfiConverterTypeSchedulingAction: FfiConverterRustBuffer<SchedulingAction>
 
 
 /// <summary>
+/// Something the member did in the administration. A section's pull request
+/// adds its variant.
+/// </summary>
+public record SchedulingAdminAction {
+    
+    /// <summary>
+    /// Open a section, from the booking pages screen's list or the section
+    /// navigation.
+    /// </summary>
+    public record Open (
+        SchedulingAdminSection Section
+    ) : SchedulingAdminAction {}
+    
+    /// <summary>
+    /// Open one booking from the list.
+    /// </summary>
+    public record OpenBooking (
+        string BookingId
+    ) : SchedulingAdminAction {}
+    
+    /// <summary>
+    /// On the bookings list.
+    /// </summary>
+    public record Bookings (
+        BookingsAction Action
+    ) : SchedulingAdminAction {}
+    
+    /// <summary>
+    /// On one booking.
+    /// </summary>
+    public record Booking (
+        BookingAction Action
+    ) : SchedulingAdminAction {}
+    
+
+    
+}
+
+class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingAdminAction>{
+    public static FfiConverterRustBuffer<SchedulingAdminAction> INSTANCE = new FfiConverterTypeSchedulingAdminAction();
+
+    public override SchedulingAdminAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new SchedulingAdminAction.Open(
+                    FfiConverterTypeSchedulingAdminSection.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new SchedulingAdminAction.OpenBooking(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new SchedulingAdminAction.Bookings(
+                    FfiConverterTypeBookingsAction.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new SchedulingAdminAction.Booking(
+                    FfiConverterTypeBookingAction.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SchedulingAdminAction value) {
+        switch (value) {
+            case SchedulingAdminAction.Open variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingAdminSection.INSTANCE.AllocationSize(variant_value.Section);
+            case SchedulingAdminAction.OpenBooking variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.BookingId);
+            case SchedulingAdminAction.Bookings variant_value:
+                return 4
+                    + FfiConverterTypeBookingsAction.INSTANCE.AllocationSize(variant_value.Action);
+            case SchedulingAdminAction.Booking variant_value:
+                return 4
+                    + FfiConverterTypeBookingAction.INSTANCE.AllocationSize(variant_value.Action);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(SchedulingAdminAction value, BigEndianStream stream) {
+        switch (value) {
+            case SchedulingAdminAction.Open variant_value:
+                stream.WriteInt(1);
+                FfiConverterTypeSchedulingAdminSection.INSTANCE.Write(variant_value.Section, stream);
+                break;
+            case SchedulingAdminAction.OpenBooking variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.BookingId, stream);
+                break;
+            case SchedulingAdminAction.Bookings variant_value:
+                stream.WriteInt(3);
+                FfiConverterTypeBookingsAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SchedulingAdminAction.Booking variant_value:
+                stream.WriteInt(4);
+                FfiConverterTypeBookingAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// The section's own page under the navigation. A section's pull request adds
+/// its variant.
+/// </summary>
+public record SchedulingAdminPage {
+    
+    /// <summary>
+    /// The booking desk and what is coming up.
+    /// </summary>
+    public record Overview (
+        SchedulingOverviewView View
+    ) : SchedulingAdminPage {}
+    
+    /// <summary>
+    /// The bookings list.
+    /// </summary>
+    public record Bookings (
+        SchedulingBookingsView View
+    ) : SchedulingAdminPage {}
+    
+    /// <summary>
+    /// One booking.
+    /// </summary>
+    public record Booking (
+        SchedulingBookingView View
+    ) : SchedulingAdminPage {}
+    
+
+    
+}
+
+class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdminPage>{
+    public static FfiConverterRustBuffer<SchedulingAdminPage> INSTANCE = new FfiConverterTypeSchedulingAdminPage();
+
+    public override SchedulingAdminPage Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new SchedulingAdminPage.Overview(
+                    FfiConverterTypeSchedulingOverviewView.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new SchedulingAdminPage.Bookings(
+                    FfiConverterTypeSchedulingBookingsView.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new SchedulingAdminPage.Booking(
+                    FfiConverterTypeSchedulingBookingView.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SchedulingAdminPage value) {
+        switch (value) {
+            case SchedulingAdminPage.Overview variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingOverviewView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.Bookings variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingBookingsView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.Booking variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingBookingView.INSTANCE.AllocationSize(variant_value.View);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(SchedulingAdminPage value, BigEndianStream stream) {
+        switch (value) {
+            case SchedulingAdminPage.Overview variant_value:
+                stream.WriteInt(1);
+                FfiConverterTypeSchedulingOverviewView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.Bookings variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypeSchedulingBookingsView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.Booking variant_value:
+                stream.WriteInt(3);
+                FfiConverterTypeSchedulingBookingView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A section of the administration, as the section navigation lists it. A
+/// detail (one booking, one event type) is listed as its list.
+/// </summary>
+public enum SchedulingAdminSection: int {
+    /// <summary>
+    /// The booking desk at a glance, and what is coming up.
+    /// </summary>
+    Overview,
+    /// <summary>
+    /// The event types.
+    /// </summary>
+    EventTypes,
+    /// <summary>
+    /// The working hours.
+    /// </summary>
+    Hours,
+    /// <summary>
+    /// The bookings.
+    /// </summary>
+    Bookings,
+    /// <summary>
+    /// The member's calendars.
+    /// </summary>
+    Calendar,
+    /// <summary>
+    /// The scheduler's users and teams.
+    /// </summary>
+    Team,
+    /// <summary>
+    /// The scheduler's settings.
+    /// </summary>
+    Settings,
+    /// <summary>
+    /// API keys, connected apps and webhooks.
+    /// </summary>
+    Developer
+}
+
+class FfiConverterTypeSchedulingAdminSection: FfiConverterRustBuffer<SchedulingAdminSection> {
+    public static FfiConverterTypeSchedulingAdminSection INSTANCE = new FfiConverterTypeSchedulingAdminSection();
+
+    public override SchedulingAdminSection Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return SchedulingAdminSection.Overview;
+            case 2: return SchedulingAdminSection.EventTypes;
+            case 3: return SchedulingAdminSection.Hours;
+            case 4: return SchedulingAdminSection.Bookings;
+            case 5: return SchedulingAdminSection.Calendar;
+            case 6: return SchedulingAdminSection.Team;
+            case 7: return SchedulingAdminSection.Settings;
+            case 8: return SchedulingAdminSection.Developer;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminSection.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SchedulingAdminSection value) {
+        return 4;
+    }
+
+    public override void Write(SchedulingAdminSection value, BigEndianStream stream) {
+        switch (value) {
+            case SchedulingAdminSection.Overview: stream.WriteInt(1); break;
+            case SchedulingAdminSection.EventTypes: stream.WriteInt(2); break;
+            case SchedulingAdminSection.Hours: stream.WriteInt(3); break;
+            case SchedulingAdminSection.Bookings: stream.WriteInt(4); break;
+            case SchedulingAdminSection.Calendar: stream.WriteInt(5); break;
+            case SchedulingAdminSection.Team: stream.WriteInt(6); break;
+            case SchedulingAdminSection.Settings: stream.WriteInt(7); break;
+            case SchedulingAdminSection.Developer: stream.WriteInt(8); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminSection.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Where the booking pages stand, which picks the card's icon.
 /// </summary>
 public enum SchedulingState: int {
@@ -28415,6 +30471,14 @@ public record ScreenView {
     ) : ScreenView {}
     
     /// <summary>
+    /// A section of the booking scheduler's administration, or a detail
+    /// under one.
+    /// </summary>
+    public record SchedulingAdmin (
+        SchedulingAdminView View
+    ) : ScreenView {}
+    
+    /// <summary>
     /// The help desk's tickets.
     /// </summary>
     public record Desk (
@@ -28618,70 +30682,74 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
                     FfiConverterTypeSchedulingView.INSTANCE.Read(stream)
                 );
             case 19:
+                return new ScreenView.SchedulingAdmin(
+                    FfiConverterTypeSchedulingAdminView.INSTANCE.Read(stream)
+                );
+            case 20:
                 return new ScreenView.Desk(
                     FfiConverterTypeDeskView.INSTANCE.Read(stream)
                 );
-            case 20:
+            case 21:
                 return new ScreenView.DeskTicket(
                     FfiConverterTypeDeskTicketView.INSTANCE.Read(stream)
                 );
-            case 21:
+            case 22:
                 return new ScreenView.DeskSettings(
                     FfiConverterTypeDeskSettingsView.INSTANCE.Read(stream)
                 );
-            case 22:
+            case 23:
                 return new ScreenView.Support(
                     FfiConverterTypeSupportView.INSTANCE.Read(stream)
                 );
-            case 23:
+            case 24:
                 return new ScreenView.SupportRequest(
                     FfiConverterTypeSupportRequestView.INSTANCE.Read(stream)
                 );
-            case 24:
+            case 25:
                 return new ScreenView.Rooms(
                     FfiConverterTypeRoomsView.INSTANCE.Read(stream)
                 );
-            case 25:
+            case 26:
                 return new ScreenView.WorkspaceSettings(
                     FfiConverterTypeSettingsHubView.INSTANCE.Read(stream)
                 );
-            case 26:
+            case 27:
                 return new ScreenView.Persona(
                     FfiConverterTypePersonaView.INSTANCE.Read(stream)
                 );
-            case 27:
+            case 28:
                 return new ScreenView.VoiceStudio(
                     FfiConverterTypeVoiceStudioView.INSTANCE.Read(stream)
                 );
-            case 28:
+            case 29:
                 return new ScreenView.CallHandling(
                     FfiConverterTypeCallHandlingView.INSTANCE.Read(stream)
                 );
-            case 29:
+            case 30:
                 return new ScreenView.Routing(
                     FfiConverterTypeRoutingView.INSTANCE.Read(stream)
                 );
-            case 30:
+            case 31:
                 return new ScreenView.Directory(
                     FfiConverterTypeDirectoryView.INSTANCE.Read(stream)
                 );
-            case 31:
+            case 32:
                 return new ScreenView.Tools(
                     FfiConverterTypeToolsView.INSTANCE.Read(stream)
                 );
-            case 32:
+            case 33:
                 return new ScreenView.Knowledge(
                     FfiConverterTypeKnowledgeView.INSTANCE.Read(stream)
                 );
-            case 33:
+            case 34:
                 return new ScreenView.Messaging(
                     FfiConverterTypeMessagingView.INSTANCE.Read(stream)
                 );
-            case 34:
+            case 35:
                 return new ScreenView.Members(
                     FfiConverterTypeMembersView.INSTANCE.Read(stream)
                 );
-            case 35:
+            case 36:
                 return new ScreenView.Unavailable(
                     FfiConverterString.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
@@ -28747,6 +30815,9 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
             case ScreenView.Scheduling variant_value:
                 return 4
                     + FfiConverterTypeSchedulingView.INSTANCE.AllocationSize(variant_value.View);
+            case ScreenView.SchedulingAdmin variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingAdminView.INSTANCE.AllocationSize(variant_value.View);
             case ScreenView.Desk variant_value:
                 return 4
                     + FfiConverterTypeDeskView.INSTANCE.AllocationSize(variant_value.View);
@@ -28878,72 +30949,76 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
                 stream.WriteInt(18);
                 FfiConverterTypeSchedulingView.INSTANCE.Write(variant_value.View, stream);
                 break;
-            case ScreenView.Desk variant_value:
+            case ScreenView.SchedulingAdmin variant_value:
                 stream.WriteInt(19);
+                FfiConverterTypeSchedulingAdminView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case ScreenView.Desk variant_value:
+                stream.WriteInt(20);
                 FfiConverterTypeDeskView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.DeskTicket variant_value:
-                stream.WriteInt(20);
+                stream.WriteInt(21);
                 FfiConverterTypeDeskTicketView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.DeskSettings variant_value:
-                stream.WriteInt(21);
+                stream.WriteInt(22);
                 FfiConverterTypeDeskSettingsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Support variant_value:
-                stream.WriteInt(22);
+                stream.WriteInt(23);
                 FfiConverterTypeSupportView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.SupportRequest variant_value:
-                stream.WriteInt(23);
+                stream.WriteInt(24);
                 FfiConverterTypeSupportRequestView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Rooms variant_value:
-                stream.WriteInt(24);
+                stream.WriteInt(25);
                 FfiConverterTypeRoomsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.WorkspaceSettings variant_value:
-                stream.WriteInt(25);
+                stream.WriteInt(26);
                 FfiConverterTypeSettingsHubView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Persona variant_value:
-                stream.WriteInt(26);
+                stream.WriteInt(27);
                 FfiConverterTypePersonaView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.VoiceStudio variant_value:
-                stream.WriteInt(27);
+                stream.WriteInt(28);
                 FfiConverterTypeVoiceStudioView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.CallHandling variant_value:
-                stream.WriteInt(28);
+                stream.WriteInt(29);
                 FfiConverterTypeCallHandlingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Routing variant_value:
-                stream.WriteInt(29);
+                stream.WriteInt(30);
                 FfiConverterTypeRoutingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Directory variant_value:
-                stream.WriteInt(30);
+                stream.WriteInt(31);
                 FfiConverterTypeDirectoryView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Tools variant_value:
-                stream.WriteInt(31);
+                stream.WriteInt(32);
                 FfiConverterTypeToolsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Knowledge variant_value:
-                stream.WriteInt(32);
+                stream.WriteInt(33);
                 FfiConverterTypeKnowledgeView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Messaging variant_value:
-                stream.WriteInt(33);
+                stream.WriteInt(34);
                 FfiConverterTypeMessagingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Members variant_value:
-                stream.WriteInt(34);
+                stream.WriteInt(35);
                 FfiConverterTypeMembersView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Unavailable variant_value:
-                stream.WriteInt(35);
+                stream.WriteInt(36);
                 FfiConverterString.INSTANCE.Write(variant_value.Title, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.Body, stream);
                 break;
@@ -30877,6 +32952,13 @@ public record UiEvent {
     ) : UiEvent {}
     
     /// <summary>
+    /// Something done in the booking scheduler's administration.
+    /// </summary>
+    public record SchedulingAdmin (
+        SchedulingAdminAction Action
+    ) : UiEvent {}
+    
+    /// <summary>
     /// Something done on the help desk.
     /// </summary>
     public record Desk (
@@ -31174,62 +33256,66 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                     FfiConverterTypeSchedulingAction.INSTANCE.Read(stream)
                 );
             case 53:
+                return new UiEvent.SchedulingAdmin(
+                    FfiConverterTypeSchedulingAdminAction.INSTANCE.Read(stream)
+                );
+            case 54:
                 return new UiEvent.Desk(
                     FfiConverterTypeDeskAction.INSTANCE.Read(stream)
                 );
-            case 54:
+            case 55:
                 return new UiEvent.Support(
                     FfiConverterTypeSupportAction.INSTANCE.Read(stream)
                 );
-            case 55:
+            case 56:
                 return new UiEvent.Rooms(
                     FfiConverterTypeRoomsAction.INSTANCE.Read(stream)
                 );
-            case 56:
+            case 57:
                 return new UiEvent.Composer(
                     FfiConverterTypeComposerAction.INSTANCE.Read(stream)
                 );
-            case 57:
+            case 58:
                 return new UiEvent.Settings(
                     FfiConverterTypeSettingsAction.INSTANCE.Read(stream)
                 );
-            case 58:
+            case 59:
                 return new UiEvent.Persona(
                     FfiConverterTypePersonaAction.INSTANCE.Read(stream)
                 );
-            case 59:
+            case 60:
                 return new UiEvent.VoiceStudio(
                     FfiConverterTypeVoiceStudioAction.INSTANCE.Read(stream)
                 );
-            case 60:
+            case 61:
                 return new UiEvent.CallHandling(
                     FfiConverterTypeCallHandlingAction.INSTANCE.Read(stream)
                 );
-            case 61:
+            case 62:
                 return new UiEvent.Routing(
                     FfiConverterTypeRoutingAction.INSTANCE.Read(stream)
                 );
-            case 62:
+            case 63:
                 return new UiEvent.Directory(
                     FfiConverterTypeDirectoryAction.INSTANCE.Read(stream)
                 );
-            case 63:
+            case 64:
                 return new UiEvent.Tools(
                     FfiConverterTypeToolsAction.INSTANCE.Read(stream)
                 );
-            case 64:
+            case 65:
                 return new UiEvent.Knowledge(
                     FfiConverterTypeKnowledgeAction.INSTANCE.Read(stream)
                 );
-            case 65:
+            case 66:
                 return new UiEvent.Messaging(
                     FfiConverterTypeMessagingAction.INSTANCE.Read(stream)
                 );
-            case 66:
+            case 67:
                 return new UiEvent.Members(
                     FfiConverterTypeMembersAction.INSTANCE.Read(stream)
                 );
-            case 67:
+            case 68:
                 return new UiEvent.Numbers(
                     FfiConverterTypeNumbersAction.INSTANCE.Read(stream)
                 );
@@ -31370,6 +33456,9 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case UiEvent.Scheduling variant_value:
                 return 4
                     + FfiConverterTypeSchedulingAction.INSTANCE.AllocationSize(variant_value.Action);
+            case UiEvent.SchedulingAdmin variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingAdminAction.INSTANCE.AllocationSize(variant_value.Action);
             case UiEvent.Desk variant_value:
                 return 4
                     + FfiConverterTypeDeskAction.INSTANCE.AllocationSize(variant_value.Action);
@@ -31604,64 +33693,68 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                 stream.WriteInt(52);
                 FfiConverterTypeSchedulingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
-            case UiEvent.Desk variant_value:
+            case UiEvent.SchedulingAdmin variant_value:
                 stream.WriteInt(53);
+                FfiConverterTypeSchedulingAdminAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case UiEvent.Desk variant_value:
+                stream.WriteInt(54);
                 FfiConverterTypeDeskAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Support variant_value:
-                stream.WriteInt(54);
+                stream.WriteInt(55);
                 FfiConverterTypeSupportAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Rooms variant_value:
-                stream.WriteInt(55);
+                stream.WriteInt(56);
                 FfiConverterTypeRoomsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Composer variant_value:
-                stream.WriteInt(56);
+                stream.WriteInt(57);
                 FfiConverterTypeComposerAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Settings variant_value:
-                stream.WriteInt(57);
+                stream.WriteInt(58);
                 FfiConverterTypeSettingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Persona variant_value:
-                stream.WriteInt(58);
+                stream.WriteInt(59);
                 FfiConverterTypePersonaAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.VoiceStudio variant_value:
-                stream.WriteInt(59);
+                stream.WriteInt(60);
                 FfiConverterTypeVoiceStudioAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.CallHandling variant_value:
-                stream.WriteInt(60);
+                stream.WriteInt(61);
                 FfiConverterTypeCallHandlingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Routing variant_value:
-                stream.WriteInt(61);
+                stream.WriteInt(62);
                 FfiConverterTypeRoutingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Directory variant_value:
-                stream.WriteInt(62);
+                stream.WriteInt(63);
                 FfiConverterTypeDirectoryAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Tools variant_value:
-                stream.WriteInt(63);
+                stream.WriteInt(64);
                 FfiConverterTypeToolsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Knowledge variant_value:
-                stream.WriteInt(64);
+                stream.WriteInt(65);
                 FfiConverterTypeKnowledgeAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Messaging variant_value:
-                stream.WriteInt(65);
+                stream.WriteInt(66);
                 FfiConverterTypeMessagingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Members variant_value:
-                stream.WriteInt(66);
+                stream.WriteInt(67);
                 FfiConverterTypeMembersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Numbers variant_value:
-                stream.WriteInt(67);
+                stream.WriteInt(68);
                 FfiConverterTypeNumbersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -32391,6 +34484,37 @@ class FfiConverterOptionalTypeBarChartView: FfiConverterRustBuffer<BarChartView?
 
 
 
+class FfiConverterOptionalTypeBookingRowView: FfiConverterRustBuffer<BookingRowView?> {
+    public static FfiConverterOptionalTypeBookingRowView INSTANCE = new FfiConverterOptionalTypeBookingRowView();
+
+    public override BookingRowView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeBookingRowView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(BookingRowView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeBookingRowView.INSTANCE.AllocationSize((BookingRowView)value);
+        }
+    }
+
+    public override void Write(BookingRowView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeBookingRowView.INSTANCE.Write((BookingRowView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeCampaignConfirmView: FfiConverterRustBuffer<CampaignConfirmView?> {
     public static FfiConverterOptionalTypeCampaignConfirmView INSTANCE = new FfiConverterOptionalTypeCampaignConfirmView();
 
@@ -32415,6 +34539,37 @@ class FfiConverterOptionalTypeCampaignConfirmView: FfiConverterRustBuffer<Campai
         } else {
             stream.WriteByte(1);
             FfiConverterTypeCampaignConfirmView.INSTANCE.Write((CampaignConfirmView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeCancelDialogView: FfiConverterRustBuffer<CancelDialogView?> {
+    public static FfiConverterOptionalTypeCancelDialogView INSTANCE = new FfiConverterOptionalTypeCancelDialogView();
+
+    public override CancelDialogView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeCancelDialogView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(CancelDialogView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeCancelDialogView.INSTANCE.AllocationSize((CancelDialogView)value);
+        }
+    }
+
+    public override void Write(CancelDialogView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeCancelDialogView.INSTANCE.Write((CancelDialogView)value, stream);
         }
     }
 }
@@ -33445,6 +35600,37 @@ class FfiConverterOptionalTypeQuestionView: FfiConverterRustBuffer<QuestionView?
 
 
 
+class FfiConverterOptionalTypeReassignDialogView: FfiConverterRustBuffer<ReassignDialogView?> {
+    public static FfiConverterOptionalTypeReassignDialogView INSTANCE = new FfiConverterOptionalTypeReassignDialogView();
+
+    public override ReassignDialogView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeReassignDialogView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(ReassignDialogView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeReassignDialogView.INSTANCE.AllocationSize((ReassignDialogView)value);
+        }
+    }
+
+    public override void Write(ReassignDialogView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeReassignDialogView.INSTANCE.Write((ReassignDialogView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeRemoveQuestionView: FfiConverterRustBuffer<RemoveQuestionView?> {
     public static FfiConverterOptionalTypeRemoveQuestionView INSTANCE = new FfiConverterOptionalTypeRemoveQuestionView();
 
@@ -33500,6 +35686,37 @@ class FfiConverterOptionalTypeRenameView: FfiConverterRustBuffer<RenameView?> {
         } else {
             stream.WriteByte(1);
             FfiConverterTypeRenameView.INSTANCE.Write((RenameView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeRescheduleDialogView: FfiConverterRustBuffer<RescheduleDialogView?> {
+    public static FfiConverterOptionalTypeRescheduleDialogView INSTANCE = new FfiConverterOptionalTypeRescheduleDialogView();
+
+    public override RescheduleDialogView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeRescheduleDialogView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(RescheduleDialogView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeRescheduleDialogView.INSTANCE.AllocationSize((RescheduleDialogView)value);
+        }
+    }
+
+    public override void Write(RescheduleDialogView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeRescheduleDialogView.INSTANCE.Write((RescheduleDialogView)value, stream);
         }
     }
 }
@@ -34048,6 +36265,144 @@ class FfiConverterSequenceTypeBlockedRowView: FfiConverterRustBuffer<BlockedRowV
 
 
 
+class FfiConverterSequenceTypeBookingDeskRowView: FfiConverterRustBuffer<BookingDeskRowView[]> {
+    public static FfiConverterSequenceTypeBookingDeskRowView INSTANCE = new FfiConverterSequenceTypeBookingDeskRowView();
+
+    public override BookingDeskRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new BookingDeskRowView[length];
+        var readFn = FfiConverterTypeBookingDeskRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(BookingDeskRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeBookingDeskRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(BookingDeskRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeBookingDeskRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeBookingRowView: FfiConverterRustBuffer<BookingRowView[]> {
+    public static FfiConverterSequenceTypeBookingRowView INSTANCE = new FfiConverterSequenceTypeBookingRowView();
+
+    public override BookingRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new BookingRowView[length];
+        var readFn = FfiConverterTypeBookingRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(BookingRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeBookingRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(BookingRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeBookingRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeBookingsTabView: FfiConverterRustBuffer<BookingsTabView[]> {
+    public static FfiConverterSequenceTypeBookingsTabView INSTANCE = new FfiConverterSequenceTypeBookingsTabView();
+
+    public override BookingsTabView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new BookingsTabView[length];
+        var readFn = FfiConverterTypeBookingsTabView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(BookingsTabView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeBookingsTabView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(BookingsTabView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeBookingsTabView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeCallHandlingModeView: FfiConverterRustBuffer<CallHandlingModeView[]> {
     public static FfiConverterSequenceTypeCallHandlingModeView INSTANCE = new FfiConverterSequenceTypeCallHandlingModeView();
 
@@ -34324,6 +36679,52 @@ class FfiConverterSequenceTypeChartBarView: FfiConverterRustBuffer<ChartBarView[
 
 
 
+class FfiConverterSequenceTypeChoiceRowView: FfiConverterRustBuffer<ChoiceRowView[]> {
+    public static FfiConverterSequenceTypeChoiceRowView INSTANCE = new FfiConverterSequenceTypeChoiceRowView();
+
+    public override ChoiceRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ChoiceRowView[length];
+        var readFn = FfiConverterTypeChoiceRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ChoiceRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeChoiceRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ChoiceRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeChoiceRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeChoiceView: FfiConverterRustBuffer<ChoiceView[]> {
     public static FfiConverterSequenceTypeChoiceView INSTANCE = new FfiConverterSequenceTypeChoiceView();
 
@@ -34363,6 +36764,52 @@ class FfiConverterSequenceTypeChoiceView: FfiConverterRustBuffer<ChoiceView[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeChoiceView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeComingUpRowView: FfiConverterRustBuffer<ComingUpRowView[]> {
+    public static FfiConverterSequenceTypeComingUpRowView INSTANCE = new FfiConverterSequenceTypeComingUpRowView();
+
+    public override ComingUpRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ComingUpRowView[length];
+        var readFn = FfiConverterTypeComingUpRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ComingUpRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeComingUpRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ComingUpRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeComingUpRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -35651,6 +38098,52 @@ class FfiConverterSequenceTypeRunView: FfiConverterRustBuffer<RunView[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeRunView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSchedulingSectionEntryView: FfiConverterRustBuffer<SchedulingSectionEntryView[]> {
+    public static FfiConverterSequenceTypeSchedulingSectionEntryView INSTANCE = new FfiConverterSequenceTypeSchedulingSectionEntryView();
+
+    public override SchedulingSectionEntryView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SchedulingSectionEntryView[length];
+        var readFn = FfiConverterTypeSchedulingSectionEntryView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SchedulingSectionEntryView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSchedulingSectionEntryView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SchedulingSectionEntryView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSchedulingSectionEntryView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

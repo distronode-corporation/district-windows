@@ -1,9 +1,12 @@
 //! Booking pages: where the workspace's booking pages stand, turning them on
-//! where the service says the member may, and managing them on the web, as
-//! District AI for Linux's booking pages page shows them (`pages/scheduling.rs`,
+//! where the service says the member may, the sections of their
+//! administration once they are live (each native, in
+//! [`crate::scheduling_admin`], listed as each is built), and, for what is not
+//! built natively yet, managing them on the web, as District AI for Linux's
+//! booking pages page shows them (`pages/scheduling.rs`,
 //! `ui/scheduling-page.ui`).
 //!
-//! Managing them goes through the core's hand-off: the press opens the
+//! Managing them on the web goes through the core's hand-off: the press opens the
 //! service's start page in the browser, the browser answers through
 //! `districtai://handoff`, and the core asks for a one-time link bound to that
 //! browser and opens it there, signed in. The link never reaches this crate's
@@ -18,6 +21,7 @@ use district_core::{
 use serde::Serialize;
 
 use crate::l10n::{cs, l, s};
+use crate::scheduling_admin::{SchedulingSectionEntryView, entries};
 use crate::screen::ScreenView;
 use crate::views::{FailureView, LoadStatus, failure};
 
@@ -92,6 +96,12 @@ pub struct SchedulingView {
     pub web_enabled: bool,
     /// Whether the hand-off to the web is under way (show progress).
     pub opening: bool,
+    /// The heading over the sections, "Manage".
+    pub sections_heading: String,
+    /// The administration's sections built in this version, each a row that
+    /// opens it (`SchedulingAdminAction::Open`). Only while the booking pages
+    /// are live: before, every section's read is refused.
+    pub sections: Vec<SchedulingSectionEntryView>,
 }
 
 impl Default for SchedulingView {
@@ -112,6 +122,8 @@ impl Default for SchedulingView {
             offers_web: false,
             web_enabled: false,
             opening: false,
+            sections_heading: district_l10n::scheduling_strings::sections_eyebrow(l()).to_owned(),
+            sections: Vec::new(),
         }
     }
 }
@@ -180,6 +192,9 @@ fn scheduling_view(screen: &SchedulingScreen) -> SchedulingView {
             view.offers_enable = shown.offers_enable(status);
             view.offers_check = shown.offers_refresh();
             view.offers_web = shown.offers_web();
+            if matches!(shown, SchedulingPresentation::Live(_)) {
+                view.sections = entries(None);
+            }
         }
     }
     view

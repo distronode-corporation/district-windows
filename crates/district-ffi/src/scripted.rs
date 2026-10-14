@@ -261,6 +261,14 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             result: decode(fixture!("district-scheduling-status-ready.json")),
         },
+        // The booking scheduler's administration: the reads of the sections
+        // built so far, and the bookings' writes.
+        Effect::SchedulingAdmin {
+            ticket, request, ..
+        } => Event::SchedulingAdminAnswered {
+            ticket,
+            result: scheduling_admin(&request)?,
+        },
         Effect::LoadDeskSettings { ticket, .. } => Event::DeskSettingsLoaded {
             ticket,
             result: decode(fixture!("district-desk-settings.json")),
@@ -403,6 +411,63 @@ fn signed_in(effect: Effect) -> Option<Event> {
         // for. Unanswered, as with no network.
         _ => return None,
     })
+}
+
+/// The scheduling administration's answer to `request`, from its fixture.
+/// The bookings are moved to the days after the scene runs, so that they are
+/// still to come and can be acted on whenever the walk runs. `None` for a
+/// request of a section not built yet, which goes unanswered.
+fn scheduling_admin(
+    request: &district_model::SchedulingAdminRequest,
+) -> Option<Result<district_model::SchedulingAdminReply, ApiError>> {
+    use district_model::SchedulingAdminRequest as R;
+    let text = match request {
+        R::Me => fixture!("district-scheduling-me.json"),
+        R::EventTypes => fixture!("district-scheduling-event-types.json"),
+        R::CalendarStatus => fixture!("district-scheduling-calendar-status.json"),
+        R::Rules { .. } => fixture!("district-scheduling-rules.json"),
+        R::Bookings(_) => fixture!("district-scheduling-bookings.json"),
+        R::BookingAnswers { .. } => fixture!("district-scheduling-booking-answers.json"),
+        R::Slots { .. } => fixture!("district-scheduling-slots.json"),
+        R::Users { .. } => fixture!("district-scheduling-users.json"),
+        R::CancelBooking { .. } | R::RescheduleBooking { .. } | R::ReassignBooking { .. } => {
+            fixture!("district-scheduling-booking.json")
+        }
+        _ => return None,
+    };
+    let data = serde_json::from_str::<Value>(text)
+        .ok()
+        .map(|mut answer| answer["data"].take())
+        .map(|mut data| {
+            if data.get("start_at").is_some() {
+                soon(&mut data, 2);
+            } else if let (R::Bookings(_), Some(items)) =
+                (request, data.get_mut("items").and_then(Value::as_array_mut))
+            {
+                for (day, booking) in (2..).zip(items.iter_mut()) {
+                    soon(booking, day);
+                }
+            }
+            data
+        });
+    Some(
+        data.and_then(|data| request.decode(data).ok())
+            .map(district_model::SchedulingAdminReply::Done)
+            .ok_or_else(broken),
+    )
+}
+
+/// `booking` moved to 13:00 UTC `days` days from now, for half an hour.
+fn soon(booking: &mut Value, days: u64) {
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
+    let today = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |since| since.as_secs() / 86_400);
+    let start = UNIX_EPOCH + Duration::from_secs((today + days) * 86_400 + 13 * 3600);
+    booking["start_at"] = json!(crate::calls_live::iso_utc(start));
+    booking["end_at"] = json!(crate::calls_live::iso_utc(
+        start + Duration::from_secs(1800)
+    ));
 }
 
 /// Call handling as stored: `mode` and `ring` where a save names them, else
@@ -654,6 +719,7 @@ mod tests {
             Route::Workspace(S::Members),
             Route::Workspace(S::Numbers),
             Route::SchedulingAdmin(district_core::SchedulingSection::Overview),
+            Route::SchedulingAdmin(district_core::SchedulingSection::Bookings),
         ];
         for route in routes.clone() {
             let _ = after(&mut model, Event::Navigate(route.clone()));
@@ -669,6 +735,109 @@ mod tests {
             let screen = after(&mut model, Event::Navigate(route.clone()));
             assert_eq!(unsettled(&screen), None, "{route:?}: {screen:?}");
         }
+    }
+
+    /// The booking scheduler's sections open from the booking pages, as the
+    /// walk opens them, and fill in; a booking opens, and each of the
+    /// bookings' writes is answered: the dialog closes and says so.
+    #[test]
+    fn the_scheduling_sections_fill_in_and_the_bookings_writes_land() {
+        use crate::events::UiEvent;
+        use crate::scheduling_admin::bookings::{BookingAction, BookingsAction};
+        use crate::scheduling_admin::{
+            SchedulingAdminAction as A, SchedulingAdminPage as P, SchedulingAdminSection,
+        };
+
+        let mut model = started();
+        let mut run = |action: A| {
+            let mut pending = Vec::new();
+            for event in (UiEvent::SchedulingAdmin { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::SchedulingAdmin { view } = screen else {
+                panic!("not the scheduling administration: {screen:?}");
+            };
+            view.page
+        };
+        let P::Overview { view } = run(A::Open {
+            section: SchedulingAdminSection::Overview,
+        }) else {
+            panic!("not the overview");
+        };
+        assert!(view.desk.iter().all(|row| row.failure.is_none()));
+        assert_eq!(view.coming_up.len(), 2);
+
+        let bookings = |action| A::Bookings { action };
+        let P::Bookings { view } = run(A::Open {
+            section: SchedulingAdminSection::Bookings,
+        }) else {
+            panic!("not the bookings");
+        };
+        let first = view.rows[0].clone();
+        assert!(
+            first.can_cancel && first.can_reschedule && first.can_reassign,
+            "{first:?}"
+        );
+
+        let P::Bookings { view } = run(bookings(BookingsAction::OpenCancel {
+            booking_id: first.id.clone(),
+        })) else {
+            panic!("not the bookings");
+        };
+        assert!(view.cancel.is_some());
+        let P::Bookings { view } = run(bookings(BookingsAction::Confirm)) else {
+            panic!("not the bookings");
+        };
+        assert_eq!(view.cancel, None);
+        assert_eq!(view.notice.as_deref(), Some("Booking cancelled"));
+
+        let P::Bookings { view } = run(bookings(BookingsAction::OpenReschedule {
+            booking_id: first.id.clone(),
+        })) else {
+            panic!("not the bookings");
+        };
+        let dialog = view.reschedule.expect("the move dialog");
+        assert_eq!(dialog.slots.len(), 2);
+        let _ = run(bookings(BookingsAction::PickSlot {
+            start: dialog.slots[1].value.clone(),
+        }));
+        let P::Bookings { view } = run(bookings(BookingsAction::Confirm)) else {
+            panic!("not the bookings");
+        };
+        assert!(
+            view.notice
+                .is_some_and(|notice| notice.starts_with("Booking moved"))
+        );
+
+        let P::Bookings { view } = run(bookings(BookingsAction::OpenReassign {
+            booking_id: first.id.clone(),
+        })) else {
+            panic!("not the bookings");
+        };
+        // The scene's one other user is archived: nobody else can take it.
+        assert_eq!(view.reassign.expect("the host dialog").hosts, []);
+        let _ = run(bookings(BookingsAction::CloseDialog));
+
+        let P::Booking { view } = run(A::OpenBooking {
+            booking_id: first.id.clone(),
+        }) else {
+            panic!("not the booking");
+        };
+        assert_eq!(view.answers.len(), 2);
+        assert!(view.offers_cancel);
+        let _ = run(A::Booking {
+            action: BookingAction::OpenCancel,
+        });
+        let P::Booking { view } = run(A::Booking {
+            action: BookingAction::Confirm,
+        }) else {
+            panic!("not the booking");
+        };
+        assert_eq!(view.notice.as_deref(), Some("Booking cancelled"));
+        assert!(!view.offers_cancel);
     }
 
     /// Each settings section the walk opens from the hub fills in, and each
