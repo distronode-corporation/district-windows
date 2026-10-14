@@ -938,7 +938,7 @@ public sealed class SceneWalkTests
             () => AllById(app, "EventTypeHostRemove").Length == hosts + 1 && AllById(app, "EventTypeHostAdd").Length == 0,
             "the member added as a host");
         InstalledApp.Log("Add made the member a host");
-        AllById(app, "EventTypeHostPriority")[^1].AsTextBox().Text = "first";
+        TypeUntilItHolds(app, () => AllById(app, "EventTypeHostPriority").LastOrDefault(), "first");
         AutomationElement HostsSave() => Wait.For(
             () => hostsDialog.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
             PageTimeout,
@@ -1172,6 +1172,36 @@ public sealed class SceneWalkTests
     }
 
     /// <summary>Every element whose AutomationId is <paramref name="automationId"/>, on the screen or scrolled off it, in order.</summary>
+    /// <summary>
+    /// Types <paramref name="text"/> into the box <paramref name="box"/> finds
+    /// until a fresh look at it still reads it, then lets the window take it
+    /// in. A row's box can be made again as a dialog settles (after Add, the
+    /// hosts' rows are), which drops what was set into the one before; and a
+    /// box's TextChanged reaches the core after UI Automation set its text,
+    /// so a press right after could overtake it (the hosts once saved without
+    /// the priority typed).
+    /// </summary>
+    private static void TypeUntilItHolds(InstalledApp app, Func<AutomationElement?> box, string text)
+    {
+        Expect(
+            app,
+            () =>
+            {
+                if (box()?.AsTextBox() is not { } current)
+                {
+                    return false;
+                }
+                if (current.Text != text)
+                {
+                    current.Text = text;
+                    return false;
+                }
+                return true;
+            },
+            $"\"{text}\" to stay typed");
+        FlaUI.Core.Input.Wait.UntilInputIsProcessed(TimeSpan.FromMilliseconds(500));
+    }
+
     private static AutomationElement[] AllById(InstalledApp app, string automationId) =>
         app.TryMainWindow()?.FindAllDescendants(cf => cf.ByAutomationId(automationId)) ?? [];
 
