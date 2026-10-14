@@ -220,6 +220,8 @@ pub(crate) fn built(route: &Route) -> bool {
             WorkspaceSection::Members => settings::members::BUILT,
             WorkspaceSection::Numbers => settings::numbers::BUILT,
         },
+        // Scheduling administration has no page in this version yet.
+        Route::SchedulingAdmin(_) => false,
     }
 }
 
@@ -313,6 +315,7 @@ mod tests {
             Route::Dialer,
             Route::Account,
             Route::Devices,
+            Route::SchedulingAdmin(district_core::SchedulingSection::Overview),
         ];
         routes.extend(WorkspaceSection::ALL.map(Route::Workspace));
         routes

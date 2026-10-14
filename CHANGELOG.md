@@ -19,12 +19,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the web.
 - Calls ring and messages arrive while the app is closed, through Windows push
   notifications (the Microsoft Store build). The GitHub build rings only while it runs.
-  Until the shared core reaches 4.0.0-beta.3, quitting the app also removes its push
-  registration.
+  Until the service reads the kind on unregistering, quitting the app also removes its
+  push registration.
 
 ### Changed
 
-- The shared core is district-core-rust 4.0.0-beta.2, which keeps every word it shows in
+- The shared core is district-core-rust 4.0.0-beta.3, which keeps every word it shows in
   a catalog, ready for Canadian French. The app still speaks English only.
 - Reporting AI-generated content goes through the shared core, so the Windows and Linux
   apps send the same report. The dialog and what the support desk receives are unchanged.

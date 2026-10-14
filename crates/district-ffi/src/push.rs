@@ -9,8 +9,9 @@
 //! sign-in and whenever Windows renews the channel. The core's sign-out
 //! unregisters every kind this installation holds, the channel's included; its
 //! other unregistrations (sleep, quit, "ring on this computer" off) remove the
-//! presence alone, so a closed app can still be woken. That split needs the
-//! service's `kind` on unregistering and district-core-rust 4.0.0-beta.3.
+//! presence alone (`{"kind": "desktop"}`), so a closed app can still be
+//! woken. district-core-rust 4.0.0-beta.3 makes that split; a service that
+//! does not yet read the `kind` ignores it and removes every kind.
 //!
 //! The service sends a raw push holding ids only: `{type: "incoming_call",
 //! callId, workspaceId}` or `{type: "message", messageId, workspaceId}`
