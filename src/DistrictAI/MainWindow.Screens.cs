@@ -52,7 +52,7 @@ public sealed partial class MainWindow
     private BillingPage? _billing;
     private WorkflowsPage? _workflows;
     private SchedulingPage? _scheduling;
-    private SchedulingAdminPage? _schedulingAdmin;
+    private SchedulingSectionPage? _schedulingAdmin;
     private DeskPage? _desk;
     private DeskTicketPage? _deskTicket;
     private DeskSettingsPage? _deskSettings;
@@ -174,7 +174,7 @@ public sealed partial class MainWindow
                 page = _scheduling;
                 break;
             case ScreenView.SchedulingAdmin screenSchedulingAdmin:
-                _schedulingAdmin ??= Made(new SchedulingAdminPage(), p => p.Attach(_context));
+                _schedulingAdmin ??= Made(new SchedulingSectionPage(), p => p.Attach(_context));
                 _schedulingAdmin.Show(screenSchedulingAdmin.View);
                 page = _schedulingAdmin;
                 break;

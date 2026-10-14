@@ -20,7 +20,7 @@
 //!   [`SchedulingAdminPage`], and adds a variant of [`SchedulingAdminAction`]
 //!   carrying its action, dispatched in [`events_at`];
 //! - on the C# side, a `UserControl` under `Views/Scheduling/` and a view
-//!   model under `Presentation/Scheduling/`, which `SchedulingAdminPage`
+//!   model under `Presentation/Scheduling/`, which `SchedulingSectionPage`
 //!   shows for its variant.
 //!
 //! # What the sections share

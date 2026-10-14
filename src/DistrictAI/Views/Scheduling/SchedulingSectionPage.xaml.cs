@@ -10,10 +10,10 @@ namespace DistrictAI.Views.Scheduling;
 /// navigation, and the section showing, each section a control of its own
 /// (a section's pull request adds its control and shows it here).
 /// </summary>
-public sealed partial class SchedulingAdminPage : UserControl
+public sealed partial class SchedulingSectionPage : UserControl
 {
     /// <summary>A page with nothing shown yet.</summary>
-    public SchedulingAdminPage()
+    public SchedulingSectionPage()
     {
         InitializeComponent();
         OverviewPanel.Attach(ViewModel.Overview);
