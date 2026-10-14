@@ -229,13 +229,16 @@ pub enum ReportTarget {
 /// What the service writes in a call's summary field when there is no summary:
 /// a marker or a progress line, never AI text. The iOS app's list
 /// (`CallNarrative.placeholders`), matched exactly.
-const NOT_A_SUMMARY: [&str; 6] = [
+const NOT_A_SUMMARY: [&str; 7] = [
     "No summary available.",
     "direct:softphone",
     "AI Voice session active...",
     "AI Outbound Voice session active...",
     "Voice session completed.",
-    // The service's own byte is an em dash, written as an escape here.
+    // The service's spelling since the core's 4.0.0-beta.2 wire vocabulary,
+    // and the older one, whose byte is an em dash (written as an escape
+    // here), which rows stored before it still carry.
+    "No answer, no conversation took place.",
     "No answer \u{2014} no conversation took place.",
 ];
 
