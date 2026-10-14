@@ -15,8 +15,7 @@ use crate::calls_live::{ActiveCallView, IncomingRingView, active_call_view, inco
 use crate::guard::DiscardView;
 use crate::l10n::{l, s};
 use crate::nav::{NavView, nav_view};
-use crate::report::{ReportStatus, refusal, report_status};
-use crate::views::humanize;
+use crate::views::{ReportStatus, humanize};
 
 /// What the window's frame shows, whatever the screen inside it.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
@@ -159,12 +158,10 @@ impl From<TabView> for Tab {
     }
 }
 
-/// The frame for `model`. `reporting` says whether this session started a
-/// report that has not been dismissed.
-pub fn shell_view(model: &Model, reporting: bool) -> ShellView {
+/// The frame for `model`.
+pub fn shell_view(model: &Model) -> ShellView {
     shell_for(
         model.session(),
-        reporting,
         model.config().calls_available,
         SystemTime::now(),
     )
@@ -174,7 +171,6 @@ pub fn shell_view(model: &Model, reporting: bool) -> ShellView {
 /// `calls_available`, as of `now` (when a call under way was answered).
 pub(crate) fn shell_for(
     session: &SessionState,
-    reporting: bool,
     calls_available: bool,
     now: SystemTime,
 ) -> ShellView {
@@ -210,8 +206,8 @@ pub(crate) fn shell_for(
                 workspaces: switcher(signed_in),
                 unread,
                 live: live_banner(signed_in),
-                report: report_status(signed_in, reporting),
-                report_refusal: refusal(signed_in),
+                report: signed_in.support.report_status().map(ReportStatus::from),
+                report_refusal: signed_in.support.report_refusal(),
                 call: active_call_view(signed_in, now),
                 ring: incoming_ring_view(signed_in),
                 calls_available,

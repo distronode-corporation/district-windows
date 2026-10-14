@@ -1785,34 +1785,6 @@ screen = "persona"
 tier = "T3"
 note = "The section's heading: its row's title in the hub, which opens it."
 
-[report.deduplicated]
-en = "You have already reported this. We'll review it."
-ctx = "toast"
-screen = "report"
-tier = "T3"
-note = "The same content was reported before."
-
-[report.draft_open]
-en = "Send or discard the support request you are writing in Support, then report this."
-ctx = "error"
-screen = "report"
-tier = "T2"
-note = "Why a Report is refused while a support request is being written. One sentence, which the report dialog shows over the note it keeps."
-
-[report.filed]
-en = "Reported. We'll review it."
-ctx = "toast"
-screen = "report"
-tier = "T3"
-note = "A report of AI-generated content was raised."
-
-[report.pending]
-en = "Reported. We have it and it is catching up."
-ctx = "toast"
-screen = "report"
-tier = "T3"
-note = "The report was taken and is still being filed."
-
 [rooms.a_guest]
 en = "A guest"
 ctx = "label"

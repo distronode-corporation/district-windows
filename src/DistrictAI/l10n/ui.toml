@@ -1771,31 +1771,12 @@ screen = "refresh"
 tier = "T3"
 note = "Busy indicator."
 
-[report.body]
-en = "Tell us what is wrong with this AI-generated content. We will review it."
-ctx = "body"
-screen = "report"
-tier = "T0"
-
 [report.not_sent]
 en = "Report not sent"
 ctx = "a11y"
 screen = "report"
 tier = "T0"
 note = "Name of an error banner."
-
-[report.title]
-en = "Report AI-generated content"
-ctx = "title"
-screen = "report"
-tier = "T0"
-note = "Title of the dialog that reports an AI-generated answer."
-
-[report.what_is_wrong]
-en = "What is wrong (optional)"
-ctx = "label"
-screen = "report"
-tier = "T0"
 
 [rooms.close_meeting]
 en = "Close the meeting"

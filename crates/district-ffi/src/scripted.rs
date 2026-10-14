@@ -572,7 +572,7 @@ mod tests {
     #[test]
     fn every_offered_screen_fills_in() {
         let mut model = started();
-        let offered: Vec<_> = shell_view(&model, false)
+        let offered: Vec<_> = shell_view(&model)
             .nav
             .groups
             .iter()
@@ -608,7 +608,7 @@ mod tests {
             pending.extend(model.update(event));
         }
         settle(&mut model, pending);
-        let shell = serde_json::to_value(shell_view(&model, false)).unwrap();
+        let shell = serde_json::to_value(shell_view(&model)).unwrap();
         let transcript = &shell["call"]["transcript"];
         assert_eq!(transcript["phase"], "Live", "{shell}");
         let lines = transcript["lines"].as_array().unwrap();

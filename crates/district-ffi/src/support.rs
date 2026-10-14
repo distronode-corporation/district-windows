@@ -7,8 +7,9 @@
 //! refuses a viewer, reads included, so the navigation pane never offers this
 //! area to one and the core never opens its screens for one.
 //!
-//! The form raising a request is the same draft a Report fills (report.rs),
-//! which is why a Report is refused while a draft written here holds anything.
+//! The form raising a request is the same draft a Report fills (the core's
+//! `report.rs`), which is why a Report is refused while a draft written here
+//! holds anything.
 
 use district_core::{
     Event, FailureText, Model, Route, SUPPORT_MESSAGE_MAX, SUPPORT_SUBJECT_MAX,

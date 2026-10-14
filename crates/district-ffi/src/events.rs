@@ -2,11 +2,11 @@
 
 use district_core::{
     CallEvent, CallsEvent, ContactsEvent, DevicesEvent, DialerEvent, Event, InboxEvent, RingEvent,
-    Route, Tab, ThreadEvent,
+    Route, SupportEvent, Tab, ThreadEvent,
 };
+use district_model::Platform;
 
 use crate::nav::NavDestination;
-use crate::report;
 use crate::shell::TabView;
 use crate::views::ReportTarget;
 use crate::{
@@ -14,8 +14,8 @@ use crate::{
     settings, support, workflows,
 };
 
-/// Something the user did in the window. Most are one core event, and Report
-/// is four ([`UiEvent::events`]); the core decides what each means in the
+/// Something the user did in the window. Most are one core event
+/// ([`UiEvent::events`]); the core decides what each means in the
 /// state it is in. Each area of 2.0 has one variant carrying its own action,
 /// which its module turns into core events.
 #[derive(Clone, Debug, PartialEq, Eq, uniffi::Enum)]
@@ -109,8 +109,8 @@ pub enum UiEvent {
     Report {
         /// What is reported.
         target: ReportTarget,
-        /// The member's note, which may be empty. Trimmed, and cut to
-        /// [`NOTE_LIMIT`](crate::NOTE_LIMIT) characters.
+        /// The member's note, which may be empty. Trimmed, and cut to the
+        /// core's `REPORT_NOTE_LIMIT` characters.
         note: String,
     },
     /// Put away a report's outcome.
@@ -318,8 +318,13 @@ impl UiEvent {
             UiEvent::CancelDevices => Event::Devices(DevicesEvent::Cancel),
             UiEvent::DismissDevicesNotices => Event::Devices(DevicesEvent::DismissNotices),
             UiEvent::DeleteAccount => Event::DeleteAccount,
-            UiEvent::Report { target, note } => return report::events(&target, &note),
-            UiEvent::DismissReport => return report::dismiss(),
+            // The ticket's text is the core's, in English, and names this app.
+            UiEvent::Report { target, note } => Event::Support(SupportEvent::Report {
+                platform: Platform::Windows,
+                target: target.into(),
+                note,
+            }),
+            UiEvent::DismissReport => Event::Support(SupportEvent::DismissReport),
             // The actor's (crate::guard::Held): no core event of their own.
             UiEvent::DiscardChanges | UiEvent::KeepEditing => return Vec::new(),
             UiEvent::OpenDialer => Event::Navigate(Route::Dialer),
@@ -368,9 +373,6 @@ impl UiEvent {
 
 #[cfg(test)]
 mod tests {
-    use district_core::{SupportEvent, SupportForm};
-    use district_model::SupportRequestKind;
-
     use super::*;
 
     #[test]
@@ -516,10 +518,10 @@ mod tests {
         );
     }
 
-    /// Report is four events, in order: drop a leftover draft, open the form,
-    /// fill it in, send it.
+    /// A Report is the core's, from this app; the core fills and sends the
+    /// support form.
     #[test]
-    fn a_report_opens_fills_and_sends_the_support_form() {
+    fn a_report_is_the_cores_from_windows() {
         let events = UiEvent::Report {
             target: ReportTarget::Call {
                 call_id: "call-1".to_owned(),
@@ -529,23 +531,17 @@ mod tests {
         .events();
         assert_eq!(
             events,
-            [
-                Event::Support(SupportEvent::CancelRequest),
-                Event::Support(SupportEvent::StartRequest),
-                Event::Support(SupportEvent::EditRequest(SupportForm {
-                    kind: SupportRequestKind::Problem,
-                    subject: "Report: AI-generated content".to_owned(),
-                    message: format!("{}\nCall: call-1\n\nWrong caller name.", report::PREAMBLE),
-                })),
-                Event::Support(SupportEvent::SubmitRequest),
-            ]
+            [Event::Support(SupportEvent::Report {
+                platform: Platform::Windows,
+                target: district_core::ReportTarget::Call {
+                    call_id: "call-1".to_owned(),
+                },
+                note: "  Wrong caller name.  ".to_owned(),
+            })]
         );
         assert_eq!(
             UiEvent::DismissReport.events(),
-            [
-                Event::Support(SupportEvent::DismissSubmitted),
-                Event::Support(SupportEvent::CancelRequest),
-            ]
+            [Event::Support(SupportEvent::DismissReport)]
         );
     }
 

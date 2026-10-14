@@ -858,6 +858,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1271,6 +1273,17 @@ static class _UniFFILib {
     public static extern
 #endif
      RustBuffer uniffi_district_ffi_fn_func_knowledge_file_pick(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_report_dialog(ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -1996,6 +2009,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_report_dialog(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_method_core_activate_notification(
     );
 
@@ -2293,6 +2317,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_knowledge_file_pick();
             if (checksum != 44203) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_knowledge_file_pick` checksum `44203`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_report_dialog();
+            if (checksum != 62609) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_report_dialog` checksum `62609`, library returned `{checksum}`");
             }
         }
         {
@@ -14510,6 +14540,92 @@ class FfiConverterTypeReportCardView: FfiConverterRustBuffer<ReportCardView> {
 
 
 /// <summary>
+/// The report dialog's words, the core's [`ReportDialog`], in the member's
+/// language, and the longest note a report carries.
+/// </summary>
+/// <param name="Title">
+/// The dialog's title.
+/// </param>
+/// <param name="Intro">
+/// The line under the title.
+/// </param>
+/// <param name="NoteLabel">
+/// The note field's label.
+/// </param>
+/// <param name="Send">
+/// The button that sends the report.
+/// </param>
+/// <param name="Cancel">
+/// The button that closes the dialog without sending.
+/// </param>
+/// <param name="NoteLimit">
+/// The longest note, in characters: longer is cut when the report is sent.
+/// </param>
+public record ReportDialogView (
+    /// <summary>
+    /// The dialog's title.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The line under the title.
+    /// </summary>
+    string Intro, 
+    /// <summary>
+    /// The note field's label.
+    /// </summary>
+    string NoteLabel, 
+    /// <summary>
+    /// The button that sends the report.
+    /// </summary>
+    string Send, 
+    /// <summary>
+    /// The button that closes the dialog without sending.
+    /// </summary>
+    string Cancel, 
+    /// <summary>
+    /// The longest note, in characters: longer is cut when the report is sent.
+    /// </summary>
+    uint NoteLimit
+) {
+}
+
+class FfiConverterTypeReportDialogView: FfiConverterRustBuffer<ReportDialogView> {
+    public static FfiConverterTypeReportDialogView INSTANCE = new FfiConverterTypeReportDialogView();
+
+    public override ReportDialogView Read(BigEndianStream stream) {
+        return new ReportDialogView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Intro: FfiConverterString.INSTANCE.Read(stream),
+            NoteLabel: FfiConverterString.INSTANCE.Read(stream),
+            Send: FfiConverterString.INSTANCE.Read(stream),
+            Cancel: FfiConverterString.INSTANCE.Read(stream),
+            NoteLimit: FfiConverterUInt32.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ReportDialogView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Intro)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NoteLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Send)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Cancel)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.NoteLimit);
+    }
+
+    public override void Write(ReportDialogView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Intro, stream);
+            FfiConverterString.INSTANCE.Write(value.NoteLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Send, stream);
+            FfiConverterString.INSTANCE.Write(value.Cancel, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.NoteLimit, stream);
+    }
+}
+
+
+
+/// <summary>
 /// A stretch of text in one style.
 /// </summary>
 /// <param name="Text">
@@ -24370,7 +24486,8 @@ class FfiConverterTypeReportAvailability: FfiConverterRustBuffer<ReportAvailabil
 
 
 /// <summary>
-/// The report this session started, while it is under way or until its outcome
+/// Where the report this session started stands: the core's
+/// [`district_core::ReportStatus`], while it is under way or until its outcome
 /// is dismissed.
 /// </summary>
 public record ReportStatus {
@@ -24389,7 +24506,7 @@ public record ReportStatus {
     ) : ReportStatus {}
     
     /// <summary>
-    /// Not raised.
+    /// Not raised. The note is kept, and sending again sends the same report.
     /// </summary>
     public record Failed (
         string Message
@@ -27621,8 +27738,8 @@ class FfiConverterTypeTranscriptState : FfiConverterRustBuffer<TranscriptState>{
 
 
 /// <summary>
-/// Something the user did in the window. Most are one core event, and Report
-/// is four ([`UiEvent::events`]); the core decides what each means in the
+/// Something the user did in the window. Most are one core event
+/// ([`UiEvent::events`]); the core decides what each means in the
 /// state it is in. Each area of 2.0 has one variant carrying its own action,
 /// which its module turns into core events.
 /// </summary>
@@ -33791,6 +33908,17 @@ public static class DistrictFfi {
         return FfiConverterTypeFilePickView.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_district_ffi_fn_func_knowledge_file_pick( ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// The report dialog's words, as the core has them now.
+    /// </summary>
+    public static ReportDialogView ReportDialog() {
+        return FfiConverterTypeReportDialogView.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_report_dialog( ref _status)
 ));
     }
 

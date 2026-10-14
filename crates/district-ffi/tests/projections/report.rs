@@ -1,9 +1,10 @@
-//! Reporting AI-generated content (src/report.rs).
+//! Reporting AI-generated content, the core's (district-core `report.rs`).
 
 use district_core::SupportForm;
-use district_ffi::l10n::{l, s};
+use district_ffi::l10n::l;
 use district_ffi::support::{SupportAction, SupportKind};
 use district_ffi::{ReportStatus, ReportTarget};
+use district_l10n::support_strings as ss;
 
 use super::calls::on_call;
 use super::support::{composing, typed};
@@ -79,6 +80,14 @@ fn support_form(session: &Session) -> Option<SupportForm> {
         .map(|compose| compose.form.clone())
 }
 
+/// Whether the core holds a report of this session's to show.
+fn reporting(session: &Session) -> bool {
+    match session.model.session() {
+        SessionState::SignedIn(signed_in) => signed_in.support.reporting,
+        _ => false,
+    }
+}
+
 fn sends(session: &Session) -> usize {
     session
         .pending
@@ -95,21 +104,21 @@ fn a_report_is_refused_while_a_support_draft_is_typed() {
     let drafting = on_call(drafting(signed_in()));
     let draft = support_form(&drafting);
     assert!(draft.is_some());
-    let shell = shell_view(&drafting.model, drafting.reporting);
+    let shell = shell_view(&drafting.model);
     assert_eq!(
         shell.report_refusal.as_deref(),
-        Some(s::report_draft_open(l()))
+        Some(ss::report_draft_open(l()))
     );
 
     let refused = reported(drafting);
-    assert!(!refused.reporting);
+    assert!(!reporting(&refused));
     assert_eq!(sends(&refused), 0);
     assert_eq!(support_form(&refused), draft);
-    let shell = shell_view(&refused.model, refused.reporting);
+    let shell = shell_view(&refused.model);
     assert_eq!(shell.report, None);
     assert_eq!(
         shell.report_refusal.as_deref(),
-        Some(s::report_draft_open(l()))
+        Some(ss::report_draft_open(l()))
     );
 
     let dismissed = refused.ui(UiEvent::DismissReport);
@@ -130,12 +139,12 @@ fn an_untyped_support_form_does_not_hold_a_report_back() {
         ),
     ] {
         let session = on_call(session);
-        let shell = shell_view(&session.model, session.reporting);
+        let shell = shell_view(&session.model);
         assert_eq!(shell.report_refusal, None);
         let sent = reported(session);
         assert_eq!(sends(&sent), 1);
         assert!(matches!(
-            shell_view(&sent.model, sent.reporting).report,
+            shell_view(&sent.model).report,
             Some(ReportStatus::Sending)
         ));
     }
@@ -169,16 +178,13 @@ fn a_sent_report_leaves_a_later_draft_alone() {
         "",
     );
     assert!(matches!(
-        shell_view(&drafting.model, drafting.reporting).report,
+        shell_view(&drafting.model).report,
         Some(ReportStatus::Sent { .. })
     ));
     let draft = support_form(&drafting);
     let dismissed = drafting.ui(UiEvent::DismissReport);
     assert_eq!(support_form(&dismissed), draft);
-    assert_eq!(
-        shell_view(&dismissed.model, dismissed.reporting).report,
-        None
-    );
+    assert_eq!(shell_view(&dismissed.model).report, None);
 }
 
 /// A failed report's draft is the report's, not a member's: it does not hold
@@ -186,10 +192,7 @@ fn a_sent_report_leaves_a_later_draft_alone() {
 #[test]
 fn a_failed_reports_draft_is_put_away_with_it() {
     let failed = report_answer(reported(on_call(signed_in())), Err(server_error()));
-    assert_eq!(
-        shell_view(&failed.model, failed.reporting).report_refusal,
-        None
-    );
+    assert_eq!(shell_view(&failed.model).report_refusal, None);
     let dismissed = failed.ui(UiEvent::DismissReport);
     assert_eq!(support_form(&dismissed), None);
 }
@@ -207,7 +210,7 @@ fn a_report_stays_on_the_screen_it_was_made_from() {
         ScreenView::CallDetail { .. }
     ));
     assert!(matches!(
-        shell_view(&sent.model, true).report,
+        shell_view(&sent.model).report,
         Some(district_ffi::ReportStatus::Sent { .. })
     ));
 }
@@ -236,7 +239,7 @@ fn a_report_after_a_failed_one_gets_a_new_key() {
     let first_key = report_key(&first);
     let failed = report_answer(first, Err(server_error()));
     assert!(matches!(
-        shell_view(&failed.model, true).report,
+        shell_view(&failed.model).report,
         Some(district_ffi::ReportStatus::Failed { .. })
     ));
     let second = failed.ui(UiEvent::Report {
@@ -248,7 +251,7 @@ fn a_report_after_a_failed_one_gets_a_new_key() {
     let second_key = report_key(&second);
     assert_ne!(first_key, second_key);
     assert!(matches!(
-        shell_view(&second.model, true).report,
+        shell_view(&second.model).report,
         Some(district_ffi::ReportStatus::Sending)
     ));
 }
@@ -262,7 +265,7 @@ fn a_second_report_while_sending_is_ignored() {
     let again = reported(sending);
     assert_eq!(again.pending.len(), sent_before);
     assert!(matches!(
-        shell_view(&again.model, true).report,
+        shell_view(&again.model).report,
         Some(district_ffi::ReportStatus::Sending)
     ));
 }
