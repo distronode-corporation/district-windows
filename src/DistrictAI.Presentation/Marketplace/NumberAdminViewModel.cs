@@ -352,14 +352,14 @@ public sealed partial class NumberAdminViewModel : ObservableObject
     private static string Pick(string[] values, int index) =>
         index >= 0 && index < values.Length ? values[index] : string.Empty;
 
-    private NumberAdminAction SipForm() =>
+    private NumberAdminAction.EditSipTrunk SipForm() =>
         new NumberAdminAction.EditSipTrunk(new SipTrunkFormInput(SipName, SipDomain, SipAddresses));
 
-    private NumberAdminAction A2pForm() =>
+    private NumberAdminAction.EditA2p A2pForm() =>
         new NumberAdminAction.EditA2p(new A2pFormInput(
             A2pBusiness, A2pEin, A2pWebsite, A2pVertical, Pick(_campaignValues, CampaignIndex), A2pDescription, A2pSampleOne, A2pSampleTwo));
 
-    private NumberAdminAction TollFreeForm() =>
+    private NumberAdminAction.EditTollFree TollFreeForm() =>
         new NumberAdminAction.EditTollFree(new TollFreeFormInput(
             TollFreeNumber, TollFreeBusiness, TollFreeOptIn, TollFreeMessage, Pick(_useCaseValues, UseCaseIndex)));
 
