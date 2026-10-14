@@ -38,6 +38,7 @@ mod composer;
 mod desk;
 mod hq;
 mod marketplace;
+mod numbers;
 mod rooms;
 mod scheduling;
 mod settings;
@@ -120,6 +121,7 @@ fn cases() -> Vec<Case> {
         hq::cases(),
         analytics::cases(),
         marketplace::cases(),
+        numbers::cases(),
         billing::cases(),
         workflows::cases(),
         scheduling::cases(),

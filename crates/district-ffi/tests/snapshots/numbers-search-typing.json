@@ -2,6 +2,26 @@
   "screen": {
     "Marketplace": {
       "view": {
+        "admin": {
+          "carrier": null,
+          "carrier_tab": "Carrier",
+          "configure_action": "Reapply call routing",
+          "configure_caption": "Points this number's calls and messages back at this workspace, and re-pins an EU number to its European bridge.",
+          "confirmation": null,
+          "lookup": {
+            "action": "Look this number up",
+            "can_ask": false,
+            "eyebrow": "Number lookup",
+            "notice": null,
+            "number": "",
+            "number_label": "Phone number, in full",
+            "result": [],
+            "unrepeatable": null
+          },
+          "number_notice": null,
+          "number_unrepeatable": null,
+          "release_action": "Release this number"
+        },
         "form": {
           "area_code": "416",
           "country": "CA",
@@ -25,16 +45,37 @@
         "owned": [
           {
             "line": "Main line · Local · Twilio · SMS, Voice",
+            "manage": {
+              "busy": false,
+              "can_configure": true,
+              "can_release": true,
+              "note": null,
+              "phone_number": "+14165550100"
+            },
             "monthly": "1.15 a month",
             "number": "+1 416 555 0100"
           },
           {
             "line": "Local · Telnyx · Voice",
+            "manage": {
+              "busy": false,
+              "can_configure": false,
+              "can_release": false,
+              "note": "This line is held on Distronode's carrier account, so it is yours to use and not to release or reconfigure.",
+              "phone_number": "+14165550199"
+            },
             "monthly": "2.5 a month",
             "number": "+1 416 555 0199"
           },
           {
             "line": "Local · Telnyx",
+            "manage": {
+              "busy": false,
+              "can_configure": false,
+              "can_release": false,
+              "note": "This line is held on Distronode's carrier account, so it is yours to use and not to release or reconfigure.",
+              "phone_number": "+18005550188"
+            },
             "monthly": null,
             "number": "+1 800 555 0188"
           }
@@ -42,8 +83,8 @@
         "owned_empty": null,
         "owned_status": "Ready",
         "partial_note": null,
-        "read_only_note": "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
         "refreshing": false,
+        "scope_note": "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
         "search": "Searching",
         "tab": "Search",
         "title": "Phone numbers",

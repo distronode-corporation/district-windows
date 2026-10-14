@@ -22,17 +22,18 @@ public sealed class MarketplaceViewModelTests
         new(
             Title: "Phone numbers",
             Tab: tab,
-            ReadOnlyNote: "Numbers cannot be bought, released or changed in this app, so this screen is read only.",
+            ScopeNote: "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
             OffersWeb: offersWeb,
             WebAction: "Open the number marketplace on the web",
             WebCaption: "Numbers are bought on the District AI website. This opens it in your browser.",
             OwnedStatus: new LoadStatus.Ready(),
             OwnedEmpty: null,
-            Owned: owned ?? [new NumberRowView("+1 416 555 0100", "Main line", "1.15 a month")],
+            Owned: owned ?? [new NumberRowView("+1 416 555 0100", "Main line", "1.15 a month", null)],
             PartialNote: partial,
             Refreshing: false,
             Form: form ?? Form(),
-            Search: search ?? new NumberSearchView.Idle());
+            Search: search ?? new NumberSearchView.Idle(),
+            Admin: N.Admin());
 
     private static (MarketplaceViewModel Model, RecordingSink Sink) Attached()
     {
@@ -123,7 +124,7 @@ public sealed class MarketplaceViewModelTests
 
         model.Show(View(NumbersTab.Search, search: new NumberSearchView.Found(
             "Offered by Twilio",
-            [new NumberRowView("+1 800 555 0122", "Toll-free", null)])));
+            [new NumberRowView("+1 800 555 0122", "Toll-free", null, null)])));
         Assert.True(model.HasFound);
         Assert.Equal("Offered by Twilio", model.ProviderLine);
         Assert.False(model.Found[0].HasMonthly);

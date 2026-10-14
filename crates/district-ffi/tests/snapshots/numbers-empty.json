@@ -2,6 +2,26 @@
   "screen": {
     "Marketplace": {
       "view": {
+        "admin": {
+          "carrier": null,
+          "carrier_tab": "Carrier",
+          "configure_action": "Reapply call routing",
+          "configure_caption": "Points this number's calls and messages back at this workspace, and re-pins an EU number to its European bridge.",
+          "confirmation": null,
+          "lookup": {
+            "action": "Look this number up",
+            "can_ask": false,
+            "eyebrow": "Number lookup",
+            "notice": null,
+            "number": "",
+            "number_label": "Phone number, in full",
+            "result": [],
+            "unrepeatable": null
+          },
+          "number_notice": null,
+          "number_unrepeatable": null,
+          "release_action": "Release this number"
+        },
         "form": {
           "area_code": "",
           "country": "US",
@@ -29,8 +49,8 @@
         },
         "owned_status": "Ready",
         "partial_note": null,
-        "read_only_note": "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
         "refreshing": false,
+        "scope_note": "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
         "search": "Idle",
         "tab": "Owned",
         "title": "Phone numbers",

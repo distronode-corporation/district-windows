@@ -484,6 +484,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::nav_workflows(Locale::FrCa), "Workflows");
     assert_eq!(s::nav_workspace_heading(Locale::En), "Workspace");
     assert_eq!(s::nav_workspace_heading(Locale::FrCa), "Workspace");
+    assert_eq!(s::numbers_campaign_type(Locale::En), "Campaign type");
+    assert_eq!(s::numbers_campaign_type(Locale::FrCa), "Campaign type");
     assert_eq!(s::overview_failed_title(Locale::En), "Could not load the overview");
     assert_eq!(s::overview_failed_title(Locale::FrCa), "Could not load the overview");
     assert_eq!(s::overview_metric_average_call(Locale::En), "Average call");

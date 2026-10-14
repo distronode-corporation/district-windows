@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="DistrictAI.Views.Marketplace.NumberConfirmationDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
+    AutomationProperties.AutomationId="NumberConfirmationDialog"
+    Style="{StaticResource DefaultContentDialogStyle}">
+    <!-- The core's question before a release, a paid lookup or a registration: open exactly while the core asks it. -->
+    <StackPanel MaxWidth="440" Spacing="12">
+        <TextBlock x:Name="Body" TextWrapping="Wrap" />
+        <ProgressBar
+            x:Name="Running"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+            IsIndeterminate="True" />
+        <InfoBar
+            x:Name="Failure"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonProblem}"
+            IsClosable="False"
+            Severity="Error" />
+    </StackPanel>
+</ContentDialog>

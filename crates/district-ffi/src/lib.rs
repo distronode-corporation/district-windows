@@ -44,6 +44,7 @@ mod calls_live;
 mod compose;
 mod contacts;
 mod inbox;
+mod numbers;
 mod overview;
 
 // The areas of 2.0, one module each (CONTRIBUTING.md, "Areas"). Public, so the
@@ -106,6 +107,12 @@ pub use crate::inbox::{
 };
 pub use crate::link::{LinkKind, link_kind};
 pub use crate::nav::{NavDestination, NavEntryView, NavGroupView, NavSection, NavView};
+pub use crate::numbers::{
+    A2pFormInput, A2pLabels, A2pView, CarrierAccountView, CarrierTabView, LookupView,
+    NumberAdminAction, NumberAdminView, NumberConfirmationView, NumberManageView,
+    SipTrunkFormInput, SipTrunkView, SipView, TollFreeFormInput, TollFreeLabels, TollFreeView,
+    VerifyView,
+};
 pub use crate::overview::{FinishSetupView, OverviewView};
 pub use crate::screen::{ScreenView, SessionScreen, screen_view};
 pub use crate::shell::{

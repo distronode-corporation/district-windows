@@ -7,10 +7,11 @@ using DistrictAI.ViewModels.Calls;
 namespace DistrictAI.ViewModels.Marketplace;
 
 /// <summary>
-/// The workspace's phone numbers and a search of the numbers for sale, read
-/// only, copied from the core's <see cref="MarketplaceView"/>. Buying is on the
-/// web: "Open the number marketplace on the web" asks the core, which opens it
-/// in the browser for a role that could buy there.
+/// The workspace's phone numbers, a search of the numbers for sale, and the
+/// carrier tab, copied from the core's <see cref="MarketplaceView"/>; managing
+/// them is <see cref="Admin"/>. Buying is on the web: "Open the number
+/// marketplace on the web" asks the core, which opens it in the browser for a
+/// role that could buy there.
 /// </summary>
 public sealed partial class MarketplaceViewModel : ObservableObject
 {
@@ -32,7 +33,10 @@ public sealed partial class MarketplaceViewModel : ObservableObject
     /// <summary>The number types, by their labels.</summary>
     public ObservableCollection<string> TypeLabels { get; } = [];
 
-    /// <summary>Which tab shows: 0 the held numbers, 1 the search.</summary>
+    /// <summary>Managing the held numbers and the carrier account.</summary>
+    public NumberAdminViewModel Admin { get; } = new();
+
+    /// <summary>Which tab shows: 0 the held numbers, 1 the search, 2 the carrier.</summary>
     [ObservableProperty]
     public partial int TabIndex { get; set; }
 
@@ -44,9 +48,13 @@ public sealed partial class MarketplaceViewModel : ObservableObject
     [ObservableProperty]
     public partial bool OnSearch { get; set; }
 
-    /// <summary>The note saying the screen changes nothing, worded for the role.</summary>
+    /// <summary>Whether the carrier tab shows.</summary>
     [ObservableProperty]
-    public partial string ReadOnlyNote { get; set; } = string.Empty;
+    public partial bool OnCarrier { get; set; }
+
+    /// <summary>The note saying what the screen does and does not do (buying is on the web), worded for the role.</summary>
+    [ObservableProperty]
+    public partial string ScopeNote { get; set; } = string.Empty;
 
     /// <summary>Whether the web marketplace is offered.</summary>
     [ObservableProperty]
@@ -117,25 +125,33 @@ public sealed partial class MarketplaceViewModel : ObservableObject
     {
         _context = context;
         Load.Attach(context);
+        Admin.Attach(context);
     }
 
     internal void Show(MarketplaceView view)
     {
         Load.Show(view.OwnedStatus, view.Owned.Length > 0, view.OwnedEmpty, view.Refreshing, null);
-        Display.Sync(Owned, [.. view.Owned.Select(NumberRowItem.From)]);
+        Display.Sync(Owned, [.. view.Owned.Select(row => NumberRowItem.From(row, view.Admin))]);
         _writing = true;
         try
         {
-            TabIndex = view.Tab == NumbersTab.Search ? 1 : 0;
+            TabIndex = view.Tab switch
+            {
+                NumbersTab.Search => 1,
+                NumbersTab.Carrier => 2,
+                _ => 0,
+            };
             ShowForm(view.Form);
         }
         finally
         {
             _writing = false;
         }
-        OnOwned = view.Tab != NumbersTab.Search;
+        OnOwned = view.Tab == NumbersTab.Owned;
         OnSearch = view.Tab == NumbersTab.Search;
-        ReadOnlyNote = view.ReadOnlyNote;
+        OnCarrier = view.Tab == NumbersTab.Carrier;
+        ScopeNote = view.ScopeNote;
+        Admin.Show(view.Admin);
         OffersWeb = view.OffersWeb;
         WebAction = view.WebAction;
         WebCaption = view.WebCaption;
@@ -167,7 +183,7 @@ public sealed partial class MarketplaceViewModel : ObservableObject
         var found = search as NumberSearchView.Found;
         HasFound = found is not null;
         ProviderLine = found?.ProviderLine ?? string.Empty;
-        Display.Sync(Found, found is null ? [] : [.. found.Numbers.Select(NumberRowItem.From)]);
+        Display.Sync(Found, found is null ? [] : [.. found.Numbers.Select(row => NumberRowItem.From(row, null))]);
         var status = search as NumberSearchView.Status;
         HasSearchStatus = status is not null;
         SearchStatusTitle = status?.Title ?? string.Empty;
@@ -177,9 +193,14 @@ public sealed partial class MarketplaceViewModel : ObservableObject
 
     partial void OnTabIndexChanged(int value)
     {
-        if (!_writing && value is 0 or 1)
+        if (!_writing && value is >= 0 and <= 2)
         {
-            Send(new MarketplaceAction.SelectTab(value == 1 ? NumbersTab.Search : NumbersTab.Owned));
+            Send(new MarketplaceAction.SelectTab(value switch
+            {
+                1 => NumbersTab.Search,
+                2 => NumbersTab.Carrier,
+                _ => NumbersTab.Owned,
+            }));
         }
     }
 
@@ -232,13 +253,51 @@ public sealed partial class MarketplaceViewModel : ObservableObject
 /// <param name="Monthly">What the carrier charges a month, or empty when it quoted nothing.</param>
 public sealed record NumberRowItem(string Number, string Line, string Monthly)
 {
+    /// <summary>The number in full, to act on a held one by; empty for one for sale.</summary>
+    public string PhoneNumber { get; init; } = string.Empty;
+
+    /// <summary>Why a held number cannot be managed, or empty.</summary>
+    public string ManageNote { get; init; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="ManageNote"/>.</summary>
+    public bool HasManageNote => ManageNote.Length > 0;
+
+    /// <summary>Whether this is a held number that can be managed: its buttons show.</summary>
+    public bool Manageable { get; init; }
+
+    /// <summary>"Reapply call routing".</summary>
+    public string ConfigureLabel { get; init; } = string.Empty;
+
+    /// <summary>"Release this number".</summary>
+    public string ReleaseLabel { get; init; } = string.Empty;
+
+    /// <summary>Whether "Reapply call routing" works now.</summary>
+    public bool CanConfigure { get; init; }
+
+    /// <summary>Whether "Release this number" works now.</summary>
+    public bool CanRelease { get; init; }
+
+    /// <summary>Whether a write to this number is on its way.</summary>
+    public bool Busy { get; init; }
+
     /// <summary>Whether there is a <see cref="Monthly"/> charge to show.</summary>
     public bool HasMonthly => Monthly.Length > 0;
 
     /// <summary>What a screen reader says for the row.</summary>
     public string AccessibleName => string.Join(", ", new[] { Number, Line, Monthly }.Where(part => part.Length > 0));
 
-    internal static NumberRowItem From(NumberRowView row) => new(row.Number, row.Line, row.Monthly ?? string.Empty);
+    internal static NumberRowItem From(NumberRowView row, NumberAdminView? admin) =>
+        new(row.Number, row.Line, row.Monthly ?? string.Empty)
+        {
+            PhoneNumber = row.Manage?.PhoneNumber ?? string.Empty,
+            ManageNote = row.Manage?.Note ?? string.Empty,
+            Manageable = row.Manage is { Note: null },
+            ConfigureLabel = admin?.ConfigureAction ?? string.Empty,
+            ReleaseLabel = admin?.ReleaseAction ?? string.Empty,
+            CanConfigure = row.Manage?.CanConfigure ?? false,
+            CanRelease = row.Manage?.CanRelease ?? false,
+            Busy = row.Manage?.Busy ?? false,
+        };
 
     /// <inheritdoc/>
     public override string ToString() => AccessibleName;

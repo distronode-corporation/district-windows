@@ -1,15 +1,16 @@
-//! Phone numbers, read only, as District AI for Linux shows them
-//! (`pages/marketplace.rs`, `ui/marketplace-page.ui`): the numbers the
-//! workspace holds, and a search of the numbers for sale.
+//! Phone numbers, as District AI for Linux shows them (`pages/marketplace.rs`,
+//! `ui/marketplace-page.ui`): the numbers the workspace holds, a search of the
+//! numbers for sale, and the carrier tab. Managing a held number and the
+//! carrier account is crate::numbers'.
 //!
-//! Nothing here buys, releases or changes a number. A member whose role could
-//! buy one is offered the web dashboard's marketplace instead (the core opens
-//! it in the browser); a viewer is told who can. The two reads never share a
+//! Nothing here buys a number: a member whose role could buy one is offered
+//! the web dashboard's marketplace instead (the core opens it in the browser);
+//! a viewer is told who can change numbers. The two reads never share a
 //! failure, and a workspace with no carrier connected is an account state the
 //! service explains, shown without a "Try again" that cannot help.
 
 use district_core::{
-    Capabilities, Event, MarketplaceEvent, MarketplaceScreen, MarketplaceTab, Model,
+    Capabilities, Event, MarketplaceEvent, MarketplaceScreen, MarketplaceTab, Model, NumberAdmin,
     NumberSearchForm, NumberSearchState, OwnedNumbersList, Route, SignedIn, format_phone_number,
     numbers_scope_note, price_label,
 };
@@ -17,6 +18,9 @@ use district_model::{AvailableNumber, OwnedNumber};
 use serde::Serialize;
 
 use crate::l10n::{cs, l, s};
+use crate::numbers::{
+    NumberAdminAction, NumberAdminView, NumberManageView, admin_view, manage_view,
+};
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, LoadStatus, humanize};
 
@@ -30,8 +34,9 @@ pub struct MarketplaceView {
     pub title: String,
     /// The tab showing.
     pub tab: NumbersTab,
-    /// The note saying the screen changes nothing, worded for the role.
-    pub read_only_note: String,
+    /// The note saying what the screen does and does not do (buying is on
+    /// the web), worded for the role.
+    pub scope_note: String,
     /// Whether to offer the web marketplace: only to a role that could buy
     /// there.
     pub offers_web: bool,
@@ -53,6 +58,8 @@ pub struct MarketplaceView {
     pub form: NumberFormView,
     /// Where the search stands.
     pub search: NumberSearchView,
+    /// Managing the numbers held and the carrier account.
+    pub admin: NumberAdminView,
 }
 
 impl Default for MarketplaceView {
@@ -60,7 +67,7 @@ impl Default for MarketplaceView {
         Self {
             title: s::marketplace_title(l()).to_owned(),
             tab: NumbersTab::Owned,
-            read_only_note: numbers_scope_note(false).to_owned(),
+            scope_note: numbers_scope_note(false).to_owned(),
             offers_web: false,
             web_action: cs::marketplace_web_action(l()).to_owned(),
             web_caption: cs::marketplace_web_caption(l()).to_owned(),
@@ -71,6 +78,7 @@ impl Default for MarketplaceView {
             refreshing: false,
             form: NumberFormView::from(&NumberSearchForm::default()),
             search: NumberSearchView::Idle,
+            admin: admin_view(&NumberAdmin::default(), false, false),
         }
     }
 }
@@ -118,6 +126,9 @@ pub struct NumberRowView {
     /// What the carrier charges a month, as quoted, or `None` when it quoted
     /// nothing (never shown as zero).
     pub monthly: Option<String>,
+    /// What can be done to a number the workspace holds; `None` for one for
+    /// sale.
+    pub manage: Option<NumberManageView>,
 }
 
 /// The search's filters.
@@ -208,6 +219,11 @@ pub enum MarketplaceAction {
     },
     /// Search now (or again).
     Search,
+    /// Manage a held number or the carrier account.
+    Numbers {
+        /// What was done.
+        action: NumberAdminAction,
+    },
 }
 
 /// The core events `action` is, in the order the core is to hear them.
@@ -228,6 +244,7 @@ pub(crate) fn events(action: MarketplaceAction) -> Vec<Event> {
             number_type,
         })),
         MarketplaceAction::Search => Event::Marketplace(MarketplaceEvent::Search),
+        MarketplaceAction::Numbers { action } => action.event(),
     }]
 }
 
@@ -241,10 +258,15 @@ pub(crate) fn screen(_model: &Model, signed_in: &SignedIn) -> ScreenView {
 fn marketplace_view(screen: &MarketplaceScreen, capabilities: &Capabilities) -> MarketplaceView {
     let mut view = MarketplaceView {
         tab: screen.tab.into(),
-        read_only_note: MarketplaceScreen::scope_note(capabilities).to_owned(),
+        scope_note: MarketplaceScreen::scope_note(capabilities).to_owned(),
         offers_web: MarketplaceScreen::offers_web(capabilities),
         form: NumberFormView::from(&screen.form),
         search: search_view(&screen.search),
+        admin: admin_view(
+            &screen.admin,
+            capabilities.can_change,
+            screen.tab == MarketplaceTab::Carrier,
+        ),
         ..MarketplaceView::default()
     };
     match &screen.owned {
@@ -265,7 +287,11 @@ fn marketplace_view(screen: &MarketplaceScreen, capabilities: &Capabilities) -> 
             } else {
                 view.partial_note = note;
             }
-            view.owned = held.numbers.iter().map(owned_row).collect();
+            view.owned = held
+                .numbers
+                .iter()
+                .map(|number| owned_row(number, &screen.admin, capabilities.can_change))
+                .collect();
             view.refreshing = held.refreshing;
         }
     }
@@ -341,7 +367,7 @@ fn monthly(amount: Option<f64>, currency: Option<&str>) -> Option<String> {
     price_label(amount, currency).map(|amount| s::marketplace_monthly(l(), &amount))
 }
 
-fn owned_row(number: &OwnedNumber) -> NumberRowView {
+fn owned_row(number: &OwnedNumber, admin: &NumberAdmin, can_change: bool) -> NumberRowView {
     NumberRowView {
         number: format_phone_number(&number.phone_number),
         line: line(
@@ -354,6 +380,7 @@ fn owned_row(number: &OwnedNumber) -> NumberRowView {
             " \u{b7} ",
         ),
         monthly: monthly(number.monthly_price, None),
+        manage: Some(manage_view(number, admin, can_change)),
     }
 }
 
@@ -370,6 +397,7 @@ fn available_row(number: &AvailableNumber) -> NumberRowView {
             " \u{b7} ",
         ),
         monthly: monthly(number.monthly_price, number.currency.as_deref()),
+        manage: None,
     }
 }
 
@@ -390,7 +418,7 @@ mod tests {
             monthly(Some(1.15), Some("USD")).as_deref(),
             Some("1.15 USD a month")
         );
-        for tab in [NumbersTab::Owned, NumbersTab::Search] {
+        for tab in [NumbersTab::Owned, NumbersTab::Search, NumbersTab::Carrier] {
             assert_eq!(NumbersTab::from(MarketplaceTab::from(tab)), tab);
         }
     }

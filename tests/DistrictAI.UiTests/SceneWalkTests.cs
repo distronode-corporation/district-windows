@@ -371,6 +371,38 @@ public sealed class SceneWalkTests
     }
 
     /// <summary>
+    /// A held number's "Release this number" opens the core's confirmation,
+    /// and Escape closes it without releasing anything: the scene answers no
+    /// release, and the dialog's own Release is never pressed.
+    /// </summary>
+    [Fact]
+    public void ReleasingANumberAsksFirst()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavMarketplace");
+        var owned = app.FindById("OwnedNumbers", PageTimeout);
+        var release = Wait.For(
+            () => owned.FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName("Release this number"))),
+            PageTimeout,
+            "a held number's Release button",
+            app.Describe);
+        release.AsButton().Invoke();
+        _ = app.FindById("NumberConfirmationDialog", PageTimeout);
+        InstalledApp.Log("Release asks first");
+
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("NumberConfirmationDialog") is null, PageTimeout),
+            "the release confirmation stayed open after Escape");
+        Assert.NotNull(window);
+        Assert.True(app.IsRunning, "the app ended on the phone numbers");
+    }
+
+    /// <summary>
     /// Skips off Windows, and unless DISTRICTAI_UI_SCRIPTED is 1 (a scripted
     /// package is installed). With it, the package must be installed.
     /// </summary>

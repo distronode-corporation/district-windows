@@ -3735,6 +3735,313 @@ class FfiConverterTypeUiHost: FfiConverter<UiHost, ulong> {
 
 
 /// <summary>
+/// The A2P form, as typed.
+/// </summary>
+/// <param name="BusinessName">
+/// The legal business name.
+/// </param>
+/// <param name="Ein">
+/// The tax or company number. Optional.
+/// </param>
+/// <param name="Website">
+/// The website. Optional.
+/// </param>
+/// <param name="Vertical">
+/// The industry. Optional.
+/// </param>
+/// <param name="CampaignType">
+/// One of [`A2pView::campaign_types`]' values.
+/// </param>
+/// <param name="CampaignDescription">
+/// What will be sent.
+/// </param>
+/// <param name="SampleOne">
+/// An example message.
+/// </param>
+/// <param name="SampleTwo">
+/// Another example message.
+/// </param>
+public record A2pFormInput (
+    /// <summary>
+    /// The legal business name.
+    /// </summary>
+    string BusinessName, 
+    /// <summary>
+    /// The tax or company number. Optional.
+    /// </summary>
+    string Ein, 
+    /// <summary>
+    /// The website. Optional.
+    /// </summary>
+    string Website, 
+    /// <summary>
+    /// The industry. Optional.
+    /// </summary>
+    string Vertical, 
+    /// <summary>
+    /// One of [`A2pView::campaign_types`]' values.
+    /// </summary>
+    string CampaignType, 
+    /// <summary>
+    /// What will be sent.
+    /// </summary>
+    string CampaignDescription, 
+    /// <summary>
+    /// An example message.
+    /// </summary>
+    string SampleOne, 
+    /// <summary>
+    /// Another example message.
+    /// </summary>
+    string SampleTwo
+) {
+}
+
+class FfiConverterTypeA2pFormInput: FfiConverterRustBuffer<A2pFormInput> {
+    public static FfiConverterTypeA2pFormInput INSTANCE = new FfiConverterTypeA2pFormInput();
+
+    public override A2pFormInput Read(BigEndianStream stream) {
+        return new A2pFormInput(
+            BusinessName: FfiConverterString.INSTANCE.Read(stream),
+            Ein: FfiConverterString.INSTANCE.Read(stream),
+            Website: FfiConverterString.INSTANCE.Read(stream),
+            Vertical: FfiConverterString.INSTANCE.Read(stream),
+            CampaignType: FfiConverterString.INSTANCE.Read(stream),
+            CampaignDescription: FfiConverterString.INSTANCE.Read(stream),
+            SampleOne: FfiConverterString.INSTANCE.Read(stream),
+            SampleTwo: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(A2pFormInput value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.BusinessName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Ein)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Website)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Vertical)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CampaignType)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CampaignDescription)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SampleOne)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SampleTwo);
+    }
+
+    public override void Write(A2pFormInput value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.BusinessName, stream);
+            FfiConverterString.INSTANCE.Write(value.Ein, stream);
+            FfiConverterString.INSTANCE.Write(value.Website, stream);
+            FfiConverterString.INSTANCE.Write(value.Vertical, stream);
+            FfiConverterString.INSTANCE.Write(value.CampaignType, stream);
+            FfiConverterString.INSTANCE.Write(value.CampaignDescription, stream);
+            FfiConverterString.INSTANCE.Write(value.SampleOne, stream);
+            FfiConverterString.INSTANCE.Write(value.SampleTwo, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The A2P form's labels.
+/// </summary>
+/// <param name="BusinessName">
+/// The legal business name.
+/// </param>
+/// <param name="Ein">
+/// The tax or company number.
+/// </param>
+/// <param name="Website">
+/// The website.
+/// </param>
+/// <param name="Vertical">
+/// The industry.
+/// </param>
+/// <param name="CampaignType">
+/// The campaign type.
+/// </param>
+/// <param name="CampaignDescription">
+/// What will be sent.
+/// </param>
+/// <param name="SampleOne">
+/// The first example message.
+/// </param>
+/// <param name="SampleTwo">
+/// The second example message.
+/// </param>
+public record A2pLabels (
+    /// <summary>
+    /// The legal business name.
+    /// </summary>
+    string BusinessName, 
+    /// <summary>
+    /// The tax or company number.
+    /// </summary>
+    string Ein, 
+    /// <summary>
+    /// The website.
+    /// </summary>
+    string Website, 
+    /// <summary>
+    /// The industry.
+    /// </summary>
+    string Vertical, 
+    /// <summary>
+    /// The campaign type.
+    /// </summary>
+    string CampaignType, 
+    /// <summary>
+    /// What will be sent.
+    /// </summary>
+    string CampaignDescription, 
+    /// <summary>
+    /// The first example message.
+    /// </summary>
+    string SampleOne, 
+    /// <summary>
+    /// The second example message.
+    /// </summary>
+    string SampleTwo
+) {
+}
+
+class FfiConverterTypeA2pLabels: FfiConverterRustBuffer<A2pLabels> {
+    public static FfiConverterTypeA2pLabels INSTANCE = new FfiConverterTypeA2pLabels();
+
+    public override A2pLabels Read(BigEndianStream stream) {
+        return new A2pLabels(
+            BusinessName: FfiConverterString.INSTANCE.Read(stream),
+            Ein: FfiConverterString.INSTANCE.Read(stream),
+            Website: FfiConverterString.INSTANCE.Read(stream),
+            Vertical: FfiConverterString.INSTANCE.Read(stream),
+            CampaignType: FfiConverterString.INSTANCE.Read(stream),
+            CampaignDescription: FfiConverterString.INSTANCE.Read(stream),
+            SampleOne: FfiConverterString.INSTANCE.Read(stream),
+            SampleTwo: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(A2pLabels value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.BusinessName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Ein)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Website)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Vertical)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CampaignType)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CampaignDescription)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SampleOne)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SampleTwo);
+    }
+
+    public override void Write(A2pLabels value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.BusinessName, stream);
+            FfiConverterString.INSTANCE.Write(value.Ein, stream);
+            FfiConverterString.INSTANCE.Write(value.Website, stream);
+            FfiConverterString.INSTANCE.Write(value.Vertical, stream);
+            FfiConverterString.INSTANCE.Write(value.CampaignType, stream);
+            FfiConverterString.INSTANCE.Write(value.CampaignDescription, stream);
+            FfiConverterString.INSTANCE.Write(value.SampleOne, stream);
+            FfiConverterString.INSTANCE.Write(value.SampleTwo, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The A2P 10DLC registration form.
+/// </summary>
+/// <param name="Title">
+/// Its heading.
+/// </param>
+/// <param name="Caption">
+/// Why it is needed.
+/// </param>
+/// <param name="Labels">
+/// The fields' labels.
+/// </param>
+/// <param name="Form">
+/// The form, as typed.
+/// </param>
+/// <param name="CampaignTypes">
+/// The campaign types, a closed list: the type decides the brand and the
+/// price.
+/// </param>
+/// <param name="SubmitAction">
+/// "Submit registration", which asks first.
+/// </param>
+/// <param name="CanSubmit">
+/// Whether it works now.
+/// </param>
+public record A2pView (
+    /// <summary>
+    /// Its heading.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// Why it is needed.
+    /// </summary>
+    string Caption, 
+    /// <summary>
+    /// The fields' labels.
+    /// </summary>
+    A2pLabels Labels, 
+    /// <summary>
+    /// The form, as typed.
+    /// </summary>
+    A2pFormInput Form, 
+    /// <summary>
+    /// The campaign types, a closed list: the type decides the brand and the
+    /// price.
+    /// </summary>
+    ChoiceView[] CampaignTypes, 
+    /// <summary>
+    /// "Submit registration", which asks first.
+    /// </summary>
+    string SubmitAction, 
+    /// <summary>
+    /// Whether it works now.
+    /// </summary>
+    bool CanSubmit
+) {
+}
+
+class FfiConverterTypeA2pView: FfiConverterRustBuffer<A2pView> {
+    public static FfiConverterTypeA2pView INSTANCE = new FfiConverterTypeA2pView();
+
+    public override A2pView Read(BigEndianStream stream) {
+        return new A2pView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Caption: FfiConverterString.INSTANCE.Read(stream),
+            Labels: FfiConverterTypeA2pLabels.INSTANCE.Read(stream),
+            Form: FfiConverterTypeA2pFormInput.INSTANCE.Read(stream),
+            CampaignTypes: FfiConverterSequenceTypeChoiceView.INSTANCE.Read(stream),
+            SubmitAction: FfiConverterString.INSTANCE.Read(stream),
+            CanSubmit: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(A2pView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Caption)
+            + FfiConverterTypeA2pLabels.INSTANCE.AllocationSize(value.Labels)
+            + FfiConverterTypeA2pFormInput.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterSequenceTypeChoiceView.INSTANCE.AllocationSize(value.CampaignTypes)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SubmitAction)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSubmit);
+    }
+
+    public override void Write(A2pView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Caption, stream);
+            FfiConverterTypeA2pLabels.INSTANCE.Write(value.Labels, stream);
+            FfiConverterTypeA2pFormInput.INSTANCE.Write(value.Form, stream);
+            FfiConverterSequenceTypeChoiceView.INSTANCE.Write(value.CampaignTypes, stream);
+            FfiConverterString.INSTANCE.Write(value.SubmitAction, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSubmit, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The account's subscriptions and invoices.
 /// </summary>
 /// <param name="State">
@@ -6172,6 +6479,91 @@ class FfiConverterTypeCampaignView: FfiConverterRustBuffer<CampaignView> {
 
 
 /// <summary>
+/// One carrier account.
+/// </summary>
+/// <param name="Carrier">
+/// The carrier.
+/// </param>
+/// <param name="AccountName">
+/// The account's name, when the carrier gave one.
+/// </param>
+/// <param name="State">
+/// Refused, held by Distronode, or connected.
+/// </param>
+/// <param name="Refused">
+/// Whether its credentials were refused.
+/// </param>
+/// <param name="Balance">
+/// The balance, when there is one.
+/// </param>
+/// <param name="NumberCount">
+/// How many numbers it holds, when it said.
+/// </param>
+public record CarrierAccountView (
+    /// <summary>
+    /// The carrier.
+    /// </summary>
+    string Carrier, 
+    /// <summary>
+    /// The account's name, when the carrier gave one.
+    /// </summary>
+    string? AccountName, 
+    /// <summary>
+    /// Refused, held by Distronode, or connected.
+    /// </summary>
+    string State, 
+    /// <summary>
+    /// Whether its credentials were refused.
+    /// </summary>
+    bool Refused, 
+    /// <summary>
+    /// The balance, when there is one.
+    /// </summary>
+    string? Balance, 
+    /// <summary>
+    /// How many numbers it holds, when it said.
+    /// </summary>
+    string? NumberCount
+) {
+}
+
+class FfiConverterTypeCarrierAccountView: FfiConverterRustBuffer<CarrierAccountView> {
+    public static FfiConverterTypeCarrierAccountView INSTANCE = new FfiConverterTypeCarrierAccountView();
+
+    public override CarrierAccountView Read(BigEndianStream stream) {
+        return new CarrierAccountView(
+            Carrier: FfiConverterString.INSTANCE.Read(stream),
+            AccountName: FfiConverterOptionalString.INSTANCE.Read(stream),
+            State: FfiConverterString.INSTANCE.Read(stream),
+            Refused: FfiConverterBoolean.INSTANCE.Read(stream),
+            Balance: FfiConverterOptionalString.INSTANCE.Read(stream),
+            NumberCount: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CarrierAccountView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Carrier)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.AccountName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.State)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refused)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Balance)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NumberCount);
+    }
+
+    public override void Write(CarrierAccountView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Carrier, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.AccountName, stream);
+            FfiConverterString.INSTANCE.Write(value.State, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Refused, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Balance, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NumberCount, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One carrier, to choose.
 /// </summary>
 /// <param name="Carrier">
@@ -6211,6 +6603,163 @@ class FfiConverterTypeCarrierChoiceView: FfiConverterRustBuffer<CarrierChoiceVie
     public override void Write(CarrierChoiceView value, BigEndianStream stream) {
             FfiConverterTypeMessagingCarrier.INSTANCE.Write(value.Carrier, stream);
             FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The carrier tab.
+/// </summary>
+/// <param name="AccountsEyebrow">
+/// "Carrier accounts".
+/// </param>
+/// <param name="AccountsStatus">
+/// Where the read of the carrier accounts stands.
+/// </param>
+/// <param name="AccountsEmpty">
+/// No carrier connected: an account state, not a fault.
+/// </param>
+/// <param name="Accounts">
+/// The carrier accounts.
+/// </param>
+/// <param name="Notice">
+/// What the last carrier write (a trunk, the passcode sender, a
+/// registration) said, or `None`.
+/// </param>
+/// <param name="Unrepeatable">
+/// Why it is not offered again, or `None`.
+/// </param>
+/// <param name="Working">
+/// Whether a carrier write is on its way.
+/// </param>
+/// <param name="Sip">
+/// The SIP trunks.
+/// </param>
+/// <param name="Verify">
+/// The one-time passcode sender.
+/// </param>
+/// <param name="ComplianceEyebrow">
+/// "Messaging compliance".
+/// </param>
+/// <param name="ComplianceNote">
+/// That neither registration can be checked from the app.
+/// </param>
+/// <param name="A2p">
+/// The A2P 10DLC registration.
+/// </param>
+/// <param name="TollFree">
+/// The toll-free verification.
+/// </param>
+public record CarrierTabView (
+    /// <summary>
+    /// "Carrier accounts".
+    /// </summary>
+    string AccountsEyebrow, 
+    /// <summary>
+    /// Where the read of the carrier accounts stands.
+    /// </summary>
+    LoadStatus AccountsStatus, 
+    /// <summary>
+    /// No carrier connected: an account state, not a fault.
+    /// </summary>
+    EmptyView? AccountsEmpty, 
+    /// <summary>
+    /// The carrier accounts.
+    /// </summary>
+    CarrierAccountView[] Accounts, 
+    /// <summary>
+    /// What the last carrier write (a trunk, the passcode sender, a
+    /// registration) said, or `None`.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// Why it is not offered again, or `None`.
+    /// </summary>
+    string? Unrepeatable, 
+    /// <summary>
+    /// Whether a carrier write is on its way.
+    /// </summary>
+    bool Working, 
+    /// <summary>
+    /// The SIP trunks.
+    /// </summary>
+    SipView Sip, 
+    /// <summary>
+    /// The one-time passcode sender.
+    /// </summary>
+    VerifyView Verify, 
+    /// <summary>
+    /// "Messaging compliance".
+    /// </summary>
+    string ComplianceEyebrow, 
+    /// <summary>
+    /// That neither registration can be checked from the app.
+    /// </summary>
+    string ComplianceNote, 
+    /// <summary>
+    /// The A2P 10DLC registration.
+    /// </summary>
+    A2pView A2p, 
+    /// <summary>
+    /// The toll-free verification.
+    /// </summary>
+    TollFreeView TollFree
+) {
+}
+
+class FfiConverterTypeCarrierTabView: FfiConverterRustBuffer<CarrierTabView> {
+    public static FfiConverterTypeCarrierTabView INSTANCE = new FfiConverterTypeCarrierTabView();
+
+    public override CarrierTabView Read(BigEndianStream stream) {
+        return new CarrierTabView(
+            AccountsEyebrow: FfiConverterString.INSTANCE.Read(stream),
+            AccountsStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            AccountsEmpty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Accounts: FfiConverterSequenceTypeCarrierAccountView.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Unrepeatable: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Working: FfiConverterBoolean.INSTANCE.Read(stream),
+            Sip: FfiConverterTypeSipView.INSTANCE.Read(stream),
+            Verify: FfiConverterTypeVerifyView.INSTANCE.Read(stream),
+            ComplianceEyebrow: FfiConverterString.INSTANCE.Read(stream),
+            ComplianceNote: FfiConverterString.INSTANCE.Read(stream),
+            A2p: FfiConverterTypeA2pView.INSTANCE.Read(stream),
+            TollFree: FfiConverterTypeTollFreeView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CarrierTabView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.AccountsEyebrow)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.AccountsStatus)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.AccountsEmpty)
+            + FfiConverterSequenceTypeCarrierAccountView.INSTANCE.AllocationSize(value.Accounts)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Unrepeatable)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Working)
+            + FfiConverterTypeSipView.INSTANCE.AllocationSize(value.Sip)
+            + FfiConverterTypeVerifyView.INSTANCE.AllocationSize(value.Verify)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ComplianceEyebrow)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ComplianceNote)
+            + FfiConverterTypeA2pView.INSTANCE.AllocationSize(value.A2p)
+            + FfiConverterTypeTollFreeView.INSTANCE.AllocationSize(value.TollFree);
+    }
+
+    public override void Write(CarrierTabView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.AccountsEyebrow, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.AccountsStatus, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.AccountsEmpty, stream);
+            FfiConverterSequenceTypeCarrierAccountView.INSTANCE.Write(value.Accounts, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Unrepeatable, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Working, stream);
+            FfiConverterTypeSipView.INSTANCE.Write(value.Sip, stream);
+            FfiConverterTypeVerifyView.INSTANCE.Write(value.Verify, stream);
+            FfiConverterString.INSTANCE.Write(value.ComplianceEyebrow, stream);
+            FfiConverterString.INSTANCE.Write(value.ComplianceNote, stream);
+            FfiConverterTypeA2pView.INSTANCE.Write(value.A2p, stream);
+            FfiConverterTypeTollFreeView.INSTANCE.Write(value.TollFree, stream);
     }
 }
 
@@ -11666,6 +12215,113 @@ class FfiConverterTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerView> {
 
 
 /// <summary>
+/// The billed lookup.
+/// </summary>
+/// <param name="Eyebrow">
+/// Its heading.
+/// </param>
+/// <param name="NumberLabel">
+/// The number field's label.
+/// </param>
+/// <param name="Number">
+/// The number, as typed.
+/// </param>
+/// <param name="Action">
+/// The button that asks before looking it up.
+/// </param>
+/// <param name="CanAsk">
+/// Whether the button works now: a number typed, and no lookup on its way
+/// or unconfirmed.
+/// </param>
+/// <param name="Result">
+/// The last answer, a line each.
+/// </param>
+/// <param name="Notice">
+/// What the last lookup said when it failed, or `None`.
+/// </param>
+/// <param name="Unrepeatable">
+/// Why it is not offered again, or `None`.
+/// </param>
+public record LookupView (
+    /// <summary>
+    /// Its heading.
+    /// </summary>
+    string Eyebrow, 
+    /// <summary>
+    /// The number field's label.
+    /// </summary>
+    string NumberLabel, 
+    /// <summary>
+    /// The number, as typed.
+    /// </summary>
+    string Number, 
+    /// <summary>
+    /// The button that asks before looking it up.
+    /// </summary>
+    string Action, 
+    /// <summary>
+    /// Whether the button works now: a number typed, and no lookup on its way
+    /// or unconfirmed.
+    /// </summary>
+    bool CanAsk, 
+    /// <summary>
+    /// The last answer, a line each.
+    /// </summary>
+    string[] Result, 
+    /// <summary>
+    /// What the last lookup said when it failed, or `None`.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// Why it is not offered again, or `None`.
+    /// </summary>
+    string? Unrepeatable
+) {
+}
+
+class FfiConverterTypeLookupView: FfiConverterRustBuffer<LookupView> {
+    public static FfiConverterTypeLookupView INSTANCE = new FfiConverterTypeLookupView();
+
+    public override LookupView Read(BigEndianStream stream) {
+        return new LookupView(
+            Eyebrow: FfiConverterString.INSTANCE.Read(stream),
+            NumberLabel: FfiConverterString.INSTANCE.Read(stream),
+            Number: FfiConverterString.INSTANCE.Read(stream),
+            Action: FfiConverterString.INSTANCE.Read(stream),
+            CanAsk: FfiConverterBoolean.INSTANCE.Read(stream),
+            Result: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Unrepeatable: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(LookupView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Eyebrow)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NumberLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Number)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Action)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAsk)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Result)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Unrepeatable);
+    }
+
+    public override void Write(LookupView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Eyebrow, stream);
+            FfiConverterString.INSTANCE.Write(value.NumberLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Number, stream);
+            FfiConverterString.INSTANCE.Write(value.Action, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanAsk, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.Result, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Unrepeatable, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The numbers Distronode holds for the workspace.
 /// </summary>
 /// <param name="Heading">
@@ -11739,8 +12395,9 @@ class FfiConverterTypeManagedNumbersView: FfiConverterRustBuffer<ManagedNumbersV
 /// <param name="Tab">
 /// The tab showing.
 /// </param>
-/// <param name="ReadOnlyNote">
-/// The note saying the screen changes nothing, worded for the role.
+/// <param name="ScopeNote">
+/// The note saying what the screen does and does not do (buying is on
+/// the web), worded for the role.
 /// </param>
 /// <param name="OffersWeb">
 /// Whether to offer the web marketplace: only to a role that could buy
@@ -11773,6 +12430,9 @@ class FfiConverterTypeManagedNumbersView: FfiConverterRustBuffer<ManagedNumbersV
 /// <param name="Search">
 /// Where the search stands.
 /// </param>
+/// <param name="Admin">
+/// Managing the numbers held and the carrier account.
+/// </param>
 public record MarketplaceView (
     /// <summary>
     /// The heading: "Phone numbers".
@@ -11783,9 +12443,10 @@ public record MarketplaceView (
     /// </summary>
     NumbersTab Tab, 
     /// <summary>
-    /// The note saying the screen changes nothing, worded for the role.
+    /// The note saying what the screen does and does not do (buying is on
+    /// the web), worded for the role.
     /// </summary>
-    string ReadOnlyNote, 
+    string ScopeNote, 
     /// <summary>
     /// Whether to offer the web marketplace: only to a role that could buy
     /// there.
@@ -11826,7 +12487,11 @@ public record MarketplaceView (
     /// <summary>
     /// Where the search stands.
     /// </summary>
-    NumberSearchView Search
+    NumberSearchView Search, 
+    /// <summary>
+    /// Managing the numbers held and the carrier account.
+    /// </summary>
+    NumberAdminView Admin
 ) {
 }
 
@@ -11837,7 +12502,7 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
         return new MarketplaceView(
             Title: FfiConverterString.INSTANCE.Read(stream),
             Tab: FfiConverterTypeNumbersTab.INSTANCE.Read(stream),
-            ReadOnlyNote: FfiConverterString.INSTANCE.Read(stream),
+            ScopeNote: FfiConverterString.INSTANCE.Read(stream),
             OffersWeb: FfiConverterBoolean.INSTANCE.Read(stream),
             WebAction: FfiConverterString.INSTANCE.Read(stream),
             WebCaption: FfiConverterString.INSTANCE.Read(stream),
@@ -11847,7 +12512,8 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
             PartialNote: FfiConverterOptionalString.INSTANCE.Read(stream),
             Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
             Form: FfiConverterTypeNumberFormView.INSTANCE.Read(stream),
-            Search: FfiConverterTypeNumberSearchView.INSTANCE.Read(stream)
+            Search: FfiConverterTypeNumberSearchView.INSTANCE.Read(stream),
+            Admin: FfiConverterTypeNumberAdminView.INSTANCE.Read(stream)
         );
     }
 
@@ -11855,7 +12521,7 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
         return 0
             + FfiConverterString.INSTANCE.AllocationSize(value.Title)
             + FfiConverterTypeNumbersTab.INSTANCE.AllocationSize(value.Tab)
-            + FfiConverterString.INSTANCE.AllocationSize(value.ReadOnlyNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ScopeNote)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWeb)
             + FfiConverterString.INSTANCE.AllocationSize(value.WebAction)
             + FfiConverterString.INSTANCE.AllocationSize(value.WebCaption)
@@ -11865,13 +12531,14 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.PartialNote)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
             + FfiConverterTypeNumberFormView.INSTANCE.AllocationSize(value.Form)
-            + FfiConverterTypeNumberSearchView.INSTANCE.AllocationSize(value.Search);
+            + FfiConverterTypeNumberSearchView.INSTANCE.AllocationSize(value.Search)
+            + FfiConverterTypeNumberAdminView.INSTANCE.AllocationSize(value.Admin);
     }
 
     public override void Write(MarketplaceView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
             FfiConverterTypeNumbersTab.INSTANCE.Write(value.Tab, stream);
-            FfiConverterString.INSTANCE.Write(value.ReadOnlyNote, stream);
+            FfiConverterString.INSTANCE.Write(value.ScopeNote, stream);
             FfiConverterBoolean.INSTANCE.Write(value.OffersWeb, stream);
             FfiConverterString.INSTANCE.Write(value.WebAction, stream);
             FfiConverterString.INSTANCE.Write(value.WebCaption, stream);
@@ -11882,6 +12549,7 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
             FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
             FfiConverterTypeNumberFormView.INSTANCE.Write(value.Form, stream);
             FfiConverterTypeNumberSearchView.INSTANCE.Write(value.Search, stream);
+            FfiConverterTypeNumberAdminView.INSTANCE.Write(value.Admin, stream);
     }
 }
 
@@ -13205,6 +13873,236 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
 
 
 /// <summary>
+/// The managing part of the phone numbers screen.
+/// </summary>
+/// <param name="CarrierTab">
+/// The carrier tab's label.
+/// </param>
+/// <param name="ConfigureAction">
+/// "Reapply call routing".
+/// </param>
+/// <param name="ConfigureCaption">
+/// What reapplying does.
+/// </param>
+/// <param name="ReleaseAction">
+/// "Release this number".
+/// </param>
+/// <param name="NumberNotice">
+/// What the last reapply or release said, or `None`.
+/// </param>
+/// <param name="NumberUnrepeatable">
+/// Why that write is not offered again, or `None`.
+/// </param>
+/// <param name="Lookup">
+/// The billed lookup.
+/// </param>
+/// <param name="Confirmation">
+/// The confirmation asked, if any.
+/// </param>
+/// <param name="Carrier">
+/// The carrier tab, while it shows: it is read when it opens.
+/// </param>
+public record NumberAdminView (
+    /// <summary>
+    /// The carrier tab's label.
+    /// </summary>
+    string CarrierTab, 
+    /// <summary>
+    /// "Reapply call routing".
+    /// </summary>
+    string ConfigureAction, 
+    /// <summary>
+    /// What reapplying does.
+    /// </summary>
+    string ConfigureCaption, 
+    /// <summary>
+    /// "Release this number".
+    /// </summary>
+    string ReleaseAction, 
+    /// <summary>
+    /// What the last reapply or release said, or `None`.
+    /// </summary>
+    string? NumberNotice, 
+    /// <summary>
+    /// Why that write is not offered again, or `None`.
+    /// </summary>
+    string? NumberUnrepeatable, 
+    /// <summary>
+    /// The billed lookup.
+    /// </summary>
+    LookupView Lookup, 
+    /// <summary>
+    /// The confirmation asked, if any.
+    /// </summary>
+    NumberConfirmationView? Confirmation, 
+    /// <summary>
+    /// The carrier tab, while it shows: it is read when it opens.
+    /// </summary>
+    CarrierTabView? Carrier
+) {
+}
+
+class FfiConverterTypeNumberAdminView: FfiConverterRustBuffer<NumberAdminView> {
+    public static FfiConverterTypeNumberAdminView INSTANCE = new FfiConverterTypeNumberAdminView();
+
+    public override NumberAdminView Read(BigEndianStream stream) {
+        return new NumberAdminView(
+            CarrierTab: FfiConverterString.INSTANCE.Read(stream),
+            ConfigureAction: FfiConverterString.INSTANCE.Read(stream),
+            ConfigureCaption: FfiConverterString.INSTANCE.Read(stream),
+            ReleaseAction: FfiConverterString.INSTANCE.Read(stream),
+            NumberNotice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            NumberUnrepeatable: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Lookup: FfiConverterTypeLookupView.INSTANCE.Read(stream),
+            Confirmation: FfiConverterOptionalTypeNumberConfirmationView.INSTANCE.Read(stream),
+            Carrier: FfiConverterOptionalTypeCarrierTabView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NumberAdminView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.CarrierTab)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConfigureAction)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConfigureCaption)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ReleaseAction)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NumberNotice)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NumberUnrepeatable)
+            + FfiConverterTypeLookupView.INSTANCE.AllocationSize(value.Lookup)
+            + FfiConverterOptionalTypeNumberConfirmationView.INSTANCE.AllocationSize(value.Confirmation)
+            + FfiConverterOptionalTypeCarrierTabView.INSTANCE.AllocationSize(value.Carrier);
+    }
+
+    public override void Write(NumberAdminView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.CarrierTab, stream);
+            FfiConverterString.INSTANCE.Write(value.ConfigureAction, stream);
+            FfiConverterString.INSTANCE.Write(value.ConfigureCaption, stream);
+            FfiConverterString.INSTANCE.Write(value.ReleaseAction, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NumberNotice, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NumberUnrepeatable, stream);
+            FfiConverterTypeLookupView.INSTANCE.Write(value.Lookup, stream);
+            FfiConverterOptionalTypeNumberConfirmationView.INSTANCE.Write(value.Confirmation, stream);
+            FfiConverterOptionalTypeCarrierTabView.INSTANCE.Write(value.Carrier, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A confirmation asked before a write that cannot be undone or costs money.
+/// </summary>
+/// <param name="Title">
+/// The question.
+/// </param>
+/// <param name="Body">
+/// What happens.
+/// </param>
+/// <param name="Confirm">
+/// The button that goes ahead: "Working…" while it is on its way.
+/// </param>
+/// <param name="Close">
+/// The button that closes it: "Close" once the write may have happened.
+/// </param>
+/// <param name="Destructive">
+/// Whether to draw it as destructive: a release.
+/// </param>
+/// <param name="CanConfirm">
+/// Whether going ahead works now.
+/// </param>
+/// <param name="Running">
+/// Whether its write is on its way: it cannot be closed meanwhile.
+/// </param>
+/// <param name="Failure">
+/// Why the write failed, or `None`.
+/// </param>
+/// <param name="Unrepeatable">
+/// Why it is not offered again, or `None`.
+/// </param>
+public record NumberConfirmationView (
+    /// <summary>
+    /// The question.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What happens.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The button that goes ahead: "Working…" while it is on its way.
+    /// </summary>
+    string Confirm, 
+    /// <summary>
+    /// The button that closes it: "Close" once the write may have happened.
+    /// </summary>
+    string Close, 
+    /// <summary>
+    /// Whether to draw it as destructive: a release.
+    /// </summary>
+    bool Destructive, 
+    /// <summary>
+    /// Whether going ahead works now.
+    /// </summary>
+    bool CanConfirm, 
+    /// <summary>
+    /// Whether its write is on its way: it cannot be closed meanwhile.
+    /// </summary>
+    bool Running, 
+    /// <summary>
+    /// Why the write failed, or `None`.
+    /// </summary>
+    string? Failure, 
+    /// <summary>
+    /// Why it is not offered again, or `None`.
+    /// </summary>
+    string? Unrepeatable
+) {
+}
+
+class FfiConverterTypeNumberConfirmationView: FfiConverterRustBuffer<NumberConfirmationView> {
+    public static FfiConverterTypeNumberConfirmationView INSTANCE = new FfiConverterTypeNumberConfirmationView();
+
+    public override NumberConfirmationView Read(BigEndianStream stream) {
+        return new NumberConfirmationView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Confirm: FfiConverterString.INSTANCE.Read(stream),
+            Close: FfiConverterString.INSTANCE.Read(stream),
+            Destructive: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanConfirm: FfiConverterBoolean.INSTANCE.Read(stream),
+            Running: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Unrepeatable: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NumberConfirmationView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Confirm)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Close)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Destructive)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanConfirm)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Running)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Unrepeatable);
+    }
+
+    public override void Write(NumberConfirmationView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.Confirm, stream);
+            FfiConverterString.INSTANCE.Write(value.Close, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Destructive, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanConfirm, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Running, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Failure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Unrepeatable, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The search's filters.
 /// </summary>
 /// <param name="AreaCode">
@@ -13270,6 +14168,83 @@ class FfiConverterTypeNumberFormView: FfiConverterRustBuffer<NumberFormView> {
 
 
 /// <summary>
+/// What can be done to one held number.
+/// </summary>
+/// <param name="PhoneNumber">
+/// The number in full, to act on it by.
+/// </param>
+/// <param name="Note">
+/// Why nothing can be done to it (a number Distronode holds, or a viewer),
+/// or `None` when it can be managed.
+/// </param>
+/// <param name="CanConfigure">
+/// Whether "Reapply call routing" works now.
+/// </param>
+/// <param name="CanRelease">
+/// Whether "Release this number" works now: it asks first.
+/// </param>
+/// <param name="Busy">
+/// Whether a write to this number is on its way.
+/// </param>
+public record NumberManageView (
+    /// <summary>
+    /// The number in full, to act on it by.
+    /// </summary>
+    string PhoneNumber, 
+    /// <summary>
+    /// Why nothing can be done to it (a number Distronode holds, or a viewer),
+    /// or `None` when it can be managed.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// Whether "Reapply call routing" works now.
+    /// </summary>
+    bool CanConfigure, 
+    /// <summary>
+    /// Whether "Release this number" works now: it asks first.
+    /// </summary>
+    bool CanRelease, 
+    /// <summary>
+    /// Whether a write to this number is on its way.
+    /// </summary>
+    bool Busy
+) {
+}
+
+class FfiConverterTypeNumberManageView: FfiConverterRustBuffer<NumberManageView> {
+    public static FfiConverterTypeNumberManageView INSTANCE = new FfiConverterTypeNumberManageView();
+
+    public override NumberManageView Read(BigEndianStream stream) {
+        return new NumberManageView(
+            PhoneNumber: FfiConverterString.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanConfigure: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanRelease: FfiConverterBoolean.INSTANCE.Read(stream),
+            Busy: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NumberManageView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.PhoneNumber)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanConfigure)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanRelease)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Busy);
+    }
+
+    public override void Write(NumberManageView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.PhoneNumber, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanConfigure, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanRelease, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Busy, stream);
+    }
+}
+
+
+
+/// <summary>
 /// A number in a list.
 /// </summary>
 /// <param name="Number">
@@ -13282,6 +14257,10 @@ class FfiConverterTypeNumberFormView: FfiConverterRustBuffer<NumberFormView> {
 /// <param name="Monthly">
 /// What the carrier charges a month, as quoted, or `None` when it quoted
 /// nothing (never shown as zero).
+/// </param>
+/// <param name="Manage">
+/// What can be done to a number the workspace holds; `None` for one for
+/// sale.
 /// </param>
 public record NumberRowView (
     /// <summary>
@@ -13297,7 +14276,12 @@ public record NumberRowView (
     /// What the carrier charges a month, as quoted, or `None` when it quoted
     /// nothing (never shown as zero).
     /// </summary>
-    string? Monthly
+    string? Monthly, 
+    /// <summary>
+    /// What can be done to a number the workspace holds; `None` for one for
+    /// sale.
+    /// </summary>
+    NumberManageView? Manage
 ) {
 }
 
@@ -13308,7 +14292,8 @@ class FfiConverterTypeNumberRowView: FfiConverterRustBuffer<NumberRowView> {
         return new NumberRowView(
             Number: FfiConverterString.INSTANCE.Read(stream),
             Line: FfiConverterString.INSTANCE.Read(stream),
-            Monthly: FfiConverterOptionalString.INSTANCE.Read(stream)
+            Monthly: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Manage: FfiConverterOptionalTypeNumberManageView.INSTANCE.Read(stream)
         );
     }
 
@@ -13316,13 +14301,15 @@ class FfiConverterTypeNumberRowView: FfiConverterRustBuffer<NumberRowView> {
         return 0
             + FfiConverterString.INSTANCE.AllocationSize(value.Number)
             + FfiConverterString.INSTANCE.AllocationSize(value.Line)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Monthly);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Monthly)
+            + FfiConverterOptionalTypeNumberManageView.INSTANCE.AllocationSize(value.Manage);
     }
 
     public override void Write(NumberRowView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Number, stream);
             FfiConverterString.INSTANCE.Write(value.Line, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Monthly, stream);
+            FfiConverterOptionalTypeNumberManageView.INSTANCE.Write(value.Manage, stream);
     }
 }
 
@@ -17039,6 +18026,271 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
 
 
 /// <summary>
+/// The SIP trunk form.
+/// </summary>
+/// <param name="Name">
+/// The trunk's name.
+/// </param>
+/// <param name="Domain">
+/// The domain's label only.
+/// </param>
+/// <param name="IpAddresses">
+/// The allowed addresses, one per line.
+/// </param>
+public record SipTrunkFormInput (
+    /// <summary>
+    /// The trunk's name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The domain's label only.
+    /// </summary>
+    string Domain, 
+    /// <summary>
+    /// The allowed addresses, one per line.
+    /// </summary>
+    string IpAddresses
+) {
+}
+
+class FfiConverterTypeSipTrunkFormInput: FfiConverterRustBuffer<SipTrunkFormInput> {
+    public static FfiConverterTypeSipTrunkFormInput INSTANCE = new FfiConverterTypeSipTrunkFormInput();
+
+    public override SipTrunkFormInput Read(BigEndianStream stream) {
+        return new SipTrunkFormInput(
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Domain: FfiConverterString.INSTANCE.Read(stream),
+            IpAddresses: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SipTrunkFormInput value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Domain)
+            + FfiConverterString.INSTANCE.AllocationSize(value.IpAddresses);
+    }
+
+    public override void Write(SipTrunkFormInput value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Domain, stream);
+            FfiConverterString.INSTANCE.Write(value.IpAddresses, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One SIP trunk.
+/// </summary>
+/// <param name="Name">
+/// The trunk's name.
+/// </param>
+/// <param name="Domain">
+/// Its domain.
+/// </param>
+/// <param name="Meta">
+/// Its state and how many addresses may use it.
+/// </param>
+/// <param name="Unprovisioned">
+/// That no carrier resources are recorded for it, or `None`.
+/// </param>
+public record SipTrunkView (
+    /// <summary>
+    /// The trunk's name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Its domain.
+    /// </summary>
+    string Domain, 
+    /// <summary>
+    /// Its state and how many addresses may use it.
+    /// </summary>
+    string Meta, 
+    /// <summary>
+    /// That no carrier resources are recorded for it, or `None`.
+    /// </summary>
+    string? Unprovisioned
+) {
+}
+
+class FfiConverterTypeSipTrunkView: FfiConverterRustBuffer<SipTrunkView> {
+    public static FfiConverterTypeSipTrunkView INSTANCE = new FfiConverterTypeSipTrunkView();
+
+    public override SipTrunkView Read(BigEndianStream stream) {
+        return new SipTrunkView(
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Domain: FfiConverterString.INSTANCE.Read(stream),
+            Meta: FfiConverterString.INSTANCE.Read(stream),
+            Unprovisioned: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SipTrunkView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Domain)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Meta)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Unprovisioned);
+    }
+
+    public override void Write(SipTrunkView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Domain, stream);
+            FfiConverterString.INSTANCE.Write(value.Meta, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Unprovisioned, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The SIP trunks, and the form creating one.
+/// </summary>
+/// <param name="Eyebrow">
+/// "SIP trunks".
+/// </param>
+/// <param name="Status">
+/// Where the read stands.
+/// </param>
+/// <param name="Empty">
+/// None yet.
+/// </param>
+/// <param name="Trunks">
+/// The trunks.
+/// </param>
+/// <param name="NameLabel">
+/// The trunk name field's label.
+/// </param>
+/// <param name="DomainLabel">
+/// The domain label field's label.
+/// </param>
+/// <param name="DomainCaption">
+/// What the carrier adds to the domain.
+/// </param>
+/// <param name="IpLabel">
+/// The addresses field's label.
+/// </param>
+/// <param name="Form">
+/// The form, as typed.
+/// </param>
+/// <param name="ChargeNote">
+/// The monthly charge, said before the button.
+/// </param>
+/// <param name="CreateAction">
+/// "Create trunk".
+/// </param>
+/// <param name="CanCreate">
+/// Whether it works now.
+/// </param>
+public record SipView (
+    /// <summary>
+    /// "SIP trunks".
+    /// </summary>
+    string Eyebrow, 
+    /// <summary>
+    /// Where the read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// None yet.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// The trunks.
+    /// </summary>
+    SipTrunkView[] Trunks, 
+    /// <summary>
+    /// The trunk name field's label.
+    /// </summary>
+    string NameLabel, 
+    /// <summary>
+    /// The domain label field's label.
+    /// </summary>
+    string DomainLabel, 
+    /// <summary>
+    /// What the carrier adds to the domain.
+    /// </summary>
+    string DomainCaption, 
+    /// <summary>
+    /// The addresses field's label.
+    /// </summary>
+    string IpLabel, 
+    /// <summary>
+    /// The form, as typed.
+    /// </summary>
+    SipTrunkFormInput Form, 
+    /// <summary>
+    /// The monthly charge, said before the button.
+    /// </summary>
+    string ChargeNote, 
+    /// <summary>
+    /// "Create trunk".
+    /// </summary>
+    string CreateAction, 
+    /// <summary>
+    /// Whether it works now.
+    /// </summary>
+    bool CanCreate
+) {
+}
+
+class FfiConverterTypeSipView: FfiConverterRustBuffer<SipView> {
+    public static FfiConverterTypeSipView INSTANCE = new FfiConverterTypeSipView();
+
+    public override SipView Read(BigEndianStream stream) {
+        return new SipView(
+            Eyebrow: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Trunks: FfiConverterSequenceTypeSipTrunkView.INSTANCE.Read(stream),
+            NameLabel: FfiConverterString.INSTANCE.Read(stream),
+            DomainLabel: FfiConverterString.INSTANCE.Read(stream),
+            DomainCaption: FfiConverterString.INSTANCE.Read(stream),
+            IpLabel: FfiConverterString.INSTANCE.Read(stream),
+            Form: FfiConverterTypeSipTrunkFormInput.INSTANCE.Read(stream),
+            ChargeNote: FfiConverterString.INSTANCE.Read(stream),
+            CreateAction: FfiConverterString.INSTANCE.Read(stream),
+            CanCreate: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SipView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Eyebrow)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterSequenceTypeSipTrunkView.INSTANCE.AllocationSize(value.Trunks)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NameLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DomainLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DomainCaption)
+            + FfiConverterString.INSTANCE.AllocationSize(value.IpLabel)
+            + FfiConverterTypeSipTrunkFormInput.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ChargeNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CreateAction)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanCreate);
+    }
+
+    public override void Write(SipView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Eyebrow, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterSequenceTypeSipTrunkView.INSTANCE.Write(value.Trunks, stream);
+            FfiConverterString.INSTANCE.Write(value.NameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DomainLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DomainCaption, stream);
+            FfiConverterString.INSTANCE.Write(value.IpLabel, stream);
+            FfiConverterTypeSipTrunkFormInput.INSTANCE.Write(value.Form, stream);
+            FfiConverterString.INSTANCE.Write(value.ChargeNote, stream);
+            FfiConverterString.INSTANCE.Write(value.CreateAction, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanCreate, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One source, to choose.
 /// </summary>
 /// <param name="Source">
@@ -19122,6 +20374,262 @@ class FfiConverterTypeTimelineItemView: FfiConverterRustBuffer<TimelineItemView>
 
 
 /// <summary>
+/// The toll-free form, as typed. The service's website and opt-in flow are
+/// left to its defaults, as the iOS app leaves them.
+/// </summary>
+/// <param name="PhoneNumber">
+/// The toll-free number.
+/// </param>
+/// <param name="BusinessName">
+/// The business's name.
+/// </param>
+/// <param name="OptInImageUrl">
+/// A public link to the opt-in form or a screenshot of it.
+/// </param>
+/// <param name="MessageContent">
+/// An example message. Optional.
+/// </param>
+/// <param name="UseCase">
+/// One of [`TollFreeView::use_cases`]' values.
+/// </param>
+public record TollFreeFormInput (
+    /// <summary>
+    /// The toll-free number.
+    /// </summary>
+    string PhoneNumber, 
+    /// <summary>
+    /// The business's name.
+    /// </summary>
+    string BusinessName, 
+    /// <summary>
+    /// A public link to the opt-in form or a screenshot of it.
+    /// </summary>
+    string OptInImageUrl, 
+    /// <summary>
+    /// An example message. Optional.
+    /// </summary>
+    string MessageContent, 
+    /// <summary>
+    /// One of [`TollFreeView::use_cases`]' values.
+    /// </summary>
+    string UseCase
+) {
+}
+
+class FfiConverterTypeTollFreeFormInput: FfiConverterRustBuffer<TollFreeFormInput> {
+    public static FfiConverterTypeTollFreeFormInput INSTANCE = new FfiConverterTypeTollFreeFormInput();
+
+    public override TollFreeFormInput Read(BigEndianStream stream) {
+        return new TollFreeFormInput(
+            PhoneNumber: FfiConverterString.INSTANCE.Read(stream),
+            BusinessName: FfiConverterString.INSTANCE.Read(stream),
+            OptInImageUrl: FfiConverterString.INSTANCE.Read(stream),
+            MessageContent: FfiConverterString.INSTANCE.Read(stream),
+            UseCase: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TollFreeFormInput value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.PhoneNumber)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BusinessName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OptInImageUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MessageContent)
+            + FfiConverterString.INSTANCE.AllocationSize(value.UseCase);
+    }
+
+    public override void Write(TollFreeFormInput value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.PhoneNumber, stream);
+            FfiConverterString.INSTANCE.Write(value.BusinessName, stream);
+            FfiConverterString.INSTANCE.Write(value.OptInImageUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.MessageContent, stream);
+            FfiConverterString.INSTANCE.Write(value.UseCase, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The toll-free form's labels.
+/// </summary>
+/// <param name="PhoneNumber">
+/// The toll-free number.
+/// </param>
+/// <param name="BusinessName">
+/// The business's name.
+/// </param>
+/// <param name="OptInImageUrl">
+/// The opt-in link.
+/// </param>
+/// <param name="MessageContent">
+/// The example message.
+/// </param>
+/// <param name="UseCase">
+/// The use case.
+/// </param>
+public record TollFreeLabels (
+    /// <summary>
+    /// The toll-free number.
+    /// </summary>
+    string PhoneNumber, 
+    /// <summary>
+    /// The business's name.
+    /// </summary>
+    string BusinessName, 
+    /// <summary>
+    /// The opt-in link.
+    /// </summary>
+    string OptInImageUrl, 
+    /// <summary>
+    /// The example message.
+    /// </summary>
+    string MessageContent, 
+    /// <summary>
+    /// The use case.
+    /// </summary>
+    string UseCase
+) {
+}
+
+class FfiConverterTypeTollFreeLabels: FfiConverterRustBuffer<TollFreeLabels> {
+    public static FfiConverterTypeTollFreeLabels INSTANCE = new FfiConverterTypeTollFreeLabels();
+
+    public override TollFreeLabels Read(BigEndianStream stream) {
+        return new TollFreeLabels(
+            PhoneNumber: FfiConverterString.INSTANCE.Read(stream),
+            BusinessName: FfiConverterString.INSTANCE.Read(stream),
+            OptInImageUrl: FfiConverterString.INSTANCE.Read(stream),
+            MessageContent: FfiConverterString.INSTANCE.Read(stream),
+            UseCase: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TollFreeLabels value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.PhoneNumber)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BusinessName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OptInImageUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MessageContent)
+            + FfiConverterString.INSTANCE.AllocationSize(value.UseCase);
+    }
+
+    public override void Write(TollFreeLabels value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.PhoneNumber, stream);
+            FfiConverterString.INSTANCE.Write(value.BusinessName, stream);
+            FfiConverterString.INSTANCE.Write(value.OptInImageUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.MessageContent, stream);
+            FfiConverterString.INSTANCE.Write(value.UseCase, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The toll-free verification form.
+/// </summary>
+/// <param name="Title">
+/// Its heading.
+/// </param>
+/// <param name="Caption">
+/// Why it is needed.
+/// </param>
+/// <param name="Labels">
+/// The fields' labels.
+/// </param>
+/// <param name="OptInCaption">
+/// What a reviewer does with the opt-in link.
+/// </param>
+/// <param name="Form">
+/// The form, as typed.
+/// </param>
+/// <param name="UseCases">
+/// The use cases.
+/// </param>
+/// <param name="SubmitAction">
+/// "Submit verification", which asks first.
+/// </param>
+/// <param name="CanSubmit">
+/// Whether it works now.
+/// </param>
+public record TollFreeView (
+    /// <summary>
+    /// Its heading.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// Why it is needed.
+    /// </summary>
+    string Caption, 
+    /// <summary>
+    /// The fields' labels.
+    /// </summary>
+    TollFreeLabels Labels, 
+    /// <summary>
+    /// What a reviewer does with the opt-in link.
+    /// </summary>
+    string OptInCaption, 
+    /// <summary>
+    /// The form, as typed.
+    /// </summary>
+    TollFreeFormInput Form, 
+    /// <summary>
+    /// The use cases.
+    /// </summary>
+    ChoiceView[] UseCases, 
+    /// <summary>
+    /// "Submit verification", which asks first.
+    /// </summary>
+    string SubmitAction, 
+    /// <summary>
+    /// Whether it works now.
+    /// </summary>
+    bool CanSubmit
+) {
+}
+
+class FfiConverterTypeTollFreeView: FfiConverterRustBuffer<TollFreeView> {
+    public static FfiConverterTypeTollFreeView INSTANCE = new FfiConverterTypeTollFreeView();
+
+    public override TollFreeView Read(BigEndianStream stream) {
+        return new TollFreeView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Caption: FfiConverterString.INSTANCE.Read(stream),
+            Labels: FfiConverterTypeTollFreeLabels.INSTANCE.Read(stream),
+            OptInCaption: FfiConverterString.INSTANCE.Read(stream),
+            Form: FfiConverterTypeTollFreeFormInput.INSTANCE.Read(stream),
+            UseCases: FfiConverterSequenceTypeChoiceView.INSTANCE.Read(stream),
+            SubmitAction: FfiConverterString.INSTANCE.Read(stream),
+            CanSubmit: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TollFreeView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Caption)
+            + FfiConverterTypeTollFreeLabels.INSTANCE.AllocationSize(value.Labels)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OptInCaption)
+            + FfiConverterTypeTollFreeFormInput.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterSequenceTypeChoiceView.INSTANCE.AllocationSize(value.UseCases)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SubmitAction)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSubmit);
+    }
+
+    public override void Write(TollFreeView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Caption, stream);
+            FfiConverterTypeTollFreeLabels.INSTANCE.Write(value.Labels, stream);
+            FfiConverterString.INSTANCE.Write(value.OptInCaption, stream);
+            FfiConverterTypeTollFreeFormInput.INSTANCE.Write(value.Form, stream);
+            FfiConverterSequenceTypeChoiceView.INSTANCE.Write(value.UseCases, stream);
+            FfiConverterString.INSTANCE.Write(value.SubmitAction, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSubmit, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One tool's switch.
 /// </summary>
 /// <param name="Id">
@@ -19740,6 +21248,101 @@ class FfiConverterTypeUsageCardView: FfiConverterRustBuffer<UsageCardView> {
             FfiConverterBoolean.INSTANCE.Write(value.Refreshing, stream);
             FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Lines, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Empty, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The one-time passcode sender.
+/// </summary>
+/// <param name="Eyebrow">
+/// "One-time passcodes".
+/// </param>
+/// <param name="Status">
+/// Where the read stands.
+/// </param>
+/// <param name="Enabled">
+/// Whether it is in use, once read.
+/// </param>
+/// <param name="State">
+/// Its state in words, once read.
+/// </param>
+/// <param name="Action">
+/// The button that turns it the other way, once read.
+/// </param>
+/// <param name="Caption">
+/// What that does.
+/// </param>
+/// <param name="CanToggle">
+/// Whether the button works now.
+/// </param>
+public record VerifyView (
+    /// <summary>
+    /// "One-time passcodes".
+    /// </summary>
+    string Eyebrow, 
+    /// <summary>
+    /// Where the read stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// Whether it is in use, once read.
+    /// </summary>
+    bool? Enabled, 
+    /// <summary>
+    /// Its state in words, once read.
+    /// </summary>
+    string? State, 
+    /// <summary>
+    /// The button that turns it the other way, once read.
+    /// </summary>
+    string? Action, 
+    /// <summary>
+    /// What that does.
+    /// </summary>
+    string? Caption, 
+    /// <summary>
+    /// Whether the button works now.
+    /// </summary>
+    bool CanToggle
+) {
+}
+
+class FfiConverterTypeVerifyView: FfiConverterRustBuffer<VerifyView> {
+    public static FfiConverterTypeVerifyView INSTANCE = new FfiConverterTypeVerifyView();
+
+    public override VerifyView Read(BigEndianStream stream) {
+        return new VerifyView(
+            Eyebrow: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Enabled: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
+            State: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Action: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Caption: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanToggle: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(VerifyView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Eyebrow)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.Enabled)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.State)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Action)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Caption)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanToggle);
+    }
+
+    public override void Write(VerifyView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Eyebrow, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterOptionalBoolean.INSTANCE.Write(value.Enabled, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.State, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Action, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Caption, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanToggle, stream);
     }
 }
 
@@ -23387,6 +24990,13 @@ public record MarketplaceAction {
     public record Search: MarketplaceAction {}
     
     
+    /// <summary>
+    /// Manage a held number or the carrier account.
+    /// </summary>
+    public record Numbers (
+        NumberAdminAction Action
+    ) : MarketplaceAction {}
+    
 
     
 }
@@ -23416,6 +25026,10 @@ class FfiConverterTypeMarketplaceAction : FfiConverterRustBuffer<MarketplaceActi
             case 5:
                 return new MarketplaceAction.Search(
                 );
+            case 6:
+                return new MarketplaceAction.Numbers(
+                    FfiConverterTypeNumberAdminAction.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMarketplaceAction.Read()", value));
         }
@@ -23437,6 +25051,9 @@ class FfiConverterTypeMarketplaceAction : FfiConverterRustBuffer<MarketplaceActi
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.NumberType);
             case MarketplaceAction.Search variant_value:
                 return 4;
+            case MarketplaceAction.Numbers variant_value:
+                return 4
+                    + FfiConverterTypeNumberAdminAction.INSTANCE.AllocationSize(variant_value.Action);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMarketplaceAction.AllocationSize()", value));
         }
@@ -23462,6 +25079,10 @@ class FfiConverterTypeMarketplaceAction : FfiConverterRustBuffer<MarketplaceActi
                 break;
             case MarketplaceAction.Search variant_value:
                 stream.WriteInt(5);
+                break;
+            case MarketplaceAction.Numbers variant_value:
+                stream.WriteInt(6);
+                FfiConverterTypeNumberAdminAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMarketplaceAction.Write()", value));
@@ -24431,6 +26052,257 @@ class FfiConverterTypeNotificationKind: FfiConverterRustBuffer<NotificationKind>
             case NotificationKind.Call: stream.WriteInt(2); break;
             case NotificationKind.Message: stream.WriteInt(3); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNotificationKind.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did to manage numbers.
+/// </summary>
+public record NumberAdminAction {
+    
+    /// <summary>
+    /// "Reapply call routing" on a held number. Not confirmed: it converges.
+    /// </summary>
+    public record Configure (
+        string PhoneNumber
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// "Release this number": the core asks first.
+    /// </summary>
+    public record AskRelease (
+        string PhoneNumber
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// The number to look up changed.
+    /// </summary>
+    public record EditLookup (
+        string PhoneNumber
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// "Look this number up": the core asks first.
+    /// </summary>
+    public record AskLookup: NumberAdminAction {}
+    
+    
+    /// <summary>
+    /// The SIP trunk form changed.
+    /// </summary>
+    public record EditSipTrunk (
+        SipTrunkFormInput Form
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// "Create trunk".
+    /// </summary>
+    public record CreateSipTrunk: NumberAdminAction {}
+    
+    
+    /// <summary>
+    /// Turn the passcode sender on or off.
+    /// </summary>
+    public record SetVerify (
+        bool Enabled
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// The A2P form changed.
+    /// </summary>
+    public record EditA2p (
+        A2pFormInput Form
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// "Submit registration": the core asks first.
+    /// </summary>
+    public record AskA2p: NumberAdminAction {}
+    
+    
+    /// <summary>
+    /// The toll-free form changed.
+    /// </summary>
+    public record EditTollFree (
+        TollFreeFormInput Form
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// "Submit verification": the core asks first.
+    /// </summary>
+    public record AskTollFree: NumberAdminAction {}
+    
+    
+    /// <summary>
+    /// Go ahead with the confirmation asked.
+    /// </summary>
+    public record Confirm: NumberAdminAction {}
+    
+    
+    /// <summary>
+    /// Close the confirmation. The core refuses while its write is on its way.
+    /// </summary>
+    public record CancelConfirmation: NumberAdminAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeNumberAdminAction : FfiConverterRustBuffer<NumberAdminAction>{
+    public static FfiConverterRustBuffer<NumberAdminAction> INSTANCE = new FfiConverterTypeNumberAdminAction();
+
+    public override NumberAdminAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new NumberAdminAction.Configure(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new NumberAdminAction.AskRelease(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new NumberAdminAction.EditLookup(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new NumberAdminAction.AskLookup(
+                );
+            case 5:
+                return new NumberAdminAction.EditSipTrunk(
+                    FfiConverterTypeSipTrunkFormInput.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new NumberAdminAction.CreateSipTrunk(
+                );
+            case 7:
+                return new NumberAdminAction.SetVerify(
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new NumberAdminAction.EditA2p(
+                    FfiConverterTypeA2pFormInput.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new NumberAdminAction.AskA2p(
+                );
+            case 10:
+                return new NumberAdminAction.EditTollFree(
+                    FfiConverterTypeTollFreeFormInput.INSTANCE.Read(stream)
+                );
+            case 11:
+                return new NumberAdminAction.AskTollFree(
+                );
+            case 12:
+                return new NumberAdminAction.Confirm(
+                );
+            case 13:
+                return new NumberAdminAction.CancelConfirmation(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberAdminAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(NumberAdminAction value) {
+        switch (value) {
+            case NumberAdminAction.Configure variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.PhoneNumber);
+            case NumberAdminAction.AskRelease variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.PhoneNumber);
+            case NumberAdminAction.EditLookup variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.PhoneNumber);
+            case NumberAdminAction.AskLookup variant_value:
+                return 4;
+            case NumberAdminAction.EditSipTrunk variant_value:
+                return 4
+                    + FfiConverterTypeSipTrunkFormInput.INSTANCE.AllocationSize(variant_value.Form);
+            case NumberAdminAction.CreateSipTrunk variant_value:
+                return 4;
+            case NumberAdminAction.SetVerify variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Enabled);
+            case NumberAdminAction.EditA2p variant_value:
+                return 4
+                    + FfiConverterTypeA2pFormInput.INSTANCE.AllocationSize(variant_value.Form);
+            case NumberAdminAction.AskA2p variant_value:
+                return 4;
+            case NumberAdminAction.EditTollFree variant_value:
+                return 4
+                    + FfiConverterTypeTollFreeFormInput.INSTANCE.AllocationSize(variant_value.Form);
+            case NumberAdminAction.AskTollFree variant_value:
+                return 4;
+            case NumberAdminAction.Confirm variant_value:
+                return 4;
+            case NumberAdminAction.CancelConfirmation variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberAdminAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(NumberAdminAction value, BigEndianStream stream) {
+        switch (value) {
+            case NumberAdminAction.Configure variant_value:
+                stream.WriteInt(1);
+                FfiConverterString.INSTANCE.Write(variant_value.PhoneNumber, stream);
+                break;
+            case NumberAdminAction.AskRelease variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.PhoneNumber, stream);
+                break;
+            case NumberAdminAction.EditLookup variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.PhoneNumber, stream);
+                break;
+            case NumberAdminAction.AskLookup variant_value:
+                stream.WriteInt(4);
+                break;
+            case NumberAdminAction.EditSipTrunk variant_value:
+                stream.WriteInt(5);
+                FfiConverterTypeSipTrunkFormInput.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case NumberAdminAction.CreateSipTrunk variant_value:
+                stream.WriteInt(6);
+                break;
+            case NumberAdminAction.SetVerify variant_value:
+                stream.WriteInt(7);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Enabled, stream);
+                break;
+            case NumberAdminAction.EditA2p variant_value:
+                stream.WriteInt(8);
+                FfiConverterTypeA2pFormInput.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case NumberAdminAction.AskA2p variant_value:
+                stream.WriteInt(9);
+                break;
+            case NumberAdminAction.EditTollFree variant_value:
+                stream.WriteInt(10);
+                FfiConverterTypeTollFreeFormInput.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case NumberAdminAction.AskTollFree variant_value:
+                stream.WriteInt(11);
+                break;
+            case NumberAdminAction.Confirm variant_value:
+                stream.WriteInt(12);
+                break;
+            case NumberAdminAction.CancelConfirmation variant_value:
+                stream.WriteInt(13);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberAdminAction.Write()", value));
         }
     }
 }
@@ -26183,7 +28055,8 @@ public record ScreenView {
     ) : ScreenView {}
     
     /// <summary>
-    /// The workspace's phone numbers, read only.
+    /// The workspace's phone numbers: held, for sale (bought on the web), and
+    /// managed (crate::numbers).
     /// </summary>
     public record Marketplace (
         MarketplaceView View
@@ -30218,6 +32091,37 @@ class FfiConverterOptionalTypeCampaignConfirmView: FfiConverterRustBuffer<Campai
 
 
 
+class FfiConverterOptionalTypeCarrierTabView: FfiConverterRustBuffer<CarrierTabView?> {
+    public static FfiConverterOptionalTypeCarrierTabView INSTANCE = new FfiConverterOptionalTypeCarrierTabView();
+
+    public override CarrierTabView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeCarrierTabView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(CarrierTabView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeCarrierTabView.INSTANCE.AllocationSize((CarrierTabView)value);
+        }
+    }
+
+    public override void Write(CarrierTabView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeCarrierTabView.INSTANCE.Write((CarrierTabView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeComposeView: FfiConverterRustBuffer<ComposeView?> {
     public static FfiConverterOptionalTypeComposeView INSTANCE = new FfiConverterOptionalTypeComposeView();
 
@@ -31024,6 +32928,68 @@ class FfiConverterOptionalTypeMessagingFormView: FfiConverterRustBuffer<Messagin
 
 
 
+class FfiConverterOptionalTypeNumberConfirmationView: FfiConverterRustBuffer<NumberConfirmationView?> {
+    public static FfiConverterOptionalTypeNumberConfirmationView INSTANCE = new FfiConverterOptionalTypeNumberConfirmationView();
+
+    public override NumberConfirmationView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeNumberConfirmationView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(NumberConfirmationView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeNumberConfirmationView.INSTANCE.AllocationSize((NumberConfirmationView)value);
+        }
+    }
+
+    public override void Write(NumberConfirmationView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeNumberConfirmationView.INSTANCE.Write((NumberConfirmationView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeNumberManageView: FfiConverterRustBuffer<NumberManageView?> {
+    public static FfiConverterOptionalTypeNumberManageView INSTANCE = new FfiConverterOptionalTypeNumberManageView();
+
+    public override NumberManageView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeNumberManageView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(NumberManageView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeNumberManageView.INSTANCE.AllocationSize((NumberManageView)value);
+        }
+    }
+
+    public override void Write(NumberManageView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeNumberManageView.INSTANCE.Write((NumberManageView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypePersonaEngineView: FfiConverterRustBuffer<PersonaEngineView?> {
     public static FfiConverterOptionalTypePersonaEngineView INSTANCE = new FfiConverterOptionalTypePersonaEngineView();
 
@@ -31805,6 +33771,52 @@ class FfiConverterSequenceTypeCallRowView: FfiConverterRustBuffer<CallRowView[]>
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeCallRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeCarrierAccountView: FfiConverterRustBuffer<CarrierAccountView[]> {
+    public static FfiConverterSequenceTypeCarrierAccountView INSTANCE = new FfiConverterSequenceTypeCarrierAccountView();
+
+    public override CarrierAccountView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new CarrierAccountView[length];
+        var readFn = FfiConverterTypeCarrierAccountView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(CarrierAccountView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeCarrierAccountView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(CarrierAccountView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeCarrierAccountView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -33461,6 +35473,52 @@ class FfiConverterSequenceTypeSettingsRowView: FfiConverterRustBuffer<SettingsRo
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeSettingsRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSipTrunkView: FfiConverterRustBuffer<SipTrunkView[]> {
+    public static FfiConverterSequenceTypeSipTrunkView INSTANCE = new FfiConverterSequenceTypeSipTrunkView();
+
+    public override SipTrunkView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SipTrunkView[length];
+        var readFn = FfiConverterTypeSipTrunkView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SipTrunkView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSipTrunkView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SipTrunkView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSipTrunkView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
