@@ -88,6 +88,7 @@ public sealed class SceneWalkTests
     [
         "SchedulingSectionOverview",
         "SchedulingSectionEventTypes",
+        "SchedulingSectionHours",
         "SchedulingSectionBookings",
     ];
 
@@ -528,6 +529,67 @@ public sealed class SceneWalkTests
             "the state actions stayed open after Escape");
         Assert.Null(Failure(app));
         Assert.True(app.IsRunning, "the app ended in the event types");
+    }
+
+    /// <summary>
+    /// The working hours' main flow: the section opens from the Booking pages
+    /// page with the week, and the overrides read; the week's editor
+    /// opens on the week read, a window is added to Monday and given another
+    /// opening time, and Save lands (the scene answers each step, so the
+    /// editor says so); then the overrides' editor adds a day off on a typed
+    /// date, and says so. Escape closes each editor.
+    /// </summary>
+    [Fact]
+    public void TheWeekSavesAndAnOverrideIsAdded()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        var hours = OpenSettingsRowById(app, "SchedulingSectionHours");
+        _ = Heading(app, hours, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("SchedulingHoursSummary", PageTimeout);
+        Assert.Null(app.TryFindById("SchedulingHoursOverridesFailure"));
+        InstalledApp.Log("the week shows");
+
+        app.FindById("HoursWeekButton", PageTimeout).AsButton().Invoke();
+        var week = app.FindById("HoursWeekDialog", PageTimeout);
+        // Monday comes first, and has no window in the scene: its Add range is
+        // the first, and the window it adds the first opening time.
+        Press(app.FindById("HoursAddRange", PageTimeout));
+        app.FindById("HoursRangeStart", PageTimeout).AsTextBox().Text = "08:30";
+        var save = Wait.For(
+            () => week.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "the week's Save to work",
+            app.Describe);
+        Press(save);
+        _ = app.FindById("HoursWeekNotice", PageTimeout);
+        InstalledApp.Log("the week saved");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("HoursWeekDialog") is null, PageTimeout),
+            "the week's editor stayed open after Escape");
+
+        app.FindById("HoursOverridesButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("HoursOverridesDialog", PageTimeout);
+        Press(Wait.For(
+            () => app.TryFindById("HoursOverrideAdd") is { IsEnabled: true } add ? add : null,
+            PageTimeout,
+            "Add override to work",
+            app.Describe));
+        app.FindById("HoursOverrideDate", PageTimeout).AsTextBox().Text = "2099-12-24";
+        Press(app.FindById("HoursOverrideSave", PageTimeout));
+        _ = app.FindById("HoursOverridesNotice", PageTimeout);
+        InstalledApp.Log("the override was added");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("HoursOverridesDialog") is null, PageTimeout),
+            "the overrides' editor stayed open after Escape");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the working hours");
     }
 
     /// <summary>

@@ -880,6 +880,18 @@ namespace DistrictAI.L10n
         /// <summary><c>scheduling.hosts_add</c></summary>
         public static string SchedulingHostsAdd => Current == Locale.FrCa ? "Add a host" : "Add a host";
 
+        /// <summary><c>scheduling.hours_closes</c></summary>
+        public static string SchedulingHoursCloses => Current == Locale.FrCa ? "Closes" : "Closes";
+
+        /// <summary><c>scheduling.hours_notice</c></summary>
+        public static string SchedulingHoursNotice => Current == Locale.FrCa ? "Working hours change" : "Working hours change";
+
+        /// <summary><c>scheduling.hours_opens</c></summary>
+        public static string SchedulingHoursOpens => Current == Locale.FrCa ? "Opens" : "Opens";
+
+        /// <summary><c>scheduling.hours_window</c></summary>
+        public static string SchedulingHoursWindow(string day, long number) => Current == Locale.FrCa ? string.Concat(day, ", range ", number.ToString(CultureInfo.InvariantCulture)) : string.Concat(day, ", range ", number.ToString(CultureInfo.InvariantCulture));
+
         /// <summary><c>scheduling.last_live</c></summary>
         public static string SchedulingLastLive => Current == Locale.FrCa ? "Last live" : "Last live";
 

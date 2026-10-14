@@ -53,6 +53,10 @@
             x:Name="EventTypePanel"
             Grid.Row="2"
             Visibility="{x:Bind ViewModel.ShowsEventType, Mode=OneWay}" />
+        <local:SchedulingHoursPanel
+            x:Name="HoursPanel"
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.ShowsHours, Mode=OneWay}" />
         <local:SchedulingBookingsPanel
             x:Name="BookingsPanel"
             Grid.Row="2"

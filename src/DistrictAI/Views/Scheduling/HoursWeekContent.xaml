@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.HoursWeekContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:sched="using:DistrictAI.ViewModels.Scheduling">
+    <StackPanel MinWidth="440" Spacing="12">
+        <ProgressRing
+            Width="20"
+            Height="20"
+            HorizontalAlignment="Left"
+            AutomationProperties.AutomationId="HoursWeekLoading"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+            IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Loading, Mode=OneWay}" />
+        <TextBlock
+            AutomationProperties.AutomationId="HoursWeekReadFailure"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Text="{x:Bind ViewModel.FailureMessage, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.Failed, Mode=OneWay}" />
+
+        <!-- Every day, Monday first: its windows, typed as HH:MM, each with its fault under it. Nothing changes while a save is on its way. -->
+        <ContentControl
+            HorizontalContentAlignment="Stretch"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            IsTabStop="False">
+            <ItemsRepeater AutomationProperties.AutomationId="HoursWeekDays" ItemsSource="{x:Bind ViewModel.Days}">
+                <ItemsRepeater.Layout>
+                    <StackLayout Spacing="12" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="sched:HoursDayEntry">
+                        <StackPanel
+                            AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                            AutomationProperties.Name="{x:Bind Name}"
+                            Spacing="4">
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.HeadingLevel="Level3"
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind Name}" />
+                                <Button
+                                    Grid.Column="1"
+                                    AutomationProperties.AutomationId="HoursCopyToWeekdays"
+                                    AutomationProperties.Name="{x:Bind CopyName}"
+                                    Click="OnCopyClick"
+                                    Content="{x:Bind CopyLabel}"
+                                    Visibility="{x:Bind OffersCopy, Mode=OneWay}" />
+                                <Button
+                                    Grid.Column="2"
+                                    AutomationProperties.AutomationId="HoursAddRange"
+                                    AutomationProperties.Name="{x:Bind AddRangeName}"
+                                    Click="OnAddRangeClick"
+                                    Content="{x:Bind AddRangeLabel}" />
+                            </Grid>
+                            <TextBlock
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind NotBookable}"
+                                Visibility="{x:Bind ShowsNone, Mode=OneWay}" />
+                            <ItemsRepeater ItemsSource="{x:Bind Ranges}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="4" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="sched:HoursRangeEntry">
+                                        <StackPanel AutomationProperties.Name="{x:Bind Name}" Spacing="2">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBox
+                                                    Width="88"
+                                                    AutomationProperties.AutomationId="HoursRangeStart"
+                                                    AutomationProperties.Name="{x:Bind StartName}"
+                                                    PlaceholderText="{x:Bind StartPlaceholder}"
+                                                    Text="{x:Bind Start}"
+                                                    TextChanged="OnStartChanged" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Style="{StaticResource QuietTextStyle}"
+                                                    Text="{x:Bind ToLabel}" />
+                                                <TextBox
+                                                    Width="88"
+                                                    AutomationProperties.AutomationId="HoursRangeEnd"
+                                                    AutomationProperties.Name="{x:Bind EndName}"
+                                                    PlaceholderText="{x:Bind EndPlaceholder}"
+                                                    Text="{x:Bind End}"
+                                                    TextChanged="OnEndChanged" />
+                                                <Button
+                                                    AutomationProperties.AutomationId="HoursRangeRemove"
+                                                    AutomationProperties.Name="{x:Bind RemoveName}"
+                                                    Click="OnRemoveClick"
+                                                    Content="{x:Bind RemoveLabel}" />
+                                            </StackPanel>
+                                            <TextBlock
+                                                AutomationProperties.AutomationId="HoursRangeError"
+                                                AutomationProperties.LiveSetting="Polite"
+                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                Text="{x:Bind Error, Mode=OneWay}"
+                                                TextWrapping="Wrap"
+                                                Visibility="{x:Bind HasError, Mode=OneWay}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ContentControl>
+
+        <InfoBar
+            AutomationProperties.AutomationId="HoursWeekNotice"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingHoursNotice}"
+            CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+            IsClosable="True"
+            IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+            Severity="Success" />
+        <InfoBar
+            AutomationProperties.AutomationId="HoursWeekFailure"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+            CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+            IsClosable="True"
+            IsOpen="{x:Bind ViewModel.Dialog.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Dialog.Failure, Mode=OneWay}"
+            Severity="Error" />
+        <ProgressRing
+            Width="20"
+            Height="20"
+            HorizontalAlignment="Left"
+            AutomationProperties.AutomationId="HoursWeekWorking"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+            IsActive="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>

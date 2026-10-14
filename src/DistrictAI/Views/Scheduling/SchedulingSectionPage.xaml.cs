@@ -23,6 +23,7 @@ public sealed partial class SchedulingSectionPage : UserControl
         {
             EventTypesPanel.CloseDialogs();
             EventTypePanel.CloseDialogs();
+            HoursPanel.CloseDialogs();
             BookingsPanel.CloseDialogs();
             BookingPanel.CloseDialogs();
         };
@@ -36,6 +37,7 @@ public sealed partial class SchedulingSectionPage : UserControl
         ViewModel.Attach(context);
         EventTypesPanel.Attach(ViewModel.EventTypes, context);
         EventTypePanel.Attach(ViewModel.EventType, context);
+        HoursPanel.Attach(ViewModel.Hours, context);
         BookingsPanel.Attach(ViewModel.Bookings, context);
         BookingPanel.Attach(ViewModel.Booking, context);
     }
@@ -45,6 +47,7 @@ public sealed partial class SchedulingSectionPage : UserControl
         ViewModel.Show(view);
         EventTypesPanel.SyncDialogs();
         EventTypePanel.SyncDialogs();
+        HoursPanel.SyncDialogs();
         BookingsPanel.SyncDialogs();
         BookingPanel.SyncDialogs();
     }
