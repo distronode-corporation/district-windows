@@ -76,6 +76,12 @@ public sealed partial class LoadStateViewModel : ObservableObject
     internal void Attach(PageContext context) => _context = context;
 
     /// <summary>
+    /// What "Try again" sends: the window's refresh, unless the page reads
+    /// only a part of itself again (a settings tab).
+    /// </summary>
+    internal Func<UiEvent> RetryEvent { get; init; } = () => new UiEvent.Refresh();
+
+    /// <summary>
     /// Shows <paramref name="status"/>. <paramref name="hasRows"/> says whether
     /// there is anything to list, and <paramref name="empty"/> what to say when
     /// there is not.
@@ -102,5 +108,5 @@ public sealed partial class LoadStateViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Retry() => _context?.Send(new UiEvent.Refresh());
+    private void Retry() => _context?.Send(RetryEvent());
 }

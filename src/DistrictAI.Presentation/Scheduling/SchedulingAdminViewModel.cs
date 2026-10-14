@@ -50,6 +50,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     /// <summary>API keys, connected apps and webhooks.</summary>
     public SchedulingDeveloperViewModel Developer { get; } = new();
 
+    /// <summary>The scheduler's settings.</summary>
+    public SchedulingSettingsViewModel Settings { get; } = new();
+
     /// <summary>The page's heading.</summary>
     [ObservableProperty]
     public partial string Title { get; set; } = string.Empty;
@@ -94,6 +97,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowsDeveloper { get; set; }
 
+    /// <summary>Whether the settings show.</summary>
+    [ObservableProperty]
+    public partial bool ShowsSettings { get; set; }
+
     internal void Attach(PageContext context)
     {
         _context = context;
@@ -105,6 +112,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         Calendar.Attach(context);
         Team.Attach(context);
         Developer.Attach(context);
+        Settings.Attach(context);
     }
 
     internal void Show(SchedulingAdminView view)
@@ -121,6 +129,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         ShowsCalendar = view.Page is SchedulingAdminPage.Calendar;
         ShowsTeam = view.Page is SchedulingAdminPage.Team;
         ShowsDeveloper = view.Page is SchedulingAdminPage.Developer;
+        ShowsSettings = view.Page is SchedulingAdminPage.Settings;
         // A section left with a dialog open (a deleted event type goes back
         // to its list) closes it.
         if (!ShowsEventTypes)
@@ -146,6 +155,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         if (!ShowsDeveloper)
         {
             Developer.Leave();
+        }
+        if (!ShowsSettings)
+        {
+            Settings.Leave();
         }
         switch (view.Page)
         {
@@ -175,6 +188,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
                 break;
             case SchedulingAdminPage.Developer developer:
                 Developer.Show(developer.View);
+                break;
+            case SchedulingAdminPage.Settings settings:
+                Settings.Show(settings.View);
                 break;
         }
     }

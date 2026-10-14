@@ -2024,6 +2024,27 @@ screen = "scheduling"
 tier = "T2"
 note = "Name of the navigation between the sections of the booking scheduler's administration (Overview, Bookings...)."
 
+[scheduling.settings_image_notice]
+en = "Image change"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the banner beside an image (the booking page's logo or banner, or the member's own picture) that says what its last upload or removal came to."
+
+[scheduling.settings_notice]
+en = "Settings change"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the banner in a settings dialog that says what its save came to (the booking page, the booking assistant, the profile or the notifications saved)."
+
+[scheduling.settings_tabs]
+en = "Settings tabs"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the row of tabs on the booking scheduler's settings: booking page, booking assistant, your profile, your notifications."
+
 [scheduling.team_notice]
 en = "Team change"
 ctx = "a11y"

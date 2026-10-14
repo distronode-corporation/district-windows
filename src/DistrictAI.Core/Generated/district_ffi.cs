@@ -866,6 +866,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1290,6 +1292,17 @@ static class _UniFFILib {
     public static extern
 #endif
      RustBuffer uniffi_district_ffi_fn_func_decode_push(RustBuffer @payload,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_scheduling_image_pick(ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -2037,6 +2050,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_scheduling_image_pick(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_knowledge_file(
     );
 
@@ -2383,6 +2407,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_decode_push();
             if (checksum != 29519) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_decode_push` checksum `29519`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_scheduling_image_pick();
+            if (checksum != 57259) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_scheduling_image_pick` checksum `57259`, library returned `{checksum}`");
             }
         }
         {
@@ -17134,6 +17164,116 @@ class FfiConverterTypeNotificationActionView: FfiConverterRustBuffer<Notificatio
 
 
 /// <summary>
+/// The notifications of one kind: as an attendee, or as a host.
+/// </summary>
+/// <param name="Heading">
+/// "As an attendee".
+/// </param>
+/// <param name="Description">
+/// What they are.
+/// </param>
+/// <param name="Switches">
+/// Its switches.
+/// </param>
+public record NotificationGroupView (
+    /// <summary>
+    /// "As an attendee".
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// What they are.
+    /// </summary>
+    string Description, 
+    /// <summary>
+    /// Its switches.
+    /// </summary>
+    NotificationSwitchView[] Switches
+) {
+}
+
+class FfiConverterTypeNotificationGroupView: FfiConverterRustBuffer<NotificationGroupView> {
+    public static FfiConverterTypeNotificationGroupView INSTANCE = new FfiConverterTypeNotificationGroupView();
+
+    public override NotificationGroupView Read(BigEndianStream stream) {
+        return new NotificationGroupView(
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            Description: FfiConverterString.INSTANCE.Read(stream),
+            Switches: FfiConverterSequenceTypeNotificationSwitchView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NotificationGroupView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Description)
+            + FfiConverterSequenceTypeNotificationSwitchView.INSTANCE.AllocationSize(value.Switches);
+    }
+
+    public override void Write(NotificationGroupView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterString.INSTANCE.Write(value.Description, stream);
+            FfiConverterSequenceTypeNotificationSwitchView.INSTANCE.Write(value.Switches, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One notification's switch.
+/// </summary>
+/// <param name="Field">
+/// The scheduler's name for it (`notify_confirmation`), which keys it.
+/// </param>
+/// <param name="Label">
+/// "Booking confirmed".
+/// </param>
+/// <param name="On">
+/// Whether it is on, as the core holds it.
+/// </param>
+public record NotificationSwitchView (
+    /// <summary>
+    /// The scheduler's name for it (`notify_confirmation`), which keys it.
+    /// </summary>
+    string Field, 
+    /// <summary>
+    /// "Booking confirmed".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether it is on, as the core holds it.
+    /// </summary>
+    bool On
+) {
+}
+
+class FfiConverterTypeNotificationSwitchView: FfiConverterRustBuffer<NotificationSwitchView> {
+    public static FfiConverterTypeNotificationSwitchView INSTANCE = new FfiConverterTypeNotificationSwitchView();
+
+    public override NotificationSwitchView Read(BigEndianStream stream) {
+        return new NotificationSwitchView(
+            Field: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            On: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(NotificationSwitchView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Field)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.On);
+    }
+
+    public override void Write(NotificationSwitchView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Field, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.On, stream);
+    }
+}
+
+
+
+/// <summary>
 /// A notification, as the host shows it: the core's `Notification` with its
 /// target left in Rust (see [`NotificationTable`]).
 /// </summary>
@@ -23081,6 +23221,225 @@ class FfiConverterTypeSchedulingSectionEntryView: FfiConverterRustBuffer<Schedul
 
 
 /// <summary>
+/// A group of rows: its heading, the sentence under it, and what was read.
+/// </summary>
+/// <param name="Heading">
+/// "Booking page", "As an attendee".
+/// </param>
+/// <param name="Description">
+/// What the group is about; `None` for a group with no sentence.
+/// </param>
+/// <param name="Rows">
+/// Its rows.
+/// </param>
+public record SchedulingSettingsGroupView (
+    /// <summary>
+    /// "Booking page", "As an attendee".
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// What the group is about; `None` for a group with no sentence.
+    /// </summary>
+    string? Description, 
+    /// <summary>
+    /// Its rows.
+    /// </summary>
+    SchedulingSettingsRowView[] Rows
+) {
+}
+
+class FfiConverterTypeSchedulingSettingsGroupView: FfiConverterRustBuffer<SchedulingSettingsGroupView> {
+    public static FfiConverterTypeSchedulingSettingsGroupView INSTANCE = new FfiConverterTypeSchedulingSettingsGroupView();
+
+    public override SchedulingSettingsGroupView Read(BigEndianStream stream) {
+        return new SchedulingSettingsGroupView(
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            Description: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeSchedulingSettingsRowView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingSettingsGroupView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Description)
+            + FfiConverterSequenceTypeSchedulingSettingsRowView.INSTANCE.AllocationSize(value.Rows);
+    }
+
+    public override void Write(SchedulingSettingsGroupView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Description, stream);
+            FfiConverterSequenceTypeSchedulingSettingsRowView.INSTANCE.Write(value.Rows, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One row: a label and what was read for it.
+/// </summary>
+/// <param name="Label">
+/// "Business name".
+/// </param>
+/// <param name="Value">
+/// "Contract Agency", "Not set", "On".
+/// </param>
+public record SchedulingSettingsRowView (
+    /// <summary>
+    /// "Business name".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// "Contract Agency", "Not set", "On".
+    /// </summary>
+    string Value
+) {
+}
+
+class FfiConverterTypeSchedulingSettingsRowView: FfiConverterRustBuffer<SchedulingSettingsRowView> {
+    public static FfiConverterTypeSchedulingSettingsRowView INSTANCE = new FfiConverterTypeSchedulingSettingsRowView();
+
+    public override SchedulingSettingsRowView Read(BigEndianStream stream) {
+        return new SchedulingSettingsRowView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Value: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingSettingsRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value);
+    }
+
+    public override void Write(SchedulingSettingsRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The settings.
+/// </summary>
+/// <param name="Tabs">
+/// The four tabs, the one showing selected.
+/// </param>
+/// <param name="Status">
+/// Where the read of the tab showing stands. A failed one is a status
+/// page, never an empty tab.
+/// </param>
+/// <param name="Groups">
+/// What the tab showing read, as groups of rows; none until it is read.
+/// </param>
+/// <param name="OffersEdit">
+/// Whether Edit is offered on the tab showing: it is read, and it is the
+/// member's own or the member may change things.
+/// </param>
+/// <param name="EditLabel">
+/// "Edit" (`SchedulingSettingsAction::OpenEditor`).
+/// </param>
+/// <param name="Profile">
+/// The profile's dialog, while it is open.
+/// </param>
+/// <param name="Notifications">
+/// The notifications' dialog, while it is open.
+/// </param>
+/// <param name="Branding">
+/// The booking page's dialog, while it is open.
+/// </param>
+/// <param name="Assistant">
+/// The assistant's dialog, while it is open.
+/// </param>
+public record SchedulingSettingsView (
+    /// <summary>
+    /// The four tabs, the one showing selected.
+    /// </summary>
+    SettingsTabView[] Tabs, 
+    /// <summary>
+    /// Where the read of the tab showing stands. A failed one is a status
+    /// page, never an empty tab.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// What the tab showing read, as groups of rows; none until it is read.
+    /// </summary>
+    SchedulingSettingsGroupView[] Groups, 
+    /// <summary>
+    /// Whether Edit is offered on the tab showing: it is read, and it is the
+    /// member's own or the member may change things.
+    /// </summary>
+    bool OffersEdit, 
+    /// <summary>
+    /// "Edit" (`SchedulingSettingsAction::OpenEditor`).
+    /// </summary>
+    string EditLabel, 
+    /// <summary>
+    /// The profile's dialog, while it is open.
+    /// </summary>
+    SettingsProfileView? Profile, 
+    /// <summary>
+    /// The notifications' dialog, while it is open.
+    /// </summary>
+    SettingsNotificationsView? Notifications, 
+    /// <summary>
+    /// The booking page's dialog, while it is open.
+    /// </summary>
+    SettingsBrandingView? Branding, 
+    /// <summary>
+    /// The assistant's dialog, while it is open.
+    /// </summary>
+    SettingsAssistantView? Assistant
+) {
+}
+
+class FfiConverterTypeSchedulingSettingsView: FfiConverterRustBuffer<SchedulingSettingsView> {
+    public static FfiConverterTypeSchedulingSettingsView INSTANCE = new FfiConverterTypeSchedulingSettingsView();
+
+    public override SchedulingSettingsView Read(BigEndianStream stream) {
+        return new SchedulingSettingsView(
+            Tabs: FfiConverterSequenceTypeSettingsTabView.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Groups: FfiConverterSequenceTypeSchedulingSettingsGroupView.INSTANCE.Read(stream),
+            OffersEdit: FfiConverterBoolean.INSTANCE.Read(stream),
+            EditLabel: FfiConverterString.INSTANCE.Read(stream),
+            Profile: FfiConverterOptionalTypeSettingsProfileView.INSTANCE.Read(stream),
+            Notifications: FfiConverterOptionalTypeSettingsNotificationsView.INSTANCE.Read(stream),
+            Branding: FfiConverterOptionalTypeSettingsBrandingView.INSTANCE.Read(stream),
+            Assistant: FfiConverterOptionalTypeSettingsAssistantView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingSettingsView value) {
+        return 0
+            + FfiConverterSequenceTypeSettingsTabView.INSTANCE.AllocationSize(value.Tabs)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeSchedulingSettingsGroupView.INSTANCE.AllocationSize(value.Groups)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersEdit)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EditLabel)
+            + FfiConverterOptionalTypeSettingsProfileView.INSTANCE.AllocationSize(value.Profile)
+            + FfiConverterOptionalTypeSettingsNotificationsView.INSTANCE.AllocationSize(value.Notifications)
+            + FfiConverterOptionalTypeSettingsBrandingView.INSTANCE.AllocationSize(value.Branding)
+            + FfiConverterOptionalTypeSettingsAssistantView.INSTANCE.AllocationSize(value.Assistant);
+    }
+
+    public override void Write(SchedulingSettingsView value, BigEndianStream stream) {
+            FfiConverterSequenceTypeSettingsTabView.INSTANCE.Write(value.Tabs, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeSchedulingSettingsGroupView.INSTANCE.Write(value.Groups, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersEdit, stream);
+            FfiConverterString.INSTANCE.Write(value.EditLabel, stream);
+            FfiConverterOptionalTypeSettingsProfileView.INSTANCE.Write(value.Profile, stream);
+            FfiConverterOptionalTypeSettingsNotificationsView.INSTANCE.Write(value.Notifications, stream);
+            FfiConverterOptionalTypeSettingsBrandingView.INSTANCE.Write(value.Branding, stream);
+            FfiConverterOptionalTypeSettingsAssistantView.INSTANCE.Write(value.Assistant, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The team.
 /// </summary>
 /// <param name="Status">
@@ -24020,6 +24379,574 @@ class FfiConverterTypeSessionScreen: FfiConverterRustBuffer<SessionScreen> {
 
 
 /// <summary>
+/// The booking assistant: on or off, and its extra instructions. The save is
+/// the dialog's confirm, offered once something changed.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, the save, "Cancel" and why the save failed.
+/// </param>
+/// <param name="Hint">
+/// What the assistant does.
+/// </param>
+/// <param name="ToggleLabel">
+/// The switch's label.
+/// </param>
+/// <param name="Enabled">
+/// Whether it is on, as the core holds it.
+/// </param>
+/// <param name="InstructionsLabel">
+/// "Extra instructions".
+/// </param>
+/// <param name="InstructionsHint">
+/// What they are for.
+/// </param>
+/// <param name="InstructionsPlaceholder">
+/// The empty box's placeholder.
+/// </param>
+/// <param name="Instructions">
+/// The instructions, as the core holds them.
+/// </param>
+/// <param name="Error">
+/// Why they cannot be sent, before anything was sent.
+/// </param>
+/// <param name="Editable">
+/// Whether the fields can be changed: nothing is on its way.
+/// </param>
+/// <param name="Notice">
+/// What the save came to.
+/// </param>
+public record SettingsAssistantView (
+    /// <summary>
+    /// Its title, the save, "Cancel" and why the save failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// What the assistant does.
+    /// </summary>
+    string Hint, 
+    /// <summary>
+    /// The switch's label.
+    /// </summary>
+    string ToggleLabel, 
+    /// <summary>
+    /// Whether it is on, as the core holds it.
+    /// </summary>
+    bool Enabled, 
+    /// <summary>
+    /// "Extra instructions".
+    /// </summary>
+    string InstructionsLabel, 
+    /// <summary>
+    /// What they are for.
+    /// </summary>
+    string InstructionsHint, 
+    /// <summary>
+    /// The empty box's placeholder.
+    /// </summary>
+    string InstructionsPlaceholder, 
+    /// <summary>
+    /// The instructions, as the core holds them.
+    /// </summary>
+    string Instructions, 
+    /// <summary>
+    /// Why they cannot be sent, before anything was sent.
+    /// </summary>
+    string? Error, 
+    /// <summary>
+    /// Whether the fields can be changed: nothing is on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the save came to.
+    /// </summary>
+    string? Notice
+) {
+}
+
+class FfiConverterTypeSettingsAssistantView: FfiConverterRustBuffer<SettingsAssistantView> {
+    public static FfiConverterTypeSettingsAssistantView INSTANCE = new FfiConverterTypeSettingsAssistantView();
+
+    public override SettingsAssistantView Read(BigEndianStream stream) {
+        return new SettingsAssistantView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Hint: FfiConverterString.INSTANCE.Read(stream),
+            ToggleLabel: FfiConverterString.INSTANCE.Read(stream),
+            Enabled: FfiConverterBoolean.INSTANCE.Read(stream),
+            InstructionsLabel: FfiConverterString.INSTANCE.Read(stream),
+            InstructionsHint: FfiConverterString.INSTANCE.Read(stream),
+            InstructionsPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            Instructions: FfiConverterString.INSTANCE.Read(stream),
+            Error: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsAssistantView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Hint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ToggleLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enabled)
+            + FfiConverterString.INSTANCE.AllocationSize(value.InstructionsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.InstructionsHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.InstructionsPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Instructions)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Error)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice);
+    }
+
+    public override void Write(SettingsAssistantView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.Hint, stream);
+            FfiConverterString.INSTANCE.Write(value.ToggleLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Enabled, stream);
+            FfiConverterString.INSTANCE.Write(value.InstructionsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.InstructionsHint, stream);
+            FfiConverterString.INSTANCE.Write(value.InstructionsPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.Instructions, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Error, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The booking page's fields, as the member left them.
+/// </summary>
+/// <param name="BusinessName">
+/// The business name.
+/// </param>
+/// <param name="LogoHeight">
+/// The logo's height in pixels.
+/// </param>
+/// <param name="LogoOpacity">
+/// The logo's opacity in percent.
+/// </param>
+/// <param name="BannerOpacity">
+/// The banner's opacity in percent.
+/// </param>
+/// <param name="PrivacyUrl">
+/// The privacy policy's link, or empty.
+/// </param>
+/// <param name="TermsUrl">
+/// The terms' link, or empty.
+/// </param>
+/// <param name="FallbackLocale">
+/// The language the page falls back to.
+/// </param>
+public record SettingsBrandingForm (
+    /// <summary>
+    /// The business name.
+    /// </summary>
+    string BusinessName, 
+    /// <summary>
+    /// The logo's height in pixels.
+    /// </summary>
+    long LogoHeight, 
+    /// <summary>
+    /// The logo's opacity in percent.
+    /// </summary>
+    long LogoOpacity, 
+    /// <summary>
+    /// The banner's opacity in percent.
+    /// </summary>
+    long BannerOpacity, 
+    /// <summary>
+    /// The privacy policy's link, or empty.
+    /// </summary>
+    string PrivacyUrl, 
+    /// <summary>
+    /// The terms' link, or empty.
+    /// </summary>
+    string TermsUrl, 
+    /// <summary>
+    /// The language the page falls back to.
+    /// </summary>
+    string FallbackLocale
+) {
+}
+
+class FfiConverterTypeSettingsBrandingForm: FfiConverterRustBuffer<SettingsBrandingForm> {
+    public static FfiConverterTypeSettingsBrandingForm INSTANCE = new FfiConverterTypeSettingsBrandingForm();
+
+    public override SettingsBrandingForm Read(BigEndianStream stream) {
+        return new SettingsBrandingForm(
+            BusinessName: FfiConverterString.INSTANCE.Read(stream),
+            LogoHeight: FfiConverterInt64.INSTANCE.Read(stream),
+            LogoOpacity: FfiConverterInt64.INSTANCE.Read(stream),
+            BannerOpacity: FfiConverterInt64.INSTANCE.Read(stream),
+            PrivacyUrl: FfiConverterString.INSTANCE.Read(stream),
+            TermsUrl: FfiConverterString.INSTANCE.Read(stream),
+            FallbackLocale: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsBrandingForm value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.BusinessName)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.LogoHeight)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.LogoOpacity)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.BannerOpacity)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PrivacyUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TermsUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.FallbackLocale);
+    }
+
+    public override void Write(SettingsBrandingForm value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.BusinessName, stream);
+            FfiConverterInt64.INSTANCE.Write(value.LogoHeight, stream);
+            FfiConverterInt64.INSTANCE.Write(value.LogoOpacity, stream);
+            FfiConverterInt64.INSTANCE.Write(value.BannerOpacity, stream);
+            FfiConverterString.INSTANCE.Write(value.PrivacyUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.TermsUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.FallbackLocale, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The booking page: its business name, the logo's height and opacity, the
+/// banner's opacity, the privacy and terms links, the language it falls back
+/// to, and its two images. The save is the dialog's confirm.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, the save, "Cancel" and why the save failed.
+/// </param>
+/// <param name="BusinessNameLabel">
+/// "Business name".
+/// </param>
+/// <param name="BusinessNameHint">
+/// What it is for.
+/// </param>
+/// <param name="BusinessName">
+/// The business name, as the core holds it.
+/// </param>
+/// <param name="LogoHeightLabel">
+/// "Logo height".
+/// </param>
+/// <param name="LogoHeightHint">
+/// Its range, in pixels.
+/// </param>
+/// <param name="LogoHeight">
+/// The logo's height, in pixels.
+/// </param>
+/// <param name="LogoHeightMin">
+/// The least height.
+/// </param>
+/// <param name="LogoHeightMax">
+/// The greatest height.
+/// </param>
+/// <param name="LogoOpacityLabel">
+/// "Logo opacity".
+/// </param>
+/// <param name="BannerOpacityLabel">
+/// "Banner opacity".
+/// </param>
+/// <param name="OpacityHint">
+/// An opacity's range, in percent.
+/// </param>
+/// <param name="LogoOpacity">
+/// The logo's opacity, in percent.
+/// </param>
+/// <param name="BannerOpacity">
+/// The banner's opacity, in percent.
+/// </param>
+/// <param name="OpacityMin">
+/// The least opacity.
+/// </param>
+/// <param name="OpacityMax">
+/// The greatest opacity.
+/// </param>
+/// <param name="PrivacyLabel">
+/// "Privacy policy".
+/// </param>
+/// <param name="PrivacyUrl">
+/// The privacy policy's link, or empty.
+/// </param>
+/// <param name="TermsLabel">
+/// "Terms".
+/// </param>
+/// <param name="TermsUrl">
+/// The terms' link, or empty.
+/// </param>
+/// <param name="LegalUrlHint">
+/// That a link is a full address, or left empty.
+/// </param>
+/// <param name="LocaleLabel">
+/// "Language".
+/// </param>
+/// <param name="LocaleHint">
+/// What the language is for.
+/// </param>
+/// <param name="Locales">
+/// The languages the page can fall back to, the one chosen selected.
+/// </param>
+/// <param name="Error">
+/// Why the fields cannot be sent, before anything was sent.
+/// </param>
+/// <param name="Editable">
+/// Whether the fields can be changed: nothing is on its way.
+/// </param>
+/// <param name="Notice">
+/// What the save came to.
+/// </param>
+/// <param name="ImagesNote">
+/// That the images save as soon as they are chosen or removed.
+/// </param>
+/// <param name="ImageHint">
+/// The types and size an image may be.
+/// </param>
+/// <param name="Logo">
+/// The logo.
+/// </param>
+/// <param name="Banner">
+/// The banner.
+/// </param>
+public record SettingsBrandingView (
+    /// <summary>
+    /// Its title, the save, "Cancel" and why the save failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// "Business name".
+    /// </summary>
+    string BusinessNameLabel, 
+    /// <summary>
+    /// What it is for.
+    /// </summary>
+    string BusinessNameHint, 
+    /// <summary>
+    /// The business name, as the core holds it.
+    /// </summary>
+    string BusinessName, 
+    /// <summary>
+    /// "Logo height".
+    /// </summary>
+    string LogoHeightLabel, 
+    /// <summary>
+    /// Its range, in pixels.
+    /// </summary>
+    string LogoHeightHint, 
+    /// <summary>
+    /// The logo's height, in pixels.
+    /// </summary>
+    long LogoHeight, 
+    /// <summary>
+    /// The least height.
+    /// </summary>
+    long LogoHeightMin, 
+    /// <summary>
+    /// The greatest height.
+    /// </summary>
+    long LogoHeightMax, 
+    /// <summary>
+    /// "Logo opacity".
+    /// </summary>
+    string LogoOpacityLabel, 
+    /// <summary>
+    /// "Banner opacity".
+    /// </summary>
+    string BannerOpacityLabel, 
+    /// <summary>
+    /// An opacity's range, in percent.
+    /// </summary>
+    string OpacityHint, 
+    /// <summary>
+    /// The logo's opacity, in percent.
+    /// </summary>
+    long LogoOpacity, 
+    /// <summary>
+    /// The banner's opacity, in percent.
+    /// </summary>
+    long BannerOpacity, 
+    /// <summary>
+    /// The least opacity.
+    /// </summary>
+    long OpacityMin, 
+    /// <summary>
+    /// The greatest opacity.
+    /// </summary>
+    long OpacityMax, 
+    /// <summary>
+    /// "Privacy policy".
+    /// </summary>
+    string PrivacyLabel, 
+    /// <summary>
+    /// The privacy policy's link, or empty.
+    /// </summary>
+    string PrivacyUrl, 
+    /// <summary>
+    /// "Terms".
+    /// </summary>
+    string TermsLabel, 
+    /// <summary>
+    /// The terms' link, or empty.
+    /// </summary>
+    string TermsUrl, 
+    /// <summary>
+    /// That a link is a full address, or left empty.
+    /// </summary>
+    string LegalUrlHint, 
+    /// <summary>
+    /// "Language".
+    /// </summary>
+    string LocaleLabel, 
+    /// <summary>
+    /// What the language is for.
+    /// </summary>
+    string LocaleHint, 
+    /// <summary>
+    /// The languages the page can fall back to, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] Locales, 
+    /// <summary>
+    /// Why the fields cannot be sent, before anything was sent.
+    /// </summary>
+    string? Error, 
+    /// <summary>
+    /// Whether the fields can be changed: nothing is on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the save came to.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// That the images save as soon as they are chosen or removed.
+    /// </summary>
+    string ImagesNote, 
+    /// <summary>
+    /// The types and size an image may be.
+    /// </summary>
+    string ImageHint, 
+    /// <summary>
+    /// The logo.
+    /// </summary>
+    SettingsImageView Logo, 
+    /// <summary>
+    /// The banner.
+    /// </summary>
+    SettingsImageView Banner
+) {
+}
+
+class FfiConverterTypeSettingsBrandingView: FfiConverterRustBuffer<SettingsBrandingView> {
+    public static FfiConverterTypeSettingsBrandingView INSTANCE = new FfiConverterTypeSettingsBrandingView();
+
+    public override SettingsBrandingView Read(BigEndianStream stream) {
+        return new SettingsBrandingView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            BusinessNameLabel: FfiConverterString.INSTANCE.Read(stream),
+            BusinessNameHint: FfiConverterString.INSTANCE.Read(stream),
+            BusinessName: FfiConverterString.INSTANCE.Read(stream),
+            LogoHeightLabel: FfiConverterString.INSTANCE.Read(stream),
+            LogoHeightHint: FfiConverterString.INSTANCE.Read(stream),
+            LogoHeight: FfiConverterInt64.INSTANCE.Read(stream),
+            LogoHeightMin: FfiConverterInt64.INSTANCE.Read(stream),
+            LogoHeightMax: FfiConverterInt64.INSTANCE.Read(stream),
+            LogoOpacityLabel: FfiConverterString.INSTANCE.Read(stream),
+            BannerOpacityLabel: FfiConverterString.INSTANCE.Read(stream),
+            OpacityHint: FfiConverterString.INSTANCE.Read(stream),
+            LogoOpacity: FfiConverterInt64.INSTANCE.Read(stream),
+            BannerOpacity: FfiConverterInt64.INSTANCE.Read(stream),
+            OpacityMin: FfiConverterInt64.INSTANCE.Read(stream),
+            OpacityMax: FfiConverterInt64.INSTANCE.Read(stream),
+            PrivacyLabel: FfiConverterString.INSTANCE.Read(stream),
+            PrivacyUrl: FfiConverterString.INSTANCE.Read(stream),
+            TermsLabel: FfiConverterString.INSTANCE.Read(stream),
+            TermsUrl: FfiConverterString.INSTANCE.Read(stream),
+            LegalUrlHint: FfiConverterString.INSTANCE.Read(stream),
+            LocaleLabel: FfiConverterString.INSTANCE.Read(stream),
+            LocaleHint: FfiConverterString.INSTANCE.Read(stream),
+            Locales: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            Error: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ImagesNote: FfiConverterString.INSTANCE.Read(stream),
+            ImageHint: FfiConverterString.INSTANCE.Read(stream),
+            Logo: FfiConverterTypeSettingsImageView.INSTANCE.Read(stream),
+            Banner: FfiConverterTypeSettingsImageView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsBrandingView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BusinessNameLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BusinessNameHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BusinessName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LogoHeightLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LogoHeightHint)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.LogoHeight)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.LogoHeightMin)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.LogoHeightMax)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LogoOpacityLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BannerOpacityLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OpacityHint)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.LogoOpacity)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.BannerOpacity)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.OpacityMin)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.OpacityMax)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PrivacyLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PrivacyUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TermsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TermsUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LegalUrlHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LocaleLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LocaleHint)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Locales)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Error)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ImagesNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ImageHint)
+            + FfiConverterTypeSettingsImageView.INSTANCE.AllocationSize(value.Logo)
+            + FfiConverterTypeSettingsImageView.INSTANCE.AllocationSize(value.Banner);
+    }
+
+    public override void Write(SettingsBrandingView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.BusinessNameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BusinessNameHint, stream);
+            FfiConverterString.INSTANCE.Write(value.BusinessName, stream);
+            FfiConverterString.INSTANCE.Write(value.LogoHeightLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.LogoHeightHint, stream);
+            FfiConverterInt64.INSTANCE.Write(value.LogoHeight, stream);
+            FfiConverterInt64.INSTANCE.Write(value.LogoHeightMin, stream);
+            FfiConverterInt64.INSTANCE.Write(value.LogoHeightMax, stream);
+            FfiConverterString.INSTANCE.Write(value.LogoOpacityLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BannerOpacityLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.OpacityHint, stream);
+            FfiConverterInt64.INSTANCE.Write(value.LogoOpacity, stream);
+            FfiConverterInt64.INSTANCE.Write(value.BannerOpacity, stream);
+            FfiConverterInt64.INSTANCE.Write(value.OpacityMin, stream);
+            FfiConverterInt64.INSTANCE.Write(value.OpacityMax, stream);
+            FfiConverterString.INSTANCE.Write(value.PrivacyLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PrivacyUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.TermsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.TermsUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.LegalUrlHint, stream);
+            FfiConverterString.INSTANCE.Write(value.LocaleLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.LocaleHint, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Locales, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Error, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterString.INSTANCE.Write(value.ImagesNote, stream);
+            FfiConverterString.INSTANCE.Write(value.ImageHint, stream);
+            FfiConverterTypeSettingsImageView.INSTANCE.Write(value.Logo, stream);
+            FfiConverterTypeSettingsImageView.INSTANCE.Write(value.Banner, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One group of the hub, under its heading.
 /// </summary>
 /// <param name="Heading">
@@ -24125,6 +25052,479 @@ class FfiConverterTypeSettingsHubView: FfiConverterRustBuffer<SettingsHubView> {
 
 
 /// <summary>
+/// An image in a dialog: whether there is one, Choose image, and Remove
+/// (asked once more by the window). It saves as soon as it is chosen or
+/// removed, and says what that came to beside it.
+/// </summary>
+/// <param name="Target">
+/// Which.
+/// </param>
+/// <param name="Label">
+/// "Logo".
+/// </param>
+/// <param name="Value">
+/// "Set" or "Not set".
+/// </param>
+/// <param name="ChooseLabel">
+/// "Choose image" (`SchedulingSettingsAction::UploadImage`).
+/// </param>
+/// <param name="RemoveLabel">
+/// "Remove".
+/// </param>
+/// <param name="ShowsRemove">
+/// Whether Remove shows: there is an image.
+/// </param>
+/// <param name="Enabled">
+/// Whether Choose image and Remove can be pressed: nothing in the dialog
+/// is on its way.
+/// </param>
+/// <param name="Working">
+/// Whether this image's upload or removal is on its way.
+/// </param>
+/// <param name="Notice">
+/// What its last upload or removal came to ("Logo uploaded").
+/// </param>
+/// <param name="Failure">
+/// Why its last upload or removal failed, or the file was refused.
+/// </param>
+/// <param name="RemoveAsk">
+/// The removal's question, which the window asks before it sends
+/// `SchedulingSettingsAction::RemoveImage`: the image's name, that it saves at
+/// once, Remove and Cancel.
+/// </param>
+public record SettingsImageView (
+    /// <summary>
+    /// Which.
+    /// </summary>
+    SchedulingImageTarget Target, 
+    /// <summary>
+    /// "Logo".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// "Set" or "Not set".
+    /// </summary>
+    string Value, 
+    /// <summary>
+    /// "Choose image" (`SchedulingSettingsAction::UploadImage`).
+    /// </summary>
+    string ChooseLabel, 
+    /// <summary>
+    /// "Remove".
+    /// </summary>
+    string RemoveLabel, 
+    /// <summary>
+    /// Whether Remove shows: there is an image.
+    /// </summary>
+    bool ShowsRemove, 
+    /// <summary>
+    /// Whether Choose image and Remove can be pressed: nothing in the dialog
+    /// is on its way.
+    /// </summary>
+    bool Enabled, 
+    /// <summary>
+    /// Whether this image's upload or removal is on its way.
+    /// </summary>
+    bool Working, 
+    /// <summary>
+    /// What its last upload or removal came to ("Logo uploaded").
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// Why its last upload or removal failed, or the file was refused.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// The removal's question, which the window asks before it sends
+    /// `SchedulingSettingsAction::RemoveImage`: the image's name, that it saves at
+    /// once, Remove and Cancel.
+    /// </summary>
+    SchedulingAskView RemoveAsk
+) {
+}
+
+class FfiConverterTypeSettingsImageView: FfiConverterRustBuffer<SettingsImageView> {
+    public static FfiConverterTypeSettingsImageView INSTANCE = new FfiConverterTypeSettingsImageView();
+
+    public override SettingsImageView Read(BigEndianStream stream) {
+        return new SettingsImageView(
+            Target: FfiConverterTypeSchedulingImageTarget.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Value: FfiConverterString.INSTANCE.Read(stream),
+            ChooseLabel: FfiConverterString.INSTANCE.Read(stream),
+            RemoveLabel: FfiConverterString.INSTANCE.Read(stream),
+            ShowsRemove: FfiConverterBoolean.INSTANCE.Read(stream),
+            Enabled: FfiConverterBoolean.INSTANCE.Read(stream),
+            Working: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            RemoveAsk: FfiConverterTypeSchedulingAskView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsImageView value) {
+        return 0
+            + FfiConverterTypeSchedulingImageTarget.INSTANCE.AllocationSize(value.Target)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ChooseLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RemoveLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowsRemove)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Enabled)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Working)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterTypeSchedulingAskView.INSTANCE.AllocationSize(value.RemoveAsk);
+    }
+
+    public override void Write(SettingsImageView value, BigEndianStream stream) {
+            FfiConverterTypeSchedulingImageTarget.INSTANCE.Write(value.Target, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+            FfiConverterString.INSTANCE.Write(value.ChooseLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RemoveLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowsRemove, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Enabled, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Working, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterTypeSchedulingAskView.INSTANCE.Write(value.RemoveAsk, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The member's email notifications, as an attendee and as a host. The
+/// save is the dialog's confirm.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, the save, "Cancel" and why the save failed.
+/// </param>
+/// <param name="Groups">
+/// The switches, in their two groups.
+/// </param>
+/// <param name="Editable">
+/// Whether the switches can be changed: nothing is on its way.
+/// </param>
+/// <param name="Notice">
+/// What the save came to.
+/// </param>
+public record SettingsNotificationsView (
+    /// <summary>
+    /// Its title, the save, "Cancel" and why the save failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// The switches, in their two groups.
+    /// </summary>
+    NotificationGroupView[] Groups, 
+    /// <summary>
+    /// Whether the switches can be changed: nothing is on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the save came to.
+    /// </summary>
+    string? Notice
+) {
+}
+
+class FfiConverterTypeSettingsNotificationsView: FfiConverterRustBuffer<SettingsNotificationsView> {
+    public static FfiConverterTypeSettingsNotificationsView INSTANCE = new FfiConverterTypeSettingsNotificationsView();
+
+    public override SettingsNotificationsView Read(BigEndianStream stream) {
+        return new SettingsNotificationsView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Groups: FfiConverterSequenceTypeNotificationGroupView.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsNotificationsView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterSequenceTypeNotificationGroupView.INSTANCE.AllocationSize(value.Groups)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice);
+    }
+
+    public override void Write(SettingsNotificationsView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterSequenceTypeNotificationGroupView.INSTANCE.Write(value.Groups, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The profile's fields, as the member left them.
+/// </summary>
+/// <param name="Name">
+/// The name.
+/// </param>
+/// <param name="Timezone">
+/// The IANA time zone.
+/// </param>
+/// <param name="TimeFormat">
+/// `12h` or `24h`.
+/// </param>
+/// <param name="WeekStart">
+/// The day the week starts on, 0 for Sunday.
+/// </param>
+/// <param name="DateFormat">
+/// `dmy`, `mdy` or `ymd`.
+/// </param>
+public record SettingsProfileForm (
+    /// <summary>
+    /// The name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The IANA time zone.
+    /// </summary>
+    string Timezone, 
+    /// <summary>
+    /// `12h` or `24h`.
+    /// </summary>
+    string TimeFormat, 
+    /// <summary>
+    /// The day the week starts on, 0 for Sunday.
+    /// </summary>
+    long WeekStart, 
+    /// <summary>
+    /// `dmy`, `mdy` or `ymd`.
+    /// </summary>
+    string DateFormat
+) {
+}
+
+class FfiConverterTypeSettingsProfileForm: FfiConverterRustBuffer<SettingsProfileForm> {
+    public static FfiConverterTypeSettingsProfileForm INSTANCE = new FfiConverterTypeSettingsProfileForm();
+
+    public override SettingsProfileForm Read(BigEndianStream stream) {
+        return new SettingsProfileForm(
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Timezone: FfiConverterString.INSTANCE.Read(stream),
+            TimeFormat: FfiConverterString.INSTANCE.Read(stream),
+            WeekStart: FfiConverterInt64.INSTANCE.Read(stream),
+            DateFormat: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsProfileForm value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Timezone)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimeFormat)
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.WeekStart)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DateFormat);
+    }
+
+    public override void Write(SettingsProfileForm value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Timezone, stream);
+            FfiConverterString.INSTANCE.Write(value.TimeFormat, stream);
+            FfiConverterInt64.INSTANCE.Write(value.WeekStart, stream);
+            FfiConverterString.INSTANCE.Write(value.DateFormat, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The member's profile: their name, time zone, time and date formats, the
+/// day their week starts on, and their picture. The save is the dialog's
+/// confirm.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, the save, "Cancel" and why the save failed.
+/// </param>
+/// <param name="NameLabel">
+/// "Name".
+/// </param>
+/// <param name="Name">
+/// The name, as the core holds it.
+/// </param>
+/// <param name="TimezoneLabel">
+/// "Time zone".
+/// </param>
+/// <param name="Timezones">
+/// Every time zone, the one chosen selected.
+/// </param>
+/// <param name="TimeFormatLabel">
+/// "Time format".
+/// </param>
+/// <param name="TimeFormats">
+/// 12-hour and 24-hour, the one chosen selected.
+/// </param>
+/// <param name="WeekStartLabel">
+/// "Week starts on".
+/// </param>
+/// <param name="WeekStarts">
+/// The seven days, Sunday first as the scheduler counts them, the one
+/// chosen selected.
+/// </param>
+/// <param name="DateFormatLabel">
+/// "Date format".
+/// </param>
+/// <param name="DateFormats">
+/// The date formats, the one chosen selected.
+/// </param>
+/// <param name="Error">
+/// Why the fields cannot be sent, before anything was sent.
+/// </param>
+/// <param name="Editable">
+/// Whether the fields can be changed: nothing is on its way.
+/// </param>
+/// <param name="Notice">
+/// What the save came to ("Profile saved").
+/// </param>
+/// <param name="ImageHint">
+/// The types and size an image may be.
+/// </param>
+/// <param name="Avatar">
+/// The member's picture.
+/// </param>
+public record SettingsProfileView (
+    /// <summary>
+    /// Its title, the save, "Cancel" and why the save failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// "Name".
+    /// </summary>
+    string NameLabel, 
+    /// <summary>
+    /// The name, as the core holds it.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// "Time zone".
+    /// </summary>
+    string TimezoneLabel, 
+    /// <summary>
+    /// Every time zone, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] Timezones, 
+    /// <summary>
+    /// "Time format".
+    /// </summary>
+    string TimeFormatLabel, 
+    /// <summary>
+    /// 12-hour and 24-hour, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] TimeFormats, 
+    /// <summary>
+    /// "Week starts on".
+    /// </summary>
+    string WeekStartLabel, 
+    /// <summary>
+    /// The seven days, Sunday first as the scheduler counts them, the one
+    /// chosen selected.
+    /// </summary>
+    ChoiceRowView[] WeekStarts, 
+    /// <summary>
+    /// "Date format".
+    /// </summary>
+    string DateFormatLabel, 
+    /// <summary>
+    /// The date formats, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] DateFormats, 
+    /// <summary>
+    /// Why the fields cannot be sent, before anything was sent.
+    /// </summary>
+    string? Error, 
+    /// <summary>
+    /// Whether the fields can be changed: nothing is on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the save came to ("Profile saved").
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// The types and size an image may be.
+    /// </summary>
+    string ImageHint, 
+    /// <summary>
+    /// The member's picture.
+    /// </summary>
+    SettingsImageView Avatar
+) {
+}
+
+class FfiConverterTypeSettingsProfileView: FfiConverterRustBuffer<SettingsProfileView> {
+    public static FfiConverterTypeSettingsProfileView INSTANCE = new FfiConverterTypeSettingsProfileView();
+
+    public override SettingsProfileView Read(BigEndianStream stream) {
+        return new SettingsProfileView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            NameLabel: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            TimezoneLabel: FfiConverterString.INSTANCE.Read(stream),
+            Timezones: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            TimeFormatLabel: FfiConverterString.INSTANCE.Read(stream),
+            TimeFormats: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            WeekStartLabel: FfiConverterString.INSTANCE.Read(stream),
+            WeekStarts: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            DateFormatLabel: FfiConverterString.INSTANCE.Read(stream),
+            DateFormats: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            Error: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ImageHint: FfiConverterString.INSTANCE.Read(stream),
+            Avatar: FfiConverterTypeSettingsImageView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsProfileView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NameLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimezoneLabel)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Timezones)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimeFormatLabel)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.TimeFormats)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WeekStartLabel)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.WeekStarts)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DateFormatLabel)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.DateFormats)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Error)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ImageHint)
+            + FfiConverterTypeSettingsImageView.INSTANCE.AllocationSize(value.Avatar);
+    }
+
+    public override void Write(SettingsProfileView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.NameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.TimezoneLabel, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Timezones, stream);
+            FfiConverterString.INSTANCE.Write(value.TimeFormatLabel, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.TimeFormats, stream);
+            FfiConverterString.INSTANCE.Write(value.WeekStartLabel, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.WeekStarts, stream);
+            FfiConverterString.INSTANCE.Write(value.DateFormatLabel, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.DateFormats, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Error, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterString.INSTANCE.Write(value.ImageHint, stream);
+            FfiConverterTypeSettingsImageView.INSTANCE.Write(value.Avatar, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One row of the hub: a section to open.
 /// </summary>
 /// <param name="Section">
@@ -24174,6 +25574,61 @@ class FfiConverterTypeSettingsRowView: FfiConverterRustBuffer<SettingsRowView> {
             FfiConverterTypeSettingsSection.INSTANCE.Write(value.Section, stream);
             FfiConverterString.INSTANCE.Write(value.Title, stream);
             FfiConverterString.INSTANCE.Write(value.Subtitle, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One tab.
+/// </summary>
+/// <param name="Tab">
+/// Which.
+/// </param>
+/// <param name="Label">
+/// "Booking page".
+/// </param>
+/// <param name="Selected">
+/// Whether it is showing.
+/// </param>
+public record SettingsTabView (
+    /// <summary>
+    /// Which.
+    /// </summary>
+    SchedulingSettingsTab Tab, 
+    /// <summary>
+    /// "Booking page".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether it is showing.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeSettingsTabView: FfiConverterRustBuffer<SettingsTabView> {
+    public static FfiConverterTypeSettingsTabView INSTANCE = new FfiConverterTypeSettingsTabView();
+
+    public override SettingsTabView Read(BigEndianStream stream) {
+        return new SettingsTabView(
+            Tab: FfiConverterTypeSchedulingSettingsTab.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SettingsTabView value) {
+        return 0
+            + FfiConverterTypeSchedulingSettingsTab.INSTANCE.AllocationSize(value.Tab)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(SettingsTabView value, BigEndianStream stream) {
+            FfiConverterTypeSchedulingSettingsTab.INSTANCE.Write(value.Tab, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
     }
 }
 
@@ -37653,6 +39108,13 @@ public record SchedulingAdminAction {
     ) : SchedulingAdminAction {}
     
     /// <summary>
+    /// On the settings.
+    /// </summary>
+    public record Settings (
+        SchedulingSettingsAction Action
+    ) : SchedulingAdminAction {}
+    
+    /// <summary>
     /// On Developer.
     /// </summary>
     public record Developer (
@@ -37710,6 +39172,10 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                     FfiConverterTypeTeamAction.INSTANCE.Read(stream)
                 );
             case 11:
+                return new SchedulingAdminAction.Settings(
+                    FfiConverterTypeSchedulingSettingsAction.INSTANCE.Read(stream)
+                );
+            case 12:
                 return new SchedulingAdminAction.Developer(
                     FfiConverterTypeDeveloperAction.INSTANCE.Read(stream)
                 );
@@ -37750,6 +39216,9 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.Team variant_value:
                 return 4
                     + FfiConverterTypeTeamAction.INSTANCE.AllocationSize(variant_value.Action);
+            case SchedulingAdminAction.Settings variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingSettingsAction.INSTANCE.AllocationSize(variant_value.Action);
             case SchedulingAdminAction.Developer variant_value:
                 return 4
                     + FfiConverterTypeDeveloperAction.INSTANCE.AllocationSize(variant_value.Action);
@@ -37800,8 +39269,12 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                 stream.WriteInt(10);
                 FfiConverterTypeTeamAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
-            case SchedulingAdminAction.Developer variant_value:
+            case SchedulingAdminAction.Settings variant_value:
                 stream.WriteInt(11);
+                FfiConverterTypeSchedulingSettingsAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SchedulingAdminAction.Developer variant_value:
+                stream.WriteInt(12);
                 FfiConverterTypeDeveloperAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -37879,6 +39352,13 @@ public record SchedulingAdminPage {
     ) : SchedulingAdminPage {}
     
     /// <summary>
+    /// The scheduler's settings.
+    /// </summary>
+    public record Settings (
+        SchedulingSettingsView View
+    ) : SchedulingAdminPage {}
+    
+    /// <summary>
     /// API keys, connected apps and webhooks.
     /// </summary>
     public record Developer (
@@ -37928,6 +39408,10 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                     FfiConverterTypeSchedulingTeamView.INSTANCE.Read(stream)
                 );
             case 9:
+                return new SchedulingAdminPage.Settings(
+                    FfiConverterTypeSchedulingSettingsView.INSTANCE.Read(stream)
+                );
+            case 10:
                 return new SchedulingAdminPage.Developer(
                     FfiConverterTypeSchedulingDeveloperView.INSTANCE.Read(stream)
                 );
@@ -37962,6 +39446,9 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.Team variant_value:
                 return 4
                     + FfiConverterTypeSchedulingTeamView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.Settings variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingSettingsView.INSTANCE.AllocationSize(variant_value.View);
             case SchedulingAdminPage.Developer variant_value:
                 return 4
                     + FfiConverterTypeSchedulingDeveloperView.INSTANCE.AllocationSize(variant_value.View);
@@ -38004,8 +39491,12 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                 stream.WriteInt(8);
                 FfiConverterTypeSchedulingTeamView.INSTANCE.Write(variant_value.View, stream);
                 break;
-            case SchedulingAdminPage.Developer variant_value:
+            case SchedulingAdminPage.Settings variant_value:
                 stream.WriteInt(9);
+                FfiConverterTypeSchedulingSettingsView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.Developer variant_value:
+                stream.WriteInt(10);
                 FfiConverterTypeSchedulingDeveloperView.INSTANCE.Write(variant_value.View, stream);
                 break;
             default:
@@ -38092,6 +39583,413 @@ class FfiConverterTypeSchedulingAdminSection: FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminSection.Settings: stream.WriteInt(7); break;
             case SchedulingAdminSection.Developer: stream.WriteInt(8); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminSection.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// An image the settings hold.
+/// </summary>
+public enum SchedulingImageTarget: int {
+    /// <summary>
+    /// The booking page's logo.
+    /// </summary>
+    Logo,
+    /// <summary>
+    /// Its banner.
+    /// </summary>
+    Banner,
+    /// <summary>
+    /// The member's own picture.
+    /// </summary>
+    Avatar
+}
+
+class FfiConverterTypeSchedulingImageTarget: FfiConverterRustBuffer<SchedulingImageTarget> {
+    public static FfiConverterTypeSchedulingImageTarget INSTANCE = new FfiConverterTypeSchedulingImageTarget();
+
+    public override SchedulingImageTarget Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return SchedulingImageTarget.Logo;
+            case 2: return SchedulingImageTarget.Banner;
+            case 3: return SchedulingImageTarget.Avatar;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingImageTarget.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SchedulingImageTarget value) {
+        return 4;
+    }
+
+    public override void Write(SchedulingImageTarget value, BigEndianStream stream) {
+        switch (value) {
+            case SchedulingImageTarget.Logo: stream.WriteInt(1); break;
+            case SchedulingImageTarget.Banner: stream.WriteInt(2); break;
+            case SchedulingImageTarget.Avatar: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingImageTarget.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did on the settings.
+/// </summary>
+public record SchedulingSettingsAction {
+    
+    /// <summary>
+    /// Show a tab, read the first time.
+    /// </summary>
+    public record SelectTab (
+        SchedulingSettingsTab Tab
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// Read the tab showing again.
+    /// </summary>
+    public record Refresh: SchedulingSettingsAction {}
+    
+    
+    /// <summary>
+    /// Open the dialog of `tab`.
+    /// </summary>
+    public record OpenEditor (
+        SchedulingSettingsTab Tab
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// The profile's fields changed.
+    /// </summary>
+    public record EditProfile (
+        SettingsProfileForm Form
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// Save the profile.
+    /// </summary>
+    public record SaveProfile: SchedulingSettingsAction {}
+    
+    
+    /// <summary>
+    /// A notification switched.
+    /// </summary>
+    public record SetNotification (
+        string Field,
+        bool On
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// Save the notifications.
+    /// </summary>
+    public record SaveNotifications: SchedulingSettingsAction {}
+    
+    
+    /// <summary>
+    /// The booking page's fields changed.
+    /// </summary>
+    public record EditBranding (
+        SettingsBrandingForm Form
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// Save the booking page.
+    /// </summary>
+    public record SaveBranding: SchedulingSettingsAction {}
+    
+    
+    /// <summary>
+    /// Upload an image the member picked.
+    /// </summary>
+    public record UploadImage (
+        SchedulingImageTarget Target,
+        PickedFileView File
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// The image picked could not be read.
+    /// </summary>
+    public record ImageUnreadable (
+        SchedulingImageTarget Target
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// Remove an image, once the window asked.
+    /// </summary>
+    public record RemoveImage (
+        SchedulingImageTarget Target
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// The assistant's fields changed.
+    /// </summary>
+    public record EditAssistant (
+        bool Enabled,
+        string Instructions
+    ) : SchedulingSettingsAction {}
+    
+    /// <summary>
+    /// Save the assistant.
+    /// </summary>
+    public record SaveAssistant: SchedulingSettingsAction {}
+    
+    
+    /// <summary>
+    /// Close the dialog open.
+    /// </summary>
+    public record CloseDialog: SchedulingSettingsAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeSchedulingSettingsAction : FfiConverterRustBuffer<SchedulingSettingsAction>{
+    public static FfiConverterRustBuffer<SchedulingSettingsAction> INSTANCE = new FfiConverterTypeSchedulingSettingsAction();
+
+    public override SchedulingSettingsAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new SchedulingSettingsAction.SelectTab(
+                    FfiConverterTypeSchedulingSettingsTab.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new SchedulingSettingsAction.Refresh(
+                );
+            case 3:
+                return new SchedulingSettingsAction.OpenEditor(
+                    FfiConverterTypeSchedulingSettingsTab.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new SchedulingSettingsAction.EditProfile(
+                    FfiConverterTypeSettingsProfileForm.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new SchedulingSettingsAction.SaveProfile(
+                );
+            case 6:
+                return new SchedulingSettingsAction.SetNotification(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new SchedulingSettingsAction.SaveNotifications(
+                );
+            case 8:
+                return new SchedulingSettingsAction.EditBranding(
+                    FfiConverterTypeSettingsBrandingForm.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new SchedulingSettingsAction.SaveBranding(
+                );
+            case 10:
+                return new SchedulingSettingsAction.UploadImage(
+                    FfiConverterTypeSchedulingImageTarget.INSTANCE.Read(stream),
+                    FfiConverterTypePickedFileView.INSTANCE.Read(stream)
+                );
+            case 11:
+                return new SchedulingSettingsAction.ImageUnreadable(
+                    FfiConverterTypeSchedulingImageTarget.INSTANCE.Read(stream)
+                );
+            case 12:
+                return new SchedulingSettingsAction.RemoveImage(
+                    FfiConverterTypeSchedulingImageTarget.INSTANCE.Read(stream)
+                );
+            case 13:
+                return new SchedulingSettingsAction.EditAssistant(
+                    FfiConverterBoolean.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 14:
+                return new SchedulingSettingsAction.SaveAssistant(
+                );
+            case 15:
+                return new SchedulingSettingsAction.CloseDialog(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingSettingsAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SchedulingSettingsAction value) {
+        switch (value) {
+            case SchedulingSettingsAction.SelectTab variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingSettingsTab.INSTANCE.AllocationSize(variant_value.Tab);
+            case SchedulingSettingsAction.Refresh variant_value:
+                return 4;
+            case SchedulingSettingsAction.OpenEditor variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingSettingsTab.INSTANCE.AllocationSize(variant_value.Tab);
+            case SchedulingSettingsAction.EditProfile variant_value:
+                return 4
+                    + FfiConverterTypeSettingsProfileForm.INSTANCE.AllocationSize(variant_value.Form);
+            case SchedulingSettingsAction.SaveProfile variant_value:
+                return 4;
+            case SchedulingSettingsAction.SetNotification variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Field)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case SchedulingSettingsAction.SaveNotifications variant_value:
+                return 4;
+            case SchedulingSettingsAction.EditBranding variant_value:
+                return 4
+                    + FfiConverterTypeSettingsBrandingForm.INSTANCE.AllocationSize(variant_value.Form);
+            case SchedulingSettingsAction.SaveBranding variant_value:
+                return 4;
+            case SchedulingSettingsAction.UploadImage variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingImageTarget.INSTANCE.AllocationSize(variant_value.Target)
+                    + FfiConverterTypePickedFileView.INSTANCE.AllocationSize(variant_value.File);
+            case SchedulingSettingsAction.ImageUnreadable variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingImageTarget.INSTANCE.AllocationSize(variant_value.Target);
+            case SchedulingSettingsAction.RemoveImage variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingImageTarget.INSTANCE.AllocationSize(variant_value.Target);
+            case SchedulingSettingsAction.EditAssistant variant_value:
+                return 4
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Enabled)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Instructions);
+            case SchedulingSettingsAction.SaveAssistant variant_value:
+                return 4;
+            case SchedulingSettingsAction.CloseDialog variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingSettingsAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(SchedulingSettingsAction value, BigEndianStream stream) {
+        switch (value) {
+            case SchedulingSettingsAction.SelectTab variant_value:
+                stream.WriteInt(1);
+                FfiConverterTypeSchedulingSettingsTab.INSTANCE.Write(variant_value.Tab, stream);
+                break;
+            case SchedulingSettingsAction.Refresh variant_value:
+                stream.WriteInt(2);
+                break;
+            case SchedulingSettingsAction.OpenEditor variant_value:
+                stream.WriteInt(3);
+                FfiConverterTypeSchedulingSettingsTab.INSTANCE.Write(variant_value.Tab, stream);
+                break;
+            case SchedulingSettingsAction.EditProfile variant_value:
+                stream.WriteInt(4);
+                FfiConverterTypeSettingsProfileForm.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case SchedulingSettingsAction.SaveProfile variant_value:
+                stream.WriteInt(5);
+                break;
+            case SchedulingSettingsAction.SetNotification variant_value:
+                stream.WriteInt(6);
+                FfiConverterString.INSTANCE.Write(variant_value.Field, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case SchedulingSettingsAction.SaveNotifications variant_value:
+                stream.WriteInt(7);
+                break;
+            case SchedulingSettingsAction.EditBranding variant_value:
+                stream.WriteInt(8);
+                FfiConverterTypeSettingsBrandingForm.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case SchedulingSettingsAction.SaveBranding variant_value:
+                stream.WriteInt(9);
+                break;
+            case SchedulingSettingsAction.UploadImage variant_value:
+                stream.WriteInt(10);
+                FfiConverterTypeSchedulingImageTarget.INSTANCE.Write(variant_value.Target, stream);
+                FfiConverterTypePickedFileView.INSTANCE.Write(variant_value.File, stream);
+                break;
+            case SchedulingSettingsAction.ImageUnreadable variant_value:
+                stream.WriteInt(11);
+                FfiConverterTypeSchedulingImageTarget.INSTANCE.Write(variant_value.Target, stream);
+                break;
+            case SchedulingSettingsAction.RemoveImage variant_value:
+                stream.WriteInt(12);
+                FfiConverterTypeSchedulingImageTarget.INSTANCE.Write(variant_value.Target, stream);
+                break;
+            case SchedulingSettingsAction.EditAssistant variant_value:
+                stream.WriteInt(13);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Enabled, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Instructions, stream);
+                break;
+            case SchedulingSettingsAction.SaveAssistant variant_value:
+                stream.WriteInt(14);
+                break;
+            case SchedulingSettingsAction.CloseDialog variant_value:
+                stream.WriteInt(15);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingSettingsAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A tab of the settings.
+/// </summary>
+public enum SchedulingSettingsTab: int {
+    /// <summary>
+    /// The booking page's branding.
+    /// </summary>
+    BookingPage,
+    /// <summary>
+    /// The booking assistant.
+    /// </summary>
+    Assistant,
+    /// <summary>
+    /// The member's profile.
+    /// </summary>
+    Profile,
+    /// <summary>
+    /// The member's notifications.
+    /// </summary>
+    Notifications
+}
+
+class FfiConverterTypeSchedulingSettingsTab: FfiConverterRustBuffer<SchedulingSettingsTab> {
+    public static FfiConverterTypeSchedulingSettingsTab INSTANCE = new FfiConverterTypeSchedulingSettingsTab();
+
+    public override SchedulingSettingsTab Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return SchedulingSettingsTab.BookingPage;
+            case 2: return SchedulingSettingsTab.Assistant;
+            case 3: return SchedulingSettingsTab.Profile;
+            case 4: return SchedulingSettingsTab.Notifications;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingSettingsTab.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SchedulingSettingsTab value) {
+        return 4;
+    }
+
+    public override void Write(SchedulingSettingsTab value, BigEndianStream stream) {
+        switch (value) {
+            case SchedulingSettingsTab.BookingPage: stream.WriteInt(1); break;
+            case SchedulingSettingsTab.Assistant: stream.WriteInt(2); break;
+            case SchedulingSettingsTab.Profile: stream.WriteInt(3); break;
+            case SchedulingSettingsTab.Notifications: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingSettingsTab.Write()", value));
         }
     }
 }
@@ -44572,6 +46470,130 @@ class FfiConverterOptionalTypeSentimentChartView: FfiConverterRustBuffer<Sentime
 
 
 
+class FfiConverterOptionalTypeSettingsAssistantView: FfiConverterRustBuffer<SettingsAssistantView?> {
+    public static FfiConverterOptionalTypeSettingsAssistantView INSTANCE = new FfiConverterOptionalTypeSettingsAssistantView();
+
+    public override SettingsAssistantView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSettingsAssistantView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SettingsAssistantView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSettingsAssistantView.INSTANCE.AllocationSize((SettingsAssistantView)value);
+        }
+    }
+
+    public override void Write(SettingsAssistantView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSettingsAssistantView.INSTANCE.Write((SettingsAssistantView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeSettingsBrandingView: FfiConverterRustBuffer<SettingsBrandingView?> {
+    public static FfiConverterOptionalTypeSettingsBrandingView INSTANCE = new FfiConverterOptionalTypeSettingsBrandingView();
+
+    public override SettingsBrandingView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSettingsBrandingView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SettingsBrandingView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSettingsBrandingView.INSTANCE.AllocationSize((SettingsBrandingView)value);
+        }
+    }
+
+    public override void Write(SettingsBrandingView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSettingsBrandingView.INSTANCE.Write((SettingsBrandingView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeSettingsNotificationsView: FfiConverterRustBuffer<SettingsNotificationsView?> {
+    public static FfiConverterOptionalTypeSettingsNotificationsView INSTANCE = new FfiConverterOptionalTypeSettingsNotificationsView();
+
+    public override SettingsNotificationsView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSettingsNotificationsView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SettingsNotificationsView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSettingsNotificationsView.INSTANCE.AllocationSize((SettingsNotificationsView)value);
+        }
+    }
+
+    public override void Write(SettingsNotificationsView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSettingsNotificationsView.INSTANCE.Write((SettingsNotificationsView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeSettingsProfileView: FfiConverterRustBuffer<SettingsProfileView?> {
+    public static FfiConverterOptionalTypeSettingsProfileView INSTANCE = new FfiConverterOptionalTypeSettingsProfileView();
+
+    public override SettingsProfileView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSettingsProfileView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SettingsProfileView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSettingsProfileView.INSTANCE.AllocationSize((SettingsProfileView)value);
+        }
+    }
+
+    public override void Write(SettingsProfileView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSettingsProfileView.INSTANCE.Write((SettingsProfileView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeStudioFormView: FfiConverterRustBuffer<StudioFormView?> {
     public static FfiConverterOptionalTypeStudioFormView INSTANCE = new FfiConverterOptionalTypeStudioFormView();
 
@@ -47091,6 +49113,98 @@ class FfiConverterSequenceTypeNotificationActionView: FfiConverterRustBuffer<Not
 
 
 
+class FfiConverterSequenceTypeNotificationGroupView: FfiConverterRustBuffer<NotificationGroupView[]> {
+    public static FfiConverterSequenceTypeNotificationGroupView INSTANCE = new FfiConverterSequenceTypeNotificationGroupView();
+
+    public override NotificationGroupView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new NotificationGroupView[length];
+        var readFn = FfiConverterTypeNotificationGroupView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(NotificationGroupView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeNotificationGroupView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(NotificationGroupView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeNotificationGroupView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeNotificationSwitchView: FfiConverterRustBuffer<NotificationSwitchView[]> {
+    public static FfiConverterSequenceTypeNotificationSwitchView INSTANCE = new FfiConverterSequenceTypeNotificationSwitchView();
+
+    public override NotificationSwitchView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new NotificationSwitchView[length];
+        var readFn = FfiConverterTypeNotificationSwitchView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(NotificationSwitchView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeNotificationSwitchView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(NotificationSwitchView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeNotificationSwitchView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeNumberRowView: FfiConverterRustBuffer<NumberRowView[]> {
     public static FfiConverterSequenceTypeNumberRowView INSTANCE = new FfiConverterSequenceTypeNumberRowView();
 
@@ -47551,6 +49665,98 @@ class FfiConverterSequenceTypeSchedulingSectionEntryView: FfiConverterRustBuffer
 
 
 
+class FfiConverterSequenceTypeSchedulingSettingsGroupView: FfiConverterRustBuffer<SchedulingSettingsGroupView[]> {
+    public static FfiConverterSequenceTypeSchedulingSettingsGroupView INSTANCE = new FfiConverterSequenceTypeSchedulingSettingsGroupView();
+
+    public override SchedulingSettingsGroupView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SchedulingSettingsGroupView[length];
+        var readFn = FfiConverterTypeSchedulingSettingsGroupView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SchedulingSettingsGroupView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSchedulingSettingsGroupView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SchedulingSettingsGroupView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSchedulingSettingsGroupView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSchedulingSettingsRowView: FfiConverterRustBuffer<SchedulingSettingsRowView[]> {
+    public static FfiConverterSequenceTypeSchedulingSettingsRowView INSTANCE = new FfiConverterSequenceTypeSchedulingSettingsRowView();
+
+    public override SchedulingSettingsRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SchedulingSettingsRowView[length];
+        var readFn = FfiConverterTypeSchedulingSettingsRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SchedulingSettingsRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSchedulingSettingsRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SchedulingSettingsRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSchedulingSettingsRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeSearchHitView: FfiConverterRustBuffer<SearchHitView[]> {
     public static FfiConverterSequenceTypeSearchHitView INSTANCE = new FfiConverterSequenceTypeSearchHitView();
 
@@ -47728,6 +49934,52 @@ class FfiConverterSequenceTypeSettingsRowView: FfiConverterRustBuffer<SettingsRo
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeSettingsRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSettingsTabView: FfiConverterRustBuffer<SettingsTabView[]> {
+    public static FfiConverterSequenceTypeSettingsTabView INSTANCE = new FfiConverterSequenceTypeSettingsTabView();
+
+    public override SettingsTabView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SettingsTabView[length];
+        var readFn = FfiConverterTypeSettingsTabView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SettingsTabView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSettingsTabView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SettingsTabView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSettingsTabView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -49160,6 +51412,19 @@ public static class DistrictFfi {
         return FfiConverterOptionalTypePushMessage.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_district_ffi_fn_func_decode_push(FfiConverterString.INSTANCE.Lower(@payload), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// The pick for a booking page image or the member's picture: the
+    /// scheduler's image types, one file, read one byte past the largest it
+    /// takes, so the core sees a file is too large and says so.
+    /// </summary>
+    public static FilePickView SchedulingImagePick() {
+        return FfiConverterTypeFilePickView.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_scheduling_image_pick( ref _status)
 ));
     }
 

@@ -92,6 +92,7 @@ public sealed class SceneWalkTests
         "SchedulingSectionBookings",
         "SchedulingSectionCalendar",
         "SchedulingSectionTeam",
+        "SchedulingSectionSettings",
         "SchedulingSectionDeveloper",
     ];
 
@@ -938,7 +939,7 @@ public sealed class SceneWalkTests
             () => AllById(app, "EventTypeHostRemove").Length == hosts + 1 && AllById(app, "EventTypeHostAdd").Length == 0,
             "the member added as a host");
         InstalledApp.Log("Add made the member a host");
-        AllById(app, "EventTypeHostPriority")[^1].AsTextBox().Text = "first";
+        TypeUntilItHolds(app, () => AllById(app, "EventTypeHostPriority").LastOrDefault(), "first");
         AutomationElement HostsSave() => Wait.For(
             () => hostsDialog.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
             PageTimeout,
@@ -1172,6 +1173,36 @@ public sealed class SceneWalkTests
     }
 
     /// <summary>Every element whose AutomationId is <paramref name="automationId"/>, on the screen or scrolled off it, in order.</summary>
+    /// <summary>
+    /// Types <paramref name="text"/> into the box <paramref name="box"/> finds
+    /// until a fresh look at it still reads it, then lets the window take it
+    /// in. A row's box can be made again as a dialog settles (after Add, the
+    /// hosts' rows are), which drops what was set into the one before; and a
+    /// box's TextChanged reaches the core after UI Automation set its text,
+    /// so a press right after could overtake it (the hosts once saved without
+    /// the priority typed).
+    /// </summary>
+    private static void TypeUntilItHolds(InstalledApp app, Func<AutomationElement?> box, string text)
+    {
+        Expect(
+            app,
+            () =>
+            {
+                if (box()?.AsTextBox() is not { } current)
+                {
+                    return false;
+                }
+                if (current.Text != text)
+                {
+                    current.Text = text;
+                    return false;
+                }
+                return true;
+            },
+            $"\"{text}\" to stay typed");
+        FlaUI.Core.Input.Wait.UntilInputIsProcessed(TimeSpan.FromMilliseconds(500));
+    }
+
     private static AutomationElement[] AllById(InstalledApp app, string automationId) =>
         app.TryMainWindow()?.FindAllDescendants(cf => cf.ByAutomationId(automationId)) ?? [];
 
@@ -1245,6 +1276,124 @@ public sealed class SceneWalkTests
             $"the close button of {noticeId}",
             app.Describe));
         Expect(app, () => app.TryFindById(noticeId) is null, $"{noticeId} to close");
+    }
+
+    /// <summary>
+    /// The settings, tab by tab: the booking page opens with what it read,
+    /// its Edit saves it, and the logo's Remove is asked once in place (its
+    /// Cancel keeps the logo), then lands; the assistant's switch makes its
+    /// Save work and the save lands; the profile's name saves; and a
+    /// notification's switch saves. Escape closes each dialog. Choose image
+    /// opens the Windows file chooser, which a walk cannot drive: the view
+    /// model's tests hand it a file.
+    /// </summary>
+    [Fact]
+    public void TheSettingsSaveTabByTab()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        ScrollRowIntoView(app, "SchedulingSectionSettings");
+        var settings = OpenSettingsRowById(app, "SchedulingSectionSettings");
+        _ = Heading(app, settings, PageTimeout, "SchedulingAdminHeading");
+
+        AutomationElement Confirm(AutomationElement dialog, string what) => Wait.For(
+            () => dialog.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            what,
+            app.Describe);
+
+        void ShowTab(string tabId, string heading)
+        {
+            var tab = app.FindById(tabId, PageTimeout);
+            if (tab.Patterns.SelectionItem.PatternOrDefault is { } item)
+            {
+                item.Select();
+            }
+            else
+            {
+                Press(tab);
+            }
+            Expect(
+                app,
+                () => app.TryFindById("SchedulingSettings", onScreen: false)?.FindFirstDescendant(cf => cf.ByControlType(ControlType.Text).And(cf.ByName(heading))) is not null
+                    && app.TryFindById("SchedulingSettingsEdit", onScreen: false) is not null,
+                $"the {heading} tab to show what it read");
+        }
+
+        void CloseWithEscape(string dialogId, string what)
+        {
+            Keyboard.Type(VirtualKeyShort.ESCAPE);
+            Assert.True(
+                Wait.Until(() => app.TryFindById(dialogId, onScreen: false) is null, PageTimeout),
+                $"{what} stayed open after Escape");
+        }
+
+        // The booking page: read, edited and saved.
+        ShowTab("SchedulingSettingsTabBookingPage", "Booking page");
+        Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false));
+        var branding = app.FindById("SettingsBrandingDialog", PageTimeout);
+        TypeUntilItHolds(app, () => app.TryFindById("SettingsBusinessName", onScreen: false), "Walk Agency");
+        Press(Confirm(branding, "the booking page's Save to work"));
+        _ = app.FindById("SettingsBrandingNotice", PageTimeout, onScreen: false);
+        InstalledApp.Log("the booking page saved");
+
+        // The logo's removal: asked in place, kept on Cancel, then confirmed.
+        Press(app.FindById("SettingsImageLogoRemove", PageTimeout, onScreen: false));
+        _ = app.FindById("SettingsImageLogoRemoveTitle", PageTimeout, onScreen: false);
+        Press(app.FindById("SettingsImageLogoRemoveCancel", PageTimeout, onScreen: false));
+        Assert.True(
+            Wait.Until(() => app.TryFindById("SettingsImageLogoRemoveTitle", onScreen: false) is null, PageTimeout),
+            "the logo's removal stayed asked after Cancel");
+        Press(app.FindById("SettingsImageLogoRemove", PageTimeout, onScreen: false));
+        Press(app.FindById("SettingsImageLogoRemoveConfirm", PageTimeout, onScreen: false));
+        _ = app.FindById("SettingsImageLogoNotice", PageTimeout, onScreen: false);
+        InstalledApp.Log("the logo's removal was asked once, then landed");
+        CloseWithEscape("SettingsBrandingDialog", "the booking page");
+
+        // The assistant: its Save works once the switch changed, and lands.
+        ShowTab("SchedulingSettingsTabAssistant", "Booking assistant");
+        Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false));
+        var assistant = app.FindById("SettingsAssistantDialog", PageTimeout);
+        var save = assistant.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton"));
+        Assert.False(save?.IsEnabled ?? false, "the assistant's Save worked before anything changed");
+        app.FindById("SettingsAssistantEnabled", PageTimeout, onScreen: false).Patterns.Toggle.Pattern.Toggle();
+        Press(Confirm(assistant, "the assistant's Save to work once switched"));
+        _ = app.FindById("SettingsAssistantNotice", PageTimeout, onScreen: false);
+        InstalledApp.Log("the assistant saved");
+        CloseWithEscape("SettingsAssistantDialog", "the assistant");
+
+        // The profile: a name typed and saved.
+        ShowTab("SchedulingSettingsTabProfile", "Your profile");
+        Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false));
+        var profile = app.FindById("SettingsProfileDialog", PageTimeout);
+        TypeUntilItHolds(app, () => app.TryFindById("SettingsProfileName", onScreen: false), "Walk Member");
+        Press(Confirm(profile, "the profile's Save to work"));
+        _ = app.FindById("SettingsProfileNotice", PageTimeout, onScreen: false);
+        Assert.Null(app.TryFindById("SettingsProfileError", onScreen: false));
+        InstalledApp.Log("the profile saved");
+        CloseWithEscape("SettingsProfileDialog", "the profile");
+
+        // The notifications: a switch flipped and saved.
+        ShowTab("SchedulingSettingsTabNotifications", "As an attendee");
+        Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false));
+        var notifications = app.FindById("SettingsNotificationsDialog", PageTimeout);
+        var before = IsTicked(app.FindById("SettingsNotifynotify_reschedule", PageTimeout, onScreen: false));
+        app.FindById("SettingsNotifynotify_reschedule", PageTimeout, onScreen: false).Patterns.Toggle.Pattern.Toggle();
+        Expect(
+            app,
+            () => app.TryFindById("SettingsNotifynotify_reschedule", onScreen: false) is { } now && IsTicked(now) != before,
+            "the switch to hold its new state");
+        Press(Confirm(notifications, "the notifications' Save to work"));
+        _ = app.FindById("SettingsNotificationsNotice", PageTimeout, onScreen: false);
+        InstalledApp.Log("the notifications saved");
+        CloseWithEscape("SettingsNotificationsDialog", "the notifications");
+
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the settings");
     }
 
     /// <summary>

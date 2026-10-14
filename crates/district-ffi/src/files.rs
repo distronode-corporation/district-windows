@@ -180,7 +180,7 @@ pub struct FilePickView {
 }
 
 /// The pick for `types`, each a MIME type, of at most `max_files` files.
-fn pick(types: &[&str], max_files: usize) -> FilePickView {
+pub(crate) fn pick(types: &[&str], max_files: usize) -> FilePickView {
     FilePickView {
         extensions: types
             .iter()

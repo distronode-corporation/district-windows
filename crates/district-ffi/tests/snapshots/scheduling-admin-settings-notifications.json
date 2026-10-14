@@ -1,0 +1,162 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Settings": {
+            "view": {
+              "assistant": null,
+              "branding": null,
+              "edit_label": "Edit",
+              "groups": [
+                {
+                  "description": "When you are the one being booked into somebody else's meeting.",
+                  "heading": "As an attendee",
+                  "rows": [
+                    {
+                      "label": "A booking is confirmed",
+                      "value": "On"
+                    },
+                    {
+                      "label": "A booking is cancelled",
+                      "value": "On"
+                    },
+                    {
+                      "label": "A booking is moved",
+                      "value": "Off"
+                    },
+                    {
+                      "label": "A booking is coming up",
+                      "value": "On"
+                    }
+                  ]
+                },
+                {
+                  "description": "When somebody books one of your event types.",
+                  "heading": "As a host",
+                  "rows": [
+                    {
+                      "label": "Somebody books you",
+                      "value": "On"
+                    },
+                    {
+                      "label": "Somebody cancels",
+                      "value": "Off"
+                    },
+                    {
+                      "label": "Somebody moves their booking",
+                      "value": "On"
+                    }
+                  ]
+                }
+              ],
+              "notifications": null,
+              "offers_edit": true,
+              "profile": null,
+              "status": "Ready",
+              "tabs": [
+                {
+                  "label": "Booking page",
+                  "selected": false,
+                  "tab": "BookingPage"
+                },
+                {
+                  "label": "Booking assistant",
+                  "selected": false,
+                  "tab": "Assistant"
+                },
+                {
+                  "label": "Your profile",
+                  "selected": false,
+                  "tab": "Profile"
+                },
+                {
+                  "label": "Your notifications",
+                  "selected": true,
+                  "tab": "Notifications"
+                }
+              ]
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Hours",
+            "selected": false,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          },
+          {
+            "section": "Calendar",
+            "selected": false,
+            "subtitle": "The accounts bookings are written to and checked against",
+            "title": "Calendar"
+          },
+          {
+            "section": "Team",
+            "selected": false,
+            "subtitle": "The hosts who can be booked, and the teams they route through",
+            "title": "Team"
+          },
+          {
+            "section": "Settings",
+            "selected": true,
+            "subtitle": "Your booking page, your booking assistant, and how the scheduler treats you",
+            "title": "Settings"
+          },
+          {
+            "section": "Developer",
+            "selected": false,
+            "subtitle": "API keys, connected apps and webhooks",
+            "title": "Developer"
+          }
+        ],
+        "title": "Settings"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

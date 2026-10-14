@@ -913,6 +913,15 @@ namespace DistrictAI.L10n
         /// <summary><c>scheduling.sections</c></summary>
         public static string SchedulingSections => Current == Locale.FrCa ? "Sections" : "Sections";
 
+        /// <summary><c>scheduling.settings_image_notice</c></summary>
+        public static string SchedulingSettingsImageNotice => Current == Locale.FrCa ? "Image change" : "Image change";
+
+        /// <summary><c>scheduling.settings_notice</c></summary>
+        public static string SchedulingSettingsNotice => Current == Locale.FrCa ? "Settings change" : "Settings change";
+
+        /// <summary><c>scheduling.settings_tabs</c></summary>
+        public static string SchedulingSettingsTabs => Current == Locale.FrCa ? "Settings tabs" : "Settings tabs";
+
         /// <summary><c>scheduling.team_notice</c></summary>
         public static string SchedulingTeamNotice => Current == Locale.FrCa ? "Team change" : "Team change";
 

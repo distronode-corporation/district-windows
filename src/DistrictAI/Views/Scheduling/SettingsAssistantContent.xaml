@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.SettingsAssistantContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
+    <StackPanel MinWidth="440" Spacing="12">
+        <TextBlock
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.Words.Hint, Mode=OneWay}"
+            TextWrapping="Wrap" />
+        <ToggleSwitch
+            AutomationProperties.AutomationId="SettingsAssistantEnabled"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.ToggleLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.ToggleLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            IsOn="{x:Bind ViewModel.Enabled, Mode=TwoWay}" />
+        <TextBox
+            MinHeight="120"
+            AcceptsReturn="True"
+            AutomationProperties.AutomationId="SettingsAssistantInstructions"
+            AutomationProperties.HelpText="{x:Bind ViewModel.Words.InstructionsHint, Mode=OneWay}"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.InstructionsLabel, Mode=OneWay}"
+            Description="{x:Bind ViewModel.Words.InstructionsHint, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.InstructionsLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            PlaceholderText="{x:Bind ViewModel.Words.InstructionsPlaceholder, Mode=OneWay}"
+            Text="{x:Bind ViewModel.Instructions, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            TextWrapping="Wrap" />
+        <TextBlock
+            AutomationProperties.AutomationId="SettingsAssistantError"
+            AutomationProperties.LiveSetting="Polite"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Text="{x:Bind ViewModel.Error, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.HasError, Mode=OneWay}" />
+        <InfoBar
+            AutomationProperties.AutomationId="SettingsAssistantNotice"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingSettingsNotice}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+            Severity="Success" />
+        <InfoBar
+            AutomationProperties.AutomationId="SettingsAssistantFailure"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.Dialog.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Dialog.Failure, Mode=OneWay}"
+            Severity="Error" />
+        <ProgressRing
+            Width="20"
+            Height="20"
+            HorizontalAlignment="Left"
+            AutomationProperties.AutomationId="SettingsAssistantWorking"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+            IsActive="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>

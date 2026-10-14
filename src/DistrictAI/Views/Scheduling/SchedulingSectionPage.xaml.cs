@@ -29,6 +29,7 @@ public sealed partial class SchedulingSectionPage : UserControl
             CalendarPanel.CloseDialogs();
             TeamPanel.CloseDialogs();
             DeveloperPanel.CloseDialogs();
+            SettingsPanel.CloseDialogs();
         };
     }
 
@@ -46,6 +47,7 @@ public sealed partial class SchedulingSectionPage : UserControl
         CalendarPanel.Attach(ViewModel.Calendar, context);
         TeamPanel.Attach(ViewModel.Team, context);
         DeveloperPanel.Attach(ViewModel.Developer, context);
+        SettingsPanel.Attach(ViewModel.Settings, context);
     }
 
     internal void Show(SchedulingAdminView view)
@@ -59,6 +61,7 @@ public sealed partial class SchedulingSectionPage : UserControl
         CalendarPanel.SyncDialogs();
         TeamPanel.SyncDialogs();
         DeveloperPanel.SyncDialogs();
+        SettingsPanel.SyncDialogs();
     }
 
     private void OnSectionChanged(object sender, SelectionChangedEventArgs e) =>
