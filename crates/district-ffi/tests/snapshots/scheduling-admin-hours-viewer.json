@@ -85,6 +85,12 @@
             "selected": false,
             "subtitle": "Every booking in this workspace, upcoming and past",
             "title": "Bookings"
+          },
+          {
+            "section": "Calendar",
+            "selected": false,
+            "subtitle": "The accounts bookings are written to and checked against",
+            "title": "Calendar"
           }
         ],
         "title": "Working hours"

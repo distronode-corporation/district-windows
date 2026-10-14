@@ -5972,6 +5972,564 @@ class FfiConverterTypeBookingsTabView: FfiConverterRustBuffer<BookingsTabView> {
 
 
 /// <summary>
+/// The CalDAV form's fields as the window holds them, what a change to the
+/// form sends back whole (`CalendarAction::EditCaldav`). The app password is
+/// bytes, so that no `ToString` of the C# record prints it, and is left out of
+/// its `Debug`.
+/// </summary>
+/// <param name="Preset">
+/// Where the calendar lives, by its wire value: `icloud`, `fastmail`,
+/// `nextcloud` or `custom`.
+/// </param>
+/// <param name="ServerUrl">
+/// The server's address.
+/// </param>
+/// <param name="Username">
+/// The user name.
+/// </param>
+/// <param name="AppPassword">
+/// The app password, as UTF-8.
+/// </param>
+public record CaldavFormView (
+    /// <summary>
+    /// Where the calendar lives, by its wire value: `icloud`, `fastmail`,
+    /// `nextcloud` or `custom`.
+    /// </summary>
+    string Preset, 
+    /// <summary>
+    /// The server's address.
+    /// </summary>
+    string ServerUrl, 
+    /// <summary>
+    /// The user name.
+    /// </summary>
+    string Username, 
+    /// <summary>
+    /// The app password, as UTF-8.
+    /// </summary>
+    byte[] AppPassword
+) {
+}
+
+class FfiConverterTypeCaldavFormView: FfiConverterRustBuffer<CaldavFormView> {
+    public static FfiConverterTypeCaldavFormView INSTANCE = new FfiConverterTypeCaldavFormView();
+
+    public override CaldavFormView Read(BigEndianStream stream) {
+        return new CaldavFormView(
+            Preset: FfiConverterString.INSTANCE.Read(stream),
+            ServerUrl: FfiConverterString.INSTANCE.Read(stream),
+            Username: FfiConverterString.INSTANCE.Read(stream),
+            AppPassword: FfiConverterByteArray.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CaldavFormView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Preset)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ServerUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Username)
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.AppPassword);
+    }
+
+    public override void Write(CaldavFormView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Preset, stream);
+            FfiConverterString.INSTANCE.Write(value.ServerUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.Username, stream);
+            FfiConverterByteArray.INSTANCE.Write(value.AppPassword, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The CalDAV form: where the calendar lives, the server's address for a
+/// place that needs it, the user name and an app password. Its connect is the
+/// dialog's confirm; the dialog stays open saying which account connected.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("Connect a CalDAV calendar"), the connect ("Connect
+/// calendar", "Connecting…"), the way out and why the connect failed.
+/// </param>
+/// <param name="PresetLabel">
+/// "Where the calendar lives".
+/// </param>
+/// <param name="Presets">
+/// The places, by their wire value, the one chosen selected.
+/// </param>
+/// <param name="PresetNote">
+/// Where to get an app password there.
+/// </param>
+/// <param name="ShowsServerUrl">
+/// Whether the server's address shows: Nextcloud or another server.
+/// </param>
+/// <param name="ServerUrlLabel">
+/// "Server URL".
+/// </param>
+/// <param name="ServerUrlHint">
+/// What it is.
+/// </param>
+/// <param name="UsernameLabel">
+/// "Username".
+/// </param>
+/// <param name="PasswordLabel">
+/// "App password".
+/// </param>
+/// <param name="PasswordHint">
+/// That it is an app password, not the account's.
+/// </param>
+/// <param name="ServerUrl">
+/// The server's address, as the core holds it: what was typed, and empty
+/// again once an account connected.
+/// </param>
+/// <param name="Username">
+/// The user name, the same way.
+/// </param>
+/// <param name="ServerUrlError">
+/// Why the server's address was refused, before anything was sent.
+/// </param>
+/// <param name="UsernameError">
+/// Why the user name was.
+/// </param>
+/// <param name="PasswordError">
+/// Why the app password was.
+/// </param>
+/// <param name="Editable">
+/// Whether the fields can be changed: no connect is on its way.
+/// </param>
+/// <param name="Notice">
+/// What the last connect came to: "Calendar connected: ada@example.com".
+/// </param>
+public record CaldavView (
+    /// <summary>
+    /// Its title ("Connect a CalDAV calendar"), the connect ("Connect
+    /// calendar", "Connecting…"), the way out and why the connect failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// "Where the calendar lives".
+    /// </summary>
+    string PresetLabel, 
+    /// <summary>
+    /// The places, by their wire value, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] Presets, 
+    /// <summary>
+    /// Where to get an app password there.
+    /// </summary>
+    string PresetNote, 
+    /// <summary>
+    /// Whether the server's address shows: Nextcloud or another server.
+    /// </summary>
+    bool ShowsServerUrl, 
+    /// <summary>
+    /// "Server URL".
+    /// </summary>
+    string ServerUrlLabel, 
+    /// <summary>
+    /// What it is.
+    /// </summary>
+    string ServerUrlHint, 
+    /// <summary>
+    /// "Username".
+    /// </summary>
+    string UsernameLabel, 
+    /// <summary>
+    /// "App password".
+    /// </summary>
+    string PasswordLabel, 
+    /// <summary>
+    /// That it is an app password, not the account's.
+    /// </summary>
+    string PasswordHint, 
+    /// <summary>
+    /// The server's address, as the core holds it: what was typed, and empty
+    /// again once an account connected.
+    /// </summary>
+    string ServerUrl, 
+    /// <summary>
+    /// The user name, the same way.
+    /// </summary>
+    string Username, 
+    /// <summary>
+    /// Why the server's address was refused, before anything was sent.
+    /// </summary>
+    string? ServerUrlError, 
+    /// <summary>
+    /// Why the user name was.
+    /// </summary>
+    string? UsernameError, 
+    /// <summary>
+    /// Why the app password was.
+    /// </summary>
+    string? PasswordError, 
+    /// <summary>
+    /// Whether the fields can be changed: no connect is on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the last connect came to: "Calendar connected: ada@example.com".
+    /// </summary>
+    string? Notice
+) {
+}
+
+class FfiConverterTypeCaldavView: FfiConverterRustBuffer<CaldavView> {
+    public static FfiConverterTypeCaldavView INSTANCE = new FfiConverterTypeCaldavView();
+
+    public override CaldavView Read(BigEndianStream stream) {
+        return new CaldavView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            PresetLabel: FfiConverterString.INSTANCE.Read(stream),
+            Presets: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            PresetNote: FfiConverterString.INSTANCE.Read(stream),
+            ShowsServerUrl: FfiConverterBoolean.INSTANCE.Read(stream),
+            ServerUrlLabel: FfiConverterString.INSTANCE.Read(stream),
+            ServerUrlHint: FfiConverterString.INSTANCE.Read(stream),
+            UsernameLabel: FfiConverterString.INSTANCE.Read(stream),
+            PasswordLabel: FfiConverterString.INSTANCE.Read(stream),
+            PasswordHint: FfiConverterString.INSTANCE.Read(stream),
+            ServerUrl: FfiConverterString.INSTANCE.Read(stream),
+            Username: FfiConverterString.INSTANCE.Read(stream),
+            ServerUrlError: FfiConverterOptionalString.INSTANCE.Read(stream),
+            UsernameError: FfiConverterOptionalString.INSTANCE.Read(stream),
+            PasswordError: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CaldavView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PresetLabel)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Presets)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PresetNote)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowsServerUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ServerUrlLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ServerUrlHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.UsernameLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PasswordLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PasswordHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ServerUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Username)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ServerUrlError)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.UsernameError)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.PasswordError)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice);
+    }
+
+    public override void Write(CaldavView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.PresetLabel, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Presets, stream);
+            FfiConverterString.INSTANCE.Write(value.PresetNote, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowsServerUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.ServerUrlLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ServerUrlHint, stream);
+            FfiConverterString.INSTANCE.Write(value.UsernameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PasswordLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PasswordHint, stream);
+            FfiConverterString.INSTANCE.Write(value.ServerUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.Username, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ServerUrlError, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.UsernameError, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.PasswordError, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One connected account.
+/// </summary>
+/// <param name="Id">
+/// Its id, which its actions name.
+/// </param>
+/// <param name="Provider">
+/// Its provider's name, the card's heading: "Google Calendar".
+/// </param>
+/// <param name="Account">
+/// Its address.
+/// </param>
+/// <param name="Conflicts">
+/// Which of its calendars are checked for conflicts: their names, "None",
+/// or, while its calendars could not be read, "Checked" or "Not checked".
+/// </param>
+/// <param name="Destination">
+/// Which receives new bookings: a calendar's name, "This account", or "No
+/// calendar in this account".
+/// </param>
+public record CalendarConnectionView (
+    /// <summary>
+    /// Its id, which its actions name.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Its provider's name, the card's heading: "Google Calendar".
+    /// </summary>
+    string Provider, 
+    /// <summary>
+    /// Its address.
+    /// </summary>
+    string Account, 
+    /// <summary>
+    /// Which of its calendars are checked for conflicts: their names, "None",
+    /// or, while its calendars could not be read, "Checked" or "Not checked".
+    /// </summary>
+    string Conflicts, 
+    /// <summary>
+    /// Which receives new bookings: a calendar's name, "This account", or "No
+    /// calendar in this account".
+    /// </summary>
+    string Destination
+) {
+}
+
+class FfiConverterTypeCalendarConnectionView: FfiConverterRustBuffer<CalendarConnectionView> {
+    public static FfiConverterTypeCalendarConnectionView INSTANCE = new FfiConverterTypeCalendarConnectionView();
+
+    public override CalendarConnectionView Read(BigEndianStream stream) {
+        return new CalendarConnectionView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Provider: FfiConverterString.INSTANCE.Read(stream),
+            Account: FfiConverterString.INSTANCE.Read(stream),
+            Conflicts: FfiConverterString.INSTANCE.Read(stream),
+            Destination: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CalendarConnectionView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Provider)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Account)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Conflicts)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Destination);
+    }
+
+    public override void Write(CalendarConnectionView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Provider, stream);
+            FfiConverterString.INSTANCE.Write(value.Account, stream);
+            FfiConverterString.INSTANCE.Write(value.Conflicts, stream);
+            FfiConverterString.INSTANCE.Write(value.Destination, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One account's calendars: which are checked for conflicts, and which
+/// receives new bookings. Saved whole by the dialog's confirm, offered once
+/// they are read; the dialog stays open saying what the save came to.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("Calendars in ada@example.com"), the save ("Save changes",
+/// "Saving…"), the way out and why the save failed.
+/// </param>
+/// <param name="ConnectionId">
+/// The account, which a read that failed is asked for again by
+/// (`CalendarAction::OpenCalendars`).
+/// </param>
+/// <param name="Status">
+/// Where the read of its calendars stands.
+/// </param>
+/// <param name="LoadingLabel">
+/// "Loading calendars…".
+/// </param>
+/// <param name="ConflictsLabel">
+/// "Checked for conflicts", over a switch per calendar.
+/// </param>
+/// <param name="ConflictsHint">
+/// What checking one does.
+/// </param>
+/// <param name="DestinationLabel">
+/// "Receives bookings", over the calendars that can.
+/// </param>
+/// <param name="DestinationHint">
+/// What that does.
+/// </param>
+/// <param name="Calendars">
+/// Every calendar, with its switch; none until read.
+/// </param>
+/// <param name="Destinations">
+/// The calendars that can receive bookings (every one not read-only), the
+/// one that does selected.
+/// </param>
+/// <param name="Editable">
+/// Whether the choices can be changed: read, and no save on its way.
+/// </param>
+/// <param name="Notice">
+/// What the save came to ("Calendars saved"), once it landed.
+/// </param>
+public record CalendarPickerView (
+    /// <summary>
+    /// Its title ("Calendars in ada@example.com"), the save ("Save changes",
+    /// "Saving…"), the way out and why the save failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// The account, which a read that failed is asked for again by
+    /// (`CalendarAction::OpenCalendars`).
+    /// </summary>
+    string ConnectionId, 
+    /// <summary>
+    /// Where the read of its calendars stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// "Loading calendars…".
+    /// </summary>
+    string LoadingLabel, 
+    /// <summary>
+    /// "Checked for conflicts", over a switch per calendar.
+    /// </summary>
+    string ConflictsLabel, 
+    /// <summary>
+    /// What checking one does.
+    /// </summary>
+    string ConflictsHint, 
+    /// <summary>
+    /// "Receives bookings", over the calendars that can.
+    /// </summary>
+    string DestinationLabel, 
+    /// <summary>
+    /// What that does.
+    /// </summary>
+    string DestinationHint, 
+    /// <summary>
+    /// Every calendar, with its switch; none until read.
+    /// </summary>
+    CalendarRowView[] Calendars, 
+    /// <summary>
+    /// The calendars that can receive bookings (every one not read-only), the
+    /// one that does selected.
+    /// </summary>
+    ChoiceRowView[] Destinations, 
+    /// <summary>
+    /// Whether the choices can be changed: read, and no save on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the save came to ("Calendars saved"), once it landed.
+    /// </summary>
+    string? Notice
+) {
+}
+
+class FfiConverterTypeCalendarPickerView: FfiConverterRustBuffer<CalendarPickerView> {
+    public static FfiConverterTypeCalendarPickerView INSTANCE = new FfiConverterTypeCalendarPickerView();
+
+    public override CalendarPickerView Read(BigEndianStream stream) {
+        return new CalendarPickerView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            ConnectionId: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            LoadingLabel: FfiConverterString.INSTANCE.Read(stream),
+            ConflictsLabel: FfiConverterString.INSTANCE.Read(stream),
+            ConflictsHint: FfiConverterString.INSTANCE.Read(stream),
+            DestinationLabel: FfiConverterString.INSTANCE.Read(stream),
+            DestinationHint: FfiConverterString.INSTANCE.Read(stream),
+            Calendars: FfiConverterSequenceTypeCalendarRowView.INSTANCE.Read(stream),
+            Destinations: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CalendarPickerView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConnectionId)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LoadingLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConflictsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConflictsHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DestinationLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DestinationHint)
+            + FfiConverterSequenceTypeCalendarRowView.INSTANCE.AllocationSize(value.Calendars)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Destinations)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice);
+    }
+
+    public override void Write(CalendarPickerView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.ConnectionId, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.LoadingLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ConflictsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ConflictsHint, stream);
+            FfiConverterString.INSTANCE.Write(value.DestinationLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DestinationHint, stream);
+            FfiConverterSequenceTypeCalendarRowView.INSTANCE.Write(value.Calendars, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Destinations, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One calendar of an account.
+/// </summary>
+/// <param name="Id">
+/// Its id, which its switch names (`CalendarAction::SetCheckConflicts`).
+/// </param>
+/// <param name="Name">
+/// Its name.
+/// </param>
+/// <param name="ChecksConflicts">
+/// Whether it is checked for conflicts.
+/// </param>
+public record CalendarRowView (
+    /// <summary>
+    /// Its id, which its switch names (`CalendarAction::SetCheckConflicts`).
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Whether it is checked for conflicts.
+    /// </summary>
+    bool ChecksConflicts
+) {
+}
+
+class FfiConverterTypeCalendarRowView: FfiConverterRustBuffer<CalendarRowView> {
+    public static FfiConverterTypeCalendarRowView INSTANCE = new FfiConverterTypeCalendarRowView();
+
+    public override CalendarRowView Read(BigEndianStream stream) {
+        return new CalendarRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            ChecksConflicts: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CalendarRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ChecksConflicts);
+    }
+
+    public override void Write(CalendarRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ChecksConflicts, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One call.
 /// </summary>
 /// <param name="CallId">
@@ -20668,6 +21226,297 @@ class FfiConverterTypeSchedulingBookingsView: FfiConverterRustBuffer<SchedulingB
 
 
 /// <summary>
+/// The calendars.
+/// </summary>
+/// <param name="Status">
+/// Where the read of the connections stands: a failed one is a status
+/// page, never "none connected".
+/// </param>
+/// <param name="Connections">
+/// The connected accounts, once read.
+/// </param>
+/// <param name="AccountLabel">
+/// "Account", the cards' first row.
+/// </param>
+/// <param name="ConflictsLabel">
+/// "Checked for conflicts", the second.
+/// </param>
+/// <param name="DestinationLabel">
+/// "Receives bookings", the third.
+/// </param>
+/// <param name="ChooseLabel">
+/// "Choose calendars", on each card (`CalendarAction::OpenCalendars`).
+/// </param>
+/// <param name="DisconnectLabel">
+/// "Disconnect", on each card (`CalendarAction::AskDisconnect`).
+/// </param>
+/// <param name="CanDisconnect">
+/// Whether a Disconnect can be pressed: none is on its way.
+/// </param>
+/// <param name="ConnectHeading">
+/// The connect card's heading, "Connecting a calendar".
+/// </param>
+/// <param name="Sentence">
+/// The connect card's sentence: none set up on this scheduler, none
+/// connected yet, or another can be added. Empty until read.
+/// </param>
+/// <param name="Zoom">
+/// Zoom, connected or not, when the scheduler can connect it.
+/// </param>
+/// <param name="Providers">
+/// A Connect button per provider the scheduler has credentials for: the
+/// provider sent (`CalendarAction::Connect`), and "Connect Google
+/// Calendar".
+/// </param>
+/// <param name="ConnectNote">
+/// Under the Connect buttons: finish in the browser and refresh, or that
+/// no provider can be connected here.
+/// </param>
+/// <param name="ShowsConnectNote">
+/// Whether the note shows: not when it says what the sentence says.
+/// </param>
+/// <param name="Connecting">
+/// Whether a sign-in is on its way (the Connect buttons wait, beside
+/// progress). One at a time.
+/// </param>
+/// <param name="AwaitingBrowser">
+/// Whether a provider's consent page was opened in the browser and the
+/// section has not been read since: Refresh is offered.
+/// </param>
+/// <param name="ConnectFailure">
+/// Why the last connect failed, until it is put away
+/// (`CalendarAction::DismissConnectFailure`).
+/// </param>
+/// <param name="CaldavLabel">
+/// "Connect a CalDAV calendar", which opens its form
+/// (`CalendarAction::OpenCaldav`).
+/// </param>
+/// <param name="Disconnecting">
+/// Whether a disconnect is on its way.
+/// </param>
+/// <param name="DisconnectFailure">
+/// Why the last disconnect failed, until it is put away
+/// (`CalendarAction::DismissDisconnect`).
+/// </param>
+/// <param name="DisconnectNotice">
+/// That no calendar receives new bookings now, when the account
+/// disconnected was the one that did; until it is put away
+/// (`CalendarAction::DismissDisconnect`).
+/// </param>
+/// <param name="Disconnect">
+/// The disconnect, while it is being asked about: its question names the
+/// account, its confirm is destructive, its way out keeps it connected.
+/// </param>
+/// <param name="Picker">
+/// One account's calendars, while they are open.
+/// </param>
+/// <param name="Caldav">
+/// The CalDAV form, while it is open.
+/// </param>
+public record SchedulingCalendarView (
+    /// <summary>
+    /// Where the read of the connections stands: a failed one is a status
+    /// page, never "none connected".
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The connected accounts, once read.
+    /// </summary>
+    CalendarConnectionView[] Connections, 
+    /// <summary>
+    /// "Account", the cards' first row.
+    /// </summary>
+    string AccountLabel, 
+    /// <summary>
+    /// "Checked for conflicts", the second.
+    /// </summary>
+    string ConflictsLabel, 
+    /// <summary>
+    /// "Receives bookings", the third.
+    /// </summary>
+    string DestinationLabel, 
+    /// <summary>
+    /// "Choose calendars", on each card (`CalendarAction::OpenCalendars`).
+    /// </summary>
+    string ChooseLabel, 
+    /// <summary>
+    /// "Disconnect", on each card (`CalendarAction::AskDisconnect`).
+    /// </summary>
+    string DisconnectLabel, 
+    /// <summary>
+    /// Whether a Disconnect can be pressed: none is on its way.
+    /// </summary>
+    bool CanDisconnect, 
+    /// <summary>
+    /// The connect card's heading, "Connecting a calendar".
+    /// </summary>
+    string ConnectHeading, 
+    /// <summary>
+    /// The connect card's sentence: none set up on this scheduler, none
+    /// connected yet, or another can be added. Empty until read.
+    /// </summary>
+    string Sentence, 
+    /// <summary>
+    /// Zoom, connected or not, when the scheduler can connect it.
+    /// </summary>
+    FactView? Zoom, 
+    /// <summary>
+    /// A Connect button per provider the scheduler has credentials for: the
+    /// provider sent (`CalendarAction::Connect`), and "Connect Google
+    /// Calendar".
+    /// </summary>
+    ChoiceRowView[] Providers, 
+    /// <summary>
+    /// Under the Connect buttons: finish in the browser and refresh, or that
+    /// no provider can be connected here.
+    /// </summary>
+    string ConnectNote, 
+    /// <summary>
+    /// Whether the note shows: not when it says what the sentence says.
+    /// </summary>
+    bool ShowsConnectNote, 
+    /// <summary>
+    /// Whether a sign-in is on its way (the Connect buttons wait, beside
+    /// progress). One at a time.
+    /// </summary>
+    bool Connecting, 
+    /// <summary>
+    /// Whether a provider's consent page was opened in the browser and the
+    /// section has not been read since: Refresh is offered.
+    /// </summary>
+    bool AwaitingBrowser, 
+    /// <summary>
+    /// Why the last connect failed, until it is put away
+    /// (`CalendarAction::DismissConnectFailure`).
+    /// </summary>
+    FailureView? ConnectFailure, 
+    /// <summary>
+    /// "Connect a CalDAV calendar", which opens its form
+    /// (`CalendarAction::OpenCaldav`).
+    /// </summary>
+    string CaldavLabel, 
+    /// <summary>
+    /// Whether a disconnect is on its way.
+    /// </summary>
+    bool Disconnecting, 
+    /// <summary>
+    /// Why the last disconnect failed, until it is put away
+    /// (`CalendarAction::DismissDisconnect`).
+    /// </summary>
+    FailureView? DisconnectFailure, 
+    /// <summary>
+    /// That no calendar receives new bookings now, when the account
+    /// disconnected was the one that did; until it is put away
+    /// (`CalendarAction::DismissDisconnect`).
+    /// </summary>
+    string? DisconnectNotice, 
+    /// <summary>
+    /// The disconnect, while it is being asked about: its question names the
+    /// account, its confirm is destructive, its way out keeps it connected.
+    /// </summary>
+    DialogView? Disconnect, 
+    /// <summary>
+    /// One account's calendars, while they are open.
+    /// </summary>
+    CalendarPickerView? Picker, 
+    /// <summary>
+    /// The CalDAV form, while it is open.
+    /// </summary>
+    CaldavView? Caldav
+) {
+}
+
+class FfiConverterTypeSchedulingCalendarView: FfiConverterRustBuffer<SchedulingCalendarView> {
+    public static FfiConverterTypeSchedulingCalendarView INSTANCE = new FfiConverterTypeSchedulingCalendarView();
+
+    public override SchedulingCalendarView Read(BigEndianStream stream) {
+        return new SchedulingCalendarView(
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Connections: FfiConverterSequenceTypeCalendarConnectionView.INSTANCE.Read(stream),
+            AccountLabel: FfiConverterString.INSTANCE.Read(stream),
+            ConflictsLabel: FfiConverterString.INSTANCE.Read(stream),
+            DestinationLabel: FfiConverterString.INSTANCE.Read(stream),
+            ChooseLabel: FfiConverterString.INSTANCE.Read(stream),
+            DisconnectLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanDisconnect: FfiConverterBoolean.INSTANCE.Read(stream),
+            ConnectHeading: FfiConverterString.INSTANCE.Read(stream),
+            Sentence: FfiConverterString.INSTANCE.Read(stream),
+            Zoom: FfiConverterOptionalTypeFactView.INSTANCE.Read(stream),
+            Providers: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            ConnectNote: FfiConverterString.INSTANCE.Read(stream),
+            ShowsConnectNote: FfiConverterBoolean.INSTANCE.Read(stream),
+            Connecting: FfiConverterBoolean.INSTANCE.Read(stream),
+            AwaitingBrowser: FfiConverterBoolean.INSTANCE.Read(stream),
+            ConnectFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            CaldavLabel: FfiConverterString.INSTANCE.Read(stream),
+            Disconnecting: FfiConverterBoolean.INSTANCE.Read(stream),
+            DisconnectFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            DisconnectNotice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Disconnect: FfiConverterOptionalTypeDialogView.INSTANCE.Read(stream),
+            Picker: FfiConverterOptionalTypeCalendarPickerView.INSTANCE.Read(stream),
+            Caldav: FfiConverterOptionalTypeCaldavView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingCalendarView value) {
+        return 0
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeCalendarConnectionView.INSTANCE.AllocationSize(value.Connections)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AccountLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConflictsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DestinationLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ChooseLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DisconnectLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDisconnect)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConnectHeading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Sentence)
+            + FfiConverterOptionalTypeFactView.INSTANCE.AllocationSize(value.Zoom)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Providers)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConnectNote)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowsConnectNote)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Connecting)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.AwaitingBrowser)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.ConnectFailure)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CaldavLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Disconnecting)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.DisconnectFailure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.DisconnectNotice)
+            + FfiConverterOptionalTypeDialogView.INSTANCE.AllocationSize(value.Disconnect)
+            + FfiConverterOptionalTypeCalendarPickerView.INSTANCE.AllocationSize(value.Picker)
+            + FfiConverterOptionalTypeCaldavView.INSTANCE.AllocationSize(value.Caldav);
+    }
+
+    public override void Write(SchedulingCalendarView value, BigEndianStream stream) {
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeCalendarConnectionView.INSTANCE.Write(value.Connections, stream);
+            FfiConverterString.INSTANCE.Write(value.AccountLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ConflictsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DestinationLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ChooseLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DisconnectLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDisconnect, stream);
+            FfiConverterString.INSTANCE.Write(value.ConnectHeading, stream);
+            FfiConverterString.INSTANCE.Write(value.Sentence, stream);
+            FfiConverterOptionalTypeFactView.INSTANCE.Write(value.Zoom, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Providers, stream);
+            FfiConverterString.INSTANCE.Write(value.ConnectNote, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowsConnectNote, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Connecting, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.AwaitingBrowser, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.ConnectFailure, stream);
+            FfiConverterString.INSTANCE.Write(value.CaldavLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Disconnecting, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.DisconnectFailure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.DisconnectNotice, stream);
+            FfiConverterOptionalTypeDialogView.INSTANCE.Write(value.Disconnect, stream);
+            FfiConverterOptionalTypeCalendarPickerView.INSTANCE.Write(value.Picker, stream);
+            FfiConverterOptionalTypeCaldavView.INSTANCE.Write(value.Caldav, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One event type: what it is, who hosts it and what it asks.
 /// </summary>
 /// <param name="Slug">
@@ -27066,6 +27915,273 @@ class FfiConverterTypeBookingsTab: FfiConverterRustBuffer<BookingsTab> {
             case BookingsTab.Cancelled: stream.WriteInt(3); break;
             case BookingsTab.All: stream.WriteInt(4); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeBookingsTab.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did on the calendars. Refresh, which reads what is
+/// connected once the browser is done, is the window's own
+/// (`UiEvent::Refresh`).
+/// </summary>
+public record CalendarAction {
+    
+    /// <summary>
+    /// Connect Google or Microsoft through its consent page in the browser.
+    /// </summary>
+    public record Connect (
+        string Provider
+    ) : CalendarAction {}
+    
+    /// <summary>
+    /// Put away why the connect failed.
+    /// </summary>
+    public record DismissConnectFailure: CalendarAction {}
+    
+    
+    /// <summary>
+    /// Ask about disconnecting an account.
+    /// </summary>
+    public record AskDisconnect (
+        string ConnectionId
+    ) : CalendarAction {}
+    
+    /// <summary>
+    /// Keep it connected.
+    /// </summary>
+    public record CancelDisconnect: CalendarAction {}
+    
+    
+    /// <summary>
+    /// Disconnect it.
+    /// </summary>
+    public record ConfirmDisconnect: CalendarAction {}
+    
+    
+    /// <summary>
+    /// Put away what the last disconnect came to.
+    /// </summary>
+    public record DismissDisconnect: CalendarAction {}
+    
+    
+    /// <summary>
+    /// Open an account's calendars, or read them again.
+    /// </summary>
+    public record OpenCalendars (
+        string ConnectionId
+    ) : CalendarAction {}
+    
+    /// <summary>
+    /// A calendar is checked for conflicts, or not.
+    /// </summary>
+    public record SetCheckConflicts (
+        string CalendarId,
+        bool On
+    ) : CalendarAction {}
+    
+    /// <summary>
+    /// A calendar receives new bookings, and no other does.
+    /// </summary>
+    public record ChooseDestination (
+        string CalendarId
+    ) : CalendarAction {}
+    
+    /// <summary>
+    /// Save the calendars.
+    /// </summary>
+    public record SaveCalendars: CalendarAction {}
+    
+    
+    /// <summary>
+    /// Open the CalDAV form.
+    /// </summary>
+    public record OpenCaldav: CalendarAction {}
+    
+    
+    /// <summary>
+    /// The CalDAV form's fields changed.
+    /// </summary>
+    public record EditCaldav (
+        CaldavFormView Form
+    ) : CalendarAction {}
+    
+    /// <summary>
+    /// Connect the CalDAV account.
+    /// </summary>
+    public record ConnectCaldav: CalendarAction {}
+    
+    
+    /// <summary>
+    /// Close the dialog open.
+    /// </summary>
+    public record CloseDialog: CalendarAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeCalendarAction : FfiConverterRustBuffer<CalendarAction>{
+    public static FfiConverterRustBuffer<CalendarAction> INSTANCE = new FfiConverterTypeCalendarAction();
+
+    public override CalendarAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new CalendarAction.Connect(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new CalendarAction.DismissConnectFailure(
+                );
+            case 3:
+                return new CalendarAction.AskDisconnect(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new CalendarAction.CancelDisconnect(
+                );
+            case 5:
+                return new CalendarAction.ConfirmDisconnect(
+                );
+            case 6:
+                return new CalendarAction.DismissDisconnect(
+                );
+            case 7:
+                return new CalendarAction.OpenCalendars(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new CalendarAction.SetCheckConflicts(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new CalendarAction.ChooseDestination(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 10:
+                return new CalendarAction.SaveCalendars(
+                );
+            case 11:
+                return new CalendarAction.OpenCaldav(
+                );
+            case 12:
+                return new CalendarAction.EditCaldav(
+                    FfiConverterTypeCaldavFormView.INSTANCE.Read(stream)
+                );
+            case 13:
+                return new CalendarAction.ConnectCaldav(
+                );
+            case 14:
+                return new CalendarAction.CloseDialog(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCalendarAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(CalendarAction value) {
+        switch (value) {
+            case CalendarAction.Connect variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Provider);
+            case CalendarAction.DismissConnectFailure variant_value:
+                return 4;
+            case CalendarAction.AskDisconnect variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ConnectionId);
+            case CalendarAction.CancelDisconnect variant_value:
+                return 4;
+            case CalendarAction.ConfirmDisconnect variant_value:
+                return 4;
+            case CalendarAction.DismissDisconnect variant_value:
+                return 4;
+            case CalendarAction.OpenCalendars variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ConnectionId);
+            case CalendarAction.SetCheckConflicts variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.CalendarId)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.On);
+            case CalendarAction.ChooseDestination variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.CalendarId);
+            case CalendarAction.SaveCalendars variant_value:
+                return 4;
+            case CalendarAction.OpenCaldav variant_value:
+                return 4;
+            case CalendarAction.EditCaldav variant_value:
+                return 4
+                    + FfiConverterTypeCaldavFormView.INSTANCE.AllocationSize(variant_value.Form);
+            case CalendarAction.ConnectCaldav variant_value:
+                return 4;
+            case CalendarAction.CloseDialog variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCalendarAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(CalendarAction value, BigEndianStream stream) {
+        switch (value) {
+            case CalendarAction.Connect variant_value:
+                stream.WriteInt(1);
+                FfiConverterString.INSTANCE.Write(variant_value.Provider, stream);
+                break;
+            case CalendarAction.DismissConnectFailure variant_value:
+                stream.WriteInt(2);
+                break;
+            case CalendarAction.AskDisconnect variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.ConnectionId, stream);
+                break;
+            case CalendarAction.CancelDisconnect variant_value:
+                stream.WriteInt(4);
+                break;
+            case CalendarAction.ConfirmDisconnect variant_value:
+                stream.WriteInt(5);
+                break;
+            case CalendarAction.DismissDisconnect variant_value:
+                stream.WriteInt(6);
+                break;
+            case CalendarAction.OpenCalendars variant_value:
+                stream.WriteInt(7);
+                FfiConverterString.INSTANCE.Write(variant_value.ConnectionId, stream);
+                break;
+            case CalendarAction.SetCheckConflicts variant_value:
+                stream.WriteInt(8);
+                FfiConverterString.INSTANCE.Write(variant_value.CalendarId, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case CalendarAction.ChooseDestination variant_value:
+                stream.WriteInt(9);
+                FfiConverterString.INSTANCE.Write(variant_value.CalendarId, stream);
+                break;
+            case CalendarAction.SaveCalendars variant_value:
+                stream.WriteInt(10);
+                break;
+            case CalendarAction.OpenCaldav variant_value:
+                stream.WriteInt(11);
+                break;
+            case CalendarAction.EditCaldav variant_value:
+                stream.WriteInt(12);
+                FfiConverterTypeCaldavFormView.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case CalendarAction.ConnectCaldav variant_value:
+                stream.WriteInt(13);
+                break;
+            case CalendarAction.CloseDialog variant_value:
+                stream.WriteInt(14);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCalendarAction.Write()", value));
         }
     }
 }
@@ -33855,6 +34971,13 @@ public record SchedulingAdminAction {
         BookingAction Action
     ) : SchedulingAdminAction {}
     
+    /// <summary>
+    /// On the calendars.
+    /// </summary>
+    public record Calendar (
+        CalendarAction Action
+    ) : SchedulingAdminAction {}
+    
 
     
 }
@@ -33897,6 +35020,10 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                 return new SchedulingAdminAction.Booking(
                     FfiConverterTypeBookingAction.INSTANCE.Read(stream)
                 );
+            case 9:
+                return new SchedulingAdminAction.Calendar(
+                    FfiConverterTypeCalendarAction.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.Read()", value));
         }
@@ -33928,6 +35055,9 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.Booking variant_value:
                 return 4
                     + FfiConverterTypeBookingAction.INSTANCE.AllocationSize(variant_value.Action);
+            case SchedulingAdminAction.Calendar variant_value:
+                return 4
+                    + FfiConverterTypeCalendarAction.INSTANCE.AllocationSize(variant_value.Action);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.AllocationSize()", value));
         }
@@ -33966,6 +35096,10 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.Booking variant_value:
                 stream.WriteInt(8);
                 FfiConverterTypeBookingAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SchedulingAdminAction.Calendar variant_value:
+                stream.WriteInt(9);
+                FfiConverterTypeCalendarAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.Write()", value));
@@ -34027,6 +35161,13 @@ public record SchedulingAdminPage {
         SchedulingBookingView View
     ) : SchedulingAdminPage {}
     
+    /// <summary>
+    /// The member's calendars.
+    /// </summary>
+    public record Calendar (
+        SchedulingCalendarView View
+    ) : SchedulingAdminPage {}
+    
 
     
 }
@@ -34061,6 +35202,10 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                 return new SchedulingAdminPage.Booking(
                     FfiConverterTypeSchedulingBookingView.INSTANCE.Read(stream)
                 );
+            case 7:
+                return new SchedulingAdminPage.Calendar(
+                    FfiConverterTypeSchedulingCalendarView.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.Read()", value));
         }
@@ -34086,6 +35231,9 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.Booking variant_value:
                 return 4
                     + FfiConverterTypeSchedulingBookingView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.Calendar variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingCalendarView.INSTANCE.AllocationSize(variant_value.View);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.AllocationSize()", value));
         }
@@ -34116,6 +35264,10 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.Booking variant_value:
                 stream.WriteInt(6);
                 FfiConverterTypeSchedulingBookingView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.Calendar variant_value:
+                stream.WriteInt(7);
+                FfiConverterTypeSchedulingCalendarView.INSTANCE.Write(variant_value.View, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.Write()", value));
@@ -38464,6 +39616,68 @@ class FfiConverterOptionalTypeBookingRowView: FfiConverterRustBuffer<BookingRowV
 
 
 
+class FfiConverterOptionalTypeCaldavView: FfiConverterRustBuffer<CaldavView?> {
+    public static FfiConverterOptionalTypeCaldavView INSTANCE = new FfiConverterOptionalTypeCaldavView();
+
+    public override CaldavView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeCaldavView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(CaldavView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeCaldavView.INSTANCE.AllocationSize((CaldavView)value);
+        }
+    }
+
+    public override void Write(CaldavView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeCaldavView.INSTANCE.Write((CaldavView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeCalendarPickerView: FfiConverterRustBuffer<CalendarPickerView?> {
+    public static FfiConverterOptionalTypeCalendarPickerView INSTANCE = new FfiConverterOptionalTypeCalendarPickerView();
+
+    public override CalendarPickerView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeCalendarPickerView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(CalendarPickerView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeCalendarPickerView.INSTANCE.AllocationSize((CalendarPickerView)value);
+        }
+    }
+
+    public override void Write(CalendarPickerView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeCalendarPickerView.INSTANCE.Write((CalendarPickerView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeCampaignConfirmView: FfiConverterRustBuffer<CampaignConfirmView?> {
     public static FfiConverterOptionalTypeCampaignConfirmView INSTANCE = new FfiConverterOptionalTypeCampaignConfirmView();
 
@@ -38898,6 +40112,37 @@ class FfiConverterOptionalTypeDeskOffView: FfiConverterRustBuffer<DeskOffView?> 
 
 
 
+class FfiConverterOptionalTypeDialogView: FfiConverterRustBuffer<DialogView?> {
+    public static FfiConverterOptionalTypeDialogView INSTANCE = new FfiConverterOptionalTypeDialogView();
+
+    public override DialogView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeDialogView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(DialogView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeDialogView.INSTANCE.AllocationSize((DialogView)value);
+        }
+    }
+
+    public override void Write(DialogView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeDialogView.INSTANCE.Write((DialogView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeDiscardView: FfiConverterRustBuffer<DiscardView?> {
     public static FfiConverterOptionalTypeDiscardView INSTANCE = new FfiConverterOptionalTypeDiscardView();
 
@@ -39077,6 +40322,37 @@ class FfiConverterOptionalTypeEventTypeQuestionsView: FfiConverterRustBuffer<Eve
         } else {
             stream.WriteByte(1);
             FfiConverterTypeEventTypeQuestionsView.INSTANCE.Write((EventTypeQuestionsView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeFactView: FfiConverterRustBuffer<FactView?> {
+    public static FfiConverterOptionalTypeFactView INSTANCE = new FfiConverterOptionalTypeFactView();
+
+    public override FactView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeFactView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(FactView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeFactView.INSTANCE.AllocationSize((FactView)value);
+        }
+    }
+
+    public override void Write(FactView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeFactView.INSTANCE.Write((FactView)value, stream);
         }
     }
 }
@@ -40624,6 +41900,98 @@ class FfiConverterSequenceTypeBookingsTabView: FfiConverterRustBuffer<BookingsTa
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeBookingsTabView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeCalendarConnectionView: FfiConverterRustBuffer<CalendarConnectionView[]> {
+    public static FfiConverterSequenceTypeCalendarConnectionView INSTANCE = new FfiConverterSequenceTypeCalendarConnectionView();
+
+    public override CalendarConnectionView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new CalendarConnectionView[length];
+        var readFn = FfiConverterTypeCalendarConnectionView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(CalendarConnectionView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeCalendarConnectionView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(CalendarConnectionView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeCalendarConnectionView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeCalendarRowView: FfiConverterRustBuffer<CalendarRowView[]> {
+    public static FfiConverterSequenceTypeCalendarRowView INSTANCE = new FfiConverterSequenceTypeCalendarRowView();
+
+    public override CalendarRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new CalendarRowView[length];
+        var readFn = FfiConverterTypeCalendarRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(CalendarRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeCalendarRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(CalendarRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeCalendarRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

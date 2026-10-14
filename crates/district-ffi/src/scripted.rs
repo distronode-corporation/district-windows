@@ -39,6 +39,9 @@ pub(crate) const WORKSPACE_ID: &str = "ws-scripted";
 /// The scripted workspace's name, the overview's heading.
 pub(crate) const WORKSPACE_NAME: &str = "Example Dental";
 
+/// The scheduler sign-in a calendar connection starts with: never opened.
+const SIGN_IN_LINK: &str = "https://scheduler.example.com/v1/auth/sso?scripted";
+
 /// A scene the core can run.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Scene {
@@ -269,6 +272,13 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             result: scheduling_admin(&request)?,
         },
+        // Connecting a calendar: the scheduler's single-use sign-in arrives,
+        // and the core asks for it to be opened in the browser, which goes
+        // unanswered below, so no browser opens and the section waits for it.
+        Effect::SchedulingSignIn { ticket, .. } => Event::SchedulingSignInReady {
+            ticket,
+            result: Ok(district_model::SchedulingSecret::new(SIGN_IN_LINK)),
+        },
         Effect::LoadDeskSettings { ticket, .. } => Event::DeskSettingsLoaded {
             ticket,
             result: decode(fixture!("district-desk-settings.json")),
@@ -426,6 +436,9 @@ fn scheduling_admin(
         R::Me => fixture!("district-scheduling-me.json"),
         R::EventTypes => fixture!("district-scheduling-event-types.json"),
         R::CalendarStatus => fixture!("district-scheduling-calendar-status.json"),
+        R::ZoomStatus => fixture!("district-scheduling-zoom-status.json"),
+        R::Calendars { .. } => fixture!("district-scheduling-calendars.json"),
+        R::ConnectCaldav { .. } => fixture!("district-scheduling-caldav-connect.json"),
         R::Rules { .. } => fixture!("district-scheduling-rules.json"),
         R::Bookings(_) => fixture!("district-scheduling-bookings.json"),
         R::BookingAnswers { .. } => fixture!("district-scheduling-booking-answers.json"),
@@ -450,7 +463,10 @@ fn scheduling_admin(
         | R::DeleteQuestion { .. }
         | R::DeleteRule { .. }
         | R::DeleteOverride { .. }
-        | R::DeleteOverrideGroup { .. } => fixture!("district-scheduling-ok.json"),
+        | R::DeleteOverrideGroup { .. }
+        | R::SetCalendars { .. }
+        | R::SetDestination { .. }
+        | R::DeleteConnection { .. } => fixture!("district-scheduling-ok.json"),
         _ => return None,
     };
     let data = serde_json::from_str::<Value>(text)
@@ -756,6 +772,7 @@ mod tests {
             Route::SchedulingAdmin(district_core::SchedulingSection::EventTypes),
             Route::SchedulingAdmin(district_core::SchedulingSection::Hours),
             Route::SchedulingAdmin(district_core::SchedulingSection::Bookings),
+            Route::SchedulingAdmin(district_core::SchedulingSection::Calendar),
         ];
         for route in routes.clone() {
             let _ = after(&mut model, Event::Navigate(route.clone()));
@@ -1086,6 +1103,103 @@ mod tests {
         );
         let view = run(hours(H::CloseDialog));
         assert_eq!(view.overrides_editor, None);
+    }
+
+    /// The calendars open from the booking pages and fill in; connecting
+    /// Google hands off to the browser, which the scene never opens, and the
+    /// section waits for it until it is read again; an account's calendars
+    /// are chosen and the save lands; a CalDAV account connects; and an
+    /// account is disconnected, asked once more.
+    #[test]
+    fn the_calendars_fill_in_and_their_writes_land() {
+        use crate::events::UiEvent;
+        use crate::scheduling_admin::calendar::{CaldavFormView, CalendarAction as C};
+        use crate::scheduling_admin::{
+            SchedulingAdminAction as A, SchedulingAdminPage as P, SchedulingAdminSection,
+        };
+
+        let mut model = started();
+        let mut send = |action: UiEvent| {
+            let mut pending = Vec::new();
+            for event in action.events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::SchedulingAdmin { view } = screen else {
+                panic!("not the scheduling administration: {screen:?}");
+            };
+            let P::Calendar { view } = view.page else {
+                panic!("not the calendars");
+            };
+            view
+        };
+        let view = send(UiEvent::SchedulingAdmin {
+            action: A::Open {
+                section: SchedulingAdminSection::Calendar,
+            },
+        });
+        let mut run = |action: C| {
+            send(UiEvent::SchedulingAdmin {
+                action: A::Calendar { action },
+            })
+        };
+        assert_eq!(view.status, crate::views::LoadStatus::Ready);
+        assert_eq!(view.connections.len(), 2);
+        assert_eq!(view.connections[0].destination, "Contract Member");
+        let providers: Vec<&str> = view.providers.iter().map(|p| p.value.as_str()).collect();
+        assert_eq!(providers, ["google"]);
+        assert!(view.zoom.is_some());
+
+        let view = run(C::Connect {
+            provider: "google".to_owned(),
+        });
+        assert!(view.awaiting_browser && !view.connecting);
+        assert_eq!(view.connect_failure, None);
+
+        let view = run(C::OpenCalendars {
+            connection_id: "cal-conn-contract-1".to_owned(),
+        });
+        let picker = view.picker.expect("the calendars");
+        assert_eq!(picker.calendars.len(), 2);
+        assert!(picker.dialog.can_confirm);
+        let _ = run(C::SetCheckConflicts {
+            calendar_id: "holidays@example.com".to_owned(),
+            on: true,
+        });
+        let view = run(C::SaveCalendars);
+        let picker = view.picker.expect("still open");
+        assert_eq!(picker.notice.as_deref(), Some("Calendars saved"));
+        let view = run(C::CloseDialog);
+        assert_eq!(view.picker, None);
+
+        let _ = run(C::OpenCaldav);
+        let _ = run(C::EditCaldav {
+            form: CaldavFormView {
+                preset: "icloud".to_owned(),
+                server_url: String::new(),
+                username: "ada@example.com".to_owned(),
+                app_password: b"scripted-app-password".to_vec(),
+            },
+        });
+        let view = run(C::ConnectCaldav);
+        let caldav = view.caldav.expect("still open");
+        assert_eq!(
+            caldav.notice.as_deref(),
+            Some("Calendar connected: caldav@example.com")
+        );
+        assert_eq!(caldav.username, "");
+        let _ = run(C::CloseDialog);
+
+        let view = run(C::AskDisconnect {
+            connection_id: "cal-conn-contract-2".to_owned(),
+        });
+        assert!(view.disconnect.is_some());
+        let view = run(C::ConfirmDisconnect);
+        assert_eq!(view.disconnect, None);
+        assert_eq!(view.disconnect_failure, None);
+        assert_eq!(view.disconnect_notice, None);
     }
 
     /// Each settings section the walk opens from the hub fills in, and each

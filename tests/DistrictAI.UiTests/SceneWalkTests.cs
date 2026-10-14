@@ -90,6 +90,7 @@ public sealed class SceneWalkTests
         "SchedulingSectionEventTypes",
         "SchedulingSectionHours",
         "SchedulingSectionBookings",
+        "SchedulingSectionCalendar",
     ];
 
     /// <summary>
@@ -590,6 +591,119 @@ public sealed class SceneWalkTests
             "the overrides' editor stayed open after Escape");
         Assert.Null(Failure(app));
         Assert.True(app.IsRunning, "the app ended in the working hours");
+    }
+
+    /// <summary>
+    /// The calendars' main flow: the section opens from the Booking pages
+    /// page with the accounts read; Connect Google hands off to the browser
+    /// (the scene answers the sign-in and never opens it), so Refresh is
+    /// offered and reads the section again; the first account's calendars
+    /// open, a switch is changed and Save lands (the dialog says so); the
+    /// CalDAV form connects an iCloud account, typed in, and says which; and
+    /// Disconnect asks first, and Escape keeps the account. Escape closes
+    /// each dialog.
+    /// </summary>
+    [Fact]
+    public void TheCalendarsSaveAndACaldavAccountConnects()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        var calendar = OpenSettingsRowById(app, "SchedulingSectionCalendar");
+        _ = Heading(app, calendar, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("SchedulingCalendarSentence", PageTimeout, onScreen: false);
+        InstalledApp.Log("the accounts show");
+
+        // The connect card is below the two accounts: scrolled to, as a member does.
+        ScrollTo(app, "SchedulingCalendar", 100);
+
+        Press(app.FindById("CalendarConnectgoogle", PageTimeout, onScreen: false));
+        Press(app.FindById("CalendarRefresh", PageTimeout, onScreen: false));
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CalendarRefresh", onScreen: false) is null, PageTimeout),
+            "Refresh stayed after the section was read again");
+        InstalledApp.Log("the hand-off waited for the browser, and Refresh read again");
+
+        ScrollTo(app, "SchedulingCalendar", 0);
+        Press(app.FindById("CalendarChoose", PageTimeout));
+        var picker = app.FindById("CalendarPickerDialog", PageTimeout);
+        Press(Wait.For(
+            () => app.TryFindById("CalendarConflict") is { IsEnabled: true } box ? box : null,
+            PageTimeout,
+            "a calendar's switch to work",
+            app.Describe));
+        var save = Wait.For(
+            () => picker.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "the calendars' Save to work",
+            app.Describe);
+        Press(save);
+        _ = app.FindById("CalendarPickerNotice", PageTimeout);
+        InstalledApp.Log("the calendars saved");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CalendarPickerDialog") is null, PageTimeout),
+            "the calendars stayed open after Escape");
+
+        ScrollTo(app, "SchedulingCalendar", 100);
+        app.FindById("CalendarCaldavButton", PageTimeout, onScreen: false).AsButton().Invoke();
+        var caldav = app.FindById("CaldavDialog", PageTimeout);
+        app.FindById("CaldavUsername", PageTimeout).AsTextBox().Text = "ada@example.com";
+        app.FindById("CaldavPassword", PageTimeout).Focus();
+        Keyboard.Type("scripted-app-password");
+        // The keys go through the input queue and Connect through UI
+        // Automation, which can overtake them: a connect that arrived before
+        // the password is refused for want of one, and the last key typed
+        // then puts the refusal away. So the walk waits for the queue, and a
+        // connect that found the box still empty is pressed once more.
+        FlaUI.Core.Input.Wait.UntilInputIsProcessed(TimeSpan.FromSeconds(1));
+        AutomationElement ConnectButton() => Wait.For(
+            () => caldav.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "Connect calendar to work",
+            app.Describe);
+        Press(ConnectButton());
+        if (!Wait.Until(() => app.TryFindById("CaldavNotice") is not null, TimeSpan.FromSeconds(5)))
+        {
+            InstalledApp.Log("the connect overtook the password; pressed again");
+            Press(ConnectButton());
+        }
+        _ = app.FindById("CaldavNotice", PageTimeout);
+        Assert.Null(app.TryFindById("CaldavPasswordError"));
+        InstalledApp.Log("the CalDAV account connected");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CaldavDialog") is null, PageTimeout),
+            "the CalDAV form stayed open after Escape");
+
+        ScrollTo(app, "SchedulingCalendar", 0);
+        Press(app.FindById("CalendarDisconnect", PageTimeout));
+        _ = app.FindById("CalendarDisconnectDialog", PageTimeout);
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CalendarDisconnectDialog") is null, PageTimeout),
+            "the disconnect stayed asked after Escape");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the calendars");
+    }
+
+    /// <summary>
+    /// Scrolls the scroll viewer <paramref name="automationId"/> to
+    /// <paramref name="percent"/> of its height (0 the top, 100 the end), as a
+    /// member scrolls to what is below the fold; nothing when it all fits.
+    /// </summary>
+    private static void ScrollTo(InstalledApp app, string automationId, double percent)
+    {
+        // UI Automation's "no scroll" for the axis left alone.
+        const double NoScroll = -1;
+        var viewer = app.FindById(automationId, PageTimeout);
+        if (viewer.Patterns.Scroll.PatternOrDefault is { } scroll && scroll.VerticallyScrollable.ValueOrDefault)
+        {
+            scroll.SetScrollPercent(NoScroll, percent);
+        }
     }
 
     /// <summary>
