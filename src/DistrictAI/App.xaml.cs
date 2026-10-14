@@ -10,6 +10,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.PushNotifications;
 using Windows.ApplicationModel.Activation;
 using Windows.Storage;
 using Package = Windows.ApplicationModel.Package;
@@ -32,6 +33,7 @@ public sealed partial class App : Application, IDisposable
     private TrayIcon? _tray;
     private PowerWatch? _power;
     private RingtonePlayer? _ringtone;
+    private WnsPush? _push;
     private WindowAttention? _attention;
     // Set by Quit, so the window's Closing is no longer turned into a hide.
     private bool _quitting;
@@ -77,6 +79,9 @@ public sealed partial class App : Application, IDisposable
         _core.RingtoneStarted += (_, _) => _ringtone?.Start();
         _core.RingtoneStopped += (_, _) => _ringtone?.Stop();
         _core.PresentWindowRequested += (_, _) => _attention?.Present();
+        // Before the activation is read, as for toasts: a push that launched
+        // the app is delivered through this registration.
+        _push = WnsPush.Start(_core, queue);
         _core.Start(
             ApplicationData.Current.LocalFolder.Path,
             AppVersion(),
@@ -108,8 +113,9 @@ public sealed partial class App : Application, IDisposable
         };
         var launch = Activation.Read(_launch);
         Handle(launch);
-        // Started by Windows at sign-in: stay in the tray until asked for.
-        if (launch.Kind != ExtendedActivationKind.StartupTask)
+        // Started by Windows at sign-in, or by a push: stay in the tray until
+        // asked for (a ring or a message shows its own toast).
+        if (!launch.InBackground)
         {
             ShowWindow();
         }
@@ -153,12 +159,12 @@ public sealed partial class App : Application, IDisposable
         {
             // It went already. What it carried is lost (a sign-in waits for the
             // next link), but the window is still what was asked for.
-            activation = new Activation(ExtendedActivationKind.Launch, null, null);
+            activation = new Activation(ExtendedActivationKind.Launch, null, null, null);
         }
         _window?.DispatcherQueue.TryEnqueue(() =>
         {
             Handle(activation);
-            if (activation.Kind != ExtendedActivationKind.StartupTask)
+            if (!activation.InBackground)
             {
                 ShowWindow();
             }
@@ -175,6 +181,12 @@ public sealed partial class App : Application, IDisposable
         if (activation.Notification is { } notification)
         {
             ActivateNotification(notification);
+        }
+        // A push that launched the app: the core rings or notifies once the
+        // session is ready.
+        if (activation.Push is { } push)
+        {
+            _core?.PushReceived(push);
         }
         // Launch: nothing more to do.
     }
@@ -287,6 +299,8 @@ public sealed partial class App : Application, IDisposable
 
     private void OnClosed(object sender, WindowEventArgs args)
     {
+        _push?.Dispose();
+        _push = null;
         AppNotificationManager.Default.Unregister();
         Dispose();
     }
@@ -298,6 +312,8 @@ public sealed partial class App : Application, IDisposable
     /// </summary>
     public void Dispose()
     {
+        _push?.Dispose();
+        _push = null;
         _power?.Dispose();
         _power = null;
         _core?.DisposeAsync().AsTask().GetAwaiter().GetResult();
@@ -311,10 +327,13 @@ public sealed partial class App : Application, IDisposable
 
     /// <summary>
     /// What an activation asks for, copied out of its <see cref="AppActivationArguments"/>:
-    /// its kind, the link it opens, and a pressed toast's arguments.
+    /// its kind, the link it opens, a pressed toast's arguments, and a push's payload.
     /// </summary>
-    private sealed record Activation(ExtendedActivationKind Kind, string? Link, IDictionary<string, string>? Notification)
+    private sealed record Activation(ExtendedActivationKind Kind, string? Link, IDictionary<string, string>? Notification, string? Push)
     {
+        /// <summary>Whether the app was started without being asked for its window: at sign-in, or by a push.</summary>
+        public bool InBackground => Kind is ExtendedActivationKind.StartupTask or ExtendedActivationKind.Push;
+
         /// <summary>Reads everything an activation carries, at once.</summary>
         public static Activation Read(AppActivationArguments args)
         {
@@ -322,10 +341,12 @@ public sealed partial class App : Application, IDisposable
             return kind switch
             {
                 ExtendedActivationKind.Protocol when args.Data is IProtocolActivatedEventArgs protocol =>
-                    new Activation(kind, protocol.Uri.AbsoluteUri, null),
+                    new Activation(kind, protocol.Uri.AbsoluteUri, null, null),
                 ExtendedActivationKind.AppNotification when args.Data is AppNotificationActivatedEventArgs notification =>
-                    new Activation(kind, null, new Dictionary<string, string>(notification.Arguments)),
-                _ => new Activation(kind, null, null),
+                    new Activation(kind, null, new Dictionary<string, string>(notification.Arguments), null),
+                ExtendedActivationKind.Push when args.Data is PushNotificationReceivedEventArgs push =>
+                    new Activation(kind, null, null, WnsPush.Payload(push.Payload)),
+                _ => new Activation(kind, null, null, null),
             };
         }
     }

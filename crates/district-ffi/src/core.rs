@@ -4,14 +4,14 @@
 use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use district_api::{ApiClient, ApiConfig};
 use district_auth::{NativeAuthApi, TokenRefreshCoordinator};
 use district_core::{
     CallEngine, Clock, CoreConfig, DesktopPresence, DistrictApi, Effect, EffectRunner, Event,
-    LiveHub, LiveUpdates, Locale, Model, NativeAuth, Notifier, Presence, Restoring, RingSurface,
-    SessionState, Settings, TokioClock, UrlOpener,
+    LiveHub, LiveStatus, LiveUpdates, Locale, Model, NativeAuth, Notifier, Presence, Restoring,
+    RingSurface, SessionState, Settings, TokioClock, UrlOpener,
 };
 use district_host::{DeviceIdentity, RefreshMarkerFile, SettingsFile};
 use district_live::LiveConfig;
@@ -25,6 +25,7 @@ use crate::guard::{DiscardView, Held};
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
 use crate::link::{LinkKind, link_kind};
+use crate::push::{ChannelRegistrar, PushMessage, PushRegistration, decode_push, register_channel};
 use crate::screen::{ScreenView, screen_view, session_view};
 use crate::shell::{ShellView, shell_for, shell_view};
 
@@ -117,6 +118,8 @@ pub struct Core {
     snapshot: Arc<SnapshotCell>,
     /// The notifications shown, for [`activate_notification`](Self::activate_notification).
     notifications: Arc<NotificationTable>,
+    /// What registers a WNS channel with the service, once started.
+    registrar: Mutex<Option<Arc<dyn ChannelRegistrar>>>,
 }
 
 enum Lifecycle {
@@ -141,6 +144,8 @@ pub(crate) enum Message {
     Suspend(oneshot::Sender<()>),
     /// Run the model's last effects and stop, then answer.
     Shutdown(oneshot::Sender<()>),
+    /// A push arrived (crate::push): held until the session can take it.
+    Push(PushMessage),
 }
 
 impl Message {
@@ -239,6 +244,7 @@ impl Core {
             lifecycle: Mutex::new(Lifecycle::Idle),
             snapshot: Arc::new(SnapshotCell::new()),
             notifications: Arc::new(NotificationTable::default()),
+            registrar: Mutex::new(None),
         })
     }
 
@@ -272,7 +278,13 @@ impl Core {
             &self.snapshot,
             Arc::clone(&self.notifications),
         ) {
-            Ok(sender) => sender,
+            Ok((sender, registrar)) => {
+                *self
+                    .registrar
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner) = Some(registrar);
+                sender
+            }
             Err(error) => {
                 // Not a plain drop, which blocks on the runtime's threads.
                 runtime.shutdown_background();
@@ -331,6 +343,44 @@ impl Core {
         // and the wait ends at once.
         self.deliver(Message::Suspend(done));
         settled.await.ok();
+    }
+
+    /// Registers the WNS channel `channel_uri` with the service, for the
+    /// member signed in (crate::push): at sign-in, and each time Windows
+    /// renews the channel. Says how it went, for the app's log; nothing in the
+    /// app depends on it. The core's sign-out unregisters it.
+    pub async fn register_push_channel(&self, channel_uri: String) -> PushRegistration {
+        let registrar = self
+            .registrar
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone();
+        let handle = match &*self.lifecycle() {
+            Lifecycle::Running { runtime, .. } => runtime.handle().clone(),
+            Lifecycle::Idle | Lifecycle::Stopped => return PushRegistration::NotStarted,
+        };
+        let Some(registrar) = registrar else {
+            return PushRegistration::NotStarted;
+        };
+        // The client needs the runtime's reactor; the caller's executor is
+        // not it.
+        handle
+            .spawn(async move { register_channel(&*registrar, channel_uri).await })
+            .await
+            .unwrap_or(PushRegistration::NotStarted)
+    }
+
+    /// A raw WNS push arrived, while the app ran or as what launched it.
+    /// Returns whether it was one this build reads; a ring or a message is
+    /// then handed to the model once the session can take it.
+    pub fn push_received(&self, payload: String) -> bool {
+        match decode_push(&payload) {
+            Some(push) => {
+                self.deliver(Message::Push(push));
+                true
+            }
+            None => false,
+        }
     }
 
     /// The machine has woken: the model registers this desktop's presence
@@ -442,7 +492,7 @@ fn start_real(
     host: Arc<dyn UiHost>,
     snapshot: &Arc<SnapshotCell>,
     notifications: Arc<NotificationTable>,
-) -> Result<UnboundedSender<Message>, StartError> {
+) -> Result<(UnboundedSender<Message>, Arc<dyn ChannelRegistrar>), StartError> {
     let data_dir = PathBuf::from(&config.data_dir);
     std::fs::create_dir_all(&data_dir)
         .map_err(|error| setup("the data directory could not be made")(error.to_string()))?;
@@ -467,6 +517,7 @@ fn start_real(
     );
     let client = || ApiClient::new(api_config.clone(), coordinator.clone());
     let api = client().map_err(config_error)?;
+    let registrar: Arc<dyn ChannelRegistrar> = Arc::new(client().map_err(config_error)?);
     let presence = DesktopPresence::new(Arc::new(client().map_err(config_error)?), platform);
     // The live updates' credential states its expiry by the service's clock.
     let live_config = LiveConfig {
@@ -519,7 +570,7 @@ fn start_real(
     );
     forward(runtime, updates, sender.clone(), Event::Live);
     forward(runtime, media, sender.clone(), Event::Media);
-    Ok(sender)
+    Ok((sender, registrar))
 }
 
 /// A scripted scene (src/scripted.rs): the model over made-up answers, with no
@@ -593,6 +644,7 @@ fn launch<X: Effects>(
         snapshot,
         sender: sender.clone(),
         held: Held::default(),
+        pushed: None,
     };
     runtime.spawn(actor.run(first, inbox));
     sender
@@ -607,6 +659,8 @@ struct Actor<X> {
     /// A move away from a settings section with unsaved changes, held while
     /// "Discard your changes?" is asked (crate::guard).
     held: Held,
+    /// A push waiting for the session, and when it arrived.
+    pushed: Option<(PushMessage, Instant)>,
 }
 
 impl<X: Effects> Actor<X> {
@@ -684,8 +738,42 @@ impl<X: Effects> Actor<X> {
                     done.send(()).ok();
                     return;
                 }
+                Message::Push(push) => self.pushed = Some((push, Instant::now())),
             }
+            self.deliver_push();
         }
+    }
+
+    /// Hands the model the push waiting, once someone is signed in, the live
+    /// updates have started and (for a ring) the ring setting is read, as the
+    /// socket's own event; drops it once it
+    /// is too old to mean anything.
+    fn deliver_push(&mut self) {
+        let Some((push, arrived)) = self.pushed.take() else {
+            return;
+        };
+        if arrived.elapsed() > push.shelf_life() {
+            return;
+        }
+        // A ring also waits for "ring on this computer" to have been read:
+        // until then the core would refuse it as if the setting were off.
+        let ready = |signed_in: &district_core::SignedIn| {
+            signed_in.live.status != LiveStatus::Off
+                && (matches!(push, PushMessage::Message { .. })
+                    || signed_in.presence.ring_here.is_some())
+        };
+        let user_id = match self.model.session() {
+            SessionState::SignedIn(signed_in) if ready(signed_in) => {
+                signed_in.identity.user_id.clone()
+            }
+            _ => {
+                self.pushed = Some((push, arrived));
+                return;
+            }
+        };
+        let next = self.model.update(Event::Live(push.live_update(&user_id)));
+        self.publish();
+        self.dispatch(next);
     }
 
     /// Runs each effect on its own task and feeds its event back, and returns
@@ -1295,6 +1383,39 @@ mod tests {
         core.shutdown().await;
     }
 
+    /// A ring pushed while the app starts waits for the session, and then
+    /// rings as the socket's own `call_ringing` would; a payload this build
+    /// does not read is refused.
+    #[tokio::test]
+    async fn a_pushed_ring_rings_once_the_session_is_ready() {
+        let core = Core::new();
+        let host = Arc::new(RecordingHost::default());
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            ring_here: true,
+            workspace: true,
+            ..FakeEffects::default()
+        });
+        core.start_with(calls_config(), Arc::clone(&effects), host);
+        assert!(!core.push_received("{}".to_owned()));
+        assert!(core.push_received(
+            r#"{"type":"incoming_call","callId":"call-9","workspaceId":"ws-1"}"#.to_owned()
+        ));
+        eventually("the pushed call rings", || core.shell().ring.is_some()).await;
+        core.shutdown().await;
+    }
+
+    /// A channel cannot be registered before the core runs.
+    #[tokio::test]
+    async fn a_channel_needs_a_running_core() {
+        let core = Core::new();
+        assert_eq!(
+            core.register_push_channel("https://a.notify.windows.com/w/".to_owned())
+                .await,
+            PushRegistration::NotStarted
+        );
+    }
+
     #[tokio::test]
     async fn forwarding_stops_when_the_actor_has() {
         let runtime = tokio::runtime::Builder::new_multi_thread()
@@ -1383,6 +1504,12 @@ mod tests {
         );
         eventually("signed out", || phase(&core) == SessionPhase::SignedOut).await;
         assert!(data.join(district_host::DEVICE_ID_FILE).is_file());
+        // Signed out, the service is not asked: there is no bearer to ask with.
+        assert!(matches!(
+            core.register_push_channel("https://a.notify.windows.com/w/".to_owned())
+                .await,
+            PushRegistration::Failed { .. }
+        ));
         core.shutdown().await;
     }
 

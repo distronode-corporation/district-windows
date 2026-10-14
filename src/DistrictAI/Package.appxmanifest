@@ -80,6 +80,15 @@
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
+        <!-- Windows App SDK push (WNS): the server Windows starts when a push arrives for the closed app.
+             The class id is the WNS Entra app's AppId (docs/district_windows.md, Microsoft credentials). -->
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="DistrictAI.exe" Arguments="----WindowsAppRuntimePushServer:" DisplayName="District AI push">
+              <com:Class Id="d64b8f8c-2c34-4ccc-b3c3-d876c0479021" DisplayName="Windows App SDK Push" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
 
         <!-- Start at sign-in to Windows: off until the person turns it on. -->
         <uap5:Extension Category="windows.startupTask">

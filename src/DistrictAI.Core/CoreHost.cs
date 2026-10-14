@@ -200,6 +200,49 @@ public sealed class CoreHost : UiHost, ICoreSink, IAsyncDisposable
     }
 
     /// <summary>
+    /// Registers the WNS channel <paramref name="channelUri"/> with the service
+    /// for the member signed in. Says how it went, for the log; push is an
+    /// addition, and nothing waits on it. <see cref="PushRegistration.NotStarted"/>
+    /// after <see cref="DisposeAsync"/>.
+    /// </summary>
+    public async Task<PushRegistration> RegisterPushChannelAsync(string channelUri)
+    {
+        if (Volatile.Read(ref _disposed) == 1)
+        {
+            return new PushRegistration.NotStarted();
+        }
+        try
+        {
+            return await _core.RegisterPushChannel(channelUri).ConfigureAwait(false);
+        }
+        catch (ObjectDisposedException)
+        {
+            return new PushRegistration.NotStarted();
+        }
+    }
+
+    /// <summary>
+    /// Forwards a raw WNS push's payload: a ring or a message, which the core
+    /// shows once the session can take it. False for a payload this build does
+    /// not read, and after <see cref="DisposeAsync"/>.
+    /// </summary>
+    public bool PushReceived(string payload)
+    {
+        if (Volatile.Read(ref _disposed) == 1)
+        {
+            return false;
+        }
+        try
+        {
+            return _core.PushReceived(payload);
+        }
+        catch (ObjectDisposedException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Forwards a toast's activation: the toast itself clicked
     /// (<paramref name="actionId"/> null), or the button whose
     /// <see cref="NotificationActionView.ActionId"/> it is.

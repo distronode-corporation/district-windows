@@ -185,6 +185,23 @@ public sealed class CoreHostTests : IDisposable
     }
 
     [Fact]
+    public async Task APushIsReadAndAChannelNeedsASession()
+    {
+        var host = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
+        Assert.IsType<PushRegistration.NotStarted>(await host.RegisterPushChannelAsync("https://a.notify.windows.com/w/"));
+        host.Start(_dataDir, "0.1.0", null, Namespace, _english);
+        await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
+        Assert.True(host.PushReceived("{\"type\":\"message\",\"messageId\":\"m-1\",\"workspaceId\":\"ws-1\"}"));
+        Assert.False(host.PushReceived("not a push"));
+        // Not a channel: nothing is sent. Signed out: there is no bearer to send with.
+        Assert.IsType<PushRegistration.NotAChannel>(await host.RegisterPushChannelAsync("https://example.com/w/"));
+        Assert.IsType<PushRegistration.Failed>(await host.RegisterPushChannelAsync("https://a.notify.windows.com/w/"));
+        await host.DisposeAsync();
+        Assert.False(host.PushReceived("{}"));
+        Assert.IsType<PushRegistration.NotStarted>(await host.RegisterPushChannelAsync("https://a.notify.windows.com/w/"));
+    }
+
+    [Fact]
     public async Task ARenderTheUiThreadRefusedIsQueuedByTheNextChange()
     {
         var dispatcher = new ManualDispatcher { Accepting = false };
