@@ -2,9 +2,14 @@
   "screen": {
     "Inbox": {
       "view": {
+        "compose": null,
         "empty": {
           "body": "Texts and emails from your customers will appear here.",
           "title": "No conversations yet"
+        },
+        "new_message": {
+          "label": "New message",
+          "offered": true
         },
         "partial_note": "Showing recent conversations. Older, quieter threads are not listed.",
         "read_only_note": "",

@@ -310,7 +310,7 @@ fn count(total: i64) -> String {
     s::contacts_count(l(), total)
 }
 
-fn contact_row(contact: &Contact) -> ContactRowView {
+pub(crate) fn contact_row(contact: &Contact) -> ContactRowView {
     let name = contact_label(contact);
     let detail = [
         contact.phone_number.as_deref().map(format_phone_number),

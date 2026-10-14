@@ -333,6 +333,41 @@ public sealed class SceneWalkTests
     }
 
     /// <summary>
+    /// The Inbox's "New message" opens the core's form: the scene's contacts
+    /// are offered, choosing one shows its channels and the message field, and
+    /// Cancel closes it. Nothing is sent: the scene answers no send.
+    /// </summary>
+    [Fact]
+    public void NewMessageOffersContactsAndClosesOnCancel()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavInbox");
+        app.FindById("NewMessageButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("ComposeTo", PageTimeout);
+        var suggestions = app.FindById("ComposeSuggestions", PageTimeout);
+        var first = Wait.For(
+            () => suggestions.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
+            PageTimeout,
+            "a contact offered in the new message form",
+            app.Describe);
+        Activate(first);
+        _ = app.FindById("ComposeRecipient", PageTimeout);
+        _ = app.FindById("ComposeChannel", PageTimeout);
+        _ = app.FindById("ComposeBody", PageTimeout);
+        InstalledApp.Log("the new message form offers the contacts and the channels of the one chosen");
+
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("ComposeBody") is null, PageTimeout),
+            "the new message form stayed open after Escape");
+        Assert.True(app.IsRunning, "the app ended in the new message form");
+    }
+
+    /// <summary>
     /// Skips off Windows, and unless DISTRICTAI_UI_SCRIPTED is 1 (a scripted
     /// package is installed). With it, the package must be installed.
     /// </summary>

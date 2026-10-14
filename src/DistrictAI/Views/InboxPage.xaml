@@ -13,11 +13,31 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock
-            AutomationProperties.AutomationId="InboxHeading"
-            AutomationProperties.HeadingLevel="Level1"
-            Style="{StaticResource TitleTextBlockStyle}"
-            Text="{x:Bind l10n:S.InboxTitle}" />
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                AutomationProperties.AutomationId="InboxHeading"
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{x:Bind l10n:S.InboxTitle}" />
+            <!-- Starts a conversation, in the core's new message form. Not for a viewer, who cannot send. -->
+            <Button
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                AutomationProperties.AutomationId="NewMessageButton"
+                AutomationProperties.Name="{x:Bind ViewModel.ComposeLabel, Mode=OneWay}"
+                Command="{x:Bind ViewModel.NewMessageCommand}"
+                Style="{StaticResource AccentButtonStyle}"
+                Visibility="{x:Bind ViewModel.CanCompose, Mode=OneWay}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <SymbolIcon Symbol="Add" />
+                    <TextBlock Text="{x:Bind ViewModel.ComposeLabel, Mode=OneWay}" />
+                </StackPanel>
+            </Button>
+        </Grid>
         <StackPanel Grid.Row="1" Spacing="4">
             <AutoSuggestBox
                 x:Name="SearchBox"

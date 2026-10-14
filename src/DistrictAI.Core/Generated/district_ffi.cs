@@ -6374,6 +6374,366 @@ class FfiConverterTypeChoiceView: FfiConverterRustBuffer<ChoiceView> {
 
 
 /// <summary>
+/// One way to reach the recipient.
+/// </summary>
+/// <param name="Name">
+/// The channel's name: "Text message" or "Email".
+/// </param>
+/// <param name="Address">
+/// The number, grouped to read, or the address.
+/// </param>
+public record ComposeChannelView (
+    /// <summary>
+    /// The channel's name: "Text message" or "Email".
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// The number, grouped to read, or the address.
+    /// </summary>
+    string Address
+) {
+}
+
+class FfiConverterTypeComposeChannelView: FfiConverterRustBuffer<ComposeChannelView> {
+    public static FfiConverterTypeComposeChannelView INSTANCE = new FfiConverterTypeComposeChannelView();
+
+    public override ComposeChannelView Read(BigEndianStream stream) {
+        return new ComposeChannelView(
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Address: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ComposeChannelView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Address);
+    }
+
+    public override void Write(ComposeChannelView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Address, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The inbox's "New" control: whether to offer it, and its words. A viewer
+/// cannot send, so it is not offered to one.
+/// </summary>
+/// <param name="Offered">
+/// Whether to offer it.
+/// </param>
+/// <param name="Label">
+/// Its words.
+/// </param>
+public record ComposeEntryView (
+    /// <summary>
+    /// Whether to offer it.
+    /// </summary>
+    bool Offered, 
+    /// <summary>
+    /// Its words.
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeComposeEntryView: FfiConverterRustBuffer<ComposeEntryView> {
+    public static FfiConverterTypeComposeEntryView INSTANCE = new FfiConverterTypeComposeEntryView();
+
+    public override ComposeEntryView Read(BigEndianStream stream) {
+        return new ComposeEntryView(
+            Offered: FfiConverterBoolean.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ComposeEntryView value) {
+        return 0
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Offered)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(ComposeEntryView value, BigEndianStream stream) {
+            FfiConverterBoolean.INSTANCE.Write(value.Offered, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The new message form, while it is open.
+/// </summary>
+/// <param name="Title">
+/// The dialog's title.
+/// </param>
+/// <param name="ToLabel">
+/// The recipient field's label.
+/// </param>
+/// <param name="Query">
+/// What is typed in the recipient field, the filter over the contacts.
+/// </param>
+/// <param name="ContactsLoading">
+/// Whether the contacts are being read.
+/// </param>
+/// <param name="Suggestions">
+/// The contacts matching what is typed, newest first.
+/// </param>
+/// <param name="RecentNote">
+/// The note under them: only the most recent are offered.
+/// </param>
+/// <param name="SuggestionsFailed">
+/// Why the contacts could not be read; the form still works with an
+/// address typed in.
+/// </param>
+/// <param name="TypedAction">
+/// The button that sends to what is typed, or `None` while nothing is.
+/// </param>
+/// <param name="Recipient">
+/// Who the message goes to, once chosen: a contact's name, or what was
+/// typed.
+/// </param>
+/// <param name="ChangeLabel">
+/// The button beside the recipient that goes back to choosing.
+/// </param>
+/// <param name="NoAddressNote">
+/// Why a chosen contact cannot be sent to, or `None`.
+/// </param>
+/// <param name="SendOnLabel">
+/// The label above the choice of channel.
+/// </param>
+/// <param name="Channels">
+/// Each way the recipient can be reached, a text message first.
+/// </param>
+/// <param name="Channel">
+/// Which of [`Self::channels`] is chosen.
+/// </param>
+/// <param name="RequiresSubject">
+/// Whether the message goes as an email, which needs a subject.
+/// </param>
+/// <param name="SubjectLabel">
+/// The subject field's label.
+/// </param>
+/// <param name="Subject">
+/// The subject, as typed.
+/// </param>
+/// <param name="MessageLabel">
+/// The message field's label.
+/// </param>
+/// <param name="Body">
+/// The message, as typed.
+/// </param>
+/// <param name="SendLabel">
+/// The send button's words, which say when the message is on its way.
+/// </param>
+/// <param name="CancelLabel">
+/// The cancel button's words.
+/// </param>
+/// <param name="CanSend">
+/// Whether "Send" works now.
+/// </param>
+/// <param name="Sending">
+/// Whether the message is on its way: nothing in the form takes input.
+/// </param>
+/// <param name="Failure">
+/// Why the last send failed. What was typed stays.
+/// </param>
+public record ComposeView (
+    /// <summary>
+    /// The dialog's title.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The recipient field's label.
+    /// </summary>
+    string ToLabel, 
+    /// <summary>
+    /// What is typed in the recipient field, the filter over the contacts.
+    /// </summary>
+    string Query, 
+    /// <summary>
+    /// Whether the contacts are being read.
+    /// </summary>
+    bool ContactsLoading, 
+    /// <summary>
+    /// The contacts matching what is typed, newest first.
+    /// </summary>
+    ContactRowView[] Suggestions, 
+    /// <summary>
+    /// The note under them: only the most recent are offered.
+    /// </summary>
+    string RecentNote, 
+    /// <summary>
+    /// Why the contacts could not be read; the form still works with an
+    /// address typed in.
+    /// </summary>
+    string? SuggestionsFailed, 
+    /// <summary>
+    /// The button that sends to what is typed, or `None` while nothing is.
+    /// </summary>
+    string? TypedAction, 
+    /// <summary>
+    /// Who the message goes to, once chosen: a contact's name, or what was
+    /// typed.
+    /// </summary>
+    string? Recipient, 
+    /// <summary>
+    /// The button beside the recipient that goes back to choosing.
+    /// </summary>
+    string ChangeLabel, 
+    /// <summary>
+    /// Why a chosen contact cannot be sent to, or `None`.
+    /// </summary>
+    string? NoAddressNote, 
+    /// <summary>
+    /// The label above the choice of channel.
+    /// </summary>
+    string SendOnLabel, 
+    /// <summary>
+    /// Each way the recipient can be reached, a text message first.
+    /// </summary>
+    ComposeChannelView[] Channels, 
+    /// <summary>
+    /// Which of [`Self::channels`] is chosen.
+    /// </summary>
+    uint Channel, 
+    /// <summary>
+    /// Whether the message goes as an email, which needs a subject.
+    /// </summary>
+    bool RequiresSubject, 
+    /// <summary>
+    /// The subject field's label.
+    /// </summary>
+    string SubjectLabel, 
+    /// <summary>
+    /// The subject, as typed.
+    /// </summary>
+    string Subject, 
+    /// <summary>
+    /// The message field's label.
+    /// </summary>
+    string MessageLabel, 
+    /// <summary>
+    /// The message, as typed.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The send button's words, which say when the message is on its way.
+    /// </summary>
+    string SendLabel, 
+    /// <summary>
+    /// The cancel button's words.
+    /// </summary>
+    string CancelLabel, 
+    /// <summary>
+    /// Whether "Send" works now.
+    /// </summary>
+    bool CanSend, 
+    /// <summary>
+    /// Whether the message is on its way: nothing in the form takes input.
+    /// </summary>
+    bool Sending, 
+    /// <summary>
+    /// Why the last send failed. What was typed stays.
+    /// </summary>
+    FailureView? Failure
+) {
+}
+
+class FfiConverterTypeComposeView: FfiConverterRustBuffer<ComposeView> {
+    public static FfiConverterTypeComposeView INSTANCE = new FfiConverterTypeComposeView();
+
+    public override ComposeView Read(BigEndianStream stream) {
+        return new ComposeView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            ToLabel: FfiConverterString.INSTANCE.Read(stream),
+            Query: FfiConverterString.INSTANCE.Read(stream),
+            ContactsLoading: FfiConverterBoolean.INSTANCE.Read(stream),
+            Suggestions: FfiConverterSequenceTypeContactRowView.INSTANCE.Read(stream),
+            RecentNote: FfiConverterString.INSTANCE.Read(stream),
+            SuggestionsFailed: FfiConverterOptionalString.INSTANCE.Read(stream),
+            TypedAction: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Recipient: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ChangeLabel: FfiConverterString.INSTANCE.Read(stream),
+            NoAddressNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            SendOnLabel: FfiConverterString.INSTANCE.Read(stream),
+            Channels: FfiConverterSequenceTypeComposeChannelView.INSTANCE.Read(stream),
+            Channel: FfiConverterUInt32.INSTANCE.Read(stream),
+            RequiresSubject: FfiConverterBoolean.INSTANCE.Read(stream),
+            SubjectLabel: FfiConverterString.INSTANCE.Read(stream),
+            Subject: FfiConverterString.INSTANCE.Read(stream),
+            MessageLabel: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            SendLabel: FfiConverterString.INSTANCE.Read(stream),
+            CancelLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanSend: FfiConverterBoolean.INSTANCE.Read(stream),
+            Sending: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ComposeView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ToLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Query)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ContactsLoading)
+            + FfiConverterSequenceTypeContactRowView.INSTANCE.AllocationSize(value.Suggestions)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RecentNote)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.SuggestionsFailed)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.TypedAction)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Recipient)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ChangeLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NoAddressNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SendOnLabel)
+            + FfiConverterSequenceTypeComposeChannelView.INSTANCE.AllocationSize(value.Channels)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Channel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.RequiresSubject)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SubjectLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subject)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MessageLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SendLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CancelLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSend)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Sending)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
+    }
+
+    public override void Write(ComposeView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.ToLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Query, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ContactsLoading, stream);
+            FfiConverterSequenceTypeContactRowView.INSTANCE.Write(value.Suggestions, stream);
+            FfiConverterString.INSTANCE.Write(value.RecentNote, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.SuggestionsFailed, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.TypedAction, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Recipient, stream);
+            FfiConverterString.INSTANCE.Write(value.ChangeLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NoAddressNote, stream);
+            FfiConverterString.INSTANCE.Write(value.SendOnLabel, stream);
+            FfiConverterSequenceTypeComposeChannelView.INSTANCE.Write(value.Channels, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Channel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.RequiresSubject, stream);
+            FfiConverterString.INSTANCE.Write(value.SubjectLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Subject, stream);
+            FfiConverterString.INSTANCE.Write(value.MessageLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.SendLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.CancelLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSend, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Sending, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The reply box under a conversation, for a member who may reply there.
 /// </summary>
 /// <param name="Text">
@@ -10195,6 +10555,12 @@ class FfiConverterTypeHqView: FfiConverterRustBuffer<HqView> {
 /// Why there is no reply box: empty since the reply box was built (each
 /// thread says why it has none).
 /// </param>
+/// <param name="NewMessage">
+/// The header's "New" control, which starts a conversation.
+/// </param>
+/// <param name="Compose">
+/// The new message form, while it is open.
+/// </param>
 public record InboxView (
     /// <summary>
     /// Where the first read of the list stands.
@@ -10228,7 +10594,15 @@ public record InboxView (
     /// Why there is no reply box: empty since the reply box was built (each
     /// thread says why it has none).
     /// </summary>
-    string ReadOnlyNote
+    string ReadOnlyNote, 
+    /// <summary>
+    /// The header's "New" control, which starts a conversation.
+    /// </summary>
+    ComposeEntryView NewMessage, 
+    /// <summary>
+    /// The new message form, while it is open.
+    /// </summary>
+    ComposeView? Compose
 ) {
 }
 
@@ -10244,7 +10618,9 @@ class FfiConverterTypeInboxView: FfiConverterRustBuffer<InboxView> {
             Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
             RefreshFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
             Search: FfiConverterTypeSearchView.INSTANCE.Read(stream),
-            ReadOnlyNote: FfiConverterString.INSTANCE.Read(stream)
+            ReadOnlyNote: FfiConverterString.INSTANCE.Read(stream),
+            NewMessage: FfiConverterTypeComposeEntryView.INSTANCE.Read(stream),
+            Compose: FfiConverterOptionalTypeComposeView.INSTANCE.Read(stream)
         );
     }
 
@@ -10257,7 +10633,9 @@ class FfiConverterTypeInboxView: FfiConverterRustBuffer<InboxView> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
             + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RefreshFailure)
             + FfiConverterTypeSearchView.INSTANCE.AllocationSize(value.Search)
-            + FfiConverterString.INSTANCE.AllocationSize(value.ReadOnlyNote);
+            + FfiConverterString.INSTANCE.AllocationSize(value.ReadOnlyNote)
+            + FfiConverterTypeComposeEntryView.INSTANCE.AllocationSize(value.NewMessage)
+            + FfiConverterOptionalTypeComposeView.INSTANCE.AllocationSize(value.Compose);
     }
 
     public override void Write(InboxView value, BigEndianStream stream) {
@@ -10269,6 +10647,8 @@ class FfiConverterTypeInboxView: FfiConverterRustBuffer<InboxView> {
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.RefreshFailure, stream);
             FfiConverterTypeSearchView.INSTANCE.Write(value.Search, stream);
             FfiConverterString.INSTANCE.Write(value.ReadOnlyNote, stream);
+            FfiConverterTypeComposeEntryView.INSTANCE.Write(value.NewMessage, stream);
+            FfiConverterOptionalTypeComposeView.INSTANCE.Write(value.Compose, stream);
     }
 }
 
@@ -20516,6 +20896,207 @@ class FfiConverterTypeCallHandlingChoice: FfiConverterRustBuffer<CallHandlingCho
 
 
 /// <summary>
+/// Something the member did in the new message form.
+/// </summary>
+public record ComposeAction {
+    
+    /// <summary>
+    /// "New", in the inbox's header: open the form, empty.
+    /// </summary>
+    public record Open: ComposeAction {}
+    
+    
+    /// <summary>
+    /// The recipient field changed.
+    /// </summary>
+    public record Query (
+        string Text
+    ) : ComposeAction {}
+    
+    /// <summary>
+    /// Send to an offered contact.
+    /// </summary>
+    public record ChooseContact (
+        string ContactId
+    ) : ComposeAction {}
+    
+    /// <summary>
+    /// Send to what is typed in the recipient field.
+    /// </summary>
+    public record UseTyped: ComposeAction {}
+    
+    
+    /// <summary>
+    /// "Change": go back to choosing a recipient.
+    /// </summary>
+    public record ClearRecipient: ComposeAction {}
+    
+    
+    /// <summary>
+    /// Send on the channel at this index of [`ComposeView::channels`].
+    /// </summary>
+    public record SelectChannel (
+        uint Index
+    ) : ComposeAction {}
+    
+    /// <summary>
+    /// The subject changed.
+    /// </summary>
+    public record EditSubject (
+        string Text
+    ) : ComposeAction {}
+    
+    /// <summary>
+    /// The message changed.
+    /// </summary>
+    public record EditBody (
+        string Text
+    ) : ComposeAction {}
+    
+    /// <summary>
+    /// "Send". Billed, and sent once.
+    /// </summary>
+    public record Send: ComposeAction {}
+    
+    
+    /// <summary>
+    /// Close the form. The core refuses while the message is on its way.
+    /// </summary>
+    public record Cancel: ComposeAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeComposeAction : FfiConverterRustBuffer<ComposeAction>{
+    public static FfiConverterRustBuffer<ComposeAction> INSTANCE = new FfiConverterTypeComposeAction();
+
+    public override ComposeAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new ComposeAction.Open(
+                );
+            case 2:
+                return new ComposeAction.Query(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new ComposeAction.ChooseContact(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new ComposeAction.UseTyped(
+                );
+            case 5:
+                return new ComposeAction.ClearRecipient(
+                );
+            case 6:
+                return new ComposeAction.SelectChannel(
+                    FfiConverterUInt32.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new ComposeAction.EditSubject(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new ComposeAction.EditBody(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new ComposeAction.Send(
+                );
+            case 10:
+                return new ComposeAction.Cancel(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposeAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(ComposeAction value) {
+        switch (value) {
+            case ComposeAction.Open variant_value:
+                return 4;
+            case ComposeAction.Query variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case ComposeAction.ChooseContact variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ContactId);
+            case ComposeAction.UseTyped variant_value:
+                return 4;
+            case ComposeAction.ClearRecipient variant_value:
+                return 4;
+            case ComposeAction.SelectChannel variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index);
+            case ComposeAction.EditSubject variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case ComposeAction.EditBody variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case ComposeAction.Send variant_value:
+                return 4;
+            case ComposeAction.Cancel variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposeAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(ComposeAction value, BigEndianStream stream) {
+        switch (value) {
+            case ComposeAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case ComposeAction.Query variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case ComposeAction.ChooseContact variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.ContactId, stream);
+                break;
+            case ComposeAction.UseTyped variant_value:
+                stream.WriteInt(4);
+                break;
+            case ComposeAction.ClearRecipient variant_value:
+                stream.WriteInt(5);
+                break;
+            case ComposeAction.SelectChannel variant_value:
+                stream.WriteInt(6);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                break;
+            case ComposeAction.EditSubject variant_value:
+                stream.WriteInt(7);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case ComposeAction.EditBody variant_value:
+                stream.WriteInt(8);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case ComposeAction.Send variant_value:
+                stream.WriteInt(9);
+                break;
+            case ComposeAction.Cancel variant_value:
+                stream.WriteInt(10);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposeAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the member did in the reply box.
 /// </summary>
 public record ComposerAction {
@@ -27855,6 +28436,13 @@ public record UiEvent {
     
     
     /// <summary>
+    /// The new message form, from the inbox's "New".
+    /// </summary>
+    public record Compose (
+        ComposeAction Action
+    ) : UiEvent {}
+    
+    /// <summary>
     /// Open a call.
     /// </summary>
     public record OpenCall (
@@ -28257,183 +28845,187 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                 return new UiEvent.ClearSearch(
                 );
             case 18:
+                return new UiEvent.Compose(
+                    FfiConverterTypeComposeAction.INSTANCE.Read(stream)
+                );
+            case 19:
                 return new UiEvent.OpenCall(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 19:
+            case 20:
                 return new UiEvent.LoadMoreCalls(
                 );
-            case 20:
+            case 21:
                 return new UiEvent.OpenContact(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 21:
+            case 22:
                 return new UiEvent.LoadMoreContacts(
                 );
-            case 22:
+            case 23:
                 return new UiEvent.OpenDevices(
                 );
-            case 23:
+            case 24:
                 return new UiEvent.AskSignOutDevice(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 24:
+            case 25:
                 return new UiEvent.AskSignOutEverywhere(
                 );
-            case 25:
+            case 26:
                 return new UiEvent.ConfirmDevices(
                 );
-            case 26:
+            case 27:
                 return new UiEvent.CancelDevices(
                 );
-            case 27:
+            case 28:
                 return new UiEvent.DismissDevicesNotices(
                 );
-            case 28:
+            case 29:
                 return new UiEvent.DeleteAccount(
                 );
-            case 29:
+            case 30:
                 return new UiEvent.Report(
                     FfiConverterTypeReportTarget.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 30:
+            case 31:
                 return new UiEvent.DismissReport(
                 );
-            case 31:
+            case 32:
                 return new UiEvent.DiscardChanges(
                 );
-            case 32:
+            case 33:
                 return new UiEvent.KeepEditing(
                 );
-            case 33:
+            case 34:
                 return new UiEvent.OpenDialer(
                 );
-            case 34:
+            case 35:
                 return new UiEvent.DialerEdit(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 35:
+            case 36:
                 return new UiEvent.Dial(
                 );
-            case 36:
+            case 37:
                 return new UiEvent.CallNumber(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 37:
+            case 38:
                 return new UiEvent.HangUp(
                 );
-            case 38:
+            case 39:
                 return new UiEvent.DismissCall(
                 );
-            case 39:
+            case 40:
                 return new UiEvent.Answer(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 40:
+            case 41:
                 return new UiEvent.Decline(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 41:
+            case 42:
                 return new UiEvent.DismissRing(
                 );
-            case 42:
+            case 43:
                 return new UiEvent.Microphone(
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
-            case 43:
+            case 44:
                 return new UiEvent.SetRingOnThisComputer(
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
-            case 44:
+            case 45:
                 return new UiEvent.Contacts(
                     FfiConverterTypeContactsAction.INSTANCE.Read(stream)
                 );
-            case 45:
+            case 46:
                 return new UiEvent.Blocked(
                     FfiConverterTypeBlockedAction.INSTANCE.Read(stream)
                 );
-            case 46:
+            case 47:
                 return new UiEvent.Hq(
                     FfiConverterTypeHqAction.INSTANCE.Read(stream)
                 );
-            case 47:
+            case 48:
                 return new UiEvent.Analytics(
                     FfiConverterTypeAnalyticsAction.INSTANCE.Read(stream)
                 );
-            case 48:
+            case 49:
                 return new UiEvent.Marketplace(
                     FfiConverterTypeMarketplaceAction.INSTANCE.Read(stream)
                 );
-            case 49:
+            case 50:
                 return new UiEvent.Billing(
                     FfiConverterTypeBillingAction.INSTANCE.Read(stream)
                 );
-            case 50:
+            case 51:
                 return new UiEvent.Workflows(
                     FfiConverterTypeWorkflowsAction.INSTANCE.Read(stream)
                 );
-            case 51:
+            case 52:
                 return new UiEvent.Scheduling(
                     FfiConverterTypeSchedulingAction.INSTANCE.Read(stream)
                 );
-            case 52:
+            case 53:
                 return new UiEvent.Desk(
                     FfiConverterTypeDeskAction.INSTANCE.Read(stream)
                 );
-            case 53:
+            case 54:
                 return new UiEvent.Support(
                     FfiConverterTypeSupportAction.INSTANCE.Read(stream)
                 );
-            case 54:
+            case 55:
                 return new UiEvent.Rooms(
                     FfiConverterTypeRoomsAction.INSTANCE.Read(stream)
                 );
-            case 55:
+            case 56:
                 return new UiEvent.Composer(
                     FfiConverterTypeComposerAction.INSTANCE.Read(stream)
                 );
-            case 56:
+            case 57:
                 return new UiEvent.Settings(
                     FfiConverterTypeSettingsAction.INSTANCE.Read(stream)
                 );
-            case 57:
+            case 58:
                 return new UiEvent.Persona(
                     FfiConverterTypePersonaAction.INSTANCE.Read(stream)
                 );
-            case 58:
+            case 59:
                 return new UiEvent.VoiceStudio(
                     FfiConverterTypeVoiceStudioAction.INSTANCE.Read(stream)
                 );
-            case 59:
+            case 60:
                 return new UiEvent.CallHandling(
                     FfiConverterTypeCallHandlingAction.INSTANCE.Read(stream)
                 );
-            case 60:
+            case 61:
                 return new UiEvent.Routing(
                     FfiConverterTypeRoutingAction.INSTANCE.Read(stream)
                 );
-            case 61:
+            case 62:
                 return new UiEvent.Directory(
                     FfiConverterTypeDirectoryAction.INSTANCE.Read(stream)
                 );
-            case 62:
+            case 63:
                 return new UiEvent.Tools(
                     FfiConverterTypeToolsAction.INSTANCE.Read(stream)
                 );
-            case 63:
+            case 64:
                 return new UiEvent.Knowledge(
                     FfiConverterTypeKnowledgeAction.INSTANCE.Read(stream)
                 );
-            case 64:
+            case 65:
                 return new UiEvent.Messaging(
                     FfiConverterTypeMessagingAction.INSTANCE.Read(stream)
                 );
-            case 65:
+            case 66:
                 return new UiEvent.Members(
                     FfiConverterTypeMembersAction.INSTANCE.Read(stream)
                 );
-            case 66:
+            case 67:
                 return new UiEvent.Numbers(
                     FfiConverterTypeNumbersAction.INSTANCE.Read(stream)
                 );
@@ -28484,6 +29076,9 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Query);
             case UiEvent.ClearSearch variant_value:
                 return 4;
+            case UiEvent.Compose variant_value:
+                return 4
+                    + FfiConverterTypeComposeAction.INSTANCE.AllocationSize(variant_value.Action);
             case UiEvent.OpenCall variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.CallId);
@@ -28680,185 +29275,189 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case UiEvent.ClearSearch variant_value:
                 stream.WriteInt(17);
                 break;
-            case UiEvent.OpenCall variant_value:
+            case UiEvent.Compose variant_value:
                 stream.WriteInt(18);
+                FfiConverterTypeComposeAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case UiEvent.OpenCall variant_value:
+                stream.WriteInt(19);
                 FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
             case UiEvent.LoadMoreCalls variant_value:
-                stream.WriteInt(19);
+                stream.WriteInt(20);
                 break;
             case UiEvent.OpenContact variant_value:
-                stream.WriteInt(20);
+                stream.WriteInt(21);
                 FfiConverterString.INSTANCE.Write(variant_value.ContactId, stream);
                 break;
             case UiEvent.LoadMoreContacts variant_value:
-                stream.WriteInt(21);
-                break;
-            case UiEvent.OpenDevices variant_value:
                 stream.WriteInt(22);
                 break;
-            case UiEvent.AskSignOutDevice variant_value:
+            case UiEvent.OpenDevices variant_value:
                 stream.WriteInt(23);
+                break;
+            case UiEvent.AskSignOutDevice variant_value:
+                stream.WriteInt(24);
                 FfiConverterString.INSTANCE.Write(variant_value.DeviceId, stream);
                 break;
             case UiEvent.AskSignOutEverywhere variant_value:
-                stream.WriteInt(24);
-                break;
-            case UiEvent.ConfirmDevices variant_value:
                 stream.WriteInt(25);
                 break;
-            case UiEvent.CancelDevices variant_value:
+            case UiEvent.ConfirmDevices variant_value:
                 stream.WriteInt(26);
                 break;
-            case UiEvent.DismissDevicesNotices variant_value:
+            case UiEvent.CancelDevices variant_value:
                 stream.WriteInt(27);
                 break;
-            case UiEvent.DeleteAccount variant_value:
+            case UiEvent.DismissDevicesNotices variant_value:
                 stream.WriteInt(28);
                 break;
-            case UiEvent.Report variant_value:
+            case UiEvent.DeleteAccount variant_value:
                 stream.WriteInt(29);
+                break;
+            case UiEvent.Report variant_value:
+                stream.WriteInt(30);
                 FfiConverterTypeReportTarget.INSTANCE.Write(variant_value.Target, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.Note, stream);
                 break;
             case UiEvent.DismissReport variant_value:
-                stream.WriteInt(30);
-                break;
-            case UiEvent.DiscardChanges variant_value:
                 stream.WriteInt(31);
                 break;
-            case UiEvent.KeepEditing variant_value:
+            case UiEvent.DiscardChanges variant_value:
                 stream.WriteInt(32);
                 break;
-            case UiEvent.OpenDialer variant_value:
+            case UiEvent.KeepEditing variant_value:
                 stream.WriteInt(33);
                 break;
-            case UiEvent.DialerEdit variant_value:
+            case UiEvent.OpenDialer variant_value:
                 stream.WriteInt(34);
+                break;
+            case UiEvent.DialerEdit variant_value:
+                stream.WriteInt(35);
                 FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
                 break;
             case UiEvent.Dial variant_value:
-                stream.WriteInt(35);
+                stream.WriteInt(36);
                 break;
             case UiEvent.CallNumber variant_value:
-                stream.WriteInt(36);
+                stream.WriteInt(37);
                 FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
                 break;
             case UiEvent.HangUp variant_value:
-                stream.WriteInt(37);
-                break;
-            case UiEvent.DismissCall variant_value:
                 stream.WriteInt(38);
                 break;
-            case UiEvent.Answer variant_value:
+            case UiEvent.DismissCall variant_value:
                 stream.WriteInt(39);
-                FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
-            case UiEvent.Decline variant_value:
+            case UiEvent.Answer variant_value:
                 stream.WriteInt(40);
                 FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
-            case UiEvent.DismissRing variant_value:
+            case UiEvent.Decline variant_value:
                 stream.WriteInt(41);
+                FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
+                break;
+            case UiEvent.DismissRing variant_value:
+                stream.WriteInt(42);
                 break;
             case UiEvent.Microphone variant_value:
-                stream.WriteInt(42);
-                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
-                break;
-            case UiEvent.SetRingOnThisComputer variant_value:
                 stream.WriteInt(43);
                 FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
                 break;
-            case UiEvent.Contacts variant_value:
+            case UiEvent.SetRingOnThisComputer variant_value:
                 stream.WriteInt(44);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case UiEvent.Contacts variant_value:
+                stream.WriteInt(45);
                 FfiConverterTypeContactsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Blocked variant_value:
-                stream.WriteInt(45);
+                stream.WriteInt(46);
                 FfiConverterTypeBlockedAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Hq variant_value:
-                stream.WriteInt(46);
+                stream.WriteInt(47);
                 FfiConverterTypeHqAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Analytics variant_value:
-                stream.WriteInt(47);
+                stream.WriteInt(48);
                 FfiConverterTypeAnalyticsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Marketplace variant_value:
-                stream.WriteInt(48);
+                stream.WriteInt(49);
                 FfiConverterTypeMarketplaceAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Billing variant_value:
-                stream.WriteInt(49);
+                stream.WriteInt(50);
                 FfiConverterTypeBillingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Workflows variant_value:
-                stream.WriteInt(50);
+                stream.WriteInt(51);
                 FfiConverterTypeWorkflowsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Scheduling variant_value:
-                stream.WriteInt(51);
+                stream.WriteInt(52);
                 FfiConverterTypeSchedulingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Desk variant_value:
-                stream.WriteInt(52);
+                stream.WriteInt(53);
                 FfiConverterTypeDeskAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Support variant_value:
-                stream.WriteInt(53);
+                stream.WriteInt(54);
                 FfiConverterTypeSupportAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Rooms variant_value:
-                stream.WriteInt(54);
+                stream.WriteInt(55);
                 FfiConverterTypeRoomsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Composer variant_value:
-                stream.WriteInt(55);
+                stream.WriteInt(56);
                 FfiConverterTypeComposerAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Settings variant_value:
-                stream.WriteInt(56);
+                stream.WriteInt(57);
                 FfiConverterTypeSettingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Persona variant_value:
-                stream.WriteInt(57);
+                stream.WriteInt(58);
                 FfiConverterTypePersonaAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.VoiceStudio variant_value:
-                stream.WriteInt(58);
+                stream.WriteInt(59);
                 FfiConverterTypeVoiceStudioAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.CallHandling variant_value:
-                stream.WriteInt(59);
+                stream.WriteInt(60);
                 FfiConverterTypeCallHandlingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Routing variant_value:
-                stream.WriteInt(60);
+                stream.WriteInt(61);
                 FfiConverterTypeRoutingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Directory variant_value:
-                stream.WriteInt(61);
+                stream.WriteInt(62);
                 FfiConverterTypeDirectoryAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Tools variant_value:
-                stream.WriteInt(62);
+                stream.WriteInt(63);
                 FfiConverterTypeToolsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Knowledge variant_value:
-                stream.WriteInt(63);
+                stream.WriteInt(64);
                 FfiConverterTypeKnowledgeAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Messaging variant_value:
-                stream.WriteInt(64);
+                stream.WriteInt(65);
                 FfiConverterTypeMessagingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Members variant_value:
-                stream.WriteInt(65);
+                stream.WriteInt(66);
                 FfiConverterTypeMembersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Numbers variant_value:
-                stream.WriteInt(66);
+                stream.WriteInt(67);
                 FfiConverterTypeNumbersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -29612,6 +30211,37 @@ class FfiConverterOptionalTypeCampaignConfirmView: FfiConverterRustBuffer<Campai
         } else {
             stream.WriteByte(1);
             FfiConverterTypeCampaignConfirmView.INSTANCE.Write((CampaignConfirmView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeComposeView: FfiConverterRustBuffer<ComposeView?> {
+    public static FfiConverterOptionalTypeComposeView INSTANCE = new FfiConverterOptionalTypeComposeView();
+
+    public override ComposeView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeComposeView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(ComposeView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeComposeView.INSTANCE.AllocationSize((ComposeView)value);
+        }
+    }
+
+    public override void Write(ComposeView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeComposeView.INSTANCE.Write((ComposeView)value, stream);
         }
     }
 }
@@ -31359,6 +31989,52 @@ class FfiConverterSequenceTypeChoiceView: FfiConverterRustBuffer<ChoiceView[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeChoiceView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeComposeChannelView: FfiConverterRustBuffer<ComposeChannelView[]> {
+    public static FfiConverterSequenceTypeComposeChannelView INSTANCE = new FfiConverterSequenceTypeComposeChannelView();
+
+    public override ComposeChannelView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ComposeChannelView[length];
+        var readFn = FfiConverterTypeComposeChannelView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ComposeChannelView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeComposeChannelView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ComposeChannelView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeComposeChannelView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

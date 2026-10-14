@@ -6,6 +6,7 @@ use district_core::{
 };
 use district_model::Platform;
 
+use crate::compose::ComposeAction;
 use crate::nav::NavDestination;
 use crate::shell::TabView;
 use crate::views::ReportTarget;
@@ -73,6 +74,11 @@ pub enum UiEvent {
     },
     /// The inbox's search box was cleared.
     ClearSearch,
+    /// The new message form, from the inbox's "New".
+    Compose {
+        /// What was done in it.
+        action: ComposeAction,
+    },
     /// Open a call.
     OpenCall {
         /// Which one.
@@ -303,6 +309,7 @@ impl UiEvent {
             UiEvent::LoadOlder => Event::Thread(ThreadEvent::LoadOlder),
             UiEvent::Search { query } => Event::Inbox(InboxEvent::Search(query)),
             UiEvent::ClearSearch => Event::Inbox(InboxEvent::ClearSearch),
+            UiEvent::Compose { action } => action.event(),
             UiEvent::OpenCall { call_id } => Event::Navigate(Route::CallDetail { call_id }),
             UiEvent::LoadMoreCalls => Event::Calls(CallsEvent::LoadMore),
             UiEvent::OpenContact { contact_id } => {

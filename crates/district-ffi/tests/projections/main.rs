@@ -23,6 +23,7 @@ mod contracts;
 mod account;
 mod calls;
 mod calls_live;
+mod compose;
 mod contacts;
 mod inbox;
 mod overview;
@@ -127,6 +128,7 @@ fn cases() -> Vec<Case> {
         rooms::cases(),
         blocked::cases(),
         composer::cases(),
+        compose::cases(),
         settings::cases(),
     ]
     .into_iter()

@@ -1,0 +1,121 @@
+{
+  "screen": {
+    "Inbox": {
+      "view": {
+        "compose": {
+          "body": "Confirmed for Thursday at 2pm.",
+          "can_send": true,
+          "cancel_label": "Cancel",
+          "change_label": "Change",
+          "channel": 0,
+          "channels": [
+            {
+              "address": "+1 416 555 0142",
+              "name": "Text message"
+            },
+            {
+              "address": "ada@example.com",
+              "name": "Email"
+            }
+          ],
+          "contacts_loading": false,
+          "failure": null,
+          "message_label": "Message",
+          "no_address_note": null,
+          "query": "",
+          "recent_note": "Showing your most recent contacts. For anyone else, type their number or email.",
+          "recipient": "Contract Test Caller",
+          "requires_subject": false,
+          "send_label": "Send",
+          "send_on_label": "Send on",
+          "sending": false,
+          "subject": "",
+          "subject_label": "Subject",
+          "suggestions": [
+            {
+              "contact_id": "contact_contract_1",
+              "detail": "+1 416 555 0142 · ada@example.com",
+              "name": "Contract Test Caller"
+            },
+            {
+              "contact_id": "contact_contract_2",
+              "detail": "sparse@example.com",
+              "name": "Sparse Contact"
+            }
+          ],
+          "suggestions_failed": null,
+          "title": "New message",
+          "to_label": "To",
+          "typed_action": null
+        },
+        "empty": null,
+        "new_message": {
+          "label": "New message",
+          "offered": true
+        },
+        "partial_note": null,
+        "read_only_note": "",
+        "refresh_failure": null,
+        "refreshing": false,
+        "search": {
+          "active": false,
+          "empty": null,
+          "failure": null,
+          "hits": [],
+          "min_query_length": 2,
+          "query": "",
+          "running": false,
+          "truncated": false,
+          "truncated_note": null
+        },
+        "status": "Ready",
+        "threads": [
+          {
+            "can_open": true,
+            "channel_label": "Email, Text message",
+            "last_at": "2026-08-15T14:20:00.000Z",
+            "preview": "Following up by email - could we move Thursday to Friday?",
+            "thread_key": "contact:contact_contract_1",
+            "title": "Contract Test Caller",
+            "unread": true
+          },
+          {
+            "can_open": true,
+            "channel_label": "Text message",
+            "last_at": "2026-08-15T13:10:00.000Z",
+            "preview": "Is this the roofing company?",
+            "thread_key": "addr:14165550181",
+            "title": "+1 416 555 0181",
+            "unread": false
+          }
+        ]
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": false,
+    "live": null,
+    "nav_selected": "Inbox",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
