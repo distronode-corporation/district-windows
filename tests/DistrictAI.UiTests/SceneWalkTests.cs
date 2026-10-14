@@ -617,6 +617,9 @@ public sealed class SceneWalkTests
         _ = app.FindById("SchedulingCalendarSentence", PageTimeout, onScreen: false);
         InstalledApp.Log("the accounts show");
 
+        // The connect card is below the two accounts: scrolled to, as a member does.
+        ScrollTo(app, "SchedulingCalendar", 100);
+
         Press(app.FindById("CalendarConnectgoogle", PageTimeout, onScreen: false));
         Press(app.FindById("CalendarRefresh", PageTimeout, onScreen: false));
         Assert.True(
@@ -624,6 +627,7 @@ public sealed class SceneWalkTests
             "Refresh stayed after the section was read again");
         InstalledApp.Log("the hand-off waited for the browser, and Refresh read again");
 
+        ScrollTo(app, "SchedulingCalendar", 0);
         Press(app.FindById("CalendarChoose", PageTimeout));
         var picker = app.FindById("CalendarPickerDialog", PageTimeout);
         Press(Wait.For(
@@ -644,6 +648,7 @@ public sealed class SceneWalkTests
             Wait.Until(() => app.TryFindById("CalendarPickerDialog") is null, PageTimeout),
             "the calendars stayed open after Escape");
 
+        ScrollTo(app, "SchedulingCalendar", 100);
         app.FindById("CalendarCaldavButton", PageTimeout, onScreen: false).AsButton().Invoke();
         var caldav = app.FindById("CaldavDialog", PageTimeout);
         app.FindById("CaldavUsername", PageTimeout).AsTextBox().Text = "ada@example.com";
@@ -662,6 +667,7 @@ public sealed class SceneWalkTests
             Wait.Until(() => app.TryFindById("CaldavDialog") is null, PageTimeout),
             "the CalDAV form stayed open after Escape");
 
+        ScrollTo(app, "SchedulingCalendar", 0);
         Press(app.FindById("CalendarDisconnect", PageTimeout));
         _ = app.FindById("CalendarDisconnectDialog", PageTimeout);
         Keyboard.Type(VirtualKeyShort.ESCAPE);
@@ -670,6 +676,22 @@ public sealed class SceneWalkTests
             "the disconnect stayed asked after Escape");
         Assert.Null(Failure(app));
         Assert.True(app.IsRunning, "the app ended in the calendars");
+    }
+
+    /// <summary>
+    /// Scrolls the scroll viewer <paramref name="automationId"/> to
+    /// <paramref name="percent"/> of its height (0 the top, 100 the end), as a
+    /// member scrolls to what is below the fold; nothing when it all fits.
+    /// </summary>
+    private static void ScrollTo(InstalledApp app, string automationId, double percent)
+    {
+        // UI Automation's "no scroll" for the axis left alone.
+        const double NoScroll = -1;
+        var viewer = app.FindById(automationId, PageTimeout);
+        if (viewer.Patterns.Scroll.PatternOrDefault is { } scroll && scroll.VerticallyScrollable.ValueOrDefault)
+        {
+            scroll.SetScrollPercent(NoScroll, percent);
+        }
     }
 
     /// <summary>
