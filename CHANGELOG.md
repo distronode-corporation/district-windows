@@ -7,10 +7,27 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Start a new conversation from the Inbox: "New message" picks a recent contact or takes
+  a number or address, chooses text message or email (with a subject), and opens the
+  conversation once it is sent.
+- Manage your workspace's phone numbers: reapply a number's call routing, release a
+  number (asked first), and run a paid number lookup (asked first). A new Carrier tab
+  shows the carrier accounts, the SIP trunks (and creates one), turns one-time passcodes
+  on or off, and files the A2P 10DLC and toll-free registrations. Buying a number stays on
+  the web.
+- Calls ring and messages arrive while the app is closed, through Windows push
+  notifications (the Microsoft Store build). The GitHub build rings only while it runs.
+  Until the shared core reaches 4.0.0-beta.3, quitting the app also removes its push
+  registration.
+
 ### Changed
 
-- The shared core is district-core-rust 4.0.0-beta.1, which keeps every word it shows in
+- The shared core is district-core-rust 4.0.0-beta.2, which keeps every word it shows in
   a catalog, ready for Canadian French. The app still speaks English only.
+- Reporting AI-generated content goes through the shared core, so the Windows and Linux
+  apps send the same report. The dialog and what the support desk receives are unchanged.
 - A call's details word two values as the web portal does: a negative sentiment reads
   "Friction", and a transfer that went through reads "Transferred".
 
