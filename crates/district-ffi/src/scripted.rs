@@ -1180,7 +1180,7 @@ mod tests {
                 preset: "icloud".to_owned(),
                 server_url: String::new(),
                 username: "ada@example.com".to_owned(),
-                app_password: "scripted-app-password".to_owned(),
+                app_password: b"scripted-app-password".to_vec(),
             },
         });
         let view = run(C::ConnectCaldav);

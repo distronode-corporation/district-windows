@@ -136,7 +136,7 @@ fn form(preset: &str, server_url: &str, username: &str, password: &str) -> Calda
         preset: preset.to_owned(),
         server_url: server_url.to_owned(),
         username: username.to_owned(),
-        app_password: password.to_owned(),
+        app_password: password.as_bytes().to_vec(),
     }
 }
 
@@ -921,4 +921,26 @@ fn each_action_is_its_core_event() {
     assert!(printed.contains("nextcloud"));
     let unknown: CaldavForm = form("exchange", "", "ada", "").into();
     assert_eq!(unknown.preset, CaldavPreset::Icloud);
+    // The password travels as UTF-8, whatever it holds.
+    let accented: CaldavForm = form("icloud", "", "ada", "pässwörd-日本").into();
+    assert_eq!(accented.app_password.expose(), "pässwörd-日本");
+}
+
+/// No projection ever holds the app password: every snapshot case's screen
+/// and shell, the CalDAV ones that typed it among them, serialised whole.
+#[test]
+fn no_projection_holds_the_app_password() {
+    let cases = crate::cases();
+    assert!(
+        cases
+            .iter()
+            .any(|(name, _)| *name == "scheduling-admin-calendar-caldav-connecting"),
+        "a case with the password typed and on its way"
+    );
+    for (name, session) in cases {
+        let screen = serde_json::to_string(&screen_view(&session.model)).unwrap();
+        let shell = serde_json::to_string(&district_ffi::shell_view(&session.model)).unwrap();
+        assert!(!screen.contains(PASSWORD), "{name}: {screen}");
+        assert!(!shell.contains(PASSWORD), "{name}: {shell}");
+    }
 }

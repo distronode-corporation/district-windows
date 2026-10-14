@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
@@ -168,8 +169,12 @@ public sealed partial class CalendarPickerViewModel : ObservableObject
 /// <remarks>
 /// The fields are written as the form opens and again once an account
 /// connects (the core empties them), then only by the member; each change
-/// sends the whole form. The app password is kept here only while the form
-/// is open, and goes once an account connects or the form closes.
+/// sends the whole form. The app password is the PasswordBox's: it is never
+/// bound or shown back, only copied here (privately, for the whole form each
+/// change sends) as the member types, and it travels to the core as UTF-8
+/// bytes, which no record's <c>ToString</c> prints. Once an account connects,
+/// or the form closes, the copy goes and <see cref="PasswordCleared"/> empties
+/// the box.
 /// </remarks>
 public sealed partial class CaldavViewModel : ObservableObject
 {
@@ -179,6 +184,7 @@ public sealed partial class CaldavViewModel : ObservableObject
     private bool _writing;
     private bool _open;
     private string? _connected;
+    private string _password = string.Empty;
 
     /// <summary>The form, with nothing shown yet.</summary>
     public CaldavViewModel()
@@ -218,10 +224,6 @@ public sealed partial class CaldavViewModel : ObservableObject
     [ObservableProperty]
     public partial string Username { get; set; } = string.Empty;
 
-    /// <summary>The app password, as typed; never shown back.</summary>
-    [ObservableProperty]
-    public partial string Password { get; set; } = string.Empty;
-
     /// <summary>Why the server's address was refused, or empty.</summary>
     [ObservableProperty]
     public partial string ServerUrlError { get; set; } = string.Empty;
@@ -258,6 +260,9 @@ public sealed partial class CaldavViewModel : ObservableObject
     [ObservableProperty]
     public partial bool HasNotice { get; set; }
 
+    /// <summary>Raised when the app password goes (an account connected, or the form closed): the box empties.</summary>
+    public event EventHandler? PasswordCleared;
+
     internal void Attach(PageContext context)
     {
         _context = context;
@@ -271,9 +276,12 @@ public sealed partial class CaldavViewModel : ObservableObject
         Words = view;
         if (view is null)
         {
-            _open = false;
-            _connected = null;
-            Write(null);
+            if (_open)
+            {
+                _open = false;
+                _connected = null;
+                Write(null);
+            }
             return;
         }
         PresetNote = view.PresetNote;
@@ -309,18 +317,27 @@ public sealed partial class CaldavViewModel : ObservableObject
         Edited();
     }
 
-    /// <summary>The form as the fields hold it.</summary>
+    /// <summary>The app password box now holds <paramref name="value"/>; what it already held sends nothing.</summary>
+    internal void SetPassword(string value)
+    {
+        if (string.Equals(value, _password, StringComparison.Ordinal))
+        {
+            return;
+        }
+        _password = value;
+        Edited();
+    }
+
+    /// <summary>The form as the fields hold it, the app password as UTF-8.</summary>
     internal CaldavFormView Form() => new(
         PresetIndex >= 0 && PresetIndex < _presets.Length ? _presets[PresetIndex] : _openedPreset,
         ServerUrl,
         Username,
-        Password);
+        Encoding.UTF8.GetBytes(_password));
 
     partial void OnServerUrlChanged(string value) => Edited();
 
     partial void OnUsernameChanged(string value) => Edited();
-
-    partial void OnPasswordChanged(string value) => Edited();
 
     /// <summary>Writes the fields from <paramref name="view"/>, the password emptied; all of them emptied for none.</summary>
     private void Write(CaldavView? view)
@@ -331,7 +348,8 @@ public sealed partial class CaldavViewModel : ObservableObject
         {
             ServerUrl = view?.ServerUrl ?? string.Empty;
             Username = view?.Username ?? string.Empty;
-            Password = string.Empty;
+            _password = string.Empty;
+            PasswordCleared?.Invoke(this, EventArgs.Empty);
             _presets = [.. presets.Select(choice => choice.Value)];
             _openedPreset = Array.Find(presets, choice => choice.Selected)?.Value ?? string.Empty;
             Display.Sync(Presets, [.. presets.Select(ChoiceEntry.From)]);

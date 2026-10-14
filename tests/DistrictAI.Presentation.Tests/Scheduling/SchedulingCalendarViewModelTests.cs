@@ -1,3 +1,4 @@
+using System.Text;
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels.Scheduling;
 using Xunit;
@@ -20,7 +21,11 @@ public sealed class SchedulingCalendarViewModelTests
 
     private static readonly FailureView _refused = new("That did not save. Try again.", null, true);
 
-    private const string Secret = "app-password-never-shown";
+    private const string Secret = "s3cret-app-pw";
+
+    /// <summary>What <paramref name="form"/> carries, its app password decoded.</summary>
+    private static (string Preset, string ServerUrl, string Username, string Password) Fields(CaldavFormView form) =>
+        (form.Preset, form.ServerUrl, form.Username, Encoding.UTF8.GetString(form.AppPassword));
 
     private static DialogView Dialog(
         string title,
@@ -370,8 +375,10 @@ public sealed class SchedulingCalendarViewModelTests
         Assert.False(vm.ShowsServerUrl);
         Assert.True(vm.Editable);
         Assert.False(vm.HasServerUrlError || vm.HasUsernameError || vm.HasPasswordError || vm.HasNotice);
-        Assert.Equal(new CaldavFormView("icloud", string.Empty, string.Empty, string.Empty), vm.Form());
+        Assert.Equal(("icloud", string.Empty, string.Empty, string.Empty), Fields(vm.Form()));
         Assert.Empty(sink.Sent);
+        var cleared = 0;
+        vm.PasswordCleared += (_, _) => cleared++;
 
         // Each change sends the whole form; the place chosen sends nothing.
         vm.PickPreset(0);
@@ -380,18 +387,20 @@ public sealed class SchedulingCalendarViewModelTests
         vm.PickPreset(2);
         vm.ServerUrl = "https://dav.example.com";
         vm.Username = "ada";
-        vm.Password = Secret;
+        vm.SetPassword(Secret);
+        vm.SetPassword(Secret);
         var sent = sink.Sent.Select(Action).ToArray();
         Assert.Equal(4, sent.Length);
         Assert.Equal(
-            new CaldavFormView("nextcloud", "https://dav.example.com", "ada", Secret),
-            Assert.IsType<CalendarAction.EditCaldav>(sent[^1]).Form);
+            ("nextcloud", "https://dav.example.com", "ada", Secret),
+            Fields(Assert.IsType<CalendarAction.EditCaldav>(sent[^1]).Form));
         Assert.Equal("nextcloud", Assert.IsType<CalendarAction.EditCaldav>(sent[0]).Form.Preset);
 
         // The core's next snapshot does not write over what is typed.
         model.Show(Page(Calendar(caldav: Caldav(preset: 2, serverUrl: "https://dav.example.com", username: "ada", usernameError: "Enter the username."))));
         Assert.Equal("ada", vm.Username);
-        Assert.Equal(Secret, vm.Password);
+        Assert.Equal(Secret, Fields(vm.Form()).Password);
+        Assert.Equal(0, cleared);
         Assert.True(vm.ShowsServerUrl);
         Assert.Equal("Your own Nextcloud server, at its DAV address.", vm.PresetNote);
         Assert.True(vm.HasUsernameError);
@@ -413,7 +422,8 @@ public sealed class SchedulingCalendarViewModelTests
         Assert.Equal(before, sink.Sent.Count);
         Assert.True(vm.HasNotice);
         Assert.Equal("Calendar connected: caldav@example.com", vm.Notice);
-        Assert.Equal((string.Empty, string.Empty, string.Empty), (vm.ServerUrl, vm.Username, vm.Password));
+        Assert.Equal(("nextcloud", string.Empty, string.Empty, string.Empty), Fields(vm.Form()));
+        Assert.Equal(1, cleared);
         Assert.Equal(2, vm.PresetIndex);
 
         // Another account typed after it is not written over while the notice stays.
@@ -424,10 +434,13 @@ public sealed class SchedulingCalendarViewModelTests
         Assert.True(vm.Dialog.HasFailure);
 
         // Closed: the password goes, and nothing typed then is sent.
-        vm.Password = Secret;
+        vm.SetPassword(Secret);
         model.Show(Page(Calendar()));
         Assert.False(vm.Dialog.IsOpen);
-        Assert.Equal(string.Empty, vm.Password);
+        Assert.Equal(string.Empty, Fields(vm.Form()).Password);
+        Assert.Equal(2, cleared);
+        model.Show(Page(Calendar()));
+        Assert.Equal(2, cleared);
         Assert.Null(vm.Words);
         before = sink.Sent.Count;
         vm.Username = "closed";
@@ -446,6 +459,42 @@ public sealed class SchedulingCalendarViewModelTests
         Assert.False(model.Calendar.Disconnect.IsOpen || model.Calendar.Picker.Dialog.IsOpen || model.Calendar.Caldav.Dialog.IsOpen);
     }
 
+    /// <summary>
+    /// The app password never prints: not from the section's view models, nor
+    /// from the form or any event that carried it, whatever the form held.
+    /// </summary>
+    [Fact]
+    public void TheAppPasswordNeverPrints()
+    {
+        var (model, sink) = Attached();
+        model.Show(Page(Calendar(caldav: Caldav(preset: 2, serverUrl: "https://dav.example.com", username: "ada"))));
+        var vm = model.Calendar.Caldav;
+        vm.Username = "ada@example.com";
+        vm.SetPassword(Secret);
+        vm.Dialog.ConfirmCommand.Execute(null);
+        var form = vm.Form();
+        Assert.Equal(Secret, Fields(form).Password);
+        object[] printed =
+        [
+            model,
+            model.Calendar,
+            vm,
+            vm.Dialog,
+            model.Calendar.Picker,
+            model.Calendar.Disconnect,
+            form,
+            new CalendarAction.EditCaldav(form),
+            .. sink.Sent,
+        ];
+        Assert.True(sink.Sent.Count >= 3);
+        foreach (var item in printed)
+        {
+            var text = item.ToString() ?? string.Empty;
+            Assert.DoesNotContain(Secret, text, StringComparison.Ordinal);
+        }
+        Assert.Contains("ada@example.com", form.ToString(), StringComparison.Ordinal);
+    }
+
     [Fact]
     public void NothingIsSentBeforeAttaching()
     {
@@ -456,6 +505,7 @@ public sealed class SchedulingCalendarViewModelTests
         model.Calendar.Picker.ChooseDestination(1);
         model.Show(Page(Calendar(caldav: Caldav())));
         model.Calendar.Caldav.Username = "ada";
+        model.Calendar.Caldav.SetPassword(Secret);
         var (context, sink) = Pages.Context();
         model.Attach(context);
         Assert.Empty(sink.Sent);

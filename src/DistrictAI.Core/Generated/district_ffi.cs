@@ -5974,7 +5974,8 @@ class FfiConverterTypeBookingsTabView: FfiConverterRustBuffer<BookingsTabView> {
 /// <summary>
 /// The CalDAV form's fields as the window holds them, what a change to the
 /// form sends back whole (`CalendarAction::EditCaldav`). The app password is
-/// left out of its `Debug`.
+/// bytes, so that no `ToString` of the C# record prints it, and is left out of
+/// its `Debug`.
 /// </summary>
 /// <param name="Preset">
 /// Where the calendar lives, by its wire value: `icloud`, `fastmail`,
@@ -5987,7 +5988,7 @@ class FfiConverterTypeBookingsTabView: FfiConverterRustBuffer<BookingsTabView> {
 /// The user name.
 /// </param>
 /// <param name="AppPassword">
-/// The app password.
+/// The app password, as UTF-8.
 /// </param>
 public record CaldavFormView (
     /// <summary>
@@ -6004,9 +6005,9 @@ public record CaldavFormView (
     /// </summary>
     string Username, 
     /// <summary>
-    /// The app password.
+    /// The app password, as UTF-8.
     /// </summary>
-    string AppPassword
+    byte[] AppPassword
 ) {
 }
 
@@ -6018,7 +6019,7 @@ class FfiConverterTypeCaldavFormView: FfiConverterRustBuffer<CaldavFormView> {
             Preset: FfiConverterString.INSTANCE.Read(stream),
             ServerUrl: FfiConverterString.INSTANCE.Read(stream),
             Username: FfiConverterString.INSTANCE.Read(stream),
-            AppPassword: FfiConverterString.INSTANCE.Read(stream)
+            AppPassword: FfiConverterByteArray.INSTANCE.Read(stream)
         );
     }
 
@@ -6027,14 +6028,14 @@ class FfiConverterTypeCaldavFormView: FfiConverterRustBuffer<CaldavFormView> {
             + FfiConverterString.INSTANCE.AllocationSize(value.Preset)
             + FfiConverterString.INSTANCE.AllocationSize(value.ServerUrl)
             + FfiConverterString.INSTANCE.AllocationSize(value.Username)
-            + FfiConverterString.INSTANCE.AllocationSize(value.AppPassword);
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.AppPassword);
     }
 
     public override void Write(CaldavFormView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Preset, stream);
             FfiConverterString.INSTANCE.Write(value.ServerUrl, stream);
             FfiConverterString.INSTANCE.Write(value.Username, stream);
-            FfiConverterString.INSTANCE.Write(value.AppPassword, stream);
+            FfiConverterByteArray.INSTANCE.Write(value.AppPassword, stream);
     }
 }
 

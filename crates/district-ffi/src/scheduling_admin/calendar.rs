@@ -19,9 +19,11 @@
 //! offers Refresh, which reads what is connected.
 //!
 //! The CalDAV form's app password goes from the window to the core inside
-//! the form ([`CaldavFormView`], whose `Debug` leaves it out) and never comes
-//! back: no view here holds it, and once the account is connected the core
-//! empties it.
+//! the form ([`CaldavFormView`]) and never comes back: no view here holds it,
+//! and once the account is connected the core empties it. It travels as UTF-8
+//! bytes, not a string: the form is a generated C# record, whose `ToString`
+//! prints each field, and prints a byte array as its type's name. Its `Debug`
+//! here leaves it out.
 
 use district_core::scheduling_admin::{
     CaldavDialog, CaldavField, CaldavForm, CaldavPreset, CalendarDialog, CalendarEvent,
@@ -211,7 +213,8 @@ pub struct CaldavView {
 
 /// The CalDAV form's fields as the window holds them, what a change to the
 /// form sends back whole (`CalendarAction::EditCaldav`). The app password is
-/// left out of its `Debug`.
+/// bytes, so that no `ToString` of the C# record prints it, and is left out of
+/// its `Debug`.
 #[derive(Clone, PartialEq, Eq, uniffi::Record)]
 pub struct CaldavFormView {
     /// Where the calendar lives, by its wire value: `icloud`, `fastmail`,
@@ -221,8 +224,8 @@ pub struct CaldavFormView {
     pub server_url: String,
     /// The user name.
     pub username: String,
-    /// The app password.
-    pub app_password: String,
+    /// The app password, as UTF-8.
+    pub app_password: Vec<u8>,
 }
 
 impl std::fmt::Debug for CaldavFormView {
@@ -246,7 +249,9 @@ impl From<CaldavFormView> for CaldavForm {
                 .unwrap_or_default(),
             server_url: form.server_url,
             username: form.username,
-            app_password: SchedulingSecret::new(form.app_password),
+            // C# encodes a string, so the bytes are UTF-8; anything else is
+            // kept as near as it can be, and the scheduler refuses it.
+            app_password: SchedulingSecret::new(String::from_utf8_lossy(&form.app_password)),
         }
     }
 }

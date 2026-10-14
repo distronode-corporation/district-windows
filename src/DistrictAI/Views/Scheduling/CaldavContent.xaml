@@ -60,15 +60,16 @@
                 Visibility="{x:Bind ViewModel.HasUsernameError, Mode=OneWay}" />
         </StackPanel>
 
-        <!-- An app password, never the account's: never shown back, and emptied once an account connects. -->
+        <!-- An app password, never the account's: the box's own, never bound or shown back, and emptied once an account connects. -->
         <StackPanel Spacing="4">
             <PasswordBox
+                x:Name="PasswordInput"
                 AutomationProperties.AutomationId="CaldavPassword"
                 AutomationProperties.HelpText="{x:Bind ViewModel.Words.PasswordHint, Mode=OneWay}"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.PasswordLabel, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.PasswordLabel, Mode=OneWay}"
                 IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
-                Password="{x:Bind ViewModel.Password, Mode=TwoWay}" />
+                PasswordChanged="OnPasswordChanged" />
             <TextBlock
                 Style="{StaticResource QuietTextStyle}"
                 Text="{x:Bind ViewModel.Words.PasswordHint, Mode=OneWay}"
