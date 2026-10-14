@@ -42,7 +42,7 @@
         "owned_empty": null,
         "owned_status": "Ready",
         "partial_note": "Could not reach telnyx, so this list may be missing numbers.",
-        "read_only_note": "Numbers cannot be bought, released or changed in this app, so this screen is read only.",
+        "read_only_note": "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
         "refreshing": false,
         "search": "Idle",
         "tab": "Owned",

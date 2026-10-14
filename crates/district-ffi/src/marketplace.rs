@@ -11,7 +11,7 @@
 use district_core::{
     Capabilities, Event, MarketplaceEvent, MarketplaceScreen, MarketplaceTab, Model,
     NumberSearchForm, NumberSearchState, OwnedNumbersList, Route, SignedIn, format_phone_number,
-    price_label,
+    numbers_scope_note, price_label,
 };
 use district_model::{AvailableNumber, OwnedNumber};
 use serde::Serialize;
@@ -60,7 +60,7 @@ impl Default for MarketplaceView {
         Self {
             title: s::marketplace_title(l()).to_owned(),
             tab: NumbersTab::Owned,
-            read_only_note: cs::marketplace_read_only_viewer(l()).to_owned(),
+            read_only_note: numbers_scope_note(false).to_owned(),
             offers_web: false,
             web_action: cs::marketplace_web_action(l()).to_owned(),
             web_caption: cs::marketplace_web_caption(l()).to_owned(),
@@ -82,6 +82,9 @@ pub enum NumbersTab {
     Owned,
     /// The numbers for sale.
     Search,
+    /// The carrier accounts, SIP trunks, one-time passcodes and messaging
+    /// registrations.
+    Carrier,
 }
 
 impl From<MarketplaceTab> for NumbersTab {
@@ -89,6 +92,7 @@ impl From<MarketplaceTab> for NumbersTab {
         match tab {
             MarketplaceTab::Owned => Self::Owned,
             MarketplaceTab::Search => Self::Search,
+            MarketplaceTab::Carrier => Self::Carrier,
         }
     }
 }
@@ -98,6 +102,7 @@ impl From<NumbersTab> for MarketplaceTab {
         match tab {
             NumbersTab::Owned => Self::Owned,
             NumbersTab::Search => Self::Search,
+            NumbersTab::Carrier => Self::Carrier,
         }
     }
 }
@@ -236,7 +241,7 @@ pub(crate) fn screen(_model: &Model, signed_in: &SignedIn) -> ScreenView {
 fn marketplace_view(screen: &MarketplaceScreen, capabilities: &Capabilities) -> MarketplaceView {
     let mut view = MarketplaceView {
         tab: screen.tab.into(),
-        read_only_note: MarketplaceScreen::read_only_note(capabilities).to_owned(),
+        read_only_note: MarketplaceScreen::scope_note(capabilities).to_owned(),
         offers_web: MarketplaceScreen::offers_web(capabilities),
         form: NumberFormView::from(&screen.form),
         search: search_view(&screen.search),
