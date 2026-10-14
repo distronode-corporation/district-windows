@@ -43,6 +43,7 @@
 //!   scheduler profile, which each section names ("Times in ...").
 
 pub mod bookings;
+pub mod calendar;
 pub mod event_types;
 pub mod hours;
 pub mod overview;
@@ -117,7 +118,8 @@ impl SchedulingAdminSection {
             Self::EventTypes => event_types::BUILT,
             Self::Hours => hours::BUILT,
             Self::Bookings => bookings::BUILT,
-            Self::Calendar | Self::Team | Self::Settings | Self::Developer => false,
+            Self::Calendar => calendar::BUILT,
+            Self::Team | Self::Settings | Self::Developer => false,
         }
     }
 }
@@ -209,6 +211,11 @@ pub enum SchedulingAdminPage {
         /// The page.
         view: bookings::SchedulingBookingView,
     },
+    /// The member's calendars.
+    Calendar {
+        /// The page.
+        view: calendar::SchedulingCalendarView,
+    },
 }
 
 /// Something the member did in the administration. A section's pull request
@@ -256,6 +263,11 @@ pub enum SchedulingAdminAction {
         /// What.
         action: bookings::BookingAction,
     },
+    /// On the calendars.
+    Calendar {
+        /// What.
+        action: calendar::CalendarAction,
+    },
 }
 
 /// The core events `action` is, as of now.
@@ -282,6 +294,7 @@ pub(crate) fn events_at(action: SchedulingAdminAction, now: SystemTime) -> Vec<E
         )],
         SchedulingAdminAction::Bookings { action } => bookings::events(action, now),
         SchedulingAdminAction::Booking { action } => bookings::detail_events(action),
+        SchedulingAdminAction::Calendar { action } => calendar::events(action),
     }
 }
 
@@ -310,11 +323,12 @@ pub(crate) fn screen_at(
         SchedulingSection::Hours => hours::page(admin, can_change, now),
         SchedulingSection::Bookings => bookings::list_page(admin, can_change, now),
         SchedulingSection::Booking { id } => bookings::detail_page(admin, id, can_change, now),
+        // A viewer may change their own calendars too.
+        SchedulingSection::Calendar => calendar::page(admin),
         // Not built yet: each section's pull request replaces its arm.
-        SchedulingSection::Calendar
-        | SchedulingSection::Team
-        | SchedulingSection::Settings
-        | SchedulingSection::Developer => return ScreenView::unavailable(),
+        SchedulingSection::Team | SchedulingSection::Settings | SchedulingSection::Developer => {
+            return ScreenView::unavailable();
+        }
     };
     ScreenView::SchedulingAdmin {
         view: SchedulingAdminView {
@@ -466,7 +480,8 @@ mod tests {
                 SchedulingAdminSection::Overview,
                 SchedulingAdminSection::EventTypes,
                 SchedulingAdminSection::Hours,
-                SchedulingAdminSection::Bookings
+                SchedulingAdminSection::Bookings,
+                SchedulingAdminSection::Calendar
             ]
         );
         let selected = entries(Some(SchedulingAdminSection::Bookings));
