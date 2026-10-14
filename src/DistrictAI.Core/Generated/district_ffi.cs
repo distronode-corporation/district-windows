@@ -860,6 +860,12 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -921,6 +927,28 @@ static class _UniFFILib {
     public static extern
 #endif
      RustBuffer uniffi_district_ffi_fn_method_core_open_link(ulong @ptr,RustBuffer @uri,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     sbyte uniffi_district_ffi_fn_method_core_push_received(ulong @ptr,RustBuffer @payload,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_district_ffi_fn_method_core_register_push_channel(ulong @ptr,RustBuffer @channelUri
     );
 
     #if NET8_0_OR_GREATER
@@ -1251,6 +1279,17 @@ static class _UniFFILib {
     public static extern
 #endif
      RustBuffer uniffi_district_ffi_fn_func_brand_palette(sbyte @dark,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_decode_push(RustBuffer @payload,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -1987,6 +2026,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_decode_push(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_knowledge_file(
     );
 
@@ -2032,6 +2082,28 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_district_ffi_checksum_method_core_open_link(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_method_core_push_received(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_method_core_register_push_channel(
     );
 
     #if NET8_0_OR_GREATER
@@ -2308,6 +2380,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_decode_push();
+            if (checksum != 29519) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_decode_push` checksum `29519`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_knowledge_file();
             if (checksum != 31827) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_knowledge_file` checksum `31827`, library returned `{checksum}`");
@@ -2335,6 +2413,18 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_open_link();
             if (checksum != 2805) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_open_link` checksum `2805`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_push_received();
+            if (checksum != 34423) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_push_received` checksum `34423`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_register_push_channel();
+            if (checksum != 33761) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_register_push_channel` checksum `33761`, library returned `{checksum}`");
             }
         }
         {
@@ -2702,6 +2792,19 @@ public interface ICore {
     /// </summary>
     LinkKind OpenLink(string @uri);
     /// <summary>
+    /// A raw WNS push arrived, while the app ran or as what launched it.
+    /// Returns whether it was one this build reads; a ring or a message is
+    /// then handed to the model once the session can take it.
+    /// </summary>
+    bool PushReceived(string @payload);
+    /// <summary>
+    /// Registers the WNS channel `channel_uri` with the service, for the
+    /// member signed in (crate::push): at sign-in, and each time Windows
+    /// renews the channel. Says how it went, for the app's log; nothing in the
+    /// app depends on it. The core's sign-out unregisters it.
+    /// </summary>
+    Task<PushRegistration> RegisterPushChannel(string @channelUri);
+    /// <summary>
     /// The machine has woken: the model registers this desktop's presence
     /// again when it should ring. Nothing waits for that. Ignored before
     /// [`start`](Self::start) and after [`shutdown`](Self::shutdown).
@@ -2887,6 +2990,47 @@ public class Core : ICore, IDisposable {
 )));
     }
     
+    
+    /// <summary>
+    /// A raw WNS push arrived, while the app ran or as what launched it.
+    /// Returns whether it was one this build reads; a ring or a message is
+    /// then handed to the model once the session can take it.
+    /// </summary>
+    public bool PushReceived(string @payload) {
+        return CallWithPointer(thisPtr => FfiConverterBoolean.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_method_core_push_received(thisPtr, FfiConverterString.INSTANCE.Lower(@payload), ref _status)
+)));
+    }
+    
+    
+    /// <summary>
+    /// Registers the WNS channel `channel_uri` with the service, for the
+    /// member signed in (crate::push): at sign-in, and each time Windows
+    /// renews the channel. Says how it went, for the app's log; nothing in the
+    /// app depends on it. The core's sign-out unregisters it.
+    /// </summary>
+    public async Task<PushRegistration> RegisterPushChannel(string @channelUri) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_district_ffi_fn_method_core_register_push_channel(thisPtr, FfiConverterString.INSTANCE.Lower(@channelUri));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_district_ffi_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_district_ffi_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_district_ffi_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypePushRegistration.INSTANCE.Lift(result),
+        // Error
+        NullCallStatusErrorHandler.INSTANCE
+        
+    );
+    }
     
     /// <summary>
     /// The machine has woken: the model registers this desktop's presence
@@ -26887,6 +27031,193 @@ class FfiConverterTypePlanTierView: FfiConverterRustBuffer<PlanTierView> {
 
 
 /// <summary>
+/// What a push says happened. Ids only.
+/// </summary>
+public record PushMessage {
+    
+    /// <summary>
+    /// A call is ringing for this member.
+    /// </summary>
+    public record IncomingCall (
+        string CallId,
+        string WorkspaceId
+    ) : PushMessage {}
+    
+    /// <summary>
+    /// A message arrived.
+    /// </summary>
+    public record Message (
+        string MessageId,
+        string WorkspaceId
+    ) : PushMessage {}
+    
+
+    
+}
+
+class FfiConverterTypePushMessage : FfiConverterRustBuffer<PushMessage>{
+    public static FfiConverterRustBuffer<PushMessage> INSTANCE = new FfiConverterTypePushMessage();
+
+    public override PushMessage Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new PushMessage.IncomingCall(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new PushMessage.Message(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePushMessage.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(PushMessage value) {
+        switch (value) {
+            case PushMessage.IncomingCall variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.CallId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkspaceId);
+            case PushMessage.Message variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.MessageId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkspaceId);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePushMessage.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(PushMessage value, BigEndianStream stream) {
+        switch (value) {
+            case PushMessage.IncomingCall variant_value:
+                stream.WriteInt(1);
+                FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.WorkspaceId, stream);
+                break;
+            case PushMessage.Message variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.MessageId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.WorkspaceId, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePushMessage.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// How registering the channel went. The app logs anything but `Registered`
+/// and carries on: push is an addition, never a condition.
+/// </summary>
+public record PushRegistration {
+    
+    /// <summary>
+    /// The service took it.
+    /// </summary>
+    public record Registered: PushRegistration {}
+    
+    
+    /// <summary>
+    /// Not a WNS channel URI: nothing was sent.
+    /// </summary>
+    public record NotAChannel: PushRegistration {}
+    
+    
+    /// <summary>
+    /// The core is not running, or no one is signed in.
+    /// </summary>
+    public record NotStarted: PushRegistration {}
+    
+    
+    /// <summary>
+    /// The service refused it, or could not be reached.
+    /// </summary>
+    public record Failed (
+        string Reason
+    ) : PushRegistration {}
+    
+
+    
+}
+
+class FfiConverterTypePushRegistration : FfiConverterRustBuffer<PushRegistration>{
+    public static FfiConverterRustBuffer<PushRegistration> INSTANCE = new FfiConverterTypePushRegistration();
+
+    public override PushRegistration Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new PushRegistration.Registered(
+                );
+            case 2:
+                return new PushRegistration.NotAChannel(
+                );
+            case 3:
+                return new PushRegistration.NotStarted(
+                );
+            case 4:
+                return new PushRegistration.Failed(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePushRegistration.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(PushRegistration value) {
+        switch (value) {
+            case PushRegistration.Registered variant_value:
+                return 4;
+            case PushRegistration.NotAChannel variant_value:
+                return 4;
+            case PushRegistration.NotStarted variant_value:
+                return 4;
+            case PushRegistration.Failed variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Reason);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePushRegistration.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(PushRegistration value, BigEndianStream stream) {
+        switch (value) {
+            case PushRegistration.Registered variant_value:
+                stream.WriteInt(1);
+                break;
+            case PushRegistration.NotAChannel variant_value:
+                stream.WriteInt(2);
+                break;
+            case PushRegistration.NotStarted variant_value:
+                stream.WriteInt(3);
+                break;
+            case PushRegistration.Failed variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.Reason, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypePushRegistration.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// How to offer the Report action beside AI-generated content.
 /// </summary>
 public enum ReportAvailability: int {
@@ -33486,6 +33817,37 @@ class FfiConverterOptionalTypeMemberRoleView: FfiConverterRustBuffer<MemberRoleV
 
 
 
+class FfiConverterOptionalTypePushMessage: FfiConverterRustBuffer<PushMessage?> {
+    public static FfiConverterOptionalTypePushMessage INSTANCE = new FfiConverterOptionalTypePushMessage();
+
+    public override PushMessage? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypePushMessage.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(PushMessage? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypePushMessage.INSTANCE.AllocationSize((PushMessage)value);
+        }
+    }
+
+    public override void Write(PushMessage? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypePushMessage.INSTANCE.Write((PushMessage)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeReportStatus: FfiConverterRustBuffer<ReportStatus?> {
     public static FfiConverterOptionalTypeReportStatus INSTANCE = new FfiConverterOptionalTypeReportStatus();
 
@@ -36617,6 +36979,18 @@ public static class DistrictFfi {
         return FfiConverterTypePaletteView.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_district_ffi_fn_func_brand_palette(FfiConverterBoolean.INSTANCE.Lower(@dark), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// What the raw push `payload` says, or `None` for anything else: not JSON, a
+    /// type this build does not know, or an id missing or blank.
+    /// </summary>
+    public static PushMessage? DecodePush(string @payload) {
+        return FfiConverterOptionalTypePushMessage.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_decode_push(FfiConverterString.INSTANCE.Lower(@payload), ref _status)
 ));
     }
 

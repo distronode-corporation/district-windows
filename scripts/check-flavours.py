@@ -18,6 +18,13 @@ compared.
 The ids that Windows scopes to a package (Application/@Id, the startup task's
 TaskId) may be equal in both; the protocol is the same scheme on purpose.
 
+The one exception to "everything else": the Store flavour alone carries the
+Windows App SDK push server (the COM server started with
+`----WindowsAppRuntimePushServer:`), whose class must be the WNS Entra app's
+AppId (PUSH_CLASS). Microsoft maps that app to the Store package family name
+only, and one class can belong to one package, so the GitHub flavour has none
+and rings only while it runs. The check holds both halves of that.
+
 The display names and the description are `ms-resource:Name` references to
 src/DistrictAI/Strings/en-US/Resources.resw (generated from
 src/DistrictAI/l10n/manifest.toml): every name either manifest references must
@@ -44,6 +51,32 @@ COM = "{http://schemas.microsoft.com/appx/manifest/com/windows10}"
 
 ACTIVATOR = f"{DESKTOP}ToastNotificationActivation"
 COM_CLASS = f"{COM}Class"
+COM_EXTENSION = f"{COM}Extension"
+EXE_SERVER = f"{COM}ExeServer"
+
+# The WNS Entra app's AppId: the push server's class (docs/district_windows.md,
+# Microsoft credentials, in the monorepo).
+PUSH_CLASS = "d64b8f8c-2c34-4ccc-b3c3-d876c0479021"
+PUSH_ARGUMENTS = "----WindowsAppRuntimePushServer:"
+
+
+def push_extensions(root: ET.Element) -> list[tuple[ET.Element, ET.Element]]:
+    """Each (parent, com:Extension) that holds the push server."""
+    found = []
+    for parent in root.iter():
+        for child in list(parent):
+            if child.tag == COM_EXTENSION and any(
+                server.get("Arguments") == PUSH_ARGUMENTS for server in child.iter(EXE_SERVER)
+            ):
+                found.append((parent, child))
+    return found
+
+
+def push_classes(root: ET.Element) -> list[str]:
+    """The classes of the push servers in `root`."""
+    return sorted(
+        e.get("Id", "").lower() for _, extension in push_extensions(root) for e in extension.iter(COM_CLASS)
+    )
 
 
 def facts(text: str) -> dict[str, object]:
@@ -51,7 +84,11 @@ def facts(text: str) -> dict[str, object]:
     identity = root.find(f"{FOUNDATION}Identity")
     if identity is None:
         raise ValueError("no Identity element")
+    push = push_classes(root)
+    for parent, extension in push_extensions(root):
+        parent.remove(extension)
     return {
+        "push": push,
         "name": identity.get("Name", ""),
         "publisher": identity.get("Publisher", ""),
         "version": identity.get("Version", ""),
@@ -63,6 +100,8 @@ def facts(text: str) -> dict[str, object]:
 def normalised(text: str) -> str:
     """The manifest with what may differ blanked out, as canonical XML."""
     root = ET.fromstring(text)
+    for parent, extension in push_extensions(root):
+        parent.remove(extension)
     identity = root.find(f"{FOUNDATION}Identity")
     if identity is not None:
         for key in ("Name", "Publisher"):
@@ -109,6 +148,10 @@ def problems(store: str, github: str, resw: str) -> list[str]:
         if len(f["activators"]) != 1 or len(f["classes"]) != 1 or len(guids) != 1:
             found.append(f"the {label} flavour's activator and its COM class must be one GUID, found "
                          f"activators {f['activators']} and classes {f['classes']}")
+    if a["push"] != [PUSH_CLASS]:
+        found.append(f"the Store flavour must have one push server, of class {PUSH_CLASS}, found {a['push']}")
+    if b["push"]:
+        found.append(f"the GitHub flavour must have no push server, found {b['push']}")
     shared = (set(a["activators"]) | set(a["classes"])) & (set(b["activators"]) | set(b["classes"]))
     if shared:
         found.append(f"the flavours share a COM class: {sorted(shared)}")
@@ -143,6 +186,12 @@ def self_test() -> int:
                                                          "<DisplayName>ms-resource:AppDisplayName</DisplayName>"), False),
         ("a display name the resources lack", github.replace("<DisplayName>ms-resource:AppDisplayNameGithub</DisplayName>",
                                                              "<DisplayName>ms-resource:AppDisplayNameOther</DisplayName>"), True),
+        ("a push server in the GitHub flavour", github.replace(
+            "</Extensions>",
+            '<com:Extension Category="windows.comServer"><com:ComServer>'
+            f'<com:ExeServer Executable="DistrictAI.exe" Arguments="{PUSH_ARGUMENTS}" DisplayName="Push">'
+            f'<com:Class Id="{PUSH_CLASS}" DisplayName="Push" /></com:ExeServer></com:ComServer></com:Extension>'
+            "</Extensions>", 1), True),
     ]
     failed = 0
     for name, variant, expect in cases:
@@ -154,6 +203,14 @@ def self_test() -> int:
         if bool(found) != expect:
             failed += 1
             print(f"self-test: {name}: expected {'a problem' if expect else 'none'}, got {found}")
+    # The Store flavour without its push server, or with another class.
+    for name, variant in (
+        ("the Store flavour without its push server", store.replace(f'Arguments="{PUSH_ARGUMENTS}"', 'Arguments="----Other:"')),
+        ("the push server under another class", store.replace(PUSH_CLASS, "00000000-0000-0000-0000-000000000002")),
+    ):
+        if variant == store or not problems(variant, github, resw):
+            failed += 1
+            print(f"self-test: {name}: expected a problem")
     # A .resw without the description: both manifests reference it.
     without = re.sub(r'<data name="AppDescription".*?</data>', "", resw, flags=re.S)
     if without == resw or len(problems(store, github, without)) != 2:
@@ -161,7 +218,7 @@ def self_test() -> int:
         print("self-test: a .resw without AppDescription should be a problem for both manifests")
     if failed:
         return 1
-    print(f"self-test passed: {len(cases) + 1} cases")
+    print(f"self-test passed: {len(cases) + 3} cases")
     return 0
 
 
