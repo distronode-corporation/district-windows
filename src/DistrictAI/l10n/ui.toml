@@ -1926,6 +1926,20 @@ ctx = "button"
 screen = "scheduling"
 tier = "T3"
 
+[scheduling.copy_failed]
+en = "Windows did not copy it. Select it and press Ctrl+C."
+ctx = "body"
+screen = "scheduling"
+tier = "T3"
+note = "Said under an API key or a webhook signing secret, shown once, when Windows refused to put it on the clipboard (another app was holding the clipboard). Ctrl+C is the keyboard shortcut, kept as is."
+
+[scheduling.developer_tabs]
+en = "Developer tabs"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the row of tabs on the Developer section of the booking scheduler's administration (API keys, connected apps, webhooks)."
+
 [scheduling.event_type_notice]
 en = "Event type change"
 ctx = "a11y"
@@ -2035,6 +2049,13 @@ en = "Opens the booking pages on the District AI website in your browser, signed
 ctx = "body"
 screen = "scheduling"
 tier = "T3"
+
+[scheduling.webhook_notice]
+en = "Webhook change"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the banner that says what the last save of a webhook came to (webhook added, webhook updated)."
 
 [scheduling.what_went_wrong]
 en = "What went wrong"

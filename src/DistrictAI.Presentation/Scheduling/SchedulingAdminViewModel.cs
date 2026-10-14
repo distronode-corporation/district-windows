@@ -47,6 +47,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     /// <summary>The scheduler's users and teams.</summary>
     public SchedulingTeamViewModel Team { get; } = new();
 
+    /// <summary>API keys, connected apps and webhooks.</summary>
+    public SchedulingDeveloperViewModel Developer { get; } = new();
+
     /// <summary>The page's heading.</summary>
     [ObservableProperty]
     public partial string Title { get; set; } = string.Empty;
@@ -87,6 +90,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowsTeam { get; set; }
 
+    /// <summary>Whether Developer shows.</summary>
+    [ObservableProperty]
+    public partial bool ShowsDeveloper { get; set; }
+
     internal void Attach(PageContext context)
     {
         _context = context;
@@ -97,6 +104,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         Booking.Attach(context);
         Calendar.Attach(context);
         Team.Attach(context);
+        Developer.Attach(context);
     }
 
     internal void Show(SchedulingAdminView view)
@@ -112,6 +120,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         ShowsBooking = view.Page is SchedulingAdminPage.Booking;
         ShowsCalendar = view.Page is SchedulingAdminPage.Calendar;
         ShowsTeam = view.Page is SchedulingAdminPage.Team;
+        ShowsDeveloper = view.Page is SchedulingAdminPage.Developer;
         // A section left with a dialog open (a deleted event type goes back
         // to its list) closes it.
         if (!ShowsEventTypes)
@@ -133,6 +142,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         if (!ShowsTeam)
         {
             Team.Leave();
+        }
+        if (!ShowsDeveloper)
+        {
+            Developer.Leave();
         }
         switch (view.Page)
         {
@@ -159,6 +172,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
                 break;
             case SchedulingAdminPage.Team team:
                 Team.Show(team.View);
+                break;
+            case SchedulingAdminPage.Developer developer:
+                Developer.Show(developer.View);
                 break;
         }
     }

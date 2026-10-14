@@ -871,6 +871,12 @@ namespace DistrictAI.L10n
         /// <summary><c>scheduling.check_again</c></summary>
         public static string SchedulingCheckAgain => Current == Locale.FrCa ? "Check again" : "Check again";
 
+        /// <summary><c>scheduling.copy_failed</c></summary>
+        public static string SchedulingCopyFailed => Current == Locale.FrCa ? "Windows did not copy it. Select it and press Ctrl+C." : "Windows did not copy it. Select it and press Ctrl+C.";
+
+        /// <summary><c>scheduling.developer_tabs</c></summary>
+        public static string SchedulingDeveloperTabs => Current == Locale.FrCa ? "Developer tabs" : "Developer tabs";
+
         /// <summary><c>scheduling.event_type_notice</c></summary>
         public static string SchedulingEventTypeNotice => Current == Locale.FrCa ? "Event type change" : "Event type change";
 
@@ -918,6 +924,9 @@ namespace DistrictAI.L10n
 
         /// <summary><c>scheduling.web_note</c></summary>
         public static string SchedulingWebNote => Current == Locale.FrCa ? "Opens the booking pages on the District AI website in your browser, signed in as you." : "Opens the booking pages on the District AI website in your browser, signed in as you.";
+
+        /// <summary><c>scheduling.webhook_notice</c></summary>
+        public static string SchedulingWebhookNotice => Current == Locale.FrCa ? "Webhook change" : "Webhook change";
 
         /// <summary><c>scheduling.what_went_wrong</c></summary>
         public static string SchedulingWhatWentWrong => Current == Locale.FrCa ? "What went wrong" : "What went wrong";
