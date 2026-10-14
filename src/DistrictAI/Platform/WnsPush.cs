@@ -30,10 +30,10 @@ internal sealed partial class WnsPush : IDisposable
     internal static readonly Guid RemoteId = new("7ff2db5f-da52-4621-babb-ed927c19892a");
 
     /// <summary>How long before the channel's expiry a new one is asked for. Channels last about 30 days.</summary>
-    private static readonly TimeSpan RenewAhead = TimeSpan.FromDays(1);
+    private static readonly TimeSpan _renewAhead = TimeSpan.FromDays(1);
 
     /// <summary>How soon a failed channel request is tried again.</summary>
-    private static readonly TimeSpan RetryAfter = TimeSpan.FromHours(1);
+    private static readonly TimeSpan _retryAfter = TimeSpan.FromHours(1);
 
     private readonly CoreHost _core;
     private readonly DispatcherQueueTimer _renewal;
@@ -147,7 +147,7 @@ internal sealed partial class WnsPush : IDisposable
             if (result.Status != PushNotificationChannelStatus.CompletedSuccess || result.Channel is null)
             {
                 Log($"no push channel ({result.Status}, 0x{result.ExtendedError.HResult:X8}); the app rings only while it runs");
-                Schedule(RetryAfter);
+                Schedule(_retryAfter);
                 return;
             }
             var channel = result.Channel;
@@ -156,13 +156,13 @@ internal sealed partial class WnsPush : IDisposable
             {
                 Log($"the push channel was not registered: {Describe(registration)}");
             }
-            var renew = channel.ExpirationTime - DateTimeOffset.Now - RenewAhead;
-            Schedule(renew > TimeSpan.Zero ? renew : RetryAfter);
+            var renew = channel.ExpirationTime - DateTimeOffset.Now - _renewAhead;
+            Schedule(renew > TimeSpan.Zero ? renew : _retryAfter);
         }
         catch (Exception error) when (error is System.Runtime.InteropServices.COMException or InvalidOperationException)
         {
             Log($"no push channel: {error.Message}");
-            Schedule(RetryAfter);
+            Schedule(_retryAfter);
         }
         finally
         {
