@@ -345,7 +345,10 @@ public sealed class SceneWalkTests
         _ = app.MainWindow(_startTimeout);
         _ = Heading(app, WorkspaceName, _startTimeout);
 
-        OpenUntilById(app, "NavInbox");
+        // The Inbox's entry is named with its unread count, so the page is
+        // waited for by its heading's id, as the walk does.
+        _ = OpenById(app, "NavInbox");
+        _ = app.FindById("InboxHeading", PageTimeout);
         app.FindById("NewMessageButton", PageTimeout).AsButton().Invoke();
         _ = app.FindById("ComposeTo", PageTimeout);
         var suggestions = app.FindById("ComposeSuggestions", PageTimeout);
