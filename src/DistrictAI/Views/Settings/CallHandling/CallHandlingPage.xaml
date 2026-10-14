@@ -6,7 +6,7 @@
     xmlns:callhandling="using:DistrictAI.Views.Settings.CallHandling"
     xmlns:l10n="using:DistrictAI.L10n"
     xmlns:vm="using:DistrictAI.ViewModels.Settings.CallHandling">
-    <ScrollViewer>
+    <ScrollViewer AutomationProperties.AutomationId="CallHandlingScroll">
         <StackPanel
             MaxWidth="{StaticResource ReadingWidth}"
             Padding="{StaticResource PagePadding}"
@@ -48,12 +48,14 @@
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="vm:CallHandlingModeItem">
                             <RadioButton
+                                AutomationProperties.AutomationId="CallHandlingMode"
                                 AutomationProperties.FullDescription="{x:Bind Body}"
                                 AutomationProperties.Name="{x:Bind Label}"
                                 Click="OnModeClick"
                                 GroupName="CallHandlingMode"
                                 IsChecked="{x:Bind Selected}"
-                                IsEnabled="{x:Bind CanEdit}">
+                                IsEnabled="{x:Bind CanEdit}"
+                                Tag="{x:Bind Mode}">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
                                     <TextBlock
@@ -98,6 +100,7 @@
 
                 <!-- How the last save ended, until dismissed or the form changes. -->
                 <InfoBar
+                    AutomationProperties.AutomationId="CallHandlingNotice"
                     AutomationProperties.Name="{x:Bind l10n:S.CallHandlingSaveStatus}"
                     CloseButtonCommand="{x:Bind ViewModel.DismissNoticesCommand}"
                     IsClosable="True"
@@ -109,6 +112,7 @@
                     Spacing="12"
                     Visibility="{x:Bind ViewModel.ShowSave, Mode=OneWay}">
                     <Button
+                        AutomationProperties.AutomationId="CallHandlingSave"
                         AutomationProperties.Name="{x:Bind l10n:S.CallHandlingSave}"
                         Command="{x:Bind ViewModel.SaveCommand}"
                         Content="{x:Bind l10n:S.CommonSave}"

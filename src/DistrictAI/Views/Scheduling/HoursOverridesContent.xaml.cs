@@ -22,7 +22,9 @@ public sealed partial class HoursOverridesContent : UserControl
 
     private void OnDeleteClick(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is OverrideEntry row)
+        // An ItemsRepeater whose template uses x:Bind gives what it makes no
+        // DataContext, so each Delete carries its row's key in Tag.
+        if ((sender as FrameworkElement)?.Tag is string key && ViewModel.Rows.FirstOrDefault(entry => entry.Key == key) is { } row)
         {
             ViewModel.AskDelete(row);
         }

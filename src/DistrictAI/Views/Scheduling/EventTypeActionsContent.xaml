@@ -34,7 +34,8 @@
                         AutomationProperties.AutomationId="EventTypeTestEmail"
                         AutomationProperties.Name="{x:Bind Label}"
                         Click="OnTestEmailClick"
-                        Content="{x:Bind Label}" />
+                        Content="{x:Bind Label}"
+                        Tag="{x:Bind Value}" />
                 </DataTemplate>
             </ItemsRepeater.ItemTemplate>
         </ItemsRepeater>

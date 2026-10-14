@@ -59,7 +59,8 @@
                                 AutomationProperties.AutomationId="EventTypeQuestionEdit"
                                 AutomationProperties.Name="{x:Bind EditName}"
                                 Click="OnEditClick"
-                                Content="{x:Bind EditLabel}" />
+                                Content="{x:Bind EditLabel}"
+                                Tag="{x:Bind Id}" />
                             <Button
                                 Grid.Column="2"
                                 VerticalAlignment="Center"
@@ -67,7 +68,8 @@
                                 AutomationProperties.Name="{x:Bind DeleteName}"
                                 Click="OnDeleteClick"
                                 Content="{x:Bind DeleteLabel}"
-                                Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Tag="{x:Bind Id}" />
                         </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
@@ -162,7 +164,8 @@
                                     AutomationProperties.AutomationId="EventTypeQuestionRemoveOption"
                                     AutomationProperties.Name="{x:Bind RemoveName}"
                                     Click="OnRemoveOptionClick"
-                                    Content="{x:Bind RemoveLabel}" />
+                                    Content="{x:Bind RemoveLabel}"
+                                    Tag="{x:Bind Option}" />
                             </Grid>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>

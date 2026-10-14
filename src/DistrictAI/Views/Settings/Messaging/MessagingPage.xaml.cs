@@ -26,8 +26,11 @@ public sealed partial class MessagingPage : UserControl
 
     internal void Show(MessagingView view) => ViewModel.Show(view);
 
-    private static MessagingAccountItem? AccountOf(object sender) =>
-        (sender as FrameworkElement)?.DataContext as MessagingAccountItem;
+    // An ItemsRepeater whose template uses x:Bind gives what it makes no
+    // DataContext, so each row's control carries its account's id (or its
+    // channel) in Tag.
+    private MessagingAccountItem? AccountOf(object sender) =>
+        (sender as FrameworkElement)?.Tag is string id ? ViewModel.Accounts.FirstOrDefault(account => account.Id == id) : null;
 
     private void OnMakeDefault(object sender, RoutedEventArgs e)
     {
@@ -55,7 +58,7 @@ public sealed partial class MessagingPage : UserControl
 
     private void OnSenderChosen(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is ComboBox { DataContext: ChannelSenderItem channel } picker)
+        if (sender is ComboBox { Tag: SenderChannel kind } picker && ViewModel.Channels.FirstOrDefault(item => item.Channel == kind) is { } channel)
         {
             ViewModel.ChooseSender(channel, picker.SelectedIndex);
         }

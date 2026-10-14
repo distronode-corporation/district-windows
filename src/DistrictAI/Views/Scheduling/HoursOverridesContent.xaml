@@ -63,7 +63,8 @@
                                 AutomationProperties.Name="{x:Bind DeleteName}"
                                 Click="OnDeleteClick"
                                 Content="{x:Bind DeleteLabel}"
-                                Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Tag="{x:Bind Key}" />
                         </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>

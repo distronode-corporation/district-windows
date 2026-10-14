@@ -22,6 +22,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Slider
+                            AutomationProperties.AutomationId="StudioSlider"
                             AutomationProperties.Name="{x:Bind Label, Mode=OneWay}"
                             Header="{x:Bind Label, Mode=OneWay}"
                             IsEnabled="{x:Bind SliderEnabled, Mode=OneWay}"
@@ -35,10 +36,12 @@
                             Text="{x:Bind ValueText, Mode=OneWay}" />
                     </Grid>
                     <CheckBox
+                        AutomationProperties.AutomationId="StudioUseDefault"
                         AutomationProperties.Name="{x:Bind DefaultLabel, Mode=OneWay}"
                         Click="OnDefaultClick"
                         Content="{x:Bind DefaultLabel, Mode=OneWay}"
                         IsChecked="{x:Bind UseDefault, Mode=OneWay}"
+                        Tag="{x:Bind Key}"
                         Visibility="{x:Bind HasDefault, Mode=OneWay}" />
                 </StackPanel>
                 <ComboBox
@@ -68,7 +71,7 @@
             </StackPanel>
         </DataTemplate>
     </UserControl.Resources>
-    <ScrollViewer>
+    <ScrollViewer AutomationProperties.AutomationId="VoiceStudioScroll">
         <StackPanel
             MaxWidth="{StaticResource ReadingWidth}"
             Padding="{StaticResource PagePadding}"
@@ -186,6 +189,7 @@
                     Style="{StaticResource SectionHeaderStyle}"
                     Text="{x:Bind ViewModel.ChainLabel, Mode=OneWay}" />
                 <ListView
+                    AutomationProperties.AutomationId="StudioChain"
                     AutomationProperties.Name="{x:Bind ViewModel.ChainLabel, Mode=OneWay}"
                     IsItemClickEnabled="True"
                     ItemClick="OnBlockClick"
@@ -254,6 +258,7 @@
                             <Expander
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Stretch"
+                                AutomationProperties.AutomationId="StudioAdvanced"
                                 AutomationProperties.Name="{x:Bind ViewModel.AdvancedLabel, Mode=OneWay}"
                                 Header="{x:Bind ViewModel.AdvancedLabel, Mode=OneWay}"
                                 Visibility="{x:Bind ViewModel.HasAdvanced, Mode=OneWay}">

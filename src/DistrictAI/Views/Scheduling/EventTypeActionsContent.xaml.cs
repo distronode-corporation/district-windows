@@ -22,7 +22,9 @@ public sealed partial class EventTypeActionsContent : UserControl
 
     private void OnTestEmailClick(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is ChoiceEntry email)
+        // An ItemsRepeater whose template uses x:Bind gives what it makes no
+        // DataContext, so each link carries its email's kind in Tag.
+        if ((sender as FrameworkElement)?.Tag is string kind && ViewModel.TestEmails.FirstOrDefault(entry => entry.Value == kind) is { } email)
         {
             ViewModel.SendTestEmail(email);
         }

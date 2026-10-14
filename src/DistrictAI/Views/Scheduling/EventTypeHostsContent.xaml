@@ -81,7 +81,8 @@
                                 AutomationProperties.Name="{x:Bind RoleName}"
                                 ItemsSource="{x:Bind Roles}"
                                 SelectedIndex="{x:Bind RoleIndex}"
-                                SelectionChanged="OnRoleChanged" />
+                                SelectionChanged="OnRoleChanged"
+                                Tag="{x:Bind UserId}" />
                             <TextBox
                                 Grid.Column="2"
                                 Width="72"
@@ -90,6 +91,7 @@
                                 AutomationProperties.Name="{x:Bind PriorityName}"
                                 InputScope="Number"
                                 PlaceholderText="{x:Bind PriorityLabel}"
+                                Tag="{x:Bind UserId}"
                                 Text="{x:Bind Priority}"
                                 TextChanged="OnPriorityChanged"
                                 ToolTipService.ToolTip="{x:Bind PriorityLabel}" />
@@ -99,7 +101,8 @@
                                 AutomationProperties.AutomationId="EventTypeHostRemove"
                                 AutomationProperties.Name="{x:Bind RemoveName}"
                                 Click="OnRemoveClick"
-                                Content="{x:Bind RemoveLabel}" />
+                                Content="{x:Bind RemoveLabel}"
+                                Tag="{x:Bind UserId}" />
                         </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
@@ -131,7 +134,8 @@
                                     AutomationProperties.AutomationId="EventTypeHostAdd"
                                     AutomationProperties.Name="{x:Bind AddName}"
                                     Click="OnAddClick"
-                                    Content="{x:Bind AddLabel}" />
+                                    Content="{x:Bind AddLabel}"
+                                    Tag="{x:Bind UserId}" />
                             </Grid>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>

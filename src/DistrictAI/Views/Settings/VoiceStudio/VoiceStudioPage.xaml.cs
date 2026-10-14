@@ -44,7 +44,10 @@ public sealed partial class VoiceStudioPage : UserControl
 
     private void OnDefaultClick(object sender, RoutedEventArgs e)
     {
-        if (sender is CheckBox { DataContext: StudioTuningItem item } box)
+        // An ItemsRepeater whose template uses x:Bind gives what it makes no
+        // DataContext, so each box carries its control's key in Tag.
+        if (sender is CheckBox { Tag: string key } box
+            && ViewModel.Controls.Concat(ViewModel.AdvancedControls).FirstOrDefault(control => control.Key == key) is { } item)
         {
             item.UseDefault = box.IsChecked == true;
         }

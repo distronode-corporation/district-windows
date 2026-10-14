@@ -122,15 +122,19 @@
                                         <Button
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
+                                            AutomationProperties.AutomationId="WorkflowRunsButton"
                                             AutomationProperties.Name="{x:Bind RunsButtonName}"
                                             Click="OnRunsClick"
-                                            Content="{x:Bind RunsButtonLabel}" />
+                                            Content="{x:Bind RunsButtonLabel}"
+                                            Tag="{x:Bind Key}" />
                                         <ToggleSwitch
                                             Grid.Column="2"
                                             VerticalAlignment="Center"
+                                            AutomationProperties.AutomationId="WorkflowSwitch"
                                             AutomationProperties.Name="{x:Bind SwitchName}"
                                             IsEnabled="{x:Bind CanSwitch}"
                                             IsOn="{x:Bind Active}"
+                                            Tag="{x:Bind Key}"
                                             Toggled="OnSwitchToggled" />
                                     </Grid>
                                 </Border>
@@ -143,7 +147,10 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Spacing="2">
-                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind When}" />
+                                        <TextBlock
+                                            AutomationProperties.AutomationId="WorkflowRunWhen"
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            Text="{x:Bind When}" />
                                         <TextBlock
                                             IsTextSelectionEnabled="True"
                                             Style="{StaticResource QuietTextStyle}"
@@ -201,10 +208,12 @@
                                         TextWrapping="Wrap"
                                         Visibility="{x:Bind HasRunsFailure}" />
                                     <Button
+                                        AutomationProperties.AutomationId="WorkflowMoreRuns"
                                         AutomationProperties.Name="{x:Bind MoreLabel}"
                                         Click="OnMoreRunsClick"
                                         Content="{x:Bind MoreLabel}"
                                         IsEnabled="{x:Bind CanLoadMore}"
+                                        Tag="{x:Bind Key}"
                                         Visibility="{x:Bind CanLoadMore}" />
                                     <Button
                                         AutomationProperties.AutomationId="TryAgainButton"

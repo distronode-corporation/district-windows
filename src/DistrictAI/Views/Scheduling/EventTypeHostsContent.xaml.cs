@@ -21,7 +21,12 @@ public sealed partial class EventTypeHostsContent : UserControl
     /// <summary>The dialog's fields.</summary>
     public EventTypeHostsViewModel ViewModel { get; }
 
-    private static HostEntry? HostOf(object sender) => (sender as FrameworkElement)?.DataContext as HostEntry;
+    // An ItemsRepeater whose template uses x:Bind gives what it makes no
+    // DataContext, so each row's control carries its person's id in Tag.
+    private static string? IdOf(object sender) => (sender as FrameworkElement)?.Tag as string;
+
+    private HostEntry? HostOf(object sender) =>
+        IdOf(sender) is { } id ? ViewModel.Hosts.FirstOrDefault(host => host.UserId == id) : null;
 
     private void OnRoutingChanged(object sender, SelectionChangedEventArgs e) => ViewModel.PickRouting(RoutingChooser.SelectedIndex);
 
@@ -53,7 +58,7 @@ public sealed partial class EventTypeHostsContent : UserControl
 
     private void OnAddClick(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is CandidateEntry candidate)
+        if (IdOf(sender) is { } id && ViewModel.Candidates.FirstOrDefault(entry => entry.UserId == id) is { } candidate)
         {
             ViewModel.Add(candidate);
         }

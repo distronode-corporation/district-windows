@@ -252,9 +252,16 @@ fn signed_in(effect: Effect) -> Option<Event> {
             ticket,
             result: decode(fixture!("district-workflows.json")),
         },
-        Effect::LoadWorkflowRuns { ticket, .. } => Event::WorkflowRunsLoaded {
+        // The first page of a workflow's runs is the recorded one, which says
+        // there are more; the page after it is the same runs under ids of
+        // their own, and the last.
+        Effect::LoadWorkflowRuns { ticket, offset, .. } => Event::WorkflowRunsLoaded {
             ticket,
-            result: decode(fixture!("district-workflow-runs.json")),
+            result: if offset == 0 {
+                decode(fixture!("district-workflow-runs.json"))
+            } else {
+                later_runs(offset)
+            },
         },
         Effect::LoadCampaign { ticket, .. } => Event::CampaignLoaded {
             ticket,
@@ -357,6 +364,13 @@ fn signed_in(effect: Effect) -> Option<Event> {
         Effect::LoadMessaging { ticket, .. } => Event::MessagingLoaded {
             ticket,
             result: decode(fixture!("district-messaging.json")),
+        },
+        // A carrier account's write lands, as the service answers each kind;
+        // the accounts are then read again, from the fixture above. The
+        // owner's number is not answered.
+        Effect::WriteMessaging { ticket, write, .. } => Event::SettingsWritten {
+            ticket,
+            result: written(messaging_answer(&write)?),
         },
         Effect::LoadMembers { ticket, .. } => Event::MembersLoaded {
             ticket,
@@ -490,6 +504,25 @@ fn scheduling_admin(
                 soon(&mut data, 2);
             } else if data.get("date").is_some() {
                 soon_day(&mut data, 2);
+            } else if let (
+                R::Users {
+                    include_archived: None,
+                },
+                Some(users),
+            ) = (request, data.as_array_mut())
+            {
+                // Who could be added as a host, or take a booking (not the
+                // team's list of members): one more member, active and no
+                // event type's host, so an event type's hosts offer someone.
+                if let Some(mut colleague) = users.first().cloned() {
+                    colleague["id"] = json!("sched-user-scripted");
+                    colleague["email"] = json!("colleague@example.com");
+                    colleague["name"] = json!("Scripted Colleague");
+                    colleague["is_admin"] = json!(false);
+                    colleague["is_owner"] = json!(false);
+                    colleague["role"] = json!("member");
+                    users.push(colleague);
+                }
             } else if let (R::Bookings(_) | R::Overrides, Some(items)) =
                 (request, data.get_mut("items").and_then(Value::as_array_mut))
             {
@@ -551,6 +584,33 @@ fn soon_day(item: &mut Value, days: u64) {
         .map_or(0, |since| since.as_secs() / 86_400);
     let day = crate::calls_live::iso_utc(UNIX_EPOCH + Duration::from_secs((today + days) * 86_400));
     item["date"] = json!(day[..10]);
+}
+
+/// The service's answer to a carrier account `write`, or `None` for the
+/// owner's number, which goes unanswered.
+fn messaging_answer(write: &district_core::MessagingWrite) -> Option<&'static str> {
+    use district_core::MessagingWrite as W;
+    Some(match write {
+        W::SaveAccount(_) => fixture!("district-messaging-upsert.json"),
+        W::SetDefault(_) => fixture!("district-messaging-set-default.json"),
+        W::SetChannelDefault(_) => fixture!("district-messaging-channel-default.json"),
+        W::Delete(_) => fixture!("district-messaging-delete.json"),
+        W::CreatorCell(_) => return None,
+    })
+}
+
+/// The page of a workflow's runs after the first `offset` runs: the recorded
+/// runs under ids of their own, and nothing after them.
+fn later_runs(offset: u32) -> Result<district_model::WorkflowRunsResponse, ApiError> {
+    let mut page: Value =
+        serde_json::from_str(fixture!("district-workflow-runs.json")).map_err(|_| broken())?;
+    for run in page["runs"].as_array_mut().ok_or_else(broken)? {
+        let id = format!("{}-{offset}", run["id"].as_str().unwrap_or("run"));
+        run["id"] = json!(id);
+    }
+    page["offset"] = json!(offset);
+    page["hasMore"] = json!(false);
+    serde_json::from_value(page).map_err(|_| broken())
 }
 
 /// Call handling as stored: `mode` and `ring` where a save names them, else
@@ -904,8 +964,15 @@ mod tests {
         })) else {
             panic!("not the bookings");
         };
-        // The scene's one other user is archived: nobody else can take it.
-        assert_eq!(view.reassign.expect("the host dialog").hosts, []);
+        // The scene's one other active member can take it.
+        let hosts: Vec<String> = view
+            .reassign
+            .expect("the host dialog")
+            .hosts
+            .into_iter()
+            .map(|host| host.value)
+            .collect();
+        assert_eq!(hosts, ["sched-user-scripted"]);
         let _ = run(bookings(BookingsAction::CloseDialog));
 
         let P::Booking { view } = run(A::OpenBooking {
@@ -1014,12 +1081,57 @@ mod tests {
         let hosts = view.hosts_dialog.expect("the hosts");
         assert_eq!(hosts.hosts.len(), 2);
         assert!(hosts.dialog.can_confirm);
+        // The scene's one active member who is not a host is offered, and
+        // added; a priority that is not a whole number is refused at the
+        // save, and the host is taken off again.
+        let candidates: Vec<&str> = hosts.candidates.iter().map(|c| c.value.as_str()).collect();
+        assert_eq!(candidates, ["sched-user-scripted"]);
+        let hosts_of = |page: P| match page {
+            P::EventType { view } => view.hosts_dialog.expect("the hosts"),
+            other => panic!("not an event type: {other:?}"),
+        };
+        let added = hosts_of(run(detail(E::AddHost {
+            user_id: "sched-user-scripted".to_owned(),
+        })));
+        assert_eq!(added.hosts.len(), 3);
+        assert_eq!(added.candidates, []);
+        let _ = run(detail(E::SetHostPriority {
+            user_id: "sched-user-scripted".to_owned(),
+            priority: "first".to_owned(),
+        }));
+        let refused = hosts_of(run(detail(E::SaveHosts)));
+        assert!(refused.validation.is_some());
+        let removed = hosts_of(run(detail(E::RemoveHost {
+            user_id: "sched-user-scripted".to_owned(),
+        })));
+        assert_eq!(removed.hosts.len(), 2);
         let P::EventType { view } = run(detail(E::SaveHosts)) else {
             panic!("not an event type");
         };
         assert_eq!(view.hosts_dialog, None);
 
         let _ = run(detail(E::OpenQuestions));
+        // The first question is a choice: its form opens on its options, and
+        // one is taken off.
+        let options = |page: P| match page {
+            P::EventType { view } => {
+                view.questions_dialog
+                    .and_then(|q| q.form)
+                    .expect("the question form")
+                    .form
+                    .options
+            }
+            other => panic!("not an event type: {other:?}"),
+        };
+        let held = options(run(detail(E::EditQuestion {
+            id: "q-contract-1".to_owned(),
+        })));
+        assert_eq!(held.len(), 3);
+        let left = options(run(detail(E::RemoveOption {
+            option: held[0].clone(),
+        })));
+        assert_eq!(left, held[1..]);
+        let _ = run(detail(E::CancelQuestion));
         let P::EventType { view } = run(detail(E::AddQuestion)) else {
             panic!("not an event type");
         };
@@ -1101,7 +1213,47 @@ mod tests {
         let week = view.week_editor.expect("the week's editor");
         assert_eq!(week.days.len(), 7);
         assert!(week.dialog.can_confirm);
-        let _ = run(hours(H::AddRange { day: 0 }));
+        // What the UI walk does with the rows: Monday has no window, and the
+        // one weekday with a window offers to copy it.
+        assert_eq!(week.days[0].ranges, []);
+        let source = week
+            .days
+            .iter()
+            .find(|day| day.offers_copy)
+            .expect("a day offers its windows")
+            .clone();
+        assert!(source.day > 0 && source.day < 5, "{source:?}");
+        let week = run(hours(H::AddRange { day: 0 }))
+            .week_editor
+            .expect("still open");
+        let key = week.days[0].ranges[0].key;
+        let start = |value: &str| H::SetRangeStart {
+            day: 0,
+            key,
+            value: value.to_owned(),
+        };
+        let week = run(hours(start("nine"))).week_editor.expect("still open");
+        assert!(week.days[0].ranges[0].error.is_some());
+        assert!(!week.dialog.can_confirm);
+        let week = run(hours(start("08:30"))).week_editor.expect("still open");
+        assert_eq!(week.days[0].ranges[0].error, None);
+        let week = run(hours(H::SetRangeEnd {
+            day: 0,
+            key,
+            value: "8".to_owned(),
+        }))
+        .week_editor
+        .expect("still open");
+        assert!(week.days[0].ranges[0].error.is_some());
+        let week = run(hours(H::RemoveRange { day: 0, key }))
+            .week_editor
+            .expect("still open");
+        assert_eq!(week.days[0].ranges, []);
+        assert!(week.dialog.can_confirm);
+        let week = run(hours(H::CopyToWeekdays { day: source.day }))
+            .week_editor
+            .expect("still open");
+        assert_eq!(week.days[0].ranges.len(), source.ranges.len());
         let view = run(hours(H::SaveWeek));
         let week = view.week_editor.expect("still open");
         assert_eq!(week.notice.as_deref(), Some("Working hours saved"));
@@ -1537,6 +1689,180 @@ mod tests {
         let studio = view.studio.expect("read back");
         assert!(!studio.saving);
         assert!(studio.notice.is_some(), "{studio:?}");
+    }
+
+    /// The carrier accounts' row controls, as the UI walk presses them: a
+    /// channel's sender is changed and a default made, each landing; Edit
+    /// opens the form on the account; Remove asks first, and the removal
+    /// lands.
+    #[test]
+    fn the_messaging_writes_land() {
+        use crate::settings::messaging::MessagingAction as M;
+        let mut model = started();
+        let _ = after(
+            &mut model,
+            Event::Navigate(Route::Workspace(district_core::WorkspaceSection::Messaging)),
+        );
+        let mut run = |action: M| {
+            let mut pending = Vec::new();
+            for event in (crate::events::UiEvent::Messaging { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::Messaging { view } = screen else {
+                panic!("not the carrier accounts: {screen:?}");
+            };
+            view
+        };
+        let view = run(M::Open);
+        let first = view.accounts[0].clone();
+        assert!(first.offers_make_default && first.offers_edit && first.offers_remove);
+        assert_eq!(first.id, "acct-twilio");
+        // The first channel's picker offers another account than its own.
+        let channel = view.channels[0].clone();
+        assert!(view.channels_editable);
+        let other = channel
+            .picker
+            .choices
+            .iter()
+            .find(|choice| !choice.value.is_empty() && choice.value != channel.picker.selected)
+            .expect("another account to send from")
+            .value
+            .clone();
+        let view = run(M::SetChannelSender {
+            channel: channel.channel,
+            account_id: other,
+        });
+        assert!(view.notice.is_some_and(|notice| notice.saved));
+        let _ = run(M::DismissNotice);
+        let view = run(M::MakeDefault {
+            account_id: first.id.clone(),
+        });
+        assert!(view.notice.is_some_and(|notice| notice.saved));
+        let view = run(M::StartEdit {
+            account_id: first.id.clone(),
+        });
+        assert!(view.form.is_some());
+        let view = run(M::CloseForm);
+        assert!(view.form.is_none());
+        let view = run(M::AskRemove {
+            account_id: first.id.clone(),
+        });
+        assert!(view.confirm.is_some());
+        let view = run(M::ConfirmRemove);
+        assert!(view.confirm.is_none());
+        assert!(view.notice.is_some_and(|notice| notice.saved));
+    }
+
+    /// A workflow's runs open on the recorded page, which offers more; the
+    /// next page adds runs of its own and is the last. A switch's change is
+    /// sent and goes unanswered, so the switch waits for it.
+    #[test]
+    fn a_workflows_runs_page_on_and_its_switch_waits() {
+        use crate::workflows::WorkflowsAction as W;
+        let mut model = started();
+        let mut run = |action: W| {
+            let mut pending = Vec::new();
+            for event in (crate::events::UiEvent::Workflows { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::Workflows { view } = screen else {
+                panic!("not the workflows: {screen:?}");
+            };
+            view
+        };
+        let view = run(W::Open);
+        let first = view.rows[0].workflow_id.clone();
+        let view = run(W::ToggleExpanded {
+            workflow_id: first.clone(),
+        });
+        let runs = view.rows[0].runs.clone().expect("the runs");
+        assert_eq!(runs.runs.len(), 4);
+        assert!(runs.can_load_more);
+        let view = run(W::LoadMoreRuns {
+            workflow_id: first.clone(),
+        });
+        let runs = view.rows[0].runs.clone().expect("the runs");
+        assert_eq!(runs.runs.len(), 8);
+        assert!(!runs.can_load_more);
+        let second = view.rows[1].clone();
+        assert!(second.can_switch);
+        let view = run(W::SetActive {
+            workflow_id: second.workflow_id.clone(),
+            active: !second.active,
+        });
+        assert_eq!(view.rows[1].active, !second.active);
+        assert!(view.rows[1].switching && !view.rows[1].can_switch);
+    }
+
+    /// Voice Studio's Voice part has a slider left at the service's default,
+    /// behind Advanced, which the UI walk sets: the slider then holds a value.
+    #[test]
+    fn voice_studio_offers_a_slider_left_at_its_default() {
+        use crate::settings::voice_studio::{
+            StudioControlView as C, StudioEditorView, VoiceStudioAction,
+        };
+        let mut model = started();
+        let _ = after(
+            &mut model,
+            Event::Navigate(Route::Workspace(district_core::WorkspaceSection::Hub)),
+        );
+        let ScreenView::VoiceStudio { view } = after(
+            &mut model,
+            Event::Navigate(Route::Workspace(
+                district_core::WorkspaceSection::VoiceStudio,
+            )),
+        ) else {
+            panic!("Voice Studio opens");
+        };
+        // The walk opens the Voice part as the chain's last block.
+        let blocks = view.studio.expect("read").blocks;
+        assert_eq!(blocks.last().map(|block| block.leg.as_str()), Some("tts"));
+        let mut run = |action: VoiceStudioAction| -> StudioEditorView {
+            let mut pending = Vec::new();
+            for event in (crate::events::UiEvent::VoiceStudio { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let ScreenView::VoiceStudio { view } = screen_view(&model) else {
+                panic!("Voice Studio stays open");
+            };
+            view.studio.expect("read").editor
+        };
+        let editor = run(VoiceStudioAction::SelectLeg {
+            leg: "tts".to_owned(),
+        });
+        let (key, start) = editor
+            .controls
+            .iter()
+            .find_map(|control| match &control.control {
+                C::Slider {
+                    value: None,
+                    default_label: Some(_),
+                    start,
+                    ..
+                } if control.advanced => Some((control.key.clone(), *start)),
+                _ => None,
+            })
+            .expect("a slider at its default, behind Advanced");
+        let editor = run(VoiceStudioAction::SetNumber {
+            key: key.clone(),
+            value: Some(start),
+        });
+        let set = editor
+            .controls
+            .iter()
+            .find(|control| control.key == key)
+            .expect("the slider");
+        assert!(
+            matches!(set.control, C::Slider { value: Some(value), .. } if value == start),
+            "{set:?}"
+        );
     }
 
     /// The walk's one step past the pane: the inbox's first conversation

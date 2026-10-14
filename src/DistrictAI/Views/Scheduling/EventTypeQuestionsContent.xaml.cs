@@ -22,7 +22,11 @@ public sealed partial class EventTypeQuestionsContent : UserControl
     /// <summary>The dialog's fields.</summary>
     public EventTypeQuestionsViewModel ViewModel { get; }
 
-    private static QuestionEntry? QuestionOf(object sender) => (sender as FrameworkElement)?.DataContext as QuestionEntry;
+    // An ItemsRepeater whose template uses x:Bind gives what it makes no
+    // DataContext, so each row's button carries its question's id, or its
+    // option, in Tag.
+    private QuestionEntry? QuestionOf(object sender) =>
+        (sender as FrameworkElement)?.Tag is string id ? ViewModel.Questions.FirstOrDefault(question => question.Id == id) : null;
 
     private void OnEditClick(object sender, RoutedEventArgs e)
     {
@@ -44,7 +48,7 @@ public sealed partial class EventTypeQuestionsContent : UserControl
 
     private void OnRemoveOptionClick(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is OptionEntry option)
+        if ((sender as FrameworkElement)?.Tag is string value && ViewModel.Options.FirstOrDefault(entry => entry.Option == value) is { } option)
         {
             ViewModel.RemoveOption(option);
         }
