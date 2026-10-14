@@ -87,6 +87,7 @@ public sealed class SceneWalkTests
     private static readonly string[] _schedulingSections =
     [
         "SchedulingSectionOverview",
+        "SchedulingSectionEventTypes",
         "SchedulingSectionBookings",
     ];
 
@@ -472,6 +473,61 @@ public sealed class SceneWalkTests
         InstalledApp.Log("the booking shows its answers and offers the cancel");
         Assert.Null(Failure(app));
         Assert.True(app.IsRunning, "the app ended in the bookings");
+    }
+
+    /// <summary>
+    /// The event types' main flow: the list opens from the Booking pages
+    /// page, an event type opens with its details, hosts and questions, and
+    /// its editor opens on the stored form and saves it: the scene answers the
+    /// save, so the core closes the dialog. The state actions open too, and
+    /// Escape closes them without changing anything.
+    /// </summary>
+    [Fact]
+    public void AnEventTypeOpensAndItsEditorSaves()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        var eventTypes = OpenSettingsRowById(app, "SchedulingSectionEventTypes");
+        _ = Heading(app, eventTypes, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("EventTypeCreateButton", PageTimeout);
+        var list = app.FindById("SchedulingEventTypesList", PageTimeout);
+        var first = Wait.For(
+            () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
+            PageTimeout,
+            "an event type in the list",
+            app.Describe);
+        Activate(first);
+        _ = Heading(app, null, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("SchedulingEventTypeName", PageTimeout);
+        InstalledApp.Log("the event type shows its details");
+
+        app.FindById("EventTypeEditButton", PageTimeout).AsButton().Invoke();
+        var editor = app.FindById("EventTypeEditorDialog", PageTimeout);
+        _ = app.FindById("EventTypeEditorName", PageTimeout);
+        var save = Wait.For(
+            () => editor.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")),
+            PageTimeout,
+            "the editor's Save",
+            app.Describe);
+        Press(save);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("EventTypeEditorDialog") is null, PageTimeout),
+            "the editor stayed open after its save");
+        InstalledApp.Log("the editor saved and closed");
+
+        app.FindById("EventTypeManageButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("EventTypeActionsDialog", PageTimeout);
+        _ = app.FindById("EventTypeActionsDelete", PageTimeout);
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("EventTypeActionsDialog") is null, PageTimeout),
+            "the state actions stayed open after Escape");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the event types");
     }
 
     /// <summary>

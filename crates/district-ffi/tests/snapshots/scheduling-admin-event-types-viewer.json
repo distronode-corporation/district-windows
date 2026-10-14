@@ -1,0 +1,97 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "EventTypes": {
+            "view": {
+              "create": null,
+              "create_label": "Create event type",
+              "empty": {
+                "body": "An event type is a page a customer can book. Create one and its booking page goes live.",
+                "title": "No event types yet"
+              },
+              "offers_create": false,
+              "rows": [
+                {
+                  "booking_page": "https://book.example.com/book/phone-consultation",
+                  "name": "Phone consultation",
+                  "slug": "phone-consultation",
+                  "state_label": "Active",
+                  "subtitle": "30 min · Phone",
+                  "tone": "Success"
+                },
+                {
+                  "booking_page": "Not public",
+                  "name": "Site visit",
+                  "slug": "site-visit",
+                  "state_label": "Archived",
+                  "subtitle": "60 min · In person",
+                  "tone": "Neutral"
+                }
+              ],
+              "status": "Ready"
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": true,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          }
+        ],
+        "title": "Event types"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

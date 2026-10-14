@@ -1,0 +1,172 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "EventType": {
+            "view": {
+              "actions": {
+                "archive_label": "Archive",
+                "can_act": true,
+                "delete": {
+                  "body": "Its booking page stops working. Existing bookings keep their times.",
+                  "cancel": "Cancel",
+                  "confirm": "Delete event type",
+                  "title": "Delete event type?"
+                },
+                "delete_label": "Delete event type",
+                "dialog": {
+                  "body": "",
+                  "can_confirm": false,
+                  "close": "Cancel",
+                  "confirm": "",
+                  "destructive": false,
+                  "failure": null,
+                  "title": "Phone consultation",
+                  "working": false
+                },
+                "notice": null,
+                "test_email_heading": "Send test email",
+                "test_emails": [
+                  {
+                    "label": "Confirmation",
+                    "selected": false,
+                    "value": "confirmation"
+                  },
+                  {
+                    "label": "Cancellation",
+                    "selected": false,
+                    "value": "cancellation"
+                  },
+                  {
+                    "label": "Reschedule",
+                    "selected": false,
+                    "value": "reschedule"
+                  },
+                  {
+                    "label": "Reminder",
+                    "selected": false,
+                    "value": "reminder"
+                  }
+                ],
+                "toggle_label": "Turn off"
+              },
+              "description": "",
+              "details_heading": "Details",
+              "edit_label": "Edit",
+              "editor": null,
+              "facts": [
+                {
+                  "label": "Duration",
+                  "value": "30 min"
+                },
+                {
+                  "label": "Starts every",
+                  "value": "15 min"
+                },
+                {
+                  "label": "Location",
+                  "value": "Built-in video"
+                },
+                {
+                  "label": "Minimum notice",
+                  "value": "0 min"
+                },
+                {
+                  "label": "Bookable up to",
+                  "value": "30 days ahead"
+                },
+                {
+                  "label": "State",
+                  "value": "Active"
+                }
+              ],
+              "hosts": [
+                {
+                  "label": "Contract Member",
+                  "value": "Required"
+                },
+                {
+                  "label": "Rotation Host",
+                  "value": "Rotation · archived"
+                }
+              ],
+              "hosts_dialog": null,
+              "hosts_heading": "Hosts",
+              "hosts_label": "Hosts",
+              "hosts_status": "Ready",
+              "manage_label": "Manage",
+              "name": "Phone consultation",
+              "no_hosts": "No hosts are assigned, so this event type cannot be booked.",
+              "no_questions": "This event type asks no questions.",
+              "offers_writes": true,
+              "questions": [
+                {
+                  "label": "Which product are you asking about?",
+                  "value": "Select · required"
+                },
+                {
+                  "label": "Anything we should read first?",
+                  "value": "Text"
+                }
+              ],
+              "questions_dialog": null,
+              "questions_heading": "Questions",
+              "questions_label": "Questions",
+              "questions_status": "Ready",
+              "slug": "phone-consultation",
+              "status": "Ready"
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": true,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          }
+        ],
+        "title": "Event type"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

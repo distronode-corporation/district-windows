@@ -1,5 +1,6 @@
 //! The booking scheduler's administration (src/scheduling_admin/): the
-//! overview, the bookings and one booking.
+//! overview, the bookings and one booking; each later section's cases are in
+//! its own file under scheduling_admin/.
 //!
 //! The fixtures' bookings are in September 2026. Where a booking must still
 //! be to come (so that it can be acted on) it is moved to 2099, and the move
@@ -16,6 +17,8 @@ use district_ffi::scheduling_admin::{
 use district_model::{SchedulingAdminReply, SchedulingAdminRequest};
 
 use super::*;
+
+pub(crate) mod event_types;
 
 /// This area's snapshot cases.
 pub(crate) fn cases() -> Vec<Case> {

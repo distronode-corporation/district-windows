@@ -21,6 +21,8 @@ public sealed partial class SchedulingSectionPage : UserControl
         // takes them away. The core drops them when a section is entered again.
         Unloaded += (_, _) =>
         {
+            EventTypesPanel.CloseDialogs();
+            EventTypePanel.CloseDialogs();
             BookingsPanel.CloseDialogs();
             BookingPanel.CloseDialogs();
         };
@@ -32,6 +34,8 @@ public sealed partial class SchedulingSectionPage : UserControl
     internal void Attach(PageContext context)
     {
         ViewModel.Attach(context);
+        EventTypesPanel.Attach(ViewModel.EventTypes, context);
+        EventTypePanel.Attach(ViewModel.EventType, context);
         BookingsPanel.Attach(ViewModel.Bookings, context);
         BookingPanel.Attach(ViewModel.Booking, context);
     }
@@ -39,6 +43,8 @@ public sealed partial class SchedulingSectionPage : UserControl
     internal void Show(SchedulingAdminView view)
     {
         ViewModel.Show(view);
+        EventTypesPanel.SyncDialogs();
+        EventTypePanel.SyncDialogs();
         BookingsPanel.SyncDialogs();
         BookingPanel.SyncDialogs();
     }

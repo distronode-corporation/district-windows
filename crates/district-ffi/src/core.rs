@@ -136,8 +136,9 @@ pub(crate) enum Message {
     /// An event for the model.
     Event(Box<Event>),
     /// Something the user did: one or more events for the model, delivered in
-    /// order before the window is told.
-    Ui(UiEvent),
+    /// order before the window is told. Boxed: a form's edit carries the
+    /// whole form.
+    Ui(Box<UiEvent>),
     /// The machine is about to sleep: tell the model, run what it asks for,
     /// and answer once that has settled or [`SUSPEND_BUDGET`] has passed. The
     /// actor keeps running.
@@ -299,7 +300,7 @@ impl Core {
     /// order. Ignored before [`start`](Self::start) and after
     /// [`shutdown`](Self::shutdown).
     pub fn send(&self, event: UiEvent) {
-        self.deliver(Message::Ui(event));
+        self.deliver(Message::Ui(Box::new(event)));
     }
 
     /// Hands the model a `districtai:` link Windows activated the app with,
@@ -687,7 +688,7 @@ impl<X: Effects> Actor<X> {
                 }
                 Message::Ui(action) => {
                     let mut next = Vec::new();
-                    let events = match action {
+                    let events = match *action {
                         UiEvent::DiscardChanges => self.held.discard(),
                         UiEvent::KeepEditing => {
                             self.held.keep();

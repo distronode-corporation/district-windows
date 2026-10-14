@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.EventTypeHostsContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:sched="using:DistrictAI.ViewModels.Scheduling">
+    <StackPanel MinWidth="440" Spacing="12">
+        <ProgressRing
+            Width="20"
+            Height="20"
+            HorizontalAlignment="Left"
+            AutomationProperties.AutomationId="EventTypeHostsLoading"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+            IsActive="{x:Bind ViewModel.Loading, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Loading, Mode=OneWay}" />
+        <TextBlock
+            AutomationProperties.AutomationId="EventTypeHostsReadFailure"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Text="{x:Bind ViewModel.FailureMessage, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.Failed, Mode=OneWay}" />
+
+        <!-- Only a list that was read can be saved: the scheduler replaces it whole. -->
+        <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.Ready, Mode=OneWay}">
+            <ComboBox
+                x:Name="RoutingChooser"
+                HorizontalAlignment="Stretch"
+                AutomationProperties.AutomationId="EventTypeHostsRouting"
+                AutomationProperties.Name="{x:Bind ViewModel.RoutingLabel, Mode=OneWay}"
+                Header="{x:Bind ViewModel.RoutingLabel, Mode=OneWay}"
+                ItemsSource="{x:Bind ViewModel.RoutingModes}"
+                SelectedIndex="{x:Bind ViewModel.RoutingIndex, Mode=OneWay}"
+                SelectionChanged="OnRoutingChanged" />
+            <ComboBox
+                x:Name="RotationChooser"
+                HorizontalAlignment="Stretch"
+                AutomationProperties.AutomationId="EventTypeHostsRotation"
+                AutomationProperties.HelpText="{x:Bind ViewModel.RotationHint, Mode=OneWay}"
+                AutomationProperties.Name="{x:Bind ViewModel.RotationLabel, Mode=OneWay}"
+                Description="{x:Bind ViewModel.RotationHint, Mode=OneWay}"
+                Header="{x:Bind ViewModel.RotationLabel, Mode=OneWay}"
+                ItemsSource="{x:Bind ViewModel.Rotations}"
+                SelectedIndex="{x:Bind ViewModel.RotationIndex, Mode=OneWay}"
+                SelectionChanged="OnRotationChanged"
+                Visibility="{x:Bind ViewModel.ShowsRotation, Mode=OneWay}" />
+
+            <TextBlock
+                AutomationProperties.AutomationId="EventTypeHostsEmpty"
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.EmptyText, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind ViewModel.ShowEmpty, Mode=OneWay}" />
+            <ItemsRepeater AutomationProperties.AutomationId="EventTypeHostsList" ItemsSource="{x:Bind ViewModel.Hosts}">
+                <ItemsRepeater.Layout>
+                    <StackLayout Spacing="8" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="sched:HostEntry">
+                        <Grid
+                            AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                            AutomationProperties.Name="{x:Bind AccessibleName}"
+                            ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center" Spacing="2">
+                                <TextBlock Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind Email}"
+                                    TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <ComboBox
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                AutomationProperties.AutomationId="EventTypeHostRole"
+                                AutomationProperties.Name="{x:Bind RoleName}"
+                                ItemsSource="{x:Bind Roles}"
+                                SelectedIndex="{x:Bind RoleIndex}"
+                                SelectionChanged="OnRoleChanged" />
+                            <TextBox
+                                Grid.Column="2"
+                                Width="72"
+                                VerticalAlignment="Center"
+                                AutomationProperties.AutomationId="EventTypeHostPriority"
+                                AutomationProperties.Name="{x:Bind PriorityName}"
+                                InputScope="Number"
+                                PlaceholderText="{x:Bind PriorityLabel}"
+                                Text="{x:Bind Priority}"
+                                TextChanged="OnPriorityChanged"
+                                ToolTipService.ToolTip="{x:Bind PriorityLabel}" />
+                            <Button
+                                Grid.Column="3"
+                                VerticalAlignment="Center"
+                                AutomationProperties.AutomationId="EventTypeHostRemove"
+                                AutomationProperties.Name="{x:Bind RemoveName}"
+                                Click="OnRemoveClick"
+                                Content="{x:Bind RemoveLabel}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+
+            <!-- The scheduler's users who are not hosts yet and not archived. -->
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasCandidates, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level3"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="{x:Bind l10n:S.SchedulingHostsAdd}" />
+                <ItemsRepeater AutomationProperties.AutomationId="EventTypeHostCandidates" ItemsSource="{x:Bind ViewModel.Candidates}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="4" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="sched:CandidateEntry">
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Text="{x:Bind Name}"
+                                    TextTrimming="CharacterEllipsis" />
+                                <Button
+                                    Grid.Column="1"
+                                    AutomationProperties.AutomationId="EventTypeHostAdd"
+                                    AutomationProperties.Name="{x:Bind AddName}"
+                                    Click="OnAddClick"
+                                    Content="{x:Bind AddLabel}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </StackPanel>
+        </StackPanel>
+
+        <TextBlock
+            AutomationProperties.AutomationId="EventTypeHostsValidation"
+            AutomationProperties.LiveSetting="Polite"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Text="{x:Bind ViewModel.Validation, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.HasValidation, Mode=OneWay}" />
+        <InfoBar
+            AutomationProperties.AutomationId="EventTypeHostsFailure"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.Dialog.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Dialog.Failure, Mode=OneWay}"
+            Severity="Error" />
+        <ProgressRing
+            Width="20"
+            Height="20"
+            HorizontalAlignment="Left"
+            AutomationProperties.AutomationId="EventTypeHostsWorking"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+            IsActive="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>

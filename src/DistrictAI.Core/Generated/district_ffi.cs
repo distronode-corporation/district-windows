@@ -11023,6 +11023,1193 @@ class FfiConverterTypeEmptyView: FfiConverterRustBuffer<EmptyView> {
 
 
 /// <summary>
+/// An event type's state actions: on or off, archive or restore, a test
+/// email of each kind to the member, and delete, asked once more.
+/// </summary>
+/// <param name="Dialog">
+/// Its title (the event type's name), the way out, and why the last
+/// action failed. It has no confirm: each action is its own button.
+/// </param>
+/// <param name="ToggleLabel">
+/// "Turn off" for an active one, "Turn on" otherwise.
+/// </param>
+/// <param name="ArchiveLabel">
+/// "Archive", or "Restore" for an archived one.
+/// </param>
+/// <param name="TestEmailHeading">
+/// "Send test email".
+/// </param>
+/// <param name="TestEmails">
+/// The test emails: the kind sent, and its label.
+/// </param>
+/// <param name="DeleteLabel">
+/// "Delete event type".
+/// </param>
+/// <param name="CanAct">
+/// Whether an action can be pressed: none is on its way.
+/// </param>
+/// <param name="Notice">
+/// What the last action came to ("Event type turned off"), until it is
+/// put away (`EventTypeAction::DismissNotice`).
+/// </param>
+/// <param name="Delete">
+/// The delete, while it is being asked about.
+/// </param>
+public record EventTypeActionsView (
+    /// <summary>
+    /// Its title (the event type's name), the way out, and why the last
+    /// action failed. It has no confirm: each action is its own button.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// "Turn off" for an active one, "Turn on" otherwise.
+    /// </summary>
+    string ToggleLabel, 
+    /// <summary>
+    /// "Archive", or "Restore" for an archived one.
+    /// </summary>
+    string ArchiveLabel, 
+    /// <summary>
+    /// "Send test email".
+    /// </summary>
+    string TestEmailHeading, 
+    /// <summary>
+    /// The test emails: the kind sent, and its label.
+    /// </summary>
+    ChoiceRowView[] TestEmails, 
+    /// <summary>
+    /// "Delete event type".
+    /// </summary>
+    string DeleteLabel, 
+    /// <summary>
+    /// Whether an action can be pressed: none is on its way.
+    /// </summary>
+    bool CanAct, 
+    /// <summary>
+    /// What the last action came to ("Event type turned off"), until it is
+    /// put away (`EventTypeAction::DismissNotice`).
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// The delete, while it is being asked about.
+    /// </summary>
+    SchedulingAskView? Delete
+) {
+}
+
+class FfiConverterTypeEventTypeActionsView: FfiConverterRustBuffer<EventTypeActionsView> {
+    public static FfiConverterTypeEventTypeActionsView INSTANCE = new FfiConverterTypeEventTypeActionsView();
+
+    public override EventTypeActionsView Read(BigEndianStream stream) {
+        return new EventTypeActionsView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            ToggleLabel: FfiConverterString.INSTANCE.Read(stream),
+            ArchiveLabel: FfiConverterString.INSTANCE.Read(stream),
+            TestEmailHeading: FfiConverterString.INSTANCE.Read(stream),
+            TestEmails: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            DeleteLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanAct: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Delete: FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(EventTypeActionsView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ToggleLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ArchiveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TestEmailHeading)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.TestEmails)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeleteLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAct)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeSchedulingAskView.INSTANCE.AllocationSize(value.Delete);
+    }
+
+    public override void Write(EventTypeActionsView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.ToggleLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ArchiveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.TestEmailHeading, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.TestEmails, stream);
+            FfiConverterString.INSTANCE.Write(value.DeleteLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanAct, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Write(value.Delete, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The create or edit form: a create shows the name, the booking page it
+/// makes, the duration and the location; an edit shows every field.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("Create event type", "Edit event type"), the save ("Save",
+/// "Saving…"), the way out and the save's failure.
+/// </param>
+/// <param name="Creating">
+/// Whether this is a create, which shows the short form.
+/// </param>
+/// <param name="Form">
+/// The fields, as the core holds them.
+/// </param>
+/// <param name="BookingPage">
+/// The booking page's slug: the event type's own, or the one a create
+/// makes from the name, avoiding the slugs listed.
+/// </param>
+/// <param name="DurationShown">
+/// The duration as read: "45 min", or "Not set" while it is not a number.
+/// </param>
+/// <param name="Locations">
+/// The location types to choose from, the one in the form selected.
+/// </param>
+/// <param name="LocationValueLabel">
+/// The location value field's label ("Phone number", "Address", "Meeting
+/// link"), or `None` for a location that makes its own link.
+/// </param>
+/// <param name="Validation">
+/// Why the form cannot be sent, before anything was sent.
+/// </param>
+/// <param name="NameLabel">
+/// "Name".
+/// </param>
+/// <param name="NamePlaceholder">
+/// The name's placeholder.
+/// </param>
+/// <param name="BookingPageLabel">
+/// "Booking page".
+/// </param>
+/// <param name="BookingPageHint">
+/// That it cannot be changed.
+/// </param>
+/// <param name="DescriptionLabel">
+/// "Description".
+/// </param>
+/// <param name="DescriptionHint">
+/// Where it shows.
+/// </param>
+/// <param name="DurationLabel">
+/// "Duration".
+/// </param>
+/// <param name="DurationHint">
+/// In minutes.
+/// </param>
+/// <param name="IntervalLabel">
+/// "Starts every".
+/// </param>
+/// <param name="IntervalHint">
+/// What it means.
+/// </param>
+/// <param name="LocationLabel">
+/// "Location".
+/// </param>
+/// <param name="ActiveLabel">
+/// The switch that says it can be booked.
+/// </param>
+/// <param name="ListedLabel">
+/// The switch that lists it on the booking page.
+/// </param>
+/// <param name="ShowTakenLabel">
+/// The switch that shows taken times as taken.
+/// </param>
+/// <param name="BufferBeforeLabel">
+/// "Buffer before".
+/// </param>
+/// <param name="BufferBeforeHint">
+/// What it keeps free.
+/// </param>
+/// <param name="BufferAfterLabel">
+/// "Buffer after".
+/// </param>
+/// <param name="BufferAfterHint">
+/// What it keeps free.
+/// </param>
+/// <param name="MinNoticeLabel">
+/// "Minimum notice".
+/// </param>
+/// <param name="MinNoticeHint">
+/// What it means.
+/// </param>
+/// <param name="MaxFutureLabel">
+/// "Bookable ahead".
+/// </param>
+/// <param name="MaxFutureHint">
+/// "0 means no limit."
+/// </param>
+/// <param name="MaxActiveLabel">
+/// "Active bookings per attendee".
+/// </param>
+/// <param name="MaxActiveHint">
+/// "0 means no limit."
+/// </param>
+public record EventTypeEditorView (
+    /// <summary>
+    /// Its title ("Create event type", "Edit event type"), the save ("Save",
+    /// "Saving…"), the way out and the save's failure.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// Whether this is a create, which shows the short form.
+    /// </summary>
+    bool Creating, 
+    /// <summary>
+    /// The fields, as the core holds them.
+    /// </summary>
+    EventTypeFormView Form, 
+    /// <summary>
+    /// The booking page's slug: the event type's own, or the one a create
+    /// makes from the name, avoiding the slugs listed.
+    /// </summary>
+    string BookingPage, 
+    /// <summary>
+    /// The duration as read: "45 min", or "Not set" while it is not a number.
+    /// </summary>
+    string DurationShown, 
+    /// <summary>
+    /// The location types to choose from, the one in the form selected.
+    /// </summary>
+    ChoiceRowView[] Locations, 
+    /// <summary>
+    /// The location value field's label ("Phone number", "Address", "Meeting
+    /// link"), or `None` for a location that makes its own link.
+    /// </summary>
+    string? LocationValueLabel, 
+    /// <summary>
+    /// Why the form cannot be sent, before anything was sent.
+    /// </summary>
+    string? Validation, 
+    /// <summary>
+    /// "Name".
+    /// </summary>
+    string NameLabel, 
+    /// <summary>
+    /// The name's placeholder.
+    /// </summary>
+    string NamePlaceholder, 
+    /// <summary>
+    /// "Booking page".
+    /// </summary>
+    string BookingPageLabel, 
+    /// <summary>
+    /// That it cannot be changed.
+    /// </summary>
+    string BookingPageHint, 
+    /// <summary>
+    /// "Description".
+    /// </summary>
+    string DescriptionLabel, 
+    /// <summary>
+    /// Where it shows.
+    /// </summary>
+    string DescriptionHint, 
+    /// <summary>
+    /// "Duration".
+    /// </summary>
+    string DurationLabel, 
+    /// <summary>
+    /// In minutes.
+    /// </summary>
+    string DurationHint, 
+    /// <summary>
+    /// "Starts every".
+    /// </summary>
+    string IntervalLabel, 
+    /// <summary>
+    /// What it means.
+    /// </summary>
+    string IntervalHint, 
+    /// <summary>
+    /// "Location".
+    /// </summary>
+    string LocationLabel, 
+    /// <summary>
+    /// The switch that says it can be booked.
+    /// </summary>
+    string ActiveLabel, 
+    /// <summary>
+    /// The switch that lists it on the booking page.
+    /// </summary>
+    string ListedLabel, 
+    /// <summary>
+    /// The switch that shows taken times as taken.
+    /// </summary>
+    string ShowTakenLabel, 
+    /// <summary>
+    /// "Buffer before".
+    /// </summary>
+    string BufferBeforeLabel, 
+    /// <summary>
+    /// What it keeps free.
+    /// </summary>
+    string BufferBeforeHint, 
+    /// <summary>
+    /// "Buffer after".
+    /// </summary>
+    string BufferAfterLabel, 
+    /// <summary>
+    /// What it keeps free.
+    /// </summary>
+    string BufferAfterHint, 
+    /// <summary>
+    /// "Minimum notice".
+    /// </summary>
+    string MinNoticeLabel, 
+    /// <summary>
+    /// What it means.
+    /// </summary>
+    string MinNoticeHint, 
+    /// <summary>
+    /// "Bookable ahead".
+    /// </summary>
+    string MaxFutureLabel, 
+    /// <summary>
+    /// "0 means no limit."
+    /// </summary>
+    string MaxFutureHint, 
+    /// <summary>
+    /// "Active bookings per attendee".
+    /// </summary>
+    string MaxActiveLabel, 
+    /// <summary>
+    /// "0 means no limit."
+    /// </summary>
+    string MaxActiveHint
+) {
+}
+
+class FfiConverterTypeEventTypeEditorView: FfiConverterRustBuffer<EventTypeEditorView> {
+    public static FfiConverterTypeEventTypeEditorView INSTANCE = new FfiConverterTypeEventTypeEditorView();
+
+    public override EventTypeEditorView Read(BigEndianStream stream) {
+        return new EventTypeEditorView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Creating: FfiConverterBoolean.INSTANCE.Read(stream),
+            Form: FfiConverterTypeEventTypeFormView.INSTANCE.Read(stream),
+            BookingPage: FfiConverterString.INSTANCE.Read(stream),
+            DurationShown: FfiConverterString.INSTANCE.Read(stream),
+            Locations: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            LocationValueLabel: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Validation: FfiConverterOptionalString.INSTANCE.Read(stream),
+            NameLabel: FfiConverterString.INSTANCE.Read(stream),
+            NamePlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            BookingPageLabel: FfiConverterString.INSTANCE.Read(stream),
+            BookingPageHint: FfiConverterString.INSTANCE.Read(stream),
+            DescriptionLabel: FfiConverterString.INSTANCE.Read(stream),
+            DescriptionHint: FfiConverterString.INSTANCE.Read(stream),
+            DurationLabel: FfiConverterString.INSTANCE.Read(stream),
+            DurationHint: FfiConverterString.INSTANCE.Read(stream),
+            IntervalLabel: FfiConverterString.INSTANCE.Read(stream),
+            IntervalHint: FfiConverterString.INSTANCE.Read(stream),
+            LocationLabel: FfiConverterString.INSTANCE.Read(stream),
+            ActiveLabel: FfiConverterString.INSTANCE.Read(stream),
+            ListedLabel: FfiConverterString.INSTANCE.Read(stream),
+            ShowTakenLabel: FfiConverterString.INSTANCE.Read(stream),
+            BufferBeforeLabel: FfiConverterString.INSTANCE.Read(stream),
+            BufferBeforeHint: FfiConverterString.INSTANCE.Read(stream),
+            BufferAfterLabel: FfiConverterString.INSTANCE.Read(stream),
+            BufferAfterHint: FfiConverterString.INSTANCE.Read(stream),
+            MinNoticeLabel: FfiConverterString.INSTANCE.Read(stream),
+            MinNoticeHint: FfiConverterString.INSTANCE.Read(stream),
+            MaxFutureLabel: FfiConverterString.INSTANCE.Read(stream),
+            MaxFutureHint: FfiConverterString.INSTANCE.Read(stream),
+            MaxActiveLabel: FfiConverterString.INSTANCE.Read(stream),
+            MaxActiveHint: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(EventTypeEditorView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Creating)
+            + FfiConverterTypeEventTypeFormView.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BookingPage)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DurationShown)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Locations)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LocationValueLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Validation)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NameLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NamePlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BookingPageLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BookingPageHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DescriptionLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DescriptionHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DurationLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DurationHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.IntervalLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.IntervalHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LocationLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ActiveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ListedLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ShowTakenLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BufferBeforeLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BufferBeforeHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BufferAfterLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BufferAfterHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MinNoticeLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MinNoticeHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MaxFutureLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MaxFutureHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MaxActiveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MaxActiveHint);
+    }
+
+    public override void Write(EventTypeEditorView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Creating, stream);
+            FfiConverterTypeEventTypeFormView.INSTANCE.Write(value.Form, stream);
+            FfiConverterString.INSTANCE.Write(value.BookingPage, stream);
+            FfiConverterString.INSTANCE.Write(value.DurationShown, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Locations, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.LocationValueLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Validation, stream);
+            FfiConverterString.INSTANCE.Write(value.NameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.NamePlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.BookingPageLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BookingPageHint, stream);
+            FfiConverterString.INSTANCE.Write(value.DescriptionLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DescriptionHint, stream);
+            FfiConverterString.INSTANCE.Write(value.DurationLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DurationHint, stream);
+            FfiConverterString.INSTANCE.Write(value.IntervalLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.IntervalHint, stream);
+            FfiConverterString.INSTANCE.Write(value.LocationLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ActiveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ListedLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ShowTakenLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BufferBeforeLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BufferBeforeHint, stream);
+            FfiConverterString.INSTANCE.Write(value.BufferAfterLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BufferAfterHint, stream);
+            FfiConverterString.INSTANCE.Write(value.MinNoticeLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.MinNoticeHint, stream);
+            FfiConverterString.INSTANCE.Write(value.MaxFutureLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.MaxFutureHint, stream);
+            FfiConverterString.INSTANCE.Write(value.MaxActiveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.MaxActiveHint, stream);
+    }
+}
+
+
+
+/// <summary>
+/// An event type's fields as the form holds them: numbers as typed, so a box
+/// emptied to retype it stays empty. What a change to the form sends back
+/// whole (`EventTypeAction::EditForm`).
+/// </summary>
+/// <param name="Name">
+/// Its name.
+/// </param>
+/// <param name="Description">
+/// What the booking page says about it.
+/// </param>
+/// <param name="Duration">
+/// Minutes.
+/// </param>
+/// <param name="Interval">
+/// Minutes between start times.
+/// </param>
+/// <param name="Location">
+/// The location type's wire value.
+/// </param>
+/// <param name="LocationValue">
+/// The phone number, address or link.
+/// </param>
+/// <param name="IsActive">
+/// Whether it can be booked.
+/// </param>
+/// <param name="IsPublic">
+/// Whether it is listed on the booking page.
+/// </param>
+/// <param name="ShowTakenSlots">
+/// Whether taken times show as taken.
+/// </param>
+/// <param name="BufferBefore">
+/// Minutes kept free before.
+/// </param>
+/// <param name="BufferAfter">
+/// Minutes kept free after.
+/// </param>
+/// <param name="MinNotice">
+/// Minimum notice, minutes.
+/// </param>
+/// <param name="MaxFutureDays">
+/// How many days ahead; 0 for no limit.
+/// </param>
+/// <param name="MaxActiveBookings">
+/// Bookings one person may hold; 0 for no limit.
+/// </param>
+public record EventTypeFormView (
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// What the booking page says about it.
+    /// </summary>
+    string Description, 
+    /// <summary>
+    /// Minutes.
+    /// </summary>
+    string Duration, 
+    /// <summary>
+    /// Minutes between start times.
+    /// </summary>
+    string Interval, 
+    /// <summary>
+    /// The location type's wire value.
+    /// </summary>
+    string Location, 
+    /// <summary>
+    /// The phone number, address or link.
+    /// </summary>
+    string LocationValue, 
+    /// <summary>
+    /// Whether it can be booked.
+    /// </summary>
+    bool IsActive, 
+    /// <summary>
+    /// Whether it is listed on the booking page.
+    /// </summary>
+    bool IsPublic, 
+    /// <summary>
+    /// Whether taken times show as taken.
+    /// </summary>
+    bool ShowTakenSlots, 
+    /// <summary>
+    /// Minutes kept free before.
+    /// </summary>
+    string BufferBefore, 
+    /// <summary>
+    /// Minutes kept free after.
+    /// </summary>
+    string BufferAfter, 
+    /// <summary>
+    /// Minimum notice, minutes.
+    /// </summary>
+    string MinNotice, 
+    /// <summary>
+    /// How many days ahead; 0 for no limit.
+    /// </summary>
+    string MaxFutureDays, 
+    /// <summary>
+    /// Bookings one person may hold; 0 for no limit.
+    /// </summary>
+    string MaxActiveBookings
+) {
+}
+
+class FfiConverterTypeEventTypeFormView: FfiConverterRustBuffer<EventTypeFormView> {
+    public static FfiConverterTypeEventTypeFormView INSTANCE = new FfiConverterTypeEventTypeFormView();
+
+    public override EventTypeFormView Read(BigEndianStream stream) {
+        return new EventTypeFormView(
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Description: FfiConverterString.INSTANCE.Read(stream),
+            Duration: FfiConverterString.INSTANCE.Read(stream),
+            Interval: FfiConverterString.INSTANCE.Read(stream),
+            Location: FfiConverterString.INSTANCE.Read(stream),
+            LocationValue: FfiConverterString.INSTANCE.Read(stream),
+            IsActive: FfiConverterBoolean.INSTANCE.Read(stream),
+            IsPublic: FfiConverterBoolean.INSTANCE.Read(stream),
+            ShowTakenSlots: FfiConverterBoolean.INSTANCE.Read(stream),
+            BufferBefore: FfiConverterString.INSTANCE.Read(stream),
+            BufferAfter: FfiConverterString.INSTANCE.Read(stream),
+            MinNotice: FfiConverterString.INSTANCE.Read(stream),
+            MaxFutureDays: FfiConverterString.INSTANCE.Read(stream),
+            MaxActiveBookings: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(EventTypeFormView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Description)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Duration)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Interval)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Location)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LocationValue)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IsActive)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IsPublic)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowTakenSlots)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BufferBefore)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BufferAfter)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MinNotice)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MaxFutureDays)
+            + FfiConverterString.INSTANCE.AllocationSize(value.MaxActiveBookings);
+    }
+
+    public override void Write(EventTypeFormView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Description, stream);
+            FfiConverterString.INSTANCE.Write(value.Duration, stream);
+            FfiConverterString.INSTANCE.Write(value.Interval, stream);
+            FfiConverterString.INSTANCE.Write(value.Location, stream);
+            FfiConverterString.INSTANCE.Write(value.LocationValue, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IsActive, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IsPublic, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowTakenSlots, stream);
+            FfiConverterString.INSTANCE.Write(value.BufferBefore, stream);
+            FfiConverterString.INSTANCE.Write(value.BufferAfter, stream);
+            FfiConverterString.INSTANCE.Write(value.MinNotice, stream);
+            FfiConverterString.INSTANCE.Write(value.MaxFutureDays, stream);
+            FfiConverterString.INSTANCE.Write(value.MaxActiveBookings, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One host, as edited.
+/// </summary>
+/// <param name="UserId">
+/// Their scheduler user id.
+/// </param>
+/// <param name="Name">
+/// Their name, or their address for a blank one.
+/// </param>
+/// <param name="Email">
+/// Their address.
+/// </param>
+/// <param name="Role">
+/// Their role's wire value, one of `roles`.
+/// </param>
+/// <param name="Priority">
+/// Their place in the rotation, as typed.
+/// </param>
+public record EventTypeHostView (
+    /// <summary>
+    /// Their scheduler user id.
+    /// </summary>
+    string UserId, 
+    /// <summary>
+    /// Their name, or their address for a blank one.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Their address.
+    /// </summary>
+    string Email, 
+    /// <summary>
+    /// Their role's wire value, one of `roles`.
+    /// </summary>
+    string Role, 
+    /// <summary>
+    /// Their place in the rotation, as typed.
+    /// </summary>
+    string Priority
+) {
+}
+
+class FfiConverterTypeEventTypeHostView: FfiConverterRustBuffer<EventTypeHostView> {
+    public static FfiConverterTypeEventTypeHostView INSTANCE = new FfiConverterTypeEventTypeHostView();
+
+    public override EventTypeHostView Read(BigEndianStream stream) {
+        return new EventTypeHostView(
+            UserId: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Email: FfiConverterString.INSTANCE.Read(stream),
+            Role: FfiConverterString.INSTANCE.Read(stream),
+            Priority: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(EventTypeHostView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.UserId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Email)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Role)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Priority);
+    }
+
+    public override void Write(EventTypeHostView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.UserId, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Email, stream);
+            FfiConverterString.INSTANCE.Write(value.Role, stream);
+            FfiConverterString.INSTANCE.Write(value.Priority, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Who takes an event type's bookings, and how they are routed among them.
+/// Saved whole.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, the save (offered once the hosts are read), the way out and
+/// why the save failed.
+/// </param>
+/// <param name="Status">
+/// Where the read of the hosts stands.
+/// </param>
+/// <param name="RoutingLabel">
+/// "Routing".
+/// </param>
+/// <param name="RoutingModes">
+/// The routing modes, the one chosen selected.
+/// </param>
+/// <param name="ShowsRotation">
+/// Whether the rotation shows: for round robin only.
+/// </param>
+/// <param name="RotationLabel">
+/// "Rotation".
+/// </param>
+/// <param name="RotationHint">
+/// What it decides.
+/// </param>
+/// <param name="Rotations">
+/// The rotations, the one chosen selected.
+/// </param>
+/// <param name="Hosts">
+/// The hosts, as edited.
+/// </param>
+/// <param name="Roles">
+/// The roles a host can have, none selected.
+/// </param>
+/// <param name="Empty">
+/// Said when the hosts are read and there are none: nobody can be booked.
+/// </param>
+/// <param name="PriorityLabel">
+/// "Priority".
+/// </param>
+/// <param name="RemoveLabel">
+/// "Remove".
+/// </param>
+/// <param name="AddLabel">
+/// "Add".
+/// </param>
+/// <param name="Candidates">
+/// The scheduler's users who could be added: not hosts already, not
+/// archived; none when they could not be read.
+/// </param>
+/// <param name="Validation">
+/// Why the hosts cannot be saved, before anything was sent.
+/// </param>
+public record EventTypeHostsView (
+    /// <summary>
+    /// Its title, the save (offered once the hosts are read), the way out and
+    /// why the save failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// Where the read of the hosts stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// "Routing".
+    /// </summary>
+    string RoutingLabel, 
+    /// <summary>
+    /// The routing modes, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] RoutingModes, 
+    /// <summary>
+    /// Whether the rotation shows: for round robin only.
+    /// </summary>
+    bool ShowsRotation, 
+    /// <summary>
+    /// "Rotation".
+    /// </summary>
+    string RotationLabel, 
+    /// <summary>
+    /// What it decides.
+    /// </summary>
+    string RotationHint, 
+    /// <summary>
+    /// The rotations, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] Rotations, 
+    /// <summary>
+    /// The hosts, as edited.
+    /// </summary>
+    EventTypeHostView[] Hosts, 
+    /// <summary>
+    /// The roles a host can have, none selected.
+    /// </summary>
+    ChoiceRowView[] Roles, 
+    /// <summary>
+    /// Said when the hosts are read and there are none: nobody can be booked.
+    /// </summary>
+    string Empty, 
+    /// <summary>
+    /// "Priority".
+    /// </summary>
+    string PriorityLabel, 
+    /// <summary>
+    /// "Remove".
+    /// </summary>
+    string RemoveLabel, 
+    /// <summary>
+    /// "Add".
+    /// </summary>
+    string AddLabel, 
+    /// <summary>
+    /// The scheduler's users who could be added: not hosts already, not
+    /// archived; none when they could not be read.
+    /// </summary>
+    ChoiceRowView[] Candidates, 
+    /// <summary>
+    /// Why the hosts cannot be saved, before anything was sent.
+    /// </summary>
+    string? Validation
+) {
+}
+
+class FfiConverterTypeEventTypeHostsView: FfiConverterRustBuffer<EventTypeHostsView> {
+    public static FfiConverterTypeEventTypeHostsView INSTANCE = new FfiConverterTypeEventTypeHostsView();
+
+    public override EventTypeHostsView Read(BigEndianStream stream) {
+        return new EventTypeHostsView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            RoutingLabel: FfiConverterString.INSTANCE.Read(stream),
+            RoutingModes: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            ShowsRotation: FfiConverterBoolean.INSTANCE.Read(stream),
+            RotationLabel: FfiConverterString.INSTANCE.Read(stream),
+            RotationHint: FfiConverterString.INSTANCE.Read(stream),
+            Rotations: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            Hosts: FfiConverterSequenceTypeEventTypeHostView.INSTANCE.Read(stream),
+            Roles: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            Empty: FfiConverterString.INSTANCE.Read(stream),
+            PriorityLabel: FfiConverterString.INSTANCE.Read(stream),
+            RemoveLabel: FfiConverterString.INSTANCE.Read(stream),
+            AddLabel: FfiConverterString.INSTANCE.Read(stream),
+            Candidates: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            Validation: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(EventTypeHostsView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RoutingLabel)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.RoutingModes)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowsRotation)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RotationLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RotationHint)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Rotations)
+            + FfiConverterSequenceTypeEventTypeHostView.INSTANCE.AllocationSize(value.Hosts)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Roles)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PriorityLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RemoveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AddLabel)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Candidates)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Validation);
+    }
+
+    public override void Write(EventTypeHostsView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.RoutingLabel, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.RoutingModes, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowsRotation, stream);
+            FfiConverterString.INSTANCE.Write(value.RotationLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RotationHint, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Rotations, stream);
+            FfiConverterSequenceTypeEventTypeHostView.INSTANCE.Write(value.Hosts, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Roles, stream);
+            FfiConverterString.INSTANCE.Write(value.Empty, stream);
+            FfiConverterString.INSTANCE.Write(value.PriorityLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RemoveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.AddLabel, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Candidates, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Validation, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One booking question in the list.
+/// </summary>
+/// <param name="Id">
+/// Its id, which its Edit and Delete name.
+/// </param>
+/// <param name="Label">
+/// What it asks.
+/// </param>
+/// <param name="Value">
+/// Its type, and required when it is: "Text · required".
+/// </param>
+public record EventTypeQuestionView (
+    /// <summary>
+    /// Its id, which its Edit and Delete name.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// What it asks.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Its type, and required when it is: "Text · required".
+    /// </summary>
+    string Value
+) {
+}
+
+class FfiConverterTypeEventTypeQuestionView: FfiConverterRustBuffer<EventTypeQuestionView> {
+    public static FfiConverterTypeEventTypeQuestionView INSTANCE = new FfiConverterTypeEventTypeQuestionView();
+
+    public override EventTypeQuestionView Read(BigEndianStream stream) {
+        return new EventTypeQuestionView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Value: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(EventTypeQuestionView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value);
+    }
+
+    public override void Write(EventTypeQuestionView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+    }
+}
+
+
+
+/// <summary>
+/// An event type's booking questions: the list, one question's form in its
+/// place while it is open, and the delete, asked once more.
+/// </summary>
+/// <param name="Dialog">
+/// Its title, the way out, and why the last write failed. It has no
+/// confirm: the form has its own save.
+/// </param>
+/// <param name="Status">
+/// Where the read of the questions stands.
+/// </param>
+/// <param name="Questions">
+/// The questions in the order the booker sees them.
+/// </param>
+/// <param name="Empty">
+/// Said when the questions are read and there are none.
+/// </param>
+/// <param name="AddLabel">
+/// "Add question".
+/// </param>
+/// <param name="CanAdd">
+/// Whether a question can be added: the list was read and nothing is on
+/// its way.
+/// </param>
+/// <param name="EditLabel">
+/// "Edit", on each question.
+/// </param>
+/// <param name="DeleteLabel">
+/// "Delete", on each question.
+/// </param>
+/// <param name="Notice">
+/// What the last write came to ("Question added"), until it is put away
+/// (`EventTypeAction::DismissNotice`).
+/// </param>
+/// <param name="Form">
+/// One question's form, while it is open.
+/// </param>
+/// <param name="Delete">
+/// A question's delete, while it is being asked about.
+/// </param>
+public record EventTypeQuestionsView (
+    /// <summary>
+    /// Its title, the way out, and why the last write failed. It has no
+    /// confirm: the form has its own save.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// Where the read of the questions stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The questions in the order the booker sees them.
+    /// </summary>
+    EventTypeQuestionView[] Questions, 
+    /// <summary>
+    /// Said when the questions are read and there are none.
+    /// </summary>
+    string Empty, 
+    /// <summary>
+    /// "Add question".
+    /// </summary>
+    string AddLabel, 
+    /// <summary>
+    /// Whether a question can be added: the list was read and nothing is on
+    /// its way.
+    /// </summary>
+    bool CanAdd, 
+    /// <summary>
+    /// "Edit", on each question.
+    /// </summary>
+    string EditLabel, 
+    /// <summary>
+    /// "Delete", on each question.
+    /// </summary>
+    string DeleteLabel, 
+    /// <summary>
+    /// What the last write came to ("Question added"), until it is put away
+    /// (`EventTypeAction::DismissNotice`).
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// One question's form, while it is open.
+    /// </summary>
+    QuestionEditorView? Form, 
+    /// <summary>
+    /// A question's delete, while it is being asked about.
+    /// </summary>
+    SchedulingAskView? Delete
+) {
+}
+
+class FfiConverterTypeEventTypeQuestionsView: FfiConverterRustBuffer<EventTypeQuestionsView> {
+    public static FfiConverterTypeEventTypeQuestionsView INSTANCE = new FfiConverterTypeEventTypeQuestionsView();
+
+    public override EventTypeQuestionsView Read(BigEndianStream stream) {
+        return new EventTypeQuestionsView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Questions: FfiConverterSequenceTypeEventTypeQuestionView.INSTANCE.Read(stream),
+            Empty: FfiConverterString.INSTANCE.Read(stream),
+            AddLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanAdd: FfiConverterBoolean.INSTANCE.Read(stream),
+            EditLabel: FfiConverterString.INSTANCE.Read(stream),
+            DeleteLabel: FfiConverterString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Form: FfiConverterOptionalTypeQuestionEditorView.INSTANCE.Read(stream),
+            Delete: FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(EventTypeQuestionsView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeEventTypeQuestionView.INSTANCE.AllocationSize(value.Questions)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AddLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAdd)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EditLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeleteLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeQuestionEditorView.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterOptionalTypeSchedulingAskView.INSTANCE.AllocationSize(value.Delete);
+    }
+
+    public override void Write(EventTypeQuestionsView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeEventTypeQuestionView.INSTANCE.Write(value.Questions, stream);
+            FfiConverterString.INSTANCE.Write(value.Empty, stream);
+            FfiConverterString.INSTANCE.Write(value.AddLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanAdd, stream);
+            FfiConverterString.INSTANCE.Write(value.EditLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DeleteLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeQuestionEditorView.INSTANCE.Write(value.Form, stream);
+            FfiConverterOptionalTypeSchedulingAskView.INSTANCE.Write(value.Delete, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One event type in the list, which opens it
+/// (`SchedulingAdminAction::OpenEventType`).
+/// </summary>
+/// <param name="Slug">
+/// Its slug.
+/// </param>
+/// <param name="Name">
+/// Its name.
+/// </param>
+/// <param name="Subtitle">
+/// "30 min · Phone".
+/// </param>
+/// <param name="StateLabel">
+/// The state badge: active, inactive or archived.
+/// </param>
+/// <param name="Tone">
+/// Its tone.
+/// </param>
+/// <param name="BookingPage">
+/// Its public booking page's address, or "Not public".
+/// </param>
+public record EventTypeRowView (
+    /// <summary>
+    /// Its slug.
+    /// </summary>
+    string Slug, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// "30 min · Phone".
+    /// </summary>
+    string Subtitle, 
+    /// <summary>
+    /// The state badge: active, inactive or archived.
+    /// </summary>
+    string StateLabel, 
+    /// <summary>
+    /// Its tone.
+    /// </summary>
+    RunTone Tone, 
+    /// <summary>
+    /// Its public booking page's address, or "Not public".
+    /// </summary>
+    string BookingPage
+) {
+}
+
+class FfiConverterTypeEventTypeRowView: FfiConverterRustBuffer<EventTypeRowView> {
+    public static FfiConverterTypeEventTypeRowView INSTANCE = new FfiConverterTypeEventTypeRowView();
+
+    public override EventTypeRowView Read(BigEndianStream stream) {
+        return new EventTypeRowView(
+            Slug: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Subtitle: FfiConverterString.INSTANCE.Read(stream),
+            StateLabel: FfiConverterString.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeRunTone.INSTANCE.Read(stream),
+            BookingPage: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(EventTypeRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Slug)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Subtitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StateLabel)
+            + FfiConverterTypeRunTone.INSTANCE.AllocationSize(value.Tone)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BookingPage);
+    }
+
+    public override void Write(EventTypeRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Slug, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Subtitle, stream);
+            FfiConverterString.INSTANCE.Write(value.StateLabel, stream);
+            FfiConverterTypeRunTone.INSTANCE.Write(value.Tone, stream);
+            FfiConverterString.INSTANCE.Write(value.BookingPage, stream);
+    }
+}
+
+
+
+/// <summary>
 /// A labelled value: one row of a details list.
 /// </summary>
 /// <param name="Label">
@@ -16182,6 +17369,307 @@ class FfiConverterTypePurchaseView: FfiConverterRustBuffer<PurchaseView> {
 
 
 /// <summary>
+/// One question's form.
+/// </summary>
+/// <param name="Title">
+/// "Add question" or "Edit question".
+/// </param>
+/// <param name="Form">
+/// The fields, as the core holds them.
+/// </param>
+/// <param name="Kinds">
+/// The question types, the one chosen selected.
+/// </param>
+/// <param name="ShowsOptions">
+/// Whether the choices show: for a select only.
+/// </param>
+/// <param name="LabelLabel">
+/// "Label".
+/// </param>
+/// <param name="LabelPlaceholder">
+/// The label's placeholder.
+/// </param>
+/// <param name="TypeLabel">
+/// "Type".
+/// </param>
+/// <param name="RequiredLabel">
+/// "Required".
+/// </param>
+/// <param name="PositionLabel">
+/// "Position".
+/// </param>
+/// <param name="PositionHint">
+/// What it orders.
+/// </param>
+/// <param name="OptionsLabel">
+/// "Options".
+/// </param>
+/// <param name="OptionsHint">
+/// What they are.
+/// </param>
+/// <param name="OptionPlaceholder">
+/// The new choice's placeholder.
+/// </param>
+/// <param name="AddOptionLabel">
+/// "Add option".
+/// </param>
+/// <param name="RemoveLabel">
+/// "Remove", on each choice.
+/// </param>
+/// <param name="SaveLabel">
+/// "Save question" for an edit, "Add question" for a new one.
+/// </param>
+/// <param name="CancelLabel">
+/// "Cancel", which closes the form and keeps the dialog.
+/// </param>
+/// <param name="CanSave">
+/// Whether the save can be pressed: nothing is on its way.
+/// </param>
+/// <param name="Validation">
+/// Why the question cannot be sent, before anything was sent.
+/// </param>
+public record QuestionEditorView (
+    /// <summary>
+    /// "Add question" or "Edit question".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The fields, as the core holds them.
+    /// </summary>
+    QuestionFormView Form, 
+    /// <summary>
+    /// The question types, the one chosen selected.
+    /// </summary>
+    ChoiceRowView[] Kinds, 
+    /// <summary>
+    /// Whether the choices show: for a select only.
+    /// </summary>
+    bool ShowsOptions, 
+    /// <summary>
+    /// "Label".
+    /// </summary>
+    string LabelLabel, 
+    /// <summary>
+    /// The label's placeholder.
+    /// </summary>
+    string LabelPlaceholder, 
+    /// <summary>
+    /// "Type".
+    /// </summary>
+    string TypeLabel, 
+    /// <summary>
+    /// "Required".
+    /// </summary>
+    string RequiredLabel, 
+    /// <summary>
+    /// "Position".
+    /// </summary>
+    string PositionLabel, 
+    /// <summary>
+    /// What it orders.
+    /// </summary>
+    string PositionHint, 
+    /// <summary>
+    /// "Options".
+    /// </summary>
+    string OptionsLabel, 
+    /// <summary>
+    /// What they are.
+    /// </summary>
+    string OptionsHint, 
+    /// <summary>
+    /// The new choice's placeholder.
+    /// </summary>
+    string OptionPlaceholder, 
+    /// <summary>
+    /// "Add option".
+    /// </summary>
+    string AddOptionLabel, 
+    /// <summary>
+    /// "Remove", on each choice.
+    /// </summary>
+    string RemoveLabel, 
+    /// <summary>
+    /// "Save question" for an edit, "Add question" for a new one.
+    /// </summary>
+    string SaveLabel, 
+    /// <summary>
+    /// "Cancel", which closes the form and keeps the dialog.
+    /// </summary>
+    string CancelLabel, 
+    /// <summary>
+    /// Whether the save can be pressed: nothing is on its way.
+    /// </summary>
+    bool CanSave, 
+    /// <summary>
+    /// Why the question cannot be sent, before anything was sent.
+    /// </summary>
+    string? Validation
+) {
+}
+
+class FfiConverterTypeQuestionEditorView: FfiConverterRustBuffer<QuestionEditorView> {
+    public static FfiConverterTypeQuestionEditorView INSTANCE = new FfiConverterTypeQuestionEditorView();
+
+    public override QuestionEditorView Read(BigEndianStream stream) {
+        return new QuestionEditorView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Form: FfiConverterTypeQuestionFormView.INSTANCE.Read(stream),
+            Kinds: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            ShowsOptions: FfiConverterBoolean.INSTANCE.Read(stream),
+            LabelLabel: FfiConverterString.INSTANCE.Read(stream),
+            LabelPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            TypeLabel: FfiConverterString.INSTANCE.Read(stream),
+            RequiredLabel: FfiConverterString.INSTANCE.Read(stream),
+            PositionLabel: FfiConverterString.INSTANCE.Read(stream),
+            PositionHint: FfiConverterString.INSTANCE.Read(stream),
+            OptionsLabel: FfiConverterString.INSTANCE.Read(stream),
+            OptionsHint: FfiConverterString.INSTANCE.Read(stream),
+            OptionPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            AddOptionLabel: FfiConverterString.INSTANCE.Read(stream),
+            RemoveLabel: FfiConverterString.INSTANCE.Read(stream),
+            SaveLabel: FfiConverterString.INSTANCE.Read(stream),
+            CancelLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanSave: FfiConverterBoolean.INSTANCE.Read(stream),
+            Validation: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(QuestionEditorView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeQuestionFormView.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Kinds)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowsOptions)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LabelLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LabelPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TypeLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RequiredLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PositionLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PositionHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OptionsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OptionsHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OptionPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AddOptionLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RemoveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SaveLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CancelLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSave)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Validation);
+    }
+
+    public override void Write(QuestionEditorView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeQuestionFormView.INSTANCE.Write(value.Form, stream);
+            FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Kinds, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowsOptions, stream);
+            FfiConverterString.INSTANCE.Write(value.LabelLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.LabelPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.TypeLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RequiredLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PositionLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PositionHint, stream);
+            FfiConverterString.INSTANCE.Write(value.OptionsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.OptionsHint, stream);
+            FfiConverterString.INSTANCE.Write(value.OptionPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.AddOptionLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RemoveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.SaveLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.CancelLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Validation, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One question's fields as the form holds them, what a change to the form
+/// sends back whole (`EventTypeAction::EditQuestionForm`).
+/// </summary>
+/// <param name="Id">
+/// The question's id, for an edit; `None` for a new one.
+/// </param>
+/// <param name="Label">
+/// The question.
+/// </param>
+/// <param name="Kind">
+/// Its type's wire value: `text`, `select` or `checkbox`.
+/// </param>
+/// <param name="Options">
+/// A select's choices, which `AddOption` and `RemoveOption` change.
+/// </param>
+/// <param name="Required">
+/// Whether it must be answered.
+/// </param>
+/// <param name="Position">
+/// Its place, as typed.
+/// </param>
+public record QuestionFormView (
+    /// <summary>
+    /// The question's id, for an edit; `None` for a new one.
+    /// </summary>
+    string? Id, 
+    /// <summary>
+    /// The question.
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Its type's wire value: `text`, `select` or `checkbox`.
+    /// </summary>
+    string Kind, 
+    /// <summary>
+    /// A select's choices, which `AddOption` and `RemoveOption` change.
+    /// </summary>
+    string[] Options, 
+    /// <summary>
+    /// Whether it must be answered.
+    /// </summary>
+    bool Required, 
+    /// <summary>
+    /// Its place, as typed.
+    /// </summary>
+    string Position
+) {
+}
+
+class FfiConverterTypeQuestionFormView: FfiConverterRustBuffer<QuestionFormView> {
+    public static FfiConverterTypeQuestionFormView INSTANCE = new FfiConverterTypeQuestionFormView();
+
+    public override QuestionFormView Read(BigEndianStream stream) {
+        return new QuestionFormView(
+            Id: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Kind: FfiConverterString.INSTANCE.Read(stream),
+            Options: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Required: FfiConverterBoolean.INSTANCE.Read(stream),
+            Position: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(QuestionFormView value) {
+        return 0
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Kind)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Options)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Required)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Position);
+    }
+
+    public override void Write(QuestionFormView value, BigEndianStream stream) {
+            FfiConverterOptionalString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Kind, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.Options, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Required, stream);
+            FfiConverterString.INSTANCE.Write(value.Position, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The question the core asks before a save that replaces a whole list.
 /// </summary>
 /// <param name="Title">
@@ -18037,6 +19525,71 @@ class FfiConverterTypeSchedulingAdminView: FfiConverterRustBuffer<SchedulingAdmi
 
 
 /// <summary>
+/// A question asked once more before something is removed.
+/// </summary>
+/// <param name="Title">
+/// "Delete event type?".
+/// </param>
+/// <param name="Body">
+/// What goes, and what stays.
+/// </param>
+/// <param name="Confirm">
+/// The destructive button, never the default.
+/// </param>
+/// <param name="Cancel">
+/// The way back.
+/// </param>
+public record SchedulingAskView (
+    /// <summary>
+    /// "Delete event type?".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What goes, and what stays.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The destructive button, never the default.
+    /// </summary>
+    string Confirm, 
+    /// <summary>
+    /// The way back.
+    /// </summary>
+    string Cancel
+) {
+}
+
+class FfiConverterTypeSchedulingAskView: FfiConverterRustBuffer<SchedulingAskView> {
+    public static FfiConverterTypeSchedulingAskView INSTANCE = new FfiConverterTypeSchedulingAskView();
+
+    public override SchedulingAskView Read(BigEndianStream stream) {
+        return new SchedulingAskView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Confirm: FfiConverterString.INSTANCE.Read(stream),
+            Cancel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingAskView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Confirm)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Cancel);
+    }
+
+    public override void Write(SchedulingAskView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.Confirm, stream);
+            FfiConverterString.INSTANCE.Write(value.Cancel, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One booking: what the booker answered, and the cancel.
 /// </summary>
 /// <param name="Id">
@@ -18337,6 +19890,354 @@ class FfiConverterTypeSchedulingBookingsView: FfiConverterRustBuffer<SchedulingB
             FfiConverterOptionalTypeCancelDialogView.INSTANCE.Write(value.Cancel, stream);
             FfiConverterOptionalTypeRescheduleDialogView.INSTANCE.Write(value.Reschedule, stream);
             FfiConverterOptionalTypeReassignDialogView.INSTANCE.Write(value.Reassign, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One event type: what it is, who hosts it and what it asks.
+/// </summary>
+/// <param name="Slug">
+/// Its slug.
+/// </param>
+/// <param name="Name">
+/// Its name once read, its slug before.
+/// </param>
+/// <param name="Status">
+/// Where the read of the event type stands.
+/// </param>
+/// <param name="Description">
+/// What its booking page says about it, or empty.
+/// </param>
+/// <param name="DetailsHeading">
+/// The details' heading.
+/// </param>
+/// <param name="Facts">
+/// The details that say something: duration, interval, location and its
+/// value, notice, how far ahead, the buffers, the state.
+/// </param>
+/// <param name="OffersWrites">
+/// Whether the four writes are offered: the member may change things and
+/// the event type was read.
+/// </param>
+/// <param name="EditLabel">
+/// "Edit", which opens the editor (`EventTypeAction::OpenEditor`).
+/// </param>
+/// <param name="ManageLabel">
+/// "Manage", which opens the state actions.
+/// </param>
+/// <param name="HostsLabel">
+/// "Hosts", which opens the hosts.
+/// </param>
+/// <param name="QuestionsLabel">
+/// "Questions", which opens the booking questions.
+/// </param>
+/// <param name="HostsHeading">
+/// The hosts' heading.
+/// </param>
+/// <param name="HostsStatus">
+/// Where the read of the hosts stands; a failure is said in its card.
+/// </param>
+/// <param name="Hosts">
+/// The hosts: their name, and their role (archived when they are).
+/// </param>
+/// <param name="NoHosts">
+/// Said when it has no host, and so cannot be booked.
+/// </param>
+/// <param name="QuestionsHeading">
+/// The questions' heading.
+/// </param>
+/// <param name="QuestionsStatus">
+/// Where the read of the questions stands; a failure is said in its card.
+/// </param>
+/// <param name="Questions">
+/// The questions in the order the booker sees them: what each asks, and
+/// its type (required when it is).
+/// </param>
+/// <param name="NoQuestions">
+/// Said when it asks nothing.
+/// </param>
+/// <param name="Editor">
+/// The editor, while it is open.
+/// </param>
+/// <param name="Actions">
+/// The state actions, while they are open.
+/// </param>
+/// <param name="HostsDialog">
+/// The hosts dialog, while it is open.
+/// </param>
+/// <param name="QuestionsDialog">
+/// The questions dialog, while it is open.
+/// </param>
+public record SchedulingEventTypeView (
+    /// <summary>
+    /// Its slug.
+    /// </summary>
+    string Slug, 
+    /// <summary>
+    /// Its name once read, its slug before.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Where the read of the event type stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// What its booking page says about it, or empty.
+    /// </summary>
+    string Description, 
+    /// <summary>
+    /// The details' heading.
+    /// </summary>
+    string DetailsHeading, 
+    /// <summary>
+    /// The details that say something: duration, interval, location and its
+    /// value, notice, how far ahead, the buffers, the state.
+    /// </summary>
+    FactView[] Facts, 
+    /// <summary>
+    /// Whether the four writes are offered: the member may change things and
+    /// the event type was read.
+    /// </summary>
+    bool OffersWrites, 
+    /// <summary>
+    /// "Edit", which opens the editor (`EventTypeAction::OpenEditor`).
+    /// </summary>
+    string EditLabel, 
+    /// <summary>
+    /// "Manage", which opens the state actions.
+    /// </summary>
+    string ManageLabel, 
+    /// <summary>
+    /// "Hosts", which opens the hosts.
+    /// </summary>
+    string HostsLabel, 
+    /// <summary>
+    /// "Questions", which opens the booking questions.
+    /// </summary>
+    string QuestionsLabel, 
+    /// <summary>
+    /// The hosts' heading.
+    /// </summary>
+    string HostsHeading, 
+    /// <summary>
+    /// Where the read of the hosts stands; a failure is said in its card.
+    /// </summary>
+    LoadStatus HostsStatus, 
+    /// <summary>
+    /// The hosts: their name, and their role (archived when they are).
+    /// </summary>
+    FactView[] Hosts, 
+    /// <summary>
+    /// Said when it has no host, and so cannot be booked.
+    /// </summary>
+    string NoHosts, 
+    /// <summary>
+    /// The questions' heading.
+    /// </summary>
+    string QuestionsHeading, 
+    /// <summary>
+    /// Where the read of the questions stands; a failure is said in its card.
+    /// </summary>
+    LoadStatus QuestionsStatus, 
+    /// <summary>
+    /// The questions in the order the booker sees them: what each asks, and
+    /// its type (required when it is).
+    /// </summary>
+    FactView[] Questions, 
+    /// <summary>
+    /// Said when it asks nothing.
+    /// </summary>
+    string NoQuestions, 
+    /// <summary>
+    /// The editor, while it is open.
+    /// </summary>
+    EventTypeEditorView? Editor, 
+    /// <summary>
+    /// The state actions, while they are open.
+    /// </summary>
+    EventTypeActionsView? Actions, 
+    /// <summary>
+    /// The hosts dialog, while it is open.
+    /// </summary>
+    EventTypeHostsView? HostsDialog, 
+    /// <summary>
+    /// The questions dialog, while it is open.
+    /// </summary>
+    EventTypeQuestionsView? QuestionsDialog
+) {
+}
+
+class FfiConverterTypeSchedulingEventTypeView: FfiConverterRustBuffer<SchedulingEventTypeView> {
+    public static FfiConverterTypeSchedulingEventTypeView INSTANCE = new FfiConverterTypeSchedulingEventTypeView();
+
+    public override SchedulingEventTypeView Read(BigEndianStream stream) {
+        return new SchedulingEventTypeView(
+            Slug: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Description: FfiConverterString.INSTANCE.Read(stream),
+            DetailsHeading: FfiConverterString.INSTANCE.Read(stream),
+            Facts: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            OffersWrites: FfiConverterBoolean.INSTANCE.Read(stream),
+            EditLabel: FfiConverterString.INSTANCE.Read(stream),
+            ManageLabel: FfiConverterString.INSTANCE.Read(stream),
+            HostsLabel: FfiConverterString.INSTANCE.Read(stream),
+            QuestionsLabel: FfiConverterString.INSTANCE.Read(stream),
+            HostsHeading: FfiConverterString.INSTANCE.Read(stream),
+            HostsStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Hosts: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            NoHosts: FfiConverterString.INSTANCE.Read(stream),
+            QuestionsHeading: FfiConverterString.INSTANCE.Read(stream),
+            QuestionsStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Questions: FfiConverterSequenceTypeFactView.INSTANCE.Read(stream),
+            NoQuestions: FfiConverterString.INSTANCE.Read(stream),
+            Editor: FfiConverterOptionalTypeEventTypeEditorView.INSTANCE.Read(stream),
+            Actions: FfiConverterOptionalTypeEventTypeActionsView.INSTANCE.Read(stream),
+            HostsDialog: FfiConverterOptionalTypeEventTypeHostsView.INSTANCE.Read(stream),
+            QuestionsDialog: FfiConverterOptionalTypeEventTypeQuestionsView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingEventTypeView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Slug)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Description)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DetailsHeading)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Facts)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWrites)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EditLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ManageLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HostsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.QuestionsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HostsHeading)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.HostsStatus)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Hosts)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NoHosts)
+            + FfiConverterString.INSTANCE.AllocationSize(value.QuestionsHeading)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.QuestionsStatus)
+            + FfiConverterSequenceTypeFactView.INSTANCE.AllocationSize(value.Questions)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NoQuestions)
+            + FfiConverterOptionalTypeEventTypeEditorView.INSTANCE.AllocationSize(value.Editor)
+            + FfiConverterOptionalTypeEventTypeActionsView.INSTANCE.AllocationSize(value.Actions)
+            + FfiConverterOptionalTypeEventTypeHostsView.INSTANCE.AllocationSize(value.HostsDialog)
+            + FfiConverterOptionalTypeEventTypeQuestionsView.INSTANCE.AllocationSize(value.QuestionsDialog);
+    }
+
+    public override void Write(SchedulingEventTypeView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Slug, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.Description, stream);
+            FfiConverterString.INSTANCE.Write(value.DetailsHeading, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Facts, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersWrites, stream);
+            FfiConverterString.INSTANCE.Write(value.EditLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ManageLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.HostsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.QuestionsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.HostsHeading, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.HostsStatus, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Hosts, stream);
+            FfiConverterString.INSTANCE.Write(value.NoHosts, stream);
+            FfiConverterString.INSTANCE.Write(value.QuestionsHeading, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.QuestionsStatus, stream);
+            FfiConverterSequenceTypeFactView.INSTANCE.Write(value.Questions, stream);
+            FfiConverterString.INSTANCE.Write(value.NoQuestions, stream);
+            FfiConverterOptionalTypeEventTypeEditorView.INSTANCE.Write(value.Editor, stream);
+            FfiConverterOptionalTypeEventTypeActionsView.INSTANCE.Write(value.Actions, stream);
+            FfiConverterOptionalTypeEventTypeHostsView.INSTANCE.Write(value.HostsDialog, stream);
+            FfiConverterOptionalTypeEventTypeQuestionsView.INSTANCE.Write(value.QuestionsDialog, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The event types list.
+/// </summary>
+/// <param name="Status">
+/// Where the read of the list stands.
+/// </param>
+/// <param name="Rows">
+/// The event types.
+/// </param>
+/// <param name="Empty">
+/// What the list says when there are none.
+/// </param>
+/// <param name="OffersCreate">
+/// Whether "Create event type" is offered: the member may change things
+/// and the list was read.
+/// </param>
+/// <param name="CreateLabel">
+/// "Create event type".
+/// </param>
+/// <param name="Create">
+/// The create form, while it is open.
+/// </param>
+public record SchedulingEventTypesView (
+    /// <summary>
+    /// Where the read of the list stands.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The event types.
+    /// </summary>
+    EventTypeRowView[] Rows, 
+    /// <summary>
+    /// What the list says when there are none.
+    /// </summary>
+    EmptyView Empty, 
+    /// <summary>
+    /// Whether "Create event type" is offered: the member may change things
+    /// and the list was read.
+    /// </summary>
+    bool OffersCreate, 
+    /// <summary>
+    /// "Create event type".
+    /// </summary>
+    string CreateLabel, 
+    /// <summary>
+    /// The create form, while it is open.
+    /// </summary>
+    EventTypeEditorView? Create
+) {
+}
+
+class FfiConverterTypeSchedulingEventTypesView: FfiConverterRustBuffer<SchedulingEventTypesView> {
+    public static FfiConverterTypeSchedulingEventTypesView INSTANCE = new FfiConverterTypeSchedulingEventTypesView();
+
+    public override SchedulingEventTypesView Read(BigEndianStream stream) {
+        return new SchedulingEventTypesView(
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeEventTypeRowView.INSTANCE.Read(stream),
+            Empty: FfiConverterTypeEmptyView.INSTANCE.Read(stream),
+            OffersCreate: FfiConverterBoolean.INSTANCE.Read(stream),
+            CreateLabel: FfiConverterString.INSTANCE.Read(stream),
+            Create: FfiConverterOptionalTypeEventTypeEditorView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingEventTypesView value) {
+        return 0
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeEventTypeRowView.INSTANCE.AllocationSize(value.Rows)
+            + FfiConverterTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersCreate)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CreateLabel)
+            + FfiConverterOptionalTypeEventTypeEditorView.INSTANCE.AllocationSize(value.Create);
+    }
+
+    public override void Write(SchedulingEventTypesView value, BigEndianStream stream) {
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeEventTypeRowView.INSTANCE.Write(value.Rows, stream);
+            FfiConverterTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersCreate, stream);
+            FfiConverterString.INSTANCE.Write(value.CreateLabel, stream);
+            FfiConverterOptionalTypeEventTypeEditorView.INSTANCE.Write(value.Create, stream);
     }
 }
 
@@ -25934,6 +27835,642 @@ class FfiConverterTypeEmbeddedViewKind: FfiConverterRustBuffer<EmbeddedViewKind>
 
 
 /// <summary>
+/// Something the member did on one event type.
+/// </summary>
+public record EventTypeAction {
+    
+    /// <summary>
+    /// Open the editor.
+    /// </summary>
+    public record OpenEditor: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// The editor's fields changed.
+    /// </summary>
+    public record EditForm (
+        EventTypeFormView Form
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Save the editor.
+    /// </summary>
+    public record Save: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Open the state actions.
+    /// </summary>
+    public record OpenActions: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Turn it on or off.
+    /// </summary>
+    public record ToggleActive: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Archive or restore it.
+    /// </summary>
+    public record ToggleArchived: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Send the member a test email of this kind.
+    /// </summary>
+    public record SendTestEmail (
+        string Kind
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Ask about deleting it.
+    /// </summary>
+    public record AskDelete: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Do not delete it.
+    /// </summary>
+    public record CancelDelete: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Delete it, and go back to the list.
+    /// </summary>
+    public record ConfirmDelete: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Open the hosts.
+    /// </summary>
+    public record OpenHosts: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// The routing mode changed.
+    /// </summary>
+    public record SetRoutingMode (
+        string Mode
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// The rotation changed.
+    /// </summary>
+    public record SetRotation (
+        string Rotation
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Add a candidate as a host.
+    /// </summary>
+    public record AddHost (
+        string UserId
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Take a host off.
+    /// </summary>
+    public record RemoveHost (
+        string UserId
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// A host's role changed.
+    /// </summary>
+    public record SetHostRole (
+        string UserId,
+        string Role
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// A host's priority changed.
+    /// </summary>
+    public record SetHostPriority (
+        string UserId,
+        string Priority
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Save the hosts.
+    /// </summary>
+    public record SaveHosts: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Open the questions.
+    /// </summary>
+    public record OpenQuestions: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Start a new question, placed last.
+    /// </summary>
+    public record AddQuestion: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Edit a question.
+    /// </summary>
+    public record EditQuestion (
+        string Id
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// The question's fields changed.
+    /// </summary>
+    public record EditQuestionForm (
+        QuestionFormView Form
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Add a choice to a select.
+    /// </summary>
+    public record AddOption (
+        string Option
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Take a choice off.
+    /// </summary>
+    public record RemoveOption (
+        string Option
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Close the question's form.
+    /// </summary>
+    public record CancelQuestion: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Save the question.
+    /// </summary>
+    public record SaveQuestion: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Ask about deleting a question.
+    /// </summary>
+    public record AskDeleteQuestion (
+        string Id
+    ) : EventTypeAction {}
+    
+    /// <summary>
+    /// Do not delete it.
+    /// </summary>
+    public record CancelDeleteQuestion: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Delete it.
+    /// </summary>
+    public record ConfirmDeleteQuestion: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Put away what the last write came to.
+    /// </summary>
+    public record DismissNotice: EventTypeAction {}
+    
+    
+    /// <summary>
+    /// Close the dialog.
+    /// </summary>
+    public record CloseDialog: EventTypeAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeEventTypeAction : FfiConverterRustBuffer<EventTypeAction>{
+    public static FfiConverterRustBuffer<EventTypeAction> INSTANCE = new FfiConverterTypeEventTypeAction();
+
+    public override EventTypeAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new EventTypeAction.OpenEditor(
+                );
+            case 2:
+                return new EventTypeAction.EditForm(
+                    FfiConverterTypeEventTypeFormView.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new EventTypeAction.Save(
+                );
+            case 4:
+                return new EventTypeAction.OpenActions(
+                );
+            case 5:
+                return new EventTypeAction.ToggleActive(
+                );
+            case 6:
+                return new EventTypeAction.ToggleArchived(
+                );
+            case 7:
+                return new EventTypeAction.SendTestEmail(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new EventTypeAction.AskDelete(
+                );
+            case 9:
+                return new EventTypeAction.CancelDelete(
+                );
+            case 10:
+                return new EventTypeAction.ConfirmDelete(
+                );
+            case 11:
+                return new EventTypeAction.OpenHosts(
+                );
+            case 12:
+                return new EventTypeAction.SetRoutingMode(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 13:
+                return new EventTypeAction.SetRotation(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 14:
+                return new EventTypeAction.AddHost(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 15:
+                return new EventTypeAction.RemoveHost(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 16:
+                return new EventTypeAction.SetHostRole(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 17:
+                return new EventTypeAction.SetHostPriority(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 18:
+                return new EventTypeAction.SaveHosts(
+                );
+            case 19:
+                return new EventTypeAction.OpenQuestions(
+                );
+            case 20:
+                return new EventTypeAction.AddQuestion(
+                );
+            case 21:
+                return new EventTypeAction.EditQuestion(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 22:
+                return new EventTypeAction.EditQuestionForm(
+                    FfiConverterTypeQuestionFormView.INSTANCE.Read(stream)
+                );
+            case 23:
+                return new EventTypeAction.AddOption(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 24:
+                return new EventTypeAction.RemoveOption(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 25:
+                return new EventTypeAction.CancelQuestion(
+                );
+            case 26:
+                return new EventTypeAction.SaveQuestion(
+                );
+            case 27:
+                return new EventTypeAction.AskDeleteQuestion(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 28:
+                return new EventTypeAction.CancelDeleteQuestion(
+                );
+            case 29:
+                return new EventTypeAction.ConfirmDeleteQuestion(
+                );
+            case 30:
+                return new EventTypeAction.DismissNotice(
+                );
+            case 31:
+                return new EventTypeAction.CloseDialog(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEventTypeAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(EventTypeAction value) {
+        switch (value) {
+            case EventTypeAction.OpenEditor variant_value:
+                return 4;
+            case EventTypeAction.EditForm variant_value:
+                return 4
+                    + FfiConverterTypeEventTypeFormView.INSTANCE.AllocationSize(variant_value.Form);
+            case EventTypeAction.Save variant_value:
+                return 4;
+            case EventTypeAction.OpenActions variant_value:
+                return 4;
+            case EventTypeAction.ToggleActive variant_value:
+                return 4;
+            case EventTypeAction.ToggleArchived variant_value:
+                return 4;
+            case EventTypeAction.SendTestEmail variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Kind);
+            case EventTypeAction.AskDelete variant_value:
+                return 4;
+            case EventTypeAction.CancelDelete variant_value:
+                return 4;
+            case EventTypeAction.ConfirmDelete variant_value:
+                return 4;
+            case EventTypeAction.OpenHosts variant_value:
+                return 4;
+            case EventTypeAction.SetRoutingMode variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Mode);
+            case EventTypeAction.SetRotation variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Rotation);
+            case EventTypeAction.AddHost variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId);
+            case EventTypeAction.RemoveHost variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId);
+            case EventTypeAction.SetHostRole variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Role);
+            case EventTypeAction.SetHostPriority variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Priority);
+            case EventTypeAction.SaveHosts variant_value:
+                return 4;
+            case EventTypeAction.OpenQuestions variant_value:
+                return 4;
+            case EventTypeAction.AddQuestion variant_value:
+                return 4;
+            case EventTypeAction.EditQuestion variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Id);
+            case EventTypeAction.EditQuestionForm variant_value:
+                return 4
+                    + FfiConverterTypeQuestionFormView.INSTANCE.AllocationSize(variant_value.Form);
+            case EventTypeAction.AddOption variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Option);
+            case EventTypeAction.RemoveOption variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Option);
+            case EventTypeAction.CancelQuestion variant_value:
+                return 4;
+            case EventTypeAction.SaveQuestion variant_value:
+                return 4;
+            case EventTypeAction.AskDeleteQuestion variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Id);
+            case EventTypeAction.CancelDeleteQuestion variant_value:
+                return 4;
+            case EventTypeAction.ConfirmDeleteQuestion variant_value:
+                return 4;
+            case EventTypeAction.DismissNotice variant_value:
+                return 4;
+            case EventTypeAction.CloseDialog variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEventTypeAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(EventTypeAction value, BigEndianStream stream) {
+        switch (value) {
+            case EventTypeAction.OpenEditor variant_value:
+                stream.WriteInt(1);
+                break;
+            case EventTypeAction.EditForm variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypeEventTypeFormView.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case EventTypeAction.Save variant_value:
+                stream.WriteInt(3);
+                break;
+            case EventTypeAction.OpenActions variant_value:
+                stream.WriteInt(4);
+                break;
+            case EventTypeAction.ToggleActive variant_value:
+                stream.WriteInt(5);
+                break;
+            case EventTypeAction.ToggleArchived variant_value:
+                stream.WriteInt(6);
+                break;
+            case EventTypeAction.SendTestEmail variant_value:
+                stream.WriteInt(7);
+                FfiConverterString.INSTANCE.Write(variant_value.Kind, stream);
+                break;
+            case EventTypeAction.AskDelete variant_value:
+                stream.WriteInt(8);
+                break;
+            case EventTypeAction.CancelDelete variant_value:
+                stream.WriteInt(9);
+                break;
+            case EventTypeAction.ConfirmDelete variant_value:
+                stream.WriteInt(10);
+                break;
+            case EventTypeAction.OpenHosts variant_value:
+                stream.WriteInt(11);
+                break;
+            case EventTypeAction.SetRoutingMode variant_value:
+                stream.WriteInt(12);
+                FfiConverterString.INSTANCE.Write(variant_value.Mode, stream);
+                break;
+            case EventTypeAction.SetRotation variant_value:
+                stream.WriteInt(13);
+                FfiConverterString.INSTANCE.Write(variant_value.Rotation, stream);
+                break;
+            case EventTypeAction.AddHost variant_value:
+                stream.WriteInt(14);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                break;
+            case EventTypeAction.RemoveHost variant_value:
+                stream.WriteInt(15);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                break;
+            case EventTypeAction.SetHostRole variant_value:
+                stream.WriteInt(16);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Role, stream);
+                break;
+            case EventTypeAction.SetHostPriority variant_value:
+                stream.WriteInt(17);
+                FfiConverterString.INSTANCE.Write(variant_value.UserId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Priority, stream);
+                break;
+            case EventTypeAction.SaveHosts variant_value:
+                stream.WriteInt(18);
+                break;
+            case EventTypeAction.OpenQuestions variant_value:
+                stream.WriteInt(19);
+                break;
+            case EventTypeAction.AddQuestion variant_value:
+                stream.WriteInt(20);
+                break;
+            case EventTypeAction.EditQuestion variant_value:
+                stream.WriteInt(21);
+                FfiConverterString.INSTANCE.Write(variant_value.Id, stream);
+                break;
+            case EventTypeAction.EditQuestionForm variant_value:
+                stream.WriteInt(22);
+                FfiConverterTypeQuestionFormView.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case EventTypeAction.AddOption variant_value:
+                stream.WriteInt(23);
+                FfiConverterString.INSTANCE.Write(variant_value.Option, stream);
+                break;
+            case EventTypeAction.RemoveOption variant_value:
+                stream.WriteInt(24);
+                FfiConverterString.INSTANCE.Write(variant_value.Option, stream);
+                break;
+            case EventTypeAction.CancelQuestion variant_value:
+                stream.WriteInt(25);
+                break;
+            case EventTypeAction.SaveQuestion variant_value:
+                stream.WriteInt(26);
+                break;
+            case EventTypeAction.AskDeleteQuestion variant_value:
+                stream.WriteInt(27);
+                FfiConverterString.INSTANCE.Write(variant_value.Id, stream);
+                break;
+            case EventTypeAction.CancelDeleteQuestion variant_value:
+                stream.WriteInt(28);
+                break;
+            case EventTypeAction.ConfirmDeleteQuestion variant_value:
+                stream.WriteInt(29);
+                break;
+            case EventTypeAction.DismissNotice variant_value:
+                stream.WriteInt(30);
+                break;
+            case EventTypeAction.CloseDialog variant_value:
+                stream.WriteInt(31);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEventTypeAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did on the event types list.
+/// </summary>
+public record EventTypesAction {
+    
+    /// <summary>
+    /// Open the create form.
+    /// </summary>
+    public record OpenCreate: EventTypesAction {}
+    
+    
+    /// <summary>
+    /// The create form's fields changed.
+    /// </summary>
+    public record EditForm (
+        EventTypeFormView Form
+    ) : EventTypesAction {}
+    
+    /// <summary>
+    /// Create it.
+    /// </summary>
+    public record Save: EventTypesAction {}
+    
+    
+    /// <summary>
+    /// Close the create form.
+    /// </summary>
+    public record CloseEditor: EventTypesAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeEventTypesAction : FfiConverterRustBuffer<EventTypesAction>{
+    public static FfiConverterRustBuffer<EventTypesAction> INSTANCE = new FfiConverterTypeEventTypesAction();
+
+    public override EventTypesAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new EventTypesAction.OpenCreate(
+                );
+            case 2:
+                return new EventTypesAction.EditForm(
+                    FfiConverterTypeEventTypeFormView.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new EventTypesAction.Save(
+                );
+            case 4:
+                return new EventTypesAction.CloseEditor(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEventTypesAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(EventTypesAction value) {
+        switch (value) {
+            case EventTypesAction.OpenCreate variant_value:
+                return 4;
+            case EventTypesAction.EditForm variant_value:
+                return 4
+                    + FfiConverterTypeEventTypeFormView.INSTANCE.AllocationSize(variant_value.Form);
+            case EventTypesAction.Save variant_value:
+                return 4;
+            case EventTypesAction.CloseEditor variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEventTypesAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(EventTypesAction value, BigEndianStream stream) {
+        switch (value) {
+            case EventTypesAction.OpenCreate variant_value:
+                stream.WriteInt(1);
+                break;
+            case EventTypesAction.EditForm variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypeEventTypeFormView.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case EventTypesAction.Save variant_value:
+                stream.WriteInt(3);
+                break;
+            case EventTypesAction.CloseEditor variant_value:
+                stream.WriteInt(4);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEventTypesAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// What a file's first bytes say it is.
 /// </summary>
 public enum FileKind: int {
@@ -29984,6 +32521,27 @@ public record SchedulingAdminAction {
     ) : SchedulingAdminAction {}
     
     /// <summary>
+    /// Open one event type from the list.
+    /// </summary>
+    public record OpenEventType (
+        string Slug
+    ) : SchedulingAdminAction {}
+    
+    /// <summary>
+    /// On the event types list.
+    /// </summary>
+    public record EventTypes (
+        EventTypesAction Action
+    ) : SchedulingAdminAction {}
+    
+    /// <summary>
+    /// On one event type.
+    /// </summary>
+    public record EventType (
+        EventTypeAction Action
+    ) : SchedulingAdminAction {}
+    
+    /// <summary>
     /// Open one booking from the list.
     /// </summary>
     public record OpenBooking (
@@ -30019,14 +32577,26 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                     FfiConverterTypeSchedulingAdminSection.INSTANCE.Read(stream)
                 );
             case 2:
-                return new SchedulingAdminAction.OpenBooking(
+                return new SchedulingAdminAction.OpenEventType(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
             case 3:
+                return new SchedulingAdminAction.EventTypes(
+                    FfiConverterTypeEventTypesAction.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new SchedulingAdminAction.EventType(
+                    FfiConverterTypeEventTypeAction.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new SchedulingAdminAction.OpenBooking(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
                 return new SchedulingAdminAction.Bookings(
                     FfiConverterTypeBookingsAction.INSTANCE.Read(stream)
                 );
-            case 4:
+            case 7:
                 return new SchedulingAdminAction.Booking(
                     FfiConverterTypeBookingAction.INSTANCE.Read(stream)
                 );
@@ -30040,6 +32610,15 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.Open variant_value:
                 return 4
                     + FfiConverterTypeSchedulingAdminSection.INSTANCE.AllocationSize(variant_value.Section);
+            case SchedulingAdminAction.OpenEventType variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Slug);
+            case SchedulingAdminAction.EventTypes variant_value:
+                return 4
+                    + FfiConverterTypeEventTypesAction.INSTANCE.AllocationSize(variant_value.Action);
+            case SchedulingAdminAction.EventType variant_value:
+                return 4
+                    + FfiConverterTypeEventTypeAction.INSTANCE.AllocationSize(variant_value.Action);
             case SchedulingAdminAction.OpenBooking variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.BookingId);
@@ -30060,16 +32639,28 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                 stream.WriteInt(1);
                 FfiConverterTypeSchedulingAdminSection.INSTANCE.Write(variant_value.Section, stream);
                 break;
-            case SchedulingAdminAction.OpenBooking variant_value:
+            case SchedulingAdminAction.OpenEventType variant_value:
                 stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Slug, stream);
+                break;
+            case SchedulingAdminAction.EventTypes variant_value:
+                stream.WriteInt(3);
+                FfiConverterTypeEventTypesAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SchedulingAdminAction.EventType variant_value:
+                stream.WriteInt(4);
+                FfiConverterTypeEventTypeAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SchedulingAdminAction.OpenBooking variant_value:
+                stream.WriteInt(5);
                 FfiConverterString.INSTANCE.Write(variant_value.BookingId, stream);
                 break;
             case SchedulingAdminAction.Bookings variant_value:
-                stream.WriteInt(3);
+                stream.WriteInt(6);
                 FfiConverterTypeBookingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case SchedulingAdminAction.Booking variant_value:
-                stream.WriteInt(4);
+                stream.WriteInt(7);
                 FfiConverterTypeBookingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -30095,6 +32686,20 @@ public record SchedulingAdminPage {
     /// </summary>
     public record Overview (
         SchedulingOverviewView View
+    ) : SchedulingAdminPage {}
+    
+    /// <summary>
+    /// The event types list.
+    /// </summary>
+    public record EventTypes (
+        SchedulingEventTypesView View
+    ) : SchedulingAdminPage {}
+    
+    /// <summary>
+    /// One event type.
+    /// </summary>
+    public record EventType (
+        SchedulingEventTypeView View
     ) : SchedulingAdminPage {}
     
     /// <summary>
@@ -30126,10 +32731,18 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                     FfiConverterTypeSchedulingOverviewView.INSTANCE.Read(stream)
                 );
             case 2:
+                return new SchedulingAdminPage.EventTypes(
+                    FfiConverterTypeSchedulingEventTypesView.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new SchedulingAdminPage.EventType(
+                    FfiConverterTypeSchedulingEventTypeView.INSTANCE.Read(stream)
+                );
+            case 4:
                 return new SchedulingAdminPage.Bookings(
                     FfiConverterTypeSchedulingBookingsView.INSTANCE.Read(stream)
                 );
-            case 3:
+            case 5:
                 return new SchedulingAdminPage.Booking(
                     FfiConverterTypeSchedulingBookingView.INSTANCE.Read(stream)
                 );
@@ -30143,6 +32756,12 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.Overview variant_value:
                 return 4
                     + FfiConverterTypeSchedulingOverviewView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.EventTypes variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingEventTypesView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.EventType variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingEventTypeView.INSTANCE.AllocationSize(variant_value.View);
             case SchedulingAdminPage.Bookings variant_value:
                 return 4
                     + FfiConverterTypeSchedulingBookingsView.INSTANCE.AllocationSize(variant_value.View);
@@ -30160,12 +32779,20 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                 stream.WriteInt(1);
                 FfiConverterTypeSchedulingOverviewView.INSTANCE.Write(variant_value.View, stream);
                 break;
-            case SchedulingAdminPage.Bookings variant_value:
+            case SchedulingAdminPage.EventTypes variant_value:
                 stream.WriteInt(2);
+                FfiConverterTypeSchedulingEventTypesView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.EventType variant_value:
+                stream.WriteInt(3);
+                FfiConverterTypeSchedulingEventTypeView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.Bookings variant_value:
+                stream.WriteInt(4);
                 FfiConverterTypeSchedulingBookingsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case SchedulingAdminPage.Booking variant_value:
-                stream.WriteInt(3);
+                stream.WriteInt(5);
                 FfiConverterTypeSchedulingBookingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             default:
@@ -35011,6 +37638,130 @@ class FfiConverterOptionalTypeEmptyView: FfiConverterRustBuffer<EmptyView?> {
 
 
 
+class FfiConverterOptionalTypeEventTypeActionsView: FfiConverterRustBuffer<EventTypeActionsView?> {
+    public static FfiConverterOptionalTypeEventTypeActionsView INSTANCE = new FfiConverterOptionalTypeEventTypeActionsView();
+
+    public override EventTypeActionsView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeEventTypeActionsView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(EventTypeActionsView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeEventTypeActionsView.INSTANCE.AllocationSize((EventTypeActionsView)value);
+        }
+    }
+
+    public override void Write(EventTypeActionsView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeEventTypeActionsView.INSTANCE.Write((EventTypeActionsView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeEventTypeEditorView: FfiConverterRustBuffer<EventTypeEditorView?> {
+    public static FfiConverterOptionalTypeEventTypeEditorView INSTANCE = new FfiConverterOptionalTypeEventTypeEditorView();
+
+    public override EventTypeEditorView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeEventTypeEditorView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(EventTypeEditorView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeEventTypeEditorView.INSTANCE.AllocationSize((EventTypeEditorView)value);
+        }
+    }
+
+    public override void Write(EventTypeEditorView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeEventTypeEditorView.INSTANCE.Write((EventTypeEditorView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeEventTypeHostsView: FfiConverterRustBuffer<EventTypeHostsView?> {
+    public static FfiConverterOptionalTypeEventTypeHostsView INSTANCE = new FfiConverterOptionalTypeEventTypeHostsView();
+
+    public override EventTypeHostsView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeEventTypeHostsView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(EventTypeHostsView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeEventTypeHostsView.INSTANCE.AllocationSize((EventTypeHostsView)value);
+        }
+    }
+
+    public override void Write(EventTypeHostsView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeEventTypeHostsView.INSTANCE.Write((EventTypeHostsView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeEventTypeQuestionsView: FfiConverterRustBuffer<EventTypeQuestionsView?> {
+    public static FfiConverterOptionalTypeEventTypeQuestionsView INSTANCE = new FfiConverterOptionalTypeEventTypeQuestionsView();
+
+    public override EventTypeQuestionsView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeEventTypeQuestionsView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(EventTypeQuestionsView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeEventTypeQuestionsView.INSTANCE.AllocationSize((EventTypeQuestionsView)value);
+        }
+    }
+
+    public override void Write(EventTypeQuestionsView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeEventTypeQuestionsView.INSTANCE.Write((EventTypeQuestionsView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeFailureView: FfiConverterRustBuffer<FailureView?> {
     public static FfiConverterOptionalTypeFailureView INSTANCE = new FfiConverterOptionalTypeFailureView();
 
@@ -35569,6 +38320,37 @@ class FfiConverterOptionalTypePurchaseView: FfiConverterRustBuffer<PurchaseView?
 
 
 
+class FfiConverterOptionalTypeQuestionEditorView: FfiConverterRustBuffer<QuestionEditorView?> {
+    public static FfiConverterOptionalTypeQuestionEditorView INSTANCE = new FfiConverterOptionalTypeQuestionEditorView();
+
+    public override QuestionEditorView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeQuestionEditorView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(QuestionEditorView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeQuestionEditorView.INSTANCE.AllocationSize((QuestionEditorView)value);
+        }
+    }
+
+    public override void Write(QuestionEditorView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeQuestionEditorView.INSTANCE.Write((QuestionEditorView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeQuestionView: FfiConverterRustBuffer<QuestionView?> {
     public static FfiConverterOptionalTypeQuestionView INSTANCE = new FfiConverterOptionalTypeQuestionView();
 
@@ -35810,6 +38592,37 @@ class FfiConverterOptionalTypeSaveNoticeView: FfiConverterRustBuffer<SaveNoticeV
         } else {
             stream.WriteByte(1);
             FfiConverterTypeSaveNoticeView.INSTANCE.Write((SaveNoticeView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeSchedulingAskView: FfiConverterRustBuffer<SchedulingAskView?> {
+    public static FfiConverterOptionalTypeSchedulingAskView INSTANCE = new FfiConverterOptionalTypeSchedulingAskView();
+
+    public override SchedulingAskView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSchedulingAskView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SchedulingAskView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSchedulingAskView.INSTANCE.AllocationSize((SchedulingAskView)value);
+        }
+    }
+
+    public override void Write(SchedulingAskView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSchedulingAskView.INSTANCE.Write((SchedulingAskView)value, stream);
         }
     }
 }
@@ -37178,6 +39991,144 @@ class FfiConverterSequenceTypeDirectoryEntryView: FfiConverterRustBuffer<Directo
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeDirectoryEntryView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeEventTypeHostView: FfiConverterRustBuffer<EventTypeHostView[]> {
+    public static FfiConverterSequenceTypeEventTypeHostView INSTANCE = new FfiConverterSequenceTypeEventTypeHostView();
+
+    public override EventTypeHostView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new EventTypeHostView[length];
+        var readFn = FfiConverterTypeEventTypeHostView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(EventTypeHostView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeEventTypeHostView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(EventTypeHostView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeEventTypeHostView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeEventTypeQuestionView: FfiConverterRustBuffer<EventTypeQuestionView[]> {
+    public static FfiConverterSequenceTypeEventTypeQuestionView INSTANCE = new FfiConverterSequenceTypeEventTypeQuestionView();
+
+    public override EventTypeQuestionView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new EventTypeQuestionView[length];
+        var readFn = FfiConverterTypeEventTypeQuestionView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(EventTypeQuestionView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeEventTypeQuestionView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(EventTypeQuestionView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeEventTypeQuestionView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeEventTypeRowView: FfiConverterRustBuffer<EventTypeRowView[]> {
+    public static FfiConverterSequenceTypeEventTypeRowView INSTANCE = new FfiConverterSequenceTypeEventTypeRowView();
+
+    public override EventTypeRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new EventTypeRowView[length];
+        var readFn = FfiConverterTypeEventTypeRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(EventTypeRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeEventTypeRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(EventTypeRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeEventTypeRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
