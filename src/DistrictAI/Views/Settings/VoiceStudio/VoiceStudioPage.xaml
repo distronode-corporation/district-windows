@@ -41,6 +41,7 @@
                         Click="OnDefaultClick"
                         Content="{x:Bind DefaultLabel, Mode=OneWay}"
                         IsChecked="{x:Bind UseDefault, Mode=OneWay}"
+                        Tag="{x:Bind Key}"
                         Visibility="{x:Bind HasDefault, Mode=OneWay}" />
                 </StackPanel>
                 <ComboBox

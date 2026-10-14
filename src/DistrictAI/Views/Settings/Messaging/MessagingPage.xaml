@@ -254,6 +254,7 @@
                                             Click="OnMakeDefault"
                                             Content="{x:Bind l10n:S.MessagingMakeDefault}"
                                             IsEnabled="{x:Bind Enabled}"
+                                            Tag="{x:Bind Id}"
                                             Visibility="{x:Bind OffersMakeDefault}" />
                                         <Button
                                             AutomationProperties.AutomationId="MessagingEditAccount"
@@ -261,6 +262,7 @@
                                             Click="OnEditAccount"
                                             Content="{x:Bind l10n:S.CommonEdit}"
                                             IsEnabled="{x:Bind Enabled}"
+                                            Tag="{x:Bind Id}"
                                             Visibility="{x:Bind OffersEdit}" />
                                         <Button
                                             AutomationProperties.AutomationId="MessagingRemoveAccount"
@@ -268,6 +270,7 @@
                                             Click="OnRemoveAccount"
                                             Content="{x:Bind l10n:S.CommonRemove}"
                                             IsEnabled="{x:Bind Enabled}"
+                                            Tag="{x:Bind Id}"
                                             Visibility="{x:Bind OffersRemove}" />
                                     </StackPanel>
                                 </StackPanel>
@@ -311,7 +314,8 @@
                                     ItemsSource="{x:Bind AccountLabels}"
                                     PlaceholderText="{x:Bind SelectedLabel}"
                                     SelectedIndex="{x:Bind SelectedIndex}"
-                                    SelectionChanged="OnSenderChosen" />
+                                    SelectionChanged="OnSenderChosen"
+                                    Tag="{x:Bind Channel}" />
                             </DataTemplate>
                         </ItemsRepeater.ItemTemplate>
                     </ItemsRepeater>

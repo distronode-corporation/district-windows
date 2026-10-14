@@ -53,13 +53,15 @@
                                     AutomationProperties.Name="{x:Bind CopyName}"
                                     Click="OnCopyClick"
                                     Content="{x:Bind CopyLabel}"
+                                    Tag="{x:Bind Day}"
                                     Visibility="{x:Bind OffersCopy, Mode=OneWay}" />
                                 <Button
                                     Grid.Column="2"
                                     AutomationProperties.AutomationId="HoursAddRange"
                                     AutomationProperties.Name="{x:Bind AddRangeName}"
                                     Click="OnAddRangeClick"
-                                    Content="{x:Bind AddRangeLabel}" />
+                                    Content="{x:Bind AddRangeLabel}"
+                                    Tag="{x:Bind Day}" />
                             </Grid>
                             <TextBlock
                                 Style="{StaticResource QuietTextStyle}"
@@ -78,6 +80,7 @@
                                                     AutomationProperties.AutomationId="HoursRangeStart"
                                                     AutomationProperties.Name="{x:Bind StartName}"
                                                     PlaceholderText="{x:Bind StartPlaceholder}"
+                                                    Tag="{x:Bind Key}"
                                                     Text="{x:Bind Start}"
                                                     TextChanged="OnStartChanged" />
                                                 <TextBlock
@@ -89,13 +92,15 @@
                                                     AutomationProperties.AutomationId="HoursRangeEnd"
                                                     AutomationProperties.Name="{x:Bind EndName}"
                                                     PlaceholderText="{x:Bind EndPlaceholder}"
+                                                    Tag="{x:Bind Key}"
                                                     Text="{x:Bind End}"
                                                     TextChanged="OnEndChanged" />
                                                 <Button
                                                     AutomationProperties.AutomationId="HoursRangeRemove"
                                                     AutomationProperties.Name="{x:Bind RemoveName}"
                                                     Click="OnRemoveClick"
-                                                    Content="{x:Bind RemoveLabel}" />
+                                                    Content="{x:Bind RemoveLabel}"
+                                                    Tag="{x:Bind Key}" />
                                             </StackPanel>
                                             <TextBlock
                                                 AutomationProperties.AutomationId="HoursRangeError"

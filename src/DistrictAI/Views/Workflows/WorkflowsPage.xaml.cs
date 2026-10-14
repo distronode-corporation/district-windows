@@ -99,7 +99,10 @@ public sealed partial class WorkflowsPage : UserControl
         }
     }
 
-    private static WorkflowEntry? RowOf(object sender) => (sender as FrameworkElement)?.DataContext as WorkflowEntry;
+    // An ItemsRepeater whose template uses x:Bind gives what it makes no
+    // DataContext, so each line's control carries the line's key in Tag.
+    private WorkflowEntry? RowOf(object sender) =>
+        (sender as FrameworkElement)?.Tag is string key ? ViewModel.Entries.FirstOrDefault(entry => entry.Key == key) : null;
 
     private void OnRunsClick(object sender, RoutedEventArgs e)
     {

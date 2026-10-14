@@ -54,7 +54,8 @@
                                 Click="OnModeClick"
                                 GroupName="CallHandlingMode"
                                 IsChecked="{x:Bind Selected}"
-                                IsEnabled="{x:Bind CanEdit}">
+                                IsEnabled="{x:Bind CanEdit}"
+                                Tag="{x:Bind Mode}">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
                                     <TextBlock

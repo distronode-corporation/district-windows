@@ -125,7 +125,8 @@
                                             AutomationProperties.AutomationId="WorkflowRunsButton"
                                             AutomationProperties.Name="{x:Bind RunsButtonName}"
                                             Click="OnRunsClick"
-                                            Content="{x:Bind RunsButtonLabel}" />
+                                            Content="{x:Bind RunsButtonLabel}"
+                                            Tag="{x:Bind Key}" />
                                         <ToggleSwitch
                                             Grid.Column="2"
                                             VerticalAlignment="Center"
@@ -133,6 +134,7 @@
                                             AutomationProperties.Name="{x:Bind SwitchName}"
                                             IsEnabled="{x:Bind CanSwitch}"
                                             IsOn="{x:Bind Active}"
+                                            Tag="{x:Bind Key}"
                                             Toggled="OnSwitchToggled" />
                                     </Grid>
                                 </Border>
@@ -211,6 +213,7 @@
                                         Click="OnMoreRunsClick"
                                         Content="{x:Bind MoreLabel}"
                                         IsEnabled="{x:Bind CanLoadMore}"
+                                        Tag="{x:Bind Key}"
                                         Visibility="{x:Bind CanLoadMore}" />
                                     <Button
                                         AutomationProperties.AutomationId="TryAgainButton"

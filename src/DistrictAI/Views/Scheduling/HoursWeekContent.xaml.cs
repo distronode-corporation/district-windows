@@ -21,9 +21,13 @@ public sealed partial class HoursWeekContent : UserControl
     /// <summary>The dialog's fields.</summary>
     public HoursWeekViewModel ViewModel { get; }
 
-    private static HoursDayEntry? DayOf(object sender) => (sender as FrameworkElement)?.DataContext as HoursDayEntry;
+    // An ItemsRepeater whose template uses x:Bind gives what it makes no
+    // DataContext, so each control carries its day, or its window's key, in Tag.
+    private HoursDayEntry? DayOf(object sender) =>
+        (sender as FrameworkElement)?.Tag is uint day ? ViewModel.Days.FirstOrDefault(entry => entry.Day == day) : null;
 
-    private static HoursRangeEntry? RangeOf(object sender) => (sender as FrameworkElement)?.DataContext as HoursRangeEntry;
+    private HoursRangeEntry? RangeOf(object sender) =>
+        (sender as FrameworkElement)?.Tag is ulong key ? ViewModel.Days.SelectMany(day => day.Ranges).FirstOrDefault(range => range.Key == key) : null;
 
     private void OnAddRangeClick(object sender, RoutedEventArgs e)
     {

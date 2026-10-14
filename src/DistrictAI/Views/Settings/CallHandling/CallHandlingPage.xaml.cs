@@ -32,7 +32,9 @@ public sealed partial class CallHandlingPage : UserControl
 
     private void OnModeClick(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is CallHandlingModeItem mode)
+        // An ItemsRepeater whose template uses x:Bind gives what it makes no
+        // DataContext, so each choice carries its mode in Tag.
+        if (sender is FrameworkElement { Tag: CallHandlingChoice choice } && ViewModel.Modes.FirstOrDefault(item => item.Mode == choice) is { } mode)
         {
             ViewModel.SelectMode(mode);
         }
