@@ -1,0 +1,166 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Hours": {
+            "view": {
+              "offers_writes": true,
+              "overrides": [
+                {
+                  "label": "Sep 24, 2099",
+                  "value": "12:00 p.m. to 4:00 p.m."
+                },
+                {
+                  "label": "Sep 25, 2099",
+                  "value": "Unavailable"
+                },
+                {
+                  "label": "Dec 24, 2099 to Dec 26, 2099",
+                  "value": "Out of office"
+                }
+              ],
+              "overrides_editor": {
+                "add_label": "Add override",
+                "can_change": true,
+                "delete": {
+                  "body": "All 3 days go back to your weekly hours.",
+                  "cancel": "Cancel",
+                  "confirm": "Delete override",
+                  "title": "Delete this override?"
+                },
+                "delete_label": "Delete",
+                "dialog": {
+                  "body": "",
+                  "can_confirm": false,
+                  "close": "Cancel",
+                  "confirm": "",
+                  "destructive": false,
+                  "failure": null,
+                  "title": "Date overrides",
+                  "working": false
+                },
+                "empty": "No overrides ahead. Add one for a day off or different hours.",
+                "form": null,
+                "hint": "Days you are away, or working different hours from usual.",
+                "notice": null,
+                "rows": [
+                  {
+                    "dates": "Sep 24, 2099",
+                    "hours": "12:00 p.m. to 4:00 p.m.",
+                    "key": "group:grp-contract-1"
+                  },
+                  {
+                    "dates": "Sep 25, 2099",
+                    "hours": "Unavailable",
+                    "key": "id:ovr-contract-2"
+                  },
+                  {
+                    "dates": "Dec 24, 2099 to Dec 26, 2099",
+                    "hours": "Out of office",
+                    "key": "group:grp-run"
+                  }
+                ],
+                "status": "Ready"
+              },
+              "overrides_empty": "No overrides ahead.",
+              "overrides_heading": "Date overrides",
+              "overrides_label": "Date overrides",
+              "overrides_status": "Ready",
+              "overrides_subtitle": "Days you are away, or working different hours from usual.",
+              "status": "Ready",
+              "summary": "Wed, 10:30 a.m. to 3:00 p.m.",
+              "times_in": "Times in America/Toronto",
+              "week": [
+                {
+                  "label": "Monday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Tuesday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Wednesday",
+                  "value": "10:30 a.m. to 3:00 p.m."
+                },
+                {
+                  "label": "Thursday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Friday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Saturday",
+                  "value": "Not bookable"
+                },
+                {
+                  "label": "Sunday",
+                  "value": "Not bookable"
+                }
+              ],
+              "week_editor": null,
+              "week_heading": "Working hours",
+              "week_label": "Your working hours"
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Hours",
+            "selected": true,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          }
+        ],
+        "title": "Working hours"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

@@ -1947,6 +1947,35 @@ screen = "scheduling"
 tier = "T3"
 note = "Heading over the people who could be added as hosts of an event type, each with an Add button."
 
+[scheduling.hours_closes]
+en = "Closes"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the box a working-hours window's closing time is typed in, followed by which window it is: \"Closes: Monday, range 1\"."
+
+[scheduling.hours_notice]
+en = "Working hours change"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the banner that says what the last change to the working hours or the date overrides came to (saved, override added)."
+
+[scheduling.hours_opens]
+en = "Opens"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the box a working-hours window's opening time is typed in, followed by which window it is: \"Opens: Monday, range 1\"."
+
+[scheduling.hours_window]
+en = "{day}, range {number}"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+args = { day = "str", number = "int" }
+note = "Which window of working hours a control acts on: {day} is the weekday's name (Monday), {number} the window's place in that day, from 1."
+
 [scheduling.last_live]
 en = "Last live"
 ctx = "label"

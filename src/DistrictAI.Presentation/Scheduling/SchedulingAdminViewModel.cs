@@ -32,6 +32,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     /// <summary>One event type.</summary>
     public SchedulingEventTypeViewModel EventType { get; } = new();
 
+    /// <summary>The working hours.</summary>
+    public SchedulingHoursViewModel Hours { get; } = new();
+
     /// <summary>The bookings.</summary>
     public SchedulingBookingsViewModel Bookings { get; } = new();
 
@@ -58,6 +61,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowsEventType { get; set; }
 
+    /// <summary>Whether the working hours show.</summary>
+    [ObservableProperty]
+    public partial bool ShowsHours { get; set; }
+
     /// <summary>Whether the bookings show.</summary>
     [ObservableProperty]
     public partial bool ShowsBookings { get; set; }
@@ -71,6 +78,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         _context = context;
         EventTypes.Attach(context);
         EventType.Attach(context);
+        Hours.Attach(context);
         Bookings.Attach(context);
         Booking.Attach(context);
     }
@@ -83,6 +91,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         ShowsOverview = view.Page is SchedulingAdminPage.Overview;
         ShowsEventTypes = view.Page is SchedulingAdminPage.EventTypes;
         ShowsEventType = view.Page is SchedulingAdminPage.EventType;
+        ShowsHours = view.Page is SchedulingAdminPage.Hours;
         ShowsBookings = view.Page is SchedulingAdminPage.Bookings;
         ShowsBooking = view.Page is SchedulingAdminPage.Booking;
         // A section left with a dialog open (a deleted event type goes back
@@ -95,6 +104,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         {
             EventType.Leave();
         }
+        if (!ShowsHours)
+        {
+            Hours.Leave();
+        }
         switch (view.Page)
         {
             case SchedulingAdminPage.Overview overview:
@@ -105,6 +118,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
                 break;
             case SchedulingAdminPage.EventType eventType:
                 EventType.Show(eventType.View);
+                break;
+            case SchedulingAdminPage.Hours hours:
+                Hours.Show(hours.View);
                 break;
             case SchedulingAdminPage.Bookings bookings:
                 Bookings.Show(bookings.View);

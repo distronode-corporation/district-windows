@@ -44,6 +44,7 @@
 
 pub mod bookings;
 pub mod event_types;
+pub mod hours;
 pub mod overview;
 
 use std::time::SystemTime;
@@ -114,8 +115,9 @@ impl SchedulingAdminSection {
         match self {
             Self::Overview => overview::BUILT,
             Self::EventTypes => event_types::BUILT,
+            Self::Hours => hours::BUILT,
             Self::Bookings => bookings::BUILT,
-            Self::Hours | Self::Calendar | Self::Team | Self::Settings | Self::Developer => false,
+            Self::Calendar | Self::Team | Self::Settings | Self::Developer => false,
         }
     }
 }
@@ -192,6 +194,11 @@ pub enum SchedulingAdminPage {
         /// The page.
         view: event_types::SchedulingEventTypeView,
     },
+    /// The working hours.
+    Hours {
+        /// The page.
+        view: hours::SchedulingHoursView,
+    },
     /// The bookings list.
     Bookings {
         /// The page.
@@ -229,6 +236,11 @@ pub enum SchedulingAdminAction {
         /// What.
         action: event_types::EventTypeAction,
     },
+    /// On the working hours.
+    Hours {
+        /// What.
+        action: hours::HoursAction,
+    },
     /// Open one booking from the list.
     OpenBooking {
         /// The booking's id.
@@ -252,8 +264,8 @@ pub(crate) fn events(action: SchedulingAdminAction) -> Vec<Event> {
 }
 
 /// The core events `action` is, as of `now`: whether a booking can still be
-/// acted on, and which day is today, are the core's to judge against the time
-/// the member pressed.
+/// acted on, and which day is today (for the moves and the date overrides),
+/// are the core's to judge against the time the member pressed.
 pub(crate) fn events_at(action: SchedulingAdminAction, now: SystemTime) -> Vec<Event> {
     match action {
         SchedulingAdminAction::Open { section } => {
@@ -264,6 +276,7 @@ pub(crate) fn events_at(action: SchedulingAdminAction, now: SystemTime) -> Vec<E
         )],
         SchedulingAdminAction::EventTypes { action } => event_types::events(action),
         SchedulingAdminAction::EventType { action } => event_types::detail_events(action),
+        SchedulingAdminAction::Hours { action } => hours::events(action, now),
         SchedulingAdminAction::OpenBooking { booking_id } => vec![Event::Navigate(
             Route::SchedulingAdmin(SchedulingSection::Booking { id: booking_id }),
         )],
@@ -281,8 +294,8 @@ pub(crate) fn screen(
     screen_at(signed_in, section, SystemTime::now())
 }
 
-/// The page of `section` as of `now`, which decides "Today" and which
-/// bookings can still be acted on.
+/// The page of `section` as of `now`, which decides "Today", which bookings
+/// can still be acted on and which date overrides are still to come.
 pub(crate) fn screen_at(
     signed_in: &SignedIn,
     section: &SchedulingSection,
@@ -294,11 +307,11 @@ pub(crate) fn screen_at(
         SchedulingSection::Overview => overview::page(admin, now),
         SchedulingSection::EventTypes => event_types::list_page(admin, can_change),
         SchedulingSection::EventType { slug } => event_types::detail_page(admin, slug, can_change),
+        SchedulingSection::Hours => hours::page(admin, can_change, now),
         SchedulingSection::Bookings => bookings::list_page(admin, can_change, now),
         SchedulingSection::Booking { id } => bookings::detail_page(admin, id, can_change, now),
         // Not built yet: each section's pull request replaces its arm.
-        SchedulingSection::Hours
-        | SchedulingSection::Calendar
+        SchedulingSection::Calendar
         | SchedulingSection::Team
         | SchedulingSection::Settings
         | SchedulingSection::Developer => return ScreenView::unavailable(),
@@ -452,14 +465,15 @@ mod tests {
             [
                 SchedulingAdminSection::Overview,
                 SchedulingAdminSection::EventTypes,
+                SchedulingAdminSection::Hours,
                 SchedulingAdminSection::Bookings
             ]
         );
         let selected = entries(Some(SchedulingAdminSection::Bookings));
         assert!(!selected[0].selected);
-        assert!(selected[2].selected);
-        assert_eq!(selected[2].title, "Bookings");
-        assert!(!selected[2].subtitle.is_empty());
+        assert!(selected[3].selected);
+        assert_eq!(selected[3].title, "Bookings");
+        assert!(!selected[3].subtitle.is_empty());
         assert!(built(&SchedulingSection::Booking { id: "b".to_owned() }));
         assert!(built(&SchedulingSection::EventType {
             slug: "s".to_owned()
