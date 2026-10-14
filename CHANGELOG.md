@@ -19,17 +19,43 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the web.
 - Calls ring and messages arrive while the app is closed, through Windows push
   notifications (the Microsoft Store build). The GitHub build rings only while it runs.
-  Until the service reads the kind on unregistering, quitting the app also removes its
-  push registration.
+- Run your booking pages from the app: every section of the scheduler's administration
+  is native, under Booking pages, as in District AI for iPhone.
+  - Overview: the booking desk at a glance and what is coming up.
+  - Event types: create one, edit its details, turn it on or off or archive it, send
+    test emails, choose its hosts and how bookings are routed among them, and edit its
+    booking questions. A delete is asked first.
+  - Working hours: the weekly hours and the date overrides (a day off or custom hours).
+  - Bookings: upcoming, past and cancelled, a page at a time; cancel one with a reason,
+    move it to a free time, or change its host, each confirmed in its own dialog.
+  - Calendar: the connected calendars, which are checked for conflicts and which one
+    receives new bookings, connecting a CalDAV calendar, and disconnecting one (asked
+    first). Connecting Google or Microsoft finishes in your browser.
+  - Team: the members and where they stand with the scheduler, the teams, their names
+    and hosts, and archiving an account once nothing stands in the way. Removals and
+    deletes are asked first.
+  - Settings: the booking page (business name, logo and banner, links, language), the
+    booking assistant, your profile and picture, and your email notifications. Images
+    save as soon as they are chosen; removing one is asked first.
+  - Developer: API keys (each shown once), connected apps, and webhooks with their
+    deliveries and signing secret (shown once). Revoking and deleting are asked first.
 
 ### Changed
 
-- The shared core is district-core-rust 4.0.0-beta.3, which keeps every word it shows in
+- The shared core is district-core-rust 4.0.0-beta.5, which keeps every word it shows in
   a catalog, ready for Canadian French. The app still speaks English only.
 - Reporting AI-generated content goes through the shared core, so the Windows and Linux
   apps send the same report. The dialog and what the support desk receives are unchanged.
 - A call's details word two values as the web portal does: a negative sentiment reads
   "Friction", and a transfer that went through reads "Transferred".
+- Booking pages no longer offer "Manage on the web": everything they manage is in the
+  app now.
+
+### Fixed
+
+- Buttons inside some lists did nothing when pressed: the call-handling modes, a
+  messaging account's Make default, Edit and Remove, a channel's sender, a workflow's
+  runs, its on and off switch and "More runs", and Voice Studio's "Use default".
 
 ## [2.0.1] - 2026-10-13
 
