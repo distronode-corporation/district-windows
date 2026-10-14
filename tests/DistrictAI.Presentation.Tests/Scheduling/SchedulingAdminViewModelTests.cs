@@ -59,11 +59,11 @@ public sealed class SchedulingAdminViewModelTests
         return (model, sink);
     }
 
-    private static UiEvent ListEvent(BookingsAction action) =>
-        new UiEvent.SchedulingAdmin(new SchedulingAdminAction.Bookings(action));
+    private static UiEvent.SchedulingAdmin ListEvent(BookingsAction action) =>
+        new(new SchedulingAdminAction.Bookings(action));
 
-    private static UiEvent DetailEvent(BookingAction action) =>
-        new UiEvent.SchedulingAdmin(new SchedulingAdminAction.Booking(action));
+    private static UiEvent.SchedulingAdmin DetailEvent(BookingAction action) =>
+        new(new SchedulingAdminAction.Booking(action));
 
     [Fact]
     public void ThePageShowsItsSectionAndTheNavigationOpensAnother()
