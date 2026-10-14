@@ -862,6 +862,9 @@ namespace DistrictAI.L10n
         /// <summary><c>scheduling.bookings_views</c></summary>
         public static string SchedulingBookingsViews => Current == Locale.FrCa ? "Which bookings" : "Which bookings";
 
+        /// <summary><c>scheduling.calendar_notice</c></summary>
+        public static string SchedulingCalendarNotice => Current == Locale.FrCa ? "Calendar change" : "Calendar change";
+
         /// <summary><c>scheduling.change_notice</c></summary>
         public static string SchedulingChangeNotice => Current == Locale.FrCa ? "Booking change" : "Booking change";
 

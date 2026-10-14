@@ -1906,6 +1906,13 @@ screen = "scheduling"
 tier = "T2"
 note = "Name of the choice between upcoming, past, cancelled and all bookings."
 
+[scheduling.calendar_notice]
+en = "Calendar change"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the banner that says what the last change to the member's calendars came to (calendars saved, a calendar connected, none receiving bookings now)."
+
 [scheduling.change_notice]
 en = "Booking change"
 ctx = "a11y"

@@ -41,6 +41,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     /// <summary>One booking.</summary>
     public SchedulingBookingViewModel Booking { get; } = new();
 
+    /// <summary>The member's calendars.</summary>
+    public SchedulingCalendarViewModel Calendar { get; } = new();
+
     /// <summary>The page's heading.</summary>
     [ObservableProperty]
     public partial string Title { get; set; } = string.Empty;
@@ -73,6 +76,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowsBooking { get; set; }
 
+    /// <summary>Whether the calendars show.</summary>
+    [ObservableProperty]
+    public partial bool ShowsCalendar { get; set; }
+
     internal void Attach(PageContext context)
     {
         _context = context;
@@ -81,6 +88,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         Hours.Attach(context);
         Bookings.Attach(context);
         Booking.Attach(context);
+        Calendar.Attach(context);
     }
 
     internal void Show(SchedulingAdminView view)
@@ -94,6 +102,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         ShowsHours = view.Page is SchedulingAdminPage.Hours;
         ShowsBookings = view.Page is SchedulingAdminPage.Bookings;
         ShowsBooking = view.Page is SchedulingAdminPage.Booking;
+        ShowsCalendar = view.Page is SchedulingAdminPage.Calendar;
         // A section left with a dialog open (a deleted event type goes back
         // to its list) closes it.
         if (!ShowsEventTypes)
@@ -107,6 +116,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         if (!ShowsHours)
         {
             Hours.Leave();
+        }
+        if (!ShowsCalendar)
+        {
+            Calendar.Leave();
         }
         switch (view.Page)
         {
@@ -127,6 +140,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
                 break;
             case SchedulingAdminPage.Booking booking:
                 Booking.Show(booking.View);
+                break;
+            case SchedulingAdminPage.Calendar calendar:
+                Calendar.Show(calendar.View);
                 break;
         }
     }

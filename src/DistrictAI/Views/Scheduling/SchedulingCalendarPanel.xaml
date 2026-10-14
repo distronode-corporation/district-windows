@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.SchedulingCalendarPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:sched="using:DistrictAI.ViewModels.Scheduling"
+    xmlns:views="using:DistrictAI.Views">
+    <Grid>
+        <ScrollViewer AutomationProperties.AutomationId="SchedulingCalendar">
+            <StackPanel
+                MaxWidth="{StaticResource ReadingWidth}"
+                HorizontalAlignment="Left"
+                Spacing="12">
+                <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
+
+                <!-- A card per connected account, once they are read: a failed read is a status page, never "none connected". -->
+                <ItemsRepeater
+                    AutomationProperties.AutomationId="SchedulingCalendarConnections"
+                    ItemsSource="{x:Bind ViewModel.Connections}"
+                    Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="12" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="sched:CalendarConnectionEntry">
+                            <Border
+                                AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                AutomationProperties.Name="{x:Bind AccessibleName}"
+                                Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="8">
+                                    <TextBlock
+                                        AutomationProperties.HeadingLevel="Level2"
+                                        Style="{StaticResource SectionHeaderStyle}"
+                                        Text="{x:Bind Provider}" />
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind AccountLabel}" />
+                                        <TextBlock
+                                            IsTextSelectionEnabled="True"
+                                            Text="{x:Bind Account}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ConflictsLabel}" />
+                                        <TextBlock Text="{x:Bind Conflicts}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind DestinationLabel}" />
+                                        <TextBlock Text="{x:Bind Destination}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button
+                                            AutomationProperties.AutomationId="CalendarChoose"
+                                            AutomationProperties.Name="{x:Bind ChooseName}"
+                                            Click="OnChooseClick"
+                                            Content="{x:Bind ChooseLabel}" />
+                                        <Button
+                                            AutomationProperties.AutomationId="CalendarDisconnect"
+                                            AutomationProperties.Name="{x:Bind DisconnectName}"
+                                            Click="OnDisconnectClick"
+                                            Content="{x:Bind DisconnectLabel}"
+                                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                            IsEnabled="{x:Bind CanDisconnect}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <!-- What the last disconnect came to: why it failed, or that no calendar receives bookings now. -->
+                <InfoBar
+                    AutomationProperties.AutomationId="CalendarDisconnectNotice"
+                    AutomationProperties.Name="{x:Bind l10n:S.SchedulingCalendarNotice}"
+                    CloseButtonCommand="{x:Bind ViewModel.DismissDisconnectCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasDisconnectNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.DisconnectNotice, Mode=OneWay}"
+                    Severity="Warning" />
+                <InfoBar
+                    AutomationProperties.AutomationId="CalendarDisconnectFailure"
+                    AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+                    CloseButtonCommand="{x:Bind ViewModel.DismissDisconnectCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.HasDisconnectFailure, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.DisconnectFailure, Mode=OneWay}"
+                    Severity="Error" />
+                <ProgressRing
+                    Width="20"
+                    Height="20"
+                    HorizontalAlignment="Left"
+                    AutomationProperties.AutomationId="CalendarDisconnecting"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+                    IsActive="{x:Bind ViewModel.Disconnecting, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.Disconnecting, Mode=OneWay}" />
+
+                <!-- Connecting another: Google and Microsoft hand off to the browser, CalDAV is a form of its own. -->
+                <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="{x:Bind ViewModel.ConnectHeading, Mode=OneWay}" />
+                        <TextBlock
+                            AutomationProperties.AutomationId="SchedulingCalendarSentence"
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.Sentence, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                        <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasZoom, Mode=OneWay}">
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.ZoomLabel, Mode=OneWay}" />
+                            <TextBlock AutomationProperties.AutomationId="SchedulingCalendarZoom" Text="{x:Bind ViewModel.ZoomValue, Mode=OneWay}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ItemsRepeater AutomationProperties.AutomationId="SchedulingCalendarProviders" ItemsSource="{x:Bind ViewModel.Providers}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Orientation="Horizontal" Spacing="8" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="sched:CalendarProviderEntry">
+                                        <Button
+                                            AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                            AutomationProperties.Name="{x:Bind Label}"
+                                            Click="OnConnectClick"
+                                            Content="{x:Bind Label}"
+                                            IsEnabled="{x:Bind Enabled}" />
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                            <ProgressRing
+                                Width="20"
+                                Height="20"
+                                VerticalAlignment="Center"
+                                AutomationProperties.AutomationId="CalendarConnecting"
+                                AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+                                IsActive="{x:Bind ViewModel.Connecting, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.Connecting, Mode=OneWay}" />
+                        </StackPanel>
+                        <TextBlock
+                            AutomationProperties.AutomationId="SchedulingCalendarConnectNote"
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.ConnectNote, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind ViewModel.ShowsConnectNote, Mode=OneWay}" />
+                        <!-- The browser never comes back to the app: once the consent page is open, Refresh reads what is connected. -->
+                        <Button
+                            AutomationProperties.AutomationId="CalendarRefresh"
+                            AutomationProperties.Name="{x:Bind l10n:S.ShellRefresh}"
+                            Command="{x:Bind ViewModel.RefreshCommand}"
+                            Content="{x:Bind l10n:S.ShellRefresh}"
+                            Visibility="{x:Bind ViewModel.AwaitingBrowser, Mode=OneWay}" />
+                        <InfoBar
+                            AutomationProperties.AutomationId="CalendarConnectFailure"
+                            AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+                            CloseButtonCommand="{x:Bind ViewModel.DismissConnectFailureCommand}"
+                            IsClosable="True"
+                            IsOpen="{x:Bind ViewModel.HasConnectFailure, Mode=OneWay}"
+                            Message="{x:Bind ViewModel.ConnectFailure, Mode=OneWay}"
+                            Severity="Error" />
+                        <Button
+                            AutomationProperties.AutomationId="CalendarCaldavButton"
+                            AutomationProperties.Name="{x:Bind ViewModel.CaldavLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenCaldavCommand}"
+                            Content="{x:Bind ViewModel.CaldavLabel, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

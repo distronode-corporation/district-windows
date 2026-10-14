@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.CaldavContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
+    <StackPanel MinWidth="440" Spacing="12">
+        <!-- Where the calendar lives decides whether its server's address is asked for. -->
+        <ComboBox
+            x:Name="PresetChooser"
+            HorizontalAlignment="Stretch"
+            AutomationProperties.AutomationId="CaldavPreset"
+            AutomationProperties.HelpText="{x:Bind ViewModel.PresetNote, Mode=OneWay}"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.PresetLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.PresetLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            ItemsSource="{x:Bind ViewModel.Presets}"
+            SelectedIndex="{x:Bind ViewModel.PresetIndex, Mode=OneWay}"
+            SelectionChanged="OnPresetChanged" />
+        <TextBlock
+            AutomationProperties.AutomationId="CaldavPresetNote"
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.PresetNote, Mode=OneWay}"
+            TextWrapping="Wrap" />
+
+        <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.ShowsServerUrl, Mode=OneWay}">
+            <TextBox
+                AutomationProperties.AutomationId="CaldavServerUrl"
+                AutomationProperties.HelpText="{x:Bind ViewModel.Words.ServerUrlHint, Mode=OneWay}"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.ServerUrlLabel, Mode=OneWay}"
+                Description="{x:Bind ViewModel.Words.ServerUrlHint, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.ServerUrlLabel, Mode=OneWay}"
+                InputScope="Url"
+                IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+                IsSpellCheckEnabled="False"
+                Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                AutomationProperties.AutomationId="CaldavServerUrlError"
+                AutomationProperties.LiveSetting="Polite"
+                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                Text="{x:Bind ViewModel.ServerUrlError, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind ViewModel.HasServerUrlError, Mode=OneWay}" />
+        </StackPanel>
+
+        <StackPanel Spacing="4">
+            <TextBox
+                AutomationProperties.AutomationId="CaldavUsername"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.UsernameLabel, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.UsernameLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+                IsSpellCheckEnabled="False"
+                Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                AutomationProperties.AutomationId="CaldavUsernameError"
+                AutomationProperties.LiveSetting="Polite"
+                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                Text="{x:Bind ViewModel.UsernameError, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind ViewModel.HasUsernameError, Mode=OneWay}" />
+        </StackPanel>
+
+        <!-- An app password, never the account's: never shown back, and emptied once an account connects. -->
+        <StackPanel Spacing="4">
+            <PasswordBox
+                AutomationProperties.AutomationId="CaldavPassword"
+                AutomationProperties.HelpText="{x:Bind ViewModel.Words.PasswordHint, Mode=OneWay}"
+                AutomationProperties.Name="{x:Bind ViewModel.Words.PasswordLabel, Mode=OneWay}"
+                Header="{x:Bind ViewModel.Words.PasswordLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+                Password="{x:Bind ViewModel.Password, Mode=TwoWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.Words.PasswordHint, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBlock
+                AutomationProperties.AutomationId="CaldavPasswordError"
+                AutomationProperties.LiveSetting="Polite"
+                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                Text="{x:Bind ViewModel.PasswordError, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind ViewModel.HasPasswordError, Mode=OneWay}" />
+        </StackPanel>
+
+        <InfoBar
+            AutomationProperties.AutomationId="CaldavNotice"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingCalendarNotice}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+            Severity="Success" />
+        <InfoBar
+            AutomationProperties.AutomationId="CaldavFailure"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.Dialog.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Dialog.Failure, Mode=OneWay}"
+            Severity="Error" />
+        <ProgressRing
+            Width="20"
+            Height="20"
+            HorizontalAlignment="Left"
+            AutomationProperties.AutomationId="CaldavWorking"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+            IsActive="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>

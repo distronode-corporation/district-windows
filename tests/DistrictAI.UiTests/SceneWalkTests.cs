@@ -90,6 +90,7 @@ public sealed class SceneWalkTests
         "SchedulingSectionEventTypes",
         "SchedulingSectionHours",
         "SchedulingSectionBookings",
+        "SchedulingSectionCalendar",
     ];
 
     /// <summary>
@@ -590,6 +591,85 @@ public sealed class SceneWalkTests
             "the overrides' editor stayed open after Escape");
         Assert.Null(Failure(app));
         Assert.True(app.IsRunning, "the app ended in the working hours");
+    }
+
+    /// <summary>
+    /// The calendars' main flow: the section opens from the Booking pages
+    /// page with the accounts read; Connect Google hands off to the browser
+    /// (the scene answers the sign-in and never opens it), so Refresh is
+    /// offered and reads the section again; the first account's calendars
+    /// open, a switch is changed and Save lands (the dialog says so); the
+    /// CalDAV form connects an iCloud account, typed in, and says which; and
+    /// Disconnect asks first, and Escape keeps the account. Escape closes
+    /// each dialog.
+    /// </summary>
+    [Fact]
+    public void TheCalendarsSaveAndACaldavAccountConnects()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        var calendar = OpenSettingsRowById(app, "SchedulingSectionCalendar");
+        _ = Heading(app, calendar, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("SchedulingCalendarSentence", PageTimeout);
+        InstalledApp.Log("the accounts show");
+
+        Press(app.FindById("CalendarConnectgoogle", PageTimeout));
+        Press(app.FindById("CalendarRefresh", PageTimeout));
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CalendarRefresh") is null, PageTimeout),
+            "Refresh stayed after the section was read again");
+        InstalledApp.Log("the hand-off waited for the browser, and Refresh read again");
+
+        Press(app.FindById("CalendarChoose", PageTimeout));
+        var picker = app.FindById("CalendarPickerDialog", PageTimeout);
+        Press(Wait.For(
+            () => app.TryFindById("CalendarConflict") is { IsEnabled: true } box ? box : null,
+            PageTimeout,
+            "a calendar's switch to work",
+            app.Describe));
+        var save = Wait.For(
+            () => picker.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "the calendars' Save to work",
+            app.Describe);
+        Press(save);
+        _ = app.FindById("CalendarPickerNotice", PageTimeout);
+        InstalledApp.Log("the calendars saved");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CalendarPickerDialog") is null, PageTimeout),
+            "the calendars stayed open after Escape");
+
+        app.FindById("CalendarCaldavButton", PageTimeout).AsButton().Invoke();
+        var caldav = app.FindById("CaldavDialog", PageTimeout);
+        app.FindById("CaldavUsername", PageTimeout).AsTextBox().Text = "ada@example.com";
+        app.FindById("CaldavPassword", PageTimeout).Focus();
+        Keyboard.Type("scripted-app-password");
+        var connect = Wait.For(
+            () => caldav.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "Connect calendar to work",
+            app.Describe);
+        Press(connect);
+        _ = app.FindById("CaldavNotice", PageTimeout);
+        InstalledApp.Log("the CalDAV account connected");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CaldavDialog") is null, PageTimeout),
+            "the CalDAV form stayed open after Escape");
+
+        Press(app.FindById("CalendarDisconnect", PageTimeout));
+        _ = app.FindById("CalendarDisconnectDialog", PageTimeout);
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("CalendarDisconnectDialog") is null, PageTimeout),
+            "the disconnect stayed asked after Escape");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the calendars");
     }
 
     /// <summary>

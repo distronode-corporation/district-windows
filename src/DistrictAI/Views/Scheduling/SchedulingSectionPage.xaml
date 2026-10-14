@@ -65,5 +65,9 @@
             x:Name="BookingPanel"
             Grid.Row="2"
             Visibility="{x:Bind ViewModel.ShowsBooking, Mode=OneWay}" />
+        <local:SchedulingCalendarPanel
+            x:Name="CalendarPanel"
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.ShowsCalendar, Mode=OneWay}" />
     </Grid>
 </UserControl>
