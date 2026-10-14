@@ -940,7 +940,8 @@ fn each_action_is_its_core_event() {
     // The password travels as UTF-8, whatever it holds.
     let outside_ascii: String = PASSWORD
         .chars()
-        .chain([char::REPLACEMENT_CHARACTER, char::MAX])
+        .chain(std::iter::once(char::REPLACEMENT_CHARACTER))
+        .chain(std::iter::once(char::MAX))
         .collect();
     let accented: CaldavForm = form("icloud", "", "ada", outside_ascii.clone()).into();
     assert_eq!(accented.app_password.expose(), outside_ascii);

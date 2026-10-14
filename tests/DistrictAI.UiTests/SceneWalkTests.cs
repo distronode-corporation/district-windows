@@ -614,13 +614,13 @@ public sealed class SceneWalkTests
         OpenUntilById(app, "NavScheduling");
         var calendar = OpenSettingsRowById(app, "SchedulingSectionCalendar");
         _ = Heading(app, calendar, PageTimeout, "SchedulingAdminHeading");
-        _ = app.FindById("SchedulingCalendarSentence", PageTimeout);
+        _ = app.FindById("SchedulingCalendarSentence", PageTimeout, onScreen: false);
         InstalledApp.Log("the accounts show");
 
-        Press(app.FindById("CalendarConnectgoogle", PageTimeout));
-        Press(app.FindById("CalendarRefresh", PageTimeout));
+        Press(app.FindById("CalendarConnectgoogle", PageTimeout, onScreen: false));
+        Press(app.FindById("CalendarRefresh", PageTimeout, onScreen: false));
         Assert.True(
-            Wait.Until(() => app.TryFindById("CalendarRefresh") is null, PageTimeout),
+            Wait.Until(() => app.TryFindById("CalendarRefresh", onScreen: false) is null, PageTimeout),
             "Refresh stayed after the section was read again");
         InstalledApp.Log("the hand-off waited for the browser, and Refresh read again");
 
@@ -644,7 +644,7 @@ public sealed class SceneWalkTests
             Wait.Until(() => app.TryFindById("CalendarPickerDialog") is null, PageTimeout),
             "the calendars stayed open after Escape");
 
-        app.FindById("CalendarCaldavButton", PageTimeout).AsButton().Invoke();
+        app.FindById("CalendarCaldavButton", PageTimeout, onScreen: false).AsButton().Invoke();
         var caldav = app.FindById("CaldavDialog", PageTimeout);
         app.FindById("CaldavUsername", PageTimeout).AsTextBox().Text = "ada@example.com";
         app.FindById("CaldavPassword", PageTimeout).Focus();
