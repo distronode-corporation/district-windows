@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.SettingsImageControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
+    <StackPanel Spacing="6">
+        <StackPanel Spacing="2">
+            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.Label, Mode=OneWay}" />
+            <TextBlock x:Name="ValueText" Text="{x:Bind ViewModel.Value, Mode=OneWay}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button
+                x:Name="ChooseButton"
+                AutomationProperties.Name="{x:Bind ViewModel.ChooseName, Mode=OneWay}"
+                Click="OnChooseClick"
+                Content="{x:Bind ViewModel.ChooseLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}" />
+            <Button
+                x:Name="RemoveButton"
+                AutomationProperties.Name="{x:Bind ViewModel.RemoveName, Mode=OneWay}"
+                Command="{x:Bind ViewModel.AskRemoveCommand}"
+                Content="{x:Bind ViewModel.RemoveLabel, Mode=OneWay}"
+                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                Visibility="{x:Bind ViewModel.ShowsRemove, Mode=OneWay}" />
+            <ProgressRing
+                x:Name="WorkingRing"
+                Width="20"
+                Height="20"
+                AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+                IsActive="{x:Bind ViewModel.Working, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.Working, Mode=OneWay}" />
+        </StackPanel>
+
+        <!-- The removal, asked once more: it saves at once. The remove is never the default. -->
+        <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.Asking, Mode=OneWay}">
+            <StackPanel Spacing="8">
+                <TextBlock
+                    x:Name="AskTitleText"
+                    AutomationProperties.HeadingLevel="Level3"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{x:Bind ViewModel.AskTitle, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind ViewModel.AskBody, Mode=OneWay}" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button
+                        x:Name="ConfirmButton"
+                        AutomationProperties.Name="{x:Bind ViewModel.AskConfirm, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.ConfirmRemoveCommand}"
+                        Content="{x:Bind ViewModel.AskConfirm, Mode=OneWay}"
+                        Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                    <Button
+                        x:Name="CancelButton"
+                        AutomationProperties.Name="{x:Bind ViewModel.AskCancel, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.CancelRemoveCommand}"
+                        Content="{x:Bind ViewModel.AskCancel, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <InfoBar
+            x:Name="NoticeBar"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingSettingsImageNotice}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+            Severity="Success" />
+        <InfoBar
+            x:Name="FailureBar"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Failure, Mode=OneWay}"
+            Severity="Error" />
+    </StackPanel>
+</UserControl>

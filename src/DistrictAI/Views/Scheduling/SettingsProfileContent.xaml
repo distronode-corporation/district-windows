@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Scheduling.SettingsProfileContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n">
+    <StackPanel MinWidth="440" Spacing="12">
+        <TextBox
+            AutomationProperties.AutomationId="SettingsProfileName"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.NameLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.NameLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <ComboBox
+            x:Name="TimezoneChooser"
+            HorizontalAlignment="Stretch"
+            AutomationProperties.AutomationId="SettingsProfileTimezone"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.TimezoneLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.TimezoneLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            ItemsSource="{x:Bind ViewModel.Timezones}"
+            SelectedIndex="{x:Bind ViewModel.TimezoneIndex, Mode=OneWay}"
+            SelectionChanged="OnTimezoneChanged" />
+        <ComboBox
+            x:Name="TimeFormatChooser"
+            HorizontalAlignment="Stretch"
+            AutomationProperties.AutomationId="SettingsProfileTimeFormat"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.TimeFormatLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.TimeFormatLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            ItemsSource="{x:Bind ViewModel.TimeFormats}"
+            SelectedIndex="{x:Bind ViewModel.TimeFormatIndex, Mode=OneWay}"
+            SelectionChanged="OnTimeFormatChanged" />
+        <ComboBox
+            x:Name="WeekStartChooser"
+            HorizontalAlignment="Stretch"
+            AutomationProperties.AutomationId="SettingsProfileWeekStart"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.WeekStartLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.WeekStartLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            ItemsSource="{x:Bind ViewModel.WeekStarts}"
+            SelectedIndex="{x:Bind ViewModel.WeekStartIndex, Mode=OneWay}"
+            SelectionChanged="OnWeekStartChanged" />
+        <ComboBox
+            x:Name="DateFormatChooser"
+            HorizontalAlignment="Stretch"
+            AutomationProperties.AutomationId="SettingsProfileDateFormat"
+            AutomationProperties.Name="{x:Bind ViewModel.Words.DateFormatLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.Words.DateFormatLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
+            ItemsSource="{x:Bind ViewModel.DateFormats}"
+            SelectedIndex="{x:Bind ViewModel.DateFormatIndex, Mode=OneWay}"
+            SelectionChanged="OnDateFormatChanged" />
+        <TextBlock
+            AutomationProperties.AutomationId="SettingsProfileError"
+            AutomationProperties.LiveSetting="Polite"
+            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+            Text="{x:Bind ViewModel.Error, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.HasError, Mode=OneWay}" />
+
+        <!-- The picture: it saves as soon as it is chosen or removed, apart from the dialog's save. -->
+        <TextBlock
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.Words.ImageHint, Mode=OneWay}"
+            TextWrapping="Wrap" />
+        <Border x:Name="AvatarHost" />
+
+        <InfoBar
+            AutomationProperties.AutomationId="SettingsProfileNotice"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingSettingsNotice}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+            Severity="Success" />
+        <InfoBar
+            AutomationProperties.AutomationId="SettingsProfileFailure"
+            AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.Dialog.HasFailure, Mode=OneWay}"
+            Message="{x:Bind ViewModel.Dialog.Failure, Mode=OneWay}"
+            Severity="Error" />
+        <ProgressRing
+            Width="20"
+            Height="20"
+            HorizontalAlignment="Left"
+            AutomationProperties.AutomationId="SettingsProfileWorking"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+            IsActive="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.Dialog.Working, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>
