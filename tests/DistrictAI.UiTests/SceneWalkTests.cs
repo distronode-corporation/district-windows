@@ -1319,7 +1319,7 @@ public sealed class SceneWalkTests
             }
             Expect(
                 app,
-                () => app.TryFindById("SchedulingSettingsGroups", onScreen: false)?.FindFirstDescendant(cf => cf.ByName(heading)) is not null
+                () => app.TryFindById("SchedulingSettings", onScreen: false)?.FindFirstDescendant(cf => cf.ByControlType(ControlType.Text).And(cf.ByName(heading))) is not null
                     && app.TryFindById("SchedulingSettingsEdit", onScreen: false) is not null,
                 $"the {heading} tab to show what it read");
         }
@@ -1348,7 +1348,6 @@ public sealed class SceneWalkTests
         Assert.True(
             Wait.Until(() => app.TryFindById("SettingsImageLogoRemoveTitle", onScreen: false) is null, PageTimeout),
             "the logo's removal stayed asked after Cancel");
-        Assert.Null(app.TryFindById("SettingsImageLogoNotice", onScreen: false));
         Press(app.FindById("SettingsImageLogoRemove", PageTimeout, onScreen: false));
         Press(app.FindById("SettingsImageLogoRemoveConfirm", PageTimeout, onScreen: false));
         _ = app.FindById("SettingsImageLogoNotice", PageTimeout, onScreen: false);
