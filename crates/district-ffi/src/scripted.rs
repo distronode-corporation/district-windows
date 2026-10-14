@@ -426,8 +426,11 @@ fn signed_in(effect: Effect) -> Option<Event> {
 /// The scheduling administration's answer to `request`, from its fixture.
 /// The bookings, and the date overrides, are moved to the days after the
 /// scene runs, so that they are still to come and can be acted on whenever
-/// the walk runs. `None` for a request of a section not built yet, which goes
-/// unanswered.
+/// the walk runs; a team's write is answered with that team as the teams
+/// fixture lists it, so that its dialog stays about it; and a host's upcoming
+/// bookings are none, the fixture's one being in September 2026 and so past,
+/// which lets the walk archive their account. `None` for a request of a
+/// section not built yet, which goes unanswered.
 fn scheduling_admin(
     request: &district_model::SchedulingAdminRequest,
 ) -> Option<Result<district_model::SchedulingAdminReply, ApiError>> {
@@ -444,6 +447,14 @@ fn scheduling_admin(
         R::BookingAnswers { .. } => fixture!("district-scheduling-booking-answers.json"),
         R::Slots { .. } => fixture!("district-scheduling-slots.json"),
         R::Users { .. } => fixture!("district-scheduling-users.json"),
+        R::Teams => fixture!("district-scheduling-teams.json"),
+        R::Team { .. }
+        | R::CreateTeam { .. }
+        | R::PatchTeam { .. }
+        | R::AddTeamMember { .. }
+        | R::PatchTeamMember { .. } => fixture!("district-scheduling-team.json"),
+        R::UpcomingBookings { .. } => fixture!("district-scheduling-user-upcoming.json"),
+        R::ArchiveUser { .. } => fixture!("district-scheduling-user-archive.json"),
         R::CancelBooking { .. } | R::RescheduleBooking { .. } | R::ReassignBooking { .. } => {
             fixture!("district-scheduling-booking.json")
         }
@@ -466,7 +477,9 @@ fn scheduling_admin(
         | R::DeleteOverrideGroup { .. }
         | R::SetCalendars { .. }
         | R::SetDestination { .. }
-        | R::DeleteConnection { .. } => fixture!("district-scheduling-ok.json"),
+        | R::DeleteConnection { .. }
+        | R::DeleteTeam { .. }
+        | R::RemoveTeamMember { .. } => fixture!("district-scheduling-ok.json"),
         _ => return None,
     };
     let data = serde_json::from_str::<Value>(text)
@@ -487,14 +500,34 @@ fn scheduling_admin(
                         soon(item, day);
                     }
                 }
+            } else if let R::UpcomingBookings { .. } = request {
+                data["items"] = json!([]);
             }
-            data
+            listed_team(request).unwrap_or(data)
         });
     Some(
         data.and_then(|data| request.decode(data).ok())
             .map(district_model::SchedulingAdminReply::Done)
             .ok_or_else(broken),
     )
+}
+
+/// The team `request` reads or writes, as the teams fixture lists it.
+fn listed_team(request: &district_model::SchedulingAdminRequest) -> Option<Value> {
+    use district_model::SchedulingAdminRequest as R;
+    let (R::Team { id }
+    | R::PatchTeam { id, .. }
+    | R::AddTeamMember { id, .. }
+    | R::PatchTeamMember { id, .. }) = request
+    else {
+        return None;
+    };
+    let teams = serde_json::from_str::<Value>(fixture!("district-scheduling-teams.json")).ok()?;
+    teams["data"]["items"]
+        .as_array()?
+        .iter()
+        .find(|team| team["id"].as_str() == Some(id.as_str()))
+        .cloned()
 }
 
 /// `booking` moved to 13:00 UTC `days` days from now, for half an hour.
@@ -773,6 +806,7 @@ mod tests {
             Route::SchedulingAdmin(district_core::SchedulingSection::Hours),
             Route::SchedulingAdmin(district_core::SchedulingSection::Bookings),
             Route::SchedulingAdmin(district_core::SchedulingSection::Calendar),
+            Route::SchedulingAdmin(district_core::SchedulingSection::Team),
         ];
         for route in routes.clone() {
             let _ = after(&mut model, Event::Navigate(route.clone()));
@@ -1200,6 +1234,124 @@ mod tests {
         assert_eq!(view.disconnect, None);
         assert_eq!(view.disconnect_failure, None);
         assert_eq!(view.disconnect_notice, None);
+    }
+
+    /// The team opens from the booking pages and fills in, naming who left
+    /// while still a host; a team is created; Sales's hosts open, a routing
+    /// priority is saved and a host's removal, asked once more, lands; a host
+    /// is added to Support; an account is archived, asked once more; and
+    /// Support is deleted, asked once more.
+    #[test]
+    fn the_team_fills_in_and_its_writes_land() {
+        use crate::events::UiEvent;
+        use crate::scheduling_admin::team::TeamAction as T;
+        use crate::scheduling_admin::{
+            SchedulingAdminAction as A, SchedulingAdminPage as P, SchedulingAdminSection,
+        };
+
+        let mut model = started();
+        let mut send = |action: UiEvent| {
+            let mut pending = Vec::new();
+            for event in action.events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::SchedulingAdmin { view } = screen else {
+                panic!("not the scheduling administration: {screen:?}");
+            };
+            let P::Team { view } = view.page else {
+                panic!("not the team");
+            };
+            view
+        };
+        let view = send(UiEvent::SchedulingAdmin {
+            action: A::Open {
+                section: SchedulingAdminSection::Team,
+            },
+        });
+        let mut run = |action: T| {
+            send(UiEvent::SchedulingAdmin {
+                action: A::Team { action },
+            })
+        };
+        assert_eq!(view.status, crate::views::LoadStatus::Ready);
+        assert_eq!(view.members.len(), 5);
+        assert!(view.stranded.is_some(), "the scene's host is not a member");
+        assert_eq!(view.teams.len(), 2);
+        assert!(view.offers_create);
+
+        let _ = run(T::OpenCreate);
+        let _ = run(T::EditName {
+            name: "Front desk".to_owned(),
+        });
+        let view = run(T::SaveName);
+        let editor = view.editor.expect("still open");
+        assert_eq!(editor.notice.as_deref(), Some("Team created"));
+        assert_eq!(run(T::CloseDialog).editor, None);
+
+        let view = run(T::OpenMembers {
+            team_id: "team-contract-1".to_owned(),
+        });
+        assert_eq!(view.hosts.expect("open").hosts.len(), 2);
+        let _ = run(T::EditPriority {
+            user_id: "sched-user-rotation".to_owned(),
+            value: "2".to_owned(),
+        });
+        let view = run(T::SavePriority {
+            user_id: "sched-user-rotation".to_owned(),
+        });
+        let hosts = view.hosts.expect("still open");
+        assert_eq!(hosts.notice.as_deref(), Some("Routing priority saved"));
+        assert_eq!(hosts.dialog.title, "Sales");
+        let view = run(T::AskRemove {
+            user_id: "sched-user-rotation".to_owned(),
+        });
+        assert!(view.hosts.expect("open").remove.is_some());
+        let view = run(T::ConfirmRemove);
+        let hosts = view.hosts.expect("still open");
+        assert_eq!(hosts.notice.as_deref(), Some("Host removed from the team"));
+        assert_eq!(hosts.remove, None);
+        let _ = run(T::CloseDialog);
+
+        let view = run(T::OpenMembers {
+            team_id: "team-contract-2".to_owned(),
+        });
+        let candidate = view.hosts.expect("open").candidates[0].value.clone();
+        let _ = run(T::Pick { user_id: candidate });
+        let view = run(T::AddMember);
+        assert_eq!(
+            view.hosts.expect("still open").notice.as_deref(),
+            Some("Host added to the team")
+        );
+        let _ = run(T::CloseDialog);
+
+        let view = run(T::OpenArchive {
+            user_id: "sched-user-contract".to_owned(),
+        });
+        let archive = view.archive.expect("open");
+        assert!(archive.bookings.is_empty() && archive.blocked.is_none());
+        assert!(archive.dialog.can_confirm);
+        let view = run(T::AskArchive);
+        assert!(view.archive.expect("open").ask.is_some());
+        let view = run(T::ConfirmArchive);
+        assert_eq!(
+            view.archive.expect("still open").notice.as_deref(),
+            Some("Contract Member's scheduler account is closed")
+        );
+        let _ = run(T::CloseDialog);
+
+        let _ = run(T::OpenEditor {
+            team_id: "team-contract-2".to_owned(),
+        });
+        let view = run(T::AskDelete);
+        assert!(view.editor.expect("open").delete.is_some());
+        let view = run(T::ConfirmDelete);
+        assert_eq!(
+            view.editor.expect("still open").notice.as_deref(),
+            Some("Team deleted")
+        );
     }
 
     /// Each settings section the walk opens from the hub fills in, and each

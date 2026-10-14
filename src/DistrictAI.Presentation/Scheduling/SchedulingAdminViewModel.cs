@@ -44,6 +44,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     /// <summary>The member's calendars.</summary>
     public SchedulingCalendarViewModel Calendar { get; } = new();
 
+    /// <summary>The scheduler's users and teams.</summary>
+    public SchedulingTeamViewModel Team { get; } = new();
+
     /// <summary>The page's heading.</summary>
     [ObservableProperty]
     public partial string Title { get; set; } = string.Empty;
@@ -80,6 +83,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowsCalendar { get; set; }
 
+    /// <summary>Whether the team shows.</summary>
+    [ObservableProperty]
+    public partial bool ShowsTeam { get; set; }
+
     internal void Attach(PageContext context)
     {
         _context = context;
@@ -89,6 +96,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         Bookings.Attach(context);
         Booking.Attach(context);
         Calendar.Attach(context);
+        Team.Attach(context);
     }
 
     internal void Show(SchedulingAdminView view)
@@ -103,6 +111,7 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         ShowsBookings = view.Page is SchedulingAdminPage.Bookings;
         ShowsBooking = view.Page is SchedulingAdminPage.Booking;
         ShowsCalendar = view.Page is SchedulingAdminPage.Calendar;
+        ShowsTeam = view.Page is SchedulingAdminPage.Team;
         // A section left with a dialog open (a deleted event type goes back
         // to its list) closes it.
         if (!ShowsEventTypes)
@@ -120,6 +129,10 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
         if (!ShowsCalendar)
         {
             Calendar.Leave();
+        }
+        if (!ShowsTeam)
+        {
+            Team.Leave();
         }
         switch (view.Page)
         {
@@ -143,6 +156,9 @@ public sealed partial class SchedulingAdminViewModel : ObservableObject
                 break;
             case SchedulingAdminPage.Calendar calendar:
                 Calendar.Show(calendar.View);
+                break;
+            case SchedulingAdminPage.Team team:
+                Team.Show(team.View);
                 break;
         }
     }

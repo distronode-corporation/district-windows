@@ -2010,6 +2010,13 @@ screen = "scheduling"
 tier = "T2"
 note = "Name of the navigation between the sections of the booking scheduler's administration (Overview, Bookings...)."
 
+[scheduling.team_notice]
+en = "Team change"
+ctx = "a11y"
+screen = "scheduling"
+tier = "T2"
+note = "Name of the banner that says what the last change on the team section came to (a team created, renamed or deleted, a host added or removed, a routing priority saved, an account archived)."
+
 [scheduling.title]
 en = "Booking pages"
 ctx = "title"

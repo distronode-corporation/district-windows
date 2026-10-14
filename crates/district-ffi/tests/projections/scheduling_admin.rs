@@ -21,6 +21,7 @@ use super::*;
 pub(crate) mod calendar;
 pub(crate) mod event_types;
 pub(crate) mod hours;
+pub(crate) mod team;
 
 /// This area's snapshot cases.
 pub(crate) fn cases() -> Vec<Case> {
@@ -93,7 +94,7 @@ pub(crate) fn cases() -> Vec<Case> {
         (
             "scheduling-admin-section-not-built",
             signed_in().send(Event::Navigate(Route::SchedulingAdmin(
-                SchedulingSection::Team,
+                SchedulingSection::Settings,
             ))),
         ),
     ]
