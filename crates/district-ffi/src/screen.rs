@@ -254,7 +254,7 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
             view: overview_view(signed_in),
         },
         Route::Inbox => ScreenView::Inbox {
-            view: inbox_view(&signed_in.inbox),
+            view: inbox_view(&signed_in.inbox, &capabilities),
         },
         Route::Thread { thread_key } => ScreenView::Thread {
             view: thread_view(thread_key, signed_in.thread.as_ref(), &capabilities),

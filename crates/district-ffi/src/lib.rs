@@ -41,6 +41,7 @@ uniffi::setup_scaffolding!();
 mod account;
 mod calls;
 mod calls_live;
+mod compose;
 mod contacts;
 mod inbox;
 mod overview;
@@ -90,6 +91,7 @@ pub use crate::calls::{CallDetailView, CallRowView, CallsView, TranscriptState};
 pub use crate::calls_live::{
     ActiveCallView, DialerView, IncomingRingView, active_call_view, dialer_view, incoming_ring_view,
 };
+pub use crate::compose::{ComposeAction, ComposeChannelView, ComposeEntryView, ComposeView};
 pub use crate::contacts::{
     ContactDetailView, ContactFormInput, ContactFormView, ContactQuestionView, ContactRowView,
     ContactWritesView, ContactsAction, ContactsView,

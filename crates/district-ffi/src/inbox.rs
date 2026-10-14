@@ -1,5 +1,6 @@
 //! The inbox, its search, and one conversation: what the Linux inbox page and
-//! thread view show. The reply box under a conversation is crate::composer's.
+//! thread view show. The inbox's "New message" form is crate::compose's, and
+//! the reply box under a conversation crate::composer's.
 
 use district_core::{
     Capabilities, ConversationList, InboxScreen, SearchState, ThreadHistory, ThreadScreen,
@@ -11,6 +12,7 @@ use district_model::{
 };
 use serde::Serialize;
 
+use crate::compose::{ComposeEntryView, ComposeView, compose_entry, compose_view};
 use crate::composer::{ComposerView, composer, read_only_note};
 use crate::l10n::{cs, l, s};
 use crate::views::{
@@ -38,6 +40,10 @@ pub struct InboxView {
     /// Why there is no reply box: empty since the reply box was built (each
     /// thread says why it has none).
     pub read_only_note: String,
+    /// The header's "New" control, which starts a conversation.
+    pub new_message: ComposeEntryView,
+    /// The new message form, while it is open.
+    pub compose: Option<ComposeView>,
 }
 
 /// One conversation in the list.
@@ -272,7 +278,7 @@ fn search_view(search: &SearchState) -> SearchView {
 }
 
 /// The inbox for `inbox`.
-pub(crate) fn inbox_view(inbox: &InboxScreen) -> InboxView {
+pub(crate) fn inbox_view(inbox: &InboxScreen, capabilities: &Capabilities) -> InboxView {
     let mut view = InboxView {
         status: LoadStatus::Loading,
         threads: Vec::new(),
@@ -282,6 +288,8 @@ pub(crate) fn inbox_view(inbox: &InboxScreen) -> InboxView {
         refresh_failure: None,
         search: search_view(&inbox.search),
         read_only_note: String::new(),
+        new_message: compose_entry(capabilities),
+        compose: inbox.compose.as_ref().map(compose_view),
     };
     match &inbox.list {
         ConversationList::NotLoaded | ConversationList::Loading => {}

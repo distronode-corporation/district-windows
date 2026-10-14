@@ -2,7 +2,12 @@
   "screen": {
     "Inbox": {
       "view": {
+        "compose": null,
         "empty": null,
+        "new_message": {
+          "label": "New message",
+          "offered": true
+        },
         "partial_note": null,
         "read_only_note": "",
         "refresh_failure": {

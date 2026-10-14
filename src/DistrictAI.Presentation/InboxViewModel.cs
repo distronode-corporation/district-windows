@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
 using DistrictAI.L10n;
+using DistrictAI.ViewModels.Inbox;
 
 namespace DistrictAI.ViewModels;
 
@@ -18,6 +20,17 @@ public sealed partial class InboxViewModel : ObservableObject
 
     /// <summary>The messages matching the search.</summary>
     public ObservableCollection<SearchHitItem> Hits { get; } = [];
+
+    /// <summary>The new message form, a dialog while the core holds it open.</summary>
+    public ComposeViewModel Compose { get; } = new();
+
+    /// <summary>Whether "New message" is offered: not to a viewer, who cannot send.</summary>
+    [ObservableProperty]
+    public partial bool CanCompose { get; set; }
+
+    /// <summary>The "New message" button's words.</summary>
+    [ObservableProperty]
+    public partial string ComposeLabel { get; set; } = string.Empty;
 
     /// <summary>That replies are sent elsewhere.</summary>
     [ObservableProperty]
@@ -71,12 +84,16 @@ public sealed partial class InboxViewModel : ObservableObject
     {
         _context = context;
         Load.Attach(context);
+        Compose.Attach(context);
     }
 
     internal void Show(InboxView view)
     {
         Load.Show(view.Status, view.Threads.Length > 0, view.Empty, view.Refreshing, view.RefreshFailure);
         ReadOnlyNote = view.ReadOnlyNote;
+        CanCompose = view.NewMessage.Offered;
+        ComposeLabel = view.NewMessage.Label;
+        Compose.Show(view.Compose);
         PartialNote = view.PartialNote ?? string.Empty;
         HasPartialNote = view.PartialNote is not null;
         Display.Sync(Threads, [.. view.Threads.Select(ThreadRowItem.From)]);
@@ -129,6 +146,16 @@ public sealed partial class InboxViewModel : ObservableObject
         }
         Query = text;
         _context?.Send(text.Length == 0 ? new UiEvent.ClearSearch() : new UiEvent.Search(text));
+    }
+
+    /// <summary>"New message": the core opens the form.</summary>
+    [RelayCommand]
+    private void NewMessage()
+    {
+        if (CanCompose && !Compose.IsOpen)
+        {
+            _context?.Send(new UiEvent.Compose(new ComposeAction.Open()));
+        }
     }
 
     internal void OpenThread(ThreadRowItem row)
