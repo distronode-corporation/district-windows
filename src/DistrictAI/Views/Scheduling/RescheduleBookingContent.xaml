@@ -28,6 +28,7 @@
                 Text="{x:Bind ViewModel.Slots.FailureMessage, Mode=OneWay}"
                 TextWrapping="Wrap" />
             <Button
+                AutomationProperties.AutomationId="RescheduleBookingTryAgain"
                 AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
                 Command="{x:Bind ViewModel.Slots.RetryCommand}"
                 Content="{x:Bind l10n:S.CommonTryAgain}"
