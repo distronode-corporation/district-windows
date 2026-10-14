@@ -535,14 +535,18 @@ public sealed class SceneWalkTests
 
     /// <summary>
     /// The working hours' main flow: the section opens from the Booking pages
-    /// page with the week, and the overrides read; the week's editor
-    /// opens on the week read, a window is added to Monday and given another
-    /// opening time, and Save lands (the scene answers each step, so the
-    /// editor says so); then the overrides' editor adds a day off on a typed
-    /// date, and says so. Escape closes each editor.
+    /// page with the week, and the overrides read. In the week's editor each
+    /// row's controls reach the core: Monday has no window in the scene, so
+    /// its Add range gives it one; a time typed there that is not a time
+    /// shows its fault (and the save stops working), and a sound one clears
+    /// it; Remove takes the window off again; the weekday that has a window
+    /// copies it to Monday with Copy to all weekdays; and Save lands (the
+    /// scene answers each step, so the editor says so). Then the overrides'
+    /// editor: a row's Delete asks first and the delete lands, and a day off
+    /// is added on a typed date. Escape closes each editor.
     /// </summary>
     [Fact]
-    public void TheWeekSavesAndAnOverrideIsAdded()
+    public void TheWeekRowsReachTheCoreAndAnOverrideIsDeletedAndAdded()
     {
         RequireScriptedPackage();
         using var app = InstalledApp.Launch(SceneArgument);
@@ -558,16 +562,52 @@ public sealed class SceneWalkTests
 
         app.FindById("HoursWeekButton", PageTimeout).AsButton().Invoke();
         var week = app.FindById("HoursWeekDialog", PageTimeout);
-        // Monday comes first, and has no window in the scene: its Add range is
-        // the first, and the window it adds the first opening time.
-        Press(app.FindById("HoursAddRange", PageTimeout));
-        app.FindById("HoursRangeStart", PageTimeout).AsTextBox().Text = "08:30";
-        var save = Wait.For(
-            () => week.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+        // Monday comes first: its Add range is the first, named for the day
+        // ("Add range: Monday"), and its windows' boxes and buttons name it too.
+        var addRanges = Wait.For(
+            () => AllById(app, "HoursAddRange") is { Length: 7 } found ? found : null,
             PageTimeout,
-            "the week's Save to work",
+            "the seven days' Add range",
             app.Describe);
-        Press(save);
+        var monday = AfterColon(NameOf(addRanges[0]));
+        AutomationElement[] Monday(string id) => [.. AllById(app, id).Where(found => NameOf(found).Contains(monday, StringComparison.Ordinal))];
+        Assert.Empty(Monday("HoursRangeStart"));
+        AutomationElement WeekSave() => Wait.For(
+            () => week.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")),
+            PageTimeout,
+            "the week's Save",
+            app.Describe);
+
+        Press(addRanges[0]);
+        Expect(app, () => Monday("HoursRangeStart").Length == 1, $"a window on {monday} after its Add range");
+        InstalledApp.Log("Add range gave Monday a window");
+
+        Monday("HoursRangeStart")[0].AsTextBox().Text = "nine";
+        Expect(app, () => AllById(app, "HoursRangeError").Length == 1, "the fault of an opening time that is not a time");
+        Expect(app, () => !WeekSave().IsEnabled, "the week's Save to stop working while a time is not a time");
+        Monday("HoursRangeStart")[0].AsTextBox().Text = "08:30";
+        Expect(app, () => AllById(app, "HoursRangeError").Length == 0, "the fault to go once the opening time is a time");
+        Monday("HoursRangeEnd")[0].AsTextBox().Text = "8";
+        Expect(app, () => AllById(app, "HoursRangeError").Length == 1, "the fault of a closing time that is not a time");
+        Monday("HoursRangeEnd")[0].AsTextBox().Text = "17:00";
+        Expect(app, () => AllById(app, "HoursRangeError").Length == 0, "the fault to go once the closing time is a time");
+        InstalledApp.Log("the typed times reached the core");
+
+        Press(Monday("HoursRangeRemove")[0]);
+        Expect(app, () => Monday("HoursRangeStart").Length == 0, $"{monday}'s window to go after its Remove");
+        InstalledApp.Log("Remove took Monday's window off");
+
+        // The one weekday with a window offers to copy it.
+        Press(Wait.For(
+            () => AllById(app, "HoursCopyToWeekdays").FirstOrDefault(),
+            PageTimeout,
+            "a day's Copy to all weekdays",
+            app.Describe));
+        Expect(app, () => Monday("HoursRangeStart").Length > 0, $"a window copied to {monday}");
+        InstalledApp.Log("Copy to all weekdays gave Monday the window");
+
+        Expect(app, () => WeekSave().IsEnabled, "the week's Save to work");
+        Press(WeekSave());
         _ = app.FindById("HoursWeekNotice", PageTimeout);
         InstalledApp.Log("the week saved");
         Keyboard.Type(VirtualKeyShort.ESCAPE);
@@ -577,6 +617,18 @@ public sealed class SceneWalkTests
 
         app.FindById("HoursOverridesButton", PageTimeout).AsButton().Invoke();
         _ = app.FindById("HoursOverridesDialog", PageTimeout);
+        Press(Wait.For(
+            () => AllById(app, "HoursOverrideDelete").FirstOrDefault(),
+            PageTimeout,
+            "an override's Delete",
+            app.Describe));
+        _ = app.FindById("HoursOverrideDeleteTitle", PageTimeout, onScreen: false);
+        Press(app.FindById("HoursOverrideDeleteConfirm", PageTimeout, onScreen: false));
+        _ = app.FindById("HoursOverridesNotice", PageTimeout);
+        Assert.Null(app.TryFindById("HoursOverrideDeleteTitle", onScreen: false));
+        InstalledApp.Log("the override's Delete asked first, and the delete landed");
+        PutAway(app, "HoursOverridesNotice");
+
         Press(Wait.For(
             () => app.TryFindById("HoursOverrideAdd") is { IsEnabled: true } add ? add : null,
             PageTimeout,
@@ -819,6 +871,379 @@ public sealed class SceneWalkTests
             "the hosts stayed open after Escape");
         Assert.Null(Failure(app));
         Assert.True(app.IsRunning, "the app ended in the team");
+    }
+
+    /// <summary>
+    /// An event type's rows, each pressed as a member does: in the state
+    /// actions, a test email's link sends it (the scene answers, and the
+    /// dialog names the address); in the hosts, the one member who is not a
+    /// host is added, a priority typed for them that is not a whole number
+    /// is refused at the save, a host's role is changed, the added host is
+    /// removed, and the save lands; in the questions, the choice question's
+    /// Edit opens its form on its options and one is removed, and a
+    /// question's Delete asks first and the delete lands.
+    /// </summary>
+    /// <remarks>
+    /// A host's role shows no change of its own here: the row's choice reads
+    /// the same whether the core took it or not, and the scene keeps nothing,
+    /// so the event type read after the save is the recorded one.
+    /// </remarks>
+    [Fact]
+    public void AnEventTypesRowsDoWhatTheySay()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        var eventTypes = OpenSettingsRowById(app, "SchedulingSectionEventTypes");
+        _ = Heading(app, eventTypes, PageTimeout, "SchedulingAdminHeading");
+        var list = app.FindById("SchedulingEventTypesList", PageTimeout);
+        Activate(Wait.For(
+            () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
+            PageTimeout,
+            "an event type in the list",
+            app.Describe));
+        _ = app.FindById("SchedulingEventTypeName", PageTimeout);
+
+        app.FindById("EventTypeManageButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("EventTypeActionsDialog", PageTimeout);
+        Press(
+            Wait.For(
+                () => AllById(app, "EventTypeTestEmail").FirstOrDefault(),
+                PageTimeout,
+                "a test email's link",
+                app.Describe),
+            allow: "the scene answers a test email; nothing leaves the computer");
+        _ = app.FindById("EventTypeActionsNotice", PageTimeout);
+        InstalledApp.Log("a test email's link sent it");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("EventTypeActionsDialog") is null, PageTimeout),
+            "the state actions stayed open after Escape");
+
+        app.FindById("EventTypeHostsButton", PageTimeout).AsButton().Invoke();
+        var hostsDialog = app.FindById("EventTypeHostsDialog", PageTimeout);
+        var add = Wait.For(
+            () => AllById(app, "EventTypeHostAdd").FirstOrDefault(),
+            PageTimeout,
+            "a member to add as a host",
+            app.Describe);
+        var hosts = AllById(app, "EventTypeHostRemove").Length;
+        Press(add);
+        Expect(
+            app,
+            () => AllById(app, "EventTypeHostRemove").Length == hosts + 1 && AllById(app, "EventTypeHostAdd").Length == 0,
+            "the member added as a host");
+        InstalledApp.Log("Add made the member a host");
+        AllById(app, "EventTypeHostPriority")[^1].AsTextBox().Text = "first";
+        AutomationElement HostsSave() => Wait.For(
+            () => hostsDialog.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "the hosts' Save to work",
+            app.Describe);
+        Press(HostsSave());
+        _ = app.FindById("EventTypeHostsValidation", PageTimeout, onScreen: false);
+        Assert.NotNull(app.TryFindById("EventTypeHostsDialog"));
+        InstalledApp.Log("a priority that is not a whole number was refused");
+
+        Choose(app, AllById(app, "EventTypeHostRole")[0], items => items.FirstOrDefault(item => !IsSelected(item)), "another role");
+        Press(AllById(app, "EventTypeHostRemove")[^1]);
+        Expect(app, () => AllById(app, "EventTypeHostRemove").Length == hosts, "the added host to go after their Remove");
+        InstalledApp.Log("Remove took the host off");
+        Press(HostsSave());
+        Assert.True(
+            Wait.Until(() => app.TryFindById("EventTypeHostsDialog") is null, PageTimeout),
+            "the hosts stayed open after their save");
+
+        app.FindById("EventTypeQuestionsButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("EventTypeQuestionsDialog", PageTimeout);
+        // The first question is a choice: its form holds its options.
+        Press(Wait.For(
+            () => AllById(app, "EventTypeQuestionEdit").FirstOrDefault(),
+            PageTimeout,
+            "a question's Edit",
+            app.Describe));
+        _ = app.FindById("EventTypeQuestionFormTitle", PageTimeout, onScreen: false);
+        var options = Wait.For(
+            () => AllById(app, "EventTypeQuestionRemoveOption") is { Length: > 1 } found ? found : null,
+            PageTimeout,
+            "the question's options",
+            app.Describe).Length;
+        Press(AllById(app, "EventTypeQuestionRemoveOption")[0]);
+        Expect(app, () => AllById(app, "EventTypeQuestionRemoveOption").Length == options - 1, "an option to go after its Remove");
+        InstalledApp.Log("Edit opened the question, and an option was removed");
+        Press(app.FindById("EventTypeQuestionCancel", PageTimeout, onScreen: false));
+        Press(Wait.For(
+            () => AllById(app, "EventTypeQuestionDelete").FirstOrDefault(),
+            PageTimeout,
+            "a question's Delete",
+            app.Describe));
+        _ = app.FindById("EventTypeQuestionDeleteTitle", PageTimeout, onScreen: false);
+        Press(app.FindById("EventTypeQuestionDeleteConfirm", PageTimeout, onScreen: false));
+        _ = app.FindById("EventTypeQuestionsNotice", PageTimeout);
+        InstalledApp.Log("a question's Delete asked first, and the delete landed");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("EventTypeQuestionsDialog") is null, PageTimeout),
+            "the questions stayed open after Escape");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the event types");
+    }
+
+    /// <summary>
+    /// Call handling's ways of answering: choosing the one not chosen makes
+    /// the core hold a change, so Save works (it does not before), and the
+    /// save lands with the choice (the scene answers a save as stored).
+    /// </summary>
+    [Fact]
+    public void CallHandlingSavesTheWayOfAnsweringChosen()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavSettings");
+        var title = OpenSettingsRowById(app, "SettingsRowCallHandling");
+        _ = Heading(app, title, PageTimeout);
+        var other = Wait.For(
+            () => AllById(app, "CallHandlingMode").FirstOrDefault(mode => mode.IsEnabled && !IsSelected(mode)),
+            PageTimeout,
+            "a way of answering not chosen",
+            app.Describe);
+        var name = NameOf(other);
+        Assert.False(app.FindById("CallHandlingSave", PageTimeout, onScreen: false).IsEnabled, "Save worked before anything changed");
+
+        Press(Reveal(app, "CallHandlingScroll", () => AllById(app, "CallHandlingMode").FirstOrDefault(mode => NameOf(mode) == name), $"the way \"{name}\""));
+        Press(Wait.For(
+            () => app.TryFindById("CallHandlingSave", onScreen: false) is { IsEnabled: true } save ? save : null,
+            PageTimeout,
+            $"Save to work once \"{name}\" was chosen",
+            app.Describe));
+        _ = app.FindById("CallHandlingNotice", PageTimeout, onScreen: false);
+        Expect(app, () => AllById(app, "CallHandlingMode").Any(mode => NameOf(mode) == name && IsSelected(mode)), $"\"{name}\" chosen, as saved");
+        InstalledApp.Log($"\"{name}\" was saved");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in call handling");
+    }
+
+    /// <summary>
+    /// The carrier accounts' rows: the first channel's sender is changed to
+    /// the other account and the change lands (the scene answers it); the
+    /// first account's Make default lands; its Edit opens the form on it;
+    /// and its Remove asks first, and Cancel keeps it.
+    /// </summary>
+    [Fact]
+    public void TheMessagingRowsDoWhatTheySay()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavSettings");
+        var title = OpenSettingsRowById(app, "SettingsRowMessaging");
+        _ = Heading(app, title, PageTimeout);
+
+        // The scene's first channel sends from the first account: the other is chosen.
+        var picker = Reveal(app, "MessagingScroll", () => AllById(app, "MessagingChannelSender").FirstOrDefault(), "the first channel's sender");
+        Choose(app, picker, items => items.FirstOrDefault(item => !IsSelected(item)), "the other account");
+        ScrollTo(app, "MessagingScroll", 0);
+        _ = app.FindById("MessagingSavedNotice", PageTimeout);
+        InstalledApp.Log("the channel's sender changed");
+        PutAway(app, "MessagingSavedNotice");
+
+        Press(Wait.For(
+            () => AllById(app, "MessagingMakeDefault").FirstOrDefault(),
+            PageTimeout,
+            "an account's Make default",
+            app.Describe));
+        ScrollTo(app, "MessagingScroll", 0);
+        _ = app.FindById("MessagingSavedNotice", PageTimeout);
+        Assert.Null(app.TryFindById("MessagingFailedNotice", onScreen: false));
+        InstalledApp.Log("Make default landed");
+
+        Press(AllById(app, "MessagingEditAccount")[0]);
+        _ = app.FindById("MessagingFormTitle", PageTimeout, onScreen: false);
+        InstalledApp.Log("Edit opened the account's form");
+        Press(app.FindById("MessagingCloseForm", PageTimeout, onScreen: false));
+        Expect(app, () => app.TryFindById("MessagingFormTitle", onScreen: false) is null, "the form to close");
+
+        Press(AllById(app, "MessagingRemoveAccount")[0]);
+        _ = app.FindById("MessagingConfirmTitle", PageTimeout, onScreen: false);
+        InstalledApp.Log("Remove asked first");
+        Press(app.FindById("MessagingKeepAccount", PageTimeout, onScreen: false));
+        Expect(app, () => app.TryFindById("MessagingConfirmTitle", onScreen: false) is null, "the question to go after Cancel");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the carrier accounts");
+    }
+
+    /// <summary>
+    /// The workflows' rows: the first workflow's Show runs opens its runs (the
+    /// recorded page, which offers More runs), More runs adds the next page,
+    /// the last; and the second workflow's switch, turned, waits for its
+    /// change (the scene never answers it), so it does not work meanwhile.
+    /// </summary>
+    [Fact]
+    public void AWorkflowsRunsOpenAndPageOnAndItsSwitchIsSent()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavWorkflows");
+        Press(Wait.For(
+            () => AllById(app, "WorkflowRunsButton").FirstOrDefault(),
+            PageTimeout,
+            "a workflow's Show runs",
+            app.Describe));
+        var more = app.FindById("WorkflowMoreRuns", PageTimeout, onScreen: false);
+        var firstPage = AllById(app, "WorkflowRunWhen").Length;
+        Assert.True(firstPage > 0, "Show runs showed no run");
+        InstalledApp.Log(FormattableString.Invariant($"Show runs opened {firstPage} runs"));
+        Press(more);
+        Expect(
+            app,
+            () => app.TryFindById("WorkflowMoreRuns", onScreen: false) is null && AllById(app, "WorkflowRunWhen").Length > firstPage,
+            "the next page of runs, the last");
+        InstalledApp.Log(FormattableString.Invariant($"More runs: {AllById(app, "WorkflowRunWhen").Length} runs"));
+
+        var second = Wait.For(
+            () => AllById(app, "WorkflowSwitch") is { Length: > 1 } found && found[1].IsEnabled ? found[1] : null,
+            PageTimeout,
+            "the second workflow's switch, working",
+            app.Describe);
+        var name = NameOf(second);
+        second.Patterns.Toggle.Pattern.Toggle();
+        Expect(
+            app,
+            () => AllById(app, "WorkflowSwitch").FirstOrDefault(found => NameOf(found) == name) is { IsEnabled: false },
+            $"\"{name}\" waiting for its change");
+        InstalledApp.Log($"\"{name}\" was turned and waits for the change");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in the workflows");
+    }
+
+    /// <summary>
+    /// Voice Studio's Voice part, behind Advanced: a slider left at the
+    /// service's default has "use the default" ticked and does not move;
+    /// unticking it gives the slider a value of its own, so it moves.
+    /// </summary>
+    [Fact]
+    public void VoiceStudiosUseTheDefaultFreesItsSlider()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavSettings");
+        var title = OpenSettingsRowById(app, "SettingsRowVoiceStudio");
+        _ = Heading(app, title, PageTimeout);
+        // The chain's last part is the voice (scripted.rs,
+        // voice_studio_offers_a_slider_left_at_its_default).
+        Activate(Reveal(
+            app,
+            "VoiceStudioScroll",
+            () => app.TryFindById("StudioChain", onScreen: false)?.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem)).LastOrDefault(),
+            "the chain's last part"));
+        var advanced = Wait.For(
+            () => app.TryFindById("StudioAdvanced", onScreen: false) is { } found && found.Patterns.ExpandCollapse.IsSupported ? found : null,
+            PageTimeout,
+            "Advanced",
+            app.Describe);
+        advanced.Patterns.ExpandCollapse.Pattern.Expand();
+        _ = Wait.For(
+            () => AllById(app, "StudioUseDefault").FirstOrDefault(IsTicked),
+            PageTimeout,
+            "a slider's \"use the default\", ticked",
+            app.Describe);
+        var moving = AllById(app, "StudioSlider").Count(slider => slider.IsEnabled);
+
+        Press(Reveal(app, "VoiceStudioScroll", () => AllById(app, "StudioUseDefault").FirstOrDefault(IsTicked), "a ticked \"use the default\""));
+        Expect(app, () => AllById(app, "StudioSlider").Count(slider => slider.IsEnabled) == moving + 1, "the slider to move once \"use the default\" was unticked");
+        InstalledApp.Log("unticking \"use the default\" gave the slider a value");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in Voice Studio");
+    }
+
+    /// <summary>Every element whose AutomationId is <paramref name="automationId"/>, on the screen or scrolled off it, in order.</summary>
+    private static AutomationElement[] AllById(InstalledApp app, string automationId) =>
+        app.TryMainWindow()?.FindAllDescendants(cf => cf.ByAutomationId(automationId)) ?? [];
+
+    /// <summary>Waits for <paramref name="condition"/>; at the deadline, fails naming <paramref name="what"/> and what UI Automation held.</summary>
+    private static void Expect(InstalledApp app, Func<bool> condition, string what) =>
+        _ = Wait.For(() => condition() ? what : null, PageTimeout, what, app.Describe);
+
+    /// <summary>"Monday" of "Add range: Monday": what follows the last colon.</summary>
+    private static string AfterColon(string name) =>
+        name[(name.LastIndexOf(": ", StringComparison.Ordinal) + 2)..];
+
+    /// <summary>Whether a radio button, or a choice box's item, is the one chosen.</summary>
+    private static bool IsSelected(AutomationElement element) =>
+        element.Patterns.SelectionItem.PatternOrDefault is { } item && item.IsSelected.ValueOrDefault;
+
+    /// <summary>Whether a check box is ticked.</summary>
+    private static bool IsTicked(AutomationElement element) =>
+        element.Patterns.Toggle.PatternOrDefault is { } toggle && toggle.ToggleState.ValueOrDefault == ToggleState.On;
+
+    /// <summary>
+    /// What <paramref name="find"/> finds, brought onto the screen: the scroll
+    /// viewer <paramref name="scrollId"/> is scrolled down a tenth at a time
+    /// until it shows, as a member scrolls to it (a click needs it on screen).
+    /// </summary>
+    private static AutomationElement Reveal(InstalledApp app, string scrollId, Func<AutomationElement?> find, string what) =>
+        Wait.For(
+            () =>
+            {
+                for (var percent = 0; percent <= 100; percent += 10)
+                {
+                    ScrollTo(app, scrollId, percent);
+                    Thread.Sleep(150);
+                    if (find() is { IsOffscreen: false } shown)
+                    {
+                        return shown;
+                    }
+                }
+                return null;
+            },
+            PageTimeout,
+            $"{what} on the screen",
+            app.Describe);
+
+    /// <summary>
+    /// Opens the choice box <paramref name="box"/>, chooses the item
+    /// <paramref name="pick"/> picks of its items (<paramref name="what"/>),
+    /// and closes it, as a member does.
+    /// </summary>
+    private static void Choose(InstalledApp app, AutomationElement box, Func<AutomationElement[], AutomationElement?> pick, string what)
+    {
+        box.Patterns.ExpandCollapse.Pattern.Expand();
+        var item = Wait.For(
+            () => pick(box.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))),
+            PageTimeout,
+            what,
+            app.Describe);
+        item.Patterns.SelectionItem.Pattern.Select();
+        if (box.Patterns.ExpandCollapse.Pattern.ExpandCollapseState.ValueOrDefault != ExpandCollapseState.Collapsed)
+        {
+            box.Patterns.ExpandCollapse.Pattern.Collapse();
+        }
+    }
+
+    /// <summary>Closes the open notice <paramref name="noticeId"/> with its own close button, as a member does.</summary>
+    private static void PutAway(InstalledApp app, string noticeId)
+    {
+        var notice = app.FindById(noticeId, PageTimeout);
+        Press(Wait.For(
+            () => notice.FindFirstDescendant(cf => cf.ByControlType(ControlType.Button)),
+            PageTimeout,
+            $"the close button of {noticeId}",
+            app.Describe));
+        Expect(app, () => app.TryFindById(noticeId) is null, $"{noticeId} to close");
     }
 
     /// <summary>
