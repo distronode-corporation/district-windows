@@ -450,7 +450,10 @@ fn scheduling_admin(
 ) -> Option<Result<district_model::SchedulingAdminReply, ApiError>> {
     use district_model::SchedulingAdminRequest as R;
     let text = match request {
-        R::Me => fixture!("district-scheduling-me.json"),
+        R::Me | R::PatchMe(_) => fixture!("district-scheduling-me.json"),
+        R::Branding | R::PatchBranding(_) => fixture!("district-scheduling-branding.json"),
+        R::Llm | R::PatchLlm { .. } => fixture!("district-scheduling-llm.json"),
+        R::Upload(_) => fixture!("district-scheduling-upload.json"),
         R::EventTypes => fixture!("district-scheduling-event-types.json"),
         R::CalendarStatus => fixture!("district-scheduling-calendar-status.json"),
         R::ZoomStatus => fixture!("district-scheduling-zoom-status.json"),
@@ -503,7 +506,10 @@ fn scheduling_admin(
         | R::DeleteApiKey { .. }
         | R::DeleteOauthConnection { .. }
         | R::PatchWebhook { .. }
-        | R::DeleteWebhook { .. } => fixture!("district-scheduling-ok.json"),
+        | R::DeleteWebhook { .. }
+        | R::DeleteAvatar
+        | R::DeleteLogo
+        | R::DeleteBanner => fixture!("district-scheduling-ok.json"),
         _ => return None,
     };
     let data = serde_json::from_str::<Value>(text)
@@ -1515,6 +1521,98 @@ mod tests {
             view.editor.expect("still open").notice.as_deref(),
             Some("Team deleted")
         );
+    }
+
+    /// The settings open from the booking pages on the booking page and fill
+    /// in; each tab reads and each dialog's save lands: the booking page (and
+    /// its logo removed), the assistant, the profile and the notifications.
+    #[test]
+    fn the_settings_fill_in_and_their_saves_land() {
+        use crate::events::UiEvent;
+        use crate::scheduling_admin::settings::{
+            SchedulingImageTarget, SchedulingSettingsAction as S, SchedulingSettingsTab as Tab,
+        };
+        use crate::scheduling_admin::{
+            SchedulingAdminAction as A, SchedulingAdminPage as P, SchedulingAdminSection,
+        };
+
+        let mut model = started();
+        let mut send = |action: UiEvent| {
+            let mut pending = Vec::new();
+            for event in action.events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let screen = screen_view(&model);
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::SchedulingAdmin { view } = screen else {
+                panic!("not the scheduling administration: {screen:?}");
+            };
+            let P::Settings { view } = view.page else {
+                panic!("not the settings");
+            };
+            view
+        };
+        let view = send(UiEvent::SchedulingAdmin {
+            action: A::Open {
+                section: SchedulingAdminSection::Settings,
+            },
+        });
+        let mut run = |action: S| {
+            send(UiEvent::SchedulingAdmin {
+                action: A::Settings { action },
+            })
+        };
+        assert_eq!(view.status, crate::views::LoadStatus::Ready);
+        assert_eq!(view.groups[0].rows[0].value, "Contract Agency");
+        assert!(view.offers_edit);
+
+        let view = run(S::OpenEditor {
+            tab: Tab::BookingPage,
+        });
+        assert!(view.branding.expect("open").logo.shows_remove);
+        let view = run(S::SaveBranding);
+        assert!(view.branding.expect("still open").notice.is_some());
+        let view = run(S::RemoveImage {
+            target: SchedulingImageTarget::Logo,
+        });
+        assert!(view.branding.expect("still open").logo.notice.is_some());
+        assert_eq!(run(S::CloseDialog).branding, None);
+
+        let view = run(S::SelectTab {
+            tab: Tab::Assistant,
+        });
+        assert_eq!(view.groups[0].rows[0].value, "On");
+        let _ = run(S::OpenEditor {
+            tab: Tab::Assistant,
+        });
+        let _ = run(S::EditAssistant {
+            enabled: false,
+            instructions: "Always list the agreed next steps first.".to_owned(),
+        });
+        let view = run(S::SaveAssistant);
+        assert!(view.assistant.expect("still open").notice.is_some());
+        let _ = run(S::CloseDialog);
+
+        let view = run(S::SelectTab { tab: Tab::Profile });
+        assert_eq!(view.groups[0].rows[0].value, "Contract Member");
+        let _ = run(S::OpenEditor { tab: Tab::Profile });
+        let view = run(S::SaveProfile);
+        assert!(view.profile.expect("still open").notice.is_some());
+        let _ = run(S::CloseDialog);
+
+        let _ = run(S::SelectTab {
+            tab: Tab::Notifications,
+        });
+        let _ = run(S::OpenEditor {
+            tab: Tab::Notifications,
+        });
+        let _ = run(S::SetNotification {
+            field: "notify_reschedule".to_owned(),
+            on: true,
+        });
+        let view = run(S::SaveNotifications);
+        assert!(view.notifications.expect("still open").notice.is_some());
     }
 
     /// Developer opens from the booking pages and fills in; a key is made

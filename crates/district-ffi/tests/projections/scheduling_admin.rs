@@ -22,6 +22,7 @@ pub(crate) mod calendar;
 pub(crate) mod developer;
 pub(crate) mod event_types;
 pub(crate) mod hours;
+pub(crate) mod settings;
 pub(crate) mod team;
 
 /// This area's snapshot cases.
@@ -91,12 +92,6 @@ pub(crate) fn cases() -> Vec<Case> {
         (
             "scheduling-admin-booking-cancel-open",
             booking(signed_in()).ui(detail(BookingAction::OpenCancel)),
-        ),
-        (
-            "scheduling-admin-section-not-built",
-            signed_in().send(Event::Navigate(Route::SchedulingAdmin(
-                SchedulingSection::Settings,
-            ))),
         ),
     ]
 }

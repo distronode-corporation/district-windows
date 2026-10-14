@@ -1,0 +1,162 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Settings": {
+            "view": {
+              "assistant": null,
+              "branding": null,
+              "edit_label": "Edit",
+              "groups": [
+                {
+                  "description": null,
+                  "heading": "Booking page",
+                  "rows": [
+                    {
+                      "label": "Business name",
+                      "value": "Contract Agency"
+                    },
+                    {
+                      "label": "Logo",
+                      "value": "Set"
+                    },
+                    {
+                      "label": "Banner",
+                      "value": "Set"
+                    },
+                    {
+                      "label": "Privacy policy link",
+                      "value": "Not set"
+                    },
+                    {
+                      "label": "Terms link",
+                      "value": "https://www.contract.test/terms"
+                    },
+                    {
+                      "label": "Page language",
+                      "value": "English"
+                    }
+                  ]
+                }
+              ],
+              "notifications": null,
+              "offers_edit": false,
+              "profile": null,
+              "status": "Ready",
+              "tabs": [
+                {
+                  "label": "Booking page",
+                  "selected": true,
+                  "tab": "BookingPage"
+                },
+                {
+                  "label": "Booking assistant",
+                  "selected": false,
+                  "tab": "Assistant"
+                },
+                {
+                  "label": "Your profile",
+                  "selected": false,
+                  "tab": "Profile"
+                },
+                {
+                  "label": "Your notifications",
+                  "selected": false,
+                  "tab": "Notifications"
+                }
+              ]
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Hours",
+            "selected": false,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          },
+          {
+            "section": "Calendar",
+            "selected": false,
+            "subtitle": "The accounts bookings are written to and checked against",
+            "title": "Calendar"
+          },
+          {
+            "section": "Team",
+            "selected": false,
+            "subtitle": "The hosts who can be booked, and the teams they route through",
+            "title": "Team"
+          },
+          {
+            "section": "Settings",
+            "selected": true,
+            "subtitle": "Your booking page, your booking assistant, and how the scheduler treats you",
+            "title": "Settings"
+          },
+          {
+            "section": "Developer",
+            "selected": false,
+            "subtitle": "API keys, connected apps and webhooks",
+            "title": "Developer"
+          }
+        ],
+        "title": "Settings"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

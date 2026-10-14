@@ -257,6 +257,7 @@ fn the_sections_are_listed_once_live() {
             SchedulingAdminSection::Bookings,
             SchedulingAdminSection::Calendar,
             SchedulingAdminSection::Team,
+            SchedulingAdminSection::Settings,
             SchedulingAdminSection::Developer
         ]
     );

@@ -123,6 +123,12 @@
             "title": "Team"
           },
           {
+            "section": "Settings",
+            "selected": false,
+            "subtitle": "Your booking page, your booking assistant, and how the scheduler treats you",
+            "title": "Settings"
+          },
+          {
             "section": "Developer",
             "selected": true,
             "subtitle": "API keys, connected apps and webhooks",

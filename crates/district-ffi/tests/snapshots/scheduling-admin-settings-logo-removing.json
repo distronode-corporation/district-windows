@@ -1,0 +1,238 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Settings": {
+            "view": {
+              "assistant": null,
+              "branding": {
+                "banner": {
+                  "choose_label": "Choose image",
+                  "enabled": false,
+                  "failure": null,
+                  "label": "Banner",
+                  "notice": null,
+                  "remove_ask": {
+                    "body": "Images save as soon as you choose or remove them.",
+                    "cancel": "Cancel",
+                    "confirm": "Remove",
+                    "title": "Banner"
+                  },
+                  "remove_label": "Remove",
+                  "shows_remove": true,
+                  "target": "Banner",
+                  "value": "Set",
+                  "working": false
+                },
+                "banner_opacity": 80,
+                "banner_opacity_label": "Banner opacity",
+                "business_name": "Contract Agency",
+                "business_name_hint": "Shown at the top of every booking page.",
+                "business_name_label": "Business name",
+                "dialog": {
+                  "body": "",
+                  "can_confirm": false,
+                  "close": "Cancel",
+                  "confirm": "Save booking page",
+                  "destructive": false,
+                  "failure": null,
+                  "title": "Booking page",
+                  "working": false
+                },
+                "editable": false,
+                "error": null,
+                "image_hint": "JPEG, PNG, GIF or WebP, up to 5 MB.",
+                "images_note": "Images save as soon as you choose or remove them.",
+                "legal_url_hint": "Linked in the footer of the booking page. Leave it empty for none.",
+                "locale_hint": "The language a visitor gets when their browser asks for one we do not have.",
+                "locale_label": "Page language",
+                "locales": [
+                  {
+                    "label": "English",
+                    "selected": true,
+                    "value": "en"
+                  },
+                  {
+                    "label": "Français",
+                    "selected": false,
+                    "value": "fr"
+                  }
+                ],
+                "logo": {
+                  "choose_label": "Choose image",
+                  "enabled": false,
+                  "failure": null,
+                  "label": "Logo",
+                  "notice": null,
+                  "remove_ask": {
+                    "body": "Images save as soon as you choose or remove them.",
+                    "cancel": "Cancel",
+                    "confirm": "Remove",
+                    "title": "Logo"
+                  },
+                  "remove_label": "Remove",
+                  "shows_remove": true,
+                  "target": "Logo",
+                  "value": "Set",
+                  "working": true
+                },
+                "logo_height": 48,
+                "logo_height_hint": "In pixels, between 16 and 64.",
+                "logo_height_label": "Logo height",
+                "logo_height_max": 64,
+                "logo_height_min": 16,
+                "logo_opacity": 100,
+                "logo_opacity_label": "Logo opacity",
+                "notice": null,
+                "opacity_hint": "A percentage, between 20 and 100.",
+                "opacity_max": 100,
+                "opacity_min": 20,
+                "privacy_label": "Privacy policy link",
+                "privacy_url": "",
+                "terms_label": "Terms link",
+                "terms_url": "https://www.contract.test/terms"
+              },
+              "edit_label": "Edit",
+              "groups": [
+                {
+                  "description": null,
+                  "heading": "Booking page",
+                  "rows": [
+                    {
+                      "label": "Business name",
+                      "value": "Contract Agency"
+                    },
+                    {
+                      "label": "Logo",
+                      "value": "Set"
+                    },
+                    {
+                      "label": "Banner",
+                      "value": "Set"
+                    },
+                    {
+                      "label": "Privacy policy link",
+                      "value": "Not set"
+                    },
+                    {
+                      "label": "Terms link",
+                      "value": "https://www.contract.test/terms"
+                    },
+                    {
+                      "label": "Page language",
+                      "value": "English"
+                    }
+                  ]
+                }
+              ],
+              "notifications": null,
+              "offers_edit": true,
+              "profile": null,
+              "status": "Ready",
+              "tabs": [
+                {
+                  "label": "Booking page",
+                  "selected": true,
+                  "tab": "BookingPage"
+                },
+                {
+                  "label": "Booking assistant",
+                  "selected": false,
+                  "tab": "Assistant"
+                },
+                {
+                  "label": "Your profile",
+                  "selected": false,
+                  "tab": "Profile"
+                },
+                {
+                  "label": "Your notifications",
+                  "selected": false,
+                  "tab": "Notifications"
+                }
+              ]
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Hours",
+            "selected": false,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          },
+          {
+            "section": "Calendar",
+            "selected": false,
+            "subtitle": "The accounts bookings are written to and checked against",
+            "title": "Calendar"
+          },
+          {
+            "section": "Team",
+            "selected": false,
+            "subtitle": "The hosts who can be booked, and the teams they route through",
+            "title": "Team"
+          },
+          {
+            "section": "Settings",
+            "selected": true,
+            "subtitle": "Your booking page, your booking assistant, and how the scheduler treats you",
+            "title": "Settings"
+          },
+          {
+            "section": "Developer",
+            "selected": false,
+            "subtitle": "API keys, connected apps and webhooks",
+            "title": "Developer"
+          }
+        ],
+        "title": "Settings"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

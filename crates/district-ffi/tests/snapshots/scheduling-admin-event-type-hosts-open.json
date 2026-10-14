@@ -207,6 +207,12 @@
             "title": "Team"
           },
           {
+            "section": "Settings",
+            "selected": false,
+            "subtitle": "Your booking page, your booking assistant, and how the scheduler treats you",
+            "title": "Settings"
+          },
+          {
             "section": "Developer",
             "selected": false,
             "subtitle": "API keys, connected apps and webhooks",
