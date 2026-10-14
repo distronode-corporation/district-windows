@@ -550,7 +550,7 @@ public sealed class SchedulingEventTypesViewModelTests
         model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts(validation: "A host's priority has to be a whole number, 0 or more."))), "Event type"));
         Assert.Same(shown, vm.Hosts[0]);
         Assert.True(vm.HasValidation);
-        model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts(hosts: [])))), "Event type"));
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts(hosts: []))), "Event type"));
         Assert.Empty(vm.Hosts);
         Assert.True(vm.ShowEmpty);
         Assert.Equal("No hosts yet.", vm.EmptyText);
@@ -586,7 +586,7 @@ public sealed class SchedulingEventTypesViewModelTests
         vm.Edit(question);
         vm.AskDelete(question);
 
-        model.Show(Page(new SchedulingAdminPage.EventType(Detail(questions: Questions(form: QuestionForm())))), "Event type"));
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(questions: Questions(form: QuestionForm()))), "Event type"));
         Assert.True(vm.Editing);
         Assert.False(vm.ShowsList);
         Assert.Equal("Add question", vm.Words?.Title);
@@ -634,20 +634,20 @@ public sealed class SchedulingEventTypesViewModelTests
         model.Show(Page(new SchedulingAdminPage.EventType(Detail(questions: Questions(form: QuestionForm(options: [], canSave: true) with
         {
             Validation = "A Select question needs at least one option.",
-        })))), "Event type"));
+        }))), "Event type"));
         Assert.Equal("Which city?", vm.Label);
         Assert.Empty(vm.Options);
         Assert.True(vm.HasValidation);
         Assert.True(vm.CanSave);
 
         // Another question's form is written afresh.
-        model.Show(Page(new SchedulingAdminPage.EventType(Detail(questions: Questions(form: QuestionForm(id: "q-2", kind: "text"))))), "Event type"));
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(questions: Questions(form: QuestionForm(id: "q-2", kind: "text")))), "Event type"));
         Assert.Equal("Which office?", vm.Label);
         Assert.Equal(0, vm.KindIndex);
         Assert.False(vm.ShowsOptions);
         Assert.Equal("Save question", vm.SaveLabel);
 
-        model.Show(Page(new SchedulingAdminPage.EventType(Detail(questions: Questions(asking: true, notice: "Question added")))), "Event type"));
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(questions: Questions(asking: true, notice: "Question added"))), "Event type"));
         Assert.True(vm.ShowsList);
         Assert.True(vm.Asking);
         Assert.Equal("Delete question?", vm.AskTitle);
