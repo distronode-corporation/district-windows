@@ -110,7 +110,7 @@ public sealed class NumberAdminViewModelTests
         return (model, sink);
     }
 
-    private static UiEvent Sent(NumberAdminAction action) => new UiEvent.Marketplace(new MarketplaceAction.Numbers(action));
+    private static UiEvent.Marketplace Sent(NumberAdminAction action) => new(new MarketplaceAction.Numbers(action));
 
     [Fact]
     public void AHeldNumberIsReappliedOrReleasedOnlyWhenTheCoreAllows()
