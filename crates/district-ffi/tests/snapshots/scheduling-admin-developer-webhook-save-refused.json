@@ -1,0 +1,348 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Developer": {
+            "view": {
+              "add_webhook_label": "Add webhook",
+              "apps": [],
+              "apps_empty": "No connected apps.",
+              "apps_heading": "Connected apps",
+              "apps_status": "Loading",
+              "apps_subtitle": "Every connected app reaches the same booking data. There are no partial permissions, so revoking is the only way to narrow one.",
+              "create_key_label": "Create key",
+              "delete_webhook_label": "Delete webhook",
+              "deliveries": null,
+              "deliveries_label": "Deliveries",
+              "edit_webhook_label": "Edit",
+              "key_dialog": null,
+              "keys": [
+                {
+                  "id": "key-contract-1",
+                  "line": "Created Sep 1, 2026, 7:00 a.m. · Last used Sep 10, 2026, 4:15 a.m.",
+                  "name": "Zapier"
+                },
+                {
+                  "id": "key-contract-2",
+                  "line": "Created Sep 2, 2026, 7:00 a.m. · Last used Never",
+                  "name": "Unused"
+                }
+              ],
+              "keys_empty": "No API keys yet.",
+              "keys_heading": "Your API keys",
+              "keys_status": "Ready",
+              "keys_subtitle": "A key lets your own tools and scripts reach this workspace's booking data.",
+              "mcp": {
+                "auth": "Bearer <your API key>",
+                "auth_label": "Authorization header",
+                "url": "https://book.example.com/mcp",
+                "url_label": "MCP URL"
+              },
+              "mcp_heading": "Connect an AI assistant",
+              "mcp_no_host": "Your booking address is not ready yet. It appears here once scheduling is set up.",
+              "mcp_note": "Use a key from the API keys tab. Anyone holding it can do everything on this workspace's bookings, so give each assistant its own and revoke it when you are done with it.",
+              "offers_writes": true,
+              "removal": null,
+              "removal_failure": null,
+              "removing": false,
+              "revoke_app_label": "Revoke access",
+              "revoke_key_label": "Revoke key",
+              "tab": "Webhooks",
+              "tabs": [
+                {
+                  "label": "API keys",
+                  "selected": false,
+                  "tab": "Keys"
+                },
+                {
+                  "label": "Connected apps",
+                  "selected": false,
+                  "tab": "Apps"
+                },
+                {
+                  "label": "Webhooks",
+                  "selected": true,
+                  "tab": "Webhooks"
+                }
+              ],
+              "times_in": "Times in America/Toronto",
+              "webhook_dialog": {
+                "creating": false,
+                "dialog": {
+                  "body": "",
+                  "can_confirm": true,
+                  "close": "Cancel",
+                  "confirm": "Save changes",
+                  "destructive": false,
+                  "failure": {
+                    "message": "The booking system did not answer. Try again in a minute.",
+                    "regions_line": null,
+                    "retryable": true
+                  },
+                  "title": "Edit webhook",
+                  "working": false
+                },
+                "dropped": null,
+                "editable": true,
+                "events": [
+                  {
+                    "mark": null,
+                    "on": true,
+                    "value": "booking.created"
+                  },
+                  {
+                    "mark": null,
+                    "on": true,
+                    "value": "booking.cancelled"
+                  },
+                  {
+                    "mark": null,
+                    "on": true,
+                    "value": "booking.rescheduled"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "booking.reminder"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "recording.completed"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "transcript.ready"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "notes.ready"
+                  }
+                ],
+                "events_error": null,
+                "events_hint": "What to send. Each one is a separate delivery.",
+                "events_label": "Events",
+                "fields": [
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "id"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "status"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "start_at"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "end_at"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "created_at"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "location_value"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "cancellation_reason"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "previous_start_at"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "previous_end_at"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "event_type_slug"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "event_type_name"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "host_id"
+                  },
+                  {
+                    "mark": "Personal data",
+                    "on": false,
+                    "value": "host_name"
+                  },
+                  {
+                    "mark": "Personal data",
+                    "on": false,
+                    "value": "host_email"
+                  },
+                  {
+                    "mark": "Personal data",
+                    "on": true,
+                    "value": "attendee_name"
+                  },
+                  {
+                    "mark": "Personal data",
+                    "on": true,
+                    "value": "attendee_email"
+                  },
+                  {
+                    "mark": "Personal data",
+                    "on": false,
+                    "value": "attendee_timezone"
+                  },
+                  {
+                    "mark": "Personal data",
+                    "on": false,
+                    "value": "answers"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "payment_status"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "amount_paid_cents"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "amount_paid_currency"
+                  },
+                  {
+                    "mark": null,
+                    "on": false,
+                    "value": "hours_before"
+                  }
+                ],
+                "fields_hint": "Which parts of the booking each delivery carries.",
+                "fields_label": "Data to send",
+                "minted": null,
+                "notice": null,
+                "url": "https://hooks.contract.test/bookings",
+                "url_error": null,
+                "url_hint": "The URL cannot be changed. Delete this webhook and add another to move it.",
+                "url_label": "Endpoint URL"
+              },
+              "webhooks": [
+                {
+                  "events": "booking.created, booking.cancelled",
+                  "id": "wh-contract-1",
+                  "open": false,
+                  "state_label": "On",
+                  "tone": "Success",
+                  "url": "https://hooks.contract.test/bookings"
+                },
+                {
+                  "events": "recording.completed",
+                  "id": "wh-contract-2",
+                  "open": false,
+                  "state_label": "Off",
+                  "tone": "Neutral",
+                  "url": "https://hooks.contract.test/recordings"
+                }
+              ],
+              "webhooks_empty": "No webhooks yet.",
+              "webhooks_heading": "Webhooks",
+              "webhooks_status": "Ready",
+              "webhooks_subtitle": "Bookings already reach your District inbox and workflows; webhooks are for other systems."
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Hours",
+            "selected": false,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          },
+          {
+            "section": "Calendar",
+            "selected": false,
+            "subtitle": "The accounts bookings are written to and checked against",
+            "title": "Calendar"
+          },
+          {
+            "section": "Team",
+            "selected": false,
+            "subtitle": "The hosts who can be booked, and the teams they route through",
+            "title": "Team"
+          },
+          {
+            "section": "Developer",
+            "selected": true,
+            "subtitle": "API keys, connected apps and webhooks",
+            "title": "Developer"
+          }
+        ],
+        "title": "Developer"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

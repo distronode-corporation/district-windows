@@ -128,6 +128,7 @@ fn cases() -> Vec<Case> {
         scheduling::cases(),
         scheduling_admin::cases(),
         scheduling_admin::calendar::cases(),
+        scheduling_admin::developer::cases(),
         scheduling_admin::event_types::cases(),
         scheduling_admin::hours::cases(),
         scheduling_admin::team::cases(),

@@ -73,5 +73,9 @@
             x:Name="TeamPanel"
             Grid.Row="2"
             Visibility="{x:Bind ViewModel.ShowsTeam, Mode=OneWay}" />
+        <local:SchedulingDeveloperPanel
+            x:Name="DeveloperPanel"
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.ShowsDeveloper, Mode=OneWay}" />
     </Grid>
 </UserControl>

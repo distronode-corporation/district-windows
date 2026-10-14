@@ -5047,6 +5047,61 @@ class FfiConverterTypeAnalyticsView: FfiConverterRustBuffer<AnalyticsView> {
 
 
 /// <summary>
+/// One API key: its name, and when it was made and last used.
+/// </summary>
+/// <param name="Id">
+/// Its id, which its Revoke names.
+/// </param>
+/// <param name="Name">
+/// Its name.
+/// </param>
+/// <param name="Line">
+/// "Created … · Last used …", in the member's zone.
+/// </param>
+public record ApiKeyRowView (
+    /// <summary>
+    /// Its id, which its Revoke names.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Its name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// "Created … · Last used …", in the member's zone.
+    /// </summary>
+    string Line
+) {
+}
+
+class FfiConverterTypeApiKeyRowView: FfiConverterRustBuffer<ApiKeyRowView> {
+    public static FfiConverterTypeApiKeyRowView INSTANCE = new FfiConverterTypeApiKeyRowView();
+
+    public override ApiKeyRowView Read(BigEndianStream stream) {
+        return new ApiKeyRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Line: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ApiKeyRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Line);
+    }
+
+    public override void Write(ApiKeyRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Line, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One image waiting to go with the next message.
 /// </summary>
 /// <param name="Url">
@@ -8720,6 +8775,61 @@ class FfiConverterTypeConfirmView: FfiConverterRustBuffer<ConfirmView> {
 
 
 /// <summary>
+/// One app connected with OAuth.
+/// </summary>
+/// <param name="Id">
+/// The connection's id, which its Revoke names.
+/// </param>
+/// <param name="Name">
+/// The app's name.
+/// </param>
+/// <param name="LastUsed">
+/// When it last reached the bookings, or "Never".
+/// </param>
+public record ConnectedAppRowView (
+    /// <summary>
+    /// The connection's id, which its Revoke names.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// The app's name.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// When it last reached the bookings, or "Never".
+    /// </summary>
+    string LastUsed
+) {
+}
+
+class FfiConverterTypeConnectedAppRowView: FfiConverterRustBuffer<ConnectedAppRowView> {
+    public static FfiConverterTypeConnectedAppRowView INSTANCE = new FfiConverterTypeConnectedAppRowView();
+
+    public override ConnectedAppRowView Read(BigEndianStream stream) {
+        return new ConnectedAppRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            LastUsed: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ConnectedAppRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LastUsed);
+    }
+
+    public override void Write(ConnectedAppRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.LastUsed, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One contact.
 /// </summary>
 /// <param name="ContactId">
@@ -9584,6 +9694,148 @@ class FfiConverterTypeCreatorCellView: FfiConverterRustBuffer<CreatorCellView> {
             FfiConverterString.INSTANCE.Write(value.Number, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The deliveries of the webhook open.
+/// </summary>
+/// <param name="WebhookId">
+/// The webhook's id.
+/// </param>
+/// <param name="Status">
+/// Where their read stands; a failure is said under the webhook.
+/// </param>
+/// <param name="Rows">
+/// The deliveries, once read.
+/// </param>
+/// <param name="Empty">
+/// Said when they are read and there are none.
+/// </param>
+public record DeliveriesView (
+    /// <summary>
+    /// The webhook's id.
+    /// </summary>
+    string WebhookId, 
+    /// <summary>
+    /// Where their read stands; a failure is said under the webhook.
+    /// </summary>
+    LoadStatus Status, 
+    /// <summary>
+    /// The deliveries, once read.
+    /// </summary>
+    DeliveryRowView[] Rows, 
+    /// <summary>
+    /// Said when they are read and there are none.
+    /// </summary>
+    string Empty
+) {
+}
+
+class FfiConverterTypeDeliveriesView: FfiConverterRustBuffer<DeliveriesView> {
+    public static FfiConverterTypeDeliveriesView INSTANCE = new FfiConverterTypeDeliveriesView();
+
+    public override DeliveriesView Read(BigEndianStream stream) {
+        return new DeliveriesView(
+            WebhookId: FfiConverterString.INSTANCE.Read(stream),
+            Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeDeliveryRowView.INSTANCE.Read(stream),
+            Empty: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeliveriesView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.WebhookId)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterSequenceTypeDeliveryRowView.INSTANCE.AllocationSize(value.Rows)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Empty);
+    }
+
+    public override void Write(DeliveriesView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.WebhookId, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.Status, stream);
+            FfiConverterSequenceTypeDeliveryRowView.INSTANCE.Write(value.Rows, stream);
+            FfiConverterString.INSTANCE.Write(value.Empty, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One delivery.
+/// </summary>
+/// <param name="Id">
+/// Its id.
+/// </param>
+/// <param name="When">
+/// When it was last tried, in the member's zone, or "Not tried yet".
+/// </param>
+/// <param name="Event">
+/// The event it carried, by its wire name.
+/// </param>
+/// <param name="Outcome">
+/// What it came to: "Delivered", "Waiting", "No answer", "Rejected
+/// (500)", or the status as it came.
+/// </param>
+/// <param name="Tone">
+/// Its tone.
+/// </param>
+public record DeliveryRowView (
+    /// <summary>
+    /// Its id.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// When it was last tried, in the member's zone, or "Not tried yet".
+    /// </summary>
+    string When, 
+    /// <summary>
+    /// The event it carried, by its wire name.
+    /// </summary>
+    string Event, 
+    /// <summary>
+    /// What it came to: "Delivered", "Waiting", "No answer", "Rejected
+    /// (500)", or the status as it came.
+    /// </summary>
+    string Outcome, 
+    /// <summary>
+    /// Its tone.
+    /// </summary>
+    RunTone Tone
+) {
+}
+
+class FfiConverterTypeDeliveryRowView: FfiConverterRustBuffer<DeliveryRowView> {
+    public static FfiConverterTypeDeliveryRowView INSTANCE = new FfiConverterTypeDeliveryRowView();
+
+    public override DeliveryRowView Read(BigEndianStream stream) {
+        return new DeliveryRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            When: FfiConverterString.INSTANCE.Read(stream),
+            Event: FfiConverterString.INSTANCE.Read(stream),
+            Outcome: FfiConverterString.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeRunTone.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeliveryRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.When)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Event)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Outcome)
+            + FfiConverterTypeRunTone.INSTANCE.AllocationSize(value.Tone);
+    }
+
+    public override void Write(DeliveryRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.When, stream);
+            FfiConverterString.INSTANCE.Write(value.Event, stream);
+            FfiConverterString.INSTANCE.Write(value.Outcome, stream);
+            FfiConverterTypeRunTone.INSTANCE.Write(value.Tone, stream);
     }
 }
 
@@ -10782,6 +11034,61 @@ class FfiConverterTypeDeskView: FfiConverterRustBuffer<DeskView> {
 
 
 /// <summary>
+/// One tab, as the tab bar lists it.
+/// </summary>
+/// <param name="Tab">
+/// Which.
+/// </param>
+/// <param name="Label">
+/// Its label: "API keys".
+/// </param>
+/// <param name="Selected">
+/// Whether it is shown.
+/// </param>
+public record DeveloperTabEntryView (
+    /// <summary>
+    /// Which.
+    /// </summary>
+    DeveloperTabView Tab, 
+    /// <summary>
+    /// Its label: "API keys".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Whether it is shown.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeDeveloperTabEntryView: FfiConverterRustBuffer<DeveloperTabEntryView> {
+    public static FfiConverterTypeDeveloperTabEntryView INSTANCE = new FfiConverterTypeDeveloperTabEntryView();
+
+    public override DeveloperTabEntryView Read(BigEndianStream stream) {
+        return new DeveloperTabEntryView(
+            Tab: FfiConverterTypeDeveloperTabView.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeveloperTabEntryView value) {
+        return 0
+            + FfiConverterTypeDeveloperTabView.INSTANCE.AllocationSize(value.Tab)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(DeveloperTabEntryView value, BigEndianStream stream) {
+            FfiConverterTypeDeveloperTabView.INSTANCE.Write(value.Tab, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One signed-in device.
 /// </summary>
 /// <param name="DeviceId">
@@ -10794,7 +11101,8 @@ class FfiConverterTypeDeskView: FfiConverterRustBuffer<DeskView> {
 /// Its platform ("Windows", "iOS").
 /// </param>
 /// <param name="LastActiveLabel">
-/// "Last active ..." in the service's words, or "Signed in recently".
+/// "Last active Aug 15, 2026" in the core's words (the day its sign-in was
+/// last renewed, in UTC), or "Signed in recently".
 /// </param>
 /// <param name="IsThisDevice">
 /// Whether it is this computer.
@@ -10817,7 +11125,8 @@ public record DeviceRowView (
     /// </summary>
     string Platform, 
     /// <summary>
-    /// "Last active ..." in the service's words, or "Signed in recently".
+    /// "Last active Aug 15, 2026" in the core's words (the day its sign-in was
+    /// last renewed, in UTC), or "Signed in recently".
     /// </summary>
     string LastActiveLabel, 
     /// <summary>
@@ -14339,6 +14648,105 @@ class FfiConverterTypeKeyCheckView: FfiConverterRustBuffer<KeyCheckView> {
 
 
 /// <summary>
+/// Making an API key: its name, then the key, shown once.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("Create API key", then "Your key for …"), the create
+/// ("Create key", "Creating…"; none once made), the way out ("Cancel",
+/// then "Done") and why the create failed.
+/// </param>
+/// <param name="NameLabel">
+/// "Name".
+/// </param>
+/// <param name="NameHint">
+/// What the name is for.
+/// </param>
+/// <param name="Name">
+/// The name, as the core holds it.
+/// </param>
+/// <param name="NameError">
+/// Why the name cannot be sent, before anything was sent.
+/// </param>
+/// <param name="Editable">
+/// Whether the name can be changed: nothing is on its way.
+/// </param>
+/// <param name="Minted">
+/// The key made, once it is.
+/// </param>
+public record KeyDialogView (
+    /// <summary>
+    /// Its title ("Create API key", then "Your key for …"), the create
+    /// ("Create key", "Creating…"; none once made), the way out ("Cancel",
+    /// then "Done") and why the create failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// "Name".
+    /// </summary>
+    string NameLabel, 
+    /// <summary>
+    /// What the name is for.
+    /// </summary>
+    string NameHint, 
+    /// <summary>
+    /// The name, as the core holds it.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Why the name cannot be sent, before anything was sent.
+    /// </summary>
+    string? NameError, 
+    /// <summary>
+    /// Whether the name can be changed: nothing is on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// The key made, once it is.
+    /// </summary>
+    SecretView? Minted
+) {
+}
+
+class FfiConverterTypeKeyDialogView: FfiConverterRustBuffer<KeyDialogView> {
+    public static FfiConverterTypeKeyDialogView INSTANCE = new FfiConverterTypeKeyDialogView();
+
+    public override KeyDialogView Read(BigEndianStream stream) {
+        return new KeyDialogView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            NameLabel: FfiConverterString.INSTANCE.Read(stream),
+            NameHint: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            NameError: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Minted: FfiConverterOptionalTypeSecretView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(KeyDialogView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NameLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NameHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NameError)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalTypeSecretView.INSTANCE.AllocationSize(value.Minted);
+    }
+
+    public override void Write(KeyDialogView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterString.INSTANCE.Write(value.NameLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.NameHint, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NameError, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalTypeSecretView.INSTANCE.Write(value.Minted, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One key box. A secret box never carries what is typed in it.
 /// </summary>
 /// <param name="Field">
@@ -15426,6 +15834,73 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
             FfiConverterTypeNumberFormView.INSTANCE.Write(value.Form, stream);
             FfiConverterTypeNumberSearchView.INSTANCE.Write(value.Search, stream);
             FfiConverterTypeNumberAdminView.INSTANCE.Write(value.Admin, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The MCP address, and the header an assistant sends with it.
+/// </summary>
+/// <param name="UrlLabel">
+/// "MCP URL".
+/// </param>
+/// <param name="Url">
+/// `https://book.example.com/mcp`.
+/// </param>
+/// <param name="AuthLabel">
+/// "Authorization header".
+/// </param>
+/// <param name="Auth">
+/// The header's value, with a placeholder where the key goes: never a
+/// key.
+/// </param>
+public record McpView (
+    /// <summary>
+    /// "MCP URL".
+    /// </summary>
+    string UrlLabel, 
+    /// <summary>
+    /// `https://book.example.com/mcp`.
+    /// </summary>
+    string Url, 
+    /// <summary>
+    /// "Authorization header".
+    /// </summary>
+    string AuthLabel, 
+    /// <summary>
+    /// The header's value, with a placeholder where the key goes: never a
+    /// key.
+    /// </summary>
+    string Auth
+) {
+}
+
+class FfiConverterTypeMcpView: FfiConverterRustBuffer<McpView> {
+    public static FfiConverterTypeMcpView INSTANCE = new FfiConverterTypeMcpView();
+
+    public override McpView Read(BigEndianStream stream) {
+        return new McpView(
+            UrlLabel: FfiConverterString.INSTANCE.Read(stream),
+            Url: FfiConverterString.INSTANCE.Read(stream),
+            AuthLabel: FfiConverterString.INSTANCE.Read(stream),
+            Auth: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(McpView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.UrlLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Url)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AuthLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Auth);
+    }
+
+    public override void Write(McpView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.UrlLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Url, stream);
+            FfiConverterString.INSTANCE.Write(value.AuthLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.Auth, stream);
     }
 }
 
@@ -21517,6 +21992,397 @@ class FfiConverterTypeSchedulingCalendarView: FfiConverterRustBuffer<SchedulingC
 
 
 /// <summary>
+/// Developer.
+/// </summary>
+/// <param name="TimesIn">
+/// "Times in America/Toronto".
+/// </param>
+/// <param name="Tab">
+/// The tab shown.
+/// </param>
+/// <param name="Tabs">
+/// The tabs, in order, the one shown selected
+/// (`DeveloperAction::SelectTab`).
+/// </param>
+/// <param name="OffersWrites">
+/// Whether the writes are offered: the member may change things.
+/// </param>
+/// <param name="KeysHeading">
+/// The keys' heading.
+/// </param>
+/// <param name="KeysSubtitle">
+/// What a key is for.
+/// </param>
+/// <param name="KeysStatus">
+/// Where the read of the keys stands; not yet read is still loading.
+/// </param>
+/// <param name="Keys">
+/// The keys, once read; never the key itself.
+/// </param>
+/// <param name="KeysEmpty">
+/// Said when the keys are read and there are none.
+/// </param>
+/// <param name="CreateKeyLabel">
+/// "Create key" (`DeveloperAction::OpenCreateKey`).
+/// </param>
+/// <param name="RevokeKeyLabel">
+/// "Revoke key", on each key (`DeveloperAction::AskRevokeKey`).
+/// </param>
+/// <param name="McpHeading">
+/// The MCP card's heading.
+/// </param>
+/// <param name="Mcp">
+/// The MCP address and the header to send; `None` while the scheduler has
+/// no public address.
+/// </param>
+/// <param name="McpNoHost">
+/// Said while the scheduler has no public address.
+/// </param>
+/// <param name="McpNote">
+/// What the address is for, under it.
+/// </param>
+/// <param name="AppsHeading">
+/// The connected apps' heading.
+/// </param>
+/// <param name="AppsSubtitle">
+/// What a connected app is.
+/// </param>
+/// <param name="AppsStatus">
+/// Where the read of the apps stands.
+/// </param>
+/// <param name="Apps">
+/// The connected apps, once read.
+/// </param>
+/// <param name="AppsEmpty">
+/// Said when the apps are read and there are none.
+/// </param>
+/// <param name="RevokeAppLabel">
+/// "Revoke access", on each app (`DeveloperAction::AskRevokeApp`).
+/// </param>
+/// <param name="WebhooksHeading">
+/// The webhooks' heading.
+/// </param>
+/// <param name="WebhooksSubtitle">
+/// What a webhook does.
+/// </param>
+/// <param name="WebhooksStatus">
+/// Where the read of the webhooks stands.
+/// </param>
+/// <param name="Webhooks">
+/// The webhooks, once read.
+/// </param>
+/// <param name="WebhooksEmpty">
+/// Said when the webhooks are read and there are none.
+/// </param>
+/// <param name="AddWebhookLabel">
+/// "Add webhook" (`DeveloperAction::OpenCreateWebhook`).
+/// </param>
+/// <param name="EditWebhookLabel">
+/// "Edit", on each webhook (`DeveloperAction::OpenEditWebhook`).
+/// </param>
+/// <param name="DeleteWebhookLabel">
+/// "Delete webhook", on each webhook (`DeveloperAction::AskDeleteWebhook`).
+/// </param>
+/// <param name="DeliveriesLabel">
+/// "Deliveries", on each webhook (`DeveloperAction::ToggleDeliveries`).
+/// </param>
+/// <param name="Deliveries">
+/// The deliveries of the webhook open, if one is.
+/// </param>
+/// <param name="Removing">
+/// Whether a removal is on its way: every Revoke and Delete waits.
+/// </param>
+/// <param name="RemovalFailure">
+/// Why the last removal failed; put away by the next one asked.
+/// </param>
+/// <param name="Removal">
+/// A removal, while it is asked about: the question naming what goes,
+/// what removing does, the destructive confirm and the way out.
+/// </param>
+/// <param name="KeyDialog">
+/// Making a key, while its dialog is open.
+/// </param>
+/// <param name="WebhookDialog">
+/// Adding or changing a webhook, while its dialog is open.
+/// </param>
+public record SchedulingDeveloperView (
+    /// <summary>
+    /// "Times in America/Toronto".
+    /// </summary>
+    string TimesIn, 
+    /// <summary>
+    /// The tab shown.
+    /// </summary>
+    DeveloperTabView Tab, 
+    /// <summary>
+    /// The tabs, in order, the one shown selected
+    /// (`DeveloperAction::SelectTab`).
+    /// </summary>
+    DeveloperTabEntryView[] Tabs, 
+    /// <summary>
+    /// Whether the writes are offered: the member may change things.
+    /// </summary>
+    bool OffersWrites, 
+    /// <summary>
+    /// The keys' heading.
+    /// </summary>
+    string KeysHeading, 
+    /// <summary>
+    /// What a key is for.
+    /// </summary>
+    string KeysSubtitle, 
+    /// <summary>
+    /// Where the read of the keys stands; not yet read is still loading.
+    /// </summary>
+    LoadStatus KeysStatus, 
+    /// <summary>
+    /// The keys, once read; never the key itself.
+    /// </summary>
+    ApiKeyRowView[] Keys, 
+    /// <summary>
+    /// Said when the keys are read and there are none.
+    /// </summary>
+    string KeysEmpty, 
+    /// <summary>
+    /// "Create key" (`DeveloperAction::OpenCreateKey`).
+    /// </summary>
+    string CreateKeyLabel, 
+    /// <summary>
+    /// "Revoke key", on each key (`DeveloperAction::AskRevokeKey`).
+    /// </summary>
+    string RevokeKeyLabel, 
+    /// <summary>
+    /// The MCP card's heading.
+    /// </summary>
+    string McpHeading, 
+    /// <summary>
+    /// The MCP address and the header to send; `None` while the scheduler has
+    /// no public address.
+    /// </summary>
+    McpView? Mcp, 
+    /// <summary>
+    /// Said while the scheduler has no public address.
+    /// </summary>
+    string McpNoHost, 
+    /// <summary>
+    /// What the address is for, under it.
+    /// </summary>
+    string McpNote, 
+    /// <summary>
+    /// The connected apps' heading.
+    /// </summary>
+    string AppsHeading, 
+    /// <summary>
+    /// What a connected app is.
+    /// </summary>
+    string AppsSubtitle, 
+    /// <summary>
+    /// Where the read of the apps stands.
+    /// </summary>
+    LoadStatus AppsStatus, 
+    /// <summary>
+    /// The connected apps, once read.
+    /// </summary>
+    ConnectedAppRowView[] Apps, 
+    /// <summary>
+    /// Said when the apps are read and there are none.
+    /// </summary>
+    string AppsEmpty, 
+    /// <summary>
+    /// "Revoke access", on each app (`DeveloperAction::AskRevokeApp`).
+    /// </summary>
+    string RevokeAppLabel, 
+    /// <summary>
+    /// The webhooks' heading.
+    /// </summary>
+    string WebhooksHeading, 
+    /// <summary>
+    /// What a webhook does.
+    /// </summary>
+    string WebhooksSubtitle, 
+    /// <summary>
+    /// Where the read of the webhooks stands.
+    /// </summary>
+    LoadStatus WebhooksStatus, 
+    /// <summary>
+    /// The webhooks, once read.
+    /// </summary>
+    WebhookRowView[] Webhooks, 
+    /// <summary>
+    /// Said when the webhooks are read and there are none.
+    /// </summary>
+    string WebhooksEmpty, 
+    /// <summary>
+    /// "Add webhook" (`DeveloperAction::OpenCreateWebhook`).
+    /// </summary>
+    string AddWebhookLabel, 
+    /// <summary>
+    /// "Edit", on each webhook (`DeveloperAction::OpenEditWebhook`).
+    /// </summary>
+    string EditWebhookLabel, 
+    /// <summary>
+    /// "Delete webhook", on each webhook (`DeveloperAction::AskDeleteWebhook`).
+    /// </summary>
+    string DeleteWebhookLabel, 
+    /// <summary>
+    /// "Deliveries", on each webhook (`DeveloperAction::ToggleDeliveries`).
+    /// </summary>
+    string DeliveriesLabel, 
+    /// <summary>
+    /// The deliveries of the webhook open, if one is.
+    /// </summary>
+    DeliveriesView? Deliveries, 
+    /// <summary>
+    /// Whether a removal is on its way: every Revoke and Delete waits.
+    /// </summary>
+    bool Removing, 
+    /// <summary>
+    /// Why the last removal failed; put away by the next one asked.
+    /// </summary>
+    FailureView? RemovalFailure, 
+    /// <summary>
+    /// A removal, while it is asked about: the question naming what goes,
+    /// what removing does, the destructive confirm and the way out.
+    /// </summary>
+    DialogView? Removal, 
+    /// <summary>
+    /// Making a key, while its dialog is open.
+    /// </summary>
+    KeyDialogView? KeyDialog, 
+    /// <summary>
+    /// Adding or changing a webhook, while its dialog is open.
+    /// </summary>
+    WebhookEditorView? WebhookDialog
+) {
+}
+
+class FfiConverterTypeSchedulingDeveloperView: FfiConverterRustBuffer<SchedulingDeveloperView> {
+    public static FfiConverterTypeSchedulingDeveloperView INSTANCE = new FfiConverterTypeSchedulingDeveloperView();
+
+    public override SchedulingDeveloperView Read(BigEndianStream stream) {
+        return new SchedulingDeveloperView(
+            TimesIn: FfiConverterString.INSTANCE.Read(stream),
+            Tab: FfiConverterTypeDeveloperTabView.INSTANCE.Read(stream),
+            Tabs: FfiConverterSequenceTypeDeveloperTabEntryView.INSTANCE.Read(stream),
+            OffersWrites: FfiConverterBoolean.INSTANCE.Read(stream),
+            KeysHeading: FfiConverterString.INSTANCE.Read(stream),
+            KeysSubtitle: FfiConverterString.INSTANCE.Read(stream),
+            KeysStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Keys: FfiConverterSequenceTypeApiKeyRowView.INSTANCE.Read(stream),
+            KeysEmpty: FfiConverterString.INSTANCE.Read(stream),
+            CreateKeyLabel: FfiConverterString.INSTANCE.Read(stream),
+            RevokeKeyLabel: FfiConverterString.INSTANCE.Read(stream),
+            McpHeading: FfiConverterString.INSTANCE.Read(stream),
+            Mcp: FfiConverterOptionalTypeMcpView.INSTANCE.Read(stream),
+            McpNoHost: FfiConverterString.INSTANCE.Read(stream),
+            McpNote: FfiConverterString.INSTANCE.Read(stream),
+            AppsHeading: FfiConverterString.INSTANCE.Read(stream),
+            AppsSubtitle: FfiConverterString.INSTANCE.Read(stream),
+            AppsStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Apps: FfiConverterSequenceTypeConnectedAppRowView.INSTANCE.Read(stream),
+            AppsEmpty: FfiConverterString.INSTANCE.Read(stream),
+            RevokeAppLabel: FfiConverterString.INSTANCE.Read(stream),
+            WebhooksHeading: FfiConverterString.INSTANCE.Read(stream),
+            WebhooksSubtitle: FfiConverterString.INSTANCE.Read(stream),
+            WebhooksStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            Webhooks: FfiConverterSequenceTypeWebhookRowView.INSTANCE.Read(stream),
+            WebhooksEmpty: FfiConverterString.INSTANCE.Read(stream),
+            AddWebhookLabel: FfiConverterString.INSTANCE.Read(stream),
+            EditWebhookLabel: FfiConverterString.INSTANCE.Read(stream),
+            DeleteWebhookLabel: FfiConverterString.INSTANCE.Read(stream),
+            DeliveriesLabel: FfiConverterString.INSTANCE.Read(stream),
+            Deliveries: FfiConverterOptionalTypeDeliveriesView.INSTANCE.Read(stream),
+            Removing: FfiConverterBoolean.INSTANCE.Read(stream),
+            RemovalFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Removal: FfiConverterOptionalTypeDialogView.INSTANCE.Read(stream),
+            KeyDialog: FfiConverterOptionalTypeKeyDialogView.INSTANCE.Read(stream),
+            WebhookDialog: FfiConverterOptionalTypeWebhookEditorView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SchedulingDeveloperView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.TimesIn)
+            + FfiConverterTypeDeveloperTabView.INSTANCE.AllocationSize(value.Tab)
+            + FfiConverterSequenceTypeDeveloperTabEntryView.INSTANCE.AllocationSize(value.Tabs)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWrites)
+            + FfiConverterString.INSTANCE.AllocationSize(value.KeysHeading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.KeysSubtitle)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.KeysStatus)
+            + FfiConverterSequenceTypeApiKeyRowView.INSTANCE.AllocationSize(value.Keys)
+            + FfiConverterString.INSTANCE.AllocationSize(value.KeysEmpty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CreateKeyLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RevokeKeyLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.McpHeading)
+            + FfiConverterOptionalTypeMcpView.INSTANCE.AllocationSize(value.Mcp)
+            + FfiConverterString.INSTANCE.AllocationSize(value.McpNoHost)
+            + FfiConverterString.INSTANCE.AllocationSize(value.McpNote)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AppsHeading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AppsSubtitle)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.AppsStatus)
+            + FfiConverterSequenceTypeConnectedAppRowView.INSTANCE.AllocationSize(value.Apps)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AppsEmpty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RevokeAppLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WebhooksHeading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WebhooksSubtitle)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.WebhooksStatus)
+            + FfiConverterSequenceTypeWebhookRowView.INSTANCE.AllocationSize(value.Webhooks)
+            + FfiConverterString.INSTANCE.AllocationSize(value.WebhooksEmpty)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AddWebhookLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EditWebhookLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeleteWebhookLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeliveriesLabel)
+            + FfiConverterOptionalTypeDeliveriesView.INSTANCE.AllocationSize(value.Deliveries)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Removing)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RemovalFailure)
+            + FfiConverterOptionalTypeDialogView.INSTANCE.AllocationSize(value.Removal)
+            + FfiConverterOptionalTypeKeyDialogView.INSTANCE.AllocationSize(value.KeyDialog)
+            + FfiConverterOptionalTypeWebhookEditorView.INSTANCE.AllocationSize(value.WebhookDialog);
+    }
+
+    public override void Write(SchedulingDeveloperView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.TimesIn, stream);
+            FfiConverterTypeDeveloperTabView.INSTANCE.Write(value.Tab, stream);
+            FfiConverterSequenceTypeDeveloperTabEntryView.INSTANCE.Write(value.Tabs, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.OffersWrites, stream);
+            FfiConverterString.INSTANCE.Write(value.KeysHeading, stream);
+            FfiConverterString.INSTANCE.Write(value.KeysSubtitle, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.KeysStatus, stream);
+            FfiConverterSequenceTypeApiKeyRowView.INSTANCE.Write(value.Keys, stream);
+            FfiConverterString.INSTANCE.Write(value.KeysEmpty, stream);
+            FfiConverterString.INSTANCE.Write(value.CreateKeyLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RevokeKeyLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.McpHeading, stream);
+            FfiConverterOptionalTypeMcpView.INSTANCE.Write(value.Mcp, stream);
+            FfiConverterString.INSTANCE.Write(value.McpNoHost, stream);
+            FfiConverterString.INSTANCE.Write(value.McpNote, stream);
+            FfiConverterString.INSTANCE.Write(value.AppsHeading, stream);
+            FfiConverterString.INSTANCE.Write(value.AppsSubtitle, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.AppsStatus, stream);
+            FfiConverterSequenceTypeConnectedAppRowView.INSTANCE.Write(value.Apps, stream);
+            FfiConverterString.INSTANCE.Write(value.AppsEmpty, stream);
+            FfiConverterString.INSTANCE.Write(value.RevokeAppLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.WebhooksHeading, stream);
+            FfiConverterString.INSTANCE.Write(value.WebhooksSubtitle, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.WebhooksStatus, stream);
+            FfiConverterSequenceTypeWebhookRowView.INSTANCE.Write(value.Webhooks, stream);
+            FfiConverterString.INSTANCE.Write(value.WebhooksEmpty, stream);
+            FfiConverterString.INSTANCE.Write(value.AddWebhookLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.EditWebhookLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DeleteWebhookLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DeliveriesLabel, stream);
+            FfiConverterOptionalTypeDeliveriesView.INSTANCE.Write(value.Deliveries, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Removing, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.RemovalFailure, stream);
+            FfiConverterOptionalTypeDialogView.INSTANCE.Write(value.Removal, stream);
+            FfiConverterOptionalTypeKeyDialogView.INSTANCE.Write(value.KeyDialog, stream);
+            FfiConverterOptionalTypeWebhookEditorView.INSTANCE.Write(value.WebhookDialog, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One event type: what it is, who hosts it and what it asks.
 /// </summary>
 /// <param name="Slug">
@@ -22851,6 +23717,73 @@ class FfiConverterTypeSearchView: FfiConverterRustBuffer<SearchView> {
             FfiConverterUInt32.INSTANCE.Write(value.MinQueryLength, stream);
             FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.TruncatedNote, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A value shown once: a key just made, or a webhook's signing secret.
+/// </summary>
+/// <param name="Warning">
+/// That it is shown once, so to copy it now.
+/// </param>
+/// <param name="Note">
+/// Where it is used, when there is something to say.
+/// </param>
+/// <param name="CopyLabel">
+/// "Copy key", "Copied", or "Copy secret".
+/// </param>
+/// <param name="Value">
+/// The value, as UTF-8: shown, and copied when asked, and never kept.
+/// Left out of `Debug` and of the JSON.
+/// </param>
+public record SecretView (
+    /// <summary>
+    /// That it is shown once, so to copy it now.
+    /// </summary>
+    string Warning, 
+    /// <summary>
+    /// Where it is used, when there is something to say.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// "Copy key", "Copied", or "Copy secret".
+    /// </summary>
+    string CopyLabel, 
+    /// <summary>
+    /// The value, as UTF-8: shown, and copied when asked, and never kept.
+    /// Left out of `Debug` and of the JSON.
+    /// </summary>
+    byte[] Value
+) {
+}
+
+class FfiConverterTypeSecretView: FfiConverterRustBuffer<SecretView> {
+    public static FfiConverterTypeSecretView INSTANCE = new FfiConverterTypeSecretView();
+
+    public override SecretView Read(BigEndianStream stream) {
+        return new SecretView(
+            Warning: FfiConverterString.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CopyLabel: FfiConverterString.INSTANCE.Read(stream),
+            Value: FfiConverterByteArray.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SecretView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Warning)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopyLabel)
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.Value);
+    }
+
+    public override void Write(SecretView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Warning, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterString.INSTANCE.Write(value.CopyLabel, stream);
+            FfiConverterByteArray.INSTANCE.Write(value.Value, stream);
     }
 }
 
@@ -26459,6 +27392,61 @@ class FfiConverterTypeTimelineItemView: FfiConverterRustBuffer<TimelineItemView>
 
 
 /// <summary>
+/// One event or field of the webhook form.
+/// </summary>
+/// <param name="Value">
+/// Its wire name, which its switch sends and shows.
+/// </param>
+/// <param name="On">
+/// Whether it is chosen.
+/// </param>
+/// <param name="Mark">
+/// "Personal data", for a person's own data.
+/// </param>
+public record ToggleRowView (
+    /// <summary>
+    /// Its wire name, which its switch sends and shows.
+    /// </summary>
+    string Value, 
+    /// <summary>
+    /// Whether it is chosen.
+    /// </summary>
+    bool On, 
+    /// <summary>
+    /// "Personal data", for a person's own data.
+    /// </summary>
+    string? Mark
+) {
+}
+
+class FfiConverterTypeToggleRowView: FfiConverterRustBuffer<ToggleRowView> {
+    public static FfiConverterTypeToggleRowView INSTANCE = new FfiConverterTypeToggleRowView();
+
+    public override ToggleRowView Read(BigEndianStream stream) {
+        return new ToggleRowView(
+            Value: FfiConverterString.INSTANCE.Read(stream),
+            On: FfiConverterBoolean.INSTANCE.Read(stream),
+            Mark: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ToggleRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.On)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Mark);
+    }
+
+    public override void Write(ToggleRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.On, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Mark, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The toll-free form, as typed. The service's website and opt-in flow are
 /// left to its defaults, as the iOS app leaves them.
 /// </summary>
@@ -27552,6 +28540,296 @@ class FfiConverterTypeVoiceStudioView: FfiConverterRustBuffer<VoiceStudioView> {
             FfiConverterString.INSTANCE.Write(value.Title, stream);
             FfiConverterTypeSectionStatus.INSTANCE.Write(value.Status, stream);
             FfiConverterOptionalTypeStudioFormView.INSTANCE.Write(value.Studio, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Adding a webhook, or changing what one sends: where it goes (fixed once
+/// added), the events it sends and the parts of a booking each delivery
+/// carries; then, for one just added, its signing secret, shown once.
+/// </summary>
+/// <param name="Dialog">
+/// Its title ("Add webhook", "Edit webhook", then "Signing secret"), the
+/// save ("Add webhook", "Save changes", "Saving…"; none once the secret
+/// shows), the way out ("Cancel", then "Done") and why the save failed.
+/// </param>
+/// <param name="Creating">
+/// Whether this adds a webhook: its address can be typed.
+/// </param>
+/// <param name="UrlLabel">
+/// "Endpoint URL".
+/// </param>
+/// <param name="UrlHint">
+/// What the address must be, or, for a webhook added, that it is fixed.
+/// </param>
+/// <param name="Url">
+/// The address, as the core holds it.
+/// </param>
+/// <param name="UrlError">
+/// Why the address cannot be sent, before anything was sent.
+/// </param>
+/// <param name="Dropped">
+/// The events this webhook sends that this version does not know, which
+/// a save stops.
+/// </param>
+/// <param name="EventsLabel">
+/// "Events".
+/// </param>
+/// <param name="EventsHint">
+/// What they are.
+/// </param>
+/// <param name="Events">
+/// Every event a webhook can send, chosen or not.
+/// </param>
+/// <param name="EventsError">
+/// Why the events cannot be sent: none chosen.
+/// </param>
+/// <param name="FieldsLabel">
+/// "Fields".
+/// </param>
+/// <param name="FieldsHint">
+/// What they are.
+/// </param>
+/// <param name="Fields">
+/// Every part of a booking a delivery can carry, chosen or not, a
+/// person's own data marked.
+/// </param>
+/// <param name="Editable">
+/// Whether the form can be changed: nothing is on its way.
+/// </param>
+/// <param name="Notice">
+/// What the last save came to ("Webhook updated"), once it landed.
+/// </param>
+/// <param name="Minted">
+/// The signing secret of the webhook just added, once it is.
+/// </param>
+public record WebhookEditorView (
+    /// <summary>
+    /// Its title ("Add webhook", "Edit webhook", then "Signing secret"), the
+    /// save ("Add webhook", "Save changes", "Saving…"; none once the secret
+    /// shows), the way out ("Cancel", then "Done") and why the save failed.
+    /// </summary>
+    DialogView Dialog, 
+    /// <summary>
+    /// Whether this adds a webhook: its address can be typed.
+    /// </summary>
+    bool Creating, 
+    /// <summary>
+    /// "Endpoint URL".
+    /// </summary>
+    string UrlLabel, 
+    /// <summary>
+    /// What the address must be, or, for a webhook added, that it is fixed.
+    /// </summary>
+    string UrlHint, 
+    /// <summary>
+    /// The address, as the core holds it.
+    /// </summary>
+    string Url, 
+    /// <summary>
+    /// Why the address cannot be sent, before anything was sent.
+    /// </summary>
+    string? UrlError, 
+    /// <summary>
+    /// The events this webhook sends that this version does not know, which
+    /// a save stops.
+    /// </summary>
+    string? Dropped, 
+    /// <summary>
+    /// "Events".
+    /// </summary>
+    string EventsLabel, 
+    /// <summary>
+    /// What they are.
+    /// </summary>
+    string EventsHint, 
+    /// <summary>
+    /// Every event a webhook can send, chosen or not.
+    /// </summary>
+    ToggleRowView[] Events, 
+    /// <summary>
+    /// Why the events cannot be sent: none chosen.
+    /// </summary>
+    string? EventsError, 
+    /// <summary>
+    /// "Fields".
+    /// </summary>
+    string FieldsLabel, 
+    /// <summary>
+    /// What they are.
+    /// </summary>
+    string FieldsHint, 
+    /// <summary>
+    /// Every part of a booking a delivery can carry, chosen or not, a
+    /// person's own data marked.
+    /// </summary>
+    ToggleRowView[] Fields, 
+    /// <summary>
+    /// Whether the form can be changed: nothing is on its way.
+    /// </summary>
+    bool Editable, 
+    /// <summary>
+    /// What the last save came to ("Webhook updated"), once it landed.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// The signing secret of the webhook just added, once it is.
+    /// </summary>
+    SecretView? Minted
+) {
+}
+
+class FfiConverterTypeWebhookEditorView: FfiConverterRustBuffer<WebhookEditorView> {
+    public static FfiConverterTypeWebhookEditorView INSTANCE = new FfiConverterTypeWebhookEditorView();
+
+    public override WebhookEditorView Read(BigEndianStream stream) {
+        return new WebhookEditorView(
+            Dialog: FfiConverterTypeDialogView.INSTANCE.Read(stream),
+            Creating: FfiConverterBoolean.INSTANCE.Read(stream),
+            UrlLabel: FfiConverterString.INSTANCE.Read(stream),
+            UrlHint: FfiConverterString.INSTANCE.Read(stream),
+            Url: FfiConverterString.INSTANCE.Read(stream),
+            UrlError: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Dropped: FfiConverterOptionalString.INSTANCE.Read(stream),
+            EventsLabel: FfiConverterString.INSTANCE.Read(stream),
+            EventsHint: FfiConverterString.INSTANCE.Read(stream),
+            Events: FfiConverterSequenceTypeToggleRowView.INSTANCE.Read(stream),
+            EventsError: FfiConverterOptionalString.INSTANCE.Read(stream),
+            FieldsLabel: FfiConverterString.INSTANCE.Read(stream),
+            FieldsHint: FfiConverterString.INSTANCE.Read(stream),
+            Fields: FfiConverterSequenceTypeToggleRowView.INSTANCE.Read(stream),
+            Editable: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Minted: FfiConverterOptionalTypeSecretView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WebhookEditorView value) {
+        return 0
+            + FfiConverterTypeDialogView.INSTANCE.AllocationSize(value.Dialog)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Creating)
+            + FfiConverterString.INSTANCE.AllocationSize(value.UrlLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.UrlHint)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Url)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.UrlError)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Dropped)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EventsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EventsHint)
+            + FfiConverterSequenceTypeToggleRowView.INSTANCE.AllocationSize(value.Events)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.EventsError)
+            + FfiConverterString.INSTANCE.AllocationSize(value.FieldsLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.FieldsHint)
+            + FfiConverterSequenceTypeToggleRowView.INSTANCE.AllocationSize(value.Fields)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Editable)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalTypeSecretView.INSTANCE.AllocationSize(value.Minted);
+    }
+
+    public override void Write(WebhookEditorView value, BigEndianStream stream) {
+            FfiConverterTypeDialogView.INSTANCE.Write(value.Dialog, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Creating, stream);
+            FfiConverterString.INSTANCE.Write(value.UrlLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.UrlHint, stream);
+            FfiConverterString.INSTANCE.Write(value.Url, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.UrlError, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Dropped, stream);
+            FfiConverterString.INSTANCE.Write(value.EventsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.EventsHint, stream);
+            FfiConverterSequenceTypeToggleRowView.INSTANCE.Write(value.Events, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.EventsError, stream);
+            FfiConverterString.INSTANCE.Write(value.FieldsLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.FieldsHint, stream);
+            FfiConverterSequenceTypeToggleRowView.INSTANCE.Write(value.Fields, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Editable, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalTypeSecretView.INSTANCE.Write(value.Minted, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One webhook.
+/// </summary>
+/// <param name="Id">
+/// Its id, which its actions name.
+/// </param>
+/// <param name="Url">
+/// Where its deliveries go.
+/// </param>
+/// <param name="Events">
+/// The events it sends, by their wire names, as the scheduler lists them.
+/// </param>
+/// <param name="StateLabel">
+/// "On", or "Off" once switched off.
+/// </param>
+/// <param name="Tone">
+/// Its tone.
+/// </param>
+/// <param name="Open">
+/// Whether its deliveries are open.
+/// </param>
+public record WebhookRowView (
+    /// <summary>
+    /// Its id, which its actions name.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Where its deliveries go.
+    /// </summary>
+    string Url, 
+    /// <summary>
+    /// The events it sends, by their wire names, as the scheduler lists them.
+    /// </summary>
+    string Events, 
+    /// <summary>
+    /// "On", or "Off" once switched off.
+    /// </summary>
+    string StateLabel, 
+    /// <summary>
+    /// Its tone.
+    /// </summary>
+    RunTone Tone, 
+    /// <summary>
+    /// Whether its deliveries are open.
+    /// </summary>
+    bool Open
+) {
+}
+
+class FfiConverterTypeWebhookRowView: FfiConverterRustBuffer<WebhookRowView> {
+    public static FfiConverterTypeWebhookRowView INSTANCE = new FfiConverterTypeWebhookRowView();
+
+    public override WebhookRowView Read(BigEndianStream stream) {
+        return new WebhookRowView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Url: FfiConverterString.INSTANCE.Read(stream),
+            Events: FfiConverterString.INSTANCE.Read(stream),
+            StateLabel: FfiConverterString.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeRunTone.INSTANCE.Read(stream),
+            Open: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WebhookRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Url)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Events)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StateLabel)
+            + FfiConverterTypeRunTone.INSTANCE.AllocationSize(value.Tone)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Open);
+    }
+
+    public override void Write(WebhookRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Url, stream);
+            FfiConverterString.INSTANCE.Write(value.Events, stream);
+            FfiConverterString.INSTANCE.Write(value.StateLabel, stream);
+            FfiConverterTypeRunTone.INSTANCE.Write(value.Tone, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Open, stream);
     }
 }
 
@@ -30537,6 +31815,404 @@ class FfiConverterTypeDeskStatus: FfiConverterRustBuffer<DeskStatus> {
             case DeskStatus.Waiting: stream.WriteInt(2); break;
             case DeskStatus.Resolved: stream.WriteInt(3); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeskStatus.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something the member did on Developer.
+/// </summary>
+public record DeveloperAction {
+    
+    /// <summary>
+    /// Show a tab, read the first time.
+    /// </summary>
+    public record SelectTab (
+        DeveloperTabView Tab
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Read the tab shown again.
+    /// </summary>
+    public record Refresh: DeveloperAction {}
+    
+    
+    /// <summary>
+    /// Open a webhook's deliveries, or close them.
+    /// </summary>
+    public record ToggleDeliveries (
+        string WebhookId
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Open the key form.
+    /// </summary>
+    public record OpenCreateKey: DeveloperAction {}
+    
+    
+    /// <summary>
+    /// The key's name changed.
+    /// </summary>
+    public record EditKeyName (
+        string Name
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Make the key.
+    /// </summary>
+    public record CreateKey: DeveloperAction {}
+    
+    
+    /// <summary>
+    /// The key was copied.
+    /// </summary>
+    public record KeyCopied: DeveloperAction {}
+    
+    
+    /// <summary>
+    /// Ask about revoking a key.
+    /// </summary>
+    public record AskRevokeKey (
+        string KeyId
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Ask about revoking an app's access.
+    /// </summary>
+    public record AskRevokeApp (
+        string ConnectionId
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Ask about deleting a webhook.
+    /// </summary>
+    public record AskDeleteWebhook (
+        string WebhookId
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Keep it.
+    /// </summary>
+    public record CancelRemoval: DeveloperAction {}
+    
+    
+    /// <summary>
+    /// Remove it.
+    /// </summary>
+    public record ConfirmRemoval: DeveloperAction {}
+    
+    
+    /// <summary>
+    /// Open the add form.
+    /// </summary>
+    public record OpenCreateWebhook: DeveloperAction {}
+    
+    
+    /// <summary>
+    /// Open a webhook's form.
+    /// </summary>
+    public record OpenEditWebhook (
+        string WebhookId
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// The address changed (an add only).
+    /// </summary>
+    public record EditWebhookUrl (
+        string Url
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Choose an event, or take it out.
+    /// </summary>
+    public record ToggleEvent (
+        string Event
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Choose a field, or take it out.
+    /// </summary>
+    public record ToggleField (
+        string Field
+    ) : DeveloperAction {}
+    
+    /// <summary>
+    /// Add the webhook, or save what it sends.
+    /// </summary>
+    public record SaveWebhook: DeveloperAction {}
+    
+    
+    /// <summary>
+    /// Close the dialog open.
+    /// </summary>
+    public record CloseDialog: DeveloperAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeDeveloperAction : FfiConverterRustBuffer<DeveloperAction>{
+    public static FfiConverterRustBuffer<DeveloperAction> INSTANCE = new FfiConverterTypeDeveloperAction();
+
+    public override DeveloperAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new DeveloperAction.SelectTab(
+                    FfiConverterTypeDeveloperTabView.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new DeveloperAction.Refresh(
+                );
+            case 3:
+                return new DeveloperAction.ToggleDeliveries(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new DeveloperAction.OpenCreateKey(
+                );
+            case 5:
+                return new DeveloperAction.EditKeyName(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new DeveloperAction.CreateKey(
+                );
+            case 7:
+                return new DeveloperAction.KeyCopied(
+                );
+            case 8:
+                return new DeveloperAction.AskRevokeKey(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new DeveloperAction.AskRevokeApp(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 10:
+                return new DeveloperAction.AskDeleteWebhook(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 11:
+                return new DeveloperAction.CancelRemoval(
+                );
+            case 12:
+                return new DeveloperAction.ConfirmRemoval(
+                );
+            case 13:
+                return new DeveloperAction.OpenCreateWebhook(
+                );
+            case 14:
+                return new DeveloperAction.OpenEditWebhook(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 15:
+                return new DeveloperAction.EditWebhookUrl(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 16:
+                return new DeveloperAction.ToggleEvent(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 17:
+                return new DeveloperAction.ToggleField(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 18:
+                return new DeveloperAction.SaveWebhook(
+                );
+            case 19:
+                return new DeveloperAction.CloseDialog(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeveloperAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(DeveloperAction value) {
+        switch (value) {
+            case DeveloperAction.SelectTab variant_value:
+                return 4
+                    + FfiConverterTypeDeveloperTabView.INSTANCE.AllocationSize(variant_value.Tab);
+            case DeveloperAction.Refresh variant_value:
+                return 4;
+            case DeveloperAction.ToggleDeliveries variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WebhookId);
+            case DeveloperAction.OpenCreateKey variant_value:
+                return 4;
+            case DeveloperAction.EditKeyName variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name);
+            case DeveloperAction.CreateKey variant_value:
+                return 4;
+            case DeveloperAction.KeyCopied variant_value:
+                return 4;
+            case DeveloperAction.AskRevokeKey variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.KeyId);
+            case DeveloperAction.AskRevokeApp variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ConnectionId);
+            case DeveloperAction.AskDeleteWebhook variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WebhookId);
+            case DeveloperAction.CancelRemoval variant_value:
+                return 4;
+            case DeveloperAction.ConfirmRemoval variant_value:
+                return 4;
+            case DeveloperAction.OpenCreateWebhook variant_value:
+                return 4;
+            case DeveloperAction.OpenEditWebhook variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WebhookId);
+            case DeveloperAction.EditWebhookUrl variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Url);
+            case DeveloperAction.ToggleEvent variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Event);
+            case DeveloperAction.ToggleField variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Field);
+            case DeveloperAction.SaveWebhook variant_value:
+                return 4;
+            case DeveloperAction.CloseDialog variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeveloperAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(DeveloperAction value, BigEndianStream stream) {
+        switch (value) {
+            case DeveloperAction.SelectTab variant_value:
+                stream.WriteInt(1);
+                FfiConverterTypeDeveloperTabView.INSTANCE.Write(variant_value.Tab, stream);
+                break;
+            case DeveloperAction.Refresh variant_value:
+                stream.WriteInt(2);
+                break;
+            case DeveloperAction.ToggleDeliveries variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.WebhookId, stream);
+                break;
+            case DeveloperAction.OpenCreateKey variant_value:
+                stream.WriteInt(4);
+                break;
+            case DeveloperAction.EditKeyName variant_value:
+                stream.WriteInt(5);
+                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
+                break;
+            case DeveloperAction.CreateKey variant_value:
+                stream.WriteInt(6);
+                break;
+            case DeveloperAction.KeyCopied variant_value:
+                stream.WriteInt(7);
+                break;
+            case DeveloperAction.AskRevokeKey variant_value:
+                stream.WriteInt(8);
+                FfiConverterString.INSTANCE.Write(variant_value.KeyId, stream);
+                break;
+            case DeveloperAction.AskRevokeApp variant_value:
+                stream.WriteInt(9);
+                FfiConverterString.INSTANCE.Write(variant_value.ConnectionId, stream);
+                break;
+            case DeveloperAction.AskDeleteWebhook variant_value:
+                stream.WriteInt(10);
+                FfiConverterString.INSTANCE.Write(variant_value.WebhookId, stream);
+                break;
+            case DeveloperAction.CancelRemoval variant_value:
+                stream.WriteInt(11);
+                break;
+            case DeveloperAction.ConfirmRemoval variant_value:
+                stream.WriteInt(12);
+                break;
+            case DeveloperAction.OpenCreateWebhook variant_value:
+                stream.WriteInt(13);
+                break;
+            case DeveloperAction.OpenEditWebhook variant_value:
+                stream.WriteInt(14);
+                FfiConverterString.INSTANCE.Write(variant_value.WebhookId, stream);
+                break;
+            case DeveloperAction.EditWebhookUrl variant_value:
+                stream.WriteInt(15);
+                FfiConverterString.INSTANCE.Write(variant_value.Url, stream);
+                break;
+            case DeveloperAction.ToggleEvent variant_value:
+                stream.WriteInt(16);
+                FfiConverterString.INSTANCE.Write(variant_value.Event, stream);
+                break;
+            case DeveloperAction.ToggleField variant_value:
+                stream.WriteInt(17);
+                FfiConverterString.INSTANCE.Write(variant_value.Field, stream);
+                break;
+            case DeveloperAction.SaveWebhook variant_value:
+                stream.WriteInt(18);
+                break;
+            case DeveloperAction.CloseDialog variant_value:
+                stream.WriteInt(19);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeveloperAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A tab of the section.
+/// </summary>
+public enum DeveloperTabView: int {
+    /// <summary>
+    /// API keys.
+    /// </summary>
+    Keys,
+    /// <summary>
+    /// Connected apps, and the MCP address.
+    /// </summary>
+    Apps,
+    /// <summary>
+    /// Webhooks and their deliveries.
+    /// </summary>
+    Webhooks
+}
+
+class FfiConverterTypeDeveloperTabView: FfiConverterRustBuffer<DeveloperTabView> {
+    public static FfiConverterTypeDeveloperTabView INSTANCE = new FfiConverterTypeDeveloperTabView();
+
+    public override DeveloperTabView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return DeveloperTabView.Keys;
+            case 2: return DeveloperTabView.Apps;
+            case 3: return DeveloperTabView.Webhooks;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeveloperTabView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(DeveloperTabView value) {
+        return 4;
+    }
+
+    public override void Write(DeveloperTabView value, BigEndianStream stream) {
+        switch (value) {
+            case DeveloperTabView.Keys: stream.WriteInt(1); break;
+            case DeveloperTabView.Apps: stream.WriteInt(2); break;
+            case DeveloperTabView.Webhooks: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeveloperTabView.Write()", value));
         }
     }
 }
@@ -35976,6 +37652,13 @@ public record SchedulingAdminAction {
         TeamAction Action
     ) : SchedulingAdminAction {}
     
+    /// <summary>
+    /// On Developer.
+    /// </summary>
+    public record Developer (
+        DeveloperAction Action
+    ) : SchedulingAdminAction {}
+    
 
     
 }
@@ -36026,6 +37709,10 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
                 return new SchedulingAdminAction.Team(
                     FfiConverterTypeTeamAction.INSTANCE.Read(stream)
                 );
+            case 11:
+                return new SchedulingAdminAction.Developer(
+                    FfiConverterTypeDeveloperAction.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.Read()", value));
         }
@@ -36063,6 +37750,9 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.Team variant_value:
                 return 4
                     + FfiConverterTypeTeamAction.INSTANCE.AllocationSize(variant_value.Action);
+            case SchedulingAdminAction.Developer variant_value:
+                return 4
+                    + FfiConverterTypeDeveloperAction.INSTANCE.AllocationSize(variant_value.Action);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.AllocationSize()", value));
         }
@@ -36109,6 +37799,10 @@ class FfiConverterTypeSchedulingAdminAction : FfiConverterRustBuffer<SchedulingA
             case SchedulingAdminAction.Team variant_value:
                 stream.WriteInt(10);
                 FfiConverterTypeTeamAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case SchedulingAdminAction.Developer variant_value:
+                stream.WriteInt(11);
+                FfiConverterTypeDeveloperAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminAction.Write()", value));
@@ -36184,6 +37878,13 @@ public record SchedulingAdminPage {
         SchedulingTeamView View
     ) : SchedulingAdminPage {}
     
+    /// <summary>
+    /// API keys, connected apps and webhooks.
+    /// </summary>
+    public record Developer (
+        SchedulingDeveloperView View
+    ) : SchedulingAdminPage {}
+    
 
     
 }
@@ -36226,6 +37927,10 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
                 return new SchedulingAdminPage.Team(
                     FfiConverterTypeSchedulingTeamView.INSTANCE.Read(stream)
                 );
+            case 9:
+                return new SchedulingAdminPage.Developer(
+                    FfiConverterTypeSchedulingDeveloperView.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.Read()", value));
         }
@@ -36257,6 +37962,9 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.Team variant_value:
                 return 4
                     + FfiConverterTypeSchedulingTeamView.INSTANCE.AllocationSize(variant_value.View);
+            case SchedulingAdminPage.Developer variant_value:
+                return 4
+                    + FfiConverterTypeSchedulingDeveloperView.INSTANCE.AllocationSize(variant_value.View);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.AllocationSize()", value));
         }
@@ -36295,6 +38003,10 @@ class FfiConverterTypeSchedulingAdminPage : FfiConverterRustBuffer<SchedulingAdm
             case SchedulingAdminPage.Team variant_value:
                 stream.WriteInt(8);
                 FfiConverterTypeSchedulingTeamView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case SchedulingAdminPage.Developer variant_value:
+                stream.WriteInt(9);
+                FfiConverterTypeSchedulingDeveloperView.INSTANCE.Write(variant_value.View, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSchedulingAdminPage.Write()", value));
@@ -41434,6 +43146,37 @@ class FfiConverterOptionalTypeCreatorCellView: FfiConverterRustBuffer<CreatorCel
 
 
 
+class FfiConverterOptionalTypeDeliveriesView: FfiConverterRustBuffer<DeliveriesView?> {
+    public static FfiConverterOptionalTypeDeliveriesView INSTANCE = new FfiConverterOptionalTypeDeliveriesView();
+
+    public override DeliveriesView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeDeliveriesView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(DeliveriesView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeDeliveriesView.INSTANCE.AllocationSize((DeliveriesView)value);
+        }
+    }
+
+    public override void Write(DeliveriesView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeDeliveriesView.INSTANCE.Write((DeliveriesView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeDeskComposeView: FfiConverterRustBuffer<DeskComposeView?> {
     public static FfiConverterOptionalTypeDeskComposeView INSTANCE = new FfiConverterOptionalTypeDeskComposeView();
 
@@ -42023,6 +43766,37 @@ class FfiConverterOptionalTypeKeyCheckView: FfiConverterRustBuffer<KeyCheckView?
 
 
 
+class FfiConverterOptionalTypeKeyDialogView: FfiConverterRustBuffer<KeyDialogView?> {
+    public static FfiConverterOptionalTypeKeyDialogView INSTANCE = new FfiConverterOptionalTypeKeyDialogView();
+
+    public override KeyDialogView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeKeyDialogView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(KeyDialogView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeKeyDialogView.INSTANCE.AllocationSize((KeyDialogView)value);
+        }
+    }
+
+    public override void Write(KeyDialogView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeKeyDialogView.INSTANCE.Write((KeyDialogView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeKnowledgeConfirmView: FfiConverterRustBuffer<KnowledgeConfirmView?> {
     public static FfiConverterOptionalTypeKnowledgeConfirmView INSTANCE = new FfiConverterOptionalTypeKnowledgeConfirmView();
 
@@ -42109,6 +43883,37 @@ class FfiConverterOptionalTypeManagedNumbersView: FfiConverterRustBuffer<Managed
         } else {
             stream.WriteByte(1);
             FfiConverterTypeManagedNumbersView.INSTANCE.Write((ManagedNumbersView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeMcpView: FfiConverterRustBuffer<McpView?> {
+    public static FfiConverterOptionalTypeMcpView INSTANCE = new FfiConverterOptionalTypeMcpView();
+
+    public override McpView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeMcpView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(McpView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeMcpView.INSTANCE.AllocationSize((McpView)value);
+        }
+    }
+
+    public override void Write(McpView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeMcpView.INSTANCE.Write((McpView)value, stream);
         }
     }
 }
@@ -42705,6 +44510,37 @@ class FfiConverterOptionalTypeSchedulingAskView: FfiConverterRustBuffer<Scheduli
 
 
 
+class FfiConverterOptionalTypeSecretView: FfiConverterRustBuffer<SecretView?> {
+    public static FfiConverterOptionalTypeSecretView INSTANCE = new FfiConverterOptionalTypeSecretView();
+
+    public override SecretView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSecretView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SecretView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSecretView.INSTANCE.AllocationSize((SecretView)value);
+        }
+    }
+
+    public override void Write(SecretView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSecretView.INSTANCE.Write((SecretView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeSentimentChartView: FfiConverterRustBuffer<SentimentChartView?> {
     public static FfiConverterOptionalTypeSentimentChartView INSTANCE = new FfiConverterOptionalTypeSentimentChartView();
 
@@ -42953,6 +44789,37 @@ class FfiConverterOptionalTypeUnblockQuestionView: FfiConverterRustBuffer<Unbloc
 
 
 
+class FfiConverterOptionalTypeWebhookEditorView: FfiConverterRustBuffer<WebhookEditorView?> {
+    public static FfiConverterOptionalTypeWebhookEditorView INSTANCE = new FfiConverterOptionalTypeWebhookEditorView();
+
+    public override WebhookEditorView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeWebhookEditorView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(WebhookEditorView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeWebhookEditorView.INSTANCE.AllocationSize((WebhookEditorView)value);
+        }
+    }
+
+    public override void Write(WebhookEditorView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeWebhookEditorView.INSTANCE.Write((WebhookEditorView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeDeskStatus: FfiConverterRustBuffer<DeskStatus?> {
     public static FfiConverterOptionalTypeDeskStatus INSTANCE = new FfiConverterOptionalTypeDeskStatus();
 
@@ -43147,6 +45014,52 @@ class FfiConverterSequenceString: FfiConverterRustBuffer<string[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterString.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeApiKeyRowView: FfiConverterRustBuffer<ApiKeyRowView[]> {
+    public static FfiConverterSequenceTypeApiKeyRowView INSTANCE = new FfiConverterSequenceTypeApiKeyRowView();
+
+    public override ApiKeyRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ApiKeyRowView[length];
+        var readFn = FfiConverterTypeApiKeyRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ApiKeyRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeApiKeyRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ApiKeyRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeApiKeyRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -43936,6 +45849,52 @@ class FfiConverterSequenceTypeComposeChannelView: FfiConverterRustBuffer<Compose
 
 
 
+class FfiConverterSequenceTypeConnectedAppRowView: FfiConverterRustBuffer<ConnectedAppRowView[]> {
+    public static FfiConverterSequenceTypeConnectedAppRowView INSTANCE = new FfiConverterSequenceTypeConnectedAppRowView();
+
+    public override ConnectedAppRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ConnectedAppRowView[length];
+        var readFn = FfiConverterTypeConnectedAppRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ConnectedAppRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeConnectedAppRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ConnectedAppRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeConnectedAppRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeContactRowView: FfiConverterRustBuffer<ContactRowView[]> {
     public static FfiConverterSequenceTypeContactRowView INSTANCE = new FfiConverterSequenceTypeContactRowView();
 
@@ -43975,6 +45934,52 @@ class FfiConverterSequenceTypeContactRowView: FfiConverterRustBuffer<ContactRowV
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeContactRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeDeliveryRowView: FfiConverterRustBuffer<DeliveryRowView[]> {
+    public static FfiConverterSequenceTypeDeliveryRowView INSTANCE = new FfiConverterSequenceTypeDeliveryRowView();
+
+    public override DeliveryRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DeliveryRowView[length];
+        var readFn = FfiConverterTypeDeliveryRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DeliveryRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDeliveryRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DeliveryRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDeliveryRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -44159,6 +46164,52 @@ class FfiConverterSequenceTypeDeskStatusChoiceView: FfiConverterRustBuffer<DeskS
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeDeskStatusChoiceView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeDeveloperTabEntryView: FfiConverterRustBuffer<DeveloperTabEntryView[]> {
+    public static FfiConverterSequenceTypeDeveloperTabEntryView INSTANCE = new FfiConverterSequenceTypeDeveloperTabEntryView();
+
+    public override DeveloperTabEntryView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DeveloperTabEntryView[length];
+        var readFn = FfiConverterTypeDeveloperTabEntryView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DeveloperTabEntryView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDeveloperTabEntryView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DeveloperTabEntryView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDeveloperTabEntryView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -46420,6 +48471,52 @@ class FfiConverterSequenceTypeTimelineItemView: FfiConverterRustBuffer<TimelineI
 
 
 
+class FfiConverterSequenceTypeToggleRowView: FfiConverterRustBuffer<ToggleRowView[]> {
+    public static FfiConverterSequenceTypeToggleRowView INSTANCE = new FfiConverterSequenceTypeToggleRowView();
+
+    public override ToggleRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ToggleRowView[length];
+        var readFn = FfiConverterTypeToggleRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ToggleRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeToggleRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ToggleRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeToggleRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeToolRowView: FfiConverterRustBuffer<ToolRowView[]> {
     public static FfiConverterSequenceTypeToolRowView INSTANCE = new FfiConverterSequenceTypeToolRowView();
 
@@ -46551,6 +48648,52 @@ class FfiConverterSequenceTypeUpcomingBookingView: FfiConverterRustBuffer<Upcomi
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeUpcomingBookingView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeWebhookRowView: FfiConverterRustBuffer<WebhookRowView[]> {
+    public static FfiConverterSequenceTypeWebhookRowView INSTANCE = new FfiConverterSequenceTypeWebhookRowView();
+
+    public override WebhookRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new WebhookRowView[length];
+        var readFn = FfiConverterTypeWebhookRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(WebhookRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeWebhookRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(WebhookRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeWebhookRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

@@ -92,6 +92,7 @@ public sealed class SceneWalkTests
         "SchedulingSectionBookings",
         "SchedulingSectionCalendar",
         "SchedulingSectionTeam",
+        "SchedulingSectionDeveloper",
     ];
 
     /// <summary>
@@ -1244,6 +1245,170 @@ public sealed class SceneWalkTests
             $"the close button of {noticeId}",
             app.Describe));
         Expect(app, () => app.TryFindById(noticeId) is null, $"{noticeId} to close");
+    }
+
+    /// <summary>
+    /// Developer's main flow, each row's button pressed and its effect seen:
+    /// a key is made and shown once, and Copy puts it on the clipboard (the
+    /// core then says Copied); Zapier's Revoke asks once, naming it, and the
+    /// revoke lands; on the apps tab the MCP address shows and Raycast's
+    /// Revoke asks, kept with Escape; on the webhooks tab the first webhook's
+    /// Deliveries opens its deliveries under their heading and closes them
+    /// again, its Edit opens its form, where an event is switched on and the
+    /// save lands, and the second webhook's Delete asks, naming nothing but
+    /// the webhook, and lands. Escape closes each dialog.
+    /// </summary>
+    [Fact]
+    public void DevelopersRowsActAndARevokeAsksOnce()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        OpenUntilById(app, "NavScheduling");
+        // Developer is the booking pages' last row, below the list's fold.
+        ScrollRowIntoView(app, "SchedulingSectionDeveloper");
+        var developer = OpenSettingsRowById(app, "SchedulingSectionDeveloper");
+        _ = Heading(app, developer, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("DeveloperKeyRevoke", PageTimeout, onScreen: false);
+        InstalledApp.Log("the keys show");
+
+        // A key, made and shown once; Copy reaches the core, which says Copied.
+        Press(app.FindById("DeveloperCreateKey", PageTimeout, onScreen: false));
+        var keyDialog = app.FindById("DeveloperKeyDialog", PageTimeout);
+        app.FindById("DeveloperKeyName", PageTimeout).AsTextBox().Text = "Walk key";
+        Press(Wait.For(
+            () => keyDialog.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "Create key to work",
+            app.Describe));
+        var shown = app.FindById("DeveloperSecretValue", PageTimeout, onScreen: false).AsTextBox();
+        // The key itself is never logged: only that one shows.
+        Assert.False(string.IsNullOrEmpty(shown.Text), "no key was shown");
+        Press(app.FindById("DeveloperSecretCopy", PageTimeout, onScreen: false));
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperSecretCopy", onScreen: false)?.Name == "Copied", PageTimeout),
+            "Copy did not reach the core");
+        Assert.Null(app.TryFindById("DeveloperSecretCopyFailed", onScreen: false));
+        InstalledApp.Log("a key was made, shown once and copied");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperKeyDialog", onScreen: false) is null, PageTimeout),
+            "the key stayed shown after Escape");
+
+        // Zapier's Revoke: asked once, naming it, then it lands.
+        Press(app.FindById("DeveloperKeyRevoke", PageTimeout, onScreen: false));
+        var removal = app.FindById("DeveloperRemovalDialog", PageTimeout);
+        Assert.Equal("Revoke Zapier?", removal.Name);
+        _ = app.FindById("DeveloperRemovalBody", PageTimeout, onScreen: false);
+        Press(Wait.For(
+            () => removal.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "Revoke key to work",
+            app.Describe));
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperRemovalDialog", onScreen: false) is null, PageTimeout),
+            "the revoke stayed asked after its confirm");
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperRemoving", onScreen: false) is null, PageTimeout),
+            "the revoke stayed on its way");
+        Assert.Null(app.TryFindById("DeveloperRemovalFailure", onScreen: false));
+        InstalledApp.Log("Revoke asked once, and the key was revoked");
+
+        // The apps: the MCP address, and Raycast's Revoke asked, then kept.
+        ScrollTo(app, "SchedulingDeveloper", 0);
+        Press(app.FindById("DeveloperTabApps", PageTimeout));
+        var mcp = app.FindById("DeveloperMcpUrl", PageTimeout, onScreen: false);
+        Assert.EndsWith("/mcp", mcp.Name, StringComparison.Ordinal);
+        Press(app.FindById("DeveloperAppRevoke", PageTimeout, onScreen: false));
+        Assert.Equal("Revoke Raycast?", app.FindById("DeveloperRemovalDialog", PageTimeout).Name);
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperRemovalDialog", onScreen: false) is null, PageTimeout),
+            "the app's revoke stayed asked after Escape");
+        InstalledApp.Log("the apps show beside the MCP address, and Revoke asks");
+
+        // The webhooks: the first one's deliveries open under their heading, and close.
+        ScrollTo(app, "SchedulingDeveloper", 0);
+        Press(app.FindById("DeveloperTabWebhooks", PageTimeout));
+        Press(app.FindById("DeveloperWebhookDeliveries", PageTimeout, onScreen: false));
+        var heading = app.FindById("DeveloperDeliveriesHeading", PageTimeout, onScreen: false);
+        Assert.Contains("hooks.contract.test/bookings", heading.Name, StringComparison.Ordinal);
+        Assert.True(
+            Wait.Until(() => window.FindAllDescendants(cf => cf.ByAutomationId("DeveloperDeliveryOutcome")).Length == 2, PageTimeout),
+            "the deliveries did not fill in");
+        InstalledApp.Log("a webhook's deliveries opened");
+        Press(app.FindById("DeveloperWebhookDeliveries", PageTimeout, onScreen: false));
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperDeliveriesHeading", onScreen: false) is null, PageTimeout),
+            "the deliveries stayed open after Deliveries was pressed again");
+
+        // Its Edit: its own form, an event switched on, and the save lands.
+        Press(app.FindById("DeveloperWebhookEdit", PageTimeout, onScreen: false));
+        var editor = app.FindById("DeveloperWebhookDialog", PageTimeout);
+        Assert.Equal("Edit webhook", editor.Name);
+        Assert.Contains(
+            "hooks.contract.test/bookings",
+            app.FindById("DeveloperWebhookUrlFixed", PageTimeout, onScreen: false).Name,
+            StringComparison.Ordinal);
+        Press(app.FindById("DeveloperWebhookEventbooking.rescheduled", PageTimeout));
+        Press(Wait.For(
+            () => editor.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "Save changes to work",
+            app.Describe));
+        _ = app.FindById("DeveloperWebhookNotice", PageTimeout, onScreen: false);
+        Assert.Null(app.TryFindById("DeveloperWebhookFailure", onScreen: false));
+        InstalledApp.Log("a webhook's events were saved");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperWebhookDialog", onScreen: false) is null, PageTimeout),
+            "the webhook's form stayed open after Escape");
+
+        // The second webhook's Delete: asked once, then it lands.
+        var deletes = Wait.For(
+            () => window.FindAllDescendants(cf => cf.ByAutomationId("DeveloperWebhookDelete")) is { Length: 2 } both ? both : null,
+            PageTimeout,
+            "both webhooks' Delete",
+            app.Describe);
+        Press(deletes[1]);
+        var delete = app.FindById("DeveloperRemovalDialog", PageTimeout);
+        Assert.Equal("Delete this webhook?", delete.Name);
+        Press(Wait.For(
+            () => delete.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
+            PageTimeout,
+            "Delete webhook to work",
+            app.Describe));
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperRemovalDialog", onScreen: false) is null, PageTimeout),
+            "the delete stayed asked after its confirm");
+        Assert.True(
+            Wait.Until(() => app.TryFindById("DeveloperRemoving", onScreen: false) is null, PageTimeout),
+            "the delete stayed on its way");
+        Assert.Null(app.TryFindById("DeveloperRemovalFailure", onScreen: false));
+        InstalledApp.Log("Delete asked once, and the webhook was deleted");
+        Assert.Null(Failure(app));
+        Assert.True(app.IsRunning, "the app ended in Developer");
+    }
+
+    /// <summary>
+    /// Scrolls the list row holding <paramref name="rowId"/> into view, as a
+    /// member scrolls the list to a row below its fold.
+    /// </summary>
+    private static void ScrollRowIntoView(InstalledApp app, string rowId)
+    {
+        var walker = app.Automation.TreeWalkerFactory.GetControlViewWalker();
+        var title = app.FindById(rowId, PageTimeout, onScreen: false);
+        for (var at = walker.GetParent(title); at is not null; at = walker.GetParent(at))
+        {
+            if (at.Properties.ControlType.ValueOrDefault == ControlType.ListItem)
+            {
+                at.Patterns.ScrollItem.PatternOrDefault?.ScrollIntoView();
+                break;
+            }
+        }
+        _ = app.FindById(rowId, PageTimeout);
     }
 
     /// <summary>

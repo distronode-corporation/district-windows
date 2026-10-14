@@ -1,0 +1,173 @@
+{
+  "screen": {
+    "SchedulingAdmin": {
+      "view": {
+        "page": {
+          "Developer": {
+            "view": {
+              "add_webhook_label": "Add webhook",
+              "apps": [
+                {
+                  "id": "oauth-contract-1",
+                  "last_used": "Sep 10, 2026, 3:00 p.m.",
+                  "name": "Raycast"
+                },
+                {
+                  "id": "oauth-contract-2",
+                  "last_used": "Never",
+                  "name": "Internal script"
+                }
+              ],
+              "apps_empty": "No connected apps.",
+              "apps_heading": "Connected apps",
+              "apps_status": "Ready",
+              "apps_subtitle": "Every connected app reaches the same booking data. There are no partial permissions, so revoking is the only way to narrow one.",
+              "create_key_label": "Create key",
+              "delete_webhook_label": "Delete webhook",
+              "deliveries": null,
+              "deliveries_label": "Deliveries",
+              "edit_webhook_label": "Edit",
+              "key_dialog": null,
+              "keys": [
+                {
+                  "id": "key-contract-1",
+                  "line": "Created Sep 1, 2026, 7:00 a.m. · Last used Sep 10, 2026, 4:15 a.m.",
+                  "name": "Zapier"
+                },
+                {
+                  "id": "key-contract-2",
+                  "line": "Created Sep 2, 2026, 7:00 a.m. · Last used Never",
+                  "name": "Unused"
+                }
+              ],
+              "keys_empty": "No API keys yet.",
+              "keys_heading": "Your API keys",
+              "keys_status": "Ready",
+              "keys_subtitle": "A key lets your own tools and scripts reach this workspace's booking data.",
+              "mcp": {
+                "auth": "Bearer <your API key>",
+                "auth_label": "Authorization header",
+                "url": "https://book.example.com/mcp",
+                "url_label": "MCP URL"
+              },
+              "mcp_heading": "Connect an AI assistant",
+              "mcp_no_host": "Your booking address is not ready yet. It appears here once scheduling is set up.",
+              "mcp_note": "Use a key from the API keys tab. Anyone holding it can do everything on this workspace's bookings, so give each assistant its own and revoke it when you are done with it.",
+              "offers_writes": true,
+              "removal": {
+                "body": "It stops reaching this workspace's booking data now.",
+                "can_confirm": true,
+                "close": "Cancel",
+                "confirm": "Revoke access",
+                "destructive": true,
+                "failure": null,
+                "title": "Revoke Raycast?",
+                "working": false
+              },
+              "removal_failure": null,
+              "removing": false,
+              "revoke_app_label": "Revoke access",
+              "revoke_key_label": "Revoke key",
+              "tab": "Apps",
+              "tabs": [
+                {
+                  "label": "API keys",
+                  "selected": false,
+                  "tab": "Keys"
+                },
+                {
+                  "label": "Connected apps",
+                  "selected": true,
+                  "tab": "Apps"
+                },
+                {
+                  "label": "Webhooks",
+                  "selected": false,
+                  "tab": "Webhooks"
+                }
+              ],
+              "times_in": "Times in America/Toronto",
+              "webhook_dialog": null,
+              "webhooks": [],
+              "webhooks_empty": "No webhooks yet.",
+              "webhooks_heading": "Webhooks",
+              "webhooks_status": "Loading",
+              "webhooks_subtitle": "Bookings already reach your District inbox and workflows; webhooks are for other systems."
+            }
+          }
+        },
+        "sections": [
+          {
+            "section": "Overview",
+            "selected": false,
+            "subtitle": "Your booking desk, and what is coming up",
+            "title": "Overview"
+          },
+          {
+            "section": "EventTypes",
+            "selected": false,
+            "subtitle": "The pages a customer can book, and how long each one runs",
+            "title": "Event types"
+          },
+          {
+            "section": "Hours",
+            "selected": false,
+            "subtitle": "The weekly hours you are bookable, and the dates you are not",
+            "title": "Working hours"
+          },
+          {
+            "section": "Bookings",
+            "selected": false,
+            "subtitle": "Every booking in this workspace, upcoming and past",
+            "title": "Bookings"
+          },
+          {
+            "section": "Calendar",
+            "selected": false,
+            "subtitle": "The accounts bookings are written to and checked against",
+            "title": "Calendar"
+          },
+          {
+            "section": "Team",
+            "selected": false,
+            "subtitle": "The hosts who can be booked, and the teams they route through",
+            "title": "Team"
+          },
+          {
+            "section": "Developer",
+            "selected": true,
+            "subtitle": "API keys, connected apps and webhooks",
+            "title": "Developer"
+          }
+        ],
+        "title": "Developer"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Scheduling",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
