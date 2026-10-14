@@ -380,14 +380,25 @@ fn an_ai_draft_is_text_to_edit_and_can_be_reported() {
     );
     assert!(composer.can_draft_reply && composer.can_send);
     assert_eq!(composer.ai_draft.report, ReportAvailability::InApp);
-    let events = UiEvent::Report {
+    let reported = written.ui(UiEvent::Report {
         target: ReportTarget::AiDraft {
             thread_key: THREAD.to_owned(),
         },
         note: String::new(),
-    }
-    .events();
-    let message = format!("{events:?}");
+    });
+    let SessionState::SignedIn(signed_in) = reported.model.session() else {
+        panic!("signed out");
+    };
+    let message = signed_in
+        .support
+        .compose
+        .as_ref()
+        .map(|compose| compose.form.message.clone())
+        .expect("the report fills the support form");
+    assert!(
+        message.starts_with("AI-generated content was reported from the District AI Windows app."),
+        "{message}"
+    );
     assert!(message.contains("Contact: contact_contract_1"), "{message}");
     assert!(!message.contains("Thursday at 2pm"), "{message}");
 }

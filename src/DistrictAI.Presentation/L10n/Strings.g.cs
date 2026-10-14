@@ -802,17 +802,8 @@ namespace DistrictAI.L10n
         /// <summary><c>refresh.refreshing</c></summary>
         public static string RefreshRefreshing => Current == Locale.FrCa ? "Refreshing" : "Refreshing";
 
-        /// <summary><c>report.body</c></summary>
-        public static string ReportBody => Current == Locale.FrCa ? "Tell us what is wrong with this AI-generated content. We will review it." : "Tell us what is wrong with this AI-generated content. We will review it.";
-
         /// <summary><c>report.not_sent</c></summary>
         public static string ReportNotSent => Current == Locale.FrCa ? "Report not sent" : "Report not sent";
-
-        /// <summary><c>report.title</c></summary>
-        public static string ReportTitle => Current == Locale.FrCa ? "Report AI-generated content" : "Report AI-generated content";
-
-        /// <summary><c>report.what_is_wrong</c></summary>
-        public static string ReportWhatIsWrong => Current == Locale.FrCa ? "What is wrong (optional)" : "What is wrong (optional)";
 
         /// <summary><c>rooms.close_meeting</c></summary>
         public static string RoomsCloseMeeting => Current == Locale.FrCa ? "Close the meeting" : "Close the meeting";

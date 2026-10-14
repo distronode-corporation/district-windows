@@ -209,11 +209,11 @@ pub(crate) fn thread_cases() -> Vec<Case> {
 #[test]
 fn opening_a_thread_marks_it_read_in_the_core() {
     let before = with_unread(inbox_loaded());
-    assert_eq!(shell_view(&before.model, false).unread, 3);
+    assert_eq!(shell_view(&before.model).unread, 3);
     let after = before.ui(UiEvent::OpenThread {
         thread_key: "contact:contact_contract_1".to_owned(),
     });
-    assert_eq!(shell_view(&after.model, false).unread, 1);
+    assert_eq!(shell_view(&after.model).unread, 1);
     assert!(
         after
             .pending

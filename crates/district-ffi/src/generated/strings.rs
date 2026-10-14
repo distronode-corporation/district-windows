@@ -2291,42 +2291,6 @@ pub fn persona_title(l: Locale) -> &'static str {
     }
 }
 
-/// `report.deduplicated`
-#[must_use]
-pub fn report_deduplicated(l: Locale) -> &'static str {
-    match l {
-        Locale::En => "You have already reported this. We'll review it.",
-        Locale::FrCa => "You have already reported this. We'll review it.",
-    }
-}
-
-/// `report.draft_open`
-#[must_use]
-pub fn report_draft_open(l: Locale) -> &'static str {
-    match l {
-        Locale::En => "Send or discard the support request you are writing in Support, then report this.",
-        Locale::FrCa => "Send or discard the support request you are writing in Support, then report this.",
-    }
-}
-
-/// `report.filed`
-#[must_use]
-pub fn report_filed(l: Locale) -> &'static str {
-    match l {
-        Locale::En => "Reported. We'll review it.",
-        Locale::FrCa => "Reported. We'll review it.",
-    }
-}
-
-/// `report.pending`
-#[must_use]
-pub fn report_pending(l: Locale) -> &'static str {
-    match l {
-        Locale::En => "Reported. We have it and it is catching up.",
-        Locale::FrCa => "Reported. We have it and it is catching up.",
-    }
-}
-
 /// `rooms.a_guest`
 #[must_use]
 pub fn rooms_a_guest(l: Locale) -> &'static str {

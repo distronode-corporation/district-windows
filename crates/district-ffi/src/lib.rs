@@ -44,7 +44,6 @@ mod calls_live;
 mod contacts;
 mod inbox;
 mod overview;
-mod report;
 
 // The areas of 2.0, one module each (CONTRIBUTING.md, "Areas"). Public, so the
 // packet that builds one adds its types without editing this file.
@@ -106,7 +105,6 @@ pub use crate::inbox::{
 pub use crate::link::{LinkKind, link_kind};
 pub use crate::nav::{NavDestination, NavEntryView, NavGroupView, NavSection, NavView};
 pub use crate::overview::{FinishSetupView, OverviewView};
-pub use crate::report::{NO_NOTE, NOTE_LIMIT, PREAMBLE, REPORT_SUBJECT, ReportStatus, ui_events};
 pub use crate::screen::{ScreenView, SessionScreen, screen_view};
 pub use crate::shell::{
     LiveBannerView, SessionPhase, ShellView, TabView, WorkspaceEntryView, WorkspaceSwitcherView,
@@ -115,7 +113,7 @@ pub use crate::shell::{
 pub use crate::store::{CredentialStore, MemoryVault, OUTBOX_MAX_BYTES, Vault};
 pub use crate::views::{
     AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView, REPORT_WEB_URL,
-    ReportAvailability, ReportTarget,
+    ReportAvailability, ReportDialogView, ReportStatus, ReportTarget, report_dialog,
 };
 
 #[cfg(windows)]

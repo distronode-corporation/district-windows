@@ -2,7 +2,7 @@
 //! a list read a page at a time, a labelled value, AI-generated text, and the
 //! Report action that goes with it.
 
-use district_core::{Capabilities, FailureText, Paging};
+use district_core::{Capabilities, FailureText, Paging, REPORT_NOTE_LIMIT, ReportDialog};
 use district_l10n::{Locale, WireCategory, wire_label};
 use serde::Serialize;
 
@@ -226,6 +226,88 @@ pub enum ReportTarget {
     },
 }
 
+impl From<ReportTarget> for district_core::ReportTarget {
+    fn from(target: ReportTarget) -> Self {
+        match target {
+            ReportTarget::Call { call_id } => Self::Call { call_id },
+            ReportTarget::Contact { contact_id } => Self::Contact { contact_id },
+            ReportTarget::ThreadEvent {
+                thread_key,
+                event_id,
+            } => Self::ThreadEvent {
+                thread_key,
+                event_id,
+            },
+            ReportTarget::AiDraft { thread_key } => Self::AiDraft { thread_key },
+            ReportTarget::HqAnswer => Self::HqAnswer,
+            ReportTarget::MeetingMinutes { meeting_id } => Self::MeetingMinutes { meeting_id },
+            ReportTarget::MeetingActionItems { meeting_id } => {
+                Self::MeetingActionItems { meeting_id }
+            }
+        }
+    }
+}
+
+/// Where the report this session started stands: the core's
+/// [`district_core::ReportStatus`], while it is under way or until its outcome
+/// is dismissed.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
+pub enum ReportStatus {
+    /// On its way.
+    Sending,
+    /// Raised.
+    Sent {
+        /// The confirmation.
+        message: String,
+    },
+    /// Not raised. The note is kept, and sending again sends the same report.
+    Failed {
+        /// Why, in the core's words.
+        message: String,
+    },
+}
+
+impl From<district_core::ReportStatus> for ReportStatus {
+    fn from(status: district_core::ReportStatus) -> Self {
+        match status {
+            district_core::ReportStatus::Sending => Self::Sending,
+            district_core::ReportStatus::Sent { message } => Self::Sent { message },
+            district_core::ReportStatus::Failed { message } => Self::Failed { message },
+        }
+    }
+}
+
+/// The report dialog's words, the core's [`ReportDialog`], in the member's
+/// language, and the longest note a report carries.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct ReportDialogView {
+    /// The dialog's title.
+    pub title: String,
+    /// The line under the title.
+    pub intro: String,
+    /// The note field's label.
+    pub note_label: String,
+    /// The button that sends the report.
+    pub send: String,
+    /// The button that closes the dialog without sending.
+    pub cancel: String,
+    /// The longest note, in characters: longer is cut when the report is sent.
+    pub note_limit: u32,
+}
+
+/// The report dialog's words, as the core has them now.
+#[uniffi::export]
+pub fn report_dialog() -> ReportDialogView {
+    ReportDialogView {
+        title: ReportDialog::title().to_owned(),
+        intro: ReportDialog::intro().to_owned(),
+        note_label: ReportDialog::note_label().to_owned(),
+        send: ReportDialog::send().to_owned(),
+        cancel: ReportDialog::cancel().to_owned(),
+        note_limit: u32::try_from(REPORT_NOTE_LIMIT).unwrap_or(u32::MAX),
+    }
+}
+
 /// What the service writes in a call's summary field when there is no summary:
 /// a marker or a progress line, never AI text. The iOS app's list
 /// (`CallNarrative.placeholders`), matched exactly.
@@ -290,6 +372,79 @@ pub(crate) fn humanize(raw: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The dialog's words are the core's, and so is the note's limit.
+    #[test]
+    fn the_report_dialog_is_the_cores() {
+        let words = report_dialog();
+        assert_eq!(words.title, ReportDialog::title());
+        assert_eq!(words.intro, ReportDialog::intro());
+        assert_eq!(words.note_label, ReportDialog::note_label());
+        assert_eq!(words.send, ReportDialog::send());
+        assert_eq!(words.cancel, ReportDialog::cancel());
+        assert_eq!(words.note_limit, 2000);
+    }
+
+    #[test]
+    fn a_report_status_crosses_as_the_cores() {
+        let message = || "m".to_owned();
+        assert_eq!(
+            ReportStatus::from(district_core::ReportStatus::Sending),
+            ReportStatus::Sending
+        );
+        assert_eq!(
+            ReportStatus::from(district_core::ReportStatus::Sent { message: message() }),
+            ReportStatus::Sent { message: message() }
+        );
+        assert_eq!(
+            ReportStatus::from(district_core::ReportStatus::Failed { message: message() }),
+            ReportStatus::Failed { message: message() }
+        );
+    }
+
+    #[test]
+    fn each_report_target_crosses_as_the_cores() {
+        let id = || "x".to_owned();
+        let pairs = [
+            (
+                ReportTarget::Call { call_id: id() },
+                district_core::ReportTarget::Call { call_id: id() },
+            ),
+            (
+                ReportTarget::Contact { contact_id: id() },
+                district_core::ReportTarget::Contact { contact_id: id() },
+            ),
+            (
+                ReportTarget::ThreadEvent {
+                    thread_key: id(),
+                    event_id: id(),
+                },
+                district_core::ReportTarget::ThreadEvent {
+                    thread_key: id(),
+                    event_id: id(),
+                },
+            ),
+            (
+                ReportTarget::AiDraft { thread_key: id() },
+                district_core::ReportTarget::AiDraft { thread_key: id() },
+            ),
+            (
+                ReportTarget::HqAnswer,
+                district_core::ReportTarget::HqAnswer,
+            ),
+            (
+                ReportTarget::MeetingMinutes { meeting_id: id() },
+                district_core::ReportTarget::MeetingMinutes { meeting_id: id() },
+            ),
+            (
+                ReportTarget::MeetingActionItems { meeting_id: id() },
+                district_core::ReportTarget::MeetingActionItems { meeting_id: id() },
+            ),
+        ];
+        for (ours, theirs) in pairs {
+            assert_eq!(district_core::ReportTarget::from(ours), theirs);
+        }
+    }
 
     #[test]
     fn a_marker_or_a_failure_is_not_an_ai_summary() {

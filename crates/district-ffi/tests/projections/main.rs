@@ -49,7 +49,7 @@ use std::path::PathBuf;
 use district_api::{ApiError, ErrorDetail, ReauthReason, TokenError};
 use district_auth::AccessClaims;
 use district_core::{CoreConfig, Effect, Event, Model, RestoreError, Route, SessionState, Ticket};
-use district_ffi::{NavDestination, ScreenView, UiEvent, screen_view, shell_view, ui_events};
+use district_ffi::{NavDestination, ScreenView, UiEvent, screen_view, shell_view};
 use district_model::WorkspaceListResponse;
 use serde_json::{Value, json};
 
@@ -60,12 +60,11 @@ fn dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/snapshots")
 }
 
-/// A model, the effects it has asked for and not yet had answered, and
-/// whether a report was started, as the actor holds them.
+/// A model and the effects it has asked for and not yet had answered, as the
+/// actor holds them.
 struct Session {
     model: Model,
     pending: Vec<Effect>,
-    reporting: bool,
 }
 
 impl Session {
@@ -78,7 +77,7 @@ impl Session {
 
     /// Applies what the user did, as the actor does.
     fn ui(mut self, action: UiEvent) -> Self {
-        for event in ui_events(&self.model, &mut self.reporting, action) {
+        for event in action.events() {
             self = self.send(event);
         }
         self
@@ -140,7 +139,7 @@ fn cases() -> Vec<Case> {
 /// change for every signed-in case whenever an area is built, so they are
 /// pinned once, in nav.rs's own tests, rather than in every area's files.
 fn shell_json(session: &Session) -> Value {
-    let shell = shell_view(&session.model, session.reporting);
+    let shell = shell_view(&session.model);
     let selected = shell
         .nav
         .groups
@@ -165,7 +164,7 @@ fn route(session: &Session) -> Route {
 
 /// The destinations the navigation pane offers in `session`.
 fn offered(session: &Session) -> Vec<NavDestination> {
-    shell_view(&session.model, session.reporting)
+    shell_view(&session.model)
         .nav
         .groups
         .iter()
@@ -206,7 +205,6 @@ fn plain(model: Model) -> Session {
     Session {
         model,
         pending: Vec::new(),
-        reporting: false,
     }
 }
 

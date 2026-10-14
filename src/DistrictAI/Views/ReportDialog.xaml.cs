@@ -1,6 +1,7 @@
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 
 namespace DistrictAI.Views;
@@ -17,10 +18,18 @@ public sealed partial class ReportDialog : ContentDialog
     /// <summary>Where a member who cannot report in the app reports instead.</summary>
     internal const string SupportUrl = "https://www.distronode.com/support";
 
-    /// <summary>An empty dialog.</summary>
+    /// <summary>An empty dialog, in the core's words.</summary>
     public ReportDialog()
     {
         InitializeComponent();
+        var words = DistrictFfi.ReportDialog();
+        Title = words.Title;
+        PrimaryButtonText = words.Send;
+        CloseButtonText = words.Cancel;
+        Intro.Text = words.Intro;
+        Note.Header = words.NoteLabel;
+        AutomationProperties.SetName(Note, words.NoteLabel);
+        Note.MaxLength = (int)words.NoteLimit;
     }
 
     /// <summary>

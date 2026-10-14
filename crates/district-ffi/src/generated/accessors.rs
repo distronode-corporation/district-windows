@@ -524,14 +524,6 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::persona_texts_heading(Locale::FrCa), "What it says");
     assert_eq!(s::persona_title(Locale::En), "Persona");
     assert_eq!(s::persona_title(Locale::FrCa), "Persona");
-    assert_eq!(s::report_deduplicated(Locale::En), "You have already reported this. We'll review it.");
-    assert_eq!(s::report_deduplicated(Locale::FrCa), "You have already reported this. We'll review it.");
-    assert_eq!(s::report_draft_open(Locale::En), "Send or discard the support request you are writing in Support, then report this.");
-    assert_eq!(s::report_draft_open(Locale::FrCa), "Send or discard the support request you are writing in Support, then report this.");
-    assert_eq!(s::report_filed(Locale::En), "Reported. We'll review it.");
-    assert_eq!(s::report_filed(Locale::FrCa), "Reported. We'll review it.");
-    assert_eq!(s::report_pending(Locale::En), "Reported. We have it and it is catching up.");
-    assert_eq!(s::report_pending(Locale::FrCa), "Reported. We have it and it is catching up.");
     assert_eq!(s::rooms_a_guest(Locale::En), "A guest");
     assert_eq!(s::rooms_a_guest(Locale::FrCa), "A guest");
     assert_eq!(s::rooms_action_item_owner(Locale::En, "{item}", "{owner}"), "{item} ({owner})");

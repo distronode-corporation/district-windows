@@ -25,7 +25,6 @@ use crate::guard::{DiscardView, Held};
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
 use crate::link::{LinkKind, link_kind};
-use crate::report::ui_events;
 use crate::screen::{ScreenView, screen_view, session_view};
 use crate::shell::{ShellView, shell_for, shell_view};
 
@@ -173,7 +172,6 @@ impl SnapshotCell {
             revision: 0,
             shell: shell_for(
                 &session,
-                false,
                 district_call::CALLS_AVAILABLE,
                 std::time::SystemTime::now(),
             ),
@@ -187,17 +185,10 @@ impl SnapshotCell {
     }
 
     /// Projects `model`, and when anything the window shows changed, bumps the
-    /// revision and tells the host. `reporting` says whether this session
-    /// started a report that has not been dismissed, and `discard` is the
-    /// question asked while a move is held (crate::guard).
-    fn publish(
-        &self,
-        model: &Model,
-        reporting: bool,
-        discard: Option<DiscardView>,
-        host: &dyn UiHost,
-    ) {
-        let mut shell = shell_view(model, reporting);
+    /// revision and tells the host. `discard` is the question asked while a
+    /// move is held (crate::guard).
+    fn publish(&self, model: &Model, discard: Option<DiscardView>, host: &dyn UiHost) {
+        let mut shell = shell_view(model);
         shell.discard = discard;
         let screen = screen_view(model);
         let revision = {
@@ -601,7 +592,6 @@ fn launch<X: Effects>(
         host,
         snapshot,
         sender: sender.clone(),
-        reporting: false,
         held: Held::default(),
     };
     runtime.spawn(actor.run(first, inbox));
@@ -614,9 +604,6 @@ struct Actor<X> {
     host: Arc<dyn UiHost>,
     snapshot: Arc<SnapshotCell>,
     sender: UnboundedSender<Message>,
-    /// Whether this session started a report that has not been dismissed. The
-    /// support form's state says how it went; this says it was ours.
-    reporting: bool,
     /// A move away from a settings section with unsaved changes, held while
     /// "Discard your changes?" is asked (crate::guard).
     held: Held,
@@ -624,12 +611,8 @@ struct Actor<X> {
 
 impl<X: Effects> Actor<X> {
     fn publish(&self) {
-        self.snapshot.publish(
-            &self.model,
-            self.reporting,
-            self.held.question(),
-            &*self.host,
-        );
+        self.snapshot
+            .publish(&self.model, self.held.question(), &*self.host);
     }
 
     async fn run(mut self, first: Vec<Effect>, mut inbox: UnboundedReceiver<Message>) {
@@ -656,10 +639,7 @@ impl<X: Effects> Actor<X> {
                             self.held.keep();
                             Vec::new()
                         }
-                        action => {
-                            let events = ui_events(&self.model, &mut self.reporting, action);
-                            self.held.pass(&self.model, events)
-                        }
+                        action => self.held.pass(&self.model, action.events()),
                     };
                     for event in events {
                         next.extend(self.model.update(event));
