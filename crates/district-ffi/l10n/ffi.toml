@@ -1645,6 +1645,13 @@ screen = "nav"
 tier = "T3"
 note = "The heading over the workspace's areas in the navigation pane."
 
+[numbers.campaign_type]
+en = "Campaign type"
+ctx = "label"
+screen = "marketplace"
+tier = "T1"
+note = "Label of the A2P 10DLC form's choice of campaign type (customer care, low volume, marketing, 2FA), which decides the brand and the price."
+
 [overview.failed_title]
 en = "Could not load the overview"
 ctx = "error"

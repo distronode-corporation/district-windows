@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Marketplace.CarrierPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels.Marketplace">
+    <!-- The carrier tab: the carrier accounts, the SIP trunks, the one-time passcode sender and the two registrations. Every word is the core's; each write that costs money or cannot be undone is asked about first, by the core. -->
+    <ScrollViewer>
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left" Spacing="12">
+            <TextBlock
+                AutomationProperties.LiveSetting="Polite"
+                Text="{x:Bind Admin.CarrierNotice, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind Admin.HasCarrierNotice, Mode=OneWay}" />
+            <ProgressBar
+                AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+                IsIndeterminate="True"
+                Visibility="{x:Bind Admin.Carrier.Working, Mode=OneWay, FallbackValue=Collapsed}" />
+
+            <!-- The carrier accounts. -->
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="{x:Bind Admin.Carrier.AccountsEyebrow, Mode=OneWay}" />
+            <Grid MinHeight="48">
+                <ItemsRepeater ItemsSource="{x:Bind Admin.Accounts}" Visibility="{x:Bind Admin.AccountsLoad.Ready, Mode=OneWay}">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CarrierAccountItem">
+                            <StackPanel Padding="0,4" AutomationProperties.Name="{x:Bind Carrier}" Spacing="2">
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Carrier}" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind Lines}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+                <views:StatusPanel x:Name="AccountsStatus" />
+            </Grid>
+
+            <!-- The SIP trunks, and the form creating one. -->
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="{x:Bind Admin.Carrier.Sip.Eyebrow, Mode=OneWay}" />
+            <Grid MinHeight="48">
+                <ItemsRepeater ItemsSource="{x:Bind Admin.Trunks}" Visibility="{x:Bind Admin.SipLoad.Ready, Mode=OneWay}">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SipTrunkItem">
+                            <StackPanel Padding="0,4" AutomationProperties.Name="{x:Bind Name}" Spacing="2">
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Name}" />
+                                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Domain}" />
+                                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Meta}" />
+                                <TextBlock
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Note}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{x:Bind HasNote}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+                <views:StatusPanel x:Name="SipStatus" />
+            </Grid>
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.Sip.NameLabel, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.Sip.NameLabel, Mode=OneWay}"
+                Text="{x:Bind Admin.SipName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.Sip.DomainLabel, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.Sip.DomainLabel, Mode=OneWay}"
+                Text="{x:Bind Admin.SipDomain, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind Admin.Carrier.Sip.DomainCaption, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBox
+                MinHeight="72"
+                AcceptsReturn="True"
+                AutomationProperties.Name="{x:Bind Admin.Carrier.Sip.IpLabel, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.Sip.IpLabel, Mode=OneWay}"
+                Text="{x:Bind Admin.SipAddresses, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind Admin.Carrier.Sip.ChargeNote, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <Button
+                AutomationProperties.Name="{x:Bind Admin.Carrier.Sip.CreateAction, Mode=OneWay}"
+                Command="{x:Bind Admin.CreateSipTrunkCommand}"
+                Content="{x:Bind Admin.Carrier.Sip.CreateAction, Mode=OneWay}"
+                IsEnabled="{x:Bind Admin.Carrier.Sip.CanCreate, Mode=OneWay, FallbackValue=False}" />
+
+            <!-- The one-time passcode sender. -->
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="{x:Bind Admin.Carrier.Verify.Eyebrow, Mode=OneWay}" />
+            <Grid MinHeight="48">
+                <StackPanel Spacing="4" Visibility="{x:Bind Admin.VerifyLoad.Ready, Mode=OneWay}">
+                    <TextBlock Text="{x:Bind Admin.Carrier.Verify.State, Mode=OneWay}" />
+                    <TextBlock
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind Admin.Carrier.Verify.Caption, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <Button
+                        AutomationProperties.Name="{x:Bind Admin.Carrier.Verify.Action, Mode=OneWay}"
+                        Command="{x:Bind Admin.ToggleVerifyCommand}"
+                        Content="{x:Bind Admin.Carrier.Verify.Action, Mode=OneWay}"
+                        IsEnabled="{x:Bind Admin.Carrier.Verify.CanToggle, Mode=OneWay, FallbackValue=False}" />
+                </StackPanel>
+                <views:StatusPanel x:Name="VerifyStatus" />
+            </Grid>
+
+            <!-- Messaging compliance: the two registrations, each asked about first. -->
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="{x:Bind Admin.Carrier.ComplianceEyebrow, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind Admin.Carrier.ComplianceNote, Mode=OneWay}"
+                TextWrapping="Wrap" />
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level3"
+                Style="{StaticResource BodyStrongTextBlockStyle}"
+                Text="{x:Bind Admin.Carrier.A2p.Title, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind Admin.Carrier.A2p.Caption, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.Labels.BusinessName, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.A2p.Labels.BusinessName, Mode=OneWay}"
+                Text="{x:Bind Admin.A2pBusiness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.Labels.Ein, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.A2p.Labels.Ein, Mode=OneWay}"
+                Text="{x:Bind Admin.A2pEin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.Labels.Website, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.A2p.Labels.Website, Mode=OneWay}"
+                InputScope="Url"
+                Text="{x:Bind Admin.A2pWebsite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.Labels.Vertical, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.A2p.Labels.Vertical, Mode=OneWay}"
+                Text="{x:Bind Admin.A2pVertical, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <ComboBox
+                MinWidth="220"
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.Labels.CampaignType, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.A2p.Labels.CampaignType, Mode=OneWay}"
+                ItemsSource="{x:Bind Admin.CampaignTypes}"
+                SelectedIndex="{x:Bind Admin.CampaignIndex, Mode=TwoWay}" />
+            <TextBox
+                MinHeight="72"
+                AcceptsReturn="True"
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.Labels.CampaignDescription, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.A2p.Labels.CampaignDescription, Mode=OneWay}"
+                Text="{x:Bind Admin.A2pDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.Labels.SampleOne, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.A2p.Labels.SampleOne, Mode=OneWay}"
+                Text="{x:Bind Admin.A2pSampleOne, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.Labels.SampleTwo, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.A2p.Labels.SampleTwo, Mode=OneWay}"
+                Text="{x:Bind Admin.A2pSampleTwo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap" />
+            <Button
+                AutomationProperties.Name="{x:Bind Admin.Carrier.A2p.SubmitAction, Mode=OneWay}"
+                Command="{x:Bind Admin.AskA2pCommand}"
+                Content="{x:Bind Admin.Carrier.A2p.SubmitAction, Mode=OneWay}"
+                IsEnabled="{x:Bind Admin.Carrier.A2p.CanSubmit, Mode=OneWay, FallbackValue=False}" />
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level3"
+                Style="{StaticResource BodyStrongTextBlockStyle}"
+                Text="{x:Bind Admin.Carrier.TollFree.Title, Mode=OneWay}" />
+            <TextBlock
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind Admin.Carrier.TollFree.Caption, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.TollFree.Labels.PhoneNumber, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.TollFree.Labels.PhoneNumber, Mode=OneWay}"
+                InputScope="TelephoneNumber"
+                Text="{x:Bind Admin.TollFreeNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.TollFree.Labels.BusinessName, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.TollFree.Labels.BusinessName, Mode=OneWay}"
+                Text="{x:Bind Admin.TollFreeBusiness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.TollFree.Labels.OptInImageUrl, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.TollFree.Labels.OptInImageUrl, Mode=OneWay}"
+                InputScope="Url"
+                Text="{x:Bind Admin.TollFreeOptIn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind Admin.Carrier.TollFree.OptInCaption, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBox
+                AutomationProperties.Name="{x:Bind Admin.Carrier.TollFree.Labels.MessageContent, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.TollFree.Labels.MessageContent, Mode=OneWay}"
+                Text="{x:Bind Admin.TollFreeMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap" />
+            <ComboBox
+                MinWidth="220"
+                AutomationProperties.Name="{x:Bind Admin.Carrier.TollFree.Labels.UseCase, Mode=OneWay}"
+                Header="{x:Bind Admin.Carrier.TollFree.Labels.UseCase, Mode=OneWay}"
+                ItemsSource="{x:Bind Admin.UseCases}"
+                SelectedIndex="{x:Bind Admin.UseCaseIndex, Mode=TwoWay}" />
+            <Button
+                AutomationProperties.Name="{x:Bind Admin.Carrier.TollFree.SubmitAction, Mode=OneWay}"
+                Command="{x:Bind Admin.AskTollFreeCommand}"
+                Content="{x:Bind Admin.Carrier.TollFree.SubmitAction, Mode=OneWay}"
+                IsEnabled="{x:Bind Admin.Carrier.TollFree.CanSubmit, Mode=OneWay, FallbackValue=False}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

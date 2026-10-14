@@ -62,7 +62,7 @@ pub(crate) fn cases() -> Vec<Case> {
     ]
 }
 
-fn action(action: MarketplaceAction) -> UiEvent {
+pub(crate) fn action(action: MarketplaceAction) -> UiEvent {
     UiEvent::Marketplace { action }
 }
 
@@ -80,7 +80,7 @@ fn owned(session: Session, result: Result<Value, ApiError>) -> Session {
     )
 }
 
-fn held_by(session: Session) -> Session {
+pub(crate) fn held_by(session: Session) -> Session {
     owned(
         opened(session),
         Ok(contracts::json("district-provider-numbers.json")),
@@ -88,7 +88,7 @@ fn held_by(session: Session) -> Session {
 }
 
 /// The fixture's numbers, held.
-fn held(session: Session) -> Session {
+pub(crate) fn held(session: Session) -> Session {
     held_by(session)
 }
 
@@ -134,7 +134,7 @@ fn not_configured() -> ApiError {
     }
 }
 
-fn view(session: &Session) -> MarketplaceView {
+pub(crate) fn view(session: &Session) -> MarketplaceView {
     let ScreenView::Marketplace { view } = screen_view(&session.model) else {
         panic!("not the phone numbers");
     };
@@ -161,7 +161,7 @@ fn a_viewer_is_told_who_can() {
     let view = view(&session);
     assert!(!view.offers_web);
     assert!(
-        view.read_only_note
+        view.scope_note
             .starts_with("Carrier setup and number changes need an agency or client role.")
     );
     let before = session.pending.len();

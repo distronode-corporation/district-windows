@@ -1,0 +1,258 @@
+{
+  "screen": {
+    "Marketplace": {
+      "view": {
+        "admin": {
+          "carrier": {
+            "a2p": {
+              "campaign_types": [
+                {
+                  "label": "CUSTOMER_CARE",
+                  "value": "CUSTOMER_CARE"
+                },
+                {
+                  "label": "LOW_VOLUME",
+                  "value": "LOW_VOLUME"
+                },
+                {
+                  "label": "MARKETING",
+                  "value": "MARKETING"
+                },
+                {
+                  "label": "2FA",
+                  "value": "2FA"
+                }
+              ],
+              "can_submit": false,
+              "caption": "Required before this workspace can send text messages to US numbers from a local number.",
+              "form": {
+                "business_name": "",
+                "campaign_description": "",
+                "campaign_type": "CUSTOMER_CARE",
+                "ein": "",
+                "sample_one": "",
+                "sample_two": "",
+                "vertical": "",
+                "website": ""
+              },
+              "labels": {
+                "business_name": "Legal business name",
+                "campaign_description": "What you will send",
+                "campaign_type": "Campaign type",
+                "ein": "EIN or company number (optional)",
+                "sample_one": "Example message 1",
+                "sample_two": "Example message 2",
+                "vertical": "Industry (optional)",
+                "website": "Website (optional)"
+              },
+              "submit_action": "Submit registration",
+              "title": "A2P 10DLC registration"
+            },
+            "accounts": [
+              {
+                "account_name": "Acme",
+                "balance": "Balance 12.50 USD",
+                "carrier": "Twilio",
+                "number_count": "1 number on this account",
+                "refused": false,
+                "state": "Connected"
+              }
+            ],
+            "accounts_empty": null,
+            "accounts_eyebrow": "Carrier accounts",
+            "accounts_status": "Ready",
+            "compliance_eyebrow": "Messaging compliance",
+            "compliance_note": "Neither registration can be checked from the app. What you see here is what the carrier answered when it was submitted.",
+            "notice": null,
+            "sip": {
+              "can_create": false,
+              "charge_note": "Creating a trunk adds a $25 per month charge, and it cannot be removed in this app.",
+              "create_action": "Create trunk",
+              "domain_caption": "The carrier adds .sip.twilio.com, so enter the label only.",
+              "domain_label": "Domain label",
+              "empty": null,
+              "eyebrow": "SIP trunks",
+              "form": {
+                "domain": "",
+                "ip_addresses": "",
+                "name": ""
+              },
+              "ip_label": "Allowed IPs or ranges, one per line",
+              "name_label": "Trunk name",
+              "status": "Ready",
+              "trunks": [
+                {
+                  "domain": "office",
+                  "meta": "active · 1 address",
+                  "name": "Office PBX",
+                  "unprovisioned": null
+                }
+              ]
+            },
+            "toll_free": {
+              "can_submit": false,
+              "caption": "Required before a toll-free number can send text messages.",
+              "form": {
+                "business_name": "",
+                "message_content": "",
+                "opt_in_image_url": "",
+                "phone_number": "",
+                "use_case": "Customer Support"
+              },
+              "labels": {
+                "business_name": "Legal business name",
+                "message_content": "Example message (optional)",
+                "opt_in_image_url": "Link to your opt-in form or screenshot",
+                "phone_number": "Phone number, in full",
+                "use_case": "Use case"
+              },
+              "opt_in_caption": "A reviewer opens this by hand. It must be publicly reachable and show your own consent wording.",
+              "submit_action": "Submit verification",
+              "title": "Toll-free verification",
+              "use_cases": [
+                {
+                  "label": "Customer Support",
+                  "value": "Customer Support"
+                },
+                {
+                  "label": "Marketing",
+                  "value": "Marketing"
+                },
+                {
+                  "label": "Notifications",
+                  "value": "Notifications"
+                },
+                {
+                  "label": "2FA / OTP",
+                  "value": "2FA / OTP"
+                }
+              ]
+            },
+            "unrepeatable": null,
+            "verify": {
+              "action": "Enable one-time passcodes",
+              "can_toggle": true,
+              "caption": "Creates a one-time passcode sender on your carrier account. The carrier charges for the messages it sends.",
+              "enabled": false,
+              "eyebrow": "One-time passcodes",
+              "state": "Not enabled",
+              "status": "Ready"
+            },
+            "working": false
+          },
+          "carrier_tab": "Carrier",
+          "configure_action": "Reapply call routing",
+          "configure_caption": "Points this number's calls and messages back at this workspace, and re-pins an EU number to its European bridge.",
+          "confirmation": null,
+          "lookup": {
+            "action": "Look this number up",
+            "can_ask": false,
+            "eyebrow": "Number lookup",
+            "notice": null,
+            "number": "",
+            "number_label": "Phone number, in full",
+            "result": [],
+            "unrepeatable": null
+          },
+          "number_notice": null,
+          "number_unrepeatable": null,
+          "release_action": "Release this number"
+        },
+        "form": {
+          "area_code": "",
+          "country": "US",
+          "number_type": "local",
+          "number_types": [
+            {
+              "label": "Local",
+              "value": "local"
+            },
+            {
+              "label": "Toll-free",
+              "value": "tollFree"
+            },
+            {
+              "label": "Mobile",
+              "value": "mobile"
+            }
+          ]
+        },
+        "offers_web": true,
+        "owned": [
+          {
+            "line": "Main line · Local · Twilio · SMS, Voice",
+            "manage": {
+              "busy": false,
+              "can_configure": true,
+              "can_release": true,
+              "note": null,
+              "phone_number": "+14165550100"
+            },
+            "monthly": "1.15 a month",
+            "number": "+1 416 555 0100"
+          },
+          {
+            "line": "Local · Telnyx · Voice",
+            "manage": {
+              "busy": false,
+              "can_configure": false,
+              "can_release": false,
+              "note": "This line is held on Distronode's carrier account, so it is yours to use and not to release or reconfigure.",
+              "phone_number": "+14165550199"
+            },
+            "monthly": "2.5 a month",
+            "number": "+1 416 555 0199"
+          },
+          {
+            "line": "Local · Telnyx",
+            "manage": {
+              "busy": false,
+              "can_configure": false,
+              "can_release": false,
+              "note": "This line is held on Distronode's carrier account, so it is yours to use and not to release or reconfigure.",
+              "phone_number": "+18005550188"
+            },
+            "monthly": null,
+            "number": "+1 800 555 0188"
+          }
+        ],
+        "owned_empty": null,
+        "owned_status": "Ready",
+        "partial_note": null,
+        "refreshing": false,
+        "scope_note": "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
+        "search": "Idle",
+        "tab": "Carrier",
+        "title": "Phone numbers",
+        "web_action": "Open the number marketplace on the web",
+        "web_caption": "Numbers are bought on the District AI website. This opens it in your browser."
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Marketplace",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

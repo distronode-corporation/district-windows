@@ -100,7 +100,8 @@ pub enum ScreenView {
         /// The page.
         view: crate::analytics::AnalyticsView,
     },
-    /// The workspace's phone numbers, read only.
+    /// The workspace's phone numbers: held, for sale (bought on the web), and
+    /// managed (crate::numbers).
     Marketplace {
         /// The page.
         view: crate::marketplace::MarketplaceView,

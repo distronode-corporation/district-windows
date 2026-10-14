@@ -2111,6 +2111,15 @@ pub fn nav_workspace_heading(l: Locale) -> &'static str {
     }
 }
 
+/// `numbers.campaign_type`
+#[must_use]
+pub fn numbers_campaign_type(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Campaign type",
+        Locale::FrCa => "Campaign type",
+    }
+}
+
 /// `overview.failed_title`
 #[must_use]
 pub fn overview_failed_title(l: Locale) -> &'static str {

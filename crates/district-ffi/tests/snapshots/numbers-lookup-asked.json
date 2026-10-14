@@ -1,0 +1,132 @@
+{
+  "screen": {
+    "Marketplace": {
+      "view": {
+        "admin": {
+          "carrier": null,
+          "carrier_tab": "Carrier",
+          "configure_action": "Reapply call routing",
+          "configure_caption": "Points this number's calls and messages back at this workspace, and re-pins an EU number to its European bridge.",
+          "confirmation": {
+            "body": "Your carrier charges for each lookup, including one that comes back invalid. One click runs exactly one lookup.",
+            "can_confirm": true,
+            "close": "Cancel",
+            "confirm": "Run it",
+            "destructive": false,
+            "failure": null,
+            "running": false,
+            "title": "Run a paid lookup?",
+            "unrepeatable": null
+          },
+          "lookup": {
+            "action": "Look this number up",
+            "can_ask": false,
+            "eyebrow": "Number lookup",
+            "notice": null,
+            "number": "+14165550142",
+            "number_label": "Phone number, in full",
+            "result": [],
+            "unrepeatable": null
+          },
+          "number_notice": null,
+          "number_unrepeatable": null,
+          "release_action": "Release this number"
+        },
+        "form": {
+          "area_code": "",
+          "country": "US",
+          "number_type": "local",
+          "number_types": [
+            {
+              "label": "Local",
+              "value": "local"
+            },
+            {
+              "label": "Toll-free",
+              "value": "tollFree"
+            },
+            {
+              "label": "Mobile",
+              "value": "mobile"
+            }
+          ]
+        },
+        "offers_web": true,
+        "owned": [
+          {
+            "line": "Main line · Local · Twilio · SMS, Voice",
+            "manage": {
+              "busy": false,
+              "can_configure": true,
+              "can_release": false,
+              "note": null,
+              "phone_number": "+14165550100"
+            },
+            "monthly": "1.15 a month",
+            "number": "+1 416 555 0100"
+          },
+          {
+            "line": "Local · Telnyx · Voice",
+            "manage": {
+              "busy": false,
+              "can_configure": false,
+              "can_release": false,
+              "note": "This line is held on Distronode's carrier account, so it is yours to use and not to release or reconfigure.",
+              "phone_number": "+14165550199"
+            },
+            "monthly": "2.5 a month",
+            "number": "+1 416 555 0199"
+          },
+          {
+            "line": "Local · Telnyx",
+            "manage": {
+              "busy": false,
+              "can_configure": false,
+              "can_release": false,
+              "note": "This line is held on Distronode's carrier account, so it is yours to use and not to release or reconfigure.",
+              "phone_number": "+18005550188"
+            },
+            "monthly": null,
+            "number": "+1 800 555 0188"
+          }
+        ],
+        "owned_empty": null,
+        "owned_status": "Ready",
+        "partial_note": null,
+        "refreshing": false,
+        "scope_note": "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
+        "search": "Idle",
+        "tab": "Owned",
+        "title": "Phone numbers",
+        "web_action": "Open the number marketplace on the web",
+        "web_caption": "Numbers are bought on the District AI website. This opens it in your browser."
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Marketplace",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
