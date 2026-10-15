@@ -50,7 +50,8 @@ FR_FORMS_ALLOWED = ("one", "many", "other")
 
 ID_PATTERNS = {
     "rust": re.compile(r"[a-z_][a-z0-9_]*\Z"),
-    "swift": re.compile(r"[A-Z][A-Za-z0-9_]*\.[a-z_][A-Za-z0-9_]*\Z"),
+    # Enum.member, or a full selector: Enum.member() / Enum.member(_:label:)
+    "swift": re.compile(r"[A-Z][A-Za-z0-9_]*\.[a-z_][A-Za-z0-9_]*(\((?:[A-Za-z_][A-Za-z0-9_]*:)*\))?\Z"),
     "csharp": re.compile(r"[A-Z][A-Za-z0-9_]*\Z"),
     "android": re.compile(r"[a-z][a-z0-9_]*\Z"),
     "apple": re.compile(r"[^\x00-\x1f\"\\]+\Z"),
@@ -483,6 +484,13 @@ def validate_entry(e: Entry, add) -> None:
                     add(f"id.{plat} {name!r} is not a valid {plat} name")
                 elif plat == "rust" and name in RUST_KEYWORDS:
                     add(f"id.rust {name!r} is a Rust keyword")
+                elif plat == "swift":
+                    labels = swift_selector(e)[2]
+                    for bad in sorted(set(labels or []) & {"inout", "var", "let"}):
+                        add(f"id.swift {name!r}: {bad!r} cannot be an argument label")
+                    if labels is not None and len(labels) != len(args):
+                        add(f"id.swift {name!r} has {len(labels)} argument labels but the entry declares "
+                            f"{len(args)} args")
 
 
 def validate_meta(cat: Catalog, problems: Problems) -> None:
@@ -519,11 +527,23 @@ def rust_name(e: Entry) -> str:
     return e.ids.get("rust") or e.key.replace(".", "_")
 
 
-def swift_name(e: Entry, suffix: str = "Copy") -> tuple[str, str]:
+def swift_selector(e: Entry, suffix: str = "Copy") -> tuple[str, str, list[str] | None]:
+    """(enum, member, labels): labels is None without parentheses (unlabeled params, or a var when
+    the entry has no args); otherwise one label per arg in declared order, `_` for unlabeled."""
     if "swift" in e.ids:
         enum, member = e.ids["swift"].split(".", 1)
-        return enum, member
-    return pascal(e.segs[0]) + suffix, camel(".".join(e.segs[1:]))
+        if "(" not in member:
+            return enum, member, None
+        base, rest = member.split("(", 1)
+        return enum, base, [x for x in rest.rstrip(")").split(":") if x]
+    return pascal(e.segs[0]) + suffix, camel(".".join(e.segs[1:])), None
+
+
+def swift_name(e: Entry, suffix: str = "Copy") -> tuple[str, str]:
+    enum, member, labels = swift_selector(e, suffix)
+    if labels is None and e.args:
+        labels = ["_"] * len(e.args)
+    return enum, member if labels is None else f"{member}({''.join(x + ':' for x in labels)})"
 
 
 def csharp_name(e: Entry) -> str:
@@ -909,6 +929,11 @@ def swift_plural_body(lang: str, value: dict, var: str, indent: str, args: dict,
     return out
 
 
+def swift_param_label(label: str, name: str) -> str:
+    """The external label before the parameter name; none when it equals the name."""
+    return "" if label == name else f"{label} "
+
+
 def gen_swift(cats, entries, opts, out: Path) -> list[tuple[Path, str]]:
     suffix = opts.get("enum_suffix", "Copy")
     locale = opts.get("locale_expr", "L10nRuntime.locale")
@@ -916,6 +941,9 @@ def gen_swift(cats, entries, opts, out: Path) -> list[tuple[Path, str]]:
     access = opts.get("access", "public")
     complete = opts.get("complete_name", "FR_COMPLETE")
     int_fmt = opts.get("int_fmt")
+    extension = opts.get("extension", "false")
+    if extension not in ("true", "false"):
+        raise L10nError([f"swift: opt extension must be true or false, not {extension!r}"])
     if runtime not in ("generated", "external"):
         raise L10nError([f"swift: opt runtime must be generated or external, not {runtime!r}"])
     if access not in ("public", "internal", "package"):
@@ -941,20 +969,26 @@ def gen_swift(cats, entries, opts, out: Path) -> list[tuple[Path, str]]:
     for e in entries:
         groups.setdefault(swift_name(e, suffix)[0], []).append(e)
     for enum in sorted(groups):
-        L += ["", f"{a}enum {enum} {{"]
+        # extension=true: the enum is hand-written (it keeps its logic functions) and we only add to it
+        L += ["", f"extension {enum} {{" if extension == "true" else f"{a}enum {enum} {{"]
         for i, e in enumerate(groups[enum]):
-            member = swift_ident(swift_name(e, suffix)[1])
+            _, base, labels = swift_selector(e, suffix)
+            member = swift_ident(base)
             fr_lang, fr_value = fr_arm(e)
             if i:
                 L.append("")
             L.append(f"    /// `{e.key}`")
             if not e.args:
+                head = f"static func {member}() -> String" if labels is not None else f"static var {member}: String"
                 L.append(
-                    f"    {a}static var {member}: String {{ {locale} == .frCA ? "
+                    f"    {a}{head} {{ {locale} == .frCA ? "
                     f"{swift_literal(fr_value, False)} : {swift_literal(e.en, False)} }}"
                 )
                 continue
-            params = ", ".join(f"_ {swift_ident(n)}: {'Int' if t == 'int' else 'String'}" for n, t in e.args.items())
+            params = ", ".join(
+                f"{swift_param_label(label, n)}{swift_ident(n)}: {'Int' if t == 'int' else 'String'}"
+                for label, (n, t) in zip(labels or ["_"] * len(e.args), e.args.items())
+            )
             L.append(f"    {a}static func {member}({params}) -> String {{")
             if not e.plural:
                 L.append(
@@ -1388,7 +1422,7 @@ def gen_json(cats, entries, opts, out: Path) -> list[tuple[Path, str]]:
 
 BACKENDS = {
     "rust": (gen_rust, {"locale_path", "complete_name", "int_fmt"}),
-    "swift": (gen_swift, {"enum_suffix", "locale_expr", "runtime", "access", "complete_name", "int_fmt"}),
+    "swift": (gen_swift, {"enum_suffix", "locale_expr", "runtime", "access", "complete_name", "int_fmt", "extension"}),
     "csharp": (gen_csharp, {"namespace", "runtime", "complete_name", "int_fmt"}),
     "android": (gen_android, {"name", "int_as_string"}),
     "po": (gen_po, {"name"}),

@@ -5,2382 +5,3073 @@ apple = false
 
 [analytics.calls_title]
 en = "Calls"
+fr = "Appels"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "The call card's heading before its figures are read."
 
 [analytics.figure_abandoned]
 en = "Abandoned"
+fr = "Abandonnés"
 ctx = "label"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
+fr_variant = "analytics count of calls (plural), not the call status"
 note = "A figure's caption on Analytics."
 
 [analytics.figure_average_call]
 en = "Average call"
+fr = "Durée moyenne"
 ctx = "label"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "A figure's caption on Analytics."
 
 [analytics.figure_calls]
 en = "Calls"
+fr = "Appels"
 ctx = "label"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "A figure's caption on Analytics."
 
 [analytics.figure_converted]
 en = "Converted"
+fr = "Conversions"
 ctx = "label"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "A figure's caption on Analytics."
 
 [analytics.figure_missed]
 en = "Missed"
+fr = "Manqués"
 ctx = "label"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
+fr_variant = "analytics count of calls (plural), not the call type"
 note = "A figure's caption on Analytics."
 
 [analytics.funnel_title]
 en = "Call funnel"
+fr = "Entonnoir d'appels"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "The funnel's heading."
 
 [analytics.history_title]
 en = "Recent months"
+fr = "Derniers mois"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "The usage history card's heading."
 
 [analytics.per_day]
 en = "Calls per day"
+fr = "Appels par jour"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "The trend chart's name in the shorter periods: one bar a day."
 
 [analytics.per_week]
 en = "Calls per week"
+fr = "Appels par semaine"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "The trend chart's name in the 90-day period: one bar a week."
 
 [analytics.period_label]
 en = "Period"
+fr = "Période"
 ctx = "label"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "The period chooser's label."
 
 [analytics.report_title]
 en = "Calls over {range}"
+fr = "Appels sur {range}"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
 args = { range = "str" }
+state = "reviewed"
 note = "The heading of the figures; {range} is the period (\"7 days\")."
 
 [analytics.sentiment_title]
 en = "Caller sentiment"
+fr = "Sentiment de l'appelant"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "The sentiment breakdown's heading."
 
 [analytics.title]
 en = "Analytics"
+fr = "Analytique"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "The page's heading, the navigation entry's."
 
 [analytics.usage_title]
 en = "This month's usage"
+fr = "Utilisation du mois"
 ctx = "title"
 screen = "analytics"
 tier = "T3"
+state = "reviewed"
 note = "This month's usage card's heading."
 
 [billing.title]
 en = "Billing"
+fr = "Facturation"
 ctx = "title"
 screen = "billing"
 tier = "T1"
+state = "reviewed"
 note = "The page's heading, the navigation entry's."
 
 [blocked.empty_body]
 en = "Callers you block from a contact's page are listed here, where you can unblock them."
+fr = "Les appelants que vous bloquez depuis la page d'un contact figurent ici, où vous pouvez les débloquer."
 ctx = "body"
 screen = "blocked"
 tier = "T3"
+state = "reviewed"
 note = "The body of the empty list, as the Linux app words it."
 
 [blocked.title]
 en = "Blocked callers"
+fr = "Appelants bloqués"
 ctx = "title"
 screen = "blocked"
 tier = "T3"
+state = "reviewed"
 note = "The screen's heading, as the Linux app words it."
 
 [call_handling.availability_failed_title]
 en = "Could not read whether you are rung"
+fr = "Impossible de savoir si vos appareils sonnent"
 ctx = "error"
 screen = "call_handling"
 tier = "T2"
+state = "reviewed"
 note = "The heading of a failed availability read."
 
 [call_handling.availability_heading]
 en = "Your availability"
+fr = "Votre disponibilité"
 ctx = "title"
 screen = "call_handling"
 tier = "T3"
+state = "reviewed"
 note = "The heading over the member's own availability."
 
 [call_handling.availability_label]
 en = "Ring me for calls"
+fr = "Mes appareils sonnent"
 ctx = "label"
 screen = "call_handling"
 tier = "T3"
+state = "reviewed"
 note = "The switch's label."
 
 [call_handling.availability_note]
 en = "Whether your own devices ring for this workspace's calls. A change is sent at once."
+fr = "Vos propres appareils sonnent-ils pour les appels de cet espace de travail? Tout changement est immédiat."
 ctx = "body"
 screen = "call_handling"
 tier = "T3"
+state = "reviewed"
 note = "What that part is for."
 
 [call_handling.handling_heading]
 en = "Who answers"
+fr = "Qui répond"
 ctx = "title"
 screen = "call_handling"
 tier = "T3"
+state = "reviewed"
 note = "The heading over who answers."
 
 [call_handling.handling_note]
 en = "For every member of this workspace."
+fr = "Pour chaque membre de cet espace de travail."
 ctx = "body"
 screen = "call_handling"
 tier = "T3"
+state = "reviewed"
 note = "What that part is for."
 
 [call_handling.ring_label]
 en = "How long your devices ring"
+fr = "Durée de sonnerie de vos appareils"
 ctx = "label"
 screen = "call_handling"
 tier = "T3"
+state = "reviewed"
 note = "The ring's label."
 
 [call_handling.ring_seconds]
 en = "{seconds} seconds"
+fr = "{seconds} secondes"
 ctx = "label"
 screen = "call_handling"
 tier = "T3"
 args = { seconds = "int" }
+state = "reviewed"
 note = "How long your devices ring, a choice of 15 seconds or more."
 
 [call_handling.stored_as]
 en = "Stored as \"{value}\"."
+fr = "Valeur stockée\u00A0: «\u00A0{value}\u00A0»."
 ctx = "body"
 screen = "call_handling"
 tier = "T3"
 args = { value = "str" }
+state = "reviewed"
 note = "A call handling setting this app does not know, as the service stores it."
 
 [call_handling.title]
 en = "Call handling"
+fr = "Gestion des appels"
 ctx = "title"
 screen = "call_handling"
 tier = "T3"
+state = "reviewed"
 note = "The section's heading: the hub row's title, which opens it."
 
 [call_handling.unknown_mode_title]
 en = "A setting this app does not know"
+fr = "Paramètre inconnu de cette application"
 ctx = "title"
 screen = "call_handling"
 tier = "T3"
+state = "reviewed"
 note = "The heading of a stored mode this app does not know."
 
 [calls.call_failed_title]
 en = "Could not load this call"
+fr = "Impossible de charger cet appel"
 ctx = "error"
 screen = "calls"
 tier = "T2"
+state = "reviewed"
 note = "The heading of a call that could not be read, as the Linux app words it."
 
 [calls.fact_action_items]
 en = "Action items"
+fr = "Actions à faire"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A heading of the call's AI analysis, over a bulleted list."
 
 [calls.fact_callers_number]
 en = "Caller's number"
+fr = "Numéro de l'appelant"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "On a call that came in: the caller's number."
 
 [calls.fact_carrier]
 en = "Carrier"
+fr = "Transporteur"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A fact about a phone number, on a call's or a contact's page."
 
 [calls.fact_direction]
 en = "Direction"
+fr = "Sens"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a call's page."
 
 [calls.fact_email_sent_to]
 en = "Email sent to"
+fr = "Courriel envoyé à"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "The follow-up sent after the call: the address an email went to, or the text message sent."
 
 [calls.fact_key_points]
 en = "Key points"
+fr = "Points clés"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A heading of the call's AI analysis, over a bulleted list."
 
 [calls.fact_line_type]
 en = "Line type"
+fr = "Type de ligne"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A fact about a phone number, on a call's or a contact's page."
 
 [calls.fact_location]
 en = "Location"
+fr = "Lieu"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A fact about a phone number, on a call's or a contact's page."
 
 [calls.fact_objections]
 en = "Objections"
+fr = "Objections"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "A heading of the call's AI analysis, over a bulleted list."
 
 [calls.fact_outcome]
 en = "Outcome"
+fr = "Résultat"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a call's page."
 
 [calls.fact_placed_from]
 en = "Placed from"
+fr = "Appel passé depuis"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "On a call placed from the workspace: the number it was placed from."
 
 [calls.fact_sentiment]
 en = "Sentiment"
+fr = "Sentiment"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "A fact's name on a call's page."
 
 [calls.fact_status]
 en = "Status"
+fr = "État"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a call's page."
 
 [calls.fact_text_message]
 en = "Text message"
+fr = "Texto"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "The follow-up sent after the call: the address an email went to, or the text message sent."
 
 [calls.fact_topics]
 en = "Topics"
+fr = "Sujets"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A heading of the call's AI analysis, over a bulleted list."
 
 [calls.fact_transfer]
 en = "Transfer"
+fr = "Transfert"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a call's page."
 
 [calls.fact_transfer_reason]
 en = "Why it was transferred"
+fr = "Motif du transfert"
 ctx = "label"
 screen = "calls"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a call's page."
 
 [calls_live.ringing_in]
 en = "{caller} in {workspace}"
+fr = "{caller} (espace {workspace})"
 ctx = "notification"
 screen = "calls_live"
 tier = "T3"
 args = { caller = "str", workspace = "str" }
+state = "reviewed"
 note = "Who is calling, when the call is for another of your workspaces: {caller} is the caller line, {workspace} the workspace's name."
 
 [chart.columns_summary]
 en = "{what}: {each}. The most was {most}, on {when}."
+fr = "{what}\u00A0: {each}. Maximum\u00A0: {most} ({when})."
 ctx = "a11y"
 screen = "chart"
 tier = "T3"
 args = { what = "str", each = "str", most = "int", when = "str" }
+state = "reviewed"
 note = "What a screen reader says for a chart. {what} is the chart's name (\"Calls per day\"), {each} each bar as \"label value\", comma-separated, and {most} the largest value, on the bar {when}."
 
 [chart.each]
 en = "{what}: {each}."
+fr = "{what}\u00A0: {each}."
 ctx = "a11y"
 screen = "chart"
 tier = "T3"
 args = { what = "str", each = "str" }
+state = "reviewed"
 note = "What a screen reader says for a chart. {what} is its name, {each} each bar as \"label value\", comma-separated."
 
 [chart.history_line]
 en = "{month}: {minutes} call minutes, {messages} messages"
+fr = "{month}\u00A0: minutes d'appel, {minutes}; messages, {messages}"
 ctx = "a11y"
 screen = "chart"
 tier = "T3"
 args = { month = "str", minutes = "str", messages = "str" }
+state = "reviewed"
 note = "What a screen reader says for a chart. One month of the usage history; {minutes} and {messages} are already-formatted numbers."
 
 [chart.history_messages]
 en = "Messages"
+fr = "Messages"
 ctx = "label"
 screen = "chart"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "A column heading of the usage history table."
 
 [chart.history_minutes]
 en = "Call minutes"
+fr = "Minutes d'appel"
 ctx = "label"
 screen = "chart"
 tier = "T3"
+state = "reviewed"
 note = "A column heading of the usage history table."
 
 [chart.history_month]
 en = "Month"
+fr = "Mois"
 ctx = "label"
 screen = "chart"
 tier = "T3"
+state = "reviewed"
 note = "A column heading of the usage history table."
 
 [chart.legend]
 en = "{label}: {value} ({percent})"
+fr = "{label}\u00A0: {value} ({percent})"
 ctx = "format"
 screen = "chart"
 tier = "T3"
 args = { label = "str", value = "int", percent = "percent" }
+state = "reviewed"
 note = "A sentiment chart's legend line: the band, its count and its share (\"44%\")."
 
 [chart.nothing]
 en = "{what}: nothing to show."
+fr = "{what}\u00A0: rien à afficher."
 ctx = "a11y"
 screen = "chart"
 tier = "T3"
 args = { what = "str" }
+state = "reviewed"
 note = "What a screen reader says for a chart. A chart with no data; {what} is its name."
 
 [composer.ai_draft]
 en = "AI draft"
+fr = "Ébauche IA"
 ctx = "label"
 screen = "composer"
 tier = "T3"
+state = "reviewed"
 note = "The heading over a reply the model wrote, while it is in the box."
 
 [composer.attachment_name]
 en = "Image {number}"
+fr = "Image {number}"
 ctx = "label"
 screen = "composer"
 tier = "T3"
 args = { number = "int" }
+state = "reviewed"
+same_ok = true
 note = "An image attached to the reply, by its place."
 
 [composer.draft_reply_label]
 en = "Draft a reply with AI"
+fr = "Ébaucher une réponse par IA"
 ctx = "button"
 screen = "composer"
 tier = "T3"
+state = "reviewed"
 note = "The AI button, as District AI for Linux words it."
 
 [composer.draft_reply_note]
 en = "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed."
+fr = "Ce bouton écrit une suggestion de réponse dans le champ, à relire avant l'envoi. Chaque suggestion est facturée."
 ctx = "body"
 screen = "composer"
 tier = "T3"
+state = "reviewed"
 note = "What the AI button does and that each press is billed, as District AI for Linux's tooltip on the button says it, word for word: the core (2.0.0 included) has no words for this, and nothing in it is Linux-only, so Windows needs no line of its own. It names a charge to the workspace and offers nothing to buy, which the store-copy check holds."
 
 [composer.sending]
 en = "Sending"
+fr = "Envoi en cours"
 ctx = "label"
 screen = "composer"
 tier = "T3"
+state = "reviewed"
 note = "The busy line while a message is on its way."
 
 [composer.uploading]
 en = "Uploading the image"
+fr = "Téléversement de l'image"
 ctx = "label"
 screen = "composer"
 tier = "T3"
+state = "reviewed"
 note = "The busy line while an image uploads."
 
 [composer.writing]
 en = "Writing a reply"
+fr = "Rédaction en cours"
 ctx = "label"
 screen = "composer"
 tier = "T3"
+state = "reviewed"
 note = "The busy line while the model writes a reply."
 
 [contacts.busy_block]
 en = "Blocking the caller"
+fr = "Blocage de l'appelant"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "What the contact screen says while this change is on its way."
 
 [contacts.busy_clear_intel]
 en = "Clearing research"
+fr = "Effacement de la recherche externe"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "What the contact screen says while this change is on its way."
 
 [contacts.busy_delete]
 en = "Deleting the contact"
+fr = "Suppression du contact"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "What the contact screen says while this change is on its way."
 
 [contacts.busy_enrich]
 en = "Starting research"
+fr = "Lancement de la recherche externe"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "What the contact screen says while this change is on its way."
 
 [contacts.busy_save]
 en = "Saving the contact"
+fr = "Sauvegarde du contact"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "What the contact screen says while this change is on its way."
 
 [contacts.busy_unblock]
 en = "Unblocking the caller"
+fr = "Déblocage de l'appelant"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "What the contact screen says while this change is on its way."
 
 [contacts.contact_failed_title]
 en = "Could not load this contact"
+fr = "Impossible de charger ce contact"
 ctx = "error"
 screen = "contacts"
 tier = "T2"
+state = "reviewed"
 note = "The heading of a contact that could not be read, as the Linux app words it."
 
 [contacts.count]
 en.one = "{count} contact"
 en.other = "{count} contacts"
+fr.one = "{count} contact"
+fr.other = "{count} contacts"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
 args = { count = "int" }
+state = "reviewed"
+same_ok = true
 note = "The number of contacts, under the contacts list's heading."
 
 [contacts.fact_budget]
 en = "Budget"
+fr = "Budget"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "A fact's name on a contact's page."
 
 [contacts.fact_company]
 en = "Company"
+fr = "Entreprise"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a contact's page."
 
 [contacts.fact_email]
 en = "Email address"
+fr = "Adresse courriel"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a contact's page."
 
 [contacts.fact_industry]
 en = "Industry"
+fr = "Secteur"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a contact's page."
 
 [contacts.fact_latest_context]
 en = "Latest context"
+fr = "Contexte récent"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a contact's page."
 
 [contacts.fact_phone]
 en = "Phone number"
+fr = "Numéro de téléphone"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a contact's page."
 
 [contacts.fact_timeline]
 en = "Timeline"
+fr = "Échéancier"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a contact's page."
 
 [contacts.fact_website]
 en = "Website"
+fr = "Site"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "A fact's name on a contact's page."
 
 [contacts.finding]
 en = "{heading}: {value}"
+fr = "{heading}\u00A0: {value}"
 ctx = "format"
 screen = "contacts"
 tier = "T3"
 args = { heading = "str", value = "str" }
+state = "reviewed"
 note = "One line of what contact research found: its heading (a research field, as the service names it) and what was found."
 
 [contacts.form_add]
 en = "Add"
+fr = "Ajouter"
 ctx = "button"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "The add-a-contact form's button."
 
 [contacts.form_add_title]
 en = "Add contact"
+fr = "Nouveau contact"
 ctx = "title"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "The heading of the form that adds a contact."
 
 [contacts.form_edit_title]
 en = "Edit contact"
+fr = "Modifier le contact"
 ctx = "title"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "The heading of the form that changes a contact."
 
 [contacts.form_save]
 en = "Save"
+fr = "Enregistrer"
 ctx = "button"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "The edit-a-contact form's button."
 
 [contacts.research_complete]
 en = "Complete"
+fr = "Terminé"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "Where a contact research run stands: complete."
 
 [contacts.research_failed]
 en = "Did not finish"
+fr = "Non terminée"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "Where a contact research run stands: failed."
 
 [contacts.research_queued]
 en = "Queued"
+fr = "En attente"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "Where a contact research run stands: pending."
 
 [contacts.research_searching]
 en = "Searching the web"
+fr = "Recherche sur le Web"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "Where a contact research run stands: crawling."
 
 [contacts.research_writing]
 en = "Writing the summary"
+fr = "Rédaction du résumé"
 ctx = "label"
 screen = "contacts"
 tier = "T3"
+state = "reviewed"
 note = "Where a contact research run stands: synthesizing."
 
 [copies.both_message]
 en = "District AI is installed twice on this computer, {this_copy} and {other_copy}. Both answer the browser when you sign in, so signing in is held until one is uninstalled. Uninstall one in Settings, Apps, then open the other."
+fr = "District AI est installé deux fois sur cet ordinateur\u00A0: {this_copy} et {other_copy}. Les deux répondent au navigateur lors de la connexion; la connexion reste donc bloquée jusqu'à ce que l'une d'elles soit désinstallée. Désinstallez-en une dans Paramètres, Applications, puis ouvrez l'autre."
 ctx = "body"
 screen = "copies"
 tier = "T2"
 args = { this_copy = "str", other_copy = "str" }
+state = "reviewed"
 note = "Why sign-in is held while two copies of the app are installed. \"Settings, Apps\" names the Windows Settings page."
 
 [copies.both_title]
 en = "Install one, not both"
+fr = "Une seule copie, pas deux"
 ctx = "title"
 screen = "copies"
 tier = "T3"
+state = "reviewed"
 note = "The heading of the explanation, as the README and CONTRIBUTING put it."
 
 [copies.label_github]
 en = "GitHub copy"
+fr = "copie GitHub"
 ctx = "label"
 screen = "copies"
 tier = "T3"
+state = "reviewed"
 note = "A copy of the app, in brackets after \"District AI\" in the window's title."
 
 [copies.label_other]
 en = "development copy"
+fr = "copie de développement"
 ctx = "label"
 screen = "copies"
 tier = "T3"
+state = "reviewed"
 note = "A copy of the app, in brackets after \"District AI\" in the window's title."
 
 [copies.label_store]
 en = "Microsoft Store copy"
+fr = "copie du Microsoft Store"
 ctx = "label"
 screen = "copies"
 tier = "T3"
+state = "reviewed"
 note = "A copy of the app, in brackets after \"District AI\" in the window's title."
 
 [copies.name_github]
 en = "the GitHub copy"
+fr = "la copie GitHub"
 ctx = "label"
 screen = "copies"
 tier = "T3"
+state = "reviewed"
 note = "A copy of the app, as a noun phrase with its article, said inside the copies sentences ({this_copy}, {other_copy}, {copy})."
 
 [copies.name_other]
 en = "a development copy"
+fr = "une copie de développement"
 ctx = "label"
 screen = "copies"
 tier = "T3"
+state = "reviewed"
 note = "A copy of the app, as a noun phrase with its article, said inside the copies sentences ({this_copy}, {other_copy}, {copy})."
 
 [copies.name_store]
 en = "the Microsoft Store copy"
+fr = "la copie du Microsoft Store"
 ctx = "label"
 screen = "copies"
 tier = "T3"
+state = "reviewed"
 note = "A copy of the app, as a noun phrase with its article, said inside the copies sentences ({this_copy}, {other_copy}, {copy})."
 
 [copies.this_copy_line]
 en = "This is {copy} of District AI."
+fr = "Vous utilisez {copy} de District AI."
 ctx = "body"
 screen = "copies"
 tier = "T3"
 args = { copy = "str" }
+state = "reviewed"
 note = "Under the sign-in page while two copies are installed."
 
 [copies.window_title]
 en = "District AI ({copy})"
+fr = "District AI ({copy})"
 ctx = "title"
 screen = "copies"
 tier = "T3"
 args = { copy = "str" }
+state = "reviewed"
+same_ok = true
 note = "The window's title while two copies are installed: which copy this is."
 
 [desk.brand_label]
 en = "Name customers see"
+fr = "Nom affiché aux clients"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The name box, as the Linux app words it."
 
 [desk.compose_needs]
 en = "A subject of {min} to {max} characters, and a message."
+fr = "Requis\u00A0: un objet de {min} à {max} caractères et un message."
 ctx = "body"
 screen = "desk"
 tier = "T3"
 args = { min = "int", max = "int" }
+state = "reviewed"
 note = "What the new-ticket form needs before it can be raised."
 
 [desk.compose_submit]
 en = "Raise"
+fr = "Créer"
 ctx = "button"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The form's button that raises the ticket, as the Linux app words it."
 
 [desk.compose_title]
 en = "New ticket"
+fr = "Nouveau billet"
 ctx = "title"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The form raising a ticket: its heading, as the Linux app words it."
 
 [desk.customer_note]
 en = "Optional. Replies are emailed to the address given here, when the desk emails customers."
+fr = "Facultatif. Si le comptoir envoie des courriels aux clients, vos réponses sont envoyées à l'adresse indiquée ici."
 ctx = "body"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "What the form says about the customer's details, as the Linux app words it."
 
 [desk.enabled_label]
 en = "Take tickets"
+fr = "Recevoir des billets"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The \"desk on\" switch, as the Linux app words it."
 
 [desk.enabled_note]
 en = "While the desk is off, no tickets are recorded."
+fr = "Quand le comptoir est désactivé, aucun billet n'est consigné."
 ctx = "body"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The note under the \"desk on\" switch, as the Linux app words it."
 
 [desk.fact_email]
 en = "Email address"
+fr = "Adresse courriel"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "A fact about a ticket's customer."
 
 [desk.fact_name]
 en = "Name"
+fr = "Nom"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "A fact about a ticket's customer."
 
 [desk.fact_phone]
 en = "Phone number"
+fr = "Numéro de téléphone"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "A fact about a ticket's customer."
 
 [desk.fact_source]
 en = "Came in by"
+fr = "Canal"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "A fact about a ticket's customer: the channel it came in by."
 
 [desk.filter_count]
 en = "{filter} ({count})"
+fr = "{filter} ({count})"
 ctx = "format"
 screen = "desk"
 tier = "T3"
 args = { filter = "str", count = "int" }
+state = "reviewed"
+same_ok = true
 note = "A queue filter with how many tickets it holds: \"Open (3)\"."
 
 [desk.filter_every]
 en = "Every ticket"
+fr = "Tous les billets"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The help desk queue's filter that shows every ticket."
 
 [desk.logo_empty]
 en = "This file is empty."
+fr = "Ce fichier est vide."
 ctx = "error"
 screen = "desk"
 tier = "T2"
+state = "reviewed"
 note = "Why a picked logo is refused when the file holds nothing."
 
 [desk.logo_help]
 en = "Shown to customers on the help desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions."
+fr = "Affiché aux clients sur les pages du comptoir. Une image PNG, JPEG ou WebP; District AI en vérifie la taille et les dimensions."
 ctx = "body"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "What the logo is and what the service takes, as the Linux app words it."
 
 [desk.logo_none]
 en = "No logo yet."
+fr = "Aucun logo."
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The logo's line when there is none, as the Linux app words it."
 
 [desk.logo_published]
 en = "A logo is published."
+fr = "Un logo est publié."
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The logo's line when one is published, as the Linux app words it."
 
 [desk.logo_too_large]
 en = "The logo must be {megabytes} MB or smaller."
+fr = "Le logo ne doit pas dépasser {megabytes} Mo."
 ctx = "error"
 screen = "desk"
 tier = "T2"
 args = { megabytes = "int" }
+state = "reviewed"
 note = "A help desk logo over the size limit."
 
 [desk.logo_type_refused]
 en = "The logo must be a PNG, JPEG or WebP image."
+fr = "Le logo doit être une image PNG, JPEG ou WebP."
 ctx = "error"
 screen = "desk"
 tier = "T2"
+state = "reviewed"
 note = "Why a picked logo is refused for its type (a GIF among them), naming the types the Linux app offers as a logo."
 
 [desk.no_customer]
 en = "No customer details"
+fr = "Client non indiqué"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "A row whose ticket names no customer, as the Linux app words it."
 
 [desk.not_notified]
 en = "The customer was not emailed this reply."
+fr = "Aucun courriel n'a été envoyé au client pour cette réponse."
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The note after a reply the customer was not emailed, as the Linux app words it."
 
 [desk.notified]
 en = "The customer was emailed your reply."
+fr = "Votre réponse a été envoyée au client par courriel."
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The note after a reply the customer was emailed, as the Linux app words it."
 
 [desk.notify_label]
 en = "Email customers your replies"
+fr = "Envoyer vos réponses aux clients par courriel"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The \"email customers\" switch, as the Linux app words it."
 
 [desk.settings_intro]
 en = "Leave the name blank to show customers the workspace's own name."
+fr = "Laissez le nom vide pour montrer aux clients le nom de l'espace de travail."
 ctx = "body"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "What the settings say under their heading, as the Linux app words it."
 
 [desk.settings_title]
 en = "Help desk settings"
+fr = "Paramètres du comptoir"
 ctx = "title"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The settings page's heading."
 
 [desk.status_waiting_short]
 en = "Waiting"
+fr = "En attente"
 ctx = "label"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "A ticket waiting on the customer, in a row of the queue where there is little room."
 
 [desk.ticket_failed_title]
 en = "Could not load this ticket"
+fr = "Impossible de charger ce billet"
 ctx = "error"
 screen = "desk"
 tier = "T2"
+state = "reviewed"
 note = "The heading when a ticket could not be read, as the Linux app words it."
 
 [desk.ticket_title]
 en = "Ticket"
+fr = "Billet"
 ctx = "title"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "A ticket's heading before it is read, as the Linux app words it."
 
 [desk.title]
 en = "Help desk"
+fr = "Comptoir clients"
 ctx = "title"
 screen = "desk"
 tier = "T3"
+state = "reviewed"
 note = "The queue's heading, as the Linux app words it."
 
 [directory.intro]
 en = "Who the receptionist can put a live caller through to. Saving replaces the whole directory."
+fr = "Les personnes à qui la réceptionniste peut transférer un appel en cours. Chaque sauvegarde remplace tout le répertoire."
 ctx = "body"
 screen = "directory"
 tier = "T3"
+state = "reviewed"
 note = "What the section says under its heading."
 
 [directory.no_name]
 en = "No name"
+fr = "Aucun nom"
 ctx = "label"
 screen = "directory"
 tier = "T3"
+state = "reviewed"
 note = "A transfer directory entry with no name yet."
 
 [directory.no_number]
 en = "No phone number, so nobody can be put through"
+fr = "Aucun numéro de téléphone, donc aucun transfert possible"
 ctx = "label"
 screen = "directory"
 tier = "T3"
+state = "reviewed"
 note = "A transfer directory entry with no number yet."
 
 [directory.title]
 en = "Transfer directory"
+fr = "Répertoire de transfert"
 ctx = "title"
 screen = "directory"
 tier = "T3"
+state = "reviewed"
 note = "The section's heading: the hub row's title, which opens it."
 
 [guard.discard_action]
 en = "Discard"
+fr = "Abandonner"
 ctx = "button"
 screen = "guard"
 tier = "T2"
+state = "reviewed"
 note = "The button that discards them."
 
 [guard.discard_body]
 en = "What you changed in this section has not been saved, and leaving it drops those changes."
+fr = "Vos modifications dans cette section ne sont pas enregistrées; si vous la quittez, elles seront perdues."
 ctx = "body"
 screen = "guard"
 tier = "T2"
+state = "reviewed"
 note = "What discarding does."
 
 [guard.discard_title]
 en = "Discard your changes?"
+fr = "Abandonner vos modifications?"
 ctx = "title"
 screen = "guard"
 tier = "T2"
+state = "reviewed"
 note = "The question's heading."
 
 [guard.keep_editing]
 en = "Keep editing"
+fr = "Continuer la modification"
 ctx = "button"
 screen = "guard"
 tier = "T3"
+state = "reviewed"
 note = "The button that stays."
 
 [hq.ask_action]
 en = "Ask"
+fr = "Demander"
 ctx = "button"
 screen = "hq"
 tier = "T3"
+state = "reviewed"
 note = "The button that sends the prompt."
 
 [hq.footnote]
 en = "Each question is answered by an AI model, which is billed. A change it proposes is made only when you confirm it."
+fr = "Chaque question est traitée par un modèle d'IA, ce qui est facturé. Un changement qu'il propose n'est effectué que lorsque vous le confirmez."
 ctx = "body"
 screen = "hq"
 tier = "T3"
+state = "reviewed"
 note = "The line under the prompt box: every question is a billed model run, and nothing changes until the member confirms it."
 
 [hq.prompt_placeholder]
 en = "Ask District HQ"
+fr = "Poser une question à District HQ"
 ctx = "placeholder"
 screen = "hq"
 tier = "T3"
+state = "reviewed"
 note = "The prompt box's placeholder, and its accessible name."
 
 [hq.retry_action]
 en = "Try again"
+fr = "Réessayer"
 ctx = "button"
 screen = "hq"
 tier = "T3"
+state = "reviewed"
 note = "The button that sends a failed prompt again."
 
 [hq.title]
 en = "District HQ"
+fr = "District HQ"
 ctx = "title"
 screen = "hq"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "The page's heading, as the navigation pane names it."
 
 [hq.unknown_note]
 en = "The change may have been made before the answer was lost. Check before confirming again."
+fr = "Le changement a peut-être été effectué avant la perte de la connexion. Vérifiez avant de confirmer de nouveau."
 ctx = "body"
 screen = "hq"
 tier = "T3"
+state = "reviewed"
 note = "The note under a change whose confirmation failed: whether it was made is not known, which is the member's to check before confirming again."
 
 [hq.viewer_note]
 en = "Nothing has been changed. Only an agency or client member of this workspace can confirm a change."
+fr = "Rien n'a été modifié. Seul un membre ayant le rôle Administrateur ou Membre dans cet espace de travail peut confirmer un changement."
 ctx = "body"
 screen = "hq"
 tier = "T3"
+state = "reviewed"
 note = "The note under a proposed change for a member whose role cannot make it."
 
 [inbox.call_incoming]
 en = "Incoming call"
+fr = "Appel entrant"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "A call taken, as a line in a conversation, when nobody talked."
 
 [inbox.call_incoming_lasted]
 en = "Incoming call, {duration}"
+fr = "Appel entrant, {duration}"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
 args = { duration = "duration" }
+state = "reviewed"
 note = "A call taken, as a line in a conversation, with how long it lasted (\"1m 5s\")."
 
 [inbox.call_missed]
 en = "Missed call"
+fr = "Appel manqué"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "A missed call, as a line in a conversation."
 
 [inbox.call_outgoing]
 en = "Outgoing call"
+fr = "Appel sortant"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "A call placed, as a line in a conversation, when nobody talked."
 
 [inbox.call_outgoing_lasted]
 en = "Outgoing call, {duration}"
+fr = "Appel sortant, {duration}"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
 args = { duration = "duration" }
+state = "reviewed"
 note = "A call placed, as a line in a conversation, with how long it lasted (\"1m 5s\")."
 
 [inbox.channel_email]
 en = "Email"
+fr = "Courriel"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "A conversation's channel."
 
 [inbox.channel_text]
 en = "Text message"
+fr = "Texto"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "A conversation's channel: SMS."
 
 [inbox.delivery_delivered]
 en = "Delivered"
+fr = "Livré"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "Where an outbound message got to: delivered."
 
 [inbox.delivery_read]
 en = "Read"
+fr = "Lu"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "Where an outbound message got to: read."
 
 [inbox.delivery_sending]
 en = "Sending"
+fr = "Envoi en cours"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "Where an outbound message got to: queued or being sent."
 
 [inbox.delivery_sent]
 en = "Sent"
+fr = "Envoyé"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 note = "Where an outbound message got to: sent."
 
 [inbox.images_attached]
 en.one = "{count} image attached"
 en.other = "{count} images attached"
+fr.one = "{count} image jointe"
+fr.other = "{count} images jointes"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
 args = { count = "int" }
+state = "reviewed"
 note = "Under a message: how many images it carries."
 
 [inbox.not_delivered]
 en = "Not delivered"
+fr = "Non livré"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
 
 [inbox.preview_ours]
 en = "You: {text}"
+fr = "Vous\u00A0: {text}"
 ctx = "format"
 screen = "inbox"
 tier = "T3"
 args = { text = "str" }
+state = "reviewed"
 note = "A conversation's last message when the workspace sent it."
 
 [inbox.thread_failed_title]
 en = "Could not load this conversation"
+fr = "Impossible de charger cette conversation"
 ctx = "error"
 screen = "inbox"
 tier = "T2"
+state = "reviewed"
 note = "The heading of a conversation that could not be read, as the Linux app words it."
 
 [inbox.unnamed_image]
 en = "image"
+fr = "image"
 ctx = "label"
 screen = "inbox"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "The name of an attached image whose address names no file."
 
 [knowledge.add_action]
 en = "Add document"
+fr = "Ajouter un document"
 ctx = "button"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The add button, as the Linux app words it."
 
 [knowledge.add_heading]
 en = "Add a document"
+fr = "Ajouter un document"
 ctx = "title"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The add form's heading, as the Linux app words it."
 
 [knowledge.cancel]
 en = "Cancel"
+fr = "Annuler"
 ctx = "button"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The question's button that answers no."
 
 [knowledge.content_label]
 en = "The document's text"
+fr = "Texte du document"
 ctx = "label"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The text box's label, as the Linux app words it."
 
 [knowledge.delete_label]
 en = "Delete this document"
+fr = "Supprimer ce document"
 ctx = "button"
 screen = "knowledge"
 tier = "T2"
+state = "reviewed"
 note = "A document's delete button, as the Linux app names it."
 
 [knowledge.documents_failed]
 en = "Could not load the documents"
+fr = "Impossible de charger les documents"
 ctx = "error"
 screen = "knowledge"
 tier = "T2"
+state = "reviewed"
 note = "The heading when the documents could not be read, as the Linux app words it."
 
 [knowledge.documents_heading]
 en = "Documents"
+fr = "Documents"
 ctx = "title"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "The documents' heading, as the Linux app words it."
 
 [knowledge.file_action]
 en = "Read a text file"
+fr = "Importer un fichier texte"
 ctx = "button"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The button that fills the form from a text file."
 
 [knowledge.file_empty]
 en = "This file is empty."
+fr = "Ce fichier est vide."
 ctx = "error"
 screen = "knowledge"
 tier = "T2"
+state = "reviewed"
 note = "Why a picked file is refused when it holds nothing."
 
 [knowledge.file_hint]
 en = "A plain text file (.txt or .md) of up to 1 MB fills the title and the text. Nothing is added until you press Add document."
+fr = "Un fichier en texte brut (.txt ou .md) d'au plus 1 Mo remplit le titre et le texte. Rien n'est ajouté avant que vous appuyiez sur Ajouter un document."
 ctx = "body"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "What a file fills, what it may be, and that nothing is sent yet."
 
 [knowledge.file_no_text]
 en = "This file has no text to add."
+fr = "Ce fichier ne contient aucun texte."
 ctx = "error"
 screen = "knowledge"
 tier = "T2"
+state = "reviewed"
 note = "Why a picked file is refused when it holds no words."
 
 [knowledge.file_not_text]
 en = "Only a plain text file (.txt or .md) can be read in. Copy the text of another kind of document into the box instead."
+fr = "Seul un fichier en texte brut (.txt ou .md) peut être lu. Pour un autre type de document, copiez-en plutôt le texte dans le champ de texte."
 ctx = "error"
 screen = "knowledge"
 tier = "T2"
+state = "reviewed"
 note = "Why a picked file is refused when it is not plain text."
 
 [knowledge.file_too_large]
 en = "The file must be 1 MB or smaller."
+fr = "Le fichier ne doit pas dépasser 1 Mo."
 ctx = "error"
 screen = "knowledge"
 tier = "T2"
+state = "reviewed"
 note = "Why a picked file is refused for its size."
 
 [knowledge.mode_heading]
 en = "Where answers come from"
+fr = "Source des réponses"
 ctx = "title"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The mode's heading, as the Linux app words it."
 
 [knowledge.mode_unknown_title]
 en = "A setting this app does not know"
+fr = "Paramètre inconnu de cette application"
 ctx = "title"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The heading of a stored mode this app does not know, as the Linux app words it."
 
 [knowledge.pieces]
 en.one = "{count} piece"
 en.other = "{count} pieces"
+fr.one = "{count} segment"
+fr.other = "{count} segments"
 ctx = "label"
 screen = "knowledge"
 tier = "T3"
 args = { count = "int" }
+state = "reviewed"
 note = "How many pieces a knowledge document was split into for the receptionist to search."
 
 [knowledge.stored_as]
 en = "Stored as \"{value}\"."
+fr = "Valeur stockée\u00A0: «\u00A0{value}\u00A0»."
 ctx = "body"
 screen = "knowledge"
 tier = "T3"
 args = { value = "str" }
+state = "reviewed"
 note = "A knowledge mode this app does not know, as the service stores it."
 
 [knowledge.title]
 en = "Knowledge"
+fr = "Connaissances"
 ctx = "title"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The section's heading: its row's title in the hub, which opens it."
 
 [knowledge.title_label]
 en = "Title"
+fr = "Titre"
 ctx = "label"
 screen = "knowledge"
 tier = "T3"
+state = "reviewed"
 note = "The title box's label."
 
 [marketplace.monthly]
 en = "{amount} a month"
+fr = "{amount} par mois"
 ctx = "label"
 screen = "marketplace"
 tier = "T1"
 args = { amount = "money" }
+state = "reviewed"
 note = "What the carrier charges a month for a number; {amount} is the quoted price."
 
 [marketplace.offered_by]
 en = "Offered by {provider}"
+fr = "Proposé par {provider}"
 ctx = "label"
 screen = "marketplace"
 tier = "T3"
 args = { provider = "str" }
+state = "reviewed"
 note = "Who offers a number on the market: {provider} is the carrier's name."
 
 [marketplace.title]
 en = "Phone numbers"
+fr = "Numéros de téléphone"
 ctx = "title"
 screen = "marketplace"
 tier = "T3"
+state = "reviewed"
 note = "The page's heading, the navigation entry's."
 
 [members.add_action]
 en = "Add"
+fr = "Ajouter"
 ctx = "button"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The add button."
 
 [members.add_heading]
 en = "Add a member"
+fr = "Ajouter un membre"
 ctx = "title"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The add form's heading."
 
 [members.agency_only]
 en = "Only an agency member can add members, change their roles or remove them."
+fr = "Seul un membre ayant le rôle Administrateur peut ajouter des membres, changer leurs rôles ou les retirer."
 ctx = "label"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The note for a member who may not change who belongs here."
 
 [members.cancel]
 en = "Cancel"
+fr = "Annuler"
 ctx = "button"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The removal question's button that keeps the member."
 
 [members.current_name]
 en = "Now"
+fr = "Actuel"
 ctx = "label"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The label of the name now."
 
 [members.email_label]
 en = "Email address"
+fr = "Adresse courriel"
 ctx = "label"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The address box's label."
 
 [members.failed_title]
 en = "Could not load the members"
+fr = "Impossible de charger les membres"
 ctx = "error"
 screen = "members"
 tier = "T2"
+state = "reviewed"
 note = "The heading of a failed read of the members."
 
 [members.new_name]
 en = "New name"
+fr = "Nouveau nom"
 ctx = "label"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The new name box's label."
 
 [members.remove_from_workspace]
 en = "Remove from this workspace"
+fr = "Retirer de cet espace de travail"
 ctx = "button"
 screen = "members"
 tier = "T2"
+state = "reviewed"
 note = "A member's remove button."
 
 [members.rename_action]
 en = "Rename the workspace"
+fr = "Renommer l'espace de travail"
 ctx = "button"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The rename button."
 
 [members.rename_heading]
 en = "The workspace's name"
+fr = "Nom de l'espace de travail"
 ctx = "title"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The rename form's heading."
 
 [members.role_label]
 en = "Role"
+fr = "Rôle"
 ctx = "label"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The role picker's label."
 
 [members.title]
 en = "Members"
+fr = "Membres"
 ctx = "title"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "The section's heading: its row's title in the hub, which opens it."
 
 [members.unknown_role]
 en = "A role this app does not know, which it treats as no access."
+fr = "Rôle inconnu de cette application, qui le traite comme un rôle sans accès."
 ctx = "label"
 screen = "members"
 tier = "T3"
+state = "reviewed"
 note = "A role this app does not know, which the core treats as no access."
 
 [messaging.channels_body]
 en = "A channel without a sender of its own sends from the default account."
+fr = "Un canal sans son propre expéditeur envoie à partir du compte par défaut."
 ctx = "body"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "What a channel without a sender does."
 
 [messaging.channels_heading]
 en = "Sender for each channel"
+fr = "Expéditeur de chaque canal"
 ctx = "title"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "The heading over the channels' senders."
 
 [messaging.creator_heading]
 en = "The owner's mobile number"
+fr = "Cellulaire du propriétaire"
 ctx = "title"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "The heading over the owner's mobile number."
 
 [messaging.default_sender]
 en = "The default account"
+fr = "Le compte par défaut"
 ctx = "label"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "What a channel's sender reads when it has none of its own."
 
 [messaging.failed_title]
 en = "Could not load the carrier accounts"
+fr = "Impossible de charger les comptes de transporteur"
 ctx = "error"
 screen = "messaging"
 tier = "T2"
+state = "reviewed"
 note = "The heading when the accounts could not be read."
 
 [messaging.form_add_title]
 en = "Add a carrier account"
+fr = "Ajouter un compte de transporteur"
 ctx = "title"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "The heading of the form that adds a carrier account."
 
 [messaging.form_edit_title]
 en = "Edit the carrier account"
+fr = "Modifier le compte de transporteur"
 ctx = "title"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "The heading of the form that changes a carrier account."
 
 [messaging.keys_accepted]
 en = "The carrier accepted these keys."
+fr = "Le transporteur a accepté ces clés."
 ctx = "body"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "The keys work; the carrier named no account."
 
 [messaging.keys_accepted_for]
 en = "The carrier accepted these keys, for {account}."
+fr = "Le transporteur a accepté ces clés pour le compte {account}."
 ctx = "body"
 screen = "messaging"
 tier = "T3"
 args = { account = "str" }
+state = "reviewed"
 note = "The keys work. {account} is the carrier account they belong to, as the carrier names it."
 
 [messaging.keys_asking]
 en = "Asking the carrier."
+fr = "En attente du transporteur."
 ctx = "label"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "While the carrier is asked whether the typed keys work."
 
 [messaging.keys_needed]
 en = "Every key the carrier needs, typed in full."
+fr = "Saisissez au complet toutes les clés exigées par le transporteur."
 ctx = "label"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "The line under the key boxes when every key must be typed."
 
 [messaging.keys_refused]
 en = "The carrier refused these keys: {reason}"
+fr = "Le transporteur a refusé ces clés\u00A0: {reason}"
 ctx = "error"
 screen = "messaging"
 tier = "T2"
 args = { reason = "str" }
+state = "reviewed"
 note = "The keys do not work. {reason} is the carrier's own reason, in its words."
 
 [messaging.keys_unreachable]
 en = "The carrier could not be asked, so nothing is known about these keys. {failure}"
+fr = "Le transporteur n'a pas pu être interrogé, donc l'état de ces clés est inconnu. {failure}"
 ctx = "error"
 screen = "messaging"
 tier = "T2"
 args = { failure = "str" }
+state = "reviewed"
 note = "{failure} is why, a sentence of the app's own."
 
 [messaging.managed_body]
 en = "Bought for this workspace on Distronode's own carrier account. They are not an account of this workspace's, so they cannot be chosen as a sender."
+fr = "Ces numéros ont été achetés pour cet espace de travail sur le compte de transporteur de Distronode. Comme ce compte n'appartient pas à l'espace de travail, ces numéros ne peuvent pas servir d'expéditeur."
 ctx = "body"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "What those numbers are."
 
 [messaging.managed_heading]
 en = "Numbers held by Distronode"
+fr = "Numéros détenus par Distronode"
 ctx = "title"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "The heading over the numbers Distronode holds for the workspace."
 
 [messaging.no_numbers]
 en = "No numbers"
+fr = "Aucun numéro"
 ctx = "label"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "A carrier account, or the numbers Distronode holds, with no phone number yet."
 
 [messaging.title]
 en = "Messaging accounts"
+fr = "Comptes de messagerie"
 ctx = "title"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "The page's heading, as the settings hub names it."
 
 [messaging.unlisted_sender]
 en = "An account that is not listed"
+fr = "Un compte absent de la liste"
 ctx = "label"
 screen = "messaging"
 tier = "T3"
+state = "reviewed"
 note = "What a channel's sender reads when it names an account not listed."
 
 [nav.account]
 en = "Account"
+fr = "Compte"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.analytics]
 en = "Analytics"
+fr = "Analytique"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.billing]
 en = "Billing"
+fr = "Facturation"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.calls]
 en = "Calls"
+fr = "Appels"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.contacts]
 en = "Contacts"
+fr = "Contacts"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.desk]
 en = "Help desk"
+fr = "Comptoir clients"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.hq]
 en = "District HQ"
+fr = "District HQ"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "An entry of the navigation pane, and the name of the page it opens. District HQ is a product name."
 
 [nav.inbox]
 en = "Inbox"
+fr = "Boîte de réception"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.inbox_unread]
 en = "Inbox, {count} unread"
+fr = "Boîte de réception, non lues\u00A0: {count}"
 ctx = "a11y"
 screen = "nav"
 tier = "T3"
 args = { count = "int" }
+state = "reviewed"
 note = "What a screen reader says for the Inbox entry while it has unread conversations."
 
 [nav.marketplace]
 en = "Phone numbers"
+fr = "Numéros de téléphone"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.overview]
 en = "Overview"
+fr = "Vue d'ensemble"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.rooms]
 en = "Meeting rooms"
+fr = "Salles de réunion"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.scheduling]
 en = "Booking pages"
+fr = "Pages de réservation"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.settings]
 en = "Workspace settings"
+fr = "Paramètres de l'espace"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.support]
 en = "Support"
+fr = "Soutien"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.workflows]
 en = "Workflows"
+fr = "Flux de travail"
 ctx = "menu"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.workspace_heading]
 en = "Workspace"
+fr = "Espace de travail"
 ctx = "title"
 screen = "nav"
 tier = "T3"
+state = "reviewed"
 note = "The heading over the workspace's areas in the navigation pane."
 
 [numbers.campaign_type]
 en = "Campaign type"
+fr = "Type de campagne"
 ctx = "label"
 screen = "marketplace"
 tier = "T1"
+state = "reviewed"
 note = "Label of the A2P 10DLC form's choice of campaign type (customer care, low volume, marketing, 2FA), which decides the brand and the price."
 
 [overview.failed_title]
 en = "Could not load the overview"
+fr = "Impossible de charger la vue d'ensemble"
 ctx = "error"
 screen = "overview"
 tier = "T2"
+state = "reviewed"
 note = "The heading of an overview that could not be read, as the Linux app words it."
 
 [overview.metric_average_call]
 en = "Average call"
+fr = "Durée moyenne"
 ctx = "label"
 screen = "overview"
 tier = "T3"
+state = "reviewed"
 note = "A figure's caption on the overview."
 
 [overview.metric_calls]
 en = "Calls"
+fr = "Appels"
 ctx = "label"
 screen = "overview"
 tier = "T3"
+state = "reviewed"
 note = "A figure's caption on the overview."
 
 [overview.metric_calls_this_week]
 en = "Calls this week"
+fr = "Appels cette semaine"
 ctx = "label"
 screen = "overview"
 tier = "T3"
+state = "reviewed"
 note = "A figure's caption on the overview."
 
 [overview.metric_contacts]
 en = "Contacts"
+fr = "Contacts"
 ctx = "label"
 screen = "overview"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "A figure's caption on the overview."
 
 [overview.no_recent_calls]
 en = "No calls yet. They appear here as your receptionist answers them."
+fr = "Aucun appel pour l'instant. Ceux que votre réceptionniste prendra s'afficheront ici."
 ctx = "label"
 screen = "overview"
 tier = "T3"
+state = "reviewed"
 note = "What the recent calls say when there are none, as the Linux app words it."
 
 [persona.connected]
 en = "On the call with your receptionist."
+fr = "En appel avec votre réceptionniste."
 ctx = "label"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The line while it is on."
 
 [persona.connecting]
 en = "Connecting to your receptionist."
+fr = "Connexion à votre réceptionniste en cours."
 ctx = "label"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The line while its room is being joined."
 
 [persona.cooling]
 en = "Another audition can start in a few seconds."
+fr = "Un autre aperçu pourra démarrer dans quelques secondes."
 ctx = "label"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The line while another audition must wait."
 
 [persona.ended]
 en = "The audition ended."
+fr = "L'essai est terminé."
 ctx = "label"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The line once it ended."
 
 [persona.engine_heading]
 en = "Language and answers"
+fr = "Langue et réponses"
 ctx = "title"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The language half's heading."
 
 [persona.open_studio]
 en = "Open Voice Studio"
+fr = "Ouvrir Voice Studio"
 ctx = "button"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The button that opens Voice Studio."
 
 [persona.options_loading]
 en = "Reading the languages this workspace may use."
+fr = "Chargement des langues permises dans cet espace de travail."
 ctx = "label"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The line while the options are being read."
 
 [persona.preview_action]
 en = "Try this receptionist"
+fr = "Appeler la réceptionniste"
 ctx = "button"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The button that opens the audition dialog."
 
 [persona.save_action]
 en = "Save"
+fr = "Enregistrer"
 ctx = "button"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The save button."
 
 [persona.start_action]
 en = "Start"
+fr = "Démarrer"
 ctx = "button"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The audition's Start, which places the billed call."
 
 [persona.starting]
 en = "Starting the call."
+fr = "Lancement de l'appel."
 ctx = "label"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The line while the audition's call is being asked for."
 
 [persona.stop_action]
 en = "Stop"
+fr = "Arrêter"
 ctx = "button"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The audition's Stop."
 
 [persona.texts_heading]
 en = "What it says"
+fr = "Ce qu'elle dit"
 ctx = "title"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
 note = "The texts' heading."
 
 [persona.title]
 en = "Persona"
+fr = "Persona"
 ctx = "title"
 screen = "persona"
 tier = "T3"
+state = "reviewed"
+same_ok = true
 note = "The section's heading: its row's title in the hub, which opens it."
 
 [rooms.a_guest]
 en = "A guest"
+fr = "Personne invitée"
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "How a person in the room with no name is shown."
 
 [rooms.action_item_owner]
 en = "{item} ({owner})"
+fr = "{item} ({owner})"
 ctx = "format"
 screen = "rooms"
 tier = "T3"
 args = { item = "str", owner = "str" }
+state = "reviewed"
+same_ok = true
 note = "A meeting's action item with whose it is."
 
 [rooms.action_items_title]
 en = "Action items"
+fr = "Actions à faire"
 ctx = "title"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The record's action items heading."
 
 [rooms.copy_guest_link]
 en = "Copy guest link"
+fr = "Copier le lien d'invitation"
 ctx = "button"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The button that copies the guest link."
 
 [rooms.fact_length]
 en = "Length"
+fr = "Durée"
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "A fact on a meeting's record."
 
 [rooms.fact_people]
 en = "People"
+fr = "Personnes"
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "A fact on a meeting's record."
 
 [rooms.fact_status]
 en = "Status"
+fr = "État"
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "A fact on a meeting's record."
 
 [rooms.guest_link_copied]
 en = "Guest link copied."
+fr = "Lien d'invitation copié."
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "What shows once the guest link is on the clipboard."
 
 [rooms.guest_link_hint]
 en = "Copy a link that lets someone without an account join this room"
+fr = "Copiez un lien qui permet à une personne sans compte de rejoindre cette salle"
 ctx = "body"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "What the guest link is for, beside its button."
 
 [rooms.in_progress]
 en = "In progress"
+fr = "En cours"
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The badge on a meeting still running."
 
 [rooms.in_room]
 en = "In the room."
+fr = "Dans la salle."
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "Where the room's connection stands: connected."
 
 [rooms.join_label]
 en = "Join"
+fr = "Rejoindre"
 ctx = "button"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The button that joins the room named."
 
 [rooms.joining]
 en = "Joining the room."
+fr = "Connexion à la salle en cours."
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "Where the room's connection stands: connecting."
 
 [rooms.leave_label]
 en = "Leave the room"
+fr = "Quitter la salle"
 ctx = "button"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The button that leaves the room."
 
 [rooms.meetings_description]
 en = "The most recent meetings held in this workspace's rooms. Open one to read its minutes and transcript."
+fr = "Les réunions récentes des salles de cet espace de travail. Ouvrez-en une pour lire son procès-verbal et sa transcription."
 ctx = "body"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "What the meetings are."
 
 [rooms.meetings_title]
 en = "Meetings"
+fr = "Réunions"
 ctx = "title"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The meetings' heading."
 
 [rooms.minutes_title]
 en = "Minutes"
+fr = "Procès-verbal"
 ctx = "title"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The record's minutes heading."
 
 [rooms.nobody_else]
 en = "Nobody else is here yet."
+fr = "Personne d'autre pour l'instant."
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The line when nobody else has joined."
 
 [rooms.people]
 en.one = "{count} person"
 en.other = "{count} people"
+fr.one = "{count} personne"
+fr.other = "{count} personnes"
 ctx = "label"
 screen = "rooms"
 tier = "T3"
 args = { count = "int" }
+state = "reviewed"
 note = "How many took part in a meeting, after its length in the list of meetings."
 
 [rooms.record_failed_title]
 en = "Could not load this meeting"
+fr = "Impossible de charger cette réunion"
 ctx = "error"
 screen = "rooms"
 tier = "T2"
+state = "reviewed"
 note = "The heading of a record that could not be read."
 
 [rooms.record_title]
 en = "Meeting"
+fr = "Réunion"
 ctx = "title"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The record's heading before it is read."
 
 [rooms.rejoin_label]
 en = "Rejoin"
+fr = "Rejoindre"
 ctx = "button"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The button that joins a meeting still running."
 
 [rooms.room_name_label]
 en = "Room name"
+fr = "Nom de salle"
 ctx = "label"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The room name box's label."
 
 [rooms.room_title]
 en = "Room \"{name}\""
+fr = "Salle «\u00A0{name}\u00A0»"
 ctx = "title"
 screen = "rooms"
 tier = "T3"
 args = { name = "str" }
+state = "reviewed"
 note = "The heading of the meeting room you are in; {name} is the room's name."
 
 [rooms.title]
 en = "Meeting rooms"
+fr = "Salles de réunion"
 ctx = "title"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The page's heading, the navigation entry's."
 
 [rooms.transcript_title]
 en = "Transcript"
+fr = "Transcription"
 ctx = "title"
 screen = "rooms"
 tier = "T3"
+state = "reviewed"
 note = "The record's transcript heading."
 
 [rooms.with_people]
 en = "With {people}."
+fr = "Avec {people}."
 ctx = "body"
 screen = "rooms"
 tier = "T3"
 args = { people = "str" }
+state = "reviewed"
 note = "Who else is in the room; {people} is their names, comma-separated."
 
 [routing.condition]
 en = "{field} {operator} \"{value}\""
+fr = "{field} {operator} «\u00A0{value}\u00A0»"
 ctx = "format"
 screen = "routing"
 tier = "T3"
 args = { field = "str", operator = "str", value = "str" }
+state = "reviewed"
 note = "What a routing rule matches: the caller detail, how it is compared and the value, as stored (\"Estimated value greater than \\\"500\\\"\")."
 
 [routing.engine_default]
 en = "The persona's own"
+fr = "Celui de la persona"
 ctx = "label"
 screen = "routing"
 tier = "T3"
+state = "reviewed"
 note = "A routing rule's engine when it sets none: the persona's."
 
 [routing.intro]
 en = "Which callers get which voice and instruction. Rules are checked in this order, and saving replaces every rule stored."
+fr = "Ces règles choisissent la voix et la consigne selon l'appelant. Elles sont vérifiées dans cet ordre, et chaque sauvegarde remplace toutes les règles stockées."
 ctx = "body"
 screen = "routing"
 tier = "T3"
+state = "reviewed"
 note = "What the section says under its heading."
 
 [routing.kept_keys]
 en = "Also stored: {keys}. Kept as they are when the rules are saved."
+fr = "Autres champs stockés\u00A0: {keys}. Ils sont conservés tels quels à la sauvegarde."
 ctx = "body"
 screen = "routing"
 tier = "T3"
 args = { keys = "str" }
+state = "reviewed"
 note = "A routing rule holds more than this screen edits; {keys} are those keys, in words, comma-separated."
 
 [routing.no_condition]
 en = "No condition set here"
+fr = "Aucune condition définie"
 ctx = "label"
 screen = "routing"
 tier = "T3"
+state = "reviewed"
 note = "The line under a routing rule that matches no caller detail yet."
 
 [routing.picker_field]
 en = "Caller detail"
+fr = "Champ du contact"
 ctx = "label"
 screen = "routing"
 tier = "T3"
+state = "reviewed"
 note = "A routing rule's picker: which caller detail it compares."
 
 [routing.picker_operator]
 en = "Compared by"
+fr = "Comparaison"
 ctx = "label"
 screen = "routing"
 tier = "T3"
+state = "reviewed"
 note = "A routing rule's picker: how the detail is compared."
 
 [routing.picker_voice]
 en = "Voice"
+fr = "Voix"
 ctx = "label"
 screen = "routing"
 tier = "T3"
+state = "reviewed"
 note = "A routing rule's picker: the voice the caller gets."
 
 [routing.rule_heading]
 en = "Rule {number}"
+fr = "Règle {number}"
 ctx = "title"
 screen = "routing"
 tier = "T3"
 args = { number = "int" }
+state = "reviewed"
 note = "A routing rule's heading, by its place in the order."
 
 [routing.title]
 en = "Call routing rules"
+fr = "Règles d'acheminement"
 ctx = "title"
 screen = "routing"
 tier = "T3"
+state = "reviewed"
 note = "The section's heading: the hub row's title, which opens it."
 
 [scheduling.failed_title]
 en = "Could not load this section"
+fr = "Impossible de charger cette section"
 ctx = "title"
 screen = "scheduling"
 tier = "T3"
+state = "reviewed"
 note = "Heading over why a section of the booking scheduler's administration could not be read."
 
 [scheduling.title]
 en = "Booking pages"
+fr = "Pages de réservation"
 ctx = "title"
 screen = "scheduling"
 tier = "T3"
+state = "reviewed"
 note = "The page's heading, the navigation entry's."
 
 [screen.retrying]
 en = "District AI will try again by itself."
+fr = "District AI réessaiera automatiquement."
 ctx = "label"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "A note under a start-up check that will try again by itself."
 
 [screen.signed_out_body]
 en = "Sign in again whenever you are ready."
+fr = "Reconnectez-vous au moment qui vous convient."
 ctx = "body"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "The body after a sign-out that went as it should."
 
 [screen.signing_in]
 en = "Signing in"
+fr = "Connexion"
 ctx = "title"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "The sign-in page's heading while sign-in is under way in the browser."
 
 [screen.signing_out]
 en = "Signing out"
+fr = "Déconnexion en cours"
 ctx = "title"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "The sign-in page's heading while signing out."
 
 [screen.signing_out_everywhere]
 en = "Every device is signed out. Removing your sign-in from this computer."
+fr = "Tous les appareils sont déconnectés. Suppression de vos informations de connexion ici."
 ctx = "body"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "While signing out of every device."
 
 [screen.signing_out_this_device]
 en = "Telling District AI, then removing your sign-in from this computer."
+fr = "Envoi de l'avis à District AI, puis suppression de vos informations de connexion ici."
 ctx = "body"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "While signing out of this computer only."
 
 [screen.unavailable_body]
 en = "Use the web dashboard or the District AI phone apps for this."
+fr = "Pour cela, utilisez le tableau de bord Web ou les applications mobiles District AI."
 ctx = "body"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "Its body."
 
 [screen.unavailable_title]
 en = "Not in this version yet"
+fr = "Pas encore dans cette version"
 ctx = "title"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "The heading of a screen this version does not have."
 
 [screen.welcome_body]
 en = "Sign in with your District AI account. Signing in happens in your browser, so this app never sees your password."
+fr = "Connectez-vous avec votre compte District AI. La connexion se fait dans votre navigateur\u00A0: cette application ne voit jamais votre mot de passe."
 ctx = "body"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "Its body."
 
 [screen.welcome_title]
 en = "Welcome to District AI"
+fr = "Bienvenue dans District AI"
 ctx = "title"
 screen = "screen"
 tier = "T3"
+state = "reviewed"
 note = "The heading of the signed-out screen on a first run."
 
 [settings.not_chosen]
 en = "Not chosen"
+fr = "Non choisi"
 ctx = "label"
 screen = "settings"
 tier = "T3"
+state = "reviewed"
 note = "What a picker shows for a stored value that is empty."
 
 [settings.read_again]
 en = "Read them again"
+fr = "Actualiser"
 ctx = "button"
 screen = "settings"
 tier = "T3"
+state = "reviewed"
 note = "The button that reads a section's settings again, after such a save."
 
 [settings.stale_title]
 en = "Saved"
+fr = "Enregistré"
 ctx = "title"
 screen = "settings"
 tier = "T3"
+state = "reviewed"
 note = "The heading of a section whose save landed and whose settings could not be read back. Not a failure: the save is done."
 
 [settings.title]
 en = "Workspace settings"
+fr = "Paramètres de l'espace"
 ctx = "title"
 screen = "settings"
 tier = "T3"
+state = "reviewed"
 note = "The hub's heading, as the navigation pane names it."
 
 [shell.role_agency]
 en = "Agency"
+fr = "Administrateur"
 ctx = "label"
 screen = "shell"
 tier = "T3"
+state = "reviewed"
 note = "A workspace member's role, under the workspace's name in the workspace picker."
 
 [shell.role_client]
 en = "Client"
+fr = "Membre"
 ctx = "label"
 screen = "shell"
 tier = "T3"
+state = "reviewed"
 note = "A workspace member's role, under the workspace's name in the workspace picker."
 
 [shell.role_viewer]
 en = "Viewer"
+fr = "Lecteur"
 ctx = "label"
 screen = "shell"
 tier = "T3"
+state = "reviewed"
 note = "A workspace member's role, under the workspace's name in the workspace picker."
 
 [support.compose_needs]
 en = "A subject of {min} to {max} characters, and a message."
+fr = "Requis\u00A0: un objet de {min} à {max} caractères et un message."
 ctx = "body"
 screen = "support"
 tier = "T3"
 args = { min = "int", max = "int" }
+state = "reviewed"
 note = "What the support request form needs before it can be sent."
 
 [support.compose_title]
 en = "New support request"
+fr = "Nouvelle demande de soutien"
 ctx = "title"
 screen = "support"
 tier = "T3"
+state = "reviewed"
 note = "The form's heading."
 
 [support.not_filed_yet]
 en = "Not filed yet"
+fr = "Pas encore créée"
 ctx = "label"
 screen = "support"
 tier = "T3"
+state = "reviewed"
 note = "What a request still being opened shows in place of its reference."
 
 [support.request_failed_title]
 en = "Could not load this request"
+fr = "Impossible de charger cette demande"
 ctx = "error"
 screen = "support"
 tier = "T2"
+state = "reviewed"
 note = "The heading when a request could not be read, as the Linux app words it."
 
 [support.request_title]
 en = "Support request"
+fr = "Demande de soutien"
 ctx = "title"
 screen = "support"
 tier = "T3"
+state = "reviewed"
 note = "The heading of a request not read yet, or that could not be read."
 
 [support.title]
 en = "Support"
+fr = "Soutien"
 ctx = "title"
 screen = "support"
 tier = "T3"
+state = "reviewed"
 note = "The list page's heading."
 
 [tools.heading]
 en = "On a call"
+fr = "Pendant un appel"
 ctx = "title"
 screen = "tools"
 tier = "T3"
+state = "reviewed"
 note = "The tools' heading, as the Linux app words it."
 
 [tools.note]
 en = "What the receptionist may do. Saving replaces the stored list with these switches."
+fr = "Ce que la réceptionniste peut faire. Si vous enregistrez, ces interrupteurs remplacent la liste stockée."
 ctx = "body"
 screen = "tools"
 tier = "T3"
+state = "reviewed"
 note = "What the tools are, and what saving them does, as the Linux app words it."
 
 [tools.research_heading]
 en = "Research contacts"
+fr = "Recherche externe"
 ctx = "title"
 screen = "tools"
 tier = "T3"
+state = "reviewed"
 note = "The research part's heading, as the Linux app words it."
 
 [tools.save_research]
 en = "Save research setting"
+fr = "Enregistrer ce paramètre"
 ctx = "button"
 screen = "tools"
 tier = "T3"
+state = "reviewed"
 note = "The research part's save button, as the Linux app words it."
 
 [tools.save_tools]
 en = "Save skills"
+fr = "Enregistrer les compétences"
 ctx = "button"
 screen = "tools"
 tier = "T3"
+state = "reviewed"
 note = "The tools' save button."
 
 [tools.title]
 en = "Skills"
+fr = "Compétences"
 ctx = "title"
 screen = "tools"
 tier = "T3"
+state = "reviewed"
 note = "The section's heading: its row's title in the hub, which opens it."
 
 [transcript.unavailable]
 en = "No live transcript for this call. Its transcript is in the call log after the call."
+fr = "Aucune transcription en direct pour cet appel. Sa transcription figurera ensuite dans le journal des appels."
 ctx = "label"
 screen = "transcript"
 tier = "T3"
+state = "reviewed"
 note = "What shows when no live transcript can be shown for the call. The core has no words for this state (its `status()` is `None`); the call log has the transcript once the call is over."
 
 [views.ai_dossier]
 en = "AI dossier"
+fr = "Fiche de recherche IA"
 ctx = "label"
 screen = "views"
 tier = "T3"
+state = "reviewed"
 note = "The heading of a contact's AI research, the dossier."
 
 [views.ai_summary]
 en = "AI summary"
+fr = "Résumé IA"
 ctx = "label"
 screen = "views"
 tier = "T3"
+state = "reviewed"
 note = "The heading of a call's AI summary, as the iOS app words it."
 
 [voice_studio.option_in_group]
 en = "{option} ({group})"
+fr = "{option} ({group})"
 ctx = "format"
 screen = "voice_studio"
 tier = "T3"
 args = { option = "str", group = "str" }
+state = "reviewed"
+same_ok = true
 note = "A voice or engine choice with the group it belongs to."
 
 [voice_studio.title]
 en = "Voice"
+fr = "Voix"
 ctx = "title"
 screen = "voice_studio"
 tier = "T3"
+state = "reviewed"
 note = "The page's heading: the hub row's name for the section."
 
 [welcome.create_account_label]
 en = "Create an account"
+fr = "Créer un compte"
 ctx = "button"
 screen = "welcome"
 tier = "T3"
+state = "reviewed"
 note = "The button's words, as the service's own sign-in page puts them."
 
 [welcome.create_account_note]
 en = "Your browser opens the District AI sign-in page, which offers Create an account. When the account is made, you come back here signed in."
+fr = "Votre navigateur ouvre la page de connexion de District AI, qui propose «\u00A0Créer un compte\u00A0». Une fois le compte créé, vous revenez ici avec votre session ouverte."
 ctx = "body"
 screen = "welcome"
 tier = "T3"
+state = "reviewed"
 note = "The line under it: what the button does, since it cannot open the register page itself."
 
 [workflows.batch_label]
 en = "Batch size"
+fr = "Taille du lot"
 ctx = "label"
 screen = "workflows"
 tier = "T3"
+state = "reviewed"
 note = "The campaign's batch size row, as the Linux app labels it."
 
 [workflows.goal_label]
 en = "Goal"
+fr = "Objectif"
 ctx = "label"
 screen = "workflows"
 tier = "T3"
+state = "reviewed"
 note = "The campaign's goal row, as the Linux app labels it."
 
 [workflows.last_run]
 en = "Last run {status}"
+fr = "Dernière exécution\u00A0: {status}"
 ctx = "label"
 screen = "workflows"
 tier = "T3"
 args = { status = "str" }
+state = "reviewed"
 note = "How a workflow's latest run went; {status} is the run's status, in lower case."
 
 [workflows.more_runs]
 en = "More runs"
+fr = "Afficher plus d'exécutions"
 ctx = "button"
 screen = "workflows"
 tier = "T3"
+state = "reviewed"
 note = "The button that reads the next page of runs."
 
 [workflows.not_run_yet]
 en = "Not run yet"
+fr = "Pas encore exécuté"
 ctx = "label"
 screen = "workflows"
 tier = "T3"
+state = "reviewed"
 note = "The line under a workflow that has never run, after its trigger."
 
 [workflows.reading_runs]
 en = "Reading runs."
+fr = "Chargement des exécutions."
 ctx = "label"
 screen = "workflows"
 tier = "T3"
+state = "reviewed"
 note = "The note while a page of runs is on its way, as the Linux app words it."
 
 [workflows.switch_name]
 en = "Turn on {workflow}"
+fr = "Activer {workflow}"
 ctx = "a11y"
 screen = "workflows"
 tier = "T3"
 args = { workflow = "str" }
+state = "reviewed"
 note = "What a screen reader says for a workflow's on/off switch."
 
 [workflows.title]
 en = "Workflows"
+fr = "Flux de travail"
 ctx = "title"
 screen = "workflows"
 tier = "T3"
+state = "reviewed"
 note = "The page's heading."
