@@ -5,6 +5,7 @@ is committed is what they produce now.
     python3 scripts/gen-l10n.py              # write every target below
     python3 scripts/gen-l10n.py --check      # fail if a catalog is invalid or a target is stale (CI)
     python3 scripts/gen-l10n.py --self-test  # prove the XAML check catches a missing string
+    python3 scripts/gen-l10n.py --require-french  # fail unless every catalog has reviewed French
 
 Each target is one or more catalogs (TOML, i18n/README.md in the monorepo) and
 one backend of the vendored generator, tools/l10n/l10n.py. --check runs
@@ -18,10 +19,14 @@ declares, and a file that uses `l10n:S.` must declare
 `xmlns:l10n="using:DistrictAI.L10n"`. The XAML compiler reports a missing name
 only as WMC9999, on Windows; this says which file, which line and which name.
 
-The French is written later (v3.0, W3); until then every generated French
-branch carries the English and `FR_COMPLETE` / `FrComplete` is false. Nothing
-here requires French: the release build that switches French on runs
-`l10n.py check --require fr-CA` itself.
+--require-french runs `l10n.py check --require fr-CA` on every catalog
+(crates/*/l10n/*.toml and src/*/l10n/*.toml), each in a call of its own, and
+fails unless every one of them has reviewed French for every entry. Each
+catalog is checked alone, as district-core-rust checks its own: one call over
+all of them also fails on a key two catalogs both define (`support.title` is
+district-ffi's in ffi.toml and the window's in ui.toml), which is not a
+problem, since each catalog generates its own code. CI and release.yml run it,
+since French is on from 3.0.
 
 Python 3.11 or newer, standard library only.
 """
@@ -284,11 +289,81 @@ def self_test() -> int:
     ok = members == expected_members
     failures += not ok
     print(f"  {'pass' if ok else 'FAIL'}  members read: expected {sorted(expected_members)}, got {sorted(members)}")
+    failures += require_french_self_test()
     if failures:
         print(f"\nself-test FAILED: {failures} case(s) did not answer as expected", file=sys.stderr)
         return 1
-    print(f"\nself-test passed: {len(cases) + 1} cases")
+    print(f"\nself-test passed: {len(cases) + 1 + REQUIRE_FRENCH_CASES} cases")
     return 0
+
+
+# The cases require_french_self_test runs.
+REQUIRE_FRENCH_CASES = 5
+
+# Where the catalogs are, as release.yml has always looked for them.
+CATALOG_GLOBS = ("crates/*/l10n/*.toml", "src/*/l10n/*.toml")
+
+
+def catalog_paths(root: Path = ROOT) -> list[Path]:
+    """Every string catalog in the repository, sorted."""
+    return sorted({path for pattern in CATALOG_GLOBS for path in root.glob(pattern)})
+
+
+def require_french(catalogs: list[Path]) -> int:
+    """`l10n.py check --require fr-CA` on each of `catalogs`, one call each.
+    Exit 1 when there is none, or when any one fails (all are checked)."""
+    if not catalogs:
+        print("gen-l10n: no string catalog found to require French of", file=sys.stderr)
+        return 1
+    failed = [path for path in catalogs if run(["check", "--require", "fr-CA", str(path)]) != 0]
+    for path in catalogs:
+        name = path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
+        print(f"  {'FAIL' if path in failed else 'ok  '}  {name}")
+    if failed:
+        print(f"gen-l10n: {len(failed)} of {len(catalogs)} catalog(s) lack reviewed French", file=sys.stderr)
+        return 1
+    print(f"gen-l10n: reviewed French in all {len(catalogs)} catalogs")
+    return 0
+
+
+def require_french_self_test() -> int:
+    """Two catalogs sharing a key pass on their own; a missing or unreviewed
+    French fails; no catalog at all fails."""
+    head = '[meta]\ncatalog = "{name}"\nplatform = "csharp"\napple = false\n\n'
+    entry = '[support.title]\nen = "Support"\n{fr}ctx = "title"\nscreen = "support"\ntier = "T3"\n{state}'
+    reviewed = entry.format(fr='fr = "Soutien"\n', state='state = "reviewed"\n')
+    draft = entry.format(fr='fr = "Soutien"\n', state='state = "draft"\n')
+    missing = entry.format(fr="", state="")
+    cases = [
+        ("one key in two catalogs, both French", [reviewed, reviewed], 0),
+        ("a catalog without French", [reviewed, missing], 1),
+        ("a catalog with draft French", [draft], 1),
+        ("no catalog", [], 1),
+    ]
+    failures = 0
+    with tempfile.TemporaryDirectory() as tmp:
+        for number, (name, bodies, want) in enumerate(cases):
+            paths = []
+            for index, body in enumerate(bodies):
+                path = Path(tmp) / f"case{number}" / f"c{index}" / "l10n" / "strings.toml"
+                path.parent.mkdir(parents=True)
+                path.write_text(head.format(name=f"c{index}") + body, encoding="utf-8")
+                paths.append(path)
+            if paths and run(["fmt", *map(str, paths)], quiet=True) != 0:
+                print(f"  FAIL  {name}: the test catalogs do not format")
+                failures += 1
+                continue
+            got = require_french(paths)
+            ok = got == want
+            failures += not ok
+            print(f"  {'pass' if ok else 'FAIL'}  {name}: expected exit {want}, got {got}")
+            if number == 0:
+                # Why one call per catalog: the same two, in one call, fail.
+                together = run(["check", "--require", "fr-CA", *map(str, paths)], quiet=True)
+                ok = together != 0
+                failures += not ok
+                print(f"  {'pass' if ok else 'FAIL'}  the same two in one call: expected a failure, got exit {together}")
+    return failures
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -296,9 +371,12 @@ def main(argv: list[str] | None = None) -> int:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="fail if anything committed is stale")
     mode.add_argument("--self-test", action="store_true", help="prove the XAML check catches a missing string")
+    mode.add_argument("--require-french", action="store_true", help="fail unless every catalog has reviewed French")
     args = parser.parse_args(argv)
     if args.self_test:
         return self_test()
+    if args.require_french:
+        return require_french(catalog_paths())
     failed = False
     for catalogs, backend, out, opts in TARGETS:
         if args.check:

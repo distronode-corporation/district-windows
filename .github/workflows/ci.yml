@@ -268,6 +268,11 @@ jobs:
           python3 scripts/gen-l10n.py --self-test
           python3 scripts/gen-l10n.py --check
 
+      # French (fr-CA) is on from 3.0, so a string without reviewed French
+      # fails here, not at the release tag (release.yml runs the same).
+      - name: Every catalog has reviewed French
+        run: python3 scripts/gen-l10n.py --require-french
+
       # 1.0 offers no sign-up and no purchase in the app, as its Store listing says.
       - name: No sign-up or purchase wording in the app (and the check still catches it)
         run: |
