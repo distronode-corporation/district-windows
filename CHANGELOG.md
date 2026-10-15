@@ -52,8 +52,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- The shared core is district-core-rust 4.0.0, which keeps every word it shows in a
-  catalog, in English and Canadian French.
+- The shared core is district-core-rust 4.0.1, which keeps every word it shows in a
+  catalog, in English and Canadian French. Every request names the app's language
+  (`Accept-Language: fr-CA` or `en`), so what the service writes in an answer is in it,
+  and after each sign-in and at start-up the account is told the app's language.
 - A carrier account's balance reads as money (`Balance $12.50`, was `Balance 12.50 USD`),
   and a SIP trunk's status by its label (`Active`, was `active`).
 - A booking webhook offers the four booking events the web portal offers (created,
