@@ -23,10 +23,8 @@ receptionist from Distronode. It is a WinUI 3 app written in C#, and everything 
 
 The app is a desktop window onto a District AI workspace: the inbox, calls and their
 transcripts, contacts, District HQ, analytics and the workspace's settings. Calls can ring
-on the desktop and be answered there, as on the Linux and Mac apps. Calls and messages
-also reach it when the app is closed (the Microsoft Store build, through Windows push
-notifications); the GitHub build rings only while it runs. It mirrors the destinations of
-the Android app.
+on the desktop and be answered there while the app runs, as on the Linux and Mac apps. It
+mirrors the destinations of the Android app.
 
 Signing in needs a District AI account, and this is the one District AI app where you can
 create an account and buy a plan from the app itself. The app is open source; the District
