@@ -477,6 +477,7 @@ internal static class Walk
                 || automationId.EndsWith("DeleteTitle", StringComparison.Ordinal)
                 || automationId.EndsWith("RemoveTitle", StringComparison.Ordinal)
                 || automationId.EndsWith("AskTitle", StringComparison.Ordinal)
+                || automationId.EndsWith("Retry", StringComparison.Ordinal)
                 || automationId is "ComposeBody" or "TranscriptHeading" or "MinutesHeading"))
         {
             return;
