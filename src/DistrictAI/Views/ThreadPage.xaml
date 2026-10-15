@@ -90,12 +90,12 @@
                                     Text="{x:Bind Body}"
                                     TextWrapping="Wrap" />
                                 <TextBlock
-                                    Foreground="{ThemeResource TextOnAccentFillColorSecondaryBrush}"
+                                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                                     Style="{StaticResource CaptionTextBlockStyle}"
                                     Text="{x:Bind Attachments}"
                                     Visibility="{x:Bind HasAttachments}" />
                                 <TextBlock
-                                    Foreground="{ThemeResource TextOnAccentFillColorSecondaryBrush}"
+                                    Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                                     Style="{StaticResource CaptionTextBlockStyle}"
                                     Text="{x:Bind Meta}"
                                     Visibility="{x:Bind HasMeta}" />

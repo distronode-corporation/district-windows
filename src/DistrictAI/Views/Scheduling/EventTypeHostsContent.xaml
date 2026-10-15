@@ -60,25 +60,44 @@
                 </ItemsRepeater.Layout>
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="sched:HostEntry">
+                        <!--
+                            The host's name and address across the dialog's whole width, and
+                            its controls on a row of their own in the same columns for every
+                            host: beside the controls the name was cut and the address broken
+                            mid-word at 200 percent text, and the combo boxes did not line up.
+                        -->
                         <Grid
                             AutomationProperties.AutomationId="{x:Bind AutomationId}"
                             AutomationProperties.Name="{x:Bind AccessibleName}"
-                            ColumnSpacing="8">
+                            ColumnSpacing="8"
+                            RowSpacing="4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center" Spacing="2">
-                                <TextBlock Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" />
-                                <TextBlock
-                                    Style="{StaticResource QuietTextStyle}"
-                                    Text="{x:Bind Email}"
-                                    TextTrimming="CharacterEllipsis" />
-                            </StackPanel>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock
+                                Grid.ColumnSpan="3"
+                                Text="{x:Bind Name}"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap"
+                                ToolTipService.ToolTip="{x:Bind Name}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.ColumnSpan="3"
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind Email}"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap"
+                                ToolTipService.ToolTip="{x:Bind Email}" />
                             <ComboBox
-                                Grid.Column="1"
+                                Grid.Row="2"
+                                HorizontalAlignment="Stretch"
                                 VerticalAlignment="Center"
                                 AutomationProperties.AutomationId="EventTypeHostRole"
                                 AutomationProperties.Name="{x:Bind RoleName}"
@@ -87,8 +106,9 @@
                                 SelectionChanged="OnRoleChanged"
                                 Tag="{x:Bind UserId}" />
                             <TextBox
-                                Grid.Column="2"
-                                Width="72"
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Width="96"
                                 VerticalAlignment="Center"
                                 AutomationProperties.AutomationId="EventTypeHostPriority"
                                 AutomationProperties.Name="{x:Bind PriorityName}"
@@ -99,7 +119,8 @@
                                 TextChanged="OnPriorityChanged"
                                 ToolTipService.ToolTip="{x:Bind PriorityLabel}" />
                             <Button
-                                Grid.Column="3"
+                                Grid.Row="2"
+                                Grid.Column="2"
                                 VerticalAlignment="Center"
                                 AutomationProperties.AutomationId="EventTypeHostRemove"
                                 AutomationProperties.Name="{x:Bind RemoveName}"

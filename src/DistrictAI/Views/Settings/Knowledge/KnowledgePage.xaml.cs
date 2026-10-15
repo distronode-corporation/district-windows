@@ -25,6 +25,7 @@ public sealed partial class KnowledgePage : UserControl
     public KnowledgePage()
     {
         InitializeComponent();
+        DialogButtons.WrapLabels(Question);
         ViewModel.PropertyChanged += OnViewModelChanged;
         ViewModel.FileRequested += OnFileRequested;
     }

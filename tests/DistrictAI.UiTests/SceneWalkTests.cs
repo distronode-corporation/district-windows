@@ -419,7 +419,7 @@ public sealed class SceneWalkTests
         _ = OpenById(app, "NavMarketplace");
         var owned = app.FindById("OwnedNumbers", PageTimeout);
         var release = Wait.For(
-            () => owned.FindFirstDescendant(cf => cf.ByControlType(ControlType.Button).And(cf.ByName("Release this number"))),
+            () => owned.FindFirstDescendant(cf => cf.ByAutomationId("NumberRelease")),
             PageTimeout,
             "a held number's Release button",
             app.Describe);
@@ -1306,8 +1306,12 @@ public sealed class SceneWalkTests
             what,
             app.Describe);
 
-        void ShowTab(string tabId, string heading)
+        // The tab, by its id; then what it read, by the id that names the tab
+        // ("SchedulingSettingsGroupsAssistant"): the same in every language.
+        void ShowTab(string tab)
         {
+            var tabId = "SchedulingSettingsTab" + tab;
+            var groupsId = "SchedulingSettingsGroups" + tab;
             var tab = app.FindById(tabId, PageTimeout);
             if (tab.Patterns.SelectionItem.PatternOrDefault is { } item)
             {
@@ -1319,9 +1323,9 @@ public sealed class SceneWalkTests
             }
             Expect(
                 app,
-                () => app.TryFindById("SchedulingSettings", onScreen: false)?.FindFirstDescendant(cf => cf.ByControlType(ControlType.Text).And(cf.ByName(heading))) is not null
+                () => app.TryFindById(groupsId, onScreen: false)?.FindFirstDescendant(cf => cf.ByControlType(ControlType.Text)) is not null
                     && app.TryFindById("SchedulingSettingsEdit", onScreen: false) is not null,
-                $"the {heading} tab to show what it read");
+                $"the {tab} tab to show what it read");
         }
 
         void CloseWithEscape(string dialogId, string what)
@@ -1333,7 +1337,7 @@ public sealed class SceneWalkTests
         }
 
         // The booking page: read, edited and saved.
-        ShowTab("SchedulingSettingsTabBookingPage", "Booking page");
+        ShowTab("BookingPage");
         Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false));
         var branding = app.FindById("SettingsBrandingDialog", PageTimeout);
         TypeUntilItHolds(app, () => app.TryFindById("SettingsBusinessName", onScreen: false), "Walk Agency");
@@ -1355,7 +1359,7 @@ public sealed class SceneWalkTests
         CloseWithEscape("SettingsBrandingDialog", "the booking page");
 
         // The assistant: its Save works once the switch changed, and lands.
-        ShowTab("SchedulingSettingsTabAssistant", "Booking assistant");
+        ShowTab("Assistant");
         Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false));
         var assistant = app.FindById("SettingsAssistantDialog", PageTimeout);
         var save = assistant.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton"));
@@ -1367,7 +1371,7 @@ public sealed class SceneWalkTests
         CloseWithEscape("SettingsAssistantDialog", "the assistant");
 
         // The profile: a name typed and saved.
-        ShowTab("SchedulingSettingsTabProfile", "Your profile");
+        ShowTab("Profile");
         Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false));
         var profile = app.FindById("SettingsProfileDialog", PageTimeout);
         TypeUntilItHolds(app, () => app.TryFindById("SettingsProfileName", onScreen: false), "Walk Member");
@@ -1378,7 +1382,7 @@ public sealed class SceneWalkTests
         CloseWithEscape("SettingsProfileDialog", "the profile");
 
         // The notifications: a switch flipped and saved.
-        ShowTab("SchedulingSettingsTabNotifications", "As an attendee");
+        ShowTab("Notifications");
         Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false));
         var notifications = app.FindById("SettingsNotificationsDialog", PageTimeout);
         var before = IsTicked(app.FindById("SettingsNotifynotify_reschedule", PageTimeout, onScreen: false));

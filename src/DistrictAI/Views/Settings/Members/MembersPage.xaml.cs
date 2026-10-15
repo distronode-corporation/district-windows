@@ -74,6 +74,7 @@ public sealed partial class MembersPage : UserControl
             // Removing someone is never what Enter does.
             DefaultButton = ContentDialogButton.Close,
         };
+        DialogButtons.WrapLabels(dialog);
         _question = dialog;
         _context.DialogOpen = true;
         ContentDialogResult result;

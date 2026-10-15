@@ -1,3 +1,4 @@
+using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Scheduling;
 using Microsoft.UI.Xaml.Controls;
@@ -22,6 +23,7 @@ public sealed partial class SchedulingSettingsPanel : UserControl
     public SchedulingSettingsPanel()
     {
         InitializeComponent();
+        TabChooser.Picked += (_, index) => ViewModel.SelectTab(index);
         Status.Attach(ViewModel.Load);
         Loaded += (_, _) => SyncDialogs();
     }
@@ -56,6 +58,18 @@ public sealed partial class SchedulingSettingsPanel : UserControl
         _notifications.Close();
     }
 
-    private void OnTabChanged(object sender, SelectionChangedEventArgs e) =>
-        ViewModel.SelectTab(TabChooser.SelectedIndex);
+    /// <summary>
+    /// The UI Automation id of what the tab showing read ("SchedulingSettingsGroupsAssistant"):
+    /// the same in every language, so the UI tests know which tab's read is on the screen.
+    /// </summary>
+    public static string GroupsId(SchedulingSettingsTab tab) => "SchedulingSettingsGroups" + tab;
+
+    /// <summary>The four tabs, in the order of <see cref="SchedulingSettingsViewModel.TabIndex"/>, each with its id for the UI tests.</summary>
+    public static TabLabel[] TabsOf(string bookingPage, string assistant, string profile, string notifications) =>
+    [
+        new(bookingPage, "SchedulingSettingsTabBookingPage"),
+        new(assistant, "SchedulingSettingsTabAssistant"),
+        new(profile, "SchedulingSettingsTabProfile"),
+        new(notifications, "SchedulingSettingsTabNotifications"),
+    ];
 }

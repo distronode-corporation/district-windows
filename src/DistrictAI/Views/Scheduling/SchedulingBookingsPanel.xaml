@@ -17,15 +17,13 @@
             AutomationProperties.AutomationId="SchedulingBookingsTimesIn"
             Style="{StaticResource QuietTextStyle}"
             Text="{x:Bind ViewModel.TimesIn, Mode=OneWay}" />
-        <RadioButtons
+        <views:TabStrip
             x:Name="TabChooser"
             Grid.Row="1"
             AutomationProperties.AutomationId="SchedulingBookingsViews"
             AutomationProperties.Name="{x:Bind l10n:S.SchedulingBookingsViews}"
             ItemsSource="{x:Bind ViewModel.Tabs}"
-            MaxColumns="4"
-            SelectedIndex="{x:Bind ViewModel.SelectedTab, Mode=OneWay}"
-            SelectionChanged="OnTabChanged" />
+            SelectedIndex="{x:Bind ViewModel.SelectedTab, Mode=OneWay}" />
         <InfoBar
             Grid.Row="2"
             AutomationProperties.AutomationId="SchedulingBookingsNotice"

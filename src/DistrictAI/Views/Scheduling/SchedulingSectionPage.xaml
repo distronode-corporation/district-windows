@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:l10n="using:DistrictAI.L10n"
     xmlns:local="using:DistrictAI.Views.Scheduling"
-    xmlns:sched="using:DistrictAI.ViewModels.Scheduling">
+    xmlns:views="using:DistrictAI.Views">
     <Grid Padding="{StaticResource PagePadding}" RowSpacing="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -19,26 +19,14 @@
             Text="{x:Bind ViewModel.Title, Mode=OneWay}"
             TextWrapping="Wrap" />
 
-        <!-- The section navigation: every section this version has, in the web dashboard's order. -->
-        <RadioButtons
+        <!-- The section navigation: every section this version has, in the web dashboard's order, as tabs. -->
+        <views:TabStrip
             x:Name="SectionChooser"
             Grid.Row="1"
             AutomationProperties.AutomationId="SchedulingSections"
             AutomationProperties.Name="{x:Bind l10n:S.SchedulingSections}"
             ItemsSource="{x:Bind ViewModel.Sections}"
-            MaxColumns="8"
-            SelectedIndex="{x:Bind ViewModel.SelectedSection, Mode=OneWay}"
-            SelectionChanged="OnSectionChanged">
-            <RadioButtons.ItemTemplate>
-                <DataTemplate x:DataType="sched:SchedulingSectionEntry">
-                    <RadioButton
-                        AutomationProperties.AutomationId="{x:Bind TabAutomationId}"
-                        AutomationProperties.HelpText="{x:Bind Subtitle}"
-                        AutomationProperties.Name="{x:Bind Title}"
-                        Content="{x:Bind Title}" />
-                </DataTemplate>
-            </RadioButtons.ItemTemplate>
-        </RadioButtons>
+            SelectedIndex="{x:Bind ViewModel.SelectedSection, Mode=OneWay}" />
 
         <!-- The section's own page: exactly one shows. A section's pull request adds its control here. -->
         <local:SchedulingOverviewPanel

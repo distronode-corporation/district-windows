@@ -39,6 +39,7 @@ internal sealed class SchedulingDialogHost(string automationId)
             Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"],
             Content = content(),
         };
+        DialogButtons.WrapLabels(box);
         AutomationProperties.SetAutomationId(box, automationId);
         Apply(box, dialog);
         void OnChanged(object? sender, PropertyChangedEventArgs e) => Apply(box, dialog);

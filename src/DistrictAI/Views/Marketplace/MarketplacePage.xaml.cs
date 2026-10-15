@@ -1,4 +1,5 @@
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Marketplace;
 using Microsoft.UI.Xaml;
@@ -24,6 +25,7 @@ public sealed partial class MarketplacePage : UserControl
     public MarketplacePage()
     {
         InitializeComponent();
+        TabChooser.Picked += (_, index) => ViewModel.TabIndex = index;
         Status.Attach(ViewModel.Load);
         Refresh.Attach(ViewModel.Load);
         CarrierPanel.Attach(ViewModel.Admin);
@@ -35,6 +37,14 @@ public sealed partial class MarketplacePage : UserControl
 
     /// <summary>What the page shows, and its actions.</summary>
     public MarketplaceViewModel ViewModel { get; } = new();
+
+    /// <summary>The three tabs, in the order of <see cref="MarketplaceViewModel.TabIndex"/>: the numbers held, the search, the carrier.</summary>
+    public static TabLabel[] TabsOf(string carrier) =>
+    [
+        new(S.NumbersYours, "NumbersYoursTab"),
+        new(S.NumbersFind, "NumbersFindTab"),
+        new(carrier, "NumbersCarrierTab"),
+    ];
 
     internal void Attach(PageContext context)
     {

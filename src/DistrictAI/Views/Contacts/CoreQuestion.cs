@@ -50,6 +50,7 @@ internal sealed class CoreQuestion
             // Nothing that removes or hides anything happens on Enter.
             DefaultButton = destructive ? ContentDialogButton.Close : ContentDialogButton.Primary,
         };
+        DialogButtons.WrapLabels(dialog);
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(dialog, title);
         _question = dialog;
         context.DialogOpen = true;
