@@ -37,6 +37,7 @@ public static class Program
         // own resources follow it.
         S.Current = Languages.French ? S.Locale.FrCa : S.Locale.En;
         Languages.ApplyToWindows();
+        TraceToFileForTheWalk();
         Application.Start(started =>
         {
             var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
@@ -47,6 +48,34 @@ public static class Program
             _ = new App(activation);
         });
         return 0;
+    }
+
+    /// <summary>The file a run started with a scripted scene keeps the trace in.</summary>
+    internal const string WalkTraceFile = "district-trace.log";
+
+    /// <summary>
+    /// A run started with a scripted scene (the UI walk's) keeps the app's
+    /// trace in <see cref="WalkTraceFile"/> in the package's temporary folder,
+    /// flushed as it is written, so what <see cref="UiFaults"/> reports is on
+    /// disk before a crash ends the app; the walk prints it when the app
+    /// crashed. Any other run writes no file. Never in the way of starting.
+    /// </summary>
+    private static void TraceToFileForTheWalk()
+    {
+        if (!Environment.GetCommandLineArgs().Any(arg => arg.StartsWith("--district-scripted-scene=", StringComparison.Ordinal)))
+        {
+            return;
+        }
+        try
+        {
+            var path = Path.Combine(Windows.Storage.ApplicationData.Current.TemporaryFolder.Path, WalkTraceFile);
+            Trace.Listeners.Add(new TextWriterTraceListener(path));
+            Trace.AutoFlush = true;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidOperationException or System.Runtime.InteropServices.COMException)
+        {
+            Debug.WriteLine($"District AI: the walk's trace file was not opened: {error.Message}");
+        }
     }
 
     /// <summary>
