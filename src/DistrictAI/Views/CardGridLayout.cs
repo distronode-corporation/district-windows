@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Foundation;
+using Windows.UI.ViewManagement;
 
 namespace DistrictAI.Views;
 
@@ -8,11 +9,15 @@ namespace DistrictAI.Views;
 /// Cards in equal columns, as many as fit at <see cref="MinItemWidth"/>, each
 /// row as tall as its tallest card. UniformGridLayout sizes every item to the
 /// first one, so at 200 percent text a two-line label under a one-line first
-/// card lost its second line; here every card is measured.
+/// card lost its second line; here every card is measured. The narrowest a
+/// card may be grows with the Windows text size, so at 200 percent there are
+/// fewer, wider columns and a long word ("Abandonnés") keeps its line.
 /// </summary>
 public sealed partial class CardGridLayout : NonVirtualizingLayout
 {
-    /// <summary>The narrowest a card is drawn: fewer columns before narrower cards.</summary>
+    private static readonly UISettings _text = new();
+
+    /// <summary>The narrowest a card is drawn at 100 percent text: fewer columns before narrower cards.</summary>
     public double MinItemWidth { get; set; } = 160;
 
     /// <summary>The room between two cards on a row.</summary>
@@ -73,7 +78,7 @@ public sealed partial class CardGridLayout : NonVirtualizingLayout
     private int Columns(double width, int count) =>
         double.IsInfinity(width)
             ? count
-            : Math.Clamp((int)Math.Floor((width + ColumnSpacing) / (MinItemWidth + ColumnSpacing)), 1, count);
+            : Math.Clamp((int)Math.Floor((width + ColumnSpacing) / ((MinItemWidth * _text.TextScaleFactor) + ColumnSpacing)), 1, count);
 
     private double ItemWidth(double width, int columns) =>
         double.IsInfinity(width) ? MinItemWidth : Math.Max(0, (width - ((columns - 1) * ColumnSpacing)) / columns);

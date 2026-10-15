@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Specialized;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
@@ -47,6 +48,16 @@ public sealed partial class TabStrip : UserControl
             HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
             VerticalScrollMode = ScrollMode.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        };
+        // A page that comes back to the screen (the booking pages' sections
+        // reuse theirs) showed the line under the tab first selected, not the
+        // one SelectedIndex names: the bar's list keeps the selection it had
+        // when the page left. Set again each time the strip is loaded, and
+        // once more after that layout pass.
+        Loaded += (_, _) =>
+        {
+            Select(force: true);
+            _ = DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => Select(force: true));
         };
     }
 
@@ -145,11 +156,13 @@ public sealed partial class TabStrip : UserControl
         Select();
     }
 
-    private void Select()
+    // With force, set even when the bar already names that tab: what it
+    // draws can disagree with what it names (the constructor's comment).
+    private void Select(bool force = false)
     {
         var index = SelectedIndex;
         var wanted = index >= 0 && index < _bar.Items.Count ? _bar.Items[index] : null;
-        if (ReferenceEquals(_bar.SelectedItem, wanted))
+        if (!force && ReferenceEquals(_bar.SelectedItem, wanted))
         {
             return;
         }
@@ -157,6 +170,14 @@ public sealed partial class TabStrip : UserControl
         _syncing = true;
         try
         {
+            if (force)
+            {
+                foreach (var item in _bar.Items)
+                {
+                    item.IsSelected = false;
+                }
+                _bar.SelectedItem = null;
+            }
             _bar.SelectedItem = wanted;
         }
         finally
