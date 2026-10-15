@@ -44,6 +44,7 @@ public sealed partial class MainWindow
             // Losing edits is never what Enter does.
             DefaultButton = ContentDialogButton.Close,
         };
+        Views.DialogButtons.WrapLabels(question);
         _discard = question;
         _context.DialogOpen = true;
         ContentDialogResult result;

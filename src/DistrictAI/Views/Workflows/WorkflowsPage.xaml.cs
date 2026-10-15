@@ -70,6 +70,7 @@ public sealed partial class WorkflowsPage : UserControl
             // Resuming spends credit and pausing stops calls: neither happens on Enter.
             DefaultButton = ContentDialogButton.Close,
         };
+        DialogButtons.WrapLabels(question);
         _question = question;
         _context.DialogOpen = true;
         ContentDialogResult result;

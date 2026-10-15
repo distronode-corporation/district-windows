@@ -17,6 +17,10 @@ public sealed partial class SchedulingSectionPage : UserControl
     {
         InitializeComponent();
         OverviewPanel.Attach(ViewModel.Overview);
+        SectionChooser.Describe = item => item is SchedulingSectionEntry section
+            ? new TabLabel(section.Title, section.TabAutomationId, section.Subtitle)
+            : new TabLabel(item.ToString() ?? string.Empty);
+        SectionChooser.Picked += (_, index) => ViewModel.OpenSection(index);
         // The dialogs never outlive the page: leaving it, or signing out,
         // takes them away. The core drops them when a section is entered again.
         Unloaded += (_, _) =>
@@ -63,7 +67,4 @@ public sealed partial class SchedulingSectionPage : UserControl
         DeveloperPanel.SyncDialogs();
         SettingsPanel.SyncDialogs();
     }
-
-    private void OnSectionChanged(object sender, SelectionChangedEventArgs e) =>
-        ViewModel.OpenSection(SectionChooser.SelectedIndex);
 }

@@ -22,6 +22,7 @@ public sealed partial class ComposeDialog : ContentDialog
     {
         Form = form;
         InitializeComponent();
+        DialogButtons.WrapLabels(this);
         ShowHeader();
         PrimaryButtonClick += OnSend;
         Closing += OnClosing;

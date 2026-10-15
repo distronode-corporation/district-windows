@@ -22,6 +22,7 @@ public sealed partial class ReportDialog : ContentDialog
     public ReportDialog()
     {
         InitializeComponent();
+        DialogButtons.WrapLabels(this);
         var words = DistrictFfi.ReportDialog();
         Title = words.Title;
         PrimaryButtonText = words.Send;

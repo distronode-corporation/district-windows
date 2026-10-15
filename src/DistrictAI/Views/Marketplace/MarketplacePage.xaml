@@ -80,11 +80,13 @@
                     Spacing="8"
                     Visibility="{x:Bind Manageable}">
                     <Button
+                        AutomationProperties.AutomationId="NumberConfigure"
                         AutomationProperties.Name="{x:Bind ConfigureLabel}"
                         Click="OnConfigureClick"
                         Content="{x:Bind ConfigureLabel}"
                         IsEnabled="{x:Bind CanConfigure}" />
                     <Button
+                        AutomationProperties.AutomationId="NumberRelease"
                         AutomationProperties.Name="{x:Bind ReleaseLabel}"
                         Click="OnReleaseClick"
                         Content="{x:Bind ReleaseLabel}"
@@ -128,15 +130,13 @@
             </StackPanel>
         </StackPanel>
 
-        <RadioButtons
+        <views:TabStrip
+            x:Name="TabChooser"
             Grid.Row="1"
+            AutomationProperties.AutomationId="NumbersTabs"
             AutomationProperties.Name="{x:Bind l10n:S.NumbersShow}"
-            MaxColumns="3"
-            SelectedIndex="{x:Bind ViewModel.TabIndex, Mode=TwoWay}">
-            <RadioButton Content="{x:Bind l10n:S.NumbersYours}" />
-            <RadioButton Content="{x:Bind l10n:S.NumbersFind}" />
-            <RadioButton AutomationProperties.AutomationId="NumbersCarrierTab" Content="{x:Bind ViewModel.Admin.CarrierTab, Mode=OneWay}" />
-        </RadioButtons>
+            ItemsSource="{x:Bind marketplace:MarketplacePage.TabsOf(ViewModel.Admin.CarrierTab), Mode=OneWay}"
+            SelectedIndex="{x:Bind ViewModel.TabIndex, Mode=OneWay}" />
 
         <!-- The numbers the workspace holds. -->
         <views:RefreshStrip

@@ -7,103 +7,104 @@
     xmlns:views="using:DistrictAI.Views">
     <Grid>
         <ScrollViewer Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
-            <StackPanel
-                MaxWidth="{StaticResource ReadingWidth}"
-                Padding="{StaticResource PagePadding}"
-                HorizontalAlignment="Left"
-                Spacing="12">
-                <StackPanel Spacing="2">
-                    <TextBlock
-                        AutomationProperties.HeadingLevel="Level1"
-                        Style="{StaticResource TitleTextBlockStyle}"
-                        Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
-                    <TextBlock
-                        Style="{StaticResource QuietTextStyle}"
-                        Text="{x:Bind ViewModel.Intro, Mode=OneWay}"
-                        TextWrapping="Wrap" />
-                </StackPanel>
+            <views:PageColumn>
+                <StackPanel
+                    MaxWidth="{StaticResource ReadingWidth}"
+                    Padding="{StaticResource PagePadding}"
+                    Spacing="12">
+                    <StackPanel Spacing="2">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level1"
+                            Style="{StaticResource TitleTextBlockStyle}"
+                            Text="{x:Bind ViewModel.Title, Mode=OneWay}" />
+                        <TextBlock
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.Intro, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
 
-                <StackPanel>
+                    <StackPanel>
+                        <ToggleSwitch
+                            AutomationProperties.FullDescription="{x:Bind ViewModel.EnabledNote, Mode=OneWay}"
+                            AutomationProperties.Name="{x:Bind ViewModel.EnabledLabel, Mode=OneWay}"
+                            Header="{x:Bind ViewModel.EnabledLabel, Mode=OneWay}"
+                            IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
+                            IsOn="{x:Bind ViewModel.Enabled, Mode=TwoWay}" />
+                        <TextBlock
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.EnabledNote, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
                     <ToggleSwitch
-                        AutomationProperties.FullDescription="{x:Bind ViewModel.EnabledNote, Mode=OneWay}"
-                        AutomationProperties.Name="{x:Bind ViewModel.EnabledLabel, Mode=OneWay}"
-                        Header="{x:Bind ViewModel.EnabledLabel, Mode=OneWay}"
+                        AutomationProperties.Name="{x:Bind ViewModel.NotifyLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.NotifyLabel, Mode=OneWay}"
                         IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
-                        IsOn="{x:Bind ViewModel.Enabled, Mode=TwoWay}" />
+                        IsOn="{x:Bind ViewModel.Notify, Mode=TwoWay}" />
+                    <TextBox
+                        AutomationProperties.Name="{x:Bind ViewModel.BrandLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.BrandLabel, Mode=OneWay}"
+                        IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
+                        MaxLength="80"
+                        Text="{x:Bind ViewModel.BrandName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <InfoBar
+                        AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsNotSaved}"
+                        CloseButtonCommand="{x:Bind ViewModel.DismissFailuresCommand}"
+                        IsClosable="True"
+                        IsOpen="{x:Bind ViewModel.HasSaveFailure, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.SaveFailure, Mode=OneWay}"
+                        Severity="Error" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsSave}"
+                            Command="{x:Bind ViewModel.SaveCommand}"
+                            Content="{x:Bind l10n:S.CommonSave}"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            AutomationProperties.Name="{x:Bind l10n:S.CommonSaving}"
+                            IsActive="{x:Bind ViewModel.Saving, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.Saving, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <!-- The logo customers see. A file is checked before it is sent. -->
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SectionHeaderStyle}"
+                        Text="{x:Bind l10n:S.DeskSettingsLogo}" />
                     <TextBlock
                         Style="{StaticResource QuietTextStyle}"
-                        Text="{x:Bind ViewModel.EnabledNote, Mode=OneWay}"
+                        Text="{x:Bind ViewModel.LogoHelp, Mode=OneWay}"
                         TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.LogoLine, Mode=OneWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsChooseLogo}"
+                            Click="OnChooseLogoClick"
+                            Content="{x:Bind l10n:S.DeskSettingsChooseImage}"
+                            IsEnabled="{x:Bind ViewModel.CanChooseLogo, Mode=OneWay}" />
+                        <Button
+                            AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsRemoveLogo}"
+                            Command="{x:Bind ViewModel.RemoveLogoCommand}"
+                            Content="{x:Bind l10n:S.CommonRemove}"
+                            Visibility="{x:Bind ViewModel.ShowRemoveLogo, Mode=OneWay}" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsChangingLogo}"
+                            IsActive="{x:Bind ViewModel.LogoBusy, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.LogoBusy, Mode=OneWay}" />
+                    </StackPanel>
+                    <InfoBar
+                        AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsAboutLogo}"
+                        CloseButtonCommand="{x:Bind ViewModel.DismissFailuresCommand}"
+                        IsClosable="True"
+                        IsOpen="{x:Bind ViewModel.HasLogoNote, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.LogoNote, Mode=OneWay}"
+                        Severity="Warning" />
                 </StackPanel>
-                <ToggleSwitch
-                    AutomationProperties.Name="{x:Bind ViewModel.NotifyLabel, Mode=OneWay}"
-                    Header="{x:Bind ViewModel.NotifyLabel, Mode=OneWay}"
-                    IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
-                    IsOn="{x:Bind ViewModel.Notify, Mode=TwoWay}" />
-                <TextBox
-                    AutomationProperties.Name="{x:Bind ViewModel.BrandLabel, Mode=OneWay}"
-                    Header="{x:Bind ViewModel.BrandLabel, Mode=OneWay}"
-                    IsEnabled="{x:Bind ViewModel.CanEdit, Mode=OneWay}"
-                    MaxLength="80"
-                    Text="{x:Bind ViewModel.BrandName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
-                <InfoBar
-                    AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsNotSaved}"
-                    CloseButtonCommand="{x:Bind ViewModel.DismissFailuresCommand}"
-                    IsClosable="True"
-                    IsOpen="{x:Bind ViewModel.HasSaveFailure, Mode=OneWay}"
-                    Message="{x:Bind ViewModel.SaveFailure, Mode=OneWay}"
-                    Severity="Error" />
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <Button
-                        AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsSave}"
-                        Command="{x:Bind ViewModel.SaveCommand}"
-                        Content="{x:Bind l10n:S.CommonSave}"
-                        Style="{StaticResource AccentButtonStyle}" />
-                    <ProgressRing
-                        Width="20"
-                        Height="20"
-                        AutomationProperties.Name="{x:Bind l10n:S.CommonSaving}"
-                        IsActive="{x:Bind ViewModel.Saving, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.Saving, Mode=OneWay}" />
-                </StackPanel>
-
-                <!-- The logo customers see. A file is checked before it is sent. -->
-                <TextBlock
-                    AutomationProperties.HeadingLevel="Level2"
-                    Style="{StaticResource SectionHeaderStyle}"
-                    Text="{x:Bind l10n:S.DeskSettingsLogo}" />
-                <TextBlock
-                    Style="{StaticResource QuietTextStyle}"
-                    Text="{x:Bind ViewModel.LogoHelp, Mode=OneWay}"
-                    TextWrapping="Wrap" />
-                <TextBlock Text="{x:Bind ViewModel.LogoLine, Mode=OneWay}" />
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <Button
-                        AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsChooseLogo}"
-                        Click="OnChooseLogoClick"
-                        Content="{x:Bind l10n:S.DeskSettingsChooseImage}"
-                        IsEnabled="{x:Bind ViewModel.CanChooseLogo, Mode=OneWay}" />
-                    <Button
-                        AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsRemoveLogo}"
-                        Command="{x:Bind ViewModel.RemoveLogoCommand}"
-                        Content="{x:Bind l10n:S.CommonRemove}"
-                        Visibility="{x:Bind ViewModel.ShowRemoveLogo, Mode=OneWay}" />
-                    <ProgressRing
-                        Width="20"
-                        Height="20"
-                        AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsChangingLogo}"
-                        IsActive="{x:Bind ViewModel.LogoBusy, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.LogoBusy, Mode=OneWay}" />
-                </StackPanel>
-                <InfoBar
-                    AutomationProperties.Name="{x:Bind l10n:S.DeskSettingsAboutLogo}"
-                    CloseButtonCommand="{x:Bind ViewModel.DismissFailuresCommand}"
-                    IsClosable="True"
-                    IsOpen="{x:Bind ViewModel.HasLogoNote, Mode=OneWay}"
-                    Message="{x:Bind ViewModel.LogoNote, Mode=OneWay}"
-                    Severity="Warning" />
-            </StackPanel>
+            </views:PageColumn>
         </ScrollViewer>
         <views:StatusPanel x:Name="Status" />
     </Grid>

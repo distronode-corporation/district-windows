@@ -22,6 +22,7 @@ public sealed partial class ContactFormDialog : ContentDialog
     {
         Form = form;
         InitializeComponent();
+        DialogButtons.WrapLabels(this);
         ShowHeader();
         PrimaryButtonClick += OnSubmit;
         Closing += OnClosing;

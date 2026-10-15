@@ -21,6 +21,7 @@ public sealed partial class PersonaPage : UserControl
     public PersonaPage()
     {
         InitializeComponent();
+        DialogButtons.WrapLabels(Audition);
         ViewModel.PropertyChanged += OnViewModelChanged;
     }
 

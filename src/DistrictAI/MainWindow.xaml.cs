@@ -6,10 +6,12 @@ using DistrictAI.Platform;
 using DistrictAI.ViewModels;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Input;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Windows.UI.ViewManagement;
 
 namespace DistrictAI;
 
@@ -25,6 +27,7 @@ public sealed partial class MainWindow : Window
     private readonly ObservableCollection<WorkspaceItem> _workspaces = [];
     private CoreSnapshot? _shown;
     private bool _rendering;
+    private readonly UISettings _textSettings = new();
 
     /// <summary>The window over <paramref name="core"/>.</summary>
     internal MainWindow(CoreHost core)
@@ -39,6 +42,16 @@ public sealed partial class MainWindow : Window
         {
             SystemBackdrop = new MicaBackdrop();
         }
+        // The system title bar in the app's mode: left at its default, it
+        // stayed light over the app in dark mode.
+        if (AppWindowTitleBar.IsCustomizationSupported())
+        {
+            AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
+        }
+        // The pane as wide as its entries need at the text size chosen in
+        // Settings > Accessibility: at 200 percent the French entries were cut.
+        FitPaneToText();
+        _textSettings.TextScaleFactorChanged += (_, _) => DispatcherQueue.TryEnqueue(FitPaneToText);
         _context = new PageContext(core, new LauncherBrowser(DispatcherQueue));
         WorkspacePicker.ItemsSource = _workspaces;
         // The mouse's back button, wherever the pointer is, even over a
@@ -59,6 +72,10 @@ public sealed partial class MainWindow : Window
         Title = copies.WindowTitle;
         SignIn.ShowCopies(copies);
     }
+
+    // NavigationView's 320 at 100 percent text, growing with the text to 480 at 200 percent.
+    private void FitPaneToText() =>
+        Nav.OpenPaneLength = Math.Clamp(320 + (160 * (_textSettings.TextScaleFactor - 1)), 320, 480);
 
     private void Render(CoreSnapshot snapshot)
     {
