@@ -9,8 +9,6 @@
         "notice": null,
         "offers_check": false,
         "offers_enable": false,
-        "offers_web": true,
-        "opening": false,
         "problem": null,
         "refreshing": false,
         "sections": [
@@ -66,8 +64,7 @@
         "sections_heading": "Manage",
         "state": "Live",
         "status": "Ready",
-        "title": "Booking pages",
-        "web_enabled": true
+        "title": "Booking pages"
       }
     }
   },

@@ -9,16 +9,13 @@
         "notice": null,
         "offers_check": true,
         "offers_enable": false,
-        "offers_web": false,
-        "opening": false,
         "problem": "cloudflare refused the dns record (HTTP 403)",
         "refreshing": false,
         "sections": [],
         "sections_heading": "Manage",
         "state": "SetupFailed",
         "status": "Ready",
-        "title": "Booking pages",
-        "web_enabled": true
+        "title": "Booking pages"
       }
     }
   },

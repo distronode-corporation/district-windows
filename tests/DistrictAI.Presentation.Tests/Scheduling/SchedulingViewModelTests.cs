@@ -15,9 +15,6 @@ public sealed class SchedulingViewModelTests
         bool offersEnable = false,
         bool enabling = false,
         bool offersCheck = false,
-        bool offersWeb = true,
-        bool webEnabled = true,
-        bool opening = false,
         SchedulingSectionEntryView[]? sections = null) =>
         new(
             Title: "Booking pages",
@@ -32,9 +29,6 @@ public sealed class SchedulingViewModelTests
             OffersEnable: offersEnable,
             Enabling: enabling,
             OffersCheck: offersCheck,
-            OffersWeb: offersWeb,
-            WebEnabled: webEnabled,
-            Opening: opening,
             SectionsHeading: "Manage",
             Sections: sections ?? []);
 
@@ -47,7 +41,7 @@ public sealed class SchedulingViewModelTests
     }
 
     [Fact]
-    public void LiveBookingPagesAreManagedOnTheWeb()
+    public void LiveBookingPagesListTheirSections()
     {
         var (model, sink) = Attached();
         model.Show(View());
@@ -55,34 +49,20 @@ public sealed class SchedulingViewModelTests
         Assert.Equal("Your booking page is live.", model.Message);
         Assert.True(model.HasBookingUrl);
         Assert.False(model.HasLastLive);
-        Assert.True(model.OffersWeb);
         Assert.False(model.OffersEnable);
         Assert.False(model.Busy);
-        Assert.True(model.ManageOnWebCommand.CanExecute(null));
-        model.ManageOnWebCommand.Execute(null);
-        Assert.Equal([new UiEvent.Scheduling(SchedulingAction.ManageOnWeb)], sink.Sent);
-    }
-
-    [Fact]
-    public void WhileTheLinkIsAskedForTheButtonWaits()
-    {
-        var (model, _) = Attached();
-        model.Show(View(webEnabled: true, opening: true));
-        Assert.True(model.Busy);
-        Assert.True(model.ManageOnWebCommand.CanExecute(null));
-        model.Show(View(webEnabled: false, opening: true));
-        Assert.False(model.ManageOnWebCommand.CanExecute(null));
+        Assert.Empty(sink.Sent);
     }
 
     [Fact]
     public void TurningThemOnIsOnePressAtATime()
     {
         var (model, sink) = Attached();
-        model.Show(View(SchedulingState.NotSetUp, bookingUrl: null, offersEnable: true, offersWeb: false));
+        model.Show(View(SchedulingState.NotSetUp, bookingUrl: null, offersEnable: true));
         Assert.True(model.OffersEnable);
         Assert.True(model.EnableCommand.CanExecute(null));
         model.EnableCommand.Execute(null);
-        model.Show(View(SchedulingState.NotSetUp, bookingUrl: null, offersEnable: true, enabling: true, offersWeb: false));
+        model.Show(View(SchedulingState.NotSetUp, bookingUrl: null, offersEnable: true, enabling: true));
         Assert.False(model.EnableCommand.CanExecute(null));
         Assert.True(model.Busy);
         Assert.False(model.HasBookingUrl);
@@ -97,8 +77,7 @@ public sealed class SchedulingViewModelTests
             SchedulingState.SetupFailed,
             problem: "cloudflare refused the dns record (HTTP 403)",
             notice: new FailureView("Too many tries.", null, true),
-            offersCheck: true,
-            offersWeb: false));
+            offersCheck: true));
         Assert.True(model.HasProblem);
         Assert.True(model.HasNotice);
         Assert.Equal("Too many tries.", model.Notice);
@@ -117,7 +96,7 @@ public sealed class SchedulingViewModelTests
     public void AFailedReadIsAStatusPage()
     {
         var (model, _) = Attached();
-        model.Show(View(null, new LoadStatus.Failed(new FailureView("Offline.", null, true), "Could not load booking pages"), offersWeb: false));
+        model.Show(View(null, new LoadStatus.Failed(new FailureView("Offline.", null, true), "Could not load booking pages")));
         Assert.True(model.Load.Failed);
         Assert.True(model.Load.CanRetry);
         Assert.Equal(string.Empty, model.StateGlyph);

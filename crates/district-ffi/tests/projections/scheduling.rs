@@ -49,16 +49,6 @@ pub(crate) fn cases() -> Vec<Case> {
             "scheduling-enable-refused",
             enabled(enabling(signed_in()), Err(forbidden())),
         ),
-        ("scheduling-awaiting-browser", awaiting_browser(signed_in())),
-        ("scheduling-minting", minting(signed_in())),
-        (
-            "scheduling-hand-off-refused",
-            handed_off(minting(signed_in()), Err(forbidden())),
-        ),
-        (
-            "scheduling-hand-off-opened",
-            handed_off(minting(signed_in()), Ok(on_the_web())),
-        ),
     ]
 }
 
@@ -114,34 +104,6 @@ fn enabled(session: Session, result: Result<Value, ApiError>) -> Session {
     )
 }
 
-/// "Manage on the web" pressed: the start page is open in the browser, whose
-/// answer is awaited.
-fn awaiting_browser(session: Session) -> Session {
-    live(session).ui(action(SchedulingAction::ManageOnWeb))
-}
-
-/// The browser did not answer in time: the link is being asked for.
-fn minting(session: Session) -> Session {
-    awaiting_browser(session).answer(
-        |e| matches!(e, Effect::Wait { .. }),
-        |ticket| Event::WaitOver { ticket },
-    )
-}
-
-fn on_the_web() -> Value {
-    json!({"url": "https://www.distronode.com/api/district/handoff?code=one-time", "expiresIn": 60})
-}
-
-fn handed_off(session: Session, result: Result<Value, ApiError>) -> Session {
-    session.answer(
-        |e| matches!(e, Effect::RequestSchedulingHandOff { .. }),
-        |ticket| Event::SchedulingHandOffReady {
-            ticket,
-            result: result.map(|value| contracts::decode("scheduling hand-off", value)),
-        },
-    )
-}
-
 fn view(session: &Session) -> SchedulingView {
     let ScreenView::Scheduling { view } = screen_view(&session.model) else {
         panic!("not the booking pages");
@@ -157,40 +119,7 @@ fn built_it_is_offered_and_shows() {
     assert!(offered(&session).contains(&NavDestination::Scheduling));
     let view = view(&session);
     assert_eq!(view.state, Some(SchedulingState::Live));
-    assert!(view.offers_web && view.web_enabled);
     assert!(!view.offers_enable && !view.offers_check);
-}
-
-/// "Manage on the web" opens the start page in the browser and waits for its
-/// answer; the link the core then asks for is opened at once, and none of it
-/// reaches the screen.
-#[test]
-fn the_hand_off_opens_in_the_browser_and_shows_no_link() {
-    let waiting = awaiting_browser(signed_in());
-    assert!(
-        waiting
-            .pending
-            .iter()
-            .any(|e| matches!(e, Effect::OpenOneTimeUrl { .. }))
-    );
-    let shown = view(&waiting);
-    assert!(shown.opening && shown.web_enabled);
-
-    let asking = minting(signed_in());
-    let shown = view(&asking);
-    assert!(shown.opening && !shown.web_enabled);
-
-    let opened = handed_off(minting(signed_in()), Ok(on_the_web()));
-    let opens = opened
-        .pending
-        .iter()
-        .filter(|e| matches!(e, Effect::OpenOneTimeUrl { .. }))
-        .count();
-    assert_eq!(opens, 2, "the start page, then the link");
-    let shown = view(&opened);
-    assert!(!shown.opening && shown.notice.is_none());
-    let json = serde_json::to_string(&screen_view(&opened.model)).unwrap();
-    assert!(!json.contains("one-time"), "{json}");
 }
 
 /// Turning them on is offered only where the service says this member may.
@@ -222,10 +151,6 @@ fn enable_is_the_services_to_offer() {
 fn each_action_is_its_core_event() {
     for (sent, event) in [
         (SchedulingAction::Open, Event::Navigate(Route::Scheduling)),
-        (
-            SchedulingAction::ManageOnWeb,
-            Event::Scheduling(SchedulingEvent::ManageOnWeb),
-        ),
         (
             SchedulingAction::Enable,
             Event::Scheduling(SchedulingEvent::Enable),

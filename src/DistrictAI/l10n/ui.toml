@@ -2004,12 +2004,6 @@ screen = "scheduling"
 tier = "T3"
 note = "When the booking pages were last live."
 
-[scheduling.manage_on_web]
-en = "Manage on the web"
-ctx = "button"
-screen = "scheduling"
-tier = "T3"
-
 [scheduling.problem]
 en = "Booking pages problem"
 ctx = "a11y"
@@ -2062,12 +2056,6 @@ note = "Page title."
 [scheduling.turn_on]
 en = "Turn on booking pages"
 ctx = "button"
-screen = "scheduling"
-tier = "T3"
-
-[scheduling.web_note]
-en = "Opens the booking pages on the District AI website in your browser, signed in as you."
-ctx = "body"
 screen = "scheduling"
 tier = "T3"
 

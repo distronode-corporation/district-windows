@@ -197,6 +197,31 @@ internal static class Walk
     }
 
     /// <summary>
+    /// Chooses the entry whose AutomationId is <paramref name="navId"/> until
+    /// an element whose AutomationId is <paramref name="landedId"/> shows,
+    /// for a page whose heading is not the entry's name (the Inbox's entry
+    /// is named with its unread count). A choice can be lost as the scene
+    /// fills the pane, as <see cref="OpenUntil"/> says (in run 38651308643
+    /// the Inbox was chosen and never opened), so it is made again.
+    /// </summary>
+    public static void OpenUntilFoundById(InstalledApp app, string navId, string landedId)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            _ = OpenById(app, navId);
+            try
+            {
+                _ = app.FindById(landedId, TimeSpan.FromSeconds(10));
+                return;
+            }
+            catch (TimeoutException) when (attempt < 3)
+            {
+                InstalledApp.Log(FormattableString.Invariant($"\"{navId}\" did not open (attempt {attempt}): choosing it again"));
+            }
+        }
+    }
+
+    /// <summary>
     /// Chooses the entry named <paramref name="entry"/> until its page shows
     /// <paramref name="heading"/>. A choice made in the first moments after
     /// launch, while the scene is still filling the navigation pane, can be

@@ -9,8 +9,6 @@
         "notice": null,
         "offers_check": false,
         "offers_enable": false,
-        "offers_web": false,
-        "opening": false,
         "problem": null,
         "refreshing": false,
         "sections": [],
@@ -26,8 +24,7 @@
             "title": "Could not load booking pages"
           }
         },
-        "title": "Booking pages",
-        "web_enabled": true
+        "title": "Booking pages"
       }
     }
   },

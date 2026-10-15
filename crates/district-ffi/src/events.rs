@@ -587,7 +587,7 @@ mod tests {
                 action: crate::workflows::WorkflowsAction::DismissToggleFailure,
             },
             UiEvent::Scheduling {
-                action: crate::scheduling::SchedulingAction::ManageOnWeb,
+                action: crate::scheduling::SchedulingAction::Enable,
             },
             UiEvent::SchedulingAdmin {
                 action: crate::scheduling_admin::SchedulingAdminAction::Open {

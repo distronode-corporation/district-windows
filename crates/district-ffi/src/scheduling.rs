@@ -1,18 +1,10 @@
 //! Booking pages: where the workspace's booking pages stand, turning them on
-//! where the service says the member may, the sections of their
-//! administration once they are live (each native, in
-//! [`crate::scheduling_admin`], listed as each is built), and, for what is not
-//! built natively yet, managing them on the web, as District AI for Linux's
-//! booking pages page shows them (`pages/scheduling.rs`,
-//! `ui/scheduling-page.ui`).
-//!
-//! Managing them on the web goes through the core's hand-off: the press opens the
-//! service's start page in the browser, the browser answers through
-//! `districtai://handoff`, and the core asks for a one-time link bound to that
-//! browser and opens it there, signed in. The link never reaches this crate's
-//! views: they say only that it is being asked for. Whether "Turn on" is
-//! offered is the service's answer (`can_manage`), never a role worked out
-//! here.
+//! where the service says the member may, and the sections of their
+//! administration once they are live, each native, in
+//! [`crate::scheduling_admin`], as District AI for Linux's booking pages page
+//! shows them (`pages/scheduling.rs`, `ui/scheduling-page.ui`). Whether "Turn
+//! on" is offered is the service's answer (`can_manage`), never a role worked
+//! out here.
 
 use district_core::{
     Event, Model, Route, SchedulingEvent, SchedulingPresentation, SchedulingScreen,
@@ -89,13 +81,6 @@ pub struct SchedulingView {
     /// Whether "Check again" is offered: only where reading again could
     /// change the answer.
     pub offers_check: bool,
-    /// Whether "Manage on the web" is offered.
-    pub offers_web: bool,
-    /// Whether "Manage on the web" can be pressed: not while the link is
-    /// being asked for. While the browser is awaited a press starts over.
-    pub web_enabled: bool,
-    /// Whether the hand-off to the web is under way (show progress).
-    pub opening: bool,
     /// The heading over the sections, "Manage".
     pub sections_heading: String,
     /// The administration's sections built in this version, each a row that
@@ -119,9 +104,6 @@ impl Default for SchedulingView {
             offers_enable: false,
             enabling: false,
             offers_check: false,
-            offers_web: false,
-            web_enabled: false,
-            opening: false,
             sections_heading: district_l10n::scheduling_strings::sections_eyebrow(l()).to_owned(),
             sections: Vec::new(),
         }
@@ -133,8 +115,6 @@ impl Default for SchedulingView {
 pub enum SchedulingAction {
     /// Open the booking pages.
     Open,
-    /// Manage the booking pages on the web dashboard, signed in.
-    ManageOnWeb,
     /// Turn booking pages on.
     Enable,
     /// Read where they stand again ("Check again", "Try again").
@@ -147,7 +127,6 @@ pub enum SchedulingAction {
 pub(crate) fn events(action: SchedulingAction) -> Vec<Event> {
     vec![match action {
         SchedulingAction::Open => Event::Navigate(Route::Scheduling),
-        SchedulingAction::ManageOnWeb => Event::Scheduling(SchedulingEvent::ManageOnWeb),
         SchedulingAction::Enable => Event::Scheduling(SchedulingEvent::Enable),
         SchedulingAction::CheckAgain => Event::Refresh,
         SchedulingAction::DismissNotice => Event::Scheduling(SchedulingEvent::DismissNotice),
@@ -165,8 +144,6 @@ fn scheduling_view(screen: &SchedulingScreen) -> SchedulingView {
     let mut view = SchedulingView {
         notice: failure(screen.notice.as_ref()),
         enabling: screen.enabling,
-        opening: screen.opening(),
-        web_enabled: !screen.minting(),
         ..SchedulingView::default()
     };
     match &screen.status {
@@ -191,7 +168,6 @@ fn scheduling_view(screen: &SchedulingScreen) -> SchedulingView {
             view.refreshing = *refreshing;
             view.offers_enable = shown.offers_enable(status);
             view.offers_check = shown.offers_refresh();
-            view.offers_web = shown.offers_web();
             if matches!(shown, SchedulingPresentation::Live(_)) {
                 view.sections = entries(None);
             }
