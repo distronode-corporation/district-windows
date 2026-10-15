@@ -196,9 +196,9 @@ jobs:
       VERSION: ${{ needs.guard.outputs.version }}
       # French (fr-CA): every package built here passes it as
       # -p:DistrictFrench, and "Each package declares French exactly when it
-      # should" holds the packages to it. "true" only at the 3.0 cut, once
-      # every catalog has reviewed French.
-      DISTRICT_FRENCH: "false"
+      # should" holds the packages to it. On from 3.0: every catalog has
+      # reviewed French.
+      DISTRICT_FRENCH: "true"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
