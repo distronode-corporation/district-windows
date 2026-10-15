@@ -24,8 +24,8 @@ env:
   DOTNET_NOLOGO: "1"
   # Which UI tests the capture runs (a dotnet test filter). The whole walk is
   # "FullyQualifiedName~DistrictAI.UiTests.SceneWalkTests|FullyQualifiedName~DistrictAI.UiTests.QaShotTests"
-  # (run 38771283592); this pass takes the sign-in page only.
-  QA_FILTER: "FullyQualifiedName~DistrictAI.UiTests.QaShotTests"
+  # (run 38771283592); the 3.0.1 after pass takes the whole walk and the sign-in page.
+  QA_FILTER: "FullyQualifiedName~DistrictAI.UiTests.SceneWalkTests|FullyQualifiedName~DistrictAI.UiTests.QaShotTests"
 
 jobs:
   capture:
