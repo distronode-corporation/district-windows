@@ -42,7 +42,7 @@ param(
     [string] $Screenshots = '',
     [string] $DumpArtifacts = '',
     # QA only (visual-qa/* branches): a dotnet test filter in place of the default.
-    [string] $Filter = ''
+    [string] $TestFilter = ''
 )
 
 Set-StrictMode -Version Latest
@@ -119,7 +119,7 @@ try {
         Add-Type -AssemblyName System.Windows.Forms
         Write-Host "display: $([System.Windows.Forms.Screen]::PrimaryScreen.Bounds)"
     }
-    if ($Filter) { $filter = $Filter }
+    if ($TestFilter) { $filter = $TestFilter }
     Write-Host "test filter: $filter"
     $clock = [Diagnostics.Stopwatch]::StartNew()
     dotnet test $project --nologo --logger 'console;verbosity=detailed' --filter $filter

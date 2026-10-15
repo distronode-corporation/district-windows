@@ -388,6 +388,9 @@ internal static class Walk
     public static void Save(nint handle, string path, bool clientOnly)
     {
         _ = Native.SetForegroundWindow(handle);
+        // QA only: the pointer parked where nothing hovers, so no row shows a hover state.
+        FlaUI.Core.Input.Mouse.Position = new Point(330, 1075);
+        Thread.Sleep(150);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         _ = Native.GetWindowRect(handle, out var outer);
         Native.Rect area;
