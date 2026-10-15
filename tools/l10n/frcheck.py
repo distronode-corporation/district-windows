@@ -56,6 +56,7 @@ DEFAULT_TM = MONOREPO_ROOT / "i18n" / "fr-CA" / "tm.jsonl"
 RULES: dict[str, tuple[str, str]] = {
     "PARSE": ("error", "the file does not parse (TOML or JSON Lines)"),
     "PH-PARITY": ("error", "placeholder names differ between en and fr, a placeholder is not in args, or a brace is unbalanced"),
+    "OS-WORD-APPLE-VARIANT": ("error", "batch unit also on Apple: fr has a non-Apple OS word (Paramètres for Settings) and needs fr_apple; or fr_apple on a unit with no Apple catalog"),
     "PLURAL-ONE-COUNT": ("error", "fr.one (which covers 0 and 1) and fr.many must contain the selecting int placeholder"),
     "PLURAL-CATS": ("error", "plural shape differs: en one/other needs fr one/other (many optional), and exactly one int arg"),
     "TYPO-NBSP": ("error", "U+00A0 before a punctuation : (one followed by a space or the end), % and $ signs, », and after «; U+202F/U+2009 become U+00A0 (fix repairs)"),
@@ -72,7 +73,7 @@ RULES: dict[str, tuple[str, str]] = {
     "NEVER": ("error", "a never-translate name in en is missing or altered in fr"),
     "TERM-STRICT": ("error", "a strict glossary term in en is not rendered with its fr term"),
     "BAN": ("error", "banned phrase (données personnelles, enregistrement, e-mail, chat, AI, cookies, termbase bans); 'enregistrement' only after a negation (aucun enregistrement)"),
-    "OS-WORD": ("error", "apple catalogs say Réglages, others Paramètres; termbase os rows for the platform"),
+    "OS-WORD": ("error", "apple catalogs say Réglages, others Paramètres; termbase os rows for the platform (a command word as the whole string only on a button, menu, link, tooltip or a11y)"),
     "UNTRANSLATED": ("error", "fr equals en without same_ok"),
     "LEN": ("warn", "fr longer than max (default ceil(len(en)*1.3), at least len(en)+4)"),
     "TM-DRIFT": ("error", "fr differs from the memory for the same en and ctx without fr_variant; warn against ctx '*' or a draft row"),
@@ -795,6 +796,14 @@ def _json_cells(raw: str) -> Cells:
     return cells
 
 
+def row_label(row: dict, n: int) -> str:
+    """How a JSONL row is named in output: its key, else its unit id, else its line."""
+    return str(row.get("key") or row.get("id") or f"line {n}")
+
+
+FR_FIELDS = ("fr", "fr_apple")  # a batch line's French, and its Apple variant (README W3)
+
+
 def fix_jsonl_line(line: str) -> tuple[str, list[str]]:
     """Fix the `fr` field (string, or plural object of strings) of one JSONL object line."""
     if not line.strip():
@@ -805,14 +814,14 @@ def fix_jsonl_line(line: str) -> tuple[str, list[str]]:
     start = len(line) - len(line.lstrip())
     spans: list[tuple[int, int, tuple[str, ...]]] = []
     for key, vs, ve in _json_members(line, start):
-        if key != "fr":
+        if key not in FR_FIELDS:
             continue
         if line[vs] == '"':
-            spans.append((vs, ve, ("fr",)))
+            spans.append((vs, ve, (key,)))
         elif line[vs] == "{":
             for sub, s2, e2 in _json_members(line, vs):
                 if sub in PLURAL_CATS and line[s2] == '"':
-                    spans.append((s2, e2, ("fr", sub)))
+                    spans.append((s2, e2, (key, sub)))
     pieces, last, changed = [], 0, []
     expected = json.loads(line)
     for vs, ve, path in sorted(spans):
@@ -843,8 +852,10 @@ def _values_for_report(path: Path, text: str) -> list[tuple[str, str]]:
         for n, line in enumerate(text.splitlines(), 1):
             if line.strip():
                 obj = json.loads(line)
-                for form, value in forms(obj.get("fr")):
-                    out.append((str(obj.get("key", f"line {n}")) + form, value))
+                for field_ in FR_FIELDS:
+                    suffix = "" if field_ == "fr" else "@apple"
+                    for form, value in forms(obj.get(field_)):
+                        out.append((row_label(obj, n) + suffix + form, value))
     return out
 
 
@@ -865,7 +876,7 @@ def cmd_fix(files: list[str]) -> int:
                     fixed, ch = fix_jsonl_line(body)
                     out.append(fixed + line[len(body):])
                     if ch:
-                        keys.append(str(json.loads(body).get("key", f"line {n}")))
+                        keys.append(row_label(json.loads(body), n))
                 new = "".join(out)
             else:
                 print(f"{name}: not a .toml or .jsonl file", file=sys.stderr)
@@ -1212,12 +1223,103 @@ STORE_PATTERNS = [
     (re.compile(r"\bnavigateurs?\b", re.I), "navigateur"),
     (re.compile(r"\btableaux?\s+de\s+bord\b", re.I), "tableau de bord"),
     (re.compile(r"distronode\.(?:com|ca)\b", re.I), "distronode.com/.ca"),
-    (re.compile(r"\binscri\w*", re.I), "sign-up wording (inscription)"),
-    (re.compile(r"\bcré(?:er|ez)\s+(?:un|votre)\s+compte\b", re.I), "sign-up wording (créer un compte)"),
+    # Account sign-up and trials only. The noun « inscription » is also the glossary's word for a
+    # number registration (A2P/10DLC, toll-free), a compliance noun, so it counts only when
+    # followed within three words by au service, gratuite, compte or à District. The participle
+    # « inscrit » (a registered number) is not sign-up either, nor is « inscri… » followed within
+    # three words by « liste » (« Inscrire à la liste d'exclusion » registers a do-not-call entry).
+    (re.compile(r"\binscri(?:re|s|vez|vons|vent)\b(?!(?:\s+\S+){0,2}?\s+listes?\b)", re.I),
+     "sign-up wording (s'inscrire)"),
+    (re.compile(r"\binscriptions?(?:\s+\S+){0,2}?\s+(?:au\s+service|gratuites?|compte|à\s+District)\b", re.I),
+     "sign-up wording (inscription au service)"),
+    (re.compile(r"\bcré(?:er|ez)\s+(?:un|votre)\s+compte\b|\bcréation\s+(?:de|du|d'un)\s+compte\b", re.I),
+     "sign-up wording (créer un compte)"),
     (re.compile(r"\bouvr\w*\s+un\s+compte\b", re.I), "sign-up wording (ouvrir un compte)"),
-    (re.compile(r"\b(?:essais?\s+gratuits?|périodes?\s+d'essai|versions?\s+d'essai|essayez\s+gratuitement)\b", re.I), "trial wording"),
+    (re.compile(r"\babonnez-vous\b", re.I), "sign-up wording (abonnez-vous)"),
+    # Trial offers only: a bare « essai » is a test call (« appel d'essai ») or a retry (« Nouvel essai »).
+    (re.compile(r"\bessais?\s+gratuits?\b|\bpériodes?\s+d['\u2019]essai\b|\bversions?\s+d['\u2019]essai\b"
+                r"|\bessais?\s+de\s+\d+\s+(?:jours?|mois)\b|\bessayez\s+gratuitement\b|\bà\s+l['\u2019]essai\b", re.I),
+     "trial wording (essai gratuit)"),
 ]
-RE_OFFER_FR = re.compile(r"\b(?:gratuit\w*|offert\w*|rabais|réduction\w*|promo\w*)\b|\d\s?%", re.I)
+RE_OFFER_FR = re.compile(r"\b(?:gratuit\w*|offert\w*|offr(?:e|es|ons|ez|ent)|rabais|réduction\w*|promo\w*)\b|\d\s?%", re.I)
+# « pas » and « jamais » negate on their own; « plus » only after « ne » or « n' », since
+# « un mois de plus offert » is an offer
+RE_PAS_BEFORE = re.compile(r"(?:\b(?:pas|jamais)|\bn(?:e\s+|['\u2019])(?:\S+\s+){0,2}plus)(?:\s+\S+){0,2}\s*$", re.I)
+
+
+def offer_in(value: str) -> str | None:
+    """The first offer word in fr. « offert(e)(s) » three words after « pas », « jamais » or
+    « ne ... plus » means "not (or no longer) available" (« n'est pas encore offerte »,
+    « n'est plus offerte »), not an offer."""
+    for m in RE_OFFER_FR.finditer(value):
+        if m.group(0).lower().startswith("offert") and RE_PAS_BEFORE.search(value[:m.start()]):
+            continue
+        return m.group(0)
+    return None
+
+
+# An OS term names the OS element only as the whole string ("Done", "Settings..."), in quotes,
+# or after a verb or preposition that names a UI element ("Tap Done", "in Settings"); a word
+# like "No" inside "No caller ID" is prose.
+OS_UI_LEAD = r"(?i:\b(?:tap|click|press|select|choose|open|in|under|from|to|then|hit|use)\s+(?:the\s+)?)"
+OS_QUOTES_OPEN = "[\"'\u201c\u2018\u00ab]"
+OS_QUOTES_CLOSE = "[\"'\u201d\u2019\u00bb]"
+# Most OS rows name a command (Open, Done, Clear, Back). As the whole string, the English is
+# that command only on a control: a status label "open" (an invoice) is \u00ab Ouverte \u00bb, a toast
+# "Done" is \u00ab C'est fait \u00bb. So a whole-string match applies in these ctx only, unless the row
+# names a place or thing of the OS, which reads the same on a title or a label. A termbase os row
+# may list its own `ctx` to replace both defaults. A quoted or led mention ('Tap "Done"',
+# "in Settings") names the control in any ctx.
+OS_COMMAND_CTX = frozenset({"button", "menu", "link", "tooltip", "a11y"})
+OS_NOUN_TERMS = frozenset({"about", "camera", "help", "microphone", "notifications", "preferences",
+                           "settings", "system settings"})
+RE_OS_QUALIFIER = re.compile(r"\s*\(([^)]*)\)$")
+
+
+def os_term_parts(term: str) -> tuple[str, str | None]:
+    """("Edit (menu)") -> ("Edit", "menu"); ("Open") -> ("Open", None)."""
+    m = RE_OS_QUALIFIER.search(term)
+    return (term[:m.start()].strip(), m.group(1).strip().lower()) if m else (term.strip(), None)
+
+
+def os_term_applies(term: str, en_text: str, ctx: str | None = None,
+                    siblings: frozenset[str] = frozenset(), ctxs: list[str] | None = None) -> bool:
+    """Whether the English names this OS element, so its French must hold the row's French.
+
+    `ctx` is the entry's ctx (None: any). A qualified row ("Edit (menu)") claims a whole string
+    in that ctx and a mention followed by the qualifier ("the Edit menu"); `siblings` are the
+    qualifiers of other rows for the same term on the platform, which the plain row leaves to
+    them. `ctxs` is the row's own ctx list, when the termbase gives one."""
+    base, qual = os_term_parts(term)
+    core = re.sub(r"[.!?:;,\u2026]+$", "", en_text.strip()).strip()
+    if core.lower() == base.lower():
+        if ctx is None:
+            return True
+        if qual:
+            return ctx == qual
+        if ctx in siblings:
+            return False
+        if ctxs is not None:
+            return ctx in ctxs
+        return ctx in OS_COMMAND_CTX or base.lower() in OS_NOUN_TERMS
+    if qual:
+        after = rf"(?=\s+{re.escape(qual)}\b)"
+    else:
+        after = "".join(rf"(?!\s+{re.escape(q)}\b)" for q in sorted(siblings))
+    t = re.escape(base)
+    if re.search(OS_QUOTES_OPEN + r"\s*" + t + r"\s*" + OS_QUOTES_CLOSE + after, en_text, re.I):
+        return True
+    return bool(re.search(OS_UI_LEAD + t + r"(?!\w)" + after, en_text))
+
+
+def os_siblings(rows: list[dict]) -> dict[str, frozenset[str]]:
+    """Lowercased base term -> the qualifiers of the qualified rows for it ("edit" -> {"menu"})."""
+    out: dict[str, set[str]] = {}
+    for r in rows:
+        base, qual = os_term_parts(str(r.get("en") or ""))
+        if qual:
+            out.setdefault(base.lower(), set()).add(qual)
+    return {k: frozenset(v) for k, v in out.items()}
 RE_OFFER_EN = re.compile(r"\b(?:free|discount\w*|off|promo\w*|save|offer\w*)\b|%", re.I)
 
 
@@ -1351,6 +1453,7 @@ def _lint_entry(ctx: Ctx, e: dict) -> None:
     is_apple = ctx.platform == "apple"
     names = ctx.tb.never
     os_rows = [r for r in ctx.tb.os if r.get("platform") in ("all", ctx.platform)]
+    siblings = os_siblings(os_rows)
     for form, value in forms(fr):
         k = key + form
         en_text = en_for_form(en, form) if en is not None else None
@@ -1386,7 +1489,12 @@ def _lint_entry(ctx: Ctx, e: dict) -> None:
                     and not _plural_rx(row["fr"]).search(value):
                 ctx.add(k, "TERM-STRICT", f"en {row['en']!r} must be fr {row['fr']!r}")
         for row in os_rows:
-            if row.get("en") and row.get("fr") and re.search(rf"(?<!\w){re.escape(row['en'])}(?!\w)", en_text) \
+            if not (row.get("en") and row.get("fr")):
+                continue
+            base, qual = os_term_parts(row["en"])
+            sibs = frozenset() if qual else siblings.get(base.lower(), frozenset())
+            row_ctx = row.get("ctx") if isinstance(row.get("ctx"), list) else None
+            if os_term_applies(row["en"], en_text, e.get("ctx"), sibs, row_ctx) \
                     and not re.search(rf"(?<!\w){re.escape(row['fr'])}(?!\w)", value, re.I):
                 ctx.add(k, "OS-WORD", f"OS word {row['en']!r} is {row['fr']!r} on {row.get('platform')}")
         if value.strip() == en_text.strip() and not e.get("same_ok") \
@@ -1402,8 +1510,9 @@ def _lint_entry(ctx: Ctx, e: dict) -> None:
                 ctx.add(k, "STORE-APPLE", f"fr adds a destination en lacks: {added}")
             else:
                 ctx.add(k, "URL-PARITY", f"fr names {added}, en does not")
-        if is_apple and RE_OFFER_FR.search(value) and not RE_OFFER_EN.search(en_text):
-            ctx.add(k, "STORE-APPLE", f"fr adds an offer en lacks: {RE_OFFER_FR.search(value).group(0)!r}")
+        offer = offer_in(value) if is_apple else None
+        if offer and not RE_OFFER_EN.search(en_text):
+            ctx.add(k, "STORE-APPLE", f"fr adds an offer en lacks: {offer!r}")
     # Memory
     if en is not None and not e.get("fr_variant"):
         for c, sev in ((e.get("ctx"), "error"), ("*", "warn")):
@@ -1448,19 +1557,86 @@ def lint_jsonl(path: Path, tb: TermBase, tm: dict, platform: str | None, allow: 
     source: dict[tuple, dict] = {}
     sibling = path.with_name("in.jsonl")
     if sibling.is_file() and sibling.resolve() != path.resolve():
+        # A unit is found by its key or its id: out.jsonl and final.jsonl rows may carry only `id`.
         for row in read_jsonl(sibling):
-            source[(row.get("catalog"), row.get("key"))] = row
-            source.setdefault((None, row.get("key")), row)
+            for ident in (row.get("key"), row.get("id")):
+                if ident is not None:
+                    source.setdefault((row.get("catalog"), ident), row)
+                    source.setdefault((None, ident), row)
     for n, row in enumerate(rows, 1):
         if "fr" not in row or row["fr"] is None:
             continue
-        src = source.get((row.get("catalog"), row.get("key"))) or source.get((None, row.get("key"))) or {}
+        src: dict = {}
+        for ident in (row.get("key"), row.get("id")):
+            if ident is not None:
+                src = source.get((row.get("catalog"), ident)) or source.get((None, ident)) or {}
+                if src:
+                    break
         e = {**src, **row}
-        e["_key"] = str(row.get("key", f"line {n}"))
-        # Units carry the catalog's platform and apple (README Translation flow); --platform overrides.
-        ctx.platform = platform_of(e, platform)
-        lint_entry(ctx, e)
+        e["_key"] = row_label(row, n)
+        lint_unit(ctx, e, platform)
     return ctx.findings
+
+
+def _non_apple_platform(e: dict) -> str | None:
+    """The one non-Apple app platform of a unit seen in several catalogs, else None."""
+    plats = {platform_of({"platform": p}, None) for p in e.get("platforms") or [] if p != "swift"}
+    plats.discard(None)
+    if len(plats) == 1:
+        return plats.pop()
+    return platform_of({"platform": e.get("platform")}, None) if e.get("platform") != "swift" else None
+
+
+def apple_variant_words(e: dict, tb: TermBase) -> list[tuple[str, str]]:
+    """(form key, word): a non-Apple OS word in fr where the English names the OS thing, so the
+    Apple catalogs need their own French (« Réglages » for « Paramètres »)."""
+    pairs = [("Settings", "Paramètres")]
+    for row in tb.os:
+        if row.get("platform") in NON_APPLE_APPS and row.get("en") and row.get("fr"):
+            if any(r.get("platform") == "apple" and r.get("en") == row["en"]
+                   and str(r.get("fr", "")).lower() != row["fr"].lower() for r in tb.os):
+                pairs.append((row["en"], row["fr"]))
+    out = []
+    for form, value in forms(e.get("fr")):
+        en_text = en_for_form(e.get("en"), form) or ""
+        for en_word, fr_word in dict.fromkeys(pairs):
+            if re.search(rf"(?<!\w){re.escape(en_word)}(?!\w)", en_text) and \
+                    re.search(rf"(?<!\w){re.escape(fr_word)}(?!\w)", value, re.I):
+                out.append((form, fr_word))
+    return out
+
+
+def lint_unit(ctx: Ctx, e: dict, override: str | None) -> None:
+    """One batch unit (README W3). `fr` gets the non-Apple rules unless the unit is Apple-only;
+    `fr_apple` gets the Apple rules; an also_apple unit without fr_apple must pass the Apple
+    store rules with fr, and needs fr_apple for a non-Apple OS word. --platform overrides fr's."""
+    key = e["_key"]
+    apple, also = bool(e.get("apple")), bool(e.get("also_apple"))
+    fr_apple = e.get("fr_apple")
+    if override:
+        ctx.platform = override
+    elif apple and not also:
+        ctx.platform = "apple"
+    elif apple:
+        ctx.platform = _non_apple_platform(e)
+    else:
+        ctx.platform = platform_of({"platform": e.get("platform")}, None)
+    base = {k: v for k, v in e.items() if k != "fr_apple"}
+    lint_entry(ctx, base)
+    if fr_apple is not None:
+        if not apple:
+            ctx.add(key, "OS-WORD-APPLE-VARIANT", "fr_apple on a unit with no Apple catalog: remove it")
+            return
+        ctx.platform = "apple"
+        lint_entry(ctx, {**base, "fr": fr_apple, "_key": key + "@apple"})
+        return
+    if also and base.get("fr") is not None:
+        sub = Ctx(ctx.file, ctx.tb, ctx.tm, "apple", ctx.allow_screens)
+        lint_entry(sub, base)
+        ctx.findings += [f for f in sub.findings if f.rule == "STORE-APPLE"]
+        for form, word in apple_variant_words(base, ctx.tb):
+            ctx.add(key + form, "OS-WORD-APPLE-VARIANT",
+                    f"{word!r} is the non-Apple OS word and this unit also ships on Apple: needs fr_apple")
 
 
 def lint_files(files: list[str], tb: TermBase, tm: dict, platform: str | None, allow: set[str]) -> list[Finding]:

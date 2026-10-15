@@ -5,9 +5,11 @@ apple = false
 
 [app.description]
 en = "District AI is your AI receptionist. See your calls, messages and contacts, and place and answer calls from your computer."
+fr = "District AI est votre réceptionniste IA. Consultez vos appels, vos messages et vos contacts, et passez des appels ou répondez-y depuis votre ordinateur."
 ctx = "store"
 screen = "manifest"
 tier = "T0"
+state = "reviewed"
 note = "The package's description (Package.appxmanifest, VisualElements/@Description), which Windows shows for the app. ms-resource:AppDescription."
 
 [app.display_name]
