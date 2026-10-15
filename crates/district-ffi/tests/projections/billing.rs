@@ -171,6 +171,50 @@ fn view(session: &Session) -> BillingView {
     view
 }
 
+/// The account's subscriptions and invoices show their states as the core's
+/// vocabulary labels them, in its language, never as the processor stores
+/// them (`active`, `paid`).
+#[test]
+fn the_states_of_subscriptions_and_invoices_are_labels() {
+    let english = view(&ready(buying(signed_in())));
+    let subscriptions: Vec<_> = english
+        .account
+        .subscriptions
+        .iter()
+        .map(|row| row.status.as_str())
+        .collect();
+    assert!(!subscriptions.is_empty());
+    assert!(
+        subscriptions.iter().all(|status| *status == "Active"),
+        "{subscriptions:?}"
+    );
+    let invoices: Vec<_> = english
+        .account
+        .invoices
+        .iter()
+        .map(|row| row.status.as_str())
+        .collect();
+    assert_eq!(invoices, ["Paid", "Open"]);
+
+    let french = district_l10n::with_locale(district_l10n::Locale::FrCa, || {
+        view(&ready(buying(signed_in())))
+    });
+    assert!(
+        french
+            .account
+            .subscriptions
+            .iter()
+            .all(|row| row.status == "Actif")
+    );
+    let invoices: Vec<_> = french
+        .account
+        .invoices
+        .iter()
+        .map(|row| row.status.as_str())
+        .collect();
+    assert_eq!(invoices, ["Payée", "Ouverte"]);
+}
+
 /// Built, the area is offered and shows the plan, the account and, for a
 /// role that can change the plan with purchases on, the plan chooser.
 #[test]

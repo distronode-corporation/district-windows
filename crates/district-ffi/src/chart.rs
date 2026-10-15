@@ -12,7 +12,7 @@
 use district_core::{ChartBar, HistoryRow, SentimentShare};
 use serde::Serialize;
 
-use crate::l10n::{l, s};
+use crate::l10n::{Locale, l, s};
 
 /// The longest bar, in thousandths of the chart's length.
 pub const FULL: u16 = 1000;
@@ -81,12 +81,15 @@ pub enum SentimentTone {
 }
 
 impl SentimentTone {
-    /// The band `label` names, as District AI for Linux tells them apart.
+    /// The band `label` names, as District AI for Linux tells them apart, in
+    /// either language: the core labels the bands in its own ("Positive
+    /// Sentiment", « Sentiment positif »), and a French band read by its
+    /// English words alone was always Friction.
     pub(crate) fn of(label: &str) -> Self {
         let label = label.to_lowercase();
-        if label.contains("positive") {
+        if label.contains("positive") || label.contains("positif") {
             Self::Positive
-        } else if label.contains("neutral") {
+        } else if label.contains("neutral") || label.contains("neutre") {
             Self::Neutral
         } else {
             Self::Friction
@@ -149,9 +152,14 @@ pub fn per_mille(fraction: f64) -> u16 {
     rounded.clamp(1, FULL - 1)
 }
 
-/// A share as a whole percentage: `44%`.
+/// A share as a whole percentage, as the core writes one in its language:
+/// `44%`, `44 %` (a no-break space before the sign in French).
 pub fn percent(share: f64) -> String {
-    format!("{:.0}%", share * 100.0)
+    let whole = format!("{:.0}", share * 100.0);
+    match l() {
+        Locale::En => format!("{whole}%"),
+        Locale::FrCa => format!("{whole}\u{a0}%"),
+    }
 }
 
 /// `bars` as columns over time, named `what` ("Calls per day"): each bar,
@@ -418,6 +426,40 @@ mod tests {
         );
         assert_eq!(SentimentTone::of("Anything else"), SentimentTone::Friction);
         assert_eq!(percent(0.0), "0%");
+    }
+
+    /// In French the bands keep their tones and a share takes its space.
+    #[test]
+    fn the_sentiment_bands_keep_their_tones_in_french() {
+        let shares = [
+            ("Sentiment positif", 21, 0.4375),
+            ("Sentiment neutre", 16, 0.3333),
+            ("Sentiment de friction", 11, 0.2292),
+        ]
+        .map(|(label, value, share)| SentimentShare {
+            label: label.to_owned(),
+            value,
+            share,
+            color: None,
+        });
+        let chart = district_l10n::with_locale(Locale::FrCa, || sentiment(&shares));
+        assert_eq!(
+            chart.bands.iter().map(|band| band.tone).collect::<Vec<_>>(),
+            [
+                SentimentTone::Positive,
+                SentimentTone::Neutral,
+                SentimentTone::Friction
+            ]
+        );
+        assert!(
+            chart.bands[0].legend.ends_with("21 (44\u{a0}%)"),
+            "{}",
+            chart.bands[0].legend
+        );
+        assert_eq!(
+            district_l10n::with_locale(Locale::FrCa, || percent(1.0)),
+            "100\u{a0}%"
+        );
     }
 
     #[test]

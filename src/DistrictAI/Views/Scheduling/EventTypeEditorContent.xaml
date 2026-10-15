@@ -32,23 +32,29 @@
             AcceptsReturn="True"
             AutomationProperties.AutomationId="EventTypeEditorDescription"
             AutomationProperties.Name="{x:Bind ViewModel.Words.DescriptionLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.Words.DescriptionHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.Words.DescriptionLabel, Mode=OneWay}"
             IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
             MinHeight="64"
             Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             TextWrapping="Wrap"
-            Visibility="{x:Bind ViewModel.ShowsAll, Mode=OneWay}" />
+            Visibility="{x:Bind ViewModel.ShowsAll, Mode=OneWay}">
+            <TextBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.Words.DescriptionHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </TextBox.Description>
+        </TextBox>
 
         <StackPanel Spacing="2">
             <TextBox
                 AutomationProperties.AutomationId="EventTypeEditorDuration"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.DurationLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.DurationHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.DurationLabel, Mode=OneWay}"
                 InputScope="Number"
                 IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
-                Text="{x:Bind ViewModel.Duration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.Duration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.DurationHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
             <TextBlock
                 AutomationProperties.AutomationId="EventTypeEditorDurationShown"
                 Style="{StaticResource QuietTextStyle}"
@@ -58,12 +64,15 @@
         <TextBox
             AutomationProperties.AutomationId="EventTypeEditorInterval"
             AutomationProperties.Name="{x:Bind ViewModel.Words.IntervalLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.Words.IntervalHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.Words.IntervalLabel, Mode=OneWay}"
             InputScope="Number"
             IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
             Text="{x:Bind ViewModel.Interval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            Visibility="{x:Bind ViewModel.ShowsAll, Mode=OneWay}" />
+            Visibility="{x:Bind ViewModel.ShowsAll, Mode=OneWay}">
+            <TextBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.Words.IntervalHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </TextBox.Description>
+        </TextBox>
 
         <ComboBox
             x:Name="LocationChooser"
@@ -107,43 +116,58 @@
             <TextBox
                 AutomationProperties.AutomationId="EventTypeEditorBufferBefore"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.BufferBeforeLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.BufferBeforeHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.BufferBeforeLabel, Mode=OneWay}"
                 InputScope="Number"
                 IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
-                Text="{x:Bind ViewModel.BufferBefore, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.BufferBefore, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.BufferBeforeHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
             <TextBox
                 AutomationProperties.AutomationId="EventTypeEditorBufferAfter"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.BufferAfterLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.BufferAfterHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.BufferAfterLabel, Mode=OneWay}"
                 InputScope="Number"
                 IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
-                Text="{x:Bind ViewModel.BufferAfter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.BufferAfter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.BufferAfterHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
             <TextBox
                 AutomationProperties.AutomationId="EventTypeEditorMinNotice"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.MinNoticeLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.MinNoticeHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.MinNoticeLabel, Mode=OneWay}"
                 InputScope="Number"
                 IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
-                Text="{x:Bind ViewModel.MinNotice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.MinNotice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.MinNoticeHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
             <TextBox
                 AutomationProperties.AutomationId="EventTypeEditorMaxFuture"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.MaxFutureLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.MaxFutureHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.MaxFutureLabel, Mode=OneWay}"
                 InputScope="Number"
                 IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
-                Text="{x:Bind ViewModel.MaxFutureDays, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.MaxFutureDays, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.MaxFutureHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
             <TextBox
                 AutomationProperties.AutomationId="EventTypeEditorMaxActive"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.MaxActiveLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.MaxActiveHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.MaxActiveLabel, Mode=OneWay}"
                 InputScope="Number"
                 IsEnabled="{x:Bind ViewModel.Dialog.CanConfirm, Mode=OneWay}"
-                Text="{x:Bind ViewModel.MaxActiveBookings, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.MaxActiveBookings, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.MaxActiveHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
         </StackPanel>
 
         <TextBlock

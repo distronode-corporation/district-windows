@@ -14,6 +14,7 @@ use district_core::{
     NumberSearchForm, NumberSearchState, OwnedNumbersList, Route, SignedIn, format_phone_number,
     numbers_scope_note, price_label,
 };
+use district_l10n::{Locale, WireCategory};
 use district_model::{AvailableNumber, OwnedNumber};
 use serde::Serialize;
 
@@ -22,7 +23,7 @@ use crate::numbers::{
     NumberAdminAction, NumberAdminView, NumberManageView, admin_view, manage_view,
 };
 use crate::screen::ScreenView;
-use crate::views::{EmptyView, FailureView, LoadStatus, humanize};
+use crate::views::{EmptyView, FailureView, LoadStatus, humanize, wire};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
@@ -338,15 +339,20 @@ fn type_label(raw: &str) -> String {
         .map_or_else(|| humanize(raw), |(_, label)| (*label).to_owned())
 }
 
-/// What a number can do, as it reads: `SMS, Voice`.
+/// What a number can do, as it reads: `SMS, Voice` (`Texto, Voix`), each
+/// capability the core's label in its language. English keeps the two message
+/// kinds as their acronyms, where the vocabulary's English reads `Sms`.
 fn capabilities_label(raw: &[String]) -> String {
     raw.iter()
-        .map(
-            |capability| match capability.to_ascii_lowercase().as_str() {
-                "sms" | "mms" => capability.to_ascii_uppercase(),
-                _ => humanize(capability),
-            },
-        )
+        .map(|capability| {
+            match (
+                district_l10n::current(),
+                capability.to_ascii_lowercase().as_str(),
+            ) {
+                (Locale::En, "sms" | "mms") => capability.to_ascii_uppercase(),
+                (_, lower) => wire(WireCategory::NumberCapability, lower),
+            }
+        })
         .collect::<Vec<_>>()
         .join(", ")
 }
@@ -412,6 +418,14 @@ mod tests {
         assert_eq!(
             capabilities_label(&["sms".to_owned(), "voice".to_owned(), "MMS".to_owned()]),
             "SMS, Voice, MMS"
+        );
+        assert_eq!(
+            district_l10n::with_locale(Locale::FrCa, || capabilities_label(&[
+                "sms".to_owned(),
+                "voice".to_owned(),
+                "MMS".to_owned()
+            ])),
+            "Texto, Voix, MMS"
         );
         assert_eq!(monthly(None, Some("USD")), None);
         assert_eq!(

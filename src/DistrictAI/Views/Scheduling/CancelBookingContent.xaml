@@ -11,12 +11,15 @@
             AcceptsReturn="True"
             AutomationProperties.AutomationId="CancelBookingReason"
             AutomationProperties.Name="{x:Bind ViewModel.ReasonLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.ReasonHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.ReasonLabel, Mode=OneWay}"
             MinHeight="80"
             Text="{x:Bind ViewModel.Reason, Mode=OneWay}"
             TextChanged="OnReasonChanged"
-            TextWrapping="Wrap" />
+            TextWrapping="Wrap">
+            <TextBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.ReasonHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </TextBox.Description>
+        </TextBox>
         <TextBlock
             Foreground="{ThemeResource SystemFillColorCriticalBrush}"
             Text="{x:Bind ViewModel.ReasonRejected, Mode=OneWay}"

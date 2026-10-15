@@ -13,12 +13,15 @@
                 AutomationProperties.AutomationId="DeveloperWebhookUrl"
                 AutomationProperties.HelpText="{x:Bind ViewModel.Words.UrlHint, Mode=OneWay}"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.UrlLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.UrlHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.UrlLabel, Mode=OneWay}"
                 InputScope="Url"
                 IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
                 Text="{x:Bind ViewModel.Url, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Visibility="{x:Bind ViewModel.Creating, Mode=OneWay}" />
+                Visibility="{x:Bind ViewModel.Creating, Mode=OneWay}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.UrlHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
             <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.Changing, Mode=OneWay}">
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.Words.UrlLabel, Mode=OneWay}" />
                 <TextBlock

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels;
 using Xunit;
 
@@ -36,6 +37,41 @@ public sealed class DisplayTests
 
         Assert.Equal(local.ToString("t", culture), Display.When("2026-03-04T15:30:00Z", at));
         Assert.Equal(local.ToString("d", culture), Display.When("2026-03-04T15:30:00Z", at.AddDays(3)));
+    }
+
+    [Fact]
+    public void FrenchWritesTheTimeAndTheDateAsTheCoreDoesWhateverTheRegionalFormat()
+    {
+        Assert.Equal("15 h 04", Display.Time(new DateTimeOffset(2026, 3, 4, 15, 4, 0, TimeSpan.Zero), S.Locale.FrCa));
+        Assert.Equal("9 h", Display.Time(new DateTimeOffset(2026, 3, 4, 9, 0, 0, TimeSpan.Zero), S.Locale.FrCa));
+        Assert.Equal("0 h 30", Display.Time(new DateTimeOffset(2026, 3, 4, 0, 30, 0, TimeSpan.Zero), S.Locale.FrCa));
+        Assert.Equal("2026-03-04", Display.Date(new DateTimeOffset(2026, 3, 4, 15, 4, 0, TimeSpan.Zero), S.Locale.FrCa));
+
+        var at = new DateTimeOffset(2026, 3, 4, 15, 30, 0, TimeSpan.Zero);
+        var local = at.ToLocalTime();
+        Assert.Equal(Display.Time(local, S.Locale.FrCa), Display.When("2026-03-04T15:30:00Z", at, S.Locale.FrCa));
+        Assert.Equal(Display.Date(local, S.Locale.FrCa), Display.When("2026-03-04T15:30:00Z", at.AddDays(3), S.Locale.FrCa));
+        Assert.DoesNotContain("M", Display.When("2026-03-04T15:30:00Z", at, S.Locale.FrCa), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void EnglishKeepsTheUsersCulture()
+    {
+        var local = new DateTimeOffset(2026, 3, 4, 15, 4, 0, TimeSpan.Zero);
+        Assert.Equal(local.ToString("t", CultureInfo.CurrentCulture), Display.Time(local, S.Locale.En));
+        Assert.Equal(local.ToString("d", CultureInfo.CurrentCulture), Display.Date(local, S.Locale.En));
+        Assert.Equal(1500L.ToString("N0", CultureInfo.CurrentCulture), Display.Integer(1500, S.Locale.En));
+    }
+
+    [Theory]
+    [InlineData(0, "0")]
+    [InlineData(999, "999")]
+    [InlineData(1500, "1\u00A0500")]
+    [InlineData(1234567, "1\u00A0234\u00A0567")]
+    [InlineData(-1500, "-1\u00A0500")]
+    public void FrenchGroupsANumberWithANoBreakSpace(long value, string expected)
+    {
+        Assert.Equal(expected, Display.Integer(value, S.Locale.FrCa));
     }
 
     [Fact]

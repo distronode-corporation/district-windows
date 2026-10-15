@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
@@ -166,11 +165,14 @@ public sealed partial class BillingViewModel : ObservableObject
     }
 
     /// <summary>The minutes line: used of included, or used alone; never a zero nobody measured.</summary>
-    internal static string MinutesOf(PlanView? plan) => plan switch
+    internal static string MinutesOf(PlanView? plan) => MinutesOf(plan, S.Current);
+
+    /// <summary><see cref="MinutesOf(PlanView?)"/>, its numbers written in <paramref name="locale"/>.</summary>
+    internal static string MinutesOf(PlanView? plan, S.Locale locale) => plan switch
     {
         { MinutesUsed: { } used, IncludedMinutes: { } included } =>
-            S.BillingMinutesOfIncluded(used.ToString("N0", CultureInfo.CurrentCulture), included.ToString("N0", CultureInfo.CurrentCulture)),
-        { MinutesUsed: { } used } => S.BillingMinutesUsedOnly(used.ToString("N0", CultureInfo.CurrentCulture)),
+            S.BillingMinutesOfIncluded(Display.Integer(used, locale), Display.Integer(included, locale)),
+        { MinutesUsed: { } used } => S.BillingMinutesUsedOnly(Display.Integer(used, locale)),
         _ => string.Empty,
     };
 
@@ -219,9 +221,12 @@ public sealed partial class BillingViewModel : ObservableObject
         return new BillingLine(row.Amount, detail, row.CanOpen ? row.Id : null);
     }
 
-    /// <summary>A Unix time as a local date.</summary>
-    internal static string DateOf(long unixSeconds) =>
-        DateTimeOffset.FromUnixTimeSeconds(unixSeconds).ToLocalTime().ToString("d", CultureInfo.CurrentCulture);
+    /// <summary>A Unix time as a local date, in the window's language.</summary>
+    internal static string DateOf(long unixSeconds) => DateOf(unixSeconds, S.Current);
+
+    /// <summary><see cref="DateOf(long)"/> in <paramref name="locale"/>.</summary>
+    internal static string DateOf(long unixSeconds, S.Locale locale) =>
+        Display.Date(DateTimeOffset.FromUnixTimeSeconds(unixSeconds).ToLocalTime(), locale);
 
     [RelayCommand]
     private void ManageOnWeb() => Send(new BillingAction.ManageOnWeb());

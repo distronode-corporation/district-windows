@@ -150,7 +150,9 @@ fn outbound(call: &CallSummary) -> bool {
     call.direction.as_deref() == Some("outbound") || call.call_type == "outbound"
 }
 
-/// The length of a call somebody took, or `None` for one nobody did.
+/// The length of a call somebody took, or `None` for one nobody did: the
+/// service's own words in English (`1m 5s`), which it writes in English only,
+/// and in French the core's form of its seconds (`1 min 5 s`).
 fn duration(call: &CallSummary) -> Option<String> {
     (call.duration_raw.unwrap_or(0) > 0)
         .then(|| call_duration_label(call))
@@ -389,6 +391,7 @@ pub(crate) fn call_detail_view(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::l10n::Locale;
 
     #[test]
     fn only_a_number_whose_country_is_known_is_dialable() {
@@ -400,5 +403,29 @@ mod tests {
         assert_eq!(dial("+1+416"), None);
         assert_eq!(dial("Direct Dial"), None);
         assert_eq!(dialable(None), None);
+    }
+
+    /// A taken call's length: the service's words in English, the core's
+    /// French in French; none for a call nobody took.
+    #[test]
+    fn a_calls_length_reads_in_the_cores_language() {
+        let call = |seconds: Option<i64>| -> CallSummary {
+            serde_json::from_value(serde_json::json!({
+                "id": "c1", "type": "inbound", "number": "+14165550142", "status": "completed",
+                "duration": "1m 5s", "time": "", "aiSummary": "", "callerName": "",
+                "summary": "", "createdAt": "", "durationRaw": seconds,
+            }))
+            .unwrap()
+        };
+        assert_eq!(duration(&call(Some(65))).as_deref(), Some("1m 5s"));
+        assert_eq!(
+            district_l10n::with_locale(Locale::FrCa, || duration(&call(Some(65)))).as_deref(),
+            Some("1\u{a0}min 5\u{a0}s")
+        );
+        assert_eq!(duration(&call(Some(0))), None);
+        assert_eq!(
+            district_l10n::with_locale(Locale::FrCa, || duration(&call(None))),
+            None
+        );
     }
 }
