@@ -244,11 +244,12 @@ checks pass, so tag a commit whose CI on `main` is green. Before tagging:
 
 - `Version` in `src/DistrictAI/Package.appxmanifest` (and so in
   `Package.GitHub.appxmanifest`, which `check-flavours.py` holds to it) is `X.Y.Z.0`;
-- `CHANGELOG.md` has a `## [X.Y.Z]` section, which becomes the release notes.
+- `CHANGELOG.md` has a `## [X.Y.Z]` section, which becomes the release notes;
+- `i18n/fr-CA/signoff.json` records every string catalog's SHA-256 (below).
 
 The workflow's first job refuses the tag when the tagged commit is not on `main` (CI never
-tested it), when the manifest's `Version` does not match the tag, or when `CHANGELOG.md`
-has no section for it. It then builds, with no caches, the Store package (an unsigned
+tested it), when a catalog is not the signed-off one, when the manifest's `Version` does
+not match the tag, or when `CHANGELOG.md` has no section for it. It then builds, with no caches, the Store package (an unsigned
 `.msixupload`; the Store signs what it ships), a sideload test MSIX signed with a throwaway
 certificate, and the GitHub flavour as an unsigned MSIX, checks each package's identity,
 version and ReadyToRun code, and runs the Windows App Certification Kit on the test MSIX.
@@ -261,6 +262,16 @@ only then publishes it. The `.msixupload` is what goes to Partner Center; the RE
 Pull requests that change the workflow or the packaging run the same build and
 certification as a dry run, with nothing attested or released. CI's `windows-app` job runs
 the certification kit on every pull request too, through `scripts/run-wack.ps1`.
+
+The French is signed off per release. `i18n/fr-CA/signoff.json` names who signed it off,
+the release and commit the catalogs were read at, and the SHA-256 of every catalog
+(`crates/district-ffi/l10n/ffi.toml`, `src/DistrictAI/l10n/manifest.toml` and `ui.toml`);
+`python3 scripts/check-fr-signoff.py` fails, naming each catalog, when one differs, is
+missing or is not listed. The release's first job runs it on a tag, and neither pull
+requests nor the dry run do, because catalogs change between releases. A release whose
+catalogs changed (French, or English the French follows) needs the manager's review of the
+French and a new `signoff.json` before it is tagged. CI runs `tools/l10n/frcheck.py all`,
+the French rules, on every pull request; an error fails it, a warning does not.
 
 ### Testing the sideload package
 
