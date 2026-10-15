@@ -4,7 +4,7 @@ name: Release
 # package Partner Center takes (an unsigned .msixupload; the Store signs what it
 # ships), a sideload test MSIX signed with a throwaway certificate and that
 # certificate's public half, a zip of the framework packages the test MSIX
-# needs (the Windows App Runtime), the Windows App Certification Kit's report
+# needs (the Windows App Runtime, x64 and x86), the Windows App Certification Kit's report
 # on the package, the GitHub flavour as an unsigned MSIX (for the SignPath
 # Foundation code-signing application; it is not meant to be installed), a
 # source zip, SHA256SUMS over all of them, and the signed provenance
@@ -466,14 +466,44 @@ jobs:
           if ($githubMsix.Count -ne 1) { throw "expected one GitHub flavour MSIX, found $($githubMsix.Count)" }
           Copy-Item $githubMsix[0].FullName (Join-Path $stage "DistrictAI_$($env:VERSION)_x64_github-unsigned.msix")
           # The framework packages the test MSIX depends on (the Windows App
-          # Runtime), which a fresh Windows does not have. Missing or empty is a
-          # failure: a sideload package nobody can install is no release.
-          $deps = Join-Path $msix.DirectoryName 'Dependencies\x64'
-          if (-not (Test-Path $deps -PathType Container)) { throw "no framework dependencies at $deps" }
-          $depFiles = @(Get-ChildItem -Path $deps -Filter '*.msix' -File)
-          if ($depFiles.Count -eq 0) { throw "no .msix in $deps" }
-          $depFiles | ForEach-Object { Write-Host "dependency: $($_.Name) $($_.Length)" }
-          Compress-Archive -Path $depFiles.FullName -DestinationPath (Join-Path $stage "DistrictAI_$($env:VERSION)_x64_sideload-dependencies.zip")
+          # Runtime), which a fresh Windows does not have: the x64 one, and the
+          # x86 one of the same version, without which a fresh Windows Server
+          # 2025 refused the install (0x80073CF9). Both are what this build's
+          # Windows App SDK packaged, under Dependencies\x64 and \x86 with one
+          # file name, so each goes into the zip flat under a name that says
+          # its architecture (Microsoft.WindowsAppRuntime.2_x86.msix). Missing,
+          # empty, a package whose architecture is not its folder's, or two
+          # runtime versions is a failure: a sideload package nobody can
+          # install is no release.
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $depStage = Join-Path $env:RUNNER_TEMP 'sideload-dependencies'
+          New-Item -ItemType Directory -Force $depStage | Out-Null
+          $runtime = @{}
+          foreach ($arch in 'x64', 'x86') {
+            $deps = Join-Path $msix.DirectoryName "Dependencies\$arch"
+            if (-not (Test-Path $deps -PathType Container)) { throw "no framework dependencies at $deps" }
+            $depFiles = @(Get-ChildItem -Path $deps -Filter '*.msix' -File)
+            if ($depFiles.Count -eq 0) { throw "no .msix in $deps" }
+            foreach ($dep in $depFiles) {
+              $zip = [IO.Compression.ZipFile]::OpenRead($dep.FullName)
+              try {
+                $entry = $zip.GetEntry('AppxManifest.xml')
+                if (-not $entry) { throw "$($dep.FullName) has no AppxManifest.xml" }
+                $reader = New-Object IO.StreamReader($entry.Open())
+                try { [xml]$manifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
+              } finally { $zip.Dispose() }
+              $identity = $manifest.Package.Identity
+              if ($identity.ProcessorArchitecture -ne $arch) { throw "$($dep.FullName) is for $($identity.ProcessorArchitecture), not $arch" }
+              if ($identity.Name -like 'Microsoft.WindowsAppRuntime.*') { $runtime[$arch] = $identity.Version }
+              $name = "$($dep.BaseName)_$arch$($dep.Extension)"
+              Copy-Item $dep.FullName (Join-Path $depStage $name)
+              Write-Host "dependency: $name ($($identity.Name) $($identity.Version) $arch, $($dep.Length) bytes)"
+            }
+          }
+          if (-not $runtime['x64'] -or $runtime['x64'] -ne $runtime['x86']) {
+            throw "the Windows App Runtime is '$($runtime['x64'])' for x64 and '$($runtime['x86'])' for x86, not one version"
+          }
+          Compress-Archive -Path (Get-ChildItem $depStage -File).FullName -DestinationPath (Join-Path $stage "DistrictAI_$($env:VERSION)_x64_sideload-dependencies.zip")
           Get-ChildItem $stage | Select-Object Name, Length | Format-Table -AutoSize
 
       # Uploaded even when the kit failed, so its report can be read.
