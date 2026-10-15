@@ -10,6 +10,7 @@ use district_core::{
     ContactList, ContactView, ContactsEvent, ContactsScreen, CreateContact, Event, FailureText,
     contact_label, format_phone_number,
 };
+use district_l10n::WireCategory;
 use district_model::Contact;
 use serde::Serialize;
 use serde_json::{Map, Value};
@@ -18,7 +19,7 @@ use crate::calls::{dialable, number_facts};
 use crate::l10n::{cs, l, s};
 use crate::views::{
     AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView, ReportAvailability,
-    facts, failure, humanize,
+    facts, failure, humanize, localized,
 };
 
 /// The separator between the parts of one line.
@@ -396,7 +397,13 @@ fn findings(intelligence: &Map<String, Value>) -> Vec<String> {
                 }
                 other => text(other),
             }?;
-            (!shown.trim().is_empty()).then(|| s::contacts_finding(l(), &humanize(key), &shown))
+            (!shown.trim().is_empty()).then(|| {
+                s::contacts_finding(
+                    l(),
+                    &localized(WireCategory::ContactResearchKey, key),
+                    &shown,
+                )
+            })
         })
         .collect()
 }

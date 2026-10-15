@@ -21,12 +21,15 @@
             AutomationProperties.AutomationId="SettingsAssistantInstructions"
             AutomationProperties.HelpText="{x:Bind ViewModel.Words.InstructionsHint, Mode=OneWay}"
             AutomationProperties.Name="{x:Bind ViewModel.Words.InstructionsLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.Words.InstructionsHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.Words.InstructionsLabel, Mode=OneWay}"
             IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
             PlaceholderText="{x:Bind ViewModel.Words.InstructionsPlaceholder, Mode=OneWay}"
             Text="{x:Bind ViewModel.Instructions, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            TextWrapping="Wrap" />
+            TextWrapping="Wrap">
+            <TextBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.Words.InstructionsHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </TextBox.Description>
+        </TextBox>
         <TextBlock
             AutomationProperties.AutomationId="SettingsAssistantError"
             AutomationProperties.LiveSetting="Polite"

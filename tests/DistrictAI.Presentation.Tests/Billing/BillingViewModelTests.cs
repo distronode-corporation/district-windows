@@ -1,4 +1,6 @@
+using System.Globalization;
 using DistrictAI.Core.Ffi;
+using DistrictAI.L10n;
 using DistrictAI.ViewModels.Billing;
 using Xunit;
 
@@ -119,6 +121,19 @@ public sealed class BillingViewModelTests
         Assert.Equal(string.Empty, BillingViewModel.MinutesOf(null));
         Assert.Equal(string.Empty, BillingViewModel.MinutesOf(Plan() with { MinutesUsed = null }));
         Assert.Contains("minutes this month", BillingViewModel.MinutesOf(Plan() with { IncludedMinutes = null }), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void FrenchWritesTheMinutesAndTheDatesAsTheCoreDoes()
+    {
+        var minutes = BillingViewModel.MinutesOf(Plan(), S.Locale.FrCa);
+        Assert.Contains("1\u00A0523", minutes, StringComparison.Ordinal);
+        Assert.Contains("1\u00A0500", minutes, StringComparison.Ordinal);
+        Assert.Contains("1\u00A0523", BillingViewModel.MinutesOf(Plan() with { IncludedMinutes = null }, S.Locale.FrCa), StringComparison.Ordinal);
+
+        var created = new DateTimeOffset(2026, 3, 4, 12, 0, 0, TimeSpan.Zero);
+        Assert.Equal(created.ToLocalTime().ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), BillingViewModel.DateOf(created.ToUnixTimeSeconds(), S.Locale.FrCa));
+        Assert.Equal(created.ToLocalTime().ToString("d", CultureInfo.CurrentCulture), BillingViewModel.DateOf(created.ToUnixTimeSeconds()));
     }
 
     [Fact]

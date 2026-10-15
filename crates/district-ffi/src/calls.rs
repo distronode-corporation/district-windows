@@ -2,13 +2,14 @@
 //! show, row for row.
 
 use district_core::{
-    CallDetailScreen, CallLog, CallView, Capabilities, TranscriptView, format_phone_number,
+    CallDetailScreen, CallLog, CallView, Capabilities, TranscriptView, format_duration,
+    format_phone_number,
 };
 use district_l10n::WireCategory;
 use district_model::{CallAnalysis, CallSummary, PhoneIntel};
 use serde::Serialize;
 
-use crate::l10n::{cs, l, s};
+use crate::l10n::{Locale, cs, l, s};
 use crate::views::{
     AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView, ReportAvailability,
     ai_summary, facts, failure, humanize, wire,
@@ -149,11 +150,18 @@ fn outbound(call: &CallSummary) -> bool {
     call.direction.as_deref() == Some("outbound") || call.call_type == "outbound"
 }
 
-/// The length of a call somebody took, or `None` for one nobody did.
+/// The length of a call somebody took, or `None` for one nobody did: the
+/// service's own words in English (`1m 5s`), which it writes in English only,
+/// and in French the core's form of its seconds (`1 min 5 s`).
 fn duration(call: &CallSummary) -> Option<String> {
-    (call.duration_raw.unwrap_or(0) > 0)
-        .then(|| call.duration.clone())
-        .filter(|duration| !duration.trim().is_empty())
+    let seconds = call.duration_raw.unwrap_or(0);
+    if seconds <= 0 {
+        return None;
+    }
+    match l() {
+        Locale::En => Some(call.duration.clone()).filter(|duration| !duration.trim().is_empty()),
+        Locale::FrCa => Some(format_duration(seconds)),
+    }
 }
 
 /// The title of a call, as the Linux app gives it.
@@ -399,5 +407,29 @@ mod tests {
         assert_eq!(dial("+1+416"), None);
         assert_eq!(dial("Direct Dial"), None);
         assert_eq!(dialable(None), None);
+    }
+
+    /// A taken call's length: the service's words in English, the core's
+    /// French in French; none for a call nobody took.
+    #[test]
+    fn a_calls_length_reads_in_the_cores_language() {
+        let call = |seconds: Option<i64>| -> CallSummary {
+            serde_json::from_value(serde_json::json!({
+                "id": "c1", "type": "inbound", "number": "+14165550142", "status": "completed",
+                "duration": "1m 5s", "time": "", "aiSummary": "", "callerName": "",
+                "summary": "", "createdAt": "", "durationRaw": seconds,
+            }))
+            .unwrap()
+        };
+        assert_eq!(duration(&call(Some(65))).as_deref(), Some("1m 5s"));
+        assert_eq!(
+            district_l10n::with_locale(Locale::FrCa, || duration(&call(Some(65)))).as_deref(),
+            Some("1\u{a0}min 5\u{a0}s")
+        );
+        assert_eq!(duration(&call(Some(0))), None);
+        assert_eq!(
+            district_l10n::with_locale(Locale::FrCa, || duration(&call(None))),
+            None
+        );
     }
 }

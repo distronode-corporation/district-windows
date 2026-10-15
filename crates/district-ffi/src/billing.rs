@@ -15,12 +15,13 @@ use district_core::{
     PlanTerm, PlanTier, PromoCode, PurchaseSetting, Renewal, Route, SignedIn, format_cents,
     invoice_amount, meter_fraction, minutes_used, overage_note, plan_name,
 };
+use district_l10n::WireCategory;
 use district_model::{BillingInvoice, BillingSubscription, WorkspaceBilling};
 use serde::Serialize;
 
 use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
-use crate::views::{FailureView, LoadStatus, failure};
+use crate::views::{FailureView, LoadStatus, failure, localized};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
@@ -114,7 +115,7 @@ pub struct SubscriptionRowView {
     pub id: String,
     /// The plan's name.
     pub name: String,
-    /// The processor's word for its state.
+    /// Its state, in words ("Active").
     pub status: String,
     /// The amount per period ("$249.00"), when the processor sent one.
     pub amount: Option<String>,
@@ -133,7 +134,7 @@ pub struct InvoiceRowView {
     pub id: String,
     /// What it cost ("$249.00").
     pub amount: String,
-    /// Its state ("paid"), or empty.
+    /// Its state, in words ("Paid"), or empty.
     pub status: String,
     /// When it was made, in Unix seconds.
     pub created: i64,
@@ -475,7 +476,10 @@ fn subscription_row(subscription: &BillingSubscription) -> SubscriptionRowView {
     SubscriptionRowView {
         id: subscription.id.clone(),
         name: subscription.tier_name.clone(),
-        status: subscription.status.clone(),
+        status: localized(
+            WireCategory::BillingSubscriptionStatus,
+            &subscription.status,
+        ),
         amount: subscription.amount.map(format_cents),
         renews_at: match renewal {
             Some(Renewal::Renews(at)) => Some(at),
@@ -496,7 +500,11 @@ fn invoice_row(invoice: &BillingInvoice) -> InvoiceRowView {
     InvoiceRowView {
         id: invoice.id.clone(),
         amount: format_cents(invoice_amount(invoice)),
-        status: invoice.status.clone().unwrap_or_default(),
+        status: invoice
+            .status
+            .as_deref()
+            .map(|raw| localized(WireCategory::BillingInvoiceStatus, raw))
+            .unwrap_or_default(),
         created: invoice.created,
         can_open: invoice.hosted_invoice_url.is_some(),
     }

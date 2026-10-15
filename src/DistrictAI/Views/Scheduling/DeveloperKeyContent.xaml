@@ -11,10 +11,13 @@
                 AutomationProperties.AutomationId="DeveloperKeyName"
                 AutomationProperties.HelpText="{x:Bind ViewModel.NameHint, Mode=OneWay}"
                 AutomationProperties.Name="{x:Bind ViewModel.NameLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.NameHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.NameLabel, Mode=OneWay}"
                 IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
-                Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.NameHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
             <TextBlock
                 AutomationProperties.AutomationId="DeveloperKeyNameError"
                 AutomationProperties.LiveSetting="Polite"

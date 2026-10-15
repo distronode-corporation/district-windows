@@ -126,11 +126,14 @@
                 AutomationProperties.AutomationId="HoursOverrideLastDay"
                 AutomationProperties.HelpText="{x:Bind ViewModel.Words.LastDayHint, Mode=OneWay}"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.LastDayLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.LastDayHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.LastDayLabel, Mode=OneWay}"
                 PlaceholderText="{x:Bind ViewModel.Words.DatePlaceholder, Mode=OneWay}"
                 Text="{x:Bind ViewModel.EndDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Visibility="{x:Bind ViewModel.ShowsLastDay, Mode=OneWay}" />
+                Visibility="{x:Bind ViewModel.ShowsLastDay, Mode=OneWay}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.LastDayHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
 
             <!-- Custom hours: one day, with the hours it opens and closes. -->
             <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.ShowsHours, Mode=OneWay}">

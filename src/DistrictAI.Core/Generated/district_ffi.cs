@@ -14567,7 +14567,7 @@ class FfiConverterTypeIncomingRingView: FfiConverterRustBuffer<IncomingRingView>
 /// What it cost ("$249.00").
 /// </param>
 /// <param name="Status">
-/// Its state ("paid"), or empty.
+/// Its state, in words ("Paid"), or empty.
 /// </param>
 /// <param name="Created">
 /// When it was made, in Unix seconds.
@@ -14585,7 +14585,7 @@ public record InvoiceRowView (
     /// </summary>
     string Amount, 
     /// <summary>
-    /// Its state ("paid"), or empty.
+    /// Its state, in words ("Paid"), or empty.
     /// </summary>
     string Status, 
     /// <summary>
@@ -27024,7 +27024,7 @@ class FfiConverterTypeStudioTuningView: FfiConverterRustBuffer<StudioTuningView>
 /// The plan's name.
 /// </param>
 /// <param name="Status">
-/// The processor's word for its state.
+/// Its state, in words ("Active").
 /// </param>
 /// <param name="Amount">
 /// The amount per period ("$249.00"), when the processor sent one.
@@ -27048,7 +27048,7 @@ public record SubscriptionRowView (
     /// </summary>
     string Name, 
     /// <summary>
-    /// The processor's word for its state.
+    /// Its state, in words ("Active").
     /// </summary>
     string Status, 
     /// <summary>

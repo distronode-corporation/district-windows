@@ -9,21 +9,27 @@
             AutomationProperties.AutomationId="SettingsBusinessName"
             AutomationProperties.HelpText="{x:Bind ViewModel.Words.BusinessNameHint, Mode=OneWay}"
             AutomationProperties.Name="{x:Bind ViewModel.Words.BusinessNameLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.Words.BusinessNameHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.Words.BusinessNameLabel, Mode=OneWay}"
             IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
-            Text="{x:Bind ViewModel.BusinessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            Text="{x:Bind ViewModel.BusinessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.Words.BusinessNameHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </TextBox.Description>
+        </TextBox>
         <NumberBox
             AutomationProperties.AutomationId="SettingsLogoHeight"
             AutomationProperties.HelpText="{x:Bind ViewModel.Words.LogoHeightHint, Mode=OneWay}"
             AutomationProperties.Name="{x:Bind ViewModel.Words.LogoHeightLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.Words.LogoHeightHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.Words.LogoHeightLabel, Mode=OneWay}"
             IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
             Maximum="{x:Bind ViewModel.LogoHeightMaximum, Mode=OneWay}"
             Minimum="{x:Bind ViewModel.LogoHeightMinimum, Mode=OneWay}"
             SpinButtonPlacementMode="Inline"
-            Value="{x:Bind ViewModel.LogoHeight, Mode=TwoWay}" />
+            Value="{x:Bind ViewModel.LogoHeight, Mode=TwoWay}">
+            <NumberBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.Words.LogoHeightHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </NumberBox.Description>
+        </NumberBox>
         <NumberBox
             AutomationProperties.AutomationId="SettingsLogoOpacity"
             AutomationProperties.HelpText="{x:Bind ViewModel.Words.OpacityHint, Mode=OneWay}"
@@ -38,13 +44,16 @@
             AutomationProperties.AutomationId="SettingsBannerOpacity"
             AutomationProperties.HelpText="{x:Bind ViewModel.Words.OpacityHint, Mode=OneWay}"
             AutomationProperties.Name="{x:Bind ViewModel.Words.BannerOpacityLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.Words.OpacityHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.Words.BannerOpacityLabel, Mode=OneWay}"
             IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
             Maximum="{x:Bind ViewModel.OpacityMaximum, Mode=OneWay}"
             Minimum="{x:Bind ViewModel.OpacityMinimum, Mode=OneWay}"
             SpinButtonPlacementMode="Inline"
-            Value="{x:Bind ViewModel.BannerOpacity, Mode=TwoWay}" />
+            Value="{x:Bind ViewModel.BannerOpacity, Mode=TwoWay}">
+            <NumberBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.Words.OpacityHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </NumberBox.Description>
+        </NumberBox>
         <TextBox
             AutomationProperties.AutomationId="SettingsPrivacyUrl"
             AutomationProperties.HelpText="{x:Bind ViewModel.Words.LegalUrlHint, Mode=OneWay}"
@@ -56,22 +65,28 @@
             AutomationProperties.AutomationId="SettingsTermsUrl"
             AutomationProperties.HelpText="{x:Bind ViewModel.Words.LegalUrlHint, Mode=OneWay}"
             AutomationProperties.Name="{x:Bind ViewModel.Words.TermsLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.Words.LegalUrlHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.Words.TermsLabel, Mode=OneWay}"
             IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
-            Text="{x:Bind ViewModel.TermsUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            Text="{x:Bind ViewModel.TermsUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.Words.LegalUrlHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </TextBox.Description>
+        </TextBox>
         <ComboBox
             x:Name="LocaleChooser"
             HorizontalAlignment="Stretch"
             AutomationProperties.AutomationId="SettingsLocale"
             AutomationProperties.HelpText="{x:Bind ViewModel.Words.LocaleHint, Mode=OneWay}"
             AutomationProperties.Name="{x:Bind ViewModel.Words.LocaleLabel, Mode=OneWay}"
-            Description="{x:Bind ViewModel.Words.LocaleHint, Mode=OneWay}"
             Header="{x:Bind ViewModel.Words.LocaleLabel, Mode=OneWay}"
             IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
             ItemsSource="{x:Bind ViewModel.Locales}"
             SelectedIndex="{x:Bind ViewModel.LocaleIndex, Mode=OneWay}"
-            SelectionChanged="OnLocaleChanged" />
+            SelectionChanged="OnLocaleChanged">
+            <ComboBox.Description>
+                <TextBlock Text="{x:Bind ViewModel.Words.LocaleHint, Mode=OneWay}" TextWrapping="Wrap" />
+            </ComboBox.Description>
+        </ComboBox>
         <TextBlock
             AutomationProperties.AutomationId="SettingsBrandingError"
             AutomationProperties.LiveSetting="Polite"

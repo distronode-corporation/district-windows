@@ -13,12 +13,13 @@ use district_core::{
     CampaignCard, CampaignConfirm, Event, Model, Route, RunHistory, SignedIn, Tone,
     WorkflowControls, WorkflowList, WorkflowsEvent, WorkflowsScreen, trigger_label,
 };
+use district_l10n::WireCategory;
 use district_model::{CampaignStatus, WorkflowRun, WorkflowSummary};
 use serde::Serialize;
 
 use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
-use crate::views::{EmptyView, FailureView, LoadStatus, failure, humanize};
+use crate::views::{EmptyView, FailureView, LoadStatus, failure, humanize, localized};
 
 /// Whether this version has the area's screens. The packet that builds them
 /// sets it; until then [`crate::nav::built`] says no for its routes.
@@ -406,7 +407,10 @@ fn workflow_row(
     let detail = match &workflow.latest_run {
         Some(run) => format!(
             "{trigger}{DOT}{}",
-            s::workflows_last_run(l(), &humanize(&run.status).to_lowercase())
+            s::workflows_last_run(
+                l(),
+                &localized(WireCategory::WorkflowRunStatus, &run.status).to_lowercase(),
+            )
         ),
         None => format!("{trigger}{DOT}{}", s::workflows_not_run_yet(l())),
     };
@@ -452,7 +456,7 @@ fn runs_view(history: Option<&RunHistory>) -> RunsView {
 fn run_view(run: &WorkflowRun) -> RunView {
     RunView {
         run_id: run.id.clone(),
-        status: humanize(&run.status),
+        status: localized(WireCategory::WorkflowRunStatus, &run.status),
         tone: Tone::of_run(&run.status).into(),
         started_at: run.started_at.clone(),
         detail: run_line(run),
@@ -468,12 +472,17 @@ fn run_line(run: &WorkflowRun) -> String {
             let reason = action
                 .reason
                 .as_deref()
-                .map(|reason| format!(" ({})", humanize(reason).to_lowercase()))
+                .map(|reason| {
+                    format!(
+                        " ({})",
+                        localized(WireCategory::WorkflowActionReason, reason).to_lowercase()
+                    )
+                })
                 .unwrap_or_default();
             format!(
                 "{}: {}{reason}",
-                humanize(&action.action_type),
-                humanize(&action.outcome).to_lowercase()
+                localized(WireCategory::WorkflowAction, &action.action_type),
+                localized(WireCategory::WorkflowActionOutcome, &action.outcome).to_lowercase()
             )
         })
         .collect();

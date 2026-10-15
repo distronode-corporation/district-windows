@@ -28,12 +28,15 @@
                 AutomationProperties.AutomationId="CaldavServerUrl"
                 AutomationProperties.HelpText="{x:Bind ViewModel.Words.ServerUrlHint, Mode=OneWay}"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.ServerUrlLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.ServerUrlHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.ServerUrlLabel, Mode=OneWay}"
                 InputScope="Url"
                 IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
                 IsSpellCheckEnabled="False"
-                Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.ServerUrlHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
             <TextBlock
                 AutomationProperties.AutomationId="CaldavServerUrlError"
                 AutomationProperties.LiveSetting="Polite"
