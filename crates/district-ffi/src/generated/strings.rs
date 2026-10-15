@@ -3010,7 +3010,7 @@ pub fn workflows_goal_label(l: Locale) -> &'static str {
 pub fn workflows_last_run(l: Locale, status: &str) -> String {
     match l {
         Locale::En => format!("Last run {status}"),
-        Locale::FrCa => format!("Dernière exécution\u{00A0}: {status}"),
+        Locale::FrCa => format!("Dernier lancement\u{00A0}: {status}"),
     }
 }
 

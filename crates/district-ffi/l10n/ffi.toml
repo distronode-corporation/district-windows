@@ -3022,7 +3022,7 @@ note = "The campaign's goal row, as the Linux app labels it."
 
 [workflows.last_run]
 en = "Last run {status}"
-fr = "Dernière exécution\u00A0: {status}"
+fr = "Dernier lancement\u00A0: {status}"
 ctx = "label"
 screen = "workflows"
 tier = "T3"

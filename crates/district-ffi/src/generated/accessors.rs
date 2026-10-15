@@ -687,7 +687,7 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::workflows_goal_label(Locale::En), "Goal");
     assert_eq!(s::workflows_goal_label(Locale::FrCa), "Objectif");
     assert_eq!(s::workflows_last_run(Locale::En, "{status}"), "Last run {status}");
-    assert_eq!(s::workflows_last_run(Locale::FrCa, "{status}"), "Dernière exécution\u{00A0}: {status}");
+    assert_eq!(s::workflows_last_run(Locale::FrCa, "{status}"), "Dernier lancement\u{00A0}: {status}");
     assert_eq!(s::workflows_more_runs(Locale::En), "More runs");
     assert_eq!(s::workflows_more_runs(Locale::FrCa), "Afficher plus d'exécutions");
     assert_eq!(s::workflows_not_run_yet(Locale::En), "Not run yet");
