@@ -1,0 +1,175 @@
+name: QA visual and style capture
+
+# QA only, on visual-qa/* branches; never merged. Builds the scripted test
+# package (district-ffi's `scripted` feature: fictional sample data, no
+# network) and runs the scene walk with screenshots under each configuration:
+# Windows display language and regional format, app theme (light, dark, or
+# high contrast), and Accessibility text size (100 or 200 percent). Each
+# configuration uploads its screenshots (retention 3 days) for the visual and
+# style review between the QA builds and the Store submission.
+on:
+  push:
+    branches: ["visual-qa/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-visual-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+
+jobs:
+  capture:
+    name: capture (${{ matrix.name }})
+    if: ${{ !github.event.repository.private }}
+    runs-on: windows-2025
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: en-US-light-100, lang: en-US, culture: en-US, theme: light, scale: 100 }
+          - { name: en-US-dark-100, lang: en-US, culture: en-US, theme: dark, scale: 100 }
+          - { name: fr-CA-light-100, lang: fr-CA, culture: fr-CA, theme: light, scale: 100 }
+          - { name: fr-CA-dark-100, lang: fr-CA, culture: fr-CA, theme: dark, scale: 100 }
+          - { name: en-US-light-200, lang: en-US, culture: en-US, theme: light, scale: 200 }
+          - { name: en-US-dark-200, lang: en-US, culture: en-US, theme: dark, scale: 200 }
+          - { name: fr-CA-light-200, lang: fr-CA, culture: fr-CA, theme: light, scale: 200 }
+          - { name: fr-CA-dark-200, lang: fr-CA, culture: fr-CA, theme: dark, scale: 200 }
+          - { name: en-US-hc-100, lang: en-US, culture: en-US, theme: hc, scale: 100 }
+          - { name: fr-CA-hc-100, lang: fr-CA, culture: fr-CA, theme: hc, scale: 100 }
+    env:
+      AWS_LC_SYS_PREBUILT_NASM: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the stable toolchain
+        run: rustup toolchain install stable --profile minimal
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          save-if: false
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/libwebrtc/webrtc-win-x64-release.zip
+          key: libwebrtc-win-${{ hashFiles('scripts/fetch-libwebrtc.ps1') }}
+
+      - name: Fetch and verify libwebrtc
+        shell: pwsh
+        run: ./scripts/fetch-libwebrtc.ps1 (Join-Path $env:RUNNER_TEMP 'libwebrtc') -GitHubEnv
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: Build the scripted district_ffi.dll and a scripted test MSIX
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          cargo build -p district-ffi --locked --release --features scripted
+          if ($LASTEXITCODE -ne 0) { throw "cargo build failed with $LASTEXITCODE" }
+          $ffi = Join-Path $env:RUNNER_TEMP 'scripted-ffi'
+          New-Item -ItemType Directory -Force $ffi | Out-Null
+          Copy-Item target/release/district_ffi.dll $ffi
+          $publisher = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity.Publisher
+          $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher `
+            -KeyUsage DigitalSignature -FriendlyName 'District AI QA scripted test package' `
+            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1) `
+            -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
+          $out = Join-Path $env:RUNNER_TEMP 'ScriptedPackages'
+          try {
+            dotnet build src/DistrictAI/DistrictAI.csproj -c Release -p:Platform=x64 `
+              -p:DistrictFfiProfile=release "-p:DistrictFfiDir=$ffi\" -warnaserror `
+              -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=true `
+              -p:DebugType=none `
+              "-p:PackageCertificateThumbprint=$($cert.Thumbprint)" "-p:AppxPackageDir=$out\"
+            if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
+            Export-Certificate -Cert $cert -FilePath (Join-Path $out 'District-AI-QA-scripted.cer') | Out-Null
+          } finally {
+            Remove-Item -Path "Cert:\CurrentUser\My\$($cert.Thumbprint)" -DeleteKey
+          }
+
+      - name: Configure ${{ matrix.lang }}, theme ${{ matrix.theme }}, text ${{ matrix.scale }}%
+        shell: pwsh
+        env:
+          QA_LANG: ${{ matrix.lang }}
+          QA_CULTURE: ${{ matrix.culture }}
+          QA_THEME: ${{ matrix.theme }}
+          QA_SCALE: ${{ matrix.scale }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $languages = if ($env:QA_LANG -eq 'en-US') { @('en-US') } else { @($env:QA_LANG, 'en-US') }
+          Set-WinUserLanguageList -LanguageList $languages -Force
+          Set-Culture $env:QA_CULTURE
+          $personalize = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize'
+          if (-not (Test-Path $personalize)) { New-Item -Path $personalize | Out-Null }
+          $light = if ($env:QA_THEME -eq 'dark') { 0 } else { 1 }
+          Set-ItemProperty -Path $personalize -Name AppsUseLightTheme -Value $light -Type DWord
+          Set-ItemProperty -Path $personalize -Name SystemUsesLightTheme -Value $light -Type DWord
+          $accessibility = 'HKCU:\Software\Microsoft\Accessibility'
+          if (-not (Test-Path $accessibility)) { New-Item -Path $accessibility | Out-Null }
+          Set-ItemProperty -Path $accessibility -Name TextScaleFactor -Value ([int]$env:QA_SCALE) -Type DWord
+          Add-Type -TypeDefinition @'
+          using System;
+          using System.Runtime.InteropServices;
+          public static class QaSpi {
+            [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+            public struct HIGHCONTRAST { public int cbSize; public int dwFlags; public string lpszDefaultScheme; }
+            [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+            public static extern bool SystemParametersInfo(int action, int param, ref HIGHCONTRAST value, int winIni);
+            [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+            public static extern IntPtr SendMessageTimeout(IntPtr window, int message, IntPtr wParam, string lParam, int flags, int timeout, out IntPtr result);
+            public static bool HighContrastOn(string scheme) {
+              var hc = new HIGHCONTRAST { cbSize = Marshal.SizeOf(typeof(HIGHCONTRAST)), dwFlags = 1, lpszDefaultScheme = scheme };
+              return SystemParametersInfo(0x0043, hc.cbSize, ref hc, 3);
+            }
+            public static void Broadcast(string area) {
+              IntPtr ignored;
+              SendMessageTimeout((IntPtr)0xffff, 0x001A, IntPtr.Zero, area, 2, 5000, out ignored);
+            }
+          }
+          '@
+          if ($env:QA_THEME -eq 'hc') {
+            $ok = [QaSpi]::HighContrastOn('High Contrast Black')
+            Write-Host "SPI_SETHIGHCONTRAST: $ok"
+          }
+          [QaSpi]::Broadcast('ImmersiveColorSet')
+          [QaSpi]::Broadcast('WindowsThemeElement')
+          Get-WinUserLanguageList | Format-Table LanguageTag, Autonym
+          Get-Culture | Format-List Name, DisplayName
+          Get-ItemProperty $personalize | Format-List AppsUseLightTheme, SystemUsesLightTheme
+          Add-Type -AssemblyName System.Windows.Forms
+          Write-Host "high contrast: $([System.Windows.Forms.SystemInformation]::HighContrast)"
+          $scale = powershell -NoProfile -Command "[void][Windows.UI.ViewManagement.UISettings,Windows.UI.ViewManagement,ContentType=WindowsRuntime]; (New-Object Windows.UI.ViewManagement.UISettings).TextScaleFactor"
+          Write-Host "UISettings.TextScaleFactor: $scale"
+
+      - name: Scene walk with screenshots
+        shell: pwsh
+        timeout-minutes: 45
+        continue-on-error: true
+        run: |
+          $shots = Join-Path $env:RUNNER_TEMP 'screenshots'
+          New-Item -ItemType Directory -Force $shots | Out-Null
+          Start-Transcript -Path (Join-Path $shots 'walk-log.txt') -Force
+          try {
+            ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'ScriptedPackages') -Scripted -Screenshots $shots `
+              -Filter 'FullyQualifiedName~DistrictAI.UiTests.SceneWalkTests|FullyQualifiedName~DistrictAI.UiTests.QaShotTests'
+          } finally { Stop-Transcript }
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: vqa-${{ matrix.name }}
+          path: ${{ runner.temp }}/screenshots
+          retention-days: 3
+          if-no-files-found: warn
