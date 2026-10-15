@@ -128,12 +128,9 @@ fn opening(session: Session) -> Session {
     confirming(session).ui(action(BillingAction::ConfirmPurchase))
 }
 
-/// The start page did not answer in time: the link is being asked for.
+/// The start page answered: the link is being asked for, bound to its nonce.
 fn minting(session: Session) -> Session {
-    opening(session).answer(
-        |e| matches!(e, Effect::Wait { .. }),
-        |ticket| Event::WaitOver { ticket },
-    )
+    opening(session).hand_off_answered()
 }
 
 fn handed_off(session: Session, result: Result<Value, ApiError>) -> Session {
@@ -344,6 +341,34 @@ fn the_browser_fallback_is_said() {
     let shown = view(&in_browser(signed_in())).purchase.unwrap();
     let note = shown.in_browser_note.expect("the note");
     assert!(note.contains("browser"), "{note}");
+}
+
+/// The start page never answered (the window did not hand its
+/// `districtai://handoff` link over): after the wait nothing is asked for, the
+/// purchase is given up with a notice that can be retried, and a new press
+/// starts a new hand-off (security sweep S33: no link bound to no browser).
+#[test]
+fn an_unanswered_hand_off_asks_for_no_link() {
+    let session = opening(signed_in()).answer(
+        |e| matches!(e, Effect::Wait { .. }),
+        |ticket| Event::WaitOver { ticket },
+    );
+    assert!(
+        !session
+            .pending
+            .iter()
+            .any(|e| matches!(e, Effect::RequestBillingHandOff { .. })),
+        "{:?}",
+        session.pending
+    );
+    let shown = view(&session).purchase.unwrap();
+    let notice = shown.notice.expect("a notice");
+    assert!(notice.message.contains("didn't respond"), "{notice:?}");
+    assert!(notice.retryable && shown.enabled && !shown.opening);
+    let again = session
+        .ui(choose(Some(" save-100 ")))
+        .ui(action(BillingAction::ConfirmPurchase));
+    assert!(view(&again).purchase.unwrap().opening);
 }
 
 /// A refused hand-off says why, and the actions come back.

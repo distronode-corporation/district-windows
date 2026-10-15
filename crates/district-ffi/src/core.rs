@@ -739,7 +739,9 @@ impl<X: Effects> Actor<X> {
                     done.send(()).ok();
                     return;
                 }
-                Message::Push(push) => self.pushed = Some((push, Instant::now())),
+                Message::Push(push) => {
+                    self.pushed = PushMessage::waiting(self.pushed.take(), push, Instant::now());
+                }
             }
             self.deliver_push();
         }
@@ -760,8 +762,7 @@ impl<X: Effects> Actor<X> {
         // until then the core would refuse it as if the setting were off.
         let ready = |signed_in: &district_core::SignedIn| {
             signed_in.live.status != LiveStatus::Off
-                && (matches!(push, PushMessage::Message { .. })
-                    || signed_in.presence.ring_here.is_some())
+                && (!push.needs_ring_setting() || signed_in.presence.ring_here.is_some())
         };
         let user_id = match self.model.session() {
             SessionState::SignedIn(signed_in) if ready(signed_in) => {
@@ -948,6 +949,10 @@ mod tests {
                     tokio::time::sleep(self.save_takes).await;
                     None
                 }
+                Effect::ReadPurchaseSetting { ticket } => Some(Event::PurchaseSettingRead {
+                    ticket,
+                    setting: Some(district_core::PurchaseSetting::SignInEveryTime),
+                }),
                 _ => None,
             }
         }
@@ -1403,6 +1408,161 @@ mod tests {
             r#"{"type":"incoming_call","callId":"call-9","workspaceId":"ws-1"}"#.to_owned()
         ));
         eventually("the pushed call rings", || core.shell().ring.is_some()).await;
+        core.shutdown().await;
+    }
+
+    /// A ring's end pushed (the service's `call_ring_cancelled`, by WNS) stops
+    /// the ring it names as the socket's own event would: the ringtone, the
+    /// toast and the banner's Answer, which says the call was answered on
+    /// another device. The same end again changes nothing.
+    #[tokio::test]
+    async fn a_pushed_rings_end_stops_the_ring() {
+        use district_core::IncomingRing;
+
+        let core = Core::new();
+        let host = Arc::new(RecordingHost::default());
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            ring_here: true,
+            workspace: true,
+            ..FakeEffects::default()
+        });
+        core.start_with(calls_config(), Arc::clone(&effects), host);
+        assert!(core.push_received(
+            r#"{"type":"incoming_call","callId":"call-9","workspaceId":"ws-1"}"#.to_owned()
+        ));
+        eventually("the pushed call rings", || {
+            core.shell().ring.is_some_and(|ring| ring.sounding)
+        })
+        .await;
+        let end = r#"{"type":"call_ring_cancelled","callId":"call-9","workspaceId":"ws-1","reason":"answered"}"#;
+        assert!(core.push_received(end.to_owned()));
+        eventually("the ring stopped", || {
+            core.shell().ring.is_some_and(|ring| !ring.live)
+        })
+        .await;
+        let ring = core.shell().ring.unwrap();
+        assert_eq!(ring.caller, IncomingRing::ANSWERED_ELSEWHERE_TITLE);
+        assert_eq!(
+            ring.detail.as_deref(),
+            Some(IncomingRing::ANSWERED_ELSEWHERE)
+        );
+        assert!(!ring.show_answer && !ring.can_answer && !ring.sounding);
+        let stopped = |effect: &Effect| {
+            matches!(effect, Effect::StopRingtone)
+                || matches!(effect, Effect::WithdrawNotification { id } if id == "call:call-9")
+        };
+        eventually("the ringtone stopped and the toast withdrawn", || {
+            let ran = effects.ran.lock().unwrap();
+            ran.iter().any(|effect| matches!(effect, Effect::StopRingtone))
+                && ran.iter().any(|effect| {
+                    matches!(effect, Effect::WithdrawNotification { id } if id == "call:call-9")
+                })
+        })
+        .await;
+        let before = effects.ran.lock().unwrap().len();
+
+        // The same end again, then another call's ring: the actor takes them
+        // in order, so once the second call rings the repeat has been read.
+        assert!(core.push_received(end.to_owned()));
+        assert!(core.push_received(
+            r#"{"type":"incoming_call","callId":"call-10","workspaceId":"ws-1"}"#.to_owned()
+        ));
+        eventually("the next call rings", || {
+            core.shell()
+                .ring
+                .is_some_and(|ring| ring.call_id == "call-10" && ring.sounding)
+        })
+        .await;
+        let ran = effects.ran.lock().unwrap()[before..].to_vec();
+        assert!(!ran.iter().any(stopped), "{ran:?}");
+        core.shutdown().await;
+    }
+
+    /// Manage billing's hand-off, as Windows routes it: the start page the
+    /// core opens in the checkout view answers with `districtai://handoff`,
+    /// which the view (or protocol activation, from the system browser)
+    /// hands to [`Core::open_link`]. The core asks for the billing link bound
+    /// to that answer's nonce, at once; a link that does not answer this
+    /// hand-off, or protocol activation's form of the right one with a `/`
+    /// path, is held to the same check.
+    #[tokio::test]
+    async fn a_hand_off_answer_reaches_the_core_and_binds_the_link() {
+        use district_core::EmbeddedView;
+
+        let core = Core::new();
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            workspace: true,
+            ..FakeEffects::default()
+        });
+        core.start_with(
+            config(),
+            Arc::clone(&effects),
+            Arc::new(RecordingHost::default()),
+        );
+        let start = |effect: &Effect| match effect {
+            Effect::OpenEmbedded {
+                url,
+                view: EmbeddedView::NewPrivate,
+            } => Some(url.expose().to_owned()),
+            _ => None,
+        };
+        eventually("signed in", || phase(&core) == SessionPhase::SignedIn).await;
+        // Manage billing is offered once the workspace list and the purchases
+        // setting are read; a press before then does nothing. Each press that
+        // is taken opens a fresh start page, so the last one opened is the
+        // hand-off waited for.
+        let mut opened = false;
+        for _ in 0..100 {
+            core.send(UiEvent::Billing {
+                action: crate::billing::BillingAction::ManageInApp,
+            });
+            tokio::time::sleep(Duration::from_millis(20)).await;
+            if effects.ran(|effect| start(effect).is_some()) {
+                opened = true;
+                break;
+            }
+        }
+        assert!(opened, "the start page never opened in the checkout view");
+        let page = effects
+            .ran
+            .lock()
+            .unwrap()
+            .iter()
+            .rev()
+            .find_map(start)
+            .unwrap();
+        assert!(page.starts_with("https://www.distronode.com/dashboard/handoff/start?state="));
+        let state = page.split_once("state=").unwrap().1.to_owned();
+        let minted = || {
+            effects
+                .ran
+                .lock()
+                .unwrap()
+                .iter()
+                .filter_map(|effect| match effect {
+                    Effect::RequestBillingHandOff { nonce, .. } => {
+                        Some(nonce.as_ref().map(|nonce| nonce.as_str().to_owned()))
+                    }
+                    _ => None,
+                })
+                .collect::<Vec<_>>()
+        };
+
+        // Another hand-off's answer is refused, and cancels nothing.
+        let nonce = "n".repeat(district_auth::HAND_OFF_NONCE_LEN);
+        let stray = format!(
+            "districtai://handoff?state={}&nonce={nonce}",
+            "s".repeat(32)
+        );
+        assert_eq!(core.open_link(stray), LinkKind::Handoff);
+        // This one's, as protocol activation writes it (System.Uri's
+        // AbsoluteUri adds the `/`).
+        let answer = format!("districtai://handoff/?state={state}&nonce={nonce}");
+        assert_eq!(core.open_link(answer), LinkKind::Handoff);
+        eventually("the link is asked for", || !minted().is_empty()).await;
+        assert_eq!(minted(), vec![Some(nonce)]);
         core.shutdown().await;
     }
 

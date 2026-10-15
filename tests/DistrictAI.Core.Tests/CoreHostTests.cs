@@ -192,6 +192,8 @@ public sealed class CoreHostTests : IDisposable
         host.Start(_dataDir, "0.1.0", null, Namespace, _english);
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
         Assert.True(host.PushReceived("{\"type\":\"message\",\"messageId\":\"m-1\",\"workspaceId\":\"ws-1\"}"));
+        // A ring's end (3.0.1) is read too: nothing rings here, so it changes nothing.
+        Assert.True(host.PushReceived("{\"type\":\"call_ring_cancelled\",\"callId\":\"c-1\",\"workspaceId\":\"ws-1\",\"reason\":\"answered\"}"));
         Assert.False(host.PushReceived("not a push"));
         // Not a channel: nothing is sent. Signed out: there is no bearer to send with.
         Assert.IsType<PushRegistration.NotAChannel>(await host.RegisterPushChannelAsync("https://example.com/w/"));
@@ -334,9 +336,23 @@ public sealed class CoreHostTests : IDisposable
             embedded.Opened);
     }
 
+    [Fact]
+    public void ARingsEndDecodesWithItsReason()
+    {
+        var end = Assert.IsType<PushMessage.RingCancelled>(
+            DistrictFfi.DecodePush("{\"type\":\"call_ring_cancelled\",\"workspaceId\":\"ws-1\",\"callId\":\"c-1\",\"reason\":\"timeout\"}"));
+        Assert.Equal(("c-1", "ws-1", "timeout"), (end.CallId, end.WorkspaceId, end.Reason));
+        // An unknown reason is still a ring's end; the core reads it as withdrawn.
+        Assert.IsType<PushMessage.RingCancelled>(
+            DistrictFfi.DecodePush("{\"type\":\"call_ring_cancelled\",\"workspaceId\":\"ws-1\",\"callId\":\"c-1\",\"reason\":\"parked\"}"));
+        Assert.Null(DistrictFfi.DecodePush("{\"type\":\"call_ring_cancelled\",\"workspaceId\":\"ws-1\"}"));
+    }
+
     [Theory]
     [InlineData("districtai://auth?code=c&state=s", LinkKind.Auth)]
     [InlineData("districtai://handoff", LinkKind.Handoff)]
+    // As protocol activation hands it over (System.Uri.AbsoluteUri adds the path's "/").
+    [InlineData("districtai://handoff/?state=s&nonce=n", LinkKind.Handoff)]
     [InlineData("districtai://elsewhere", LinkKind.Unknown)]
     public void TheLinkKindIsTheCores(string uri, LinkKind kind) =>
         Assert.Equal(kind, DistrictFfi.LinkKind(uri));

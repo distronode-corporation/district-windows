@@ -202,12 +202,9 @@ fn checkout_from_the_overview_makes_and_opens_the_first_workspace() {
     assert!(shown.opening);
     assert_eq!(shown.opening_label, PurchaseState::OPENING);
 
-    // The start page did not answer in time: the link is asked for, for no
-    // workspace, so checkout is told why.
-    let session = session.answer(
-        |e| matches!(e, Effect::Wait { .. }),
-        |ticket| Event::WaitOver { ticket },
-    );
+    // The start page answered: the link is asked for, bound to that answer,
+    // for no workspace, so checkout is told why.
+    let session = session.hand_off_answered();
     let Some(Effect::RequestBillingHandOff {
         workspace_id,
         destination,

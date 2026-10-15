@@ -37836,6 +37836,17 @@ public record PushMessage {
     ) : PushMessage {}
     
     /// <summary>
+    /// A ring the service started for this member has ended: answered on
+    /// some device, timed out, the caller gone or withdrawn. The core stops
+    /// it only where it still rings for that call, never a call answered here.
+    /// </summary>
+    public record RingCancelled (
+        string CallId,
+        string WorkspaceId,
+        string Reason
+    ) : PushMessage {}
+    
+    /// <summary>
     /// A message arrived.
     /// </summary>
     public record Message (
@@ -37859,6 +37870,12 @@ class FfiConverterTypePushMessage : FfiConverterRustBuffer<PushMessage>{
                     FfiConverterString.INSTANCE.Read(stream)
                 );
             case 2:
+                return new PushMessage.RingCancelled(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
                 return new PushMessage.Message(
                     FfiConverterString.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
@@ -37874,6 +37891,11 @@ class FfiConverterTypePushMessage : FfiConverterRustBuffer<PushMessage>{
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.CallId)
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkspaceId);
+            case PushMessage.RingCancelled variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.CallId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkspaceId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Reason);
             case PushMessage.Message variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.MessageId)
@@ -37890,8 +37912,14 @@ class FfiConverterTypePushMessage : FfiConverterRustBuffer<PushMessage>{
                 FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.WorkspaceId, stream);
                 break;
-            case PushMessage.Message variant_value:
+            case PushMessage.RingCancelled variant_value:
                 stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.WorkspaceId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Reason, stream);
+                break;
+            case PushMessage.Message variant_value:
+                stream.WriteInt(3);
                 FfiConverterString.INSTANCE.Write(variant_value.MessageId, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.WorkspaceId, stream);
                 break;
