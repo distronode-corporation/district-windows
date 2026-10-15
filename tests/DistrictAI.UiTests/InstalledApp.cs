@@ -201,12 +201,17 @@ internal sealed partial class InstalledApp : IDisposable
     /// every language. With <paramref name="onScreen"/> false, an element
     /// scrolled out of view counts too.
     /// </summary>
-    public AutomationElement FindById(string automationId, TimeSpan timeout, bool onScreen = true) =>
-        Wait.For(
+    public AutomationElement FindById(string automationId, TimeSpan timeout, bool onScreen = true)
+    {
+        var found = Wait.For(
             () => TryFindById(automationId, onScreen),
             timeout,
             $"an element with AutomationId \"{automationId}\"",
             Describe);
+        // QA only (visual-qa/* branches): dialogs and forms saved as found.
+        Walk.CaptureIfDialog(this, automationId);
+        return found;
+    }
 
     /// <summary>What <see cref="FindById"/> finds, now, or null.</summary>
     public AutomationElement? TryFindById(string automationId, bool onScreen = true) =>
