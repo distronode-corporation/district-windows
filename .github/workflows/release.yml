@@ -14,8 +14,9 @@ name: Release
 #
 # - `guard` refuses a tag that should not be built: one on a commit that is not
 #   on main (CI never tested it), one that Package.appxmanifest's Version does
-#   not name (tag vX.Y.Z needs Version X.Y.Z.0), or one without a CHANGELOG.md
-#   section to make the notes from. It also makes the source zip.
+#   not name (tag vX.Y.Z needs Version X.Y.Z.0), one without a CHANGELOG.md
+#   section to make the notes from, or one whose catalogs are not the ones
+#   i18n/fr-CA/signoff.json signed off. It also makes the source zip.
 # - `build` builds the Store and sideload packages and the unsigned GitHub
 #   flavour on windows-2025 from the committed lock files, with no caches,
 #   checks what is inside them (identity, version, ReadyToRun), and runs the
@@ -98,6 +99,15 @@ jobs:
             exit 1
           fi
           echo "$GITHUB_SHA is on main"
+
+      # The French is signed off per release: every catalog must be the one
+      # i18n/fr-CA/signoff.json records, and scripts/check-fr-signoff.py names
+      # each one that is not. On a tag only; a pull request's dry run is not a
+      # release, and catalogs change between releases (CONTRIBUTING.md,
+      # "Releasing").
+      - name: The catalogs are the signed-off French
+        if: github.event_name == 'push'
+        run: python3 scripts/check-fr-signoff.py
 
       # Tag vX.Y.Z needs Identity/@Version X.Y.Z.0 (the Store requires the
       # fourth part to be 0). A pull request has no tag, so its dry run takes

@@ -273,6 +273,19 @@ jobs:
       - name: Every catalog has reviewed French
         run: python3 scripts/gen-l10n.py --require-french
 
+      # frcheck's French rules (typography, terms, sentence case, one French
+      # version of an English string across catalogs) over every catalog, as
+      # district-core-swift and district-linux run them. Warnings print; an
+      # error fails the job.
+      - name: The French rules (frcheck)
+        run: python3 tools/l10n/frcheck.py all --termbase '' --tm '' .
+
+      # The French sign-off check itself runs in release.yml's guard, on a tag
+      # only: catalogs change between releases. Its self-test reads no catalog,
+      # so it runs here.
+      - name: The French sign-off check still catches what it claims to
+        run: python3 scripts/check-fr-signoff.py --self-test
+
       # 1.0 offers no sign-up and no purchase in the app, as its Store listing says.
       - name: No sign-up or purchase wording in the app (and the check still catches it)
         run: |

@@ -1,0 +1,19 @@
+{
+  "signed_off_by": "xhigh manager review (monorepo docs/i18n_fr_ca_signoff_v3.md)",
+  "release": "v3.0.0",
+  "commit": "8056e8cc6818f8fac0a9cdeb6d857841e44e9bae",
+  "catalogs": [
+    {
+      "path": "crates/district-ffi/l10n/ffi.toml",
+      "sha256": "af824fe84eaa1567b522a2018c7822a26474a133c5622deca966130dc1e0bf35"
+    },
+    {
+      "path": "src/DistrictAI/l10n/manifest.toml",
+      "sha256": "035447c62a1b2c8b72d565061c5c7f0dea47a73795bd1fdfdc41bc72d376dfde"
+    },
+    {
+      "path": "src/DistrictAI/l10n/ui.toml",
+      "sha256": "b45a46e2f1fb2611dbd7af8732f5278da5d98d680f8fc3886d381f1b1b74ff81"
+    }
+  ]
+}
