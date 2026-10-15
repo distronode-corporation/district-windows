@@ -65,6 +65,7 @@ internal static class Walk
                 if (shots is { Length: > 0 })
                 {
                     Save(handle, Path.Combine(shots, FormattableString.Invariant($"{index:D2}-{FileName(name)}.png")), clientOnly: true);
+                    SaveBelowTheFold(app, handle, Path.Combine(shots, FormattableString.Invariant($"{index:D2}-{FileName(name)}-end.png")));
                 }
             }
         }
@@ -418,6 +419,94 @@ internal static class Walk
         using var image = whole.Clone(crop, PixelFormat.Format32bppArgb);
         image.Save(path, ImageFormat.Png);
         InstalledApp.Log(FormattableString.Invariant($"saved {path} ({image.Width}x{image.Height})"));
+    }
+
+    /// <summary>
+    /// QA only (visual-qa/* branches): the page's main scroll viewer (the
+    /// widest vertically scrollable element on screen, so not the pane)
+    /// scrolled to its end and saved, then back to the top. Nothing when the
+    /// page fits.
+    /// </summary>
+    public static void SaveBelowTheFold(InstalledApp app, nint handle, string path)
+    {
+        const double NoScroll = -1;
+        try
+        {
+            var viewer = app.TryMainWindow()
+                ?.FindAllDescendants(cf => cf.ByControlType(ControlType.Pane).Or(cf.ByControlType(ControlType.List)).Or(cf.ByControlType(ControlType.Group)))
+                .Where(element => !element.Properties.IsOffscreen.ValueOrDefault
+                    && element.Patterns.Scroll.PatternOrDefault is { } scroll
+                    && scroll.VerticallyScrollable.ValueOrDefault
+                    && scroll.VerticalViewSize.ValueOrDefault < 99.5)
+                .OrderByDescending(element => element.BoundingRectangle.Width * element.BoundingRectangle.Height)
+                .FirstOrDefault();
+            if (viewer?.Patterns.Scroll.PatternOrDefault is not { } pattern)
+            {
+                return;
+            }
+            pattern.SetScrollPercent(NoScroll, 100);
+            Thread.Sleep(600);
+            Save(handle, path, clientOnly: true);
+            pattern.SetScrollPercent(NoScroll, 0);
+            Thread.Sleep(300);
+        }
+        catch (Exception error) when (error is not OutOfMemoryException)
+        {
+            InstalledApp.Log($"below the fold not saved for {Path.GetFileName(path)}: {error.GetType().Name} {error.Message}");
+        }
+    }
+
+    private static readonly HashSet<string> _captured = [];
+
+    /// <summary>
+    /// QA only (visual-qa/* branches): the first time a walk finds a dialog
+    /// or an in-page form by its AutomationId, with DISTRICTAI_SCREENSHOTS set,
+    /// the window is saved as it shows it (dialogs/&lt;test&gt;-&lt;id&gt;.png),
+    /// at a 1920x1080 client area. Never fails the walk.
+    /// </summary>
+    public static void CaptureIfDialog(InstalledApp app, string automationId)
+    {
+        var shots = Environment.GetEnvironmentVariable("DISTRICTAI_SCREENSHOTS");
+        if (shots is not { Length: > 0 }
+            || !(automationId.EndsWith("Dialog", StringComparison.Ordinal)
+                || automationId.EndsWith("FormTitle", StringComparison.Ordinal)
+                || automationId.EndsWith("ConfirmTitle", StringComparison.Ordinal)
+                || automationId.EndsWith("DeleteTitle", StringComparison.Ordinal)
+                || automationId.EndsWith("RemoveTitle", StringComparison.Ordinal)
+                || automationId.EndsWith("AskTitle", StringComparison.Ordinal)
+                || automationId is "ComposeBody" or "TranscriptHeading" or "MinutesHeading"))
+        {
+            return;
+        }
+        var test = TestContext.Current.Test?.TestDisplayName is { } display ? display.Split('.').Last() : "test";
+        var key = $"{test}-{automationId}";
+        lock (_captured)
+        {
+            if (!_captured.Add(key))
+            {
+                return;
+            }
+        }
+        try
+        {
+            if (app.TryMainWindow() is not { } window)
+            {
+                return;
+            }
+            var handle = window.Properties.NativeWindowHandle.Value;
+            if (!Native.GetClientRect(handle, out var client) || client.Width != 1920 || client.Height != 1080)
+            {
+                Native.Frameless(handle, 1920, 1080);
+                _ = Wait.Until(() => Native.GetClientRect(handle, out var now) && now.Width == 1920 && now.Height == 1080, TimeSpan.FromSeconds(10));
+            }
+            // A ContentDialog fades and scales in.
+            Thread.Sleep(700);
+            Save(handle, Path.Combine(shots, "dialogs", $"{FileName(test)}-{automationId}.png"), clientOnly: true);
+        }
+        catch (Exception error) when (error is not OutOfMemoryException)
+        {
+            InstalledApp.Log($"dialog shot {key} not saved: {error.GetType().Name} {error.Message}");
+        }
     }
 
     /// <summary>A file name made of <paramref name="entry"/>: letters and digits, the rest dashes.</summary>
