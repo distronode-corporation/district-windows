@@ -43,7 +43,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   hands its `districtai://handoff` answer to the app, and only then asks for the
   checkout or billing link, bound to that answer's nonce; when the app has to use your
   browser instead, the answer comes back through the `districtai:` link. When no
-  answer arrives within ten seconds, Billing now says "Your browser didn't respond to
+  answer arrives within thirty seconds, Billing now says "Your browser didn't respond to
   District AI in time, so the page wasn't opened. Try again, and let your browser
   open District AI if it asks." instead of opening a link bound to no browser.
 - The shared core is district-core-rust 4.0.2, which reads the service's
