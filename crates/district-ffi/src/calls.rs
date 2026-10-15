@@ -2,7 +2,8 @@
 //! show, row for row.
 
 use district_core::{
-    CallDetailScreen, CallLog, CallView, Capabilities, TranscriptView, format_phone_number,
+    CallDetailScreen, CallLog, CallView, Capabilities, TranscriptView, call_duration_label,
+    format_phone_number,
 };
 use district_l10n::WireCategory;
 use district_model::{CallAnalysis, CallSummary, PhoneIntel};
@@ -152,7 +153,7 @@ fn outbound(call: &CallSummary) -> bool {
 /// The length of a call somebody took, or `None` for one nobody did.
 fn duration(call: &CallSummary) -> Option<String> {
     (call.duration_raw.unwrap_or(0) > 0)
-        .then(|| call.duration.clone())
+        .then(|| call_duration_label(call))
         .filter(|duration| !duration.trim().is_empty())
 }
 

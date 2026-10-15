@@ -157,7 +157,7 @@ fn carrier_ready() -> Session {
                     ..ProviderStatusEntry::default()
                 },
             )])),
-            provider: Some("twilio".to_owned()),
+            provider: Some(Some("twilio".to_owned())),
         })),
     );
     let session = done(

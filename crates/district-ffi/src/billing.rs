@@ -12,8 +12,8 @@
 
 use district_core::{
     AccountSection, BillingEvent, BillingScreen, Event, Model, PlanCard, PlanChoice, PlanStatus,
-    PlanTerm, PlanTier, PromoCode, PurchaseSetting, Renewal, Route, SignedIn, format_cents,
-    invoice_amount, meter_fraction, minutes_used, overage_note, plan_name,
+    PlanTerm, PlanTier, PromoCode, PurchaseSetting, Renewal, Route, SignedIn, invoice_price,
+    meter_fraction, minutes_used, overage_note, plan_name, subscription_price,
 };
 use district_model::{BillingInvoice, BillingSubscription, WorkspaceBilling};
 use serde::Serialize;
@@ -476,7 +476,7 @@ fn subscription_row(subscription: &BillingSubscription) -> SubscriptionRowView {
         id: subscription.id.clone(),
         name: subscription.tier_name.clone(),
         status: subscription.status.clone(),
-        amount: subscription.amount.map(format_cents),
+        amount: subscription_price(subscription),
         renews_at: match renewal {
             Some(Renewal::Renews(at)) => Some(at),
             _ => None,
@@ -495,7 +495,7 @@ fn subscription_row(subscription: &BillingSubscription) -> SubscriptionRowView {
 fn invoice_row(invoice: &BillingInvoice) -> InvoiceRowView {
     InvoiceRowView {
         id: invoice.id.clone(),
-        amount: format_cents(invoice_amount(invoice)),
+        amount: invoice_price(invoice),
         status: invoice.status.clone().unwrap_or_default(),
         created: invoice.created,
         can_open: invoice.hosted_invoice_url.is_some(),

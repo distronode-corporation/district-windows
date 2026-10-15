@@ -46,6 +46,9 @@ mod settings;
 mod support;
 mod workflows;
 
+// French (3.0).
+mod french;
+
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 

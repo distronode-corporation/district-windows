@@ -19,8 +19,8 @@
                   {
                     "event": "booking.created",
                     "id": "whd-contract-1",
-                    "outcome": "delivered",
-                    "tone": "Neutral",
+                    "outcome": "Delivered",
+                    "tone": "Success",
                     "when": "Sep 10, 2026, 5:00 a.m."
                   },
                   {

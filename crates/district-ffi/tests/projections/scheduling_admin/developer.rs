@@ -771,16 +771,15 @@ fn a_webhooks_deliveries_open_under_it() {
         .iter()
         .map(|d| (d.id.as_str(), d.event.as_str(), d.outcome.as_str(), d.tone))
         .collect();
-    // The fixture's first delivery says "delivered", which the core's words
-    // do not know: shown as it came.
+    // The fixture's first delivery says "success", as the scheduler does.
     assert_eq!(
         outcomes,
         [
             (
                 "whd-contract-1",
                 "booking.created",
-                "delivered",
-                RunTone::Neutral
+                "Delivered",
+                RunTone::Success
             ),
             (
                 "whd-contract-2",
@@ -823,7 +822,19 @@ fn a_webhook_is_added_and_changed() {
     assert!(open.creating);
     assert_eq!(open.url_label, "Endpoint URL");
     assert_eq!(open.url_hint, "Where each delivery is posted. https only.");
-    assert_eq!(open.events.len(), 7);
+    // The four booking events, as the web portal offers them; the scheduler's
+    // recording, transcript and notes events never fire (no meeting is
+    // recorded), so they are not offered.
+    let offered: Vec<&str> = open.events.iter().map(|e| e.value.as_str()).collect();
+    assert_eq!(
+        offered,
+        [
+            "booking.created",
+            "booking.cancelled",
+            "booking.rescheduled",
+            "booking.reminder"
+        ]
+    );
     assert!(open.events.iter().all(|e| !e.on && e.mark.is_none()));
     let personal: Vec<(&str, bool)> = open
         .fields
@@ -934,6 +945,28 @@ fn a_webhook_is_added_and_changed() {
         .expect("still open");
     assert!(refused.dialog.failure.is_some() && refused.editable);
     assert!(refused.events[2].on, "the change is kept");
+
+    // A webhook that already sends an event the form does not offer: none of
+    // the four is ticked, and a save keeps the one it sends.
+    let other = webhooks(signed_in()).ui(event(DeveloperAction::OpenEditWebhook {
+        webhook_id: RECORDINGS.to_owned(),
+    }));
+    let open = developer_view(&other).webhook_dialog.expect("open");
+    assert_eq!(open.events.len(), 4);
+    assert!(open.events.iter().all(|e| !e.on));
+    assert_eq!(open.dropped, None);
+    let kept = other
+        .ui(event(DeveloperAction::ToggleEvent {
+            event: "booking.created".to_owned(),
+        }))
+        .ui(event(DeveloperAction::SaveWebhook));
+    assert!(sent(&kept, |r| matches!(
+        r,
+        SchedulingAdminRequest::PatchWebhook { id, events: Some(events), .. }
+            if id == RECORDINGS
+                && events.iter().any(|e| e == "recording.completed")
+                && events.iter().any(|e| e == "booking.created")
+    )));
 
     // Deleting a webhook is asked once more.
     let asked = webhooks(signed_in()).ui(event(DeveloperAction::AskDeleteWebhook {
