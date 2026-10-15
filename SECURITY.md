@@ -16,12 +16,13 @@ through the same channels; we will route it.
 
 ## Supported versions
 
-There is no release yet. Once there is, only the latest release receives security fixes.
+Only the latest release (3.0.0) receives security fixes, in the Microsoft Store build and
+the builds on GitHub Releases alike. Fixes ship in a new release rather than being
+backported.
 
 ## The security model, in short
 
-These are the rules the app is being built to. Each will be stated in full, with the code
-that enforces it, before the first release.
+These are the rules the app is built to.
 
 - **Sign-in** happens in your browser, with OAuth 2.0 and PKCE. The app never sees your
   password. The verifier lives only in the memory of the running app, and a second copy of
@@ -31,4 +32,6 @@ that enforces it, before the first release.
 - **Logging.** The app writes no log of its own, and its Rust core is compiled so that
   nothing below warning level can be logged at all, because some libraries it depends on
   would otherwise log secrets at debug level.
-- **Calls** are end-to-end encrypted between participants.
+- **Calls.** Audio is end-to-end encrypted between participants only in a room the service
+  gives an encryption passphrase for, as it does for a meeting room. A phone call is not:
+  its room has a telephone leg that the carrier delivers unencrypted.

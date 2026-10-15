@@ -31,8 +31,11 @@ public static class Program
             return 0;
         }
         // The language of every string the app writes, before any XAML loads:
-        // English, unless this is a French build and the user's languages pick French.
+        // Canadian French when this is a French build (every release from 3.0)
+        // and the user's Windows languages pick French, else English. Windows'
+        // own resources follow it.
         S.Current = Languages.French ? S.Locale.FrCa : S.Locale.En;
+        Languages.ApplyToWindows();
         Application.Start(started =>
         {
             var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());

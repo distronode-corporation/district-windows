@@ -19,6 +19,7 @@ use district_core::{
     KnowledgeSection, KnowledgeWrite, Model, Route, SignedIn, WorkspaceSection,
     knowledge_mode_body, knowledge_mode_label,
 };
+use district_l10n::WireCategory;
 use district_model::{KnowledgeDocument, KnowledgeMode};
 use serde::Serialize;
 
@@ -28,7 +29,7 @@ pub use crate::files::PickedFileView;
 use crate::files::{FileKind, FilePickView, file_kind};
 use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
-use crate::views::{EmptyView, FailureView, humanize};
+use crate::views::{EmptyView, FailureView, localized};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
@@ -373,7 +374,7 @@ fn document(document: &KnowledgeDocument) -> KnowledgeDocumentView {
             "failed" => DocumentState::Failed,
             _ => DocumentState::Other,
         },
-        state_label: humanize(&document.status),
+        state_label: localized(WireCategory::KnowledgeDocumentStatus, &document.status),
         pieces: match document.chunk_count {
             count if count <= 0 => None,
             count => Some(s::knowledge_pieces(l(), count)),

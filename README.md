@@ -1,5 +1,7 @@
 # District AI for Windows
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/distronode-corporation/district-windows/badge)](https://scorecard.dev/viewer/?uri=github.com/distronode-corporation/district-windows)
+
 The native Windows client for [District AI](https://www.distronode.com), the AI voice
 receptionist from Distronode. It is a WinUI 3 app written in C#, and everything it decides
 (signing in, what each screen shows, live updates, calls) comes from the same Rust core as
@@ -12,7 +14,8 @@ receptionist from Distronode. It is a WinUI 3 app written in C#, and everything 
 > also carries the Store package and a test build for sideloading, for testing (see
 > [Releases](#releases)).
 
-**Links:** [GitLab mirror](https://gitlab.com/distronode-corporation/district-windows)
+**Links:** [project page](https://www.distronode.com/open-source/district-windows),
+[GitLab mirror](https://gitlab.com/distronode-corporation/district-windows)
 (read-only mirror; issues and pull requests live on GitHub),
 [CHANGELOG](CHANGELOG.md).
 
@@ -20,12 +23,18 @@ receptionist from Distronode. It is a WinUI 3 app written in C#, and everything 
 
 The app is a desktop window onto a District AI workspace: the inbox, calls and their
 transcripts, contacts, District HQ, analytics and the workspace's settings. Calls can ring
-on the desktop and be answered there, as on the Linux and Mac apps. Calls and messages
-also reach it when the app is closed (the Microsoft Store build, through Windows push
-notifications); the GitHub build rings only while it runs. It mirrors the destinations of
-the Android app.
+on the desktop and be answered there while the app runs, as on the Linux and Mac apps. It
+mirrors the destinations of the Android app.
 
-You need a District AI account to use it.
+Signing in needs a District AI account, and this is the one District AI app where you can
+create an account and buy a plan from the app itself. The app is open source; the District
+AI service it talks to is not.
+
+**Without an account with us.** We want the District AI apps to work without an account
+with us too. We have not worked out what that looks like or whether it can work, and the
+answer depends on what people would use them with, so we are asking before we build
+anything:
+[tell us what you would connect them to](https://github.com/distronode-corporation/.github/discussions/1).
 
 ## Platform
 
@@ -33,7 +42,7 @@ You need a District AI account to use it.
 |---|---|
 | Windows | Windows 10 version 2004 or later, and Windows 11, on x64. Windows 11 on ARM runs the x64 build |
 | Distribution | The [Microsoft Store](https://apps.microsoft.com/detail/9P9F0NNFJ3CP) (`winget install --id 9P9F0NNFJ3CP --source msstore`); [GitHub Releases](https://github.com/distronode-corporation/district-windows/releases) for the Store package and a sideload test build, for testing |
-| Language | English |
+| Language | English and Canadian French (fr-CA). The app speaks French when the first English or French language in your Windows display languages is French, in any region (fr-CA, fr-FR, fr-BE, fr-CH), and English otherwise |
 
 ## Releases
 

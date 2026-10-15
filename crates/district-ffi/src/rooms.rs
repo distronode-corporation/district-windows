@@ -19,13 +19,14 @@ use district_core::{
     MeetingList, MeetingRecord, MicrophoneState, Model, RoomsEvent, Route, SignedIn,
     WorkspacesState, format_duration, is_in_progress,
 };
+use district_l10n::WireCategory;
 use district_model::{MeetRoomName, MeetingDetail, MeetingSummary};
 use serde::Serialize;
 use serde_json::Value;
 
 use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
-use crate::views::{EmptyView, FactView, FailureView, LoadStatus, ReportAvailability, humanize};
+use crate::views::{EmptyView, FactView, FailureView, LoadStatus, ReportAvailability, localized};
 
 /// Whether this version has the area's screens.
 pub(crate) const BUILT: bool = true;
@@ -491,7 +492,10 @@ fn record_view(record: &MeetingRecord, capabilities: &Capabilities) -> MeetingRe
                 title: meeting_title(meeting.title.as_deref(), &meeting.room_name),
                 status: LoadStatus::Ready,
                 facts: crate::views::facts([
-                    (s::rooms_fact_status(l()), Some(humanize(&meeting.status))),
+                    (
+                        s::rooms_fact_status(l()),
+                        Some(localized(WireCategory::MeetingStatus, &meeting.status)),
+                    ),
                     (
                         s::rooms_fact_length(l()),
                         (meeting.duration_sec > 0).then(|| format_duration(meeting.duration_sec)),

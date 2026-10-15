@@ -11,14 +11,14 @@
               "can_open": true,
               "created": 1754231400,
               "id": "in_contract_paid",
-              "status": "paid"
+              "status": "Paid"
             },
             {
               "amount": "$15.00",
               "can_open": false,
               "created": 1756909800,
               "id": "in_contract_open",
-              "status": "open"
+              "status": "Open"
             }
           ],
           "invoices_truncated": "Showing your most recent invoices. Older ones are on the website.",
@@ -33,7 +33,7 @@
               "id": "sub_contract_pro",
               "name": "District AI Voice Pro",
               "renews_at": 1756909800,
-              "status": "active"
+              "status": "Active"
             },
             {
               "amount": "$15.00",
@@ -42,7 +42,7 @@
               "id": "sub_contract_legacy",
               "name": "Legacy Add-on",
               "renews_at": null,
-              "status": "active"
+              "status": "Active"
             }
           ],
           "title": null

@@ -20,1074 +20,1074 @@ namespace DistrictAI.L10n
         public static Locale Current { get; set; } = Locale.En;
 
         /// <summary>True when every entry has French; until then the French branch carries the English.</summary>
-        public const bool FrComplete = false;
+        public const bool FrComplete = true;
 
         /// <summary><c>account.app_name</c></summary>
-        public static string AccountAppName => Current == Locale.FrCa ? "District AI for Windows" : "District AI for Windows";
+        public static string AccountAppName => Current == Locale.FrCa ? "District AI pour Windows" : "District AI for Windows";
 
         /// <summary><c>account.delete</c></summary>
-        public static string AccountDelete => Current == Locale.FrCa ? "Delete account" : "Delete account";
+        public static string AccountDelete => Current == Locale.FrCa ? "Supprimer le compte" : "Delete account";
 
         /// <summary><c>account.delete_title</c></summary>
-        public static string AccountDeleteTitle => Current == Locale.FrCa ? "Delete your account" : "Delete your account";
+        public static string AccountDeleteTitle => Current == Locale.FrCa ? "Supprimer votre compte" : "Delete your account";
 
         /// <summary><c>account.device_id</c></summary>
-        public static string AccountDeviceId => Current == Locale.FrCa ? "Device ID" : "Device ID";
+        public static string AccountDeviceId => Current == Locale.FrCa ? "ID d'appareil" : "Device ID";
 
         /// <summary><c>account.devices</c></summary>
-        public static string AccountDevices => Current == Locale.FrCa ? "Devices" : "Devices";
+        public static string AccountDevices => Current == Locale.FrCa ? "Appareils" : "Devices";
 
         /// <summary><c>account.devices_title</c></summary>
-        public static string AccountDevicesTitle => Current == Locale.FrCa ? "Devices" : "Devices";
+        public static string AccountDevicesTitle => Current == Locale.FrCa ? "Appareils" : "Devices";
 
         /// <summary><c>account.sign_out_title</c></summary>
-        public static string AccountSignOutTitle => Current == Locale.FrCa ? "Sign out" : "Sign out";
+        public static string AccountSignOutTitle => Current == Locale.FrCa ? "Se déconnecter" : "Sign out";
 
         /// <summary><c>account.start_at_sign_in</c></summary>
-        public static string AccountStartAtSignIn => Current == Locale.FrCa ? "Start at sign-in" : "Start at sign-in";
+        public static string AccountStartAtSignIn => Current == Locale.FrCa ? "Lancer à l'ouverture de session" : "Start at sign-in";
 
         /// <summary><c>account.startup_off_by_policy</c></summary>
-        public static string AccountStartupOffByPolicy => Current == Locale.FrCa ? "Turned off by your organisation." : "Turned off by your organisation.";
+        public static string AccountStartupOffByPolicy => Current == Locale.FrCa ? "Désactivé par votre organisation." : "Turned off by your organisation.";
 
         /// <summary><c>account.startup_off_by_user</c></summary>
-        public static string AccountStartupOffByUser => Current == Locale.FrCa ? "Turned off in Windows Settings, under Apps, Startup." : "Turned off in Windows Settings, under Apps, Startup.";
+        public static string AccountStartupOffByUser => Current == Locale.FrCa ? "Désactivé dans les Paramètres Windows, sous Applications, Démarrage." : "Turned off in Windows Settings, under Apps, Startup.";
 
         /// <summary><c>account.startup_on_by_policy</c></summary>
-        public static string AccountStartupOnByPolicy => Current == Locale.FrCa ? "Turned on by your organisation." : "Turned on by your organisation.";
+        public static string AccountStartupOnByPolicy => Current == Locale.FrCa ? "Activé par votre organisation." : "Turned on by your organisation.";
 
         /// <summary><c>account.this_computer</c></summary>
-        public static string AccountThisComputer => Current == Locale.FrCa ? "This computer" : "This computer";
+        public static string AccountThisComputer => Current == Locale.FrCa ? "Cet ordinateur" : "This computer";
 
         /// <summary><c>account.title</c></summary>
-        public static string AccountTitle => Current == Locale.FrCa ? "Account" : "Account";
+        public static string AccountTitle => Current == Locale.FrCa ? "Compte" : "Account";
 
         /// <summary><c>account.user_id</c></summary>
-        public static string AccountUserId => Current == Locale.FrCa ? "User ID" : "User ID";
+        public static string AccountUserId => Current == Locale.FrCa ? "ID utilisateur" : "User ID";
 
         /// <summary><c>account.version</c></summary>
         public static string AccountVersion(string version) => Current == Locale.FrCa ? string.Concat("Version ", version) : string.Concat("Version ", version);
 
         /// <summary><c>account.your_account</c></summary>
-        public static string AccountYourAccount => Current == Locale.FrCa ? "Your account" : "Your account";
+        public static string AccountYourAccount => Current == Locale.FrCa ? "Votre compte" : "Your account";
 
         /// <summary><c>analytics.chart_type</c></summary>
-        public static string AnalyticsChartType => Current == Locale.FrCa ? "chart" : "chart";
+        public static string AnalyticsChartType => Current == Locale.FrCa ? "graphique" : "chart";
 
         /// <summary><c>billing.billed</c></summary>
-        public static string BillingBilled => Current == Locale.FrCa ? "Billed" : "Billed";
+        public static string BillingBilled => Current == Locale.FrCa ? "Facturation" : "Billed";
 
         /// <summary><c>billing.checkout_in_browser</c></summary>
-        public static string BillingCheckoutInBrowser => Current == Locale.FrCa ? "Checkout in the browser" : "Checkout in the browser";
+        public static string BillingCheckoutInBrowser => Current == Locale.FrCa ? "Paiement dans le navigateur" : "Checkout in the browser";
 
         /// <summary><c>billing.close_plans</c></summary>
-        public static string BillingClosePlans => Current == Locale.FrCa ? "Close the plans" : "Close the plans";
+        public static string BillingClosePlans => Current == Locale.FrCa ? "Fermer la liste des forfaits" : "Close the plans";
 
         /// <summary><c>billing.continue</c></summary>
-        public static string BillingContinue => Current == Locale.FrCa ? "Continue" : "Continue";
+        public static string BillingContinue => Current == Locale.FrCa ? "Continuer" : "Continue";
 
         /// <summary><c>billing.ends</c></summary>
-        public static string BillingEnds(string date) => Current == Locale.FrCa ? string.Concat("ends ", date) : string.Concat("ends ", date);
+        public static string BillingEnds(string date) => Current == Locale.FrCa ? string.Concat("fin le ", date) : string.Concat("ends ", date);
 
         /// <summary><c>billing.invoice_open</c></summary>
-        public static string BillingInvoiceOpen => Current == Locale.FrCa ? "Open" : "Open";
+        public static string BillingInvoiceOpen => Current == Locale.FrCa ? "Ouvrir" : "Open";
 
         /// <summary><c>billing.invoice_open_a11y</c></summary>
-        public static string BillingInvoiceOpenA11y => Current == Locale.FrCa ? "Open invoice" : "Open invoice";
+        public static string BillingInvoiceOpenA11y => Current == Locale.FrCa ? "Ouvrir la facture" : "Open invoice";
 
         /// <summary><c>billing.invoices</c></summary>
-        public static string BillingInvoices => Current == Locale.FrCa ? "Invoices" : "Invoices";
+        public static string BillingInvoices => Current == Locale.FrCa ? "Factures" : "Invoices";
 
         /// <summary><c>billing.minutes_of_included</c></summary>
-        public static string BillingMinutesOfIncluded(string used, string included) => Current == Locale.FrCa ? string.Concat(used, " of ", included, " minutes this month") : string.Concat(used, " of ", included, " minutes this month");
+        public static string BillingMinutesOfIncluded(string used, string included) => Current == Locale.FrCa ? string.Concat(used, " sur ", included, " minutes ce mois-ci") : string.Concat(used, " of ", included, " minutes this month");
 
         /// <summary><c>billing.minutes_used</c></summary>
-        public static string BillingMinutesUsed => Current == Locale.FrCa ? "Minutes used" : "Minutes used";
+        public static string BillingMinutesUsed => Current == Locale.FrCa ? "Minutes utilisées" : "Minutes used";
 
         /// <summary><c>billing.minutes_used_only</c></summary>
-        public static string BillingMinutesUsedOnly(string used) => Current == Locale.FrCa ? string.Concat(used, " minutes this month") : string.Concat(used, " minutes this month");
+        public static string BillingMinutesUsedOnly(string used) => Current == Locale.FrCa ? string.Concat("Minutes ce mois-ci\u00A0: ", used) : string.Concat(used, " minutes this month");
 
         /// <summary><c>billing.on_this_account</c></summary>
-        public static string BillingOnThisAccount => Current == Locale.FrCa ? "On this account" : "On this account";
+        public static string BillingOnThisAccount => Current == Locale.FrCa ? "Ce compte" : "On this account";
 
         /// <summary><c>billing.plan</c></summary>
-        public static string BillingPlan => Current == Locale.FrCa ? "Plan" : "Plan";
+        public static string BillingPlan => Current == Locale.FrCa ? "Forfait" : "Plan";
 
         /// <summary><c>billing.plan_status</c></summary>
-        public static string BillingPlanStatus => Current == Locale.FrCa ? "Plan status" : "Plan status";
+        public static string BillingPlanStatus => Current == Locale.FrCa ? "État du forfait" : "Plan status";
 
         /// <summary><c>billing.problem</c></summary>
-        public static string BillingProblem => Current == Locale.FrCa ? "Billing problem" : "Billing problem";
+        public static string BillingProblem => Current == Locale.FrCa ? "Problème de facturation" : "Billing problem";
 
         /// <summary><c>billing.promotion_code</c></summary>
-        public static string BillingPromotionCode => Current == Locale.FrCa ? "Promotion code" : "Promotion code";
+        public static string BillingPromotionCode => Current == Locale.FrCa ? "Code promotionnel" : "Promotion code";
 
         /// <summary><c>billing.reading_account</c></summary>
-        public static string BillingReadingAccount => Current == Locale.FrCa ? "Reading the account" : "Reading the account";
+        public static string BillingReadingAccount => Current == Locale.FrCa ? "Chargement du compte" : "Reading the account";
 
         /// <summary><c>billing.renews</c></summary>
-        public static string BillingRenews(string date) => Current == Locale.FrCa ? string.Concat("renews ", date) : string.Concat("renews ", date);
+        public static string BillingRenews(string date) => Current == Locale.FrCa ? string.Concat("renouvellement le ", date) : string.Concat("renews ", date);
 
         /// <summary><c>billing.title</c></summary>
-        public static string BillingTitle => Current == Locale.FrCa ? "Billing" : "Billing";
+        public static string BillingTitle => Current == Locale.FrCa ? "Facturation" : "Billing";
 
         /// <summary><c>billing.your_plan</c></summary>
-        public static string BillingYourPlan => Current == Locale.FrCa ? "Your plan" : "Your plan";
+        public static string BillingYourPlan => Current == Locale.FrCa ? "Votre forfait" : "Your plan";
 
         /// <summary><c>blocked.blocked_when</c></summary>
-        public static string BlockedBlockedWhen(string when) => Current == Locale.FrCa ? string.Concat("Blocked ", when) : string.Concat("Blocked ", when);
+        public static string BlockedBlockedWhen(string when) => Current == Locale.FrCa ? string.Concat("Bloqué\u00A0: ", when) : string.Concat("Blocked ", when);
 
         /// <summary><c>blocked.confirm_title</c></summary>
-        public static string BlockedConfirmTitle(string name) => Current == Locale.FrCa ? string.Concat("Unblock ", name, "?") : string.Concat("Unblock ", name, "?");
+        public static string BlockedConfirmTitle(string name) => Current == Locale.FrCa ? string.Concat("Débloquer ", name, "?") : string.Concat("Unblock ", name, "?");
 
         /// <summary><c>blocked.row_unblocking</c></summary>
-        public static string BlockedRowUnblocking => Current == Locale.FrCa ? "unblocking" : "unblocking";
+        public static string BlockedRowUnblocking => Current == Locale.FrCa ? "déblocage en cours" : "unblocking";
 
         /// <summary><c>blocked.title</c></summary>
-        public static string BlockedTitle => Current == Locale.FrCa ? "Blocked callers" : "Blocked callers";
+        public static string BlockedTitle => Current == Locale.FrCa ? "Appelants bloqués" : "Blocked callers";
 
         /// <summary><c>blocked.unblock</c></summary>
-        public static string BlockedUnblock => Current == Locale.FrCa ? "Unblock" : "Unblock";
+        public static string BlockedUnblock => Current == Locale.FrCa ? "Débloquer" : "Unblock";
 
         /// <summary><c>blocked.unblock_caller</c></summary>
-        public static string BlockedUnblockCaller(string name) => Current == Locale.FrCa ? string.Concat("Unblock ", name) : string.Concat("Unblock ", name);
+        public static string BlockedUnblockCaller(string name) => Current == Locale.FrCa ? string.Concat("Débloquer ", name) : string.Concat("Unblock ", name);
 
         /// <summary><c>blocked.unblocking</c></summary>
-        public static string BlockedUnblocking => Current == Locale.FrCa ? "Unblocking" : "Unblocking";
+        public static string BlockedUnblocking => Current == Locale.FrCa ? "Déblocage en cours" : "Unblocking";
 
         /// <summary><c>brand.district_ai</c></summary>
         public static string BrandDistrictAi => Current == Locale.FrCa ? "District AI" : "District AI";
 
         /// <summary><c>call_bar.connection</c></summary>
-        public static string CallBarConnection => Current == Locale.FrCa ? "Call connection" : "Call connection";
+        public static string CallBarConnection => Current == Locale.FrCa ? "État de la connexion de l'appel" : "Call connection";
 
         /// <summary><c>call_bar.hang_up</c></summary>
-        public static string CallBarHangUp => Current == Locale.FrCa ? "Hang up" : "Hang up";
+        public static string CallBarHangUp => Current == Locale.FrCa ? "Raccrocher" : "Hang up";
 
         /// <summary><c>call_bar.hang_up_tooltip</c></summary>
-        public static string CallBarHangUpTooltip => Current == Locale.FrCa ? "Hang up (Ctrl+Shift+H)" : "Hang up (Ctrl+Shift+H)";
+        public static string CallBarHangUpTooltip => Current == Locale.FrCa ? "Raccrocher (Ctrl+Maj+H)" : "Hang up (Ctrl+Shift+H)";
 
         /// <summary><c>call_bar.landmark</c></summary>
-        public static string CallBarLandmark => Current == Locale.FrCa ? "Call" : "Call";
+        public static string CallBarLandmark => Current == Locale.FrCa ? "Appel" : "Call";
 
         /// <summary><c>call_bar.mic_blocked</c></summary>
-        public static string CallBarMicBlocked => Current == Locale.FrCa ? "Microphone blocked" : "Microphone blocked";
+        public static string CallBarMicBlocked => Current == Locale.FrCa ? "Microphone bloqué" : "Microphone blocked";
 
         /// <summary><c>call_bar.mic_blocked_message</c></summary>
-        public static string CallBarMicBlockedMessage => Current == Locale.FrCa ? "District AI can't use your microphone. Allow microphone access in Windows Settings." : "District AI can't use your microphone. Allow microphone access in Windows Settings.";
+        public static string CallBarMicBlockedMessage => Current == Locale.FrCa ? "District AI ne peut pas utiliser votre microphone. Autorisez l'accès au microphone dans Paramètres Windows." : "District AI can't use your microphone. Allow microphone access in Windows Settings.";
 
         /// <summary><c>call_bar.mute</c></summary>
-        public static string CallBarMute => Current == Locale.FrCa ? "Mute" : "Mute";
+        public static string CallBarMute => Current == Locale.FrCa ? "Couper le micro" : "Mute";
 
         /// <summary><c>call_bar.mute_tooltip</c></summary>
-        public static string CallBarMuteTooltip => Current == Locale.FrCa ? "Mute (Ctrl+D)" : "Mute (Ctrl+D)";
+        public static string CallBarMuteTooltip => Current == Locale.FrCa ? "Couper le micro (Ctrl+D)" : "Mute (Ctrl+D)";
 
         /// <summary><c>call_bar.open_mic_settings</c></summary>
-        public static string CallBarOpenMicSettings => Current == Locale.FrCa ? "Open microphone settings" : "Open microphone settings";
+        public static string CallBarOpenMicSettings => Current == Locale.FrCa ? "Ouvrir les paramètres du micro" : "Open microphone settings";
 
         /// <summary><c>call_detail.analysis</c></summary>
-        public static string CallDetailAnalysis => Current == Locale.FrCa ? "Analysis" : "Analysis";
+        public static string CallDetailAnalysis => Current == Locale.FrCa ? "Analyse" : "Analysis";
 
         /// <summary><c>call_detail.follow_up_sent</c></summary>
-        public static string CallDetailFollowUpSent => Current == Locale.FrCa ? "Follow-up sent" : "Follow-up sent";
+        public static string CallDetailFollowUpSent => Current == Locale.FrCa ? "Suivi envoyé" : "Follow-up sent";
 
         /// <summary><c>call_detail.loading_transcript</c></summary>
-        public static string CallDetailLoadingTranscript => Current == Locale.FrCa ? "Loading the transcript" : "Loading the transcript";
+        public static string CallDetailLoadingTranscript => Current == Locale.FrCa ? "Chargement de la transcription" : "Loading the transcript";
 
         /// <summary><c>call_detail.retry_transcript</c></summary>
-        public static string CallDetailRetryTranscript => Current == Locale.FrCa ? "Try loading the transcript again" : "Try loading the transcript again";
+        public static string CallDetailRetryTranscript => Current == Locale.FrCa ? "Réessayer de charger la transcription" : "Try loading the transcript again";
 
         /// <summary><c>call_detail.transcript</c></summary>
-        public static string CallDetailTranscript => Current == Locale.FrCa ? "Transcript" : "Transcript";
+        public static string CallDetailTranscript => Current == Locale.FrCa ? "Transcription" : "Transcript";
 
         /// <summary><c>call_handling.availability</c></summary>
-        public static string CallHandlingAvailability => Current == Locale.FrCa ? "Availability change" : "Availability change";
+        public static string CallHandlingAvailability => Current == Locale.FrCa ? "Disponibilité modifiée" : "Availability change";
 
         /// <summary><c>call_handling.changing</c></summary>
-        public static string CallHandlingChanging => Current == Locale.FrCa ? "Changing" : "Changing";
+        public static string CallHandlingChanging => Current == Locale.FrCa ? "Modification en cours" : "Changing";
 
         /// <summary><c>call_handling.save</c></summary>
-        public static string CallHandlingSave => Current == Locale.FrCa ? "Save how calls are answered" : "Save how calls are answered";
+        public static string CallHandlingSave => Current == Locale.FrCa ? "Enregistrer la façon de répondre" : "Save how calls are answered";
 
         /// <summary><c>call_handling.save_status</c></summary>
-        public static string CallHandlingSaveStatus => Current == Locale.FrCa ? "Call handling save" : "Call handling save";
+        public static string CallHandlingSaveStatus => Current == Locale.FrCa ? "Sauvegarde de la gestion des appels" : "Call handling save";
 
         /// <summary><c>call_handling.title</c></summary>
-        public static string CallHandlingTitle => Current == Locale.FrCa ? "Call handling" : "Call handling";
+        public static string CallHandlingTitle => Current == Locale.FrCa ? "Gestion des appels" : "Call handling";
 
         /// <summary><c>call_handling.unknown_setting</c></summary>
-        public static string CallHandlingUnknownSetting => Current == Locale.FrCa ? "A setting this app does not know" : "A setting this app does not know";
+        public static string CallHandlingUnknownSetting => Current == Locale.FrCa ? "Paramètre inconnu de cette application" : "A setting this app does not know";
 
         /// <summary><c>calls.load_more</c></summary>
-        public static string CallsLoadMore => Current == Locale.FrCa ? "Load more calls" : "Load more calls";
+        public static string CallsLoadMore => Current == Locale.FrCa ? "Afficher plus d'appels" : "Load more calls";
 
         /// <summary><c>calls.loading_more</c></summary>
-        public static string CallsLoadingMore => Current == Locale.FrCa ? "Loading more calls" : "Loading more calls";
+        public static string CallsLoadingMore => Current == Locale.FrCa ? "Chargement d'autres appels" : "Loading more calls";
 
         /// <summary><c>calls.place_call</c></summary>
-        public static string CallsPlaceCall => Current == Locale.FrCa ? "Place a call" : "Place a call";
+        public static string CallsPlaceCall => Current == Locale.FrCa ? "Passer un appel" : "Place a call";
 
         /// <summary><c>calls.title</c></summary>
-        public static string CallsTitle => Current == Locale.FrCa ? "Calls" : "Calls";
+        public static string CallsTitle => Current == Locale.FrCa ? "Appels" : "Calls";
 
         /// <summary><c>checkout.close</c></summary>
-        public static string CheckoutClose => Current == Locale.FrCa ? "Close checkout" : "Close checkout";
+        public static string CheckoutClose => Current == Locale.FrCa ? "Fermer la page de paiement" : "Close checkout";
 
         /// <summary><c>checkout.view</c></summary>
-        public static string CheckoutView => Current == Locale.FrCa ? "Checkout" : "Checkout";
+        public static string CheckoutView => Current == Locale.FrCa ? "Paiement" : "Checkout";
 
         /// <summary><c>checkout.window_title</c></summary>
-        public static string CheckoutWindowTitle => Current == Locale.FrCa ? "District AI checkout" : "District AI checkout";
+        public static string CheckoutWindowTitle => Current == Locale.FrCa ? "Paiement District AI" : "District AI checkout";
 
         /// <summary><c>checkout.window_title_page</c></summary>
-        public static string CheckoutWindowTitlePage(string page) => Current == Locale.FrCa ? string.Concat(page, " (District AI checkout)") : string.Concat(page, " (District AI checkout)");
+        public static string CheckoutWindowTitlePage(string page) => Current == Locale.FrCa ? string.Concat(page, " (paiement District AI)") : string.Concat(page, " (District AI checkout)");
 
         /// <summary><c>common.call</c></summary>
-        public static string CommonCall => Current == Locale.FrCa ? "Call" : "Call";
+        public static string CommonCall => Current == Locale.FrCa ? "Appeler" : "Call";
 
         /// <summary><c>common.call_problem</c></summary>
-        public static string CommonCallProblem => Current == Locale.FrCa ? "Call problem" : "Call problem";
+        public static string CommonCallProblem => Current == Locale.FrCa ? "Échec de l'appel" : "Call problem";
 
         /// <summary><c>common.cancel</c></summary>
-        public static string CommonCancel => Current == Locale.FrCa ? "Cancel" : "Cancel";
+        public static string CommonCancel => Current == Locale.FrCa ? "Annuler" : "Cancel";
 
         /// <summary><c>common.close</c></summary>
-        public static string CommonClose => Current == Locale.FrCa ? "Close" : "Close";
+        public static string CommonClose => Current == Locale.FrCa ? "Fermer" : "Close";
 
         /// <summary><c>common.delete</c></summary>
-        public static string CommonDelete => Current == Locale.FrCa ? "Delete" : "Delete";
+        public static string CommonDelete => Current == Locale.FrCa ? "Supprimer" : "Delete";
 
         /// <summary><c>common.details</c></summary>
-        public static string CommonDetails => Current == Locale.FrCa ? "Details" : "Details";
+        public static string CommonDetails => Current == Locale.FrCa ? "Détails" : "Details";
 
         /// <summary><c>common.dismiss</c></summary>
-        public static string CommonDismiss => Current == Locale.FrCa ? "Dismiss" : "Dismiss";
+        public static string CommonDismiss => Current == Locale.FrCa ? "Fermer" : "Dismiss";
 
         /// <summary><c>common.edit</c></summary>
-        public static string CommonEdit => Current == Locale.FrCa ? "Edit" : "Edit";
+        public static string CommonEdit => Current == Locale.FrCa ? "Modifier" : "Edit";
 
         /// <summary><c>common.email_address</c></summary>
-        public static string CommonEmailAddress => Current == Locale.FrCa ? "Email address" : "Email address";
+        public static string CommonEmailAddress => Current == Locale.FrCa ? "Adresse courriel" : "Email address";
 
         /// <summary><c>common.load_more</c></summary>
-        public static string CommonLoadMore => Current == Locale.FrCa ? "Load more" : "Load more";
+        public static string CommonLoadMore => Current == Locale.FrCa ? "Afficher plus" : "Load more";
 
         /// <summary><c>common.loading</c></summary>
-        public static string CommonLoading => Current == Locale.FrCa ? "Loading" : "Loading";
+        public static string CommonLoading => Current == Locale.FrCa ? "Chargement" : "Loading";
 
         /// <summary><c>common.name</c></summary>
-        public static string CommonName => Current == Locale.FrCa ? "Name" : "Name";
+        public static string CommonName => Current == Locale.FrCa ? "Nom" : "Name";
 
         /// <summary><c>common.phone_number</c></summary>
-        public static string CommonPhoneNumber => Current == Locale.FrCa ? "Phone number" : "Phone number";
+        public static string CommonPhoneNumber => Current == Locale.FrCa ? "Numéro de téléphone" : "Phone number";
 
         /// <summary><c>common.problem</c></summary>
-        public static string CommonProblem => Current == Locale.FrCa ? "Problem" : "Problem";
+        public static string CommonProblem => Current == Locale.FrCa ? "Problème" : "Problem";
 
         /// <summary><c>common.remove</c></summary>
-        public static string CommonRemove => Current == Locale.FrCa ? "Remove" : "Remove";
+        public static string CommonRemove => Current == Locale.FrCa ? "Retirer" : "Remove";
 
         /// <summary><c>common.reply</c></summary>
-        public static string CommonReply => Current == Locale.FrCa ? "Reply" : "Reply";
+        public static string CommonReply => Current == Locale.FrCa ? "Réponse" : "Reply";
 
         /// <summary><c>common.report</c></summary>
-        public static string CommonReport => Current == Locale.FrCa ? "Report" : "Report";
+        public static string CommonReport => Current == Locale.FrCa ? "Signaler" : "Report";
 
         /// <summary><c>common.report_on_web</c></summary>
-        public static string CommonReportOnWeb => Current == Locale.FrCa ? "Report on the web" : "Report on the web";
+        public static string CommonReportOnWeb => Current == Locale.FrCa ? "Signaler sur le Web" : "Report on the web";
 
         /// <summary><c>common.save</c></summary>
-        public static string CommonSave => Current == Locale.FrCa ? "Save" : "Save";
+        public static string CommonSave => Current == Locale.FrCa ? "Enregistrer" : "Save";
 
         /// <summary><c>common.saving</c></summary>
-        public static string CommonSaving => Current == Locale.FrCa ? "Saving" : "Saving";
+        public static string CommonSaving => Current == Locale.FrCa ? "Sauvegarde en cours" : "Saving";
 
         /// <summary><c>common.searching</c></summary>
-        public static string CommonSearching => Current == Locale.FrCa ? "Searching" : "Searching";
+        public static string CommonSearching => Current == Locale.FrCa ? "Recherche en cours" : "Searching";
 
         /// <summary><c>common.send</c></summary>
-        public static string CommonSend => Current == Locale.FrCa ? "Send" : "Send";
+        public static string CommonSend => Current == Locale.FrCa ? "Envoyer" : "Send";
 
         /// <summary><c>common.send_reply</c></summary>
-        public static string CommonSendReply => Current == Locale.FrCa ? "Send the reply" : "Send the reply";
+        public static string CommonSendReply => Current == Locale.FrCa ? "Envoyer la réponse" : "Send the reply";
 
         /// <summary><c>common.sending_reply</c></summary>
-        public static string CommonSendingReply => Current == Locale.FrCa ? "Sending the reply" : "Sending the reply";
+        public static string CommonSendingReply => Current == Locale.FrCa ? "Envoi de la réponse" : "Sending the reply";
 
         /// <summary><c>common.sign_out</c></summary>
-        public static string CommonSignOut => Current == Locale.FrCa ? "Sign out" : "Sign out";
+        public static string CommonSignOut => Current == Locale.FrCa ? "Se déconnecter" : "Sign out";
 
         /// <summary><c>common.subject</c></summary>
-        public static string CommonSubject => Current == Locale.FrCa ? "Subject" : "Subject";
+        public static string CommonSubject => Current == Locale.FrCa ? "Objet" : "Subject";
 
         /// <summary><c>common.try_again</c></summary>
-        public static string CommonTryAgain => Current == Locale.FrCa ? "Try again" : "Try again";
+        public static string CommonTryAgain => Current == Locale.FrCa ? "Réessayer" : "Try again";
 
         /// <summary><c>common.working</c></summary>
-        public static string CommonWorking => Current == Locale.FrCa ? "Working" : "Working";
+        public static string CommonWorking => Current == Locale.FrCa ? "En cours" : "Working";
 
         /// <summary><c>composer.attach</c></summary>
-        public static string ComposerAttach => Current == Locale.FrCa ? "Attach" : "Attach";
+        public static string ComposerAttach => Current == Locale.FrCa ? "Joindre" : "Attach";
 
         /// <summary><c>composer.attach_image</c></summary>
-        public static string ComposerAttachImage => Current == Locale.FrCa ? "Attach an image" : "Attach an image";
+        public static string ComposerAttachImage => Current == Locale.FrCa ? "Joindre une image" : "Attach an image";
 
         /// <summary><c>composer.dismiss_error</c></summary>
-        public static string ComposerDismissError => Current == Locale.FrCa ? "Dismiss the error" : "Dismiss the error";
+        public static string ComposerDismissError => Current == Locale.FrCa ? "Fermer le message d'erreur" : "Dismiss the error";
 
         /// <summary><c>composer.help</c></summary>
-        public static string ComposerHelp => Current == Locale.FrCa ? "Ctrl+Enter sends." : "Ctrl+Enter sends.";
+        public static string ComposerHelp => Current == Locale.FrCa ? "Envoi\u00A0: Ctrl+Entrée." : "Ctrl+Enter sends.";
 
         /// <summary><c>composer.placeholder</c></summary>
-        public static string ComposerPlaceholder => Current == Locale.FrCa ? "Write a reply" : "Write a reply";
+        public static string ComposerPlaceholder => Current == Locale.FrCa ? "Votre réponse" : "Write a reply";
 
         /// <summary><c>composer.remove_attachment</c></summary>
-        public static string ComposerRemoveAttachment(string name) => Current == Locale.FrCa ? string.Concat("Remove ", name) : string.Concat("Remove ", name);
+        public static string ComposerRemoveAttachment(string name) => Current == Locale.FrCa ? string.Concat("Retirer ", name) : string.Concat("Remove ", name);
 
         /// <summary><c>composer.reply</c></summary>
-        public static string ComposerReply => Current == Locale.FrCa ? "Reply" : "Reply";
+        public static string ComposerReply => Current == Locale.FrCa ? "Réponse" : "Reply";
 
         /// <summary><c>composer.send_tooltip</c></summary>
-        public static string ComposerSendTooltip => Current == Locale.FrCa ? "Send (Ctrl+Enter)" : "Send (Ctrl+Enter)";
+        public static string ComposerSendTooltip => Current == Locale.FrCa ? "Envoyer (Ctrl+Entrée)" : "Send (Ctrl+Enter)";
 
         /// <summary><c>contact.added</c></summary>
-        public static string ContactAdded => Current == Locale.FrCa ? "Added" : "Added";
+        public static string ContactAdded => Current == Locale.FrCa ? "Ajouté" : "Added";
 
         /// <summary><c>contact.block</c></summary>
-        public static string ContactBlock => Current == Locale.FrCa ? "Block" : "Block";
+        public static string ContactBlock => Current == Locale.FrCa ? "Bloquer" : "Block";
 
         /// <summary><c>contact.blocked</c></summary>
-        public static string ContactBlocked => Current == Locale.FrCa ? "Blocked" : "Blocked";
+        public static string ContactBlocked => Current == Locale.FrCa ? "Bloqué" : "Blocked";
 
         /// <summary><c>contact.clear_research</c></summary>
-        public static string ContactClearResearch => Current == Locale.FrCa ? "Clear research" : "Clear research";
+        public static string ContactClearResearch => Current == Locale.FrCa ? "Effacer la recherche externe" : "Clear research";
 
         /// <summary><c>contact.delete</c></summary>
-        public static string ContactDelete => Current == Locale.FrCa ? "Delete contact" : "Delete contact";
+        public static string ContactDelete => Current == Locale.FrCa ? "Supprimer le contact" : "Delete contact";
 
         /// <summary><c>contact.edit</c></summary>
-        public static string ContactEdit => Current == Locale.FrCa ? "Edit contact" : "Edit contact";
+        public static string ContactEdit => Current == Locale.FrCa ? "Modifier le contact" : "Edit contact";
 
         /// <summary><c>contact.last_changed</c></summary>
-        public static string ContactLastChanged => Current == Locale.FrCa ? "Last changed" : "Last changed";
+        public static string ContactLastChanged => Current == Locale.FrCa ? "Mis à jour" : "Last changed";
 
         /// <summary><c>contact.phone_number</c></summary>
-        public static string ContactPhoneNumber => Current == Locale.FrCa ? "Phone number" : "Phone number";
+        public static string ContactPhoneNumber => Current == Locale.FrCa ? "Numéro de téléphone" : "Phone number";
 
         /// <summary><c>contact.read_only</c></summary>
-        public static string ContactReadOnly => Current == Locale.FrCa ? "You have read-only access to this workspace, so you cannot change contacts." : "You have read-only access to this workspace, so you cannot change contacts.";
+        public static string ContactReadOnly => Current == Locale.FrCa ? "Votre accès à cet espace de travail est en lecture seule. Vous ne pouvez modifier aucun contact." : "You have read-only access to this workspace, so you cannot change contacts.";
 
         /// <summary><c>contact.research</c></summary>
-        public static string ContactResearch => Current == Locale.FrCa ? "Research" : "Research";
+        public static string ContactResearch => Current == Locale.FrCa ? "Recherche externe" : "Research";
 
         /// <summary><c>contact.research_note</c></summary>
-        public static string ContactResearchNote => Current == Locale.FrCa ? "Research looks this contact up on the web and writes a summary. Each run is billed." : "Research looks this contact up on the web and writes a summary. Each run is billed.";
+        public static string ContactResearchNote => Current == Locale.FrCa ? "La recherche externe consulte le Web au sujet de ce contact et en rédige un résumé. Chaque recherche externe est facturée." : "Research looks this contact up on the web and writes a summary. Each run is billed.";
 
         /// <summary><c>contact.run_research</c></summary>
-        public static string ContactRunResearch => Current == Locale.FrCa ? "Run research" : "Run research";
+        public static string ContactRunResearch => Current == Locale.FrCa ? "Lancer la recherche externe" : "Run research";
 
         /// <summary><c>contact.unblock</c></summary>
-        public static string ContactUnblock => Current == Locale.FrCa ? "Unblock" : "Unblock";
+        public static string ContactUnblock => Current == Locale.FrCa ? "Débloquer" : "Unblock";
 
         /// <summary><c>contacts.add</c></summary>
-        public static string ContactsAdd => Current == Locale.FrCa ? "Add contact" : "Add contact";
+        public static string ContactsAdd => Current == Locale.FrCa ? "Ajouter un contact" : "Add contact";
 
         /// <summary><c>contacts.blocked_callers</c></summary>
-        public static string ContactsBlockedCallers => Current == Locale.FrCa ? "Blocked callers" : "Blocked callers";
+        public static string ContactsBlockedCallers => Current == Locale.FrCa ? "Appelants bloqués" : "Blocked callers";
 
         /// <summary><c>contacts.load_more</c></summary>
-        public static string ContactsLoadMore => Current == Locale.FrCa ? "Load more contacts" : "Load more contacts";
+        public static string ContactsLoadMore => Current == Locale.FrCa ? "Charger plus de contacts" : "Load more contacts";
 
         /// <summary><c>contacts.loading_more</c></summary>
-        public static string ContactsLoadingMore => Current == Locale.FrCa ? "Loading more contacts" : "Loading more contacts";
+        public static string ContactsLoadingMore => Current == Locale.FrCa ? "Chargement d'autres contacts" : "Loading more contacts";
 
         /// <summary><c>contacts.title</c></summary>
         public static string ContactsTitle => Current == Locale.FrCa ? "Contacts" : "Contacts";
 
         /// <summary><c>desk.customer</c></summary>
-        public static string DeskCustomer => Current == Locale.FrCa ? "The customer" : "The customer";
+        public static string DeskCustomer => Current == Locale.FrCa ? "Le client" : "The customer";
 
         /// <summary><c>desk.customer_email</c></summary>
-        public static string DeskCustomerEmail => Current == Locale.FrCa ? "Customer's email address" : "Customer's email address";
+        public static string DeskCustomerEmail => Current == Locale.FrCa ? "Adresse courriel du client" : "Customer's email address";
 
         /// <summary><c>desk.customer_name</c></summary>
-        public static string DeskCustomerName => Current == Locale.FrCa ? "Customer's name" : "Customer's name";
+        public static string DeskCustomerName => Current == Locale.FrCa ? "Nom du client" : "Customer's name";
 
         /// <summary><c>desk.customer_phone</c></summary>
-        public static string DeskCustomerPhone => Current == Locale.FrCa ? "Customer's phone number" : "Customer's phone number";
+        public static string DeskCustomerPhone => Current == Locale.FrCa ? "Numéro de téléphone du client" : "Customer's phone number";
 
         /// <summary><c>desk.discard</c></summary>
-        public static string DeskDiscard => Current == Locale.FrCa ? "Discard the ticket" : "Discard the ticket";
+        public static string DeskDiscard => Current == Locale.FrCa ? "Abandonner le nouveau billet" : "Discard the ticket";
 
         /// <summary><c>desk.filter</c></summary>
-        public static string DeskFilter => Current == Locale.FrCa ? "Which tickets to show" : "Which tickets to show";
+        public static string DeskFilter => Current == Locale.FrCa ? "Billets à afficher" : "Which tickets to show";
 
         /// <summary><c>desk.message</c></summary>
         public static string DeskMessage => Current == Locale.FrCa ? "Message" : "Message";
 
         /// <summary><c>desk.new_ticket</c></summary>
-        public static string DeskNewTicket => Current == Locale.FrCa ? "New ticket" : "New ticket";
+        public static string DeskNewTicket => Current == Locale.FrCa ? "Nouveau billet" : "New ticket";
 
         /// <summary><c>desk.not_turned_on</c></summary>
-        public static string DeskNotTurnedOn => Current == Locale.FrCa ? "The help desk was not turned on" : "The help desk was not turned on";
+        public static string DeskNotTurnedOn => Current == Locale.FrCa ? "Le comptoir n'a pas été activé" : "The help desk was not turned on";
 
         /// <summary><c>desk.raise</c></summary>
-        public static string DeskRaise => Current == Locale.FrCa ? "Raise the ticket" : "Raise the ticket";
+        public static string DeskRaise => Current == Locale.FrCa ? "Créer le billet" : "Raise the ticket";
 
         /// <summary><c>desk.raised_banner</c></summary>
-        public static string DeskRaisedBanner => Current == Locale.FrCa ? "Ticket raised" : "Ticket raised";
+        public static string DeskRaisedBanner => Current == Locale.FrCa ? "Billet créé" : "Ticket raised";
 
         /// <summary><c>desk.raising</c></summary>
-        public static string DeskRaising => Current == Locale.FrCa ? "Raising the ticket" : "Raising the ticket";
+        public static string DeskRaising => Current == Locale.FrCa ? "Création du billet" : "Raising the ticket";
 
         /// <summary><c>desk.settings</c></summary>
-        public static string DeskSettings => Current == Locale.FrCa ? "Settings" : "Settings";
+        public static string DeskSettings => Current == Locale.FrCa ? "Paramètres" : "Settings";
 
         /// <summary><c>desk.settings_a11y</c></summary>
-        public static string DeskSettingsA11y => Current == Locale.FrCa ? "Help desk settings" : "Help desk settings";
+        public static string DeskSettingsA11y => Current == Locale.FrCa ? "Paramètres du comptoir" : "Help desk settings";
 
         /// <summary><c>desk.ticket_not_raised</c></summary>
-        public static string DeskTicketNotRaised => Current == Locale.FrCa ? "Ticket not raised" : "Ticket not raised";
+        public static string DeskTicketNotRaised => Current == Locale.FrCa ? "Billet non créé" : "Ticket not raised";
 
         /// <summary><c>desk.tickets</c></summary>
-        public static string DeskTickets => Current == Locale.FrCa ? "Tickets" : "Tickets";
+        public static string DeskTickets => Current == Locale.FrCa ? "Billets" : "Tickets";
 
         /// <summary><c>desk.title</c></summary>
-        public static string DeskTitle => Current == Locale.FrCa ? "Help desk" : "Help desk";
+        public static string DeskTitle => Current == Locale.FrCa ? "Comptoir clients" : "Help desk";
 
         /// <summary><c>desk.turning_on</c></summary>
-        public static string DeskTurningOn => Current == Locale.FrCa ? "Turning on the help desk" : "Turning on the help desk";
+        public static string DeskTurningOn => Current == Locale.FrCa ? "Activation du comptoir" : "Turning on the help desk";
 
         /// <summary><c>desk_settings.about_logo</c></summary>
-        public static string DeskSettingsAboutLogo => Current == Locale.FrCa ? "About the logo" : "About the logo";
+        public static string DeskSettingsAboutLogo => Current == Locale.FrCa ? "À propos du logo" : "About the logo";
 
         /// <summary><c>desk_settings.changing_logo</c></summary>
-        public static string DeskSettingsChangingLogo => Current == Locale.FrCa ? "Changing the logo" : "Changing the logo";
+        public static string DeskSettingsChangingLogo => Current == Locale.FrCa ? "Modification du logo" : "Changing the logo";
 
         /// <summary><c>desk_settings.choose_image</c></summary>
-        public static string DeskSettingsChooseImage => Current == Locale.FrCa ? "Choose an image" : "Choose an image";
+        public static string DeskSettingsChooseImage => Current == Locale.FrCa ? "Choisir une image" : "Choose an image";
 
         /// <summary><c>desk_settings.choose_logo</c></summary>
-        public static string DeskSettingsChooseLogo => Current == Locale.FrCa ? "Choose a logo image" : "Choose a logo image";
+        public static string DeskSettingsChooseLogo => Current == Locale.FrCa ? "Choisir une image de logo" : "Choose a logo image";
 
         /// <summary><c>desk_settings.logo</c></summary>
         public static string DeskSettingsLogo => Current == Locale.FrCa ? "Logo" : "Logo";
 
         /// <summary><c>desk_settings.not_saved</c></summary>
-        public static string DeskSettingsNotSaved => Current == Locale.FrCa ? "Settings not saved" : "Settings not saved";
+        public static string DeskSettingsNotSaved => Current == Locale.FrCa ? "Échec de la sauvegarde" : "Settings not saved";
 
         /// <summary><c>desk_settings.remove_logo</c></summary>
-        public static string DeskSettingsRemoveLogo => Current == Locale.FrCa ? "Remove the logo" : "Remove the logo";
+        public static string DeskSettingsRemoveLogo => Current == Locale.FrCa ? "Retirer le logo" : "Remove the logo";
 
         /// <summary><c>desk_settings.save</c></summary>
-        public static string DeskSettingsSave => Current == Locale.FrCa ? "Save the help desk settings" : "Save the help desk settings";
+        public static string DeskSettingsSave => Current == Locale.FrCa ? "Enregistrer les paramètres du comptoir" : "Save the help desk settings";
 
         /// <summary><c>desk_ticket.changing_status</c></summary>
-        public static string DeskTicketChangingStatus => Current == Locale.FrCa ? "Changing the status" : "Changing the status";
+        public static string DeskTicketChangingStatus => Current == Locale.FrCa ? "Modification du statut" : "Changing the status";
 
         /// <summary><c>desk_ticket.conversation</c></summary>
         public static string DeskTicketConversation => Current == Locale.FrCa ? "Conversation" : "Conversation";
 
         /// <summary><c>desk_ticket.customer</c></summary>
-        public static string DeskTicketCustomer => Current == Locale.FrCa ? "Customer" : "Customer";
+        public static string DeskTicketCustomer => Current == Locale.FrCa ? "Client" : "Customer";
 
         /// <summary><c>desk_ticket.mark_as</c></summary>
-        public static string DeskTicketMarkAs(string status) => Current == Locale.FrCa ? string.Concat("Mark as ", status) : string.Concat("Mark as ", status);
+        public static string DeskTicketMarkAs(string status) => Current == Locale.FrCa ? string.Concat("Passer à ", status) : string.Concat("Mark as ", status);
 
         /// <summary><c>desk_ticket.problem</c></summary>
-        public static string DeskTicketProblem => Current == Locale.FrCa ? "Problem with this ticket" : "Problem with this ticket";
+        public static string DeskTicketProblem => Current == Locale.FrCa ? "Problème avec ce billet" : "Problem with this ticket";
 
         /// <summary><c>desk_ticket.raised_when</c></summary>
-        public static string DeskTicketRaisedWhen(string when) => Current == Locale.FrCa ? string.Concat("Raised ", when) : string.Concat("Raised ", when);
+        public static string DeskTicketRaisedWhen(string when) => Current == Locale.FrCa ? string.Concat("Créé\u00A0: ", when) : string.Concat("Raised ", when);
 
         /// <summary><c>desk_ticket.reply_sent</c></summary>
-        public static string DeskTicketReplySent => Current == Locale.FrCa ? "Reply sent" : "Reply sent";
+        public static string DeskTicketReplySent => Current == Locale.FrCa ? "Réponse envoyée" : "Reply sent";
 
         /// <summary><c>desk_ticket.resolved_when</c></summary>
-        public static string DeskTicketResolvedWhen(string when) => Current == Locale.FrCa ? string.Concat("Resolved ", when) : string.Concat("Resolved ", when);
+        public static string DeskTicketResolvedWhen(string when) => Current == Locale.FrCa ? string.Concat("Réglé\u00A0: ", when) : string.Concat("Resolved ", when);
 
         /// <summary><c>desk_ticket.status</c></summary>
-        public static string DeskTicketStatus => Current == Locale.FrCa ? "Status" : "Status";
+        public static string DeskTicketStatus => Current == Locale.FrCa ? "État" : "Status";
 
         /// <summary><c>desk_ticket.status_current</c></summary>
-        public static string DeskTicketStatusCurrent(string status) => Current == Locale.FrCa ? string.Concat(status, ", current status") : string.Concat(status, ", current status");
+        public static string DeskTicketStatusCurrent(string status) => Current == Locale.FrCa ? string.Concat(status, ", statut actuel") : string.Concat(status, ", current status");
 
         /// <summary><c>devices.confirm_title</c></summary>
-        public static string DevicesConfirmTitle => Current == Locale.FrCa ? "Sign out?" : "Sign out?";
+        public static string DevicesConfirmTitle => Current == Locale.FrCa ? "Déconnecter?" : "Sign out?";
 
         /// <summary><c>devices.last_active</c></summary>
-        public static string DevicesLastActive(string when) => Current == Locale.FrCa ? string.Concat("Last active ", when) : string.Concat("Last active ", when);
+        public static string DevicesLastActive(string when) => Current == Locale.FrCa ? string.Concat("Dernière activité\u00A0: ", when) : string.Concat("Last active ", when);
 
         /// <summary><c>devices.last_active_note</c></summary>
-        public static string DevicesLastActiveNote => Current == Locale.FrCa ? "A device's last active time is when it last renewed its sign-in, which can trail real use by up to ten minutes." : "A device's last active time is when it last renewed its sign-in, which can trail real use by up to ten minutes.";
+        public static string DevicesLastActiveNote => Current == Locale.FrCa ? "La dernière activité d'un appareil correspond à sa dernière reconnexion automatique, qui peut avoir jusqu'à dix minutes de retard sur l'utilisation réelle." : "A device's last active time is when it last renewed its sign-in, which can trail real use by up to ten minutes.";
 
         /// <summary><c>devices.row_this_device</c></summary>
-        public static string DevicesRowThisDevice(string device, string detail) => Current == Locale.FrCa ? string.Concat(device, ", this device, ", detail) : string.Concat(device, ", this device, ", detail);
+        public static string DevicesRowThisDevice(string device, string detail) => Current == Locale.FrCa ? string.Concat(device, ", cet appareil, ", detail) : string.Concat(device, ", this device, ", detail);
 
         /// <summary><c>devices.sign_out_device</c></summary>
-        public static string DevicesSignOutDevice(string device) => Current == Locale.FrCa ? string.Concat("Sign out ", device) : string.Concat("Sign out ", device);
+        public static string DevicesSignOutDevice(string device) => Current == Locale.FrCa ? string.Concat("Déconnecter ", device) : string.Concat("Sign out ", device);
 
         /// <summary><c>devices.sign_out_everywhere</c></summary>
-        public static string DevicesSignOutEverywhere => Current == Locale.FrCa ? "Sign out of every device" : "Sign out of every device";
+        public static string DevicesSignOutEverywhere => Current == Locale.FrCa ? "Déconnecter tous les appareils" : "Sign out of every device";
 
         /// <summary><c>devices.sign_out_notice</c></summary>
-        public static string DevicesSignOutNotice => Current == Locale.FrCa ? "Sign-out notice" : "Sign-out notice";
+        public static string DevicesSignOutNotice => Current == Locale.FrCa ? "Avis de déconnexion" : "Sign-out notice";
 
         /// <summary><c>devices.signing_out</c></summary>
-        public static string DevicesSigningOut => Current == Locale.FrCa ? "Signing out" : "Signing out";
+        public static string DevicesSigningOut => Current == Locale.FrCa ? "Déconnexion en cours" : "Signing out";
 
         /// <summary><c>devices.this_device</c></summary>
-        public static string DevicesThisDevice => Current == Locale.FrCa ? "This device" : "This device";
+        public static string DevicesThisDevice => Current == Locale.FrCa ? "Cet appareil" : "This device";
 
         /// <summary><c>devices.title</c></summary>
-        public static string DevicesTitle => Current == Locale.FrCa ? "Signed-in devices" : "Signed-in devices";
+        public static string DevicesTitle => Current == Locale.FrCa ? "Appareils connectés" : "Signed-in devices";
 
         /// <summary><c>dialer.number</c></summary>
-        public static string DialerNumber => Current == Locale.FrCa ? "Number to call" : "Number to call";
+        public static string DialerNumber => Current == Locale.FrCa ? "Numéro à appeler" : "Number to call";
 
         /// <summary><c>dialer.placing</c></summary>
-        public static string DialerPlacing => Current == Locale.FrCa ? "Placing the call" : "Placing the call";
+        public static string DialerPlacing => Current == Locale.FrCa ? "Lancement de l'appel" : "Placing the call";
 
         /// <summary><c>dialer.title</c></summary>
-        public static string DialerTitle => Current == Locale.FrCa ? "Dialler" : "Dialler";
+        public static string DialerTitle => Current == Locale.FrCa ? "Clavier" : "Dialler";
 
         /// <summary><c>directory.add</c></summary>
-        public static string DirectoryAdd => Current == Locale.FrCa ? "Add to the list" : "Add to the list";
+        public static string DirectoryAdd => Current == Locale.FrCa ? "Ajouter à la liste" : "Add to the list";
 
         /// <summary><c>directory.add_a11y</c></summary>
-        public static string DirectoryAddA11y => Current == Locale.FrCa ? "Add to the directory" : "Add to the directory";
+        public static string DirectoryAddA11y => Current == Locale.FrCa ? "Ajouter au répertoire" : "Add to the directory";
 
         /// <summary><c>directory.add_someone</c></summary>
-        public static string DirectoryAddSomeone => Current == Locale.FrCa ? "Add someone" : "Add someone";
+        public static string DirectoryAddSomeone => Current == Locale.FrCa ? "Ajouter une personne" : "Add someone";
 
         /// <summary><c>directory.name_of</c></summary>
-        public static string DirectoryNameOf(string entry) => Current == Locale.FrCa ? string.Concat("Name of ", entry) : string.Concat("Name of ", entry);
+        public static string DirectoryNameOf(string entry) => Current == Locale.FrCa ? string.Concat("Nom (", entry, ")") : string.Concat("Name of ", entry);
 
         /// <summary><c>directory.new_name</c></summary>
-        public static string DirectoryNewName => Current == Locale.FrCa ? "Name of the person to add" : "Name of the person to add";
+        public static string DirectoryNewName => Current == Locale.FrCa ? "Nom de la personne à ajouter" : "Name of the person to add";
 
         /// <summary><c>directory.new_number</c></summary>
-        public static string DirectoryNewNumber => Current == Locale.FrCa ? "Phone number of the person to add" : "Phone number of the person to add";
+        public static string DirectoryNewNumber => Current == Locale.FrCa ? "Téléphone de la personne à ajouter" : "Phone number of the person to add";
 
         /// <summary><c>directory.number_of</c></summary>
-        public static string DirectoryNumberOf(string entry) => Current == Locale.FrCa ? string.Concat("Phone number of ", entry) : string.Concat("Phone number of ", entry);
+        public static string DirectoryNumberOf(string entry) => Current == Locale.FrCa ? string.Concat("Numéro de téléphone (", entry, ")") : string.Concat("Phone number of ", entry);
 
         /// <summary><c>directory.remove_entry</c></summary>
-        public static string DirectoryRemoveEntry(string entry) => Current == Locale.FrCa ? string.Concat("Remove ", entry, " from the directory") : string.Concat("Remove ", entry, " from the directory");
+        public static string DirectoryRemoveEntry(string entry) => Current == Locale.FrCa ? string.Concat("Retirer ", entry, " du répertoire") : string.Concat("Remove ", entry, " from the directory");
 
         /// <summary><c>directory.save</c></summary>
-        public static string DirectorySave => Current == Locale.FrCa ? "Save the transfer directory" : "Save the transfer directory";
+        public static string DirectorySave => Current == Locale.FrCa ? "Enregistrer le répertoire de transfert" : "Save the transfer directory";
 
         /// <summary><c>directory.save_status</c></summary>
-        public static string DirectorySaveStatus => Current == Locale.FrCa ? "Transfer directory save" : "Transfer directory save";
+        public static string DirectorySaveStatus => Current == Locale.FrCa ? "Sauvegarde du répertoire de transfert" : "Transfer directory save";
 
         /// <summary><c>directory.title</c></summary>
-        public static string DirectoryTitle => Current == Locale.FrCa ? "Transfer directory" : "Transfer directory";
+        public static string DirectoryTitle => Current == Locale.FrCa ? "Répertoire de transfert" : "Transfer directory";
 
         /// <summary><c>hq.answered</c></summary>
-        public static string HqAnswered(string text) => Current == Locale.FrCa ? string.Concat("District HQ answered: ", text) : string.Concat("District HQ answered: ", text);
+        public static string HqAnswered(string text) => Current == Locale.FrCa ? string.Concat("District HQ a répondu\u00A0: ", text) : string.Concat("District HQ answered: ", text);
 
         /// <summary><c>hq.ask_again</c></summary>
-        public static string HqAskAgain => Current == Locale.FrCa ? "Ask the question again" : "Ask the question again";
+        public static string HqAskAgain => Current == Locale.FrCa ? "Reposer la question" : "Ask the question again";
 
         /// <summary><c>hq.conversation</c></summary>
-        public static string HqConversation => Current == Locale.FrCa ? "Conversation with District HQ" : "Conversation with District HQ";
+        public static string HqConversation => Current == Locale.FrCa ? "Conversation avec District HQ" : "Conversation with District HQ";
 
         /// <summary><c>hq.help</c></summary>
-        public static string HqHelp => Current == Locale.FrCa ? "Enter sends. Shift+Enter starts a new line." : "Enter sends. Shift+Enter starts a new line.";
+        public static string HqHelp => Current == Locale.FrCa ? "Entrée pour envoyer. Maj+Entrée pour une nouvelle ligne." : "Enter sends. Shift+Enter starts a new line.";
 
         /// <summary><c>hq.you_asked</c></summary>
-        public static string HqYouAsked(string text) => Current == Locale.FrCa ? string.Concat("You asked: ", text) : string.Concat("You asked: ", text);
+        public static string HqYouAsked(string text) => Current == Locale.FrCa ? string.Concat("Votre question\u00A0: ", text) : string.Concat("You asked: ", text);
 
         /// <summary><c>inbox.matching</c></summary>
-        public static string InboxMatching => Current == Locale.FrCa ? "Matching messages" : "Matching messages";
+        public static string InboxMatching => Current == Locale.FrCa ? "Messages trouvés" : "Matching messages";
 
         /// <summary><c>inbox.min_query</c></summary>
-        public static string InboxMinQuery(long count) => Current == Locale.FrCa ? string.Concat("Type at least ", count.ToString(CultureInfo.InvariantCulture), " characters to search.") : string.Concat("Type at least ", count.ToString(CultureInfo.InvariantCulture), " characters to search.");
+        public static string InboxMinQuery(long count) => Current == Locale.FrCa ? string.Concat("Tapez au moins ", count.ToString(CultureInfo.InvariantCulture), " caractères pour rechercher.") : string.Concat("Type at least ", count.ToString(CultureInfo.InvariantCulture), " characters to search.");
 
         /// <summary><c>inbox.search</c></summary>
-        public static string InboxSearch => Current == Locale.FrCa ? "Search every message" : "Search every message";
+        public static string InboxSearch => Current == Locale.FrCa ? "Rechercher dans tous les messages" : "Search every message";
 
         /// <summary><c>inbox.search_failed</c></summary>
-        public static string InboxSearchFailed => Current == Locale.FrCa ? "Could not search" : "Could not search";
+        public static string InboxSearchFailed => Current == Locale.FrCa ? "Recherche impossible" : "Could not search";
 
         /// <summary><c>inbox.title</c></summary>
         public static string InboxTitle => Current == Locale.FrCa ? "Conversations" : "Conversations";
 
         /// <summary><c>inbox.unread</c></summary>
-        public static string InboxUnread => Current == Locale.FrCa ? "unread" : "unread";
+        public static string InboxUnread => Current == Locale.FrCa ? "non lue" : "unread";
 
         /// <summary><c>incoming_call.answer</c></summary>
-        public static string IncomingCallAnswer => Current == Locale.FrCa ? "Answer" : "Answer";
+        public static string IncomingCallAnswer => Current == Locale.FrCa ? "Répondre" : "Answer";
 
         /// <summary><c>incoming_call.answering</c></summary>
-        public static string IncomingCallAnswering => Current == Locale.FrCa ? "Answering" : "Answering";
+        public static string IncomingCallAnswering => Current == Locale.FrCa ? "Réponse en cours" : "Answering";
 
         /// <summary><c>incoming_call.decline</c></summary>
-        public static string IncomingCallDecline => Current == Locale.FrCa ? "Decline" : "Decline";
+        public static string IncomingCallDecline => Current == Locale.FrCa ? "Refuser" : "Decline";
 
         /// <summary><c>incoming_call.landmark</c></summary>
-        public static string IncomingCallLandmark => Current == Locale.FrCa ? "Incoming call" : "Incoming call";
+        public static string IncomingCallLandmark => Current == Locale.FrCa ? "Appel entrant" : "Incoming call";
 
         /// <summary><c>knowledge.added</c></summary>
-        public static string KnowledgeAdded(string when) => Current == Locale.FrCa ? string.Concat("Added ", when) : string.Concat("Added ", when);
+        public static string KnowledgeAdded(string when) => Current == Locale.FrCa ? string.Concat("Ajouté le ", when) : string.Concat("Added ", when);
 
         /// <summary><c>knowledge.adding</c></summary>
-        public static string KnowledgeAdding => Current == Locale.FrCa ? "Adding" : "Adding";
+        public static string KnowledgeAdding => Current == Locale.FrCa ? "Ajout en cours" : "Adding";
 
         /// <summary><c>knowledge.delete_document</c></summary>
-        public static string KnowledgeDeleteDocument(string action, string document) => Current == Locale.FrCa ? string.Concat(action, ": ", document) : string.Concat(action, ": ", document);
+        public static string KnowledgeDeleteDocument(string action, string document) => Current == Locale.FrCa ? string.Concat(action, "\u00A0: ", document) : string.Concat(action, ": ", document);
 
         /// <summary><c>knowledge.file_unreadable</c></summary>
-        public static string KnowledgeFileUnreadable => Current == Locale.FrCa ? "This file could not be read." : "This file could not be read.";
+        public static string KnowledgeFileUnreadable => Current == Locale.FrCa ? "Impossible de lire ce fichier." : "This file could not be read.";
 
         /// <summary><c>knowledge.reading_documents</c></summary>
-        public static string KnowledgeReadingDocuments => Current == Locale.FrCa ? "Reading the documents" : "Reading the documents";
+        public static string KnowledgeReadingDocuments => Current == Locale.FrCa ? "Chargement des documents en cours" : "Reading the documents";
 
         /// <summary><c>knowledge.reading_sources</c></summary>
-        public static string KnowledgeReadingSources => Current == Locale.FrCa ? "Reading where answers come from" : "Reading where answers come from";
+        public static string KnowledgeReadingSources => Current == Locale.FrCa ? "Chargement de la source des réponses en cours" : "Reading where answers come from";
 
         /// <summary><c>knowledge.retry_documents</c></summary>
-        public static string KnowledgeRetryDocuments => Current == Locale.FrCa ? "Read the documents again" : "Read the documents again";
+        public static string KnowledgeRetryDocuments => Current == Locale.FrCa ? "Actualiser les documents" : "Read the documents again";
 
         /// <summary><c>knowledge.retry_sources</c></summary>
-        public static string KnowledgeRetrySources => Current == Locale.FrCa ? "Read where answers come from again" : "Read where answers come from again";
+        public static string KnowledgeRetrySources => Current == Locale.FrCa ? "Actualiser la source des réponses" : "Read where answers come from again";
 
         /// <summary><c>members.changing</c></summary>
-        public static string MembersChanging => Current == Locale.FrCa ? "Changing a member" : "Changing a member";
+        public static string MembersChanging => Current == Locale.FrCa ? "Modification du membre en cours" : "Changing a member";
 
         /// <summary><c>members.renaming</c></summary>
-        public static string MembersRenaming => Current == Locale.FrCa ? "Renaming" : "Renaming";
+        public static string MembersRenaming => Current == Locale.FrCa ? "Renommage en cours" : "Renaming";
 
         /// <summary><c>members.role</c></summary>
-        public static string MembersRole => Current == Locale.FrCa ? "Role" : "Role";
+        public static string MembersRole => Current == Locale.FrCa ? "Rôle" : "Role";
 
         /// <summary><c>members.title</c></summary>
-        public static string MembersTitle => Current == Locale.FrCa ? "Members" : "Members";
+        public static string MembersTitle => Current == Locale.FrCa ? "Membres" : "Members";
 
         /// <summary><c>messaging.account_default</c></summary>
-        public static string MessagingAccountDefault(string account, string line) => Current == Locale.FrCa ? string.Concat(account, ", default sender, ", line) : string.Concat(account, ", default sender, ", line);
+        public static string MessagingAccountDefault(string account, string line) => Current == Locale.FrCa ? string.Concat(account, ", expéditeur par défaut, ", line) : string.Concat(account, ", default sender, ", line);
 
         /// <summary><c>messaging.accounts</c></summary>
-        public static string MessagingAccounts => Current == Locale.FrCa ? "Carrier accounts" : "Carrier accounts";
+        public static string MessagingAccounts => Current == Locale.FrCa ? "Comptes de transporteur" : "Carrier accounts";
 
         /// <summary><c>messaging.add_account</c></summary>
-        public static string MessagingAddAccount => Current == Locale.FrCa ? "Add an account" : "Add an account";
+        public static string MessagingAddAccount => Current == Locale.FrCa ? "Ajouter un compte" : "Add an account";
 
         /// <summary><c>messaging.add_account_a11y</c></summary>
-        public static string MessagingAddAccountA11y => Current == Locale.FrCa ? "Add a carrier account" : "Add a carrier account";
+        public static string MessagingAddAccountA11y => Current == Locale.FrCa ? "Ajouter un compte de transporteur" : "Add a carrier account";
 
         /// <summary><c>messaging.carrier</c></summary>
-        public static string MessagingCarrier => Current == Locale.FrCa ? "Carrier" : "Carrier";
+        public static string MessagingCarrier => Current == Locale.FrCa ? "Transporteur" : "Carrier";
 
         /// <summary><c>messaging.check_keys</c></summary>
-        public static string MessagingCheckKeys => Current == Locale.FrCa ? "Check these keys" : "Check these keys";
+        public static string MessagingCheckKeys => Current == Locale.FrCa ? "Vérifier ces clés" : "Check these keys";
 
         /// <summary><c>messaging.close_form</c></summary>
-        public static string MessagingCloseForm => Current == Locale.FrCa ? "Close the form" : "Close the form";
+        public static string MessagingCloseForm => Current == Locale.FrCa ? "Fermer le formulaire" : "Close the form";
 
         /// <summary><c>messaging.default</c></summary>
-        public static string MessagingDefault => Current == Locale.FrCa ? "Default" : "Default";
+        public static string MessagingDefault => Current == Locale.FrCa ? "Par défaut" : "Default";
 
         /// <summary><c>messaging.edit_account</c></summary>
-        public static string MessagingEditAccount => Current == Locale.FrCa ? "Edit this account" : "Edit this account";
+        public static string MessagingEditAccount => Current == Locale.FrCa ? "Modifier ce compte" : "Edit this account";
 
         /// <summary><c>messaging.keep_account</c></summary>
-        public static string MessagingKeepAccount => Current == Locale.FrCa ? "Keep the account" : "Keep the account";
+        public static string MessagingKeepAccount => Current == Locale.FrCa ? "Conserver le compte" : "Keep the account";
 
         /// <summary><c>messaging.keys</c></summary>
-        public static string MessagingKeys => Current == Locale.FrCa ? "Keys" : "Keys";
+        public static string MessagingKeys => Current == Locale.FrCa ? "Clés" : "Keys";
 
         /// <summary><c>messaging.make_default</c></summary>
-        public static string MessagingMakeDefault => Current == Locale.FrCa ? "Make default" : "Make default";
+        public static string MessagingMakeDefault => Current == Locale.FrCa ? "Définir par défaut" : "Make default";
 
         /// <summary><c>messaging.make_default_a11y</c></summary>
-        public static string MessagingMakeDefaultA11y => Current == Locale.FrCa ? "Make this the default sender" : "Make this the default sender";
+        public static string MessagingMakeDefaultA11y => Current == Locale.FrCa ? "Définir comme expéditeur par défaut" : "Make this the default sender";
 
         /// <summary><c>messaging.make_default_sender</c></summary>
-        public static string MessagingMakeDefaultSender => Current == Locale.FrCa ? "Make it the default sender" : "Make it the default sender";
+        public static string MessagingMakeDefaultSender => Current == Locale.FrCa ? "En faire l'expéditeur par défaut" : "Make it the default sender";
 
         /// <summary><c>messaging.mobile_number</c></summary>
-        public static string MessagingMobileNumber => Current == Locale.FrCa ? "Mobile number" : "Mobile number";
+        public static string MessagingMobileNumber => Current == Locale.FrCa ? "Cellulaire" : "Mobile number";
 
         /// <summary><c>messaging.not_saved</c></summary>
-        public static string MessagingNotSaved => Current == Locale.FrCa ? "Not saved" : "Not saved";
+        public static string MessagingNotSaved => Current == Locale.FrCa ? "Échec de la sauvegarde" : "Not saved";
 
         /// <summary><c>messaging.numbers</c></summary>
-        public static string MessagingNumbers => Current == Locale.FrCa ? "Phone numbers, one per line" : "Phone numbers, one per line";
+        public static string MessagingNumbers => Current == Locale.FrCa ? "Numéros de téléphone, un par ligne" : "Phone numbers, one per line";
 
         /// <summary><c>messaging.remove_account</c></summary>
-        public static string MessagingRemoveAccount => Current == Locale.FrCa ? "Remove this account" : "Remove this account";
+        public static string MessagingRemoveAccount => Current == Locale.FrCa ? "Retirer ce compte" : "Remove this account";
 
         /// <summary><c>messaging.save_account</c></summary>
-        public static string MessagingSaveAccount => Current == Locale.FrCa ? "Save the carrier account" : "Save the carrier account";
+        public static string MessagingSaveAccount => Current == Locale.FrCa ? "Enregistrer le compte de transporteur" : "Save the carrier account";
 
         /// <summary><c>messaging.save_number</c></summary>
-        public static string MessagingSaveNumber => Current == Locale.FrCa ? "Save number" : "Save number";
+        public static string MessagingSaveNumber => Current == Locale.FrCa ? "Enregistrer" : "Save number";
 
         /// <summary><c>messaging.saved</c></summary>
-        public static string MessagingSaved => Current == Locale.FrCa ? "Saved" : "Saved";
+        public static string MessagingSaved => Current == Locale.FrCa ? "Sauvegardé" : "Saved";
 
         /// <summary><c>messaging.saving_number</c></summary>
-        public static string MessagingSavingNumber => Current == Locale.FrCa ? "Saving the number" : "Saving the number";
+        public static string MessagingSavingNumber => Current == Locale.FrCa ? "Sauvegarde du numéro en cours" : "Saving the number";
 
         /// <summary><c>messaging.sender_note</c></summary>
-        public static string MessagingSenderNote => Current == Locale.FrCa ? "A channel without a sender of its own sends from the default account." : "A channel without a sender of its own sends from the default account.";
+        public static string MessagingSenderNote => Current == Locale.FrCa ? "Un canal sans son propre expéditeur envoie à partir du compte par défaut." : "A channel without a sender of its own sends from the default account.";
 
         /// <summary><c>messaging.sender_per_channel</c></summary>
-        public static string MessagingSenderPerChannel => Current == Locale.FrCa ? "Sender for each channel" : "Sender for each channel";
+        public static string MessagingSenderPerChannel => Current == Locale.FrCa ? "Expéditeur de chaque canal" : "Sender for each channel";
 
         /// <summary><c>messaging.whose_account</c></summary>
-        public static string MessagingWhoseAccount => Current == Locale.FrCa ? "Whose account" : "Whose account";
+        public static string MessagingWhoseAccount => Current == Locale.FrCa ? "Titulaire du compte" : "Whose account";
 
         /// <summary><c>numbers.area_code</c></summary>
-        public static string NumbersAreaCode => Current == Locale.FrCa ? "Area code" : "Area code";
+        public static string NumbersAreaCode => Current == Locale.FrCa ? "Indicatif régional" : "Area code";
 
         /// <summary><c>numbers.country_code</c></summary>
-        public static string NumbersCountryCode => Current == Locale.FrCa ? "Country code" : "Country code";
+        public static string NumbersCountryCode => Current == Locale.FrCa ? "Code de pays" : "Country code";
 
         /// <summary><c>numbers.find</c></summary>
-        public static string NumbersFind => Current == Locale.FrCa ? "Find a number" : "Find a number";
+        public static string NumbersFind => Current == Locale.FrCa ? "Trouver un numéro" : "Find a number";
 
         /// <summary><c>numbers.for_sale</c></summary>
-        public static string NumbersForSale => Current == Locale.FrCa ? "Numbers for sale" : "Numbers for sale";
+        public static string NumbersForSale => Current == Locale.FrCa ? "Numéros en vente" : "Numbers for sale";
 
         /// <summary><c>numbers.number_type</c></summary>
-        public static string NumbersNumberType => Current == Locale.FrCa ? "Number type" : "Number type";
+        public static string NumbersNumberType => Current == Locale.FrCa ? "Type de numéro" : "Number type";
 
         /// <summary><c>numbers.retry_search</c></summary>
-        public static string NumbersRetrySearch => Current == Locale.FrCa ? "Try the search again" : "Try the search again";
+        public static string NumbersRetrySearch => Current == Locale.FrCa ? "Relancer la recherche" : "Try the search again";
 
         /// <summary><c>numbers.search</c></summary>
-        public static string NumbersSearch => Current == Locale.FrCa ? "Search" : "Search";
+        public static string NumbersSearch => Current == Locale.FrCa ? "Rechercher" : "Search";
 
         /// <summary><c>numbers.search_a11y</c></summary>
-        public static string NumbersSearchA11y => Current == Locale.FrCa ? "Search for numbers" : "Search for numbers";
+        public static string NumbersSearchA11y => Current == Locale.FrCa ? "Rechercher des numéros" : "Search for numbers";
 
         /// <summary><c>numbers.search_hint</c></summary>
-        public static string NumbersSearchHint => Current == Locale.FrCa ? "Type an area code, or search the whole country. Results come from your carrier." : "Type an area code, or search the whole country. Results come from your carrier.";
+        public static string NumbersSearchHint => Current == Locale.FrCa ? "Tapez un indicatif régional ou cherchez partout au pays. Les résultats viennent de votre transporteur." : "Type an area code, or search the whole country. Results come from your carrier.";
 
         /// <summary><c>numbers.show</c></summary>
-        public static string NumbersShow => Current == Locale.FrCa ? "Show" : "Show";
+        public static string NumbersShow => Current == Locale.FrCa ? "Afficher" : "Show";
 
         /// <summary><c>numbers.title</c></summary>
-        public static string NumbersTitle => Current == Locale.FrCa ? "Phone numbers" : "Phone numbers";
+        public static string NumbersTitle => Current == Locale.FrCa ? "Numéros de téléphone" : "Phone numbers";
 
         /// <summary><c>numbers.yours</c></summary>
-        public static string NumbersYours => Current == Locale.FrCa ? "Your numbers" : "Your numbers";
+        public static string NumbersYours => Current == Locale.FrCa ? "Vos numéros" : "Your numbers";
 
         /// <summary><c>overview.recent_calls</c></summary>
-        public static string OverviewRecentCalls => Current == Locale.FrCa ? "Recent calls" : "Recent calls";
+        public static string OverviewRecentCalls => Current == Locale.FrCa ? "Appels récents" : "Recent calls";
 
         /// <summary><c>persona.answer_length</c></summary>
-        public static string PersonaAnswerLength => Current == Locale.FrCa ? "Answer length" : "Answer length";
+        public static string PersonaAnswerLength => Current == Locale.FrCa ? "Longueur des réponses" : "Answer length";
 
         /// <summary><c>persona.greeting</c></summary>
-        public static string PersonaGreeting => Current == Locale.FrCa ? "Greeting" : "Greeting";
+        public static string PersonaGreeting => Current == Locale.FrCa ? "Message d'accueil" : "Greeting";
 
         /// <summary><c>persona.language</c></summary>
-        public static string PersonaLanguage => Current == Locale.FrCa ? "Language" : "Language";
+        public static string PersonaLanguage => Current == Locale.FrCa ? "Langue" : "Language";
 
         /// <summary><c>persona.personality</c></summary>
-        public static string PersonaPersonality => Current == Locale.FrCa ? "Personality" : "Personality";
+        public static string PersonaPersonality => Current == Locale.FrCa ? "Personnalité" : "Personality";
 
         /// <summary><c>persona.retry_languages</c></summary>
-        public static string PersonaRetryLanguages => Current == Locale.FrCa ? "Read the languages again" : "Read the languages again";
+        public static string PersonaRetryLanguages => Current == Locale.FrCa ? "Actualiser les langues" : "Read the languages again";
 
         /// <summary><c>persona.voice_engine</c></summary>
-        public static string PersonaVoiceEngine => Current == Locale.FrCa ? "Voice engine" : "Voice engine";
+        public static string PersonaVoiceEngine => Current == Locale.FrCa ? "Moteur vocal" : "Voice engine";
 
         /// <summary><c>refresh.failed</c></summary>
-        public static string RefreshFailed => Current == Locale.FrCa ? "Could not refresh" : "Could not refresh";
+        public static string RefreshFailed => Current == Locale.FrCa ? "Impossible d'actualiser" : "Could not refresh";
 
         /// <summary><c>refresh.refreshing</c></summary>
-        public static string RefreshRefreshing => Current == Locale.FrCa ? "Refreshing" : "Refreshing";
+        public static string RefreshRefreshing => Current == Locale.FrCa ? "Actualisation en cours" : "Refreshing";
 
         /// <summary><c>report.not_sent</c></summary>
-        public static string ReportNotSent => Current == Locale.FrCa ? "Report not sent" : "Report not sent";
+        public static string ReportNotSent => Current == Locale.FrCa ? "Signalement non envoyé" : "Report not sent";
 
         /// <summary><c>rooms.close_meeting</c></summary>
-        public static string RoomsCloseMeeting => Current == Locale.FrCa ? "Close the meeting" : "Close the meeting";
+        public static string RoomsCloseMeeting => Current == Locale.FrCa ? "Fermer la réunion" : "Close the meeting";
 
         /// <summary><c>rooms.ended</c></summary>
-        public static string RoomsEnded => Current == Locale.FrCa ? "Ended" : "Ended";
+        public static string RoomsEnded => Current == Locale.FrCa ? "Fin" : "Ended";
 
         /// <summary><c>rooms.joining</c></summary>
-        public static string RoomsJoining => Current == Locale.FrCa ? "Joining" : "Joining";
+        public static string RoomsJoining => Current == Locale.FrCa ? "Connexion en cours" : "Joining";
 
         /// <summary><c>rooms.mute</c></summary>
-        public static string RoomsMute => Current == Locale.FrCa ? "Mute" : "Mute";
+        public static string RoomsMute => Current == Locale.FrCa ? "Couper le micro" : "Mute";
 
         /// <summary><c>rooms.notice</c></summary>
-        public static string RoomsNotice => Current == Locale.FrCa ? "Room notice" : "Room notice";
+        public static string RoomsNotice => Current == Locale.FrCa ? "Avis de salle" : "Room notice";
 
         /// <summary><c>rooms.problem</c></summary>
-        public static string RoomsProblem => Current == Locale.FrCa ? "Room problem" : "Room problem";
+        public static string RoomsProblem => Current == Locale.FrCa ? "Problème de salle" : "Room problem";
 
         /// <summary><c>rooms.started</c></summary>
-        public static string RoomsStarted => Current == Locale.FrCa ? "Started" : "Started";
+        public static string RoomsStarted => Current == Locale.FrCa ? "Début" : "Started";
 
         /// <summary><c>rooms.unmute</c></summary>
-        public static string RoomsUnmute => Current == Locale.FrCa ? "Unmute" : "Unmute";
+        public static string RoomsUnmute => Current == Locale.FrCa ? "Rétablir le micro" : "Unmute";
 
         /// <summary><c>routing.add</c></summary>
-        public static string RoutingAdd => Current == Locale.FrCa ? "Add a rule" : "Add a rule";
+        public static string RoutingAdd => Current == Locale.FrCa ? "Ajouter une règle" : "Add a rule";
 
         /// <summary><c>routing.add_a11y</c></summary>
-        public static string RoutingAddA11y => Current == Locale.FrCa ? "Add a routing rule" : "Add a routing rule";
+        public static string RoutingAddA11y => Current == Locale.FrCa ? "Ajouter une règle d'acheminement" : "Add a routing rule";
 
         /// <summary><c>routing.engine</c></summary>
-        public static string RoutingEngine => Current == Locale.FrCa ? "Engine" : "Engine";
+        public static string RoutingEngine => Current == Locale.FrCa ? "Moteur" : "Engine";
 
         /// <summary><c>routing.instruction</c></summary>
-        public static string RoutingInstruction => Current == Locale.FrCa ? "Instruction" : "Instruction";
+        public static string RoutingInstruction => Current == Locale.FrCa ? "Consigne" : "Instruction";
 
         /// <summary><c>routing.remove_rule</c></summary>
-        public static string RoutingRemoveRule(string rule) => Current == Locale.FrCa ? string.Concat("Remove ", rule) : string.Concat("Remove ", rule);
+        public static string RoutingRemoveRule(string rule) => Current == Locale.FrCa ? string.Concat("Supprimer ", rule) : string.Concat("Remove ", rule);
 
         /// <summary><c>routing.save</c></summary>
-        public static string RoutingSave => Current == Locale.FrCa ? "Save the routing rules" : "Save the routing rules";
+        public static string RoutingSave => Current == Locale.FrCa ? "Enregistrer les règles d'acheminement" : "Save the routing rules";
 
         /// <summary><c>routing.save_status</c></summary>
-        public static string RoutingSaveStatus => Current == Locale.FrCa ? "Routing rules save" : "Routing rules save";
+        public static string RoutingSaveStatus => Current == Locale.FrCa ? "Sauvegarde des règles" : "Routing rules save";
 
         /// <summary><c>routing.title</c></summary>
-        public static string RoutingTitle => Current == Locale.FrCa ? "Call routing rules" : "Call routing rules";
+        public static string RoutingTitle => Current == Locale.FrCa ? "Règles d'acheminement" : "Call routing rules";
 
         /// <summary><c>routing.value</c></summary>
-        public static string RoutingValue => Current == Locale.FrCa ? "Value" : "Value";
+        public static string RoutingValue => Current == Locale.FrCa ? "Valeur" : "Value";
 
         /// <summary><c>scheduling.booking_page</c></summary>
-        public static string SchedulingBookingPage => Current == Locale.FrCa ? "Booking page" : "Booking page";
+        public static string SchedulingBookingPage => Current == Locale.FrCa ? "Page de réservation" : "Booking page";
 
         /// <summary><c>scheduling.bookings_views</c></summary>
-        public static string SchedulingBookingsViews => Current == Locale.FrCa ? "Which bookings" : "Which bookings";
+        public static string SchedulingBookingsViews => Current == Locale.FrCa ? "Rendez-vous à afficher" : "Which bookings";
 
         /// <summary><c>scheduling.calendar_notice</c></summary>
-        public static string SchedulingCalendarNotice => Current == Locale.FrCa ? "Calendar change" : "Calendar change";
+        public static string SchedulingCalendarNotice => Current == Locale.FrCa ? "Calendrier modifié" : "Calendar change";
 
         /// <summary><c>scheduling.change_notice</c></summary>
-        public static string SchedulingChangeNotice => Current == Locale.FrCa ? "Booking change" : "Booking change";
+        public static string SchedulingChangeNotice => Current == Locale.FrCa ? "Rendez-vous modifié" : "Booking change";
 
         /// <summary><c>scheduling.check_again</c></summary>
-        public static string SchedulingCheckAgain => Current == Locale.FrCa ? "Check again" : "Check again";
+        public static string SchedulingCheckAgain => Current == Locale.FrCa ? "Revérifier" : "Check again";
 
         /// <summary><c>scheduling.copy_failed</c></summary>
-        public static string SchedulingCopyFailed => Current == Locale.FrCa ? "Windows did not copy it. Select it and press Ctrl+C." : "Windows did not copy it. Select it and press Ctrl+C.";
+        public static string SchedulingCopyFailed => Current == Locale.FrCa ? "Windows n'a rien copié. Sélectionnez le texte et appuyez sur Ctrl+C." : "Windows did not copy it. Select it and press Ctrl+C.";
 
         /// <summary><c>scheduling.developer_tabs</c></summary>
-        public static string SchedulingDeveloperTabs => Current == Locale.FrCa ? "Developer tabs" : "Developer tabs";
+        public static string SchedulingDeveloperTabs => Current == Locale.FrCa ? "Onglets de la section Développeur" : "Developer tabs";
 
         /// <summary><c>scheduling.event_type_notice</c></summary>
-        public static string SchedulingEventTypeNotice => Current == Locale.FrCa ? "Event type change" : "Event type change";
+        public static string SchedulingEventTypeNotice => Current == Locale.FrCa ? "Type de rendez-vous modifié" : "Event type change";
 
         /// <summary><c>scheduling.event_types_list</c></summary>
-        public static string SchedulingEventTypesList => Current == Locale.FrCa ? "Event types" : "Event types";
+        public static string SchedulingEventTypesList => Current == Locale.FrCa ? "Types de rendez-vous" : "Event types";
 
         /// <summary><c>scheduling.host_role</c></summary>
-        public static string SchedulingHostRole => Current == Locale.FrCa ? "Role" : "Role";
+        public static string SchedulingHostRole => Current == Locale.FrCa ? "Rôle" : "Role";
 
         /// <summary><c>scheduling.hosts_add</c></summary>
-        public static string SchedulingHostsAdd => Current == Locale.FrCa ? "Add a host" : "Add a host";
+        public static string SchedulingHostsAdd => Current == Locale.FrCa ? "Ajouter un hôte" : "Add a host";
 
         /// <summary><c>scheduling.hours_closes</c></summary>
-        public static string SchedulingHoursCloses => Current == Locale.FrCa ? "Closes" : "Closes";
+        public static string SchedulingHoursCloses => Current == Locale.FrCa ? "Fin" : "Closes";
 
         /// <summary><c>scheduling.hours_notice</c></summary>
-        public static string SchedulingHoursNotice => Current == Locale.FrCa ? "Working hours change" : "Working hours change";
+        public static string SchedulingHoursNotice => Current == Locale.FrCa ? "Heures de disponibilité modifiées" : "Working hours change";
 
         /// <summary><c>scheduling.hours_opens</c></summary>
-        public static string SchedulingHoursOpens => Current == Locale.FrCa ? "Opens" : "Opens";
+        public static string SchedulingHoursOpens => Current == Locale.FrCa ? "Début" : "Opens";
 
         /// <summary><c>scheduling.hours_window</c></summary>
-        public static string SchedulingHoursWindow(string day, long number) => Current == Locale.FrCa ? string.Concat(day, ", range ", number.ToString(CultureInfo.InvariantCulture)) : string.Concat(day, ", range ", number.ToString(CultureInfo.InvariantCulture));
+        public static string SchedulingHoursWindow(string day, long number) => Current == Locale.FrCa ? string.Concat(day, ", plage ", number.ToString(CultureInfo.InvariantCulture)) : string.Concat(day, ", range ", number.ToString(CultureInfo.InvariantCulture));
 
         /// <summary><c>scheduling.last_live</c></summary>
-        public static string SchedulingLastLive => Current == Locale.FrCa ? "Last live" : "Last live";
+        public static string SchedulingLastLive => Current == Locale.FrCa ? "Dernière mise en ligne" : "Last live";
 
         /// <summary><c>scheduling.problem</c></summary>
-        public static string SchedulingProblem => Current == Locale.FrCa ? "Booking pages problem" : "Booking pages problem";
+        public static string SchedulingProblem => Current == Locale.FrCa ? "Problème des pages de réservation" : "Booking pages problem";
 
         /// <summary><c>scheduling.sections</c></summary>
         public static string SchedulingSections => Current == Locale.FrCa ? "Sections" : "Sections";
 
         /// <summary><c>scheduling.settings_image_notice</c></summary>
-        public static string SchedulingSettingsImageNotice => Current == Locale.FrCa ? "Image change" : "Image change";
+        public static string SchedulingSettingsImageNotice => Current == Locale.FrCa ? "Image modifiée" : "Image change";
 
         /// <summary><c>scheduling.settings_notice</c></summary>
-        public static string SchedulingSettingsNotice => Current == Locale.FrCa ? "Settings change" : "Settings change";
+        public static string SchedulingSettingsNotice => Current == Locale.FrCa ? "Paramètres modifiés" : "Settings change";
 
         /// <summary><c>scheduling.settings_tabs</c></summary>
-        public static string SchedulingSettingsTabs => Current == Locale.FrCa ? "Settings tabs" : "Settings tabs";
+        public static string SchedulingSettingsTabs => Current == Locale.FrCa ? "Onglets de la section Paramètres" : "Settings tabs";
 
         /// <summary><c>scheduling.team_notice</c></summary>
-        public static string SchedulingTeamNotice => Current == Locale.FrCa ? "Team change" : "Team change";
+        public static string SchedulingTeamNotice => Current == Locale.FrCa ? "Équipe modifiée" : "Team change";
 
         /// <summary><c>scheduling.title</c></summary>
-        public static string SchedulingTitle => Current == Locale.FrCa ? "Booking pages" : "Booking pages";
+        public static string SchedulingTitle => Current == Locale.FrCa ? "Pages de réservation" : "Booking pages";
 
         /// <summary><c>scheduling.turn_on</c></summary>
-        public static string SchedulingTurnOn => Current == Locale.FrCa ? "Turn on booking pages" : "Turn on booking pages";
+        public static string SchedulingTurnOn => Current == Locale.FrCa ? "Activer les pages de réservation" : "Turn on booking pages";
 
         /// <summary><c>scheduling.webhook_notice</c></summary>
-        public static string SchedulingWebhookNotice => Current == Locale.FrCa ? "Webhook change" : "Webhook change";
+        public static string SchedulingWebhookNotice => Current == Locale.FrCa ? "Webhook modifié" : "Webhook change";
 
         /// <summary><c>scheduling.what_went_wrong</c></summary>
-        public static string SchedulingWhatWentWrong => Current == Locale.FrCa ? "What went wrong" : "What went wrong";
+        public static string SchedulingWhatWentWrong => Current == Locale.FrCa ? "Cause du problème" : "What went wrong";
 
         /// <summary><c>shell.live_updates</c></summary>
-        public static string ShellLiveUpdates => Current == Locale.FrCa ? "Live updates" : "Live updates";
+        public static string ShellLiveUpdates => Current == Locale.FrCa ? "Mises à jour en direct" : "Live updates";
 
         /// <summary><c>shell.notice</c></summary>
-        public static string ShellNotice => Current == Locale.FrCa ? "Notice" : "Notice";
+        public static string ShellNotice => Current == Locale.FrCa ? "Avis" : "Notice";
 
         /// <summary><c>shell.refresh</c></summary>
-        public static string ShellRefresh => Current == Locale.FrCa ? "Refresh" : "Refresh";
+        public static string ShellRefresh => Current == Locale.FrCa ? "Actualiser" : "Refresh";
 
         /// <summary><c>shell.report_bar</c></summary>
-        public static string ShellReportBar => Current == Locale.FrCa ? "Report" : "Report";
+        public static string ShellReportBar => Current == Locale.FrCa ? "Signalement" : "Report";
 
         /// <summary><c>shell.report_sending</c></summary>
-        public static string ShellReportSending => Current == Locale.FrCa ? "Sending your report." : "Sending your report.";
+        public static string ShellReportSending => Current == Locale.FrCa ? "Envoi du signalement." : "Sending your report.";
 
         /// <summary><c>shell.workspace</c></summary>
-        public static string ShellWorkspace => Current == Locale.FrCa ? "Workspace" : "Workspace";
+        public static string ShellWorkspace => Current == Locale.FrCa ? "Espace de travail" : "Workspace";
 
         /// <summary><c>shell.workspaces</c></summary>
-        public static string ShellWorkspaces => Current == Locale.FrCa ? "Workspaces" : "Workspaces";
+        public static string ShellWorkspaces => Current == Locale.FrCa ? "Espaces de travail" : "Workspaces";
 
         /// <summary><c>sign_in.button</c></summary>
-        public static string SignInButton => Current == Locale.FrCa ? "Sign in with your browser" : "Sign in with your browser";
+        public static string SignInButton => Current == Locale.FrCa ? "Se connecter avec le navigateur" : "Sign in with your browser";
 
         /// <summary><c>sign_in.problem</c></summary>
-        public static string SignInProblem => Current == Locale.FrCa ? "Sign-in problem" : "Sign-in problem";
+        public static string SignInProblem => Current == Locale.FrCa ? "Problème de connexion" : "Sign-in problem";
 
         /// <summary><c>sign_in.sign_out_again</c></summary>
-        public static string SignInSignOutAgain => Current == Locale.FrCa ? "Sign out again" : "Sign out again";
+        public static string SignInSignOutAgain => Current == Locale.FrCa ? "Réessayer la déconnexion" : "Sign out again";
 
         /// <summary><c>support.discard</c></summary>
-        public static string SupportDiscard => Current == Locale.FrCa ? "Discard" : "Discard";
+        public static string SupportDiscard => Current == Locale.FrCa ? "Abandonner" : "Discard";
 
         /// <summary><c>support.discard_a11y</c></summary>
-        public static string SupportDiscardA11y => Current == Locale.FrCa ? "Discard the support request" : "Discard the support request";
+        public static string SupportDiscardA11y => Current == Locale.FrCa ? "Abandonner la nouvelle demande de soutien" : "Discard the support request";
 
         /// <summary><c>support.new</c></summary>
-        public static string SupportNew => Current == Locale.FrCa ? "New request" : "New request";
+        public static string SupportNew => Current == Locale.FrCa ? "Nouvelle demande" : "New request";
 
         /// <summary><c>support.new_a11y</c></summary>
-        public static string SupportNewA11y => Current == Locale.FrCa ? "New support request" : "New support request";
+        public static string SupportNewA11y => Current == Locale.FrCa ? "Nouvelle demande de soutien" : "New support request";
 
         /// <summary><c>support.not_sent</c></summary>
-        public static string SupportNotSent => Current == Locale.FrCa ? "Request not sent" : "Request not sent";
+        public static string SupportNotSent => Current == Locale.FrCa ? "Demande non envoyée" : "Request not sent";
 
         /// <summary><c>support.open</c></summary>
-        public static string SupportOpen => Current == Locale.FrCa ? "Open" : "Open";
+        public static string SupportOpen => Current == Locale.FrCa ? "Ouvertes" : "Open";
 
         /// <summary><c>support.open_list</c></summary>
-        public static string SupportOpenList => Current == Locale.FrCa ? "Open requests" : "Open requests";
+        public static string SupportOpenList => Current == Locale.FrCa ? "Demandes ouvertes" : "Open requests";
 
         /// <summary><c>support.resolved</c></summary>
-        public static string SupportResolved => Current == Locale.FrCa ? "Resolved" : "Resolved";
+        public static string SupportResolved => Current == Locale.FrCa ? "Réglées" : "Resolved";
 
         /// <summary><c>support.resolved_list</c></summary>
-        public static string SupportResolvedList => Current == Locale.FrCa ? "Resolved requests" : "Resolved requests";
+        public static string SupportResolvedList => Current == Locale.FrCa ? "Demandes réglées" : "Resolved requests";
 
         /// <summary><c>support.send</c></summary>
-        public static string SupportSend => Current == Locale.FrCa ? "Send the support request" : "Send the support request";
+        public static string SupportSend => Current == Locale.FrCa ? "Envoyer la demande de soutien" : "Send the support request";
 
         /// <summary><c>support.sending</c></summary>
-        public static string SupportSending => Current == Locale.FrCa ? "Sending the support request" : "Sending the support request";
+        public static string SupportSending => Current == Locale.FrCa ? "Envoi de la demande de soutien en cours" : "Sending the support request";
 
         /// <summary><c>support.sent</c></summary>
-        public static string SupportSent => Current == Locale.FrCa ? "Request sent" : "Request sent";
+        public static string SupportSent => Current == Locale.FrCa ? "Demande envoyée" : "Request sent";
 
         /// <summary><c>support.title</c></summary>
-        public static string SupportTitle => Current == Locale.FrCa ? "Support" : "Support";
+        public static string SupportTitle => Current == Locale.FrCa ? "Soutien" : "Support";
 
         /// <summary><c>support.topic</c></summary>
-        public static string SupportTopic => Current == Locale.FrCa ? "What it is about" : "What it is about";
+        public static string SupportTopic => Current == Locale.FrCa ? "De quoi s'agit-il" : "What it is about";
 
         /// <summary><c>support.what_is_happening</c></summary>
-        public static string SupportWhatIsHappening => Current == Locale.FrCa ? "What is happening" : "What is happening";
+        public static string SupportWhatIsHappening => Current == Locale.FrCa ? "Ce qui se passe" : "What is happening";
 
         /// <summary><c>support_request.conversation</c></summary>
         public static string SupportRequestConversation => Current == Locale.FrCa ? "Conversation" : "Conversation";
 
         /// <summary><c>support_request.keep_open</c></summary>
-        public static string SupportRequestKeepOpen => Current == Locale.FrCa ? "Keep it open" : "Keep it open";
+        public static string SupportRequestKeepOpen => Current == Locale.FrCa ? "Laisser ouverte" : "Keep it open";
 
         /// <summary><c>support_request.problem</c></summary>
-        public static string SupportRequestProblem => Current == Locale.FrCa ? "Problem with this request" : "Problem with this request";
+        public static string SupportRequestProblem => Current == Locale.FrCa ? "Problème avec cette demande" : "Problem with this request";
 
         /// <summary><c>support_request.resolved</c></summary>
-        public static string SupportRequestResolved => Current == Locale.FrCa ? "Request resolved" : "Request resolved";
+        public static string SupportRequestResolved => Current == Locale.FrCa ? "Demande réglée" : "Request resolved";
 
         /// <summary><c>support_request.resolving</c></summary>
-        public static string SupportRequestResolving => Current == Locale.FrCa ? "Marking as resolved" : "Marking as resolved";
+        public static string SupportRequestResolving => Current == Locale.FrCa ? "Fermeture de la demande en cours" : "Marking as resolved";
 
         /// <summary><c>thread.loading_older</c></summary>
-        public static string ThreadLoadingOlder => Current == Locale.FrCa ? "Loading older messages" : "Loading older messages";
+        public static string ThreadLoadingOlder => Current == Locale.FrCa ? "Chargement d'anciens messages" : "Loading older messages";
 
         /// <summary><c>thread.no_messages</c></summary>
-        public static string ThreadNoMessages => Current == Locale.FrCa ? "No messages in this conversation yet." : "No messages in this conversation yet.";
+        public static string ThreadNoMessages => Current == Locale.FrCa ? "Pas encore de message dans cette conversation." : "No messages in this conversation yet.";
 
         /// <summary><c>thread.older</c></summary>
-        public static string ThreadOlder => Current == Locale.FrCa ? "Older messages" : "Older messages";
+        public static string ThreadOlder => Current == Locale.FrCa ? "Anciens messages" : "Older messages";
 
         /// <summary><c>thread.you</c></summary>
-        public static string ThreadYou => Current == Locale.FrCa ? "You" : "You";
+        public static string ThreadYou => Current == Locale.FrCa ? "Vous" : "You";
 
         /// <summary><c>transcript.line</c></summary>
-        public static string TranscriptLine(string speaker, string text) => Current == Locale.FrCa ? string.Concat(speaker, ": ", text) : string.Concat(speaker, ": ", text);
+        public static string TranscriptLine(string speaker, string text) => Current == Locale.FrCa ? string.Concat(speaker, "\u00A0: ", text) : string.Concat(speaker, ": ", text);
 
         /// <summary><c>transcript.line_note</c></summary>
-        public static string TranscriptLineNote(string speaker, string text, string note) => Current == Locale.FrCa ? string.Concat(speaker, ": ", text, " (", note, ")") : string.Concat(speaker, ": ", text, " (", note, ")");
+        public static string TranscriptLineNote(string speaker, string text, string note) => Current == Locale.FrCa ? string.Concat(speaker, "\u00A0: ", text, " (", note, ")") : string.Concat(speaker, ": ", text, " (", note, ")");
 
         /// <summary><c>tray.open</c></summary>
-        public static string TrayOpen => Current == Locale.FrCa ? "Open District AI" : "Open District AI";
+        public static string TrayOpen => Current == Locale.FrCa ? "Ouvrir District AI" : "Open District AI";
 
         /// <summary><c>tray.quit</c></summary>
-        public static string TrayQuit => Current == Locale.FrCa ? "Quit" : "Quit";
+        public static string TrayQuit => Current == Locale.FrCa ? "Quitter" : "Quit";
 
         /// <summary><c>tray.sign_out</c></summary>
-        public static string TraySignOut => Current == Locale.FrCa ? "Sign out" : "Sign out";
+        public static string TraySignOut => Current == Locale.FrCa ? "Se déconnecter" : "Sign out";
 
         /// <summary><c>tray.still_running</c></summary>
-        public static string TrayStillRunning => Current == Locale.FrCa ? "District AI is still running in the notification area. Quit from its icon." : "District AI is still running in the notification area. Quit from its icon.";
+        public static string TrayStillRunning => Current == Locale.FrCa ? "District AI reste actif dans la zone de notification. Pour le quitter, utilisez son icône." : "District AI is still running in the notification area. Quit from its icon.";
 
         /// <summary><c>unavailable.back</c></summary>
-        public static string UnavailableBack => Current == Locale.FrCa ? "Back" : "Back";
+        public static string UnavailableBack => Current == Locale.FrCa ? "Retour" : "Back";
 
         /// <summary><c>workflows.campaign_failed</c></summary>
-        public static string WorkflowsCampaignFailed => Current == Locale.FrCa ? "Could not change the campaign" : "Could not change the campaign";
+        public static string WorkflowsCampaignFailed => Current == Locale.FrCa ? "Impossible de modifier la campagne" : "Could not change the campaign";
 
         /// <summary><c>workflows.changing_campaign</c></summary>
-        public static string WorkflowsChangingCampaign => Current == Locale.FrCa ? "Changing the campaign" : "Changing the campaign";
+        public static string WorkflowsChangingCampaign => Current == Locale.FrCa ? "Modification de la campagne" : "Changing the campaign";
 
         /// <summary><c>workflows.hide_runs</c></summary>
-        public static string WorkflowsHideRuns => Current == Locale.FrCa ? "Hide runs" : "Hide runs";
+        public static string WorkflowsHideRuns => Current == Locale.FrCa ? "Masquer les exécutions" : "Hide runs";
 
         /// <summary><c>workflows.hide_runs_of</c></summary>
-        public static string WorkflowsHideRunsOf(string workflow) => Current == Locale.FrCa ? string.Concat("Hide runs of ", workflow) : string.Concat("Hide runs of ", workflow);
+        public static string WorkflowsHideRunsOf(string workflow) => Current == Locale.FrCa ? string.Concat("Masquer les exécutions de ", workflow) : string.Concat("Hide runs of ", workflow);
 
         /// <summary><c>workflows.list</c></summary>
-        public static string WorkflowsList => Current == Locale.FrCa ? "Workflows" : "Workflows";
+        public static string WorkflowsList => Current == Locale.FrCa ? "Flux de travail" : "Workflows";
 
         /// <summary><c>workflows.reading_runs</c></summary>
-        public static string WorkflowsReadingRuns => Current == Locale.FrCa ? "Reading runs" : "Reading runs";
+        public static string WorkflowsReadingRuns => Current == Locale.FrCa ? "Chargement des exécutions" : "Reading runs";
 
         /// <summary><c>workflows.row_off</c></summary>
-        public static string WorkflowsRowOff(string workflow, string detail) => Current == Locale.FrCa ? string.Concat(workflow, ", off, ", detail) : string.Concat(workflow, ", off, ", detail);
+        public static string WorkflowsRowOff(string workflow, string detail) => Current == Locale.FrCa ? string.Concat(workflow, ", désactivé, ", detail) : string.Concat(workflow, ", off, ", detail);
 
         /// <summary><c>workflows.row_on</c></summary>
-        public static string WorkflowsRowOn(string workflow, string detail) => Current == Locale.FrCa ? string.Concat(workflow, ", on, ", detail) : string.Concat(workflow, ", on, ", detail);
+        public static string WorkflowsRowOn(string workflow, string detail) => Current == Locale.FrCa ? string.Concat(workflow, ", activé, ", detail) : string.Concat(workflow, ", on, ", detail);
 
         /// <summary><c>workflows.show_runs</c></summary>
-        public static string WorkflowsShowRuns => Current == Locale.FrCa ? "Show runs" : "Show runs";
+        public static string WorkflowsShowRuns => Current == Locale.FrCa ? "Afficher les exécutions" : "Show runs";
 
         /// <summary><c>workflows.show_runs_of</c></summary>
-        public static string WorkflowsShowRunsOf(string workflow) => Current == Locale.FrCa ? string.Concat("Show runs of ", workflow) : string.Concat("Show runs of ", workflow);
+        public static string WorkflowsShowRunsOf(string workflow) => Current == Locale.FrCa ? string.Concat("Afficher les exécutions de ", workflow) : string.Concat("Show runs of ", workflow);
 
         /// <summary><c>workflows.workflow_failed</c></summary>
-        public static string WorkflowsWorkflowFailed => Current == Locale.FrCa ? "Could not change a workflow" : "Could not change a workflow";
+        public static string WorkflowsWorkflowFailed => Current == Locale.FrCa ? "Impossible de modifier un flux de travail" : "Could not change a workflow";
     }
 }

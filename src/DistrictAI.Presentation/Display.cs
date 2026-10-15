@@ -8,6 +8,15 @@ namespace DistrictAI.ViewModels;
 /// <summary>The few things the pages format themselves; every other string arrives from the core ready to show.</summary>
 internal static class Display
 {
+    /// <summary>The core's French grouping: a U+00A0 between groups of three, a hyphen-minus for a negative.</summary>
+    private static readonly NumberFormatInfo _frenchNumbers = new()
+    {
+        NumberGroupSeparator = "\u00A0",
+        NumberGroupSizes = [3],
+        NegativeSign = "-",
+        NumberNegativePattern = 1,
+    };
+
     /// <summary>The words on a Report button for <paramref name="availability"/>, or empty when there is none.</summary>
     internal static string ReportLabel(ReportAvailability availability) => availability switch
     {
@@ -20,13 +29,16 @@ internal static class Display
 
     /// <summary>
     /// An ISO 8601 UTC time from the core, in this computer's time zone and the
-    /// user's culture: the time alone when it is today, the date otherwise.
+    /// window's language: the time alone when it is today, the date otherwise.
     /// Empty for no time, or one this build cannot read.
     /// </summary>
-    internal static string When(string? iso) => When(iso, DateTimeOffset.Now);
+    internal static string When(string? iso) => When(iso, DateTimeOffset.Now, S.Current);
 
     /// <summary><see cref="When(string?)"/> as of <paramref name="now"/>.</summary>
-    internal static string When(string? iso, DateTimeOffset now)
+    internal static string When(string? iso, DateTimeOffset now) => When(iso, now, S.Current);
+
+    /// <summary><see cref="When(string?)"/> as of <paramref name="now"/>, in <paramref name="locale"/>.</summary>
+    internal static string When(string? iso, DateTimeOffset now, S.Locale locale)
     {
         if (string.IsNullOrEmpty(iso)
             || !DateTimeOffset.TryParse(iso, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var at))
@@ -34,11 +46,43 @@ internal static class Display
             return string.Empty;
         }
         var local = at.ToLocalTime();
-        var culture = CultureInfo.CurrentCulture;
-        return local.Date == now.ToLocalTime().Date
-            ? local.ToString("t", culture)
-            : local.ToString("d", culture);
+        return local.Date == now.ToLocalTime().Date ? Time(local, locale) : Date(local, locale);
     }
+
+    /// <summary>
+    /// A time of day. French writes it as the core does (district-l10n's
+    /// <c>format::time</c>: <c>15 h 04</c>, <c>9 h</c>), whatever the regional
+    /// format; English in the user's culture, as before. A French window on a
+    /// computer set to a US format read <c>3:04 PM</c>.
+    /// </summary>
+    internal static string Time(DateTimeOffset local, S.Locale locale)
+    {
+        if (locale != S.Locale.FrCa)
+        {
+            return local.ToString("t", CultureInfo.CurrentCulture);
+        }
+        return local.Minute == 0
+            ? string.Create(CultureInfo.InvariantCulture, $"{local.Hour} h")
+            : string.Create(CultureInfo.InvariantCulture, $"{local.Hour} h {local.Minute:00}");
+    }
+
+    /// <summary>
+    /// A date. French writes it as the core's short date does
+    /// (<c>2026-03-04</c>), whatever the regional format; English in the
+    /// user's culture, as before.
+    /// </summary>
+    internal static string Date(DateTimeOffset local, S.Locale locale) => locale == S.Locale.FrCa
+        ? local.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+        : local.ToString("d", CultureInfo.CurrentCulture);
+
+    /// <summary>
+    /// A whole number. French groups it as the core does (district-l10n's
+    /// <c>format::integer</c>: <c>1 500</c>, a no-break space between groups),
+    /// whatever the regional format; English in the user's culture, as before.
+    /// </summary>
+    internal static string Integer(long value, S.Locale locale) => locale == S.Locale.FrCa
+        ? value.ToString("N0", _frenchNumbers)
+        : value.ToString("N0", CultureInfo.CurrentCulture);
 
     /// <summary>A failure as one block of text: the message, and the regions line under it when there is one.</summary>
     internal static string Failure(FailureView? failure)

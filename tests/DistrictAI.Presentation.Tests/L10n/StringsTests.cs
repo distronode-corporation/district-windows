@@ -16,10 +16,11 @@ public sealed class StringsTests
         Assert.Equal(S.Locale.En, S.Current);
     }
 
+    /// <summary>Every entry of the catalog has its French (3.0), so no French branch carries English.</summary>
     [Fact]
-    public void FrenchIsNotCompleteYet()
+    public void FrenchIsComplete()
     {
-        Assert.False(S.FrComplete);
+        Assert.True(S.FrComplete);
     }
 
     [Fact]

@@ -22,11 +22,12 @@
 
 use district_core::scheduling_admin::{
     DeveloperDialog, DeveloperEvent, DeveloperSection, DeveloperTab, KeyDialog, MintedSecret,
-    Removal, SectionLoad, WEBHOOK_FIELDS, WebhookEditor, delivery_outcome, is_personal_data,
+    Removal, SectionLoad, WEBHOOK_EVENTS, WEBHOOK_FIELDS, WebhookEditor, delivery_outcome,
+    is_personal_data,
 };
 use district_core::{Event, SchedulingAdmin, SchedulingAdminEvent};
 use district_l10n::scheduling_strings as ss;
-use district_model::{SCHEDULING_WEBHOOK_EVENTS, SchedulingWebhook};
+use district_model::SchedulingWebhook;
 use serde::Serialize;
 
 use super::{DialogView, SchedulingAdminPage, dialog_view, landed, load_status};
@@ -699,7 +700,7 @@ fn webhook_view(editor: &WebhookEditor) -> WebhookEditorView {
         dropped: editor.dropped_line(),
         events_label: events_label.to_owned(),
         events_hint: events_hint.to_owned(),
-        events: toggles(&SCHEDULING_WEBHOOK_EVENTS, &editor.events),
+        events: toggles(&WEBHOOK_EVENTS, &editor.events),
         events_error: editor.events_rejected.map(str::to_owned),
         fields_label: fields_label.to_owned(),
         fields_hint: fields_hint.to_owned(),

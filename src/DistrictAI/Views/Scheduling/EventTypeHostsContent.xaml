@@ -38,12 +38,15 @@
                 AutomationProperties.AutomationId="EventTypeHostsRotation"
                 AutomationProperties.HelpText="{x:Bind ViewModel.RotationHint, Mode=OneWay}"
                 AutomationProperties.Name="{x:Bind ViewModel.RotationLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.RotationHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.RotationLabel, Mode=OneWay}"
                 ItemsSource="{x:Bind ViewModel.Rotations}"
                 SelectedIndex="{x:Bind ViewModel.RotationIndex, Mode=OneWay}"
                 SelectionChanged="OnRotationChanged"
-                Visibility="{x:Bind ViewModel.ShowsRotation, Mode=OneWay}" />
+                Visibility="{x:Bind ViewModel.ShowsRotation, Mode=OneWay}">
+                <ComboBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.RotationHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </ComboBox.Description>
+            </ComboBox>
 
             <TextBlock
                 AutomationProperties.AutomationId="EventTypeHostsEmpty"

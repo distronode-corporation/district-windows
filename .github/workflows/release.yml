@@ -50,6 +50,8 @@ on:
       - scripts/run-wack.ps1
       - scripts/check-wack-report.py
       - scripts/check-scripted.py
+      - scripts/check-languages.py
+      - scripts/gen-l10n.py
 
 permissions:
   contents: read
@@ -194,9 +196,9 @@ jobs:
       VERSION: ${{ needs.guard.outputs.version }}
       # French (fr-CA): every package built here passes it as
       # -p:DistrictFrench, and "Each package declares French exactly when it
-      # should" holds the packages to it. "true" only at the 3.0 cut, once
-      # every catalog has reviewed French.
-      DISTRICT_FRENCH: "false"
+      # should" holds the packages to it. On from 3.0: every catalog has
+      # reviewed French.
+      DISTRICT_FRENCH: "true"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -373,12 +375,14 @@ jobs:
           Test-Msix $githubMsix[0].FullName 'github' $github
           if ((Get-AuthenticodeSignature $githubMsix[0].FullName).SignerCertificate) { throw 'the GitHub flavour package is signed; this release carries it unsigned' }
 
-      # French reaches no one before the 3.0 cut: with DISTRICT_FRENCH false no
-      # package may declare fr-CA, in its manifest or in resources.pri (a
-      # .resw under the project folder reaches resources.pri whatever the
-      # project file says, which is why the French one lives outside it). With
-      # it true, every package must, and every catalog must have reviewed
-      # French (`l10n.py check --require fr-CA`).
+      # With DISTRICT_FRENCH true (from 3.0) every package must declare fr-CA,
+      # in its manifest and in resources.pri, and every catalog must have
+      # reviewed French: `l10n.py check --require fr-CA` on each catalog in a
+      # call of its own (scripts/gen-l10n.py --require-french), since one call
+      # over all of them fails on a key two catalogs both define. With it
+      # false no package may declare French (a .resw under the project folder
+      # reaches resources.pri whatever the project file says, which is why the
+      # French one lives outside it).
       - name: Each package declares French exactly when it should
         shell: pwsh
         run: |
@@ -386,8 +390,7 @@ jobs:
           python scripts/check-languages.py --self-test
           if ($LASTEXITCODE -ne 0) { throw 'check-languages.py failed its self-test' }
           if ($env:DISTRICT_FRENCH -eq 'true') {
-            $catalogs = @(Get-ChildItem crates/*/l10n/*.toml, src/*/l10n/*.toml | ForEach-Object { $_.FullName })
-            python tools/l10n/l10n.py check --require fr-CA @catalogs
+            python scripts/gen-l10n.py --require-french
             if ($LASTEXITCODE -ne 0) { throw 'French is on, but a catalog lacks reviewed French' }
           }
           $packages = @(

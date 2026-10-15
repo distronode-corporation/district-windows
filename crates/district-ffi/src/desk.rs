@@ -26,13 +26,16 @@ use district_core::{
     DeskTicketScreen, DeskTicketView as DeskTicketRead, DeskTickets, Event, MAX_ATTACHMENT_BYTES,
     Model, Route, SignedIn, desk_author_label, desk_status, desk_status_label, format_phone_number,
 };
+use district_l10n::WireCategory;
 use district_model::{DeskMessage, DeskTicketDetail, DeskTicketStatus, DeskTicketSummary};
 use serde::Serialize;
 
 use crate::files::{LOGO_TYPES, picked_attachment};
 use crate::l10n::{cs, l, s};
 use crate::screen::ScreenView;
-use crate::views::{EmptyView, FactView, FailureView, LoadStatus, facts, failure, humanize};
+use crate::views::{
+    EmptyView, FactView, FailureView, LoadStatus, facts, failure, humanize, localized,
+};
 
 /// A picked file, as [`DeskAction::UploadLogo`] carries it (crate::files).
 pub use crate::files::PickedFileView;
@@ -818,7 +821,10 @@ fn details(ticket: &DeskTicketDetail) -> Vec<FactView> {
             s::desk_fact_phone(l()),
             ticket.requester_phone.as_deref().map(format_phone_number),
         ),
-        (s::desk_fact_source(l()), Some(humanize(&ticket.source))),
+        (
+            s::desk_fact_source(l()),
+            Some(localized(WireCategory::DeskTicketSource, &ticket.source)),
+        ),
     ])
 }
 

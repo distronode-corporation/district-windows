@@ -356,6 +356,17 @@ pub(crate) fn wire(category: WireCategory, raw: &str) -> String {
     wire_label(category, raw, district_l10n::current())
 }
 
+/// What a screen shows for `raw` where English has always read the service's
+/// own word (`Partial`, `Voice call`): that word as [`humanize`] writes it in
+/// English, and in French the core's label for it ([`wire`]), since the
+/// service's word is English.
+pub(crate) fn localized(category: WireCategory, raw: &str) -> String {
+    match district_l10n::current() {
+        Locale::En => humanize(raw),
+        Locale::FrCa => wire(category, raw),
+    }
+}
+
 /// A status value the service wrote in its own form (`no-answer`,
 /// `caller_requested_human`) as a sentence starts it: `No answer`, `Caller
 /// requested human`. The Linux app's `humanize`. Only for values no

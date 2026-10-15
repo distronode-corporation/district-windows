@@ -1,4 +1,4 @@
-# Microsoft Store listing: in-app purchase disclosure
+# Microsoft Store listing: in-app purchase disclosure and release notes
 
 A draft for Partner Center, for District AI 2.0 for Windows, written to be pasted. It
 covers what changes from 1.0's listing (a client for an existing account): from 2.0 a
@@ -59,3 +59,38 @@ bought in the app through District AI's checkout).
 
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
+
+## What's new in this version: 3.0.0
+
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (773 characters) and, in the fr-CA listing, the French
+below (995 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon and inside the guillemets.
+
+The French is the programme's reviewed translation (monorepo
+`i18n/fr-CA/work/S01/final.jsonl`, id `windows.msstore.whats_new_3_0_0`), with one line
+left out in both languages: the draft said that calls ring and messages arrive while the
+app is closed. That is not confirmed (Microsoft's mapping of this package for Windows push
+is not confirmed, and the push credentials are not verified in production), so these
+notes do not claim it. The booking pages line was added after that review, for the
+scheduling administration that 3.0.0 makes native, and reviewed by the manager 2026-10-15.
+
+en-US:
+
+```text
+District AI is now in Canadian French.
+- Booking pages: every section is now in the app: Overview, Event types, Working hours, Bookings, Calendar, Team, Settings and Developer. Connecting a Google or Microsoft calendar finishes in your browser.
+- New message: start a conversation from the Inbox, by text message or email.
+- Phone numbers: reapply a number's call routing, release a number and run a paid number lookup, each asked first. A new Carrier tab shows the carrier accounts and SIP trunks, turns one-time passcodes on or off, and files the A2P 10DLC and toll-free registrations. Buying a number stays on the web.
+- A call's details word two values as the web portal does: a negative sentiment reads "Friction", and a transfer that went through reads "Transferred".
+```
+
+fr-CA:
+
+```text
+District AI est maintenant en français canadien.
+- Pages de réservation : chaque section est maintenant dans l'application (Vue d'ensemble, Types de rendez-vous, Heures de disponibilité, Rendez-vous, Calendrier, Équipe, Paramètres et Développeur). La connexion d'un calendrier Google ou Microsoft se termine dans votre navigateur.
+- Nouveau message : lancez une conversation depuis la boîte de réception, par texto ou par courriel.
+- Numéros de téléphone : rétablissez l'acheminement d'un numéro, libérez un numéro et lancez une recherche payante sur un numéro, chaque fois après confirmation. Le nouvel onglet Transporteur affiche les comptes de transporteur et les raccordements SIP, active ou désactive les codes à usage unique, et dépose les inscriptions A2P 10DLC et de numéros sans frais. L'achat d'un numéro se fait toujours sur le Web.
+- Le détail d'un appel présente deux valeurs comme le portail Web : un sentiment négatif s'affiche « Friction », et un transfert réussi, « Transféré ».
+```

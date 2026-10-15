@@ -268,6 +268,11 @@ jobs:
           python3 scripts/gen-l10n.py --self-test
           python3 scripts/gen-l10n.py --check
 
+      # French (fr-CA) is on from 3.0, so a string without reviewed French
+      # fails here, not at the release tag (release.yml runs the same).
+      - name: Every catalog has reviewed French
+        run: python3 scripts/gen-l10n.py --require-french
+
       # 1.0 offers no sign-up and no purchase in the app, as its Store listing says.
       - name: No sign-up or purchase wording in the app (and the check still catches it)
         run: |
@@ -423,17 +428,18 @@ jobs:
           $signature = Get-AuthenticodeSignature $msix[0].FullName
           if ($signature.SignerCertificate.Subject -ne $publisher) { throw "unexpected signer: $($signature.SignerCertificate.Subject)" }
 
-      # French ships only with -p:DistrictFrench=true, which this build does
-      # not pass: its package must declare no French, in its manifest or in
-      # resources.pri (scripts/check-languages.py; release.yml checks the same).
-      - name: The test MSIX declares no French
+      # French (fr-CA) is on from 3.0 (DistrictFrench defaults to true in
+      # DistrictAI.csproj), so the package must declare fr-CA, in its manifest
+      # and in resources.pri (scripts/check-languages.py; release.yml checks
+      # the same of every release package).
+      - name: The test MSIX declares French
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $msix = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'AppPackages') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
           if ($msix.Count -ne 1) { throw "expected one DistrictAI MSIX, found $($msix.Count)" }
-          python scripts/check-languages.py --french false $msix[0].FullName
-          if ($LASTEXITCODE -ne 0) { throw 'the test MSIX declares French' }
+          python scripts/check-languages.py --french true $msix[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw 'the test MSIX does not declare French' }
 
       # The Store's certification checks, run here so a failure shows on the
       # pull request rather than at the release tag. The report goes in the

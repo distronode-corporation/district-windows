@@ -1,14 +1,12 @@
 //! The overview of the open workspace, as the Linux overview page shows it.
 
-use district_core::{
-    FINISH_SETUP_ACTION, FINISH_SETUP_BODY, FINISH_SETUP_TITLE, OverviewScreen, SignedIn,
-    WorkspacesState,
-};
+use district_core::{OverviewScreen, SignedIn, WorkspacesState, format_duration};
+use district_l10n::format::integer;
 use serde::Serialize;
 
 use crate::billing::{PurchaseView, purchase_view};
 use crate::calls::{CallRowView, call_row};
-use crate::l10n::{l, s};
+use crate::l10n::{Locale, cs, l, s};
 use crate::views::{FactView, FailureView, LoadStatus};
 
 /// The overview.
@@ -116,19 +114,25 @@ pub(crate) fn overview_view(signed_in: &SignedIn) -> OverviewView {
                 workspace_name: workspaces.active().name.clone(),
                 metrics: vec![
                     metric(
-                        figures.total_calls.to_string(),
+                        integer(l(), figures.total_calls),
                         s::overview_metric_calls(l()),
                     ),
                     metric(
-                        figures.calls_this_week.to_string(),
+                        integer(l(), figures.calls_this_week),
                         s::overview_metric_calls_this_week(l()),
                     ),
                     metric(
-                        figures.total_contacts.to_string(),
+                        integer(l(), figures.total_contacts),
                         s::overview_metric_contacts(l()),
                     ),
                     metric(
-                        overview.avg_duration_label.clone(),
+                        // The service writes its label in English: in French,
+                        // the core's form of its seconds, as District AI for
+                        // Linux shows it (`3 min 12 s`).
+                        match l() {
+                            Locale::En => overview.avg_duration_label.clone(),
+                            Locale::FrCa => format_duration(figures.avg_duration),
+                        },
                         s::overview_metric_average_call(l()),
                     ),
                 ],
@@ -139,9 +143,9 @@ pub(crate) fn overview_view(signed_in: &SignedIn) -> OverviewView {
                     .then(|| s::overview_no_recent_calls(l()).to_owned()),
                 read_only_badge: content.read_only_badge().map(str::to_owned),
                 finish_setup: content.show_finish_setup.then(|| FinishSetupView {
-                    title: FINISH_SETUP_TITLE.to_owned(),
-                    body: FINISH_SETUP_BODY.to_owned(),
-                    action: FINISH_SETUP_ACTION.to_owned(),
+                    title: cs::overview_finish_setup_title(l()).to_owned(),
+                    body: cs::overview_finish_setup_body(l()).to_owned(),
+                    action: cs::overview_finish_setup_action(l()).to_owned(),
                 }),
                 refreshing: content.refreshing,
                 refresh_failure: None,

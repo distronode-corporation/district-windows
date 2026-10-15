@@ -132,10 +132,13 @@
             <TextBox
                 AutomationProperties.AutomationId="EventTypeQuestionPosition"
                 AutomationProperties.Name="{x:Bind ViewModel.Words.PositionLabel, Mode=OneWay}"
-                Description="{x:Bind ViewModel.Words.PositionHint, Mode=OneWay}"
                 Header="{x:Bind ViewModel.Words.PositionLabel, Mode=OneWay}"
                 InputScope="Number"
-                Text="{x:Bind ViewModel.Position, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{x:Bind ViewModel.Position, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Description>
+                    <TextBlock Text="{x:Bind ViewModel.Words.PositionHint, Mode=OneWay}" TextWrapping="Wrap" />
+                </TextBox.Description>
+            </TextBox>
 
             <!-- A select's choices: the core's, added and taken off through it. -->
             <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.ShowsOptions, Mode=OneWay}">

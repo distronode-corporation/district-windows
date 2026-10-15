@@ -51,7 +51,7 @@
             "accounts": [
               {
                 "account_name": "Acme",
-                "balance": "Balance 12.50 USD",
+                "balance": "Balance $12.50",
                 "carrier": "Twilio",
                 "number_count": "1 number on this account",
                 "refused": false,
@@ -83,7 +83,7 @@
               "trunks": [
                 {
                   "domain": "office",
-                  "meta": "active · 1 address",
+                  "meta": "Active · 1 address",
                   "name": "Office PBX",
                   "unprovisioned": null
                 }
