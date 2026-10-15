@@ -24,45 +24,48 @@
                     <!-- The tab's read: a failed one is a status page, and "Try again" reads only the tab. -->
                     <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
 
-                    <ItemsRepeater
+                    <!-- What the tab read, named by the tab, with an id that says which tab: the same in every language. -->
+                    <StackPanel
                         AutomationProperties.AutomationId="{x:Bind local:SchedulingSettingsPanel.GroupsId(ViewModel.Tab), Mode=OneWay}"
-                        ItemsSource="{x:Bind ViewModel.Groups}"
+                        AutomationProperties.Name="{x:Bind local:SchedulingSettingsPanel.LabelOf(ViewModel.TabIndex, ViewModel.BookingPageLabel, ViewModel.AssistantLabel, ViewModel.ProfileLabel, ViewModel.NotificationsLabel), Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
-                        <ItemsRepeater.Layout>
-                            <StackLayout Spacing="12" />
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="sched:SettingsGroupEntry">
-                                <Border Style="{StaticResource CardStyle}">
-                                    <StackPanel Spacing="8">
-                                        <TextBlock
-                                            AutomationProperties.HeadingLevel="Level2"
-                                            Style="{StaticResource SectionHeaderStyle}"
-                                            Text="{x:Bind Heading}"
-                                            TextWrapping="Wrap" />
-                                        <TextBlock
-                                            Style="{StaticResource QuietTextStyle}"
-                                            Text="{x:Bind Description}"
-                                            TextWrapping="Wrap"
-                                            Visibility="{x:Bind HasDescription}" />
-                                        <ItemsRepeater ItemsSource="{x:Bind Rows}">
-                                            <ItemsRepeater.Layout>
-                                                <StackLayout Spacing="6" />
-                                            </ItemsRepeater.Layout>
-                                            <ItemsRepeater.ItemTemplate>
-                                                <DataTemplate x:DataType="sched:SettingsRowEntry">
-                                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
-                                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
-                                                        <TextBlock Text="{x:Bind Value}" TextWrapping="Wrap" />
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </ItemsRepeater.ItemTemplate>
-                                        </ItemsRepeater>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Groups}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Spacing="12" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="sched:SettingsGroupEntry">
+                                    <Border Style="{StaticResource CardStyle}">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock
+                                                AutomationProperties.HeadingLevel="Level2"
+                                                Style="{StaticResource SectionHeaderStyle}"
+                                                Text="{x:Bind Heading}"
+                                                TextWrapping="Wrap" />
+                                            <TextBlock
+                                                Style="{StaticResource QuietTextStyle}"
+                                                Text="{x:Bind Description}"
+                                                TextWrapping="Wrap"
+                                                Visibility="{x:Bind HasDescription}" />
+                                            <ItemsRepeater ItemsSource="{x:Bind Rows}">
+                                                <ItemsRepeater.Layout>
+                                                    <StackLayout Spacing="6" />
+                                                </ItemsRepeater.Layout>
+                                                <ItemsRepeater.ItemTemplate>
+                                                    <DataTemplate x:DataType="sched:SettingsRowEntry">
+                                                        <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
+                                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
+                                                            <TextBlock Text="{x:Bind Value}" TextWrapping="Wrap" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsRepeater.ItemTemplate>
+                                            </ItemsRepeater>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
 
                     <!-- The tab's dialog: the booking page's and the assistant's need a member who may change things. -->
                     <Button

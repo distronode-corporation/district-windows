@@ -64,6 +64,16 @@ public sealed partial class SchedulingSettingsPanel : UserControl
     /// </summary>
     public static string GroupsId(SchedulingSettingsTab tab) => "SchedulingSettingsGroups" + tab;
 
+    /// <summary>The label of the tab at <paramref name="index"/>, or empty.</summary>
+    public static string LabelOf(int index, string bookingPage, string assistant, string profile, string notifications) => index switch
+    {
+        0 => bookingPage,
+        1 => assistant,
+        2 => profile,
+        3 => notifications,
+        _ => string.Empty,
+    };
+
     /// <summary>The four tabs, in the order of <see cref="SchedulingSettingsViewModel.TabIndex"/>, each with its id for the UI tests.</summary>
     public static TabLabel[] TabsOf(string bookingPage, string assistant, string profile, string notifications) =>
     [
