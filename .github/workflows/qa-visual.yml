@@ -24,8 +24,8 @@ env:
   DOTNET_NOLOGO: "1"
   # Which UI tests the capture runs (a dotnet test filter). The whole walk is
   # "FullyQualifiedName~DistrictAI.UiTests.SceneWalkTests|FullyQualifiedName~DistrictAI.UiTests.QaShotTests"
-  # (run 38771283592); this pass takes the sign-in page only.
-  QA_FILTER: "FullyQualifiedName~DistrictAI.UiTests.QaShotTests"
+  # (run 38771283592); the 3.0.3 pass takes the whole walk and the sign-in page.
+  QA_FILTER: "FullyQualifiedName~DistrictAI.UiTests.SceneWalkTests|FullyQualifiedName~DistrictAI.UiTests.QaShotTests"
 
 jobs:
   capture:
@@ -36,17 +36,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # The 3.0.3 pass: the six configurations the review's "after" set holds.
         include:
-          - { name: en-US-light-100, lang: en-US, culture: en-US, theme: light, scale: 100 }
           - { name: en-US-dark-100, lang: en-US, culture: en-US, theme: dark, scale: 100 }
           - { name: fr-CA-light-100, lang: fr-CA, culture: fr-CA, theme: light, scale: 100 }
           - { name: fr-CA-dark-100, lang: fr-CA, culture: fr-CA, theme: dark, scale: 100 }
           - { name: en-US-light-200, lang: en-US, culture: en-US, theme: light, scale: 200 }
-          - { name: en-US-dark-200, lang: en-US, culture: en-US, theme: dark, scale: 200 }
           - { name: fr-CA-light-200, lang: fr-CA, culture: fr-CA, theme: light, scale: 200 }
           - { name: fr-CA-dark-200, lang: fr-CA, culture: fr-CA, theme: dark, scale: 200 }
-          - { name: en-US-hc-100, lang: en-US, culture: en-US, theme: hc, scale: 100 }
-          - { name: fr-CA-hc-100, lang: fr-CA, culture: fr-CA, theme: hc, scale: 100 }
     env:
       AWS_LC_SYS_PREBUILT_NASM: "1"
     steps:
