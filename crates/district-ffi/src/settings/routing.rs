@@ -55,6 +55,38 @@ pub(crate) fn key_words(key: &str) -> String {
     words
 }
 
+/// A caller detail a rule compares, as the picker and the rule's line show
+/// it: the catalog's label (the web portal's) for a detail the builder
+/// offers, the stored key as words for any other.
+pub(crate) fn field_words(field: &str) -> String {
+    let label = match field {
+        "industry" => s::routing_field_industry(l()),
+        "estimatedValue" => s::routing_field_estimated_value(l()),
+        "callerType" => s::routing_field_caller_type(l()),
+        "lineType" => s::routing_field_line_type(l()),
+        "isDecisionMaker" => s::routing_field_is_decision_maker(l()),
+        "seniority" => s::routing_field_seniority(l()),
+        other => return key_words(other),
+    };
+    label.to_owned()
+}
+
+/// A comparison, as the picker shows it: the catalog's label (the web
+/// portal's) for one the builder offers, the stored word as words for any
+/// other.
+pub(crate) fn operator_words(operator: &str) -> String {
+    known_operator(operator).map_or_else(|| key_words(operator), str::to_owned)
+}
+
+/// The catalog's label for a comparison the builder offers.
+fn known_operator(operator: &str) -> Option<&'static str> {
+    match operator {
+        "contains" => Some(s::routing_operator_contains(l())),
+        "equals" => Some(s::routing_operator_equals(l())),
+        _ => None,
+    }
+}
+
 /// The line under a rule: what it matches, and the voice it gives.
 pub(crate) fn rule_line(rule: &RoutingRule) -> String {
     let field = rule.get(RoutingRuleField::Field);
@@ -62,10 +94,15 @@ pub(crate) fn rule_line(rule: &RoutingRule) -> String {
     let condition = if field.is_empty() {
         s::routing_no_condition(l()).to_owned()
     } else {
+        // Mid-sentence, a comparison the builder offers is its label in lower
+        // case (`contains`, `contient`); any other is shown as stored.
+        let operator = rule.get(RoutingRuleField::Operator);
+        let operator =
+            known_operator(operator).map_or_else(|| operator.to_owned(), str::to_lowercase);
         s::routing_condition(
             l(),
-            &key_words(field),
-            rule.get(RoutingRuleField::Operator),
+            &field_words(field),
+            &operator,
             rule.get(RoutingRuleField::Value),
         )
     };
@@ -295,13 +332,13 @@ fn rule_view(index: usize, rule: &RoutingRule) -> RoutingRuleView {
         field: picker(
             s::routing_picker_field(l()),
             ROUTING_FIELDS,
-            key_words,
+            field_words,
             rule.get(RoutingRuleField::Field),
         ),
         operator: picker(
             s::routing_picker_operator(l()),
             ROUTING_OPERATORS,
-            key_words,
+            operator_words,
             rule.get(RoutingRuleField::Operator),
         ),
         value: rule.get(RoutingRuleField::Value).to_owned(),
@@ -393,8 +430,75 @@ mod tests {
     }
 
     #[test]
+    fn the_builders_details_and_comparisons_read_as_the_portal_labels_them() {
+        use district_l10n::{Locale, with_locale};
+
+        let english: Vec<String> = ROUTING_FIELDS.iter().map(|f| field_words(f)).collect();
+        assert_eq!(
+            english,
+            [
+                "Industry",
+                "Estimated value",
+                "Caller type (business/consumer)",
+                "Line type (mobile/landline/voip)",
+                "Decision maker (true/false)",
+                "Seniority (e.g. vp, c-suite)",
+            ]
+        );
+        let operators: Vec<String> = ROUTING_OPERATORS
+            .iter()
+            .map(|o| operator_words(o))
+            .collect();
+        assert_eq!(operators, ["Contains", "Equals"]);
+        // A key the builder does not offer reads as words, as stored.
+        assert_eq!(field_words("annualRevenue"), "Annual revenue");
+        assert_eq!(operator_words("greaterThan"), "Greater than");
+        let rule = RoutingRule::new("rule-1")
+            .with(RoutingRuleField::Field, "estimatedValue")
+            .with(RoutingRuleField::Operator, "equals")
+            .with(RoutingRuleField::Value, "High");
+        assert_eq!(
+            rule_line(&rule),
+            "Estimated value equals \"High\" \u{b7} Puck"
+        );
+        let other = rule.clone().with(RoutingRuleField::Operator, "greaterThan");
+        assert_eq!(
+            rule_line(&other),
+            "Estimated value greaterThan \"High\" \u{b7} Puck"
+        );
+
+        with_locale(Locale::FrCa, || {
+            let french: Vec<String> = ROUTING_FIELDS.iter().map(|f| field_words(f)).collect();
+            assert_eq!(
+                french,
+                [
+                    "Secteur d'activité",
+                    "Valeur estimée",
+                    "Type d'appelant (business/consumer)",
+                    "Type de ligne (mobile/landline/voip)",
+                    "Décideur (true/false)",
+                    "Niveau hiérarchique (p. ex. vp, c-suite)",
+                ]
+            );
+            assert_eq!(operator_words("contains"), "Contient");
+            assert_eq!(operator_words("equals"), "Égal à");
+            assert_eq!(
+                rule_line(&rule),
+                "Valeur estimée égal à «\u{a0}High\u{a0}» \u{b7} Puck"
+            );
+            let picked = picker("Champ", ROUTING_FIELDS, field_words, "industry");
+            assert_eq!(picked.picker.selected_label, "Secteur d'activité");
+        });
+    }
+
+    #[test]
     fn a_stored_value_the_choices_lack_is_shown_as_stored() {
-        let listed = picker("Caller detail", ROUTING_FIELDS, key_words, "estimatedValue");
+        let listed = picker(
+            "Caller detail",
+            ROUTING_FIELDS,
+            field_words,
+            "estimatedValue",
+        );
         assert_eq!(listed.picker.selected_label, "Estimated value");
         assert_eq!(listed.picker.choices.len(), ROUTING_FIELDS.len());
         let other = picker("Voice", ROUTING_VOICES, str::to_owned, "Orpheus");

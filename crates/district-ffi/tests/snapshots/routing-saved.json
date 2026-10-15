@@ -27,19 +27,19 @@
                     "value": "estimatedValue"
                   },
                   {
-                    "label": "Caller type",
+                    "label": "Caller type (business/consumer)",
                     "value": "callerType"
                   },
                   {
-                    "label": "Line type",
+                    "label": "Line type (mobile/landline/voip)",
                     "value": "lineType"
                   },
                   {
-                    "label": "Is decision maker",
+                    "label": "Decision maker (true/false)",
                     "value": "isDecisionMaker"
                   },
                   {
-                    "label": "Seniority",
+                    "label": "Seniority (e.g. vp, c-suite)",
                     "value": "seniority"
                   }
                 ],
@@ -115,19 +115,19 @@
                     "value": "estimatedValue"
                   },
                   {
-                    "label": "Caller type",
+                    "label": "Caller type (business/consumer)",
                     "value": "callerType"
                   },
                   {
-                    "label": "Line type",
+                    "label": "Line type (mobile/landline/voip)",
                     "value": "lineType"
                   },
                   {
-                    "label": "Is decision maker",
+                    "label": "Decision maker (true/false)",
                     "value": "isDecisionMaker"
                   },
                   {
-                    "label": "Seniority",
+                    "label": "Seniority (e.g. vp, c-suite)",
                     "value": "seniority"
                   }
                 ],
@@ -203,19 +203,19 @@
                     "value": "estimatedValue"
                   },
                   {
-                    "label": "Caller type",
+                    "label": "Caller type (business/consumer)",
                     "value": "callerType"
                   },
                   {
-                    "label": "Line type",
+                    "label": "Line type (mobile/landline/voip)",
                     "value": "lineType"
                   },
                   {
-                    "label": "Is decision maker",
+                    "label": "Decision maker (true/false)",
                     "value": "isDecisionMaker"
                   },
                   {
-                    "label": "Seniority",
+                    "label": "Seniority (e.g. vp, c-suite)",
                     "value": "seniority"
                   }
                 ],

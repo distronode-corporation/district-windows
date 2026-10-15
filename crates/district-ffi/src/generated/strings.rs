@@ -2573,6 +2573,60 @@ pub fn routing_engine_default(l: Locale) -> &'static str {
     }
 }
 
+/// `routing.field_caller_type`
+#[must_use]
+pub fn routing_field_caller_type(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Caller type (business/consumer)",
+        Locale::FrCa => "Type d'appelant (business/consumer)",
+    }
+}
+
+/// `routing.field_estimated_value`
+#[must_use]
+pub fn routing_field_estimated_value(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Estimated value",
+        Locale::FrCa => "Valeur estimée",
+    }
+}
+
+/// `routing.field_industry`
+#[must_use]
+pub fn routing_field_industry(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Industry",
+        Locale::FrCa => "Secteur d'activité",
+    }
+}
+
+/// `routing.field_is_decision_maker`
+#[must_use]
+pub fn routing_field_is_decision_maker(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Decision maker (true/false)",
+        Locale::FrCa => "Décideur (true/false)",
+    }
+}
+
+/// `routing.field_line_type`
+#[must_use]
+pub fn routing_field_line_type(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Line type (mobile/landline/voip)",
+        Locale::FrCa => "Type de ligne (mobile/landline/voip)",
+    }
+}
+
+/// `routing.field_seniority`
+#[must_use]
+pub fn routing_field_seniority(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Seniority (e.g. vp, c-suite)",
+        Locale::FrCa => "Niveau hiérarchique (p. ex. vp, c-suite)",
+    }
+}
+
 /// `routing.intro`
 #[must_use]
 pub fn routing_intro(l: Locale) -> &'static str {
@@ -2597,6 +2651,24 @@ pub fn routing_no_condition(l: Locale) -> &'static str {
     match l {
         Locale::En => "No condition set here",
         Locale::FrCa => "Aucune condition définie",
+    }
+}
+
+/// `routing.operator_contains`
+#[must_use]
+pub fn routing_operator_contains(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Contains",
+        Locale::FrCa => "Contient",
+    }
+}
+
+/// `routing.operator_equals`
+#[must_use]
+pub fn routing_operator_equals(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Equals",
+        Locale::FrCa => "Égal à",
     }
 }
 
