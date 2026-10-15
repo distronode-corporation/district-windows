@@ -7,6 +7,49 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-10-15
+
+### Fixed
+
+- A call ringing on this computer stops as soon as the service says its ring ended,
+  instead of ringing on for up to thirty seconds. Answered on another device (your
+  other computer or phone, or a colleague's), the banner reads "Answered on another
+  device" and "That call was answered on another device."; a caller who hangs up
+  ends it as before; a ring the service gave up on is a missed call, as at the
+  deadline. The ringtone stops, Answer and Decline go, and the call's notification
+  is taken away. The word comes over the live connection and, in the Microsoft Store
+  build, as a Windows push (`call_ring_cancelled`), so it also stops a ring a push
+  started, and a pushed call whose ring has ended before the app is ready never
+  rings. A call answered on this computer is never touched, and the local
+  thirty-second deadline stays as the fallback.
+- Call routing rules: the caller detail and comparison pickers, and the line under
+  each rule, show the web portal's labels in English and Canadian French ("Caller
+  type (business/consumer)", "Valeur estimée", "Égal à"), not the stored key
+  reworded in English. A detail or comparison the builder does not offer still shows
+  as stored.
+- The sideload test build's `sideload-dependencies.zip` carries the x86 Windows App
+  Runtime beside the x64 one, of the same version. Without it a fresh Windows Server
+  2025 refused to install the test build (0x80073CF9).
+
+- Phone numbers: a number's monthly price is written as every other price in the app,
+  with two decimals and its currency (`$2.50 a month`, `2,50 $ par mois`, `1,15 $ US
+  par mois`), where it read `2.5 a month` with no currency.
+- The dialler's example number no longer breaks after `+1`.
+
+### Changed
+
+- Checkout and Manage billing open a page only through the service's browser-bound
+  hand-off (security sweep S33). The checkout window opens the service's start page,
+  hands its `districtai://handoff` answer to the app, and only then asks for the
+  checkout or billing link, bound to that answer's nonce; when the app has to use your
+  browser instead, the answer comes back through the `districtai:` link. When no
+  answer arrives within ten seconds, Billing now says "Your browser didn't respond to
+  District AI in time, so the page wasn't opened. Try again, and let your browser
+  open District AI if it asks." instead of opening a link bound to no browser.
+- The shared core is district-core-rust 4.0.2, which reads the service's
+  `call_ring_cancelled`, binds every hand-off link to a browser and writes the
+  dialler's hint with no-break spaces.
+
 ## [3.0.0] - 2026-10-15
 
 ### Added
