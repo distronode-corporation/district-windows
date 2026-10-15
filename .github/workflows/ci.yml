@@ -542,7 +542,9 @@ jobs:
       - name: UI smoke tests of the installed test MSIX
         shell: pwsh
         timeout-minutes: 15
-        run: ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'AppPackages')
+        run: |
+          ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'AppPackages') `
+            -DumpArtifacts (Join-Path $env:RUNNER_TEMP 'crash-dumps')
 
       # The GitHub flavour, unsigned, as release.yml builds it, so a flavour
       # that no longer builds or packages fails here and not at a release tag.
@@ -702,7 +704,8 @@ jobs:
         timeout-minutes: 15
         run: |
           ./scripts/run-ui-tests.ps1 -Packages (Join-Path $env:RUNNER_TEMP 'ScriptedPackages') -Scripted `
-            -Screenshots (Join-Path $env:RUNNER_TEMP 'screenshots')
+            -Screenshots (Join-Path $env:RUNNER_TEMP 'screenshots') `
+            -DumpArtifacts (Join-Path $env:RUNNER_TEMP 'crash-dumps')
 
       # The walk's pages, for the Store listing and for review. Kept a week.
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -712,6 +715,16 @@ jobs:
           path: ${{ runner.temp }}/screenshots
           retention-days: 7
           if-no-files-found: warn
+
+      # A crash's full dumps (the scripted or test build, fictional data only),
+      # for reading with dotnet-dump or WinDbg. Kept 3 days.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ failure() }}
+        with:
+          name: district-ai-crash-dumps
+          path: ${{ runner.temp }}/crash-dumps
+          retention-days: 3
+          if-no-files-found: ignore
 
   # Pull requests only: fails a pull request that ADDS a dependency with a known
   # moderate-or-worse vulnerability, or under a licence this Apache-2.0 project

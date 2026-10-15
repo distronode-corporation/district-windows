@@ -24,6 +24,12 @@ the scene walk (SceneWalkTests). -Screenshots saves each page of the walk at
 setting the display to 1920x1080 first, and the whole window once
 (00-window.png).
 
+When the app crashes, the newest dump is read twice: by cdb (the native fail
+fast and its stowed error code) and by dotnet-dump (pinned below, installed
+then), whose `pe -nested` prints the .NET exception and its inner ones with
+their stacks. -DumpArtifacts copies every dump of the run into that folder,
+for the workflow to upload.
+
 .EXAMPLE
 pwsh scripts/run-ui-tests.ps1 -Packages $env:USERPROFILE\Downloads\district-ai-test-msix
 
@@ -33,13 +39,16 @@ pwsh scripts/run-ui-tests.ps1 -Packages .\district-ai-scripted-msix -Scripted -S
 param(
     [Parameter(Mandatory)] [string] $Packages,
     [switch] $Scripted,
-    [string] $Screenshots = ''
+    [string] $Screenshots = '',
+    [string] $DumpArtifacts = ''
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $Packages = (Resolve-Path $Packages).Path
 $project = Join-Path $PSScriptRoot '..' 'tests' 'DistrictAI.UiTests'
+# The .NET dump reader, pinned: run only on a crash, so installed only then.
+$dotnetDumpVersion = '10.0.745401'
 
 $msix = @(Get-ChildItem -Recurse $Packages -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })
 if ($msix.Count -ne 1) { throw "expected one DistrictAI MSIX under $Packages, found $($msix.Count)" }
@@ -136,6 +145,29 @@ try {
         } elseif ($dump) {
             Write-Host "--- $($dump.Name): no cdb.exe to read it"
         }
+        # The .NET exception that ended it: type, HResult, message, stack and
+        # every inner one, which the stowed error code alone does not carry.
+        if ($dump) {
+            # Never in the way of the clean-up below.
+            try {
+                $tools = Join-Path ([IO.Path]::GetTempPath()) 'district-dotnet-dump'
+                dotnet tool install dotnet-dump --version $dotnetDumpVersion --tool-path $tools 2>&1 | ForEach-Object { Write-Host $_ }
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "--- dotnet-dump $dotnetDumpVersion analyze $($dump.Name): pe -nested"
+                    & (Join-Path $tools 'dotnet-dump') analyze $dump.FullName --command 'pe -nested' --command 'clrstack' --command 'exit' 2>&1 |
+                        ForEach-Object { Write-Host $_ }
+                } else {
+                    Write-Host "--- dotnet-dump $dotnetDumpVersion did not install"
+                }
+            } catch {
+                Write-Host "--- dotnet-dump: $($_.Exception.Message)"
+            }
+        }
+    }
+    # Every dump of the run, for the workflow to upload (it uploads nothing when there is none).
+    if ($DumpArtifacts) {
+        New-Item -ItemType Directory -Force -Path $DumpArtifacts | Out-Null
+        Get-ChildItem $dumps -Filter '*.dmp' -ErrorAction SilentlyContinue | Copy-Item -Destination $DumpArtifacts
     }
     Remove-Item -Path $werKey -ErrorAction SilentlyContinue
     Get-AppxPackage -Name $name | ForEach-Object {

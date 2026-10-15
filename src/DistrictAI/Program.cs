@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using DistrictAI.Core;
 using DistrictAI.L10n;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -39,7 +40,9 @@ public static class Program
         Application.Start(started =>
         {
             var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
-            SynchronizationContext.SetSynchronizationContext(context);
+            // Every continuation on the UI thread, an async void method's
+            // exception among them, is reported before it ends the app.
+            SynchronizationContext.SetSynchronizationContext(new ReportingSynchronizationContext(context));
             // The application object lives as long as Application.Start runs.
             _ = new App(activation);
         });

@@ -289,9 +289,10 @@ public sealed class CoreHost : UiHost, ICoreSink, IAsyncDisposable
     /// <summary>
     /// Runs <paramref name="raise"/> on the UI thread, in the order the core
     /// asked. A UI thread that has shut down takes nothing: the window those
-    /// requests were for is gone.
+    /// requests were for is gone. An exception one throws is reported before
+    /// it ends the app (<see cref="UiFaults"/>).
     /// </summary>
-    private void OnUiThread(Action raise) => _dispatcher.TryEnqueue(raise);
+    private void OnUiThread(Action raise) => _dispatcher.TryEnqueue(() => UiFaults.Run("a core request on the UI thread", raise));
 
     private void Render()
     {
@@ -304,7 +305,8 @@ public sealed class CoreHost : UiHost, ICoreSink, IAsyncDisposable
             return;
         }
         _rendered = snapshot.Revision;
-        Changed?.Invoke(this, snapshot);
+        // A page that throws while it draws ends the app; it is reported first.
+        UiFaults.Run("rendering the core's view", () => Changed?.Invoke(this, snapshot));
     }
 
     /// <summary>

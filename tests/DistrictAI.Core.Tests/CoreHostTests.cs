@@ -232,6 +232,28 @@ public sealed class CoreHostTests : IDisposable
     }
 
     [Fact]
+    public async Task ARenderThatThrowsIsReportedAndStillEndsTheWork()
+    {
+        using var trace = new TraceRecorder();
+        var marker = Guid.NewGuid().ToString("N");
+        var dispatcher = new ManualDispatcher();
+        await using var host = new CoreHost(dispatcher, new RecordingBrowser());
+        host.Changed += (_, _) => throw new InvalidOperationException(marker, new FormatException("why"));
+        host.Start(_dataDir, "0.1.0", null, Namespace, _english);
+        await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
+        await Eventually("a render queued", () => dispatcher.Pending > 0);
+
+        // Thrown on, never swallowed: the UI thread ends as it did before.
+        var thrown = Assert.Throws<InvalidOperationException>(dispatcher.Drain);
+        Assert.Equal(marker, thrown.Message);
+        var reported = Assert.Single(trace.Naming(marker));
+        Assert.Contains("an exception escaped rendering the core's view", reported, StringComparison.Ordinal);
+        Assert.Contains($"System.InvalidOperationException, HResult 0x80131509: {marker}", reported, StringComparison.Ordinal);
+        Assert.Contains("inner: System.FormatException, HResult 0x80131537: why", reported, StringComparison.Ordinal);
+        Assert.Contains(nameof(ARenderThatThrowsIsReportedAndStillEndsTheWork), reported, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task StartingTwiceIsRefusedAndShuttingDownTwiceIsNot()
     {
         var host = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
