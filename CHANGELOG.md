@@ -17,8 +17,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   shows the carrier accounts, the SIP trunks (and creates one), turns one-time passcodes
   on or off, and files the A2P 10DLC and toll-free registrations. Buying a number stays on
   the web.
-- Calls ring and messages arrive while the app is closed, through Windows push
-  notifications (the Microsoft Store build). The GitHub build rings only while it runs.
+- The Microsoft Store build registers for Windows push notifications, so that calls can
+  ring and messages arrive while the app is closed. Delivery to a closed app is not
+  confirmed yet. The GitHub build rings only while it runs.
 - Run your booking pages from the app: every section of the scheduler's administration
   is native, under Booking pages, as in District AI for iPhone.
   - Overview: the booking desk at a glance and what is coming up.
