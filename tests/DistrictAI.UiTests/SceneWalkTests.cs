@@ -25,6 +25,13 @@ public sealed class SceneWalkTests
     /// <summary>The scene argument (crates/district-ffi/src/scripted.rs, SCENE_ARG and Scene::SignedIn).</summary>
     public const string SceneArgument = "--district-scripted-scene=signed-in";
 
+    /// <summary>
+    /// The scene whose dialogs' reads fail once (scripted.rs, Scene::FailingReads):
+    /// it counts the reads along exactly the path
+    /// <see cref="EachDialogsFailedReadOffersTryAgainAndReadsAgain"/> takes.
+    /// </summary>
+    public const string FailingReadsArgument = "--district-scripted-scene=signed-in-failing-reads";
+
     /// <summary>The scripted workspace's name (scripted.rs, WORKSPACE_NAME), the overview's heading.</summary>
     public const string WorkspaceName = "Example Dental";
 
@@ -646,6 +653,100 @@ public sealed class SceneWalkTests
             "the overrides' editor stayed open after Escape");
         Assert.Null(Failure(app));
         Assert.True(app.IsRunning, "the app ended in the working hours");
+    }
+
+    /// <summary>
+    /// Try again, wherever a dialog's own read can fail: the week's and the
+    /// overrides' editors, an event type's hosts, a webhook's deliveries. In
+    /// the failing-reads scene each of those reads fails the first time; the
+    /// failure shows with Try again, and Try again reads it, the dialog
+    /// filling in. The path is the one the scene counts its reads along.
+    /// </summary>
+    [Fact]
+    public void EachDialogsFailedReadOffersTryAgainAndReadsAgain()
+    {
+        RequireScriptedPackage();
+        using var app = InstalledApp.Launch(FailingReadsArgument);
+        var window = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+
+        // The working hours: the page's own reads land.
+        OpenUntilById(app, "NavScheduling");
+        var hours = OpenSettingsRowById(app, "SchedulingSectionHours");
+        _ = Heading(app, hours, PageTimeout, "SchedulingAdminHeading");
+        _ = app.FindById("SchedulingHoursSummary", PageTimeout);
+        Assert.Null(Failure(app));
+
+        // The week's editor.
+        app.FindById("HoursWeekButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("HoursWeekDialog", PageTimeout);
+        _ = app.FindById("HoursWeekReadFailure", PageTimeout);
+        Press(app.FindById("HoursWeekRetry", PageTimeout));
+        Assert.True(
+            Wait.Until(() => AllById(app, "HoursAddRange").Length == 7, PageTimeout),
+            "the week did not fill in after Try again");
+        Assert.Null(app.TryFindById("HoursWeekRetry", onScreen: false));
+        InstalledApp.Log("the week's editor read again after Try again");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("HoursWeekDialog") is null, PageTimeout),
+            "the week's editor stayed open after Escape");
+
+        // The overrides' editor.
+        app.FindById("HoursOverridesButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("HoursOverridesDialog", PageTimeout);
+        _ = app.FindById("HoursOverridesReadFailure", PageTimeout);
+        Press(app.FindById("HoursOverridesRetry", PageTimeout));
+        Assert.True(
+            Wait.Until(() => AllById(app, "HoursOverrideDelete").Length > 0, PageTimeout),
+            "the overrides did not fill in after Try again");
+        InstalledApp.Log("the overrides' editor read again after Try again");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("HoursOverridesDialog") is null, PageTimeout),
+            "the overrides' editor stayed open after Escape");
+
+        // An event type's hosts: its page reads them, the dialog's own read fails.
+        OpenUntilById(app, "NavScheduling");
+        var eventTypes = OpenSettingsRowById(app, "SchedulingSectionEventTypes");
+        _ = Heading(app, eventTypes, PageTimeout, "SchedulingAdminHeading");
+        var list = app.FindById("SchedulingEventTypesList", PageTimeout);
+        Activate(Wait.For(
+            () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
+            PageTimeout,
+            "an event type in the list",
+            app.Describe));
+        _ = app.FindById("SchedulingEventTypeName", PageTimeout);
+        app.FindById("EventTypeHostsButton", PageTimeout).AsButton().Invoke();
+        _ = app.FindById("EventTypeHostsDialog", PageTimeout);
+        Press(app.FindById("EventTypeHostsRetry", PageTimeout));
+        _ = Wait.For(
+            () => AllById(app, "EventTypeHostAdd").FirstOrDefault(),
+            PageTimeout,
+            "a member to add as a host, after Try again",
+            app.Describe);
+        Assert.NotEmpty(AllById(app, "EventTypeHostRemove"));
+        InstalledApp.Log("the hosts dialog read again after Try again");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+        Assert.True(
+            Wait.Until(() => app.TryFindById("EventTypeHostsDialog") is null, PageTimeout),
+            "the hosts dialog stayed open after Escape");
+
+        // A webhook's deliveries: their first read fails under the webhook.
+        OpenUntilById(app, "NavScheduling");
+        ScrollRowIntoView(app, "SchedulingSectionDeveloper");
+        var developer = OpenSettingsRowById(app, "SchedulingSectionDeveloper");
+        _ = Heading(app, developer, PageTimeout, "SchedulingAdminHeading");
+        Press(app.FindById("DeveloperTabWebhooks", PageTimeout));
+        Press(app.FindById("DeveloperWebhookDeliveries", PageTimeout, onScreen: false));
+        _ = app.FindById("DeveloperDeliveriesFailure", PageTimeout, onScreen: false);
+        Press(app.FindById("DeveloperDeliveriesRetry", PageTimeout, onScreen: false));
+        Assert.True(
+            Wait.Until(() => window.FindAllDescendants(cf => cf.ByAutomationId("DeveloperDeliveryOutcome")).Length == 2, PageTimeout),
+            "the deliveries did not fill in after Try again");
+        Assert.Null(app.TryFindById("DeveloperDeliveriesFailure", onScreen: false));
+        InstalledApp.Log("a webhook's deliveries read again after Try again");
+        Assert.True(app.IsRunning, "the app ended in the booking pages");
     }
 
     /// <summary>
