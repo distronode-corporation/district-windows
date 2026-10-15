@@ -114,12 +114,14 @@ pub(crate) fn rule_line(rule: &RoutingRule) -> String {
 }
 
 /// What a rule stores beyond the builder's keys, which is kept as it is.
+/// The keys are named exactly as stored (`match`, `action`, `target`):
+/// identifiers, the same in every language, never turned into English words.
 pub(crate) fn kept_keys(rule: &RoutingRule) -> Option<String> {
-    let mut kept: Vec<String> = rule
+    let mut kept: Vec<&str> = rule
         .as_json()
         .keys()
-        .filter(|key| !BUILDER_KEYS.contains(&key.as_str()))
-        .map(|key| key_words(key))
+        .map(String::as_str)
+        .filter(|key| !BUILDER_KEYS.contains(key))
         .collect();
     kept.sort();
     (!kept.is_empty()).then(|| s::routing_kept_keys(l(), &kept.join(", ")))

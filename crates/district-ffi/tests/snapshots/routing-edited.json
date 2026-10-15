@@ -47,7 +47,7 @@
             "heading": "Rule 1",
             "index": 0,
             "instruction": "",
-            "kept": "Also stored: Action, Match, Target. Kept as they are when the rules are saved.",
+            "kept": "Also stored: action, match, target. Kept as they are when the rules are saved.",
             "operator": {
               "label": "Compared by",
               "picker": {
@@ -135,7 +135,7 @@
             "heading": "Rule 2",
             "index": 1,
             "instruction": "",
-            "kept": "Also stored: Action, Match, Target. Kept as they are when the rules are saved.",
+            "kept": "Also stored: action, match, target. Kept as they are when the rules are saved.",
             "operator": {
               "label": "Compared by",
               "picker": {

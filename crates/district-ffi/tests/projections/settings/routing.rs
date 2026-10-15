@@ -222,7 +222,18 @@ fn the_rules_read_as_stored() {
     assert_eq!(read.rules.len(), 3);
     assert!(read.can_edit && !read.can_save);
     assert_eq!(read.rules[0].summary, "No condition set here");
-    assert!(read.rules[0].kept.as_deref().unwrap().contains("Match"));
+    // The keys a rule keeps are named exactly as stored, in either language.
+    assert_eq!(
+        read.rules[0].kept.as_deref(),
+        Some("Also stored: action, match, target. Kept as they are when the rules are saved.")
+    );
+    let french = district_l10n::with_locale(district_l10n::Locale::FrCa, || view(&loaded()));
+    assert_eq!(
+        french.rules[0].kept.as_deref(),
+        Some(
+            "Autres champs stock\u{e9}s\u{a0}: action, match, target. Ils sont conserv\u{e9}s tels quels \u{e0} la sauvegarde."
+        )
+    );
     assert_eq!(read.rules[2].voice.picker.selected, "Fenrir");
     assert_eq!(read.rules[2].engine, "The persona's own");
     assert_eq!(read.rules[0].field.picker.selected_label, "Not chosen");
