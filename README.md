@@ -44,7 +44,7 @@ anything:
 |---|---|
 | Windows | Windows 10 version 2004 or later, and Windows 11, on x64. Windows 11 on ARM runs the x64 build |
 | Distribution | The [Microsoft Store](https://apps.microsoft.com/detail/9P9F0NNFJ3CP) (`winget install --id 9P9F0NNFJ3CP --source msstore`); [GitHub Releases](https://github.com/distronode-corporation/district-windows/releases) for the Store package and a sideload test build, for testing |
-| Language | English |
+| Language | English and Canadian French (fr-CA). The app speaks French when the first English or French language in your Windows display languages is French, in any region (fr-CA, fr-FR, fr-BE, fr-CH), and English otherwise |
 
 ## Releases
 

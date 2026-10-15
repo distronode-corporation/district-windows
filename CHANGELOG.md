@@ -7,8 +7,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-10-15
+
 ### Added
 
+- District AI speaks Canadian French (fr-CA): the app's screens, dialogs and
+  notifications, and the words the shared core writes. A computer whose first English or
+  French Windows display language is French, in any region (fr-CA, fr-FR, fr-BE, fr-CH),
+  gets the app in Canadian French; any other gets English. Dates, times, call lengths,
+  prices and numbers read the French way (`15 août 2026`, `1 min 5 s`, `249,00 $ US`).
+  Text the service writes, such as AI summaries, stays as it was written. The package
+  declares fr-CA, with its description in French.
 - Start a new conversation from the Inbox: "New message" picks a recent contact or takes
   a number or address, chooses text message or email (with a subject), and opens the
   conversation once it is sent.
@@ -43,8 +52,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- The shared core is district-core-rust 4.0.0-beta.5, which keeps every word it shows in
-  a catalog, ready for Canadian French. The app still speaks English only.
+- The shared core is district-core-rust 4.0.0, which keeps every word it shows in a
+  catalog, in English and Canadian French.
+- A carrier account's balance reads as money (`Balance $12.50`, was `Balance 12.50 USD`),
+  and a SIP trunk's status by its label (`Active`, was `active`).
+- A booking webhook offers the four booking events the web portal offers (created,
+  cancelled, rescheduled, reminder). The recording, transcript and notes events are no
+  longer offered, since no meeting is recorded; a webhook that already sends one keeps it
+  when saved. A delivery whose status this version does not know reads "Other", not the
+  stored word.
 - Reporting AI-generated content goes through the shared core, so the Windows and Linux
   apps send the same report. The dialog and what the support desk receives are unchanged.
 - A call's details word two values as the web portal does: a negative sentiment reads
