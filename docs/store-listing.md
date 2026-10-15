@@ -67,7 +67,7 @@ per listing language: en-US below (361 characters) and, in the fr-CA listing, th
 below (420 characters). Paste each block as it is: the French holds no-break spaces
 (U+00A0) before each colon.
 
-The French is new for 3.0.1 and awaits the manager's review. The sideload
+The French is new for 3.0.1, reviewed by the manager 2026-10-15. The sideload
 dependencies fix (the x86 Windows App Runtime) is left out: it concerns the GitHub
 test build, not the Store copy. If 3.0.0 never reached the Store, the 3.0.0 text below
 goes first in each language, then these lines without their first one (1116 and 1396
