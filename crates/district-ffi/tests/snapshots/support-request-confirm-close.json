@@ -36,7 +36,7 @@
         "send_failure": null,
         "sending": false,
         "status": "Ready",
-        "status_name": "In Progress",
+        "status_name": "In progress",
         "title": "Outbound calls failing on the Toronto number"
       }
     }

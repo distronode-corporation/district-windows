@@ -68,8 +68,8 @@ pub struct SentimentBandView {
     pub tone: SentimentTone,
 }
 
-/// Which band of the sentiment breakdown, by its label: the service always
-/// sends positive, neutral and friction, and names them.
+/// Which band of the sentiment breakdown, by the service's name for it: it
+/// always sends positive, neutral and friction, and names them.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, uniffi::Enum)]
 pub enum SentimentTone {
     /// Positive.
@@ -81,15 +81,15 @@ pub enum SentimentTone {
 }
 
 impl SentimentTone {
-    /// The band `label` names, as District AI for Linux tells them apart, in
-    /// either language: the core labels the bands in its own ("Positive
-    /// Sentiment", « Sentiment positif »), and a French band read by its
-    /// English words alone was always Friction.
-    pub(crate) fn of(label: &str) -> Self {
-        let label = label.to_lowercase();
-        if label.contains("positive") || label.contains("positif") {
+    /// The band the service's `name` for it says (`Positive Sentiment`,
+    /// `Neutral Sentiment`, `Friction Sentiment`): a wire value, the same in
+    /// every language. Never the shown label, which the core translates, so
+    /// a French band keeps its colour.
+    pub(crate) fn of(name: &str) -> Self {
+        let name = name.to_lowercase();
+        if name.contains("positive") {
             Self::Positive
-        } else if label.contains("neutral") || label.contains("neutre") {
+        } else if name.contains("neutral") {
             Self::Neutral
         } else {
             Self::Friction
@@ -235,7 +235,7 @@ pub(crate) fn sentiment(bands: &[SentimentShare]) -> SentimentChartView {
                 label: band.label.clone(),
                 legend: s::chart_legend(l(), &band.label, band.value, &percent(band.share)),
                 per_mille: per_mille(band.share),
-                tone: SentimentTone::of(&band.label),
+                tone: SentimentTone::of(&band.name),
             })
             .collect(),
     }
@@ -356,6 +356,7 @@ mod tests {
         assert_eq!(trend.scale_top, "0");
         let shares = [("Positive Sentiment", 0), ("Neutral Sentiment", 0)].map(|(label, value)| {
             SentimentShare {
+                name: label.to_owned(),
                 label: label.to_owned(),
                 value,
                 share: 0.0,
@@ -402,6 +403,7 @@ mod tests {
             ("Neutral", 0, 0.0),
         ]
         .map(|(label, value, share)| SentimentShare {
+            name: label.to_owned(),
             label: label.to_owned(),
             value,
             share,
@@ -428,15 +430,18 @@ mod tests {
         assert_eq!(percent(0.0), "0%");
     }
 
-    /// In French the bands keep their tones and a share takes its space.
+    /// In French the bands keep their tones, which follow the service's
+    /// name for each band and never the translated label, and a share takes
+    /// its space.
     #[test]
     fn the_sentiment_bands_keep_their_tones_in_french() {
         let shares = [
-            ("Sentiment positif", 21, 0.4375),
-            ("Sentiment neutre", 16, 0.3333),
-            ("Sentiment de friction", 11, 0.2292),
+            ("Positive Sentiment", "Sentiment positif", 21, 0.4375),
+            ("Neutral Sentiment", "Sentiment neutre", 16, 0.3333),
+            ("Friction Sentiment", "Sentiment de friction", 11, 0.2292),
         ]
-        .map(|(label, value, share)| SentimentShare {
+        .map(|(name, label, value, share)| SentimentShare {
+            name: name.to_owned(),
             label: label.to_owned(),
             value,
             share,
@@ -449,6 +454,18 @@ mod tests {
                 SentimentTone::Positive,
                 SentimentTone::Neutral,
                 SentimentTone::Friction
+            ]
+        );
+        assert_eq!(
+            chart
+                .bands
+                .iter()
+                .map(|band| band.label.as_str())
+                .collect::<Vec<_>>(),
+            [
+                "Sentiment positif",
+                "Sentiment neutre",
+                "Sentiment de friction"
             ]
         );
         assert!(

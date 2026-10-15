@@ -27374,7 +27374,8 @@ class FfiConverterTypeSupportMessageView: FfiConverterRustBuffer<SupportMessageV
 /// Its support desk key (`DA-42`), or `support.not_filed_yet`. Empty until read.
 /// </param>
 /// <param name="StatusName">
-/// Where it stands, in the support desk's own word. Empty until read.
+/// Where it stands, as the core labels the desk's status in the app's
+/// language. Empty until read.
 /// </param>
 /// <param name="Resolved">
 /// Whether it is resolved.
@@ -27443,7 +27444,8 @@ public record SupportRequestView (
     /// </summary>
     string Reference, 
     /// <summary>
-    /// Where it stands, in the support desk's own word. Empty until read.
+    /// Where it stands, as the core labels the desk's status in the app's
+    /// language. Empty until read.
     /// </summary>
     string StatusName, 
     /// <summary>
@@ -27609,7 +27611,8 @@ class FfiConverterTypeSupportRequestView: FfiConverterRustBuffer<SupportRequestV
 /// Its support desk key (`DA-42`), or `support.not_filed_yet`.
 /// </param>
 /// <param name="Status">
-/// Where it stands, in the support desk's own word, shown as it is.
+/// Where it stands, as the core labels the desk's status in the app's
+/// language.
 /// </param>
 /// <param name="UpdatedAt">
 /// When it last changed, as an ISO 8601 instant.
@@ -27629,7 +27632,8 @@ public record SupportRowView (
     /// </summary>
     string Reference, 
     /// <summary>
-    /// Where it stands, in the support desk's own word, shown as it is.
+    /// Where it stands, as the core labels the desk's status in the app's
+    /// language.
     /// </summary>
     string Status, 
     /// <summary>
@@ -41001,8 +41005,8 @@ class FfiConverterTypeSenderChannel: FfiConverterRustBuffer<SenderChannel> {
 
 
 /// <summary>
-/// Which band of the sentiment breakdown, by its label: the service always
-/// sends positive, neutral and friction, and names them.
+/// Which band of the sentiment breakdown, by the service's name for it: it
+/// always sends positive, neutral and friction, and names them.
 /// </summary>
 public enum SentimentTone: int {
     /// <summary>

@@ -39,14 +39,14 @@
           {
             "key": "DA-42",
             "reference": "DA-42",
-            "status": "In Progress",
+            "status": "In progress",
             "subject": "Outbound calls failing on the Toronto number",
             "updated_at": "2026-09-06T12:30:00.000Z"
           },
           {
             "key": "support_pending",
             "reference": "Not filed yet",
-            "status": "Opening",
+            "status": "Received",
             "subject": "Billing question",
             "updated_at": "2026-09-05T08:00:00.000Z"
           }
