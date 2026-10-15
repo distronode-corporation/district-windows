@@ -453,6 +453,18 @@ public sealed partial class EventTypeHostsViewModel : ObservableObject
     [ObservableProperty]
     public partial string FailureMessage { get; set; } = string.Empty;
 
+    /// <summary>Whether "Try again" is offered for the hosts' failed read.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RetryCommand))]
+    public partial bool CanRetry { get; set; }
+
+    /// <summary>
+    /// The read of who could be added, which follows the hosts' own: a failed
+    /// one leaves the hosts editable, says why, and offers "Try again".
+    /// </summary>
+    public TabLoadViewModel CandidatesLoad { get; } =
+        new(() => SchedulingEventTypeViewModel.Event(new EventTypeAction.RetryDialogRead()));
+
     /// <summary>Whether the hosts are read: the routing and the list show.</summary>
     [ObservableProperty]
     public partial bool Ready { get; set; }
@@ -505,6 +517,7 @@ public sealed partial class EventTypeHostsViewModel : ObservableObject
     {
         _context = context;
         Dialog.Attach(context);
+        CandidatesLoad.Attach(context);
     }
 
     /// <summary>Shows <paramref name="view"/>, or closes the dialog when the core holds none.</summary>
@@ -520,7 +533,10 @@ public sealed partial class EventTypeHostsViewModel : ObservableObject
         Loading = view.Status is LoadStatus.Loading;
         Failed = failure is not null;
         FailureMessage = Display.Failure(failure);
+        CanRetry = failure?.Retryable ?? false;
         Ready = view.Status is LoadStatus.Ready;
+        // Only once the hosts are read is the read of who could be added on its way.
+        CandidatesLoad.Show(Ready ? view.CandidatesStatus : new LoadStatus.Ready());
         RoutingLabel = view.RoutingLabel;
         _routingModes = [.. view.RoutingModes.Select(choice => choice.Value)];
         Display.Sync(RoutingModes, [.. view.RoutingModes.Select(ChoiceEntry.From)]);
@@ -604,6 +620,14 @@ public sealed partial class EventTypeHostsViewModel : ObservableObject
 
     /// <summary>Adds <paramref name="candidate"/> as a host.</summary>
     internal void Add(CandidateEntry candidate) => Send(new EventTypeAction.AddHost(candidate.UserId));
+
+    /// <summary>"Try again": the hosts are read again.</summary>
+    [RelayCommand(CanExecute = nameof(CanRetry))]
+    private void Retry()
+    {
+        CanRetry = false;
+        Send(new EventTypeAction.RetryDialogRead());
+    }
 
     private void Send(EventTypeAction action) => _context?.Send(SchedulingEventTypeViewModel.Event(action));
 }

@@ -218,7 +218,8 @@ pub struct WebhookRowView {
 pub struct DeliveriesView {
     /// The webhook's id.
     pub webhook_id: String,
-    /// Where their read stands; a failure is said under the webhook.
+    /// Where their read stands; a failure is said under the webhook, with
+    /// "Try again" (`DeveloperAction::RetryDeliveries`).
     pub status: LoadStatus,
     /// The deliveries, once read.
     pub rows: Vec<DeliveryRowView>,
@@ -360,6 +361,9 @@ pub enum DeveloperAction {
         /// The webhook's id.
         webhook_id: String,
     },
+    /// "Try again" under the open webhook: read its deliveries again after
+    /// their read failed.
+    RetryDeliveries,
     /// Open the key form.
     OpenCreateKey,
     /// The key's name changed.
@@ -426,6 +430,7 @@ pub(crate) fn events(action: DeveloperAction) -> Vec<Event> {
         A::SelectTab { tab } => E::SelectTab(tab.into()),
         A::Refresh => E::Refresh,
         A::ToggleDeliveries { webhook_id } => E::ToggleDeliveries(webhook_id),
+        A::RetryDeliveries => E::RetryDeliveries,
         A::OpenCreateKey => E::OpenCreateKey,
         A::EditKeyName { name } => E::EditKeyName(name),
         A::CreateKey => E::CreateKey,

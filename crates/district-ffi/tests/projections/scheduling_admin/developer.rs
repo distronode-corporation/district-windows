@@ -1035,6 +1035,7 @@ fn each_action_is_its_core_event() {
             A::ToggleDeliveries { webhook_id: s("w") },
             E::ToggleDeliveries(s("w")),
         ),
+        (A::RetryDeliveries, E::RetryDeliveries),
         (A::OpenCreateKey, E::OpenCreateKey),
         (A::EditKeyName { name: s("n") }, E::EditKeyName(s("n"))),
         (A::CreateKey, E::CreateKey),
@@ -1069,4 +1070,39 @@ fn each_action_is_its_core_event() {
     for tab in DeveloperTab::ALL {
         assert_eq!(DeveloperTab::from(DeveloperTabView::from(tab)), tab);
     }
+}
+
+/// "Try again" under a webhook whose deliveries failed to read reads them
+/// again; read, it asks for nothing.
+#[test]
+fn deliveries_that_failed_to_read_are_read_again() {
+    let failed = deliveries_read(deliveries_open(signed_in()), Err(server_error()));
+    let open = developer_view(&failed).deliveries.expect("open");
+    assert!(matches!(
+        open.status,
+        district_ffi::LoadStatus::Failed { .. }
+    ));
+    let again = failed.ui(event(DeveloperAction::RetryDeliveries));
+    assert_eq!(
+        developer_view(&again).deliveries.expect("open").status,
+        district_ffi::LoadStatus::Loading
+    );
+    let again = deliveries_read(
+        again,
+        Ok(contracts::json(
+            "district-scheduling-webhook-deliveries.json",
+        )),
+    );
+    assert_eq!(
+        developer_view(&again).deliveries.expect("open").status,
+        district_ffi::LoadStatus::Ready
+    );
+    let read = deliveries(signed_in());
+    let before = read.pending.len();
+    assert_eq!(
+        read.ui(event(DeveloperAction::RetryDeliveries))
+            .pending
+            .len(),
+        before
+    );
 }

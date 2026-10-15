@@ -20,6 +20,12 @@
             Text="{x:Bind ViewModel.FailureMessage, Mode=OneWay}"
             TextWrapping="Wrap"
             Visibility="{x:Bind ViewModel.Failed, Mode=OneWay}" />
+        <Button
+            AutomationProperties.AutomationId="EventTypeHostsRetry"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+            Command="{x:Bind ViewModel.RetryCommand}"
+            Content="{x:Bind l10n:S.CommonTryAgain}"
+            Visibility="{x:Bind ViewModel.CanRetry, Mode=OneWay}" />
 
         <!-- Only a list that was read can be saved: the scheduler replaces it whole. -->
         <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.Ready, Mode=OneWay}">
@@ -131,6 +137,29 @@
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
+
+            <!-- Who could be added, read after the hosts: being read, or a read that failed, with Try again. The hosts stay editable. -->
+            <ProgressRing
+                Width="20"
+                Height="20"
+                HorizontalAlignment="Left"
+                AutomationProperties.AutomationId="EventTypeHostCandidatesLoading"
+                AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+                IsActive="{x:Bind ViewModel.CandidatesLoad.Loading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.CandidatesLoad.Loading, Mode=OneWay}" />
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.CandidatesLoad.Failed, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.AutomationId="EventTypeHostCandidatesFailure"
+                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Text="{x:Bind ViewModel.CandidatesLoad.FailureMessage, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <Button
+                    AutomationProperties.AutomationId="EventTypeHostCandidatesRetry"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+                    Command="{x:Bind ViewModel.CandidatesLoad.RetryCommand}"
+                    Content="{x:Bind l10n:S.CommonTryAgain}"
+                    Visibility="{x:Bind ViewModel.CandidatesLoad.CanRetry, Mode=OneWay}" />
+            </StackPanel>
 
             <!-- The scheduler's users who are not hosts yet and not archived. -->
             <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasCandidates, Mode=OneWay}">

@@ -550,6 +550,49 @@ fn the_week_saves_its_difference_and_says_so() {
     assert!(!editor.dialog.can_confirm && editor.days.is_empty());
 }
 
+/// "Try again" in an editor whose read failed reads it again: the week's its
+/// rules, the overrides' its overrides. Read, it asks for nothing.
+#[test]
+fn an_editor_whose_read_failed_reads_again() {
+    let failed = rules_read(
+        hours(signed_in()).ui(event(HoursAction::OpenWeek)),
+        Err(server_error()),
+    );
+    let again = failed.ui(event(HoursAction::RetryRead));
+    let editor = hours_view(&again).week_editor.expect("open");
+    assert_eq!(editor.status, district_ffi::LoadStatus::Loading);
+    let again = rules_read(again, Ok(contracts::json("district-scheduling-rules.json")));
+    assert_eq!(
+        hours_view(&again).week_editor.expect("open").status,
+        district_ffi::LoadStatus::Ready
+    );
+
+    let failed = overrides_read(
+        hours(signed_in()).ui(event(HoursAction::OpenOverrides)),
+        Err(server_error()),
+    );
+    let editor = hours_view(&failed).overrides_editor.expect("open");
+    assert!(matches!(
+        editor.status,
+        district_ffi::LoadStatus::Failed { .. }
+    ));
+    let again = failed.ui(event(HoursAction::RetryRead));
+    assert_eq!(
+        hours_view(&again).overrides_editor.expect("open").status,
+        district_ffi::LoadStatus::Loading
+    );
+    let again = overrides_read(again, Ok(overrides_fixture()));
+    assert_eq!(
+        hours_view(&again).overrides_editor.expect("open").status,
+        district_ffi::LoadStatus::Ready
+    );
+
+    // An editor that read its hours asks for nothing.
+    let read = week(signed_in());
+    let before = read.pending.len();
+    assert_eq!(read.ui(event(HoursAction::RetryRead)).pending.len(), before);
+}
+
 /// The overrides' editor lists the days still to come, a run as one row;
 /// the add form's kind decides its fields, and it says why it cannot be sent
 /// before anything is; an override added closes the form and says so.
@@ -791,6 +834,7 @@ fn each_action_is_its_core_event() {
     let to_core = |e| Event::SchedulingAdmin(SchedulingAdminEvent::Hours(e));
     for (sent, event_sent) in [
         (A::OpenWeek, E::OpenWeek),
+        (A::RetryRead, E::RetryRead),
         (A::AddRange { day: 1 }, E::AddRange { day: 1 }),
         (
             A::RemoveRange { day: 2, key: 7 },

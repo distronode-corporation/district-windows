@@ -371,12 +371,19 @@
                                     AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
                                     IsActive="{x:Bind ViewModel.DeliveriesLoad.Loading, Mode=OneWay}"
                                     Visibility="{x:Bind ViewModel.DeliveriesLoad.Loading, Mode=OneWay}" />
-                                <TextBlock
-                                    AutomationProperties.AutomationId="DeveloperDeliveriesFailure"
-                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                    Text="{x:Bind ViewModel.DeliveriesLoad.FailureMessage, Mode=OneWay}"
-                                    TextWrapping="Wrap"
-                                    Visibility="{x:Bind ViewModel.DeliveriesLoad.Failed, Mode=OneWay}" />
+                                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.DeliveriesLoad.Failed, Mode=OneWay}">
+                                    <TextBlock
+                                        AutomationProperties.AutomationId="DeveloperDeliveriesFailure"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        Text="{x:Bind ViewModel.DeliveriesLoad.FailureMessage, Mode=OneWay}"
+                                        TextWrapping="Wrap" />
+                                    <Button
+                                        AutomationProperties.AutomationId="DeveloperDeliveriesRetry"
+                                        AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+                                        Command="{x:Bind ViewModel.DeliveriesLoad.RetryCommand}"
+                                        Content="{x:Bind l10n:S.CommonTryAgain}"
+                                        Visibility="{x:Bind ViewModel.DeliveriesLoad.CanRetry, Mode=OneWay}" />
+                                </StackPanel>
                                 <TextBlock
                                     AutomationProperties.AutomationId="DeveloperDeliveriesEmpty"
                                     Style="{StaticResource QuietTextStyle}"

@@ -21,6 +21,12 @@
             Text="{x:Bind ViewModel.FailureMessage, Mode=OneWay}"
             TextWrapping="Wrap"
             Visibility="{x:Bind ViewModel.Failed, Mode=OneWay}" />
+        <Button
+            AutomationProperties.AutomationId="HoursWeekRetry"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+            Command="{x:Bind ViewModel.RetryCommand}"
+            Content="{x:Bind l10n:S.CommonTryAgain}"
+            Visibility="{x:Bind ViewModel.CanRetry, Mode=OneWay}" />
 
         <!-- Every day, Monday first: its windows, typed as HH:MM, each with its fault under it. Nothing changes while a save is on its way. -->
         <ContentControl

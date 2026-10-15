@@ -85,7 +85,8 @@ pub struct HoursWeekView {
     /// Its title ("Your working hours"), the save ("Save", "Saving…"), the
     /// way out and why the save failed.
     pub dialog: DialogView,
-    /// Where the editor's own read of the week stands.
+    /// Where the editor's own read of the week stands; a failed one offers
+    /// "Try again" (`HoursAction::RetryRead`).
     pub status: LoadStatus,
     /// Whether the windows can be changed: the week is read and no save is on
     /// its way.
@@ -151,7 +152,8 @@ pub struct HoursOverridesView {
     pub dialog: DialogView,
     /// What it is for.
     pub hint: String,
-    /// Where the editor's own read of the overrides stands.
+    /// Where the editor's own read of the overrides stands; a failed one
+    /// offers "Try again" (`HoursAction::RetryRead`).
     pub status: LoadStatus,
     /// The days still to come, a run as one row.
     pub rows: Vec<OverrideRowView>,
@@ -332,6 +334,9 @@ pub enum HoursAction {
     ConfirmDeleteOverride,
     /// Put away what the last write came to.
     DismissNotice,
+    /// "Try again": the open editor reads its hours again after its read
+    /// failed (the week's its rules, the overrides' its overrides).
+    RetryRead,
     /// Close the editor.
     CloseDialog,
 }
@@ -367,6 +372,7 @@ pub(crate) fn events(action: HoursAction, now: SystemTime) -> Vec<Event> {
         A::CancelDeleteOverride => E::CancelDeleteOverride,
         A::ConfirmDeleteOverride => E::ConfirmDeleteOverride,
         A::DismissNotice => E::DismissNotice,
+        A::RetryRead => E::RetryRead,
         A::CloseDialog => E::CloseDialog,
     };
     vec![Event::SchedulingAdmin(SchedulingAdminEvent::Hours(event))]

@@ -17,6 +17,9 @@ public sealed class SchedulingHoursViewModelTests
     private static readonly LoadStatus _failed =
         new LoadStatus.Failed(new FailureView("Offline.", null, true), "Could not load this section");
 
+    private static readonly LoadStatus _unretryable =
+        new LoadStatus.Failed(new FailureView("You no longer have access.", null, false), "Could not load this section");
+
     private static DialogView Dialog(
         string title = "Your working hours",
         string confirm = "Save",
@@ -286,6 +289,20 @@ public sealed class SchedulingHoursViewModelTests
         Assert.True(vm.Failed);
         Assert.Equal("Offline.", vm.FailureMessage);
         Assert.Empty(vm.Days);
+
+        // Try again reads the week again, once: the core's Loading follows.
+        Assert.True(vm.CanRetry);
+        vm.RetryCommand.Execute(null);
+        Assert.Equal(new HoursAction.RetryRead(), Action(sink.Sent[^1]));
+        Assert.False(vm.RetryCommand.CanExecute(null));
+        model.Show(Page(Hours(week: Week(status: new LoadStatus.Loading(), days: [], dialog: Dialog(canConfirm: false), editable: false))));
+        Assert.False(vm.CanRetry);
+        Assert.True(vm.Loading);
+
+        // A failure trying again cannot mend offers no Try again.
+        model.Show(Page(Hours(week: Week(status: _unretryable, days: [], dialog: Dialog(canConfirm: false), editable: false))));
+        Assert.True(vm.Failed);
+        Assert.False(vm.CanRetry);
         model.Show(Page(Hours()));
         Assert.False(vm.Dialog.IsOpen);
         Assert.Empty(vm.Days);
@@ -406,6 +423,14 @@ public sealed class SchedulingHoursViewModelTests
         Assert.True(vm.Failed);
         Assert.Equal("Offline.", vm.FailureMessage);
         Assert.False(vm.ShowEmpty);
+
+        // Try again reads the overrides again, once.
+        Assert.True(vm.CanRetry);
+        vm.RetryCommand.Execute(null);
+        Assert.Equal(new HoursAction.RetryRead(), Action(sink.Sent[^1]));
+        Assert.False(vm.RetryCommand.CanExecute(null));
+        model.Show(Page(Hours(overrides: Overrides(status: _unretryable, rows: [], canChange: false))));
+        Assert.False(vm.CanRetry);
         model.Show(Page(Hours(overrides: Overrides(rows: []))));
         Assert.True(vm.ShowEmpty);
         Assert.Equal("No overrides ahead. Add one for a day off or different hours.", vm.EmptyText);

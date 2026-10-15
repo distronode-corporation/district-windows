@@ -24,6 +24,12 @@
             Text="{x:Bind ViewModel.FailureMessage, Mode=OneWay}"
             TextWrapping="Wrap"
             Visibility="{x:Bind ViewModel.Failed, Mode=OneWay}" />
+        <Button
+            AutomationProperties.AutomationId="HoursOverridesRetry"
+            AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+            Command="{x:Bind ViewModel.RetryCommand}"
+            Content="{x:Bind l10n:S.CommonTryAgain}"
+            Visibility="{x:Bind ViewModel.CanRetry, Mode=OneWay}" />
 
         <!-- The days still to come, a run of days as one row, while the add form is closed. -->
         <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.ShowsList, Mode=OneWay}">

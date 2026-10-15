@@ -9736,7 +9736,8 @@ class FfiConverterTypeCreatorCellView: FfiConverterRustBuffer<CreatorCellView> {
 /// The webhook's id.
 /// </param>
 /// <param name="Status">
-/// Where their read stands; a failure is said under the webhook.
+/// Where their read stands; a failure is said under the webhook, with
+/// "Try again" (`DeveloperAction::RetryDeliveries`).
 /// </param>
 /// <param name="Rows">
 /// The deliveries, once read.
@@ -9750,7 +9751,8 @@ public record DeliveriesView (
     /// </summary>
     string WebhookId, 
     /// <summary>
-    /// Where their read stands; a failure is said under the webhook.
+    /// Where their read stands; a failure is said under the webhook, with
+    /// "Try again" (`DeveloperAction::RetryDeliveries`).
     /// </summary>
     LoadStatus Status, 
     /// <summary>
@@ -12642,7 +12644,8 @@ class FfiConverterTypeEventTypeHostView: FfiConverterRustBuffer<EventTypeHostVie
 /// why the save failed.
 /// </param>
 /// <param name="Status">
-/// Where the read of the hosts stands.
+/// Where the read of the hosts stands; a failed one offers "Try again"
+/// (`EventTypeAction::RetryDialogRead`).
 /// </param>
 /// <param name="RoutingLabel">
 /// "Routing".
@@ -12684,6 +12687,11 @@ class FfiConverterTypeEventTypeHostView: FfiConverterRustBuffer<EventTypeHostVie
 /// The scheduler's users who could be added: not hosts already, not
 /// archived; none when they could not be read.
 /// </param>
+/// <param name="CandidatesStatus">
+/// Where the read of those users stands, which follows the hosts' own; a
+/// failed one leaves the hosts editable, with nobody to add, and offers
+/// "Try again" (`EventTypeAction::RetryDialogRead`).
+/// </param>
 /// <param name="Validation">
 /// Why the hosts cannot be saved, before anything was sent.
 /// </param>
@@ -12694,7 +12702,8 @@ public record EventTypeHostsView (
     /// </summary>
     DialogView Dialog, 
     /// <summary>
-    /// Where the read of the hosts stands.
+    /// Where the read of the hosts stands; a failed one offers "Try again"
+    /// (`EventTypeAction::RetryDialogRead`).
     /// </summary>
     LoadStatus Status, 
     /// <summary>
@@ -12751,6 +12760,12 @@ public record EventTypeHostsView (
     /// </summary>
     ChoiceRowView[] Candidates, 
     /// <summary>
+    /// Where the read of those users stands, which follows the hosts' own; a
+    /// failed one leaves the hosts editable, with nobody to add, and offers
+    /// "Try again" (`EventTypeAction::RetryDialogRead`).
+    /// </summary>
+    LoadStatus CandidatesStatus, 
+    /// <summary>
     /// Why the hosts cannot be saved, before anything was sent.
     /// </summary>
     string? Validation
@@ -12777,6 +12792,7 @@ class FfiConverterTypeEventTypeHostsView: FfiConverterRustBuffer<EventTypeHostsV
             RemoveLabel: FfiConverterString.INSTANCE.Read(stream),
             AddLabel: FfiConverterString.INSTANCE.Read(stream),
             Candidates: FfiConverterSequenceTypeChoiceRowView.INSTANCE.Read(stream),
+            CandidatesStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
             Validation: FfiConverterOptionalString.INSTANCE.Read(stream)
         );
     }
@@ -12798,6 +12814,7 @@ class FfiConverterTypeEventTypeHostsView: FfiConverterRustBuffer<EventTypeHostsV
             + FfiConverterString.INSTANCE.AllocationSize(value.RemoveLabel)
             + FfiConverterString.INSTANCE.AllocationSize(value.AddLabel)
             + FfiConverterSequenceTypeChoiceRowView.INSTANCE.AllocationSize(value.Candidates)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.CandidatesStatus)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Validation);
     }
 
@@ -12817,6 +12834,7 @@ class FfiConverterTypeEventTypeHostsView: FfiConverterRustBuffer<EventTypeHostsV
             FfiConverterString.INSTANCE.Write(value.RemoveLabel, stream);
             FfiConverterString.INSTANCE.Write(value.AddLabel, stream);
             FfiConverterSequenceTypeChoiceRowView.INSTANCE.Write(value.Candidates, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.CandidatesStatus, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Validation, stream);
     }
 }
@@ -13663,7 +13681,8 @@ class FfiConverterTypeHoursDayView: FfiConverterRustBuffer<HoursDayView> {
 /// What it is for.
 /// </param>
 /// <param name="Status">
-/// Where the editor's own read of the overrides stands.
+/// Where the editor's own read of the overrides stands; a failed one
+/// offers "Try again" (`HoursAction::RetryRead`).
 /// </param>
 /// <param name="Rows">
 /// The days still to come, a run as one row.
@@ -13703,7 +13722,8 @@ public record HoursOverridesView (
     /// </summary>
     string Hint, 
     /// <summary>
-    /// Where the editor's own read of the overrides stands.
+    /// Where the editor's own read of the overrides stands; a failed one
+    /// offers "Try again" (`HoursAction::RetryRead`).
     /// </summary>
     LoadStatus Status, 
     /// <summary>
@@ -13876,7 +13896,8 @@ class FfiConverterTypeHoursRangeView: FfiConverterRustBuffer<HoursRangeView> {
 /// way out and why the save failed.
 /// </param>
 /// <param name="Status">
-/// Where the editor's own read of the week stands.
+/// Where the editor's own read of the week stands; a failed one offers
+/// "Try again" (`HoursAction::RetryRead`).
 /// </param>
 /// <param name="Editable">
 /// Whether the windows can be changed: the week is read and no save is on
@@ -13917,7 +13938,8 @@ public record HoursWeekView (
     /// </summary>
     DialogView Dialog, 
     /// <summary>
-    /// Where the editor's own read of the week stands.
+    /// Where the editor's own read of the week stands; a failed one offers
+    /// "Try again" (`HoursAction::RetryRead`).
     /// </summary>
     LoadStatus Status, 
     /// <summary>
@@ -33274,6 +33296,13 @@ public record DeveloperAction {
     ) : DeveloperAction {}
     
     /// <summary>
+    /// "Try again" under the open webhook: read its deliveries again after
+    /// their read failed.
+    /// </summary>
+    public record RetryDeliveries: DeveloperAction {}
+    
+    
+    /// <summary>
     /// Open the key form.
     /// </summary>
     public record OpenCreateKey: DeveloperAction {}
@@ -33399,59 +33428,62 @@ class FfiConverterTypeDeveloperAction : FfiConverterRustBuffer<DeveloperAction>{
                     FfiConverterString.INSTANCE.Read(stream)
                 );
             case 4:
-                return new DeveloperAction.OpenCreateKey(
+                return new DeveloperAction.RetryDeliveries(
                 );
             case 5:
+                return new DeveloperAction.OpenCreateKey(
+                );
+            case 6:
                 return new DeveloperAction.EditKeyName(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 6:
+            case 7:
                 return new DeveloperAction.CreateKey(
                 );
-            case 7:
+            case 8:
                 return new DeveloperAction.KeyCopied(
                 );
-            case 8:
+            case 9:
                 return new DeveloperAction.AskRevokeKey(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 9:
+            case 10:
                 return new DeveloperAction.AskRevokeApp(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 10:
+            case 11:
                 return new DeveloperAction.AskDeleteWebhook(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 11:
+            case 12:
                 return new DeveloperAction.CancelRemoval(
                 );
-            case 12:
+            case 13:
                 return new DeveloperAction.ConfirmRemoval(
                 );
-            case 13:
+            case 14:
                 return new DeveloperAction.OpenCreateWebhook(
                 );
-            case 14:
+            case 15:
                 return new DeveloperAction.OpenEditWebhook(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 15:
+            case 16:
                 return new DeveloperAction.EditWebhookUrl(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 16:
+            case 17:
                 return new DeveloperAction.ToggleEvent(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 17:
+            case 18:
                 return new DeveloperAction.ToggleField(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 18:
+            case 19:
                 return new DeveloperAction.SaveWebhook(
                 );
-            case 19:
+            case 20:
                 return new DeveloperAction.CloseDialog(
                 );
             default:
@@ -33469,6 +33501,8 @@ class FfiConverterTypeDeveloperAction : FfiConverterRustBuffer<DeveloperAction>{
             case DeveloperAction.ToggleDeliveries variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.WebhookId);
+            case DeveloperAction.RetryDeliveries variant_value:
+                return 4;
             case DeveloperAction.OpenCreateKey variant_value:
                 return 4;
             case DeveloperAction.EditKeyName variant_value:
@@ -33527,61 +33561,64 @@ class FfiConverterTypeDeveloperAction : FfiConverterRustBuffer<DeveloperAction>{
                 stream.WriteInt(3);
                 FfiConverterString.INSTANCE.Write(variant_value.WebhookId, stream);
                 break;
-            case DeveloperAction.OpenCreateKey variant_value:
+            case DeveloperAction.RetryDeliveries variant_value:
                 stream.WriteInt(4);
                 break;
-            case DeveloperAction.EditKeyName variant_value:
+            case DeveloperAction.OpenCreateKey variant_value:
                 stream.WriteInt(5);
+                break;
+            case DeveloperAction.EditKeyName variant_value:
+                stream.WriteInt(6);
                 FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
                 break;
             case DeveloperAction.CreateKey variant_value:
-                stream.WriteInt(6);
-                break;
-            case DeveloperAction.KeyCopied variant_value:
                 stream.WriteInt(7);
                 break;
-            case DeveloperAction.AskRevokeKey variant_value:
+            case DeveloperAction.KeyCopied variant_value:
                 stream.WriteInt(8);
+                break;
+            case DeveloperAction.AskRevokeKey variant_value:
+                stream.WriteInt(9);
                 FfiConverterString.INSTANCE.Write(variant_value.KeyId, stream);
                 break;
             case DeveloperAction.AskRevokeApp variant_value:
-                stream.WriteInt(9);
+                stream.WriteInt(10);
                 FfiConverterString.INSTANCE.Write(variant_value.ConnectionId, stream);
                 break;
             case DeveloperAction.AskDeleteWebhook variant_value:
-                stream.WriteInt(10);
+                stream.WriteInt(11);
                 FfiConverterString.INSTANCE.Write(variant_value.WebhookId, stream);
                 break;
             case DeveloperAction.CancelRemoval variant_value:
-                stream.WriteInt(11);
-                break;
-            case DeveloperAction.ConfirmRemoval variant_value:
                 stream.WriteInt(12);
                 break;
-            case DeveloperAction.OpenCreateWebhook variant_value:
+            case DeveloperAction.ConfirmRemoval variant_value:
                 stream.WriteInt(13);
                 break;
-            case DeveloperAction.OpenEditWebhook variant_value:
+            case DeveloperAction.OpenCreateWebhook variant_value:
                 stream.WriteInt(14);
+                break;
+            case DeveloperAction.OpenEditWebhook variant_value:
+                stream.WriteInt(15);
                 FfiConverterString.INSTANCE.Write(variant_value.WebhookId, stream);
                 break;
             case DeveloperAction.EditWebhookUrl variant_value:
-                stream.WriteInt(15);
+                stream.WriteInt(16);
                 FfiConverterString.INSTANCE.Write(variant_value.Url, stream);
                 break;
             case DeveloperAction.ToggleEvent variant_value:
-                stream.WriteInt(16);
+                stream.WriteInt(17);
                 FfiConverterString.INSTANCE.Write(variant_value.Event, stream);
                 break;
             case DeveloperAction.ToggleField variant_value:
-                stream.WriteInt(17);
+                stream.WriteInt(18);
                 FfiConverterString.INSTANCE.Write(variant_value.Field, stream);
                 break;
             case DeveloperAction.SaveWebhook variant_value:
-                stream.WriteInt(18);
+                stream.WriteInt(19);
                 break;
             case DeveloperAction.CloseDialog variant_value:
-                stream.WriteInt(19);
+                stream.WriteInt(20);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeveloperAction.Write()", value));
@@ -34123,6 +34160,13 @@ public record EventTypeAction {
     
     
     /// <summary>
+    /// "Try again" in the hosts dialog: read its hosts again after that read
+    /// failed, else the users who could be added after theirs did.
+    /// </summary>
+    public record RetryDialogRead: EventTypeAction {}
+    
+    
+    /// <summary>
     /// Open the questions.
     /// </summary>
     public record OpenQuestions: EventTypeAction {}
@@ -34280,47 +34324,50 @@ class FfiConverterTypeEventTypeAction : FfiConverterRustBuffer<EventTypeAction>{
                 return new EventTypeAction.SaveHosts(
                 );
             case 19:
-                return new EventTypeAction.OpenQuestions(
+                return new EventTypeAction.RetryDialogRead(
                 );
             case 20:
-                return new EventTypeAction.AddQuestion(
+                return new EventTypeAction.OpenQuestions(
                 );
             case 21:
+                return new EventTypeAction.AddQuestion(
+                );
+            case 22:
                 return new EventTypeAction.EditQuestion(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 22:
+            case 23:
                 return new EventTypeAction.EditQuestionForm(
                     FfiConverterTypeQuestionFormView.INSTANCE.Read(stream)
                 );
-            case 23:
+            case 24:
                 return new EventTypeAction.AddOption(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 24:
+            case 25:
                 return new EventTypeAction.RemoveOption(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 25:
+            case 26:
                 return new EventTypeAction.CancelQuestion(
                 );
-            case 26:
+            case 27:
                 return new EventTypeAction.SaveQuestion(
                 );
-            case 27:
+            case 28:
                 return new EventTypeAction.AskDeleteQuestion(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 28:
+            case 29:
                 return new EventTypeAction.CancelDeleteQuestion(
                 );
-            case 29:
+            case 30:
                 return new EventTypeAction.ConfirmDeleteQuestion(
                 );
-            case 30:
+            case 31:
                 return new EventTypeAction.DismissNotice(
                 );
-            case 31:
+            case 32:
                 return new EventTypeAction.CloseDialog(
                 );
             default:
@@ -34375,6 +34422,8 @@ class FfiConverterTypeEventTypeAction : FfiConverterRustBuffer<EventTypeAction>{
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.UserId)
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Priority);
             case EventTypeAction.SaveHosts variant_value:
+                return 4;
+            case EventTypeAction.RetryDialogRead variant_value:
                 return 4;
             case EventTypeAction.OpenQuestions variant_value:
                 return 4;
@@ -34478,49 +34527,52 @@ class FfiConverterTypeEventTypeAction : FfiConverterRustBuffer<EventTypeAction>{
             case EventTypeAction.SaveHosts variant_value:
                 stream.WriteInt(18);
                 break;
-            case EventTypeAction.OpenQuestions variant_value:
+            case EventTypeAction.RetryDialogRead variant_value:
                 stream.WriteInt(19);
                 break;
-            case EventTypeAction.AddQuestion variant_value:
+            case EventTypeAction.OpenQuestions variant_value:
                 stream.WriteInt(20);
                 break;
-            case EventTypeAction.EditQuestion variant_value:
+            case EventTypeAction.AddQuestion variant_value:
                 stream.WriteInt(21);
+                break;
+            case EventTypeAction.EditQuestion variant_value:
+                stream.WriteInt(22);
                 FfiConverterString.INSTANCE.Write(variant_value.Id, stream);
                 break;
             case EventTypeAction.EditQuestionForm variant_value:
-                stream.WriteInt(22);
+                stream.WriteInt(23);
                 FfiConverterTypeQuestionFormView.INSTANCE.Write(variant_value.Form, stream);
                 break;
             case EventTypeAction.AddOption variant_value:
-                stream.WriteInt(23);
-                FfiConverterString.INSTANCE.Write(variant_value.Option, stream);
-                break;
-            case EventTypeAction.RemoveOption variant_value:
                 stream.WriteInt(24);
                 FfiConverterString.INSTANCE.Write(variant_value.Option, stream);
                 break;
-            case EventTypeAction.CancelQuestion variant_value:
+            case EventTypeAction.RemoveOption variant_value:
                 stream.WriteInt(25);
+                FfiConverterString.INSTANCE.Write(variant_value.Option, stream);
                 break;
-            case EventTypeAction.SaveQuestion variant_value:
+            case EventTypeAction.CancelQuestion variant_value:
                 stream.WriteInt(26);
                 break;
-            case EventTypeAction.AskDeleteQuestion variant_value:
+            case EventTypeAction.SaveQuestion variant_value:
                 stream.WriteInt(27);
+                break;
+            case EventTypeAction.AskDeleteQuestion variant_value:
+                stream.WriteInt(28);
                 FfiConverterString.INSTANCE.Write(variant_value.Id, stream);
                 break;
             case EventTypeAction.CancelDeleteQuestion variant_value:
-                stream.WriteInt(28);
-                break;
-            case EventTypeAction.ConfirmDeleteQuestion variant_value:
                 stream.WriteInt(29);
                 break;
-            case EventTypeAction.DismissNotice variant_value:
+            case EventTypeAction.ConfirmDeleteQuestion variant_value:
                 stream.WriteInt(30);
                 break;
-            case EventTypeAction.CloseDialog variant_value:
+            case EventTypeAction.DismissNotice variant_value:
                 stream.WriteInt(31);
+                break;
+            case EventTypeAction.CloseDialog variant_value:
+                stream.WriteInt(32);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeEventTypeAction.Write()", value));
@@ -34833,6 +34885,13 @@ public record HoursAction {
     
     
     /// <summary>
+    /// "Try again": the open editor reads its hours again after its read
+    /// failed (the week's its rules, the overrides' its overrides).
+    /// </summary>
+    public record RetryRead: HoursAction {}
+    
+    
+    /// <summary>
     /// Close the editor.
     /// </summary>
     public record CloseDialog: HoursAction {}
@@ -34909,6 +34968,9 @@ class FfiConverterTypeHoursAction : FfiConverterRustBuffer<HoursAction>{
                 return new HoursAction.DismissNotice(
                 );
             case 17:
+                return new HoursAction.RetryRead(
+                );
+            case 18:
                 return new HoursAction.CloseDialog(
                 );
             default:
@@ -34961,6 +35023,8 @@ class FfiConverterTypeHoursAction : FfiConverterRustBuffer<HoursAction>{
             case HoursAction.ConfirmDeleteOverride variant_value:
                 return 4;
             case HoursAction.DismissNotice variant_value:
+                return 4;
+            case HoursAction.RetryRead variant_value:
                 return 4;
             case HoursAction.CloseDialog variant_value:
                 return 4;
@@ -35031,8 +35095,11 @@ class FfiConverterTypeHoursAction : FfiConverterRustBuffer<HoursAction>{
             case HoursAction.DismissNotice variant_value:
                 stream.WriteInt(16);
                 break;
-            case HoursAction.CloseDialog variant_value:
+            case HoursAction.RetryRead variant_value:
                 stream.WriteInt(17);
+                break;
+            case HoursAction.CloseDialog variant_value:
+                stream.WriteInt(18);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHoursAction.Write()", value));

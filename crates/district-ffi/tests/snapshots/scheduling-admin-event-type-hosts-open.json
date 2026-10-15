@@ -55,6 +55,7 @@
                     "value": "sched-user-2"
                   }
                 ],
+                "candidates_status": "Ready",
                 "dialog": {
                   "body": "",
                   "can_confirm": true,

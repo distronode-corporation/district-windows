@@ -379,8 +379,15 @@ public sealed class SchedulingDeveloperViewModelTests
         Assert.Equal("DeveloperDeliveryd-2", vm.Deliveries[1].AutomationId);
         model.Show(Page(Developer(tab: DeveloperTabView.Webhooks, openWebhook: "wh-1", deliveriesStatus: _failed)));
         Assert.True(vm.DeliveriesLoad.Failed);
-        Assert.False(vm.DeliveriesLoad.CanRetry, "toggled again, not retried");
         Assert.Empty(vm.Deliveries);
+
+        // Try again under the webhook reads its deliveries again.
+        Assert.True(vm.DeliveriesLoad.CanRetry);
+        vm.DeliveriesLoad.RetryCommand.Execute(null);
+        Assert.Equal(new DeveloperAction.RetryDeliveries(), Action(sink.Sent[^1]));
+        model.Show(Page(Developer(tab: DeveloperTabView.Webhooks, openWebhook: "wh-1", deliveriesStatus: new LoadStatus.Loading())));
+        Assert.False(vm.DeliveriesLoad.CanRetry);
+        Assert.True(vm.DeliveriesLoad.Loading);
         model.Show(Page(Developer(tab: DeveloperTabView.Webhooks)));
         Assert.False(vm.HasDeliveries);
         Assert.Empty(vm.Deliveries);
