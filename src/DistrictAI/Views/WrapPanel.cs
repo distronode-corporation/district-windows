@@ -52,14 +52,31 @@ public sealed partial class WrapPanel : Panel
     }
 
     // One walk for both passes: where each visible child goes, line by line,
-    // and the size the lines take.
+    // and the size the lines take. A line is arranged once it is complete, each
+    // child given the line's height, so its VerticalAlignment (a button's
+    // Center) lines it up with the tallest child on the line.
     private Size Place(double width, bool arrange)
     {
+        var line = new List<UIElement>();
         double x = 0;
         double y = 0;
         double lineHeight = 0;
         double widest = 0;
-        var lineHasChild = false;
+
+        void EndLine()
+        {
+            if (arrange)
+            {
+                double at = 0;
+                foreach (var child in line)
+                {
+                    child.Arrange(new Rect(at, y, child.DesiredSize.Width, lineHeight));
+                    at += child.DesiredSize.Width + HorizontalSpacing;
+                }
+            }
+            line.Clear();
+        }
+
         foreach (var child in Children)
         {
             if (child.Visibility == Visibility.Collapsed)
@@ -67,26 +84,23 @@ public sealed partial class WrapPanel : Panel
                 continue;
             }
             var size = child.DesiredSize;
-            if (lineHasChild && x + HorizontalSpacing + size.Width > width)
+            if (line.Count > 0 && x + HorizontalSpacing + size.Width > width)
             {
+                EndLine();
                 y += lineHeight + VerticalSpacing;
                 x = 0;
                 lineHeight = 0;
-                lineHasChild = false;
             }
-            if (lineHasChild)
+            if (line.Count > 0)
             {
                 x += HorizontalSpacing;
             }
-            if (arrange)
-            {
-                child.Arrange(new Rect(x, y, size.Width, size.Height));
-            }
+            line.Add(child);
             x += size.Width;
             widest = Math.Max(widest, x);
             lineHeight = Math.Max(lineHeight, size.Height);
-            lineHasChild = true;
         }
+        EndLine();
         return new Size(widest, y + lineHeight);
     }
 

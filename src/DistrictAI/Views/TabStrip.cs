@@ -48,12 +48,6 @@ public sealed partial class TabStrip : UserControl
             VerticalScrollMode = ScrollMode.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
         };
-        // The strip's name and id are the bar's: the bar is what Narrator and the UI tests reach.
-        Loaded += (_, _) =>
-        {
-            AutomationProperties.SetName(_bar, AutomationProperties.GetName(this));
-            AutomationProperties.SetAutomationId(_bar, AutomationProperties.GetAutomationId(this));
-        };
     }
 
     /// <summary>The tabs: <see cref="TabLabel"/>s, or items <see cref="Describe"/> reads, or strings.</summary>

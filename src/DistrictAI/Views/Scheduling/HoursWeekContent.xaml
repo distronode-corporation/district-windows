@@ -38,16 +38,19 @@
                             AutomationProperties.Name="{x:Bind Name}"
                             Spacing="4">
                             <!--
-                                The day on its own line, its buttons on the next, wrapping when
-                                they do not fit side by side: beside the buttons, the day's name
-                                had no room left at 200 percent text ("Wedne / sday").
+                                The day and its buttons on one line while they fit, the buttons
+                                wrapping under the day when they do not: in a star column beside
+                                them, the day's name had no room left at 200 percent text
+                                ("Wedne / sday"). The name's MinWidth lines the buttons up.
                             -->
-                            <TextBlock
-                                AutomationProperties.HeadingLevel="Level3"
-                                Style="{StaticResource BodyStrongTextBlockStyle}"
-                                Text="{x:Bind Name}"
-                                TextWrapping="NoWrap" />
                             <views:WrapPanel HorizontalSpacing="8" VerticalSpacing="4">
+                                <TextBlock
+                                    MinWidth="120"
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.HeadingLevel="Level3"
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind Name}"
+                                    TextWrapping="NoWrap" />
                                 <Button
                                     AutomationProperties.AutomationId="HoursCopyToWeekdays"
                                     AutomationProperties.Name="{x:Bind CopyName}"
