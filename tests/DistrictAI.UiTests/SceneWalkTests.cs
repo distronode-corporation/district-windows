@@ -1308,10 +1308,10 @@ public sealed class SceneWalkTests
 
         // The tab, by its id; then what it read, by the id that names the tab
         // ("SchedulingSettingsGroupsAssistant"): the same in every language.
-        void ShowTab(string tab)
+        void ShowTab(string which)
         {
-            var tabId = "SchedulingSettingsTab" + tab;
-            var groupsId = "SchedulingSettingsGroups" + tab;
+            var tabId = "SchedulingSettingsTab" + which;
+            var groupsId = "SchedulingSettingsGroups" + which;
             var tab = app.FindById(tabId, PageTimeout);
             if (tab.Patterns.SelectionItem.PatternOrDefault is { } item)
             {
@@ -1325,7 +1325,7 @@ public sealed class SceneWalkTests
                 app,
                 () => app.TryFindById(groupsId, onScreen: false)?.FindFirstDescendant(cf => cf.ByControlType(ControlType.Text)) is not null
                     && app.TryFindById("SchedulingSettingsEdit", onScreen: false) is not null,
-                $"the {tab} tab to show what it read");
+                $"the {which} tab to show what it read");
         }
 
         void CloseWithEscape(string dialogId, string what)
