@@ -1746,7 +1746,7 @@ fr = "Boîte de réception"
 ctx = "title"
 screen = "inbox"
 tier = "T3"
-state = "draft"
+state = "reviewed"
 waive = { LEN = "page title, same words as nav.inbox (visual QA W-29)" }
 note = "Page title, and the name of its list: the same words as the navigation entry that opens it (nav.inbox), so the page is called what the pane calls it (visual QA W-29)."
 

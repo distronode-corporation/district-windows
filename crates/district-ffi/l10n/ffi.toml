@@ -2220,7 +2220,7 @@ fr = "L'aperçu est terminé."
 ctx = "label"
 screen = "persona"
 tier = "T3"
-state = "draft"
+state = "reviewed"
 note = "The line once it ended."
 
 [persona.engine_heading]
@@ -3082,7 +3082,7 @@ ctx = "label"
 screen = "workflows"
 tier = "T3"
 args = { action = "str", outcome = "str" }
-state = "draft"
+state = "reviewed"
 note = "One action of a run and what it came to, as District AI for Linux words it: \"Send SMS: ok\". The run's actions are joined by middle dots."
 
 [workflows.batch_label]
@@ -3138,7 +3138,7 @@ ctx = "label"
 screen = "workflows"
 tier = "T3"
 args = { outcome = "str", reason = "str" }
-state = "draft"
+state = "reviewed"
 same_ok = true
 note = "An action's outcome with why it was skipped or failed. In English the reason is the service's own sentence; in French it is the label of the code that opens it (\"no-recipient\" reads « aucun destinataire »), and for a code the vocabulary does not list the outcome is shown alone (visual QA LC06)."
 
