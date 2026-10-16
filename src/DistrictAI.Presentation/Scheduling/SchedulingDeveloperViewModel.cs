@@ -35,7 +35,7 @@ public sealed partial class SchedulingDeveloperViewModel : ObservableObject
         KeysLoad = new TabLoadViewModel(refresh);
         AppsLoad = new TabLoadViewModel(refresh);
         WebhooksLoad = new TabLoadViewModel(refresh);
-        DeliveriesLoad = new TabLoadViewModel(null);
+        DeliveriesLoad = new TabLoadViewModel(() => Event(new DeveloperAction.RetryDeliveries()));
     }
 
     /// <summary>A removal, while it is asked about: its confirm is destructive.</summary>
@@ -233,6 +233,7 @@ public sealed partial class SchedulingDeveloperViewModel : ObservableObject
         KeysLoad.Attach(context);
         AppsLoad.Attach(context);
         WebhooksLoad.Attach(context);
+        DeliveriesLoad.Attach(context);
         Removal.Attach(context);
         KeyDialog.Attach(context);
         WebhookDialog.Attach(context);

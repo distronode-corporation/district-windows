@@ -25,6 +25,7 @@ public sealed partial class NumberConfirmationDialog : ContentDialog
     {
         _admin = admin;
         InitializeComponent();
+        DialogButtons.WrapLabels(this);
         Show(admin.Confirmation);
         PrimaryButtonClick += OnConfirm;
         Closing += OnClosing;

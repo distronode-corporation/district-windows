@@ -7,6 +7,73 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-10-15
+
+### Fixed
+
+- A call ringing on this computer stops as soon as the service says its ring ended,
+  instead of ringing on for up to thirty seconds. Answered on another device (your
+  other computer or phone, or a colleague's), the banner reads "Answered on another
+  device" and "That call was answered on another device."; a caller who hangs up
+  ends it as before; a ring the service gave up on is a missed call, as at the
+  deadline. The ringtone stops, Answer and Decline go, and the call's notification
+  is taken away. The word comes over the live connection and, in the Microsoft Store
+  build, as a Windows push (`call_ring_cancelled`), so it also stops a ring a push
+  started, and a pushed call whose ring has ended before the app is ready never
+  rings. A call answered on this computer is never touched, and the local
+  thirty-second deadline stays as the fallback.
+- Call routing rules: the caller detail and comparison pickers, and the line under
+  each rule, show the web portal's labels in English and Canadian French ("Caller
+  type (business/consumer)", "Valeur estimée", "Égal à"), not the stored key
+  reworded in English. A detail or comparison the builder does not offer still shows
+  as stored.
+- The sideload test build's `sideload-dependencies.zip` carries the x86 Windows App
+  Runtime beside the x64 one, of the same version. Without it a fresh Windows Server
+  2025 refused to install the test build (0x80073CF9).
+
+- Phone numbers: a number's monthly price is written as every other price in the app,
+  with two decimals and its currency (`$2.50 a month`, `2,50 $ par mois`, `1,15 $ US
+  par mois`), where it read `2.5 a month` with no currency.
+- The dialler's example number no longer breaks after `+1`.
+- Booking pages, Working hours: the app no longer closes now and then while the date
+  overrides' editor is open (seen when it opened again, after a delete and after Add
+  override, in any theme and language, and in 3.0.0 too). Its list followed the
+  overrides as they changed, inside the redraw, and could fail there while the dialog
+  was opening or laying out; it now shows a copy of them, set once the dialog has
+  drawn, and a closed editor's list follows nothing.
+- Booking pages: when the working hours' editors, an event type's hosts dialog or a
+  webhook's deliveries cannot be read, the failure now offers Try again, which reads
+  them again (the people who could be added as hosts too, while the hosts stay
+  editable). It was only shown before, and the dialog had to be closed.
+- Support: a request's status, in the list and on the request, is shown in the app's
+  language ("In progress", « En cours »), not in the support desk's own word.
+- Analytics: the caller sentiment bands keep their colours and patterns in French; a
+  band's tone now follows the service's name for it, never its translated label.
+- Screens fit large text and narrow windows better: cards take fewer, wider columns
+  as the text grows, a day and its buttons share a line while they fit, a dialog's
+  button labels wrap instead of being cut, and tab strips show their tab again when
+  their page returns.
+- Call routing rules: the keys a rule keeps beyond the builder's are named exactly as
+  stored (`action, match, target`), not reworded in English.
+
+### Changed
+
+- Checkout and Manage billing open a page only through the service's browser-bound
+  hand-off (security sweep S33). The checkout window opens the service's start page,
+  hands its `districtai://handoff` answer to the app, and only then asks for the
+  checkout or billing link, bound to that answer's nonce; when the app has to use your
+  browser instead, the answer comes back through the `districtai:` link. When no
+  answer arrives within thirty seconds, Billing now says "Your browser didn't respond to
+  District AI in time, so the page wasn't opened. Try again, and let your browser
+  open District AI if it asks." instead of opening a link bound to no browser.
+- The shared core is district-core-rust 4.0.2, which reads the service's
+  `call_ring_cancelled`, binds every hand-off link to a browser, writes the
+  dialler's hint with no-break spaces, labels support statuses in both languages,
+  names each sentiment band, and offers Try again for the booking pages' dialog reads.
+- An exception that would end the app is first written to its trace, with its type,
+  HResult, message, stack and inner exceptions (a run started with a scripted scene
+  keeps the trace in a file), and the UI tests read a crash's dump for it.
+
 ## [3.0.0] - 2026-10-15
 
 ### Added

@@ -15,7 +15,9 @@
 //! all. An effect with no fixture (a write, a live connection, a call) gets no
 //! answer, and its screen stays as the model leaves it.
 
+use std::collections::HashMap;
 use std::future::Future;
+use std::sync::{Mutex, PoisonError};
 
 use district_api::{ApiError, ErrorDetail};
 use district_auth::AccessClaims;
@@ -48,6 +50,11 @@ pub(crate) enum Scene {
     /// Signed in, with one workspace (an agency's), every screen filled from
     /// the fixtures.
     SignedIn,
+    /// As [`Scene::SignedIn`], but each read a dialog offers "Try again" for
+    /// fails the first time it is made, and is answered when made again: the
+    /// week's and the overrides' editors' own reads, an event type's hosts
+    /// dialog's read of its hosts, and a webhook's deliveries.
+    FailingReads,
 }
 
 /// The scene the command line asks for: none without [`SCENE_ARG`], an error
@@ -61,6 +68,7 @@ pub(crate) fn scene(args: impl IntoIterator<Item = String>) -> Result<Option<Sce
     };
     match name.as_str() {
         "signed-in" => Ok(Some(Scene::SignedIn)),
+        "signed-in-failing-reads" => Ok(Some(Scene::FailingReads)),
         other => Err(format!("{MARKER}: no scene named {other:?}")),
     }
 }
@@ -68,19 +76,85 @@ pub(crate) fn scene(args: impl IntoIterator<Item = String>) -> Result<Option<Sce
 /// The effects of a scripted scene.
 pub(crate) struct Scripted {
     scene: Scene,
+    reads: Mutex<FailingReads>,
 }
 
 impl Scripted {
     pub(crate) fn new(scene: Scene) -> Self {
-        Self { scene }
+        Self {
+            scene,
+            reads: Mutex::new(FailingReads::default()),
+        }
+    }
+
+    /// The scene's answer to `effect`, if it has one.
+    fn answer(&self, effect: Effect) -> Option<Event> {
+        if let (
+            Scene::FailingReads,
+            Effect::SchedulingAdmin {
+                ticket, request, ..
+            },
+        ) = (self.scene, &effect)
+            && self
+                .reads
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .fails(request)
+        {
+            return Some(Event::SchedulingAdminAnswered {
+                ticket: *ticket,
+                result: Err(broken()),
+            });
+        }
+        signed_in(effect)
     }
 }
 
 impl Effects for Scripted {
     fn run(&self, effect: Effect) -> impl Future<Output = Option<Event>> + Send {
-        std::future::ready(match self.scene {
-            Scene::SignedIn => signed_in(effect),
-        })
+        std::future::ready(self.answer(effect))
+    }
+}
+
+/// A read [`Scene::FailingReads`] fails once.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+enum Read {
+    /// The member's own rules (no event type's).
+    Rules,
+    Overrides,
+    Hosts,
+    Deliveries,
+}
+
+/// Which read of each [`Read`] kind is a dialog's, counted from the scene's
+/// start along the UI walk's path, which never opens the booking pages'
+/// overview: the working hours' own reads come first, then an editor's (the
+/// second of each); an event type's page reads its hosts, then the hosts
+/// dialog (the second); a webhook's deliveries are read only when opened (the
+/// first). Counts, not an order of requests, because a section's reads run at
+/// once and in no fixed order. Each kind fails once.
+#[derive(Debug, Default)]
+struct FailingReads {
+    /// How many of each kind have been read.
+    reads: HashMap<Read, u32>,
+}
+
+impl FailingReads {
+    /// Whether `request` is answered with a failure.
+    fn fails(&mut self, request: &district_model::SchedulingAdminRequest) -> bool {
+        use district_model::SchedulingAdminRequest as R;
+        let (kind, dialogs) = match request {
+            R::Rules {
+                event_type_id: None,
+            } => (Read::Rules, 2),
+            R::Overrides => (Read::Overrides, 2),
+            R::Hosts { .. } => (Read::Hosts, 2),
+            R::WebhookDeliveries { .. } => (Read::Deliveries, 1),
+            _ => return false,
+        };
+        let count = self.reads.entry(kind).or_default();
+        *count += 1;
+        *count == dialogs
     }
 }
 
@@ -733,6 +807,150 @@ mod tests {
         });
         settle(&mut model, first);
         model
+    }
+
+    #[test]
+    fn the_failing_reads_scene_is_named_on_the_command_line() {
+        assert_eq!(
+            scene([format!("{SCENE_ARG}signed-in-failing-reads")]),
+            Ok(Some(Scene::FailingReads))
+        );
+    }
+
+    /// The failing-reads scene, walked as the UI walk walks it: the working
+    /// hours and both their editors, an event
+    /// type's hosts, a webhook's deliveries. Each dialog's own read fails once
+    /// and offers "Try again", which reads it; every section's own read is
+    /// answered.
+    #[test]
+    fn each_dialogs_read_fails_once_and_try_again_reads_it() {
+        use crate::events::UiEvent;
+        use crate::scheduling_admin::developer::{DeveloperAction as D, DeveloperTabView};
+        use crate::scheduling_admin::event_types::EventTypeAction as E;
+        use crate::scheduling_admin::hours::HoursAction as H;
+        use crate::scheduling_admin::{
+            SchedulingAdminAction as A, SchedulingAdminPage as P, SchedulingAdminSection,
+        };
+        use crate::views::LoadStatus;
+
+        let scripted = Scripted::new(Scene::FailingReads);
+        let settle = |model: &mut Model, mut pending: Vec<Effect>| {
+            while let Some(effect) = pending.pop() {
+                if let Some(event) = scripted.answer(effect) {
+                    pending.extend(model.update(event));
+                }
+            }
+        };
+        let (mut model, first) = Model::new(CoreConfig {
+            web_base_url: "https://www.distronode.com".to_owned(),
+            app_version: "0.1.0".to_owned(),
+            calls_available: false,
+            in_app_purchases: true,
+            locale: district_core::Locale::En,
+        });
+        settle(&mut model, first);
+        let mut run = |action: A| {
+            let mut pending = Vec::new();
+            for event in (UiEvent::SchedulingAdmin { action }).events() {
+                pending.extend(model.update(event));
+            }
+            settle(&mut model, pending);
+            let ScreenView::SchedulingAdmin { view } = screen_view(&model) else {
+                panic!("not the scheduling administration");
+            };
+            view.page
+        };
+        let failed = |status: &LoadStatus| matches!(status, LoadStatus::Failed { failure, .. } if failure.retryable);
+
+        // The working hours, from the booking pages: the section's own reads land.
+        let hours = |action| A::Hours { action };
+        let P::Hours { view } = run(A::Open {
+            section: SchedulingAdminSection::Hours,
+        }) else {
+            panic!("not the working hours");
+        };
+        assert_eq!(view.status, LoadStatus::Ready);
+        assert_eq!(view.overrides_status, LoadStatus::Ready);
+
+        // The week's editor: its read fails, Try again reads it.
+        let P::Hours { view } = run(hours(H::OpenWeek)) else {
+            panic!("not the working hours");
+        };
+        assert!(failed(&view.week_editor.expect("open").status));
+        let P::Hours { view } = run(hours(H::RetryRead)) else {
+            panic!("not the working hours");
+        };
+        let week = view.week_editor.expect("open");
+        assert_eq!(week.status, LoadStatus::Ready);
+        assert_eq!(week.days.len(), 7);
+        let _ = run(hours(H::CloseDialog));
+
+        // The overrides' editor, the same.
+        let P::Hours { view } = run(hours(H::OpenOverrides)) else {
+            panic!("not the working hours");
+        };
+        assert!(failed(&view.overrides_editor.expect("open").status));
+        let P::Hours { view } = run(hours(H::RetryRead)) else {
+            panic!("not the working hours");
+        };
+        let editor = view.overrides_editor.expect("open");
+        assert_eq!(editor.status, LoadStatus::Ready);
+        assert!(!editor.rows.is_empty());
+        let _ = run(hours(H::CloseDialog));
+
+        // Opening the editors again reads them at once.
+        let P::Hours { view } = run(hours(H::OpenWeek)) else {
+            panic!("not the working hours");
+        };
+        assert_eq!(view.week_editor.expect("open").status, LoadStatus::Ready);
+        let _ = run(hours(H::CloseDialog));
+
+        // An event type's hosts: the page's own read lands, the dialog's fails.
+        let P::EventTypes { view } = run(A::Open {
+            section: SchedulingAdminSection::EventTypes,
+        }) else {
+            panic!("not the event types");
+        };
+        let detail = |action| A::EventType { action };
+        let P::EventType { view } = run(A::OpenEventType {
+            slug: view.rows[0].slug.clone(),
+        }) else {
+            panic!("not an event type");
+        };
+        assert_eq!(view.hosts_status, LoadStatus::Ready);
+        let P::EventType { view } = run(detail(E::OpenHosts)) else {
+            panic!("not an event type");
+        };
+        assert!(failed(&view.hosts_dialog.expect("open").status));
+        let P::EventType { view } = run(detail(E::RetryDialogRead)) else {
+            panic!("not an event type");
+        };
+        let dialog = view.hosts_dialog.expect("open");
+        assert_eq!(dialog.status, LoadStatus::Ready);
+        assert_eq!(dialog.candidates_status, LoadStatus::Ready);
+        assert!(!dialog.hosts.is_empty() && !dialog.candidates.is_empty());
+        let _ = run(detail(E::CloseDialog));
+
+        // A webhook's deliveries: the first read fails, Try again reads them.
+        let _ = run(A::Open {
+            section: SchedulingAdminSection::Developer,
+        });
+        let developer = |action| A::Developer { action };
+        let _ = run(developer(D::SelectTab {
+            tab: DeveloperTabView::Webhooks,
+        }));
+        let P::Developer { view } = run(developer(D::ToggleDeliveries {
+            webhook_id: "wh-contract-1".to_owned(),
+        })) else {
+            panic!("not developer");
+        };
+        assert!(failed(&view.deliveries.expect("open").status));
+        let P::Developer { view } = run(developer(D::RetryDeliveries)) else {
+            panic!("not developer");
+        };
+        let deliveries = view.deliveries.expect("open");
+        assert_eq!(deliveries.status, LoadStatus::Ready);
+        assert_eq!(deliveries.rows.len(), 2);
     }
 
     #[test]

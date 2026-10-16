@@ -9,133 +9,135 @@
     xmlns:vm="using:DistrictAI.ViewModels">
     <Grid>
         <ScrollViewer>
-            <StackPanel
-                MaxWidth="{StaticResource ReadingWidth}"
-                Padding="{StaticResource PagePadding}"
-                HorizontalAlignment="Stretch"
-                Spacing="8">
-                <TextBlock
-                    AutomationProperties.HeadingLevel="Level1"
-                    Style="{StaticResource TitleTextBlockStyle}"
-                    Text="{x:Bind ViewModel.WorkspaceName, Mode=OneWay}"
-                    TextWrapping="Wrap" />
-                <Border
-                    Padding="8,2"
-                    HorizontalAlignment="Left"
-                    Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
-                    CornerRadius="{StaticResource ControlCornerRadius}"
-                    Visibility="{x:Bind ViewModel.HasReadOnlyBadge, Mode=OneWay}">
-                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.ReadOnlyBadge, Mode=OneWay}" />
-                </Border>
-                <views:RefreshStrip x:Name="Refresh" />
-
-                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
-                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.HasFinishSetup, Mode=OneWay}">
-                        <StackPanel Spacing="8">
-                            <TextBlock
-                                AutomationProperties.HeadingLevel="Level2"
-                                Style="{StaticResource SubtitleTextBlockStyle}"
-                                Text="{x:Bind ViewModel.FinishSetupTitle, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                            <TextBlock Text="{x:Bind ViewModel.FinishSetupBody, Mode=OneWay}" TextWrapping="Wrap" />
-                            <Button
-                                AutomationProperties.Name="{x:Bind ViewModel.FinishSetupAction, Mode=OneWay}"
-                                Command="{x:Bind ViewModel.FinishSetupCommand}"
-                                Content="{x:Bind ViewModel.FinishSetupAction, Mode=OneWay}"
-                                Style="{StaticResource AccentButtonStyle}" />
-                        </StackPanel>
+            <views:PageColumn>
+                <StackPanel
+                    MaxWidth="{StaticResource ReadingWidth}"
+                    Padding="{StaticResource PagePadding}"
+                    Spacing="8">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level1"
+                        Style="{StaticResource TitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.WorkspaceName, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <Border
+                        Padding="8,2"
+                        HorizontalAlignment="Left"
+                        Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+                        CornerRadius="{StaticResource ControlCornerRadius}"
+                        Visibility="{x:Bind ViewModel.HasReadOnlyBadge, Mode=OneWay}">
+                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.ReadOnlyBadge, Mode=OneWay}" />
                     </Border>
+                    <views:RefreshStrip x:Name="Refresh" />
 
-                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Metrics}">
-                        <ItemsRepeater.Layout>
-                            <UniformGridLayout
-                                ItemsStretch="Fill"
-                                MinColumnSpacing="8"
-                                MinItemWidth="160"
-                                MinRowSpacing="8" />
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="vm:FactItem">
-                                <Border AutomationProperties.Name="{x:Bind AccessibleName}" Style="{StaticResource CardStyle}">
-                                    <StackPanel Spacing="2">
-                                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind Value}" />
-                                        <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Label}" />
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
+                    <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
+                        <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.HasFinishSetup, Mode=OneWay}">
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    AutomationProperties.HeadingLevel="Level2"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    Text="{x:Bind ViewModel.FinishSetupTitle, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                                <TextBlock Text="{x:Bind ViewModel.FinishSetupBody, Mode=OneWay}" TextWrapping="Wrap" />
+                                <Button
+                                    AutomationProperties.Name="{x:Bind ViewModel.FinishSetupAction, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.FinishSetupCommand}"
+                                    Content="{x:Bind ViewModel.FinishSetupAction, Mode=OneWay}"
+                                    Style="{StaticResource AccentButtonStyle}" />
+                            </StackPanel>
+                        </Border>
 
-                    <TextBlock
-                        AutomationProperties.HeadingLevel="Level2"
-                        Style="{StaticResource SectionHeaderStyle}"
-                        Text="{x:Bind l10n:S.OverviewRecentCalls}" />
-                    <TextBlock
-                        Style="{StaticResource QuietTextStyle}"
-                        Text="{x:Bind ViewModel.RecentCallsEmpty, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.NoRecentCalls, Mode=OneWay}" />
-                    <ListView
-                        AutomationProperties.Name="{x:Bind l10n:S.OverviewRecentCalls}"
-                        IsItemClickEnabled="True"
-                        ItemClick="OnCallClick"
-                        ItemsSource="{x:Bind ViewModel.RecentCalls}"
-                        SelectionMode="None">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="vm:CallRowItem">
-                                <Grid
-                                    Padding="0,8"
-                                    AutomationProperties.Name="{x:Bind AccessibleName}"
-                                    ColumnSpacing="12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Spacing="2">
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Metrics}">
+                            <ItemsRepeater.Layout>
+                                <!-- Every card measured, each row as tall as its tallest: a label on two lines at 200 percent keeps both. -->
+                                <views:CardGridLayout
+                                    ColumnSpacing="8"
+                                    MinItemWidth="160"
+                                    RowSpacing="8" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FactItem">
+                                    <Border AutomationProperties.Name="{x:Bind AccessibleName}" Style="{StaticResource CardStyle}">
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind Value}" />
+                                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Label}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="{x:Bind l10n:S.OverviewRecentCalls}" />
+                        <TextBlock
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind ViewModel.RecentCallsEmpty, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.NoRecentCalls, Mode=OneWay}" />
+                        <ListView
+                            AutomationProperties.Name="{x:Bind l10n:S.OverviewRecentCalls}"
+                            IsItemClickEnabled="True"
+                            ItemClick="OnCallClick"
+                            ItemsSource="{x:Bind ViewModel.RecentCalls}"
+                            SelectionMode="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CallRowItem">
+                                    <Grid
+                                        Padding="0,8"
+                                        AutomationProperties.Name="{x:Bind AccessibleName}"
+                                        ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="2">
+                                            <TextBlock
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                Text="{x:Bind Title}"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <TextBlock
+                                                Style="{StaticResource QuietTextStyle}"
+                                                Text="{x:Bind Detail}"
+                                                TextWrapping="NoWrap"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <TextBlock
+                                                MaxLines="2"
+                                                Text="{x:Bind Summary}"
+                                                TextWrapping="Wrap"
+                                                TextTrimming="CharacterEllipsis"
+                                                Visibility="{x:Bind HasSummary}" />
+                                        </StackPanel>
                                         <TextBlock
-                                            Style="{StaticResource BodyStrongTextBlockStyle}"
-                                            Text="{x:Bind Title}"
-                                            TextTrimming="CharacterEllipsis" />
-                                        <TextBlock
+                                            Grid.Column="1"
                                             Style="{StaticResource QuietTextStyle}"
-                                            Text="{x:Bind Detail}"
-                                            TextWrapping="NoWrap"
-                                            TextTrimming="CharacterEllipsis" />
-                                        <TextBlock
-                                            MaxLines="2"
-                                            Text="{x:Bind Summary}"
-                                            TextWrapping="Wrap"
-                                            TextTrimming="CharacterEllipsis"
-                                            Visibility="{x:Bind HasSummary}" />
-                                    </StackPanel>
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Style="{StaticResource QuietTextStyle}"
-                                        Text="{x:Bind When}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                            Text="{x:Bind When}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </views:PageColumn>
         </ScrollViewer>
         <views:StatusPanel x:Name="Status" Visibility="{x:Bind ViewModel.StatusShown, Mode=OneWay}" />
 
         <!--  An account with no workspace yet: the status page's words, and the plans, since checkout makes the first workspace.  -->
         <ScrollViewer Visibility="{x:Bind ViewModel.OffersPlans, Mode=OneWay}">
-            <StackPanel
-                MaxWidth="{StaticResource ReadingWidth}"
-                Padding="{StaticResource PagePadding}"
-                HorizontalAlignment="Stretch"
-                Spacing="12">
-                <TextBlock
-                    AutomationProperties.HeadingLevel="Level1"
-                    Style="{StaticResource TitleTextBlockStyle}"
-                    AutomationProperties.AutomationId="FailureTitle"
-                    Text="{x:Bind ViewModel.Load.FailureTitle, Mode=OneWay}"
-                    TextWrapping="Wrap" />
-                <TextBlock Text="{x:Bind ViewModel.Load.FailureMessage, Mode=OneWay}" TextWrapping="Wrap" />
-                <billing:PlanChooser x:Name="Chooser" />
-            </StackPanel>
+            <views:PageColumn>
+                <StackPanel
+                    MaxWidth="{StaticResource ReadingWidth}"
+                    Padding="{StaticResource PagePadding}"
+                    Spacing="12">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level1"
+                        Style="{StaticResource TitleTextBlockStyle}"
+                        AutomationProperties.AutomationId="FailureTitle"
+                        Text="{x:Bind ViewModel.Load.FailureTitle, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.Load.FailureMessage, Mode=OneWay}" TextWrapping="Wrap" />
+                    <billing:PlanChooser x:Name="Chooser" />
+                </StackPanel>
+            </views:PageColumn>
         </ScrollViewer>
     </Grid>
 </UserControl>

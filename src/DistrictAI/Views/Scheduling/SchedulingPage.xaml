@@ -19,115 +19,116 @@
         <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
 
         <ScrollViewer Grid.Row="2" Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}">
-            <StackPanel
-                MaxWidth="{StaticResource ReadingWidth}"
-                HorizontalAlignment="Left"
-                Spacing="12">
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel Spacing="12">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <FontIcon
-                                VerticalAlignment="Top"
-                                AutomationProperties.AccessibilityView="Raw"
-                                Glyph="{x:Bind ViewModel.StateGlyph, Mode=OneWay}" />
-                            <TextBlock
-                                MaxWidth="640"
-                                Text="{x:Bind ViewModel.Message, Mode=OneWay}"
-                                TextWrapping="Wrap" />
+            <views:PageColumn>
+                <StackPanel
+                    MaxWidth="{StaticResource ReadingWidth}"
+                    Spacing="12">
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="12">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <FontIcon
+                                    VerticalAlignment="Top"
+                                    AutomationProperties.AccessibilityView="Raw"
+                                    Glyph="{x:Bind ViewModel.StateGlyph, Mode=OneWay}" />
+                                <TextBlock
+                                    MaxWidth="640"
+                                    Text="{x:Bind ViewModel.Message, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasBookingUrl, Mode=OneWay}">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.SchedulingBookingPage}" />
+                                <TextBlock
+                                    AutomationProperties.Name="{x:Bind l10n:S.SchedulingBookingPage}"
+                                    IsTextSelectionEnabled="True"
+                                    Text="{x:Bind ViewModel.BookingUrl, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasLastLive, Mode=OneWay}">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.SchedulingLastLive}" />
+                                <TextBlock AutomationProperties.Name="{x:Bind l10n:S.SchedulingLastLive}" Text="{x:Bind ViewModel.LastLive, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasProblem, Mode=OneWay}">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.SchedulingWhatWentWrong}" />
+                                <TextBlock
+                                    AutomationProperties.Name="{x:Bind l10n:S.SchedulingWhatWentWrong}"
+                                    IsTextSelectionEnabled="True"
+                                    Text="{x:Bind ViewModel.Problem, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
                         </StackPanel>
-                        <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasBookingUrl, Mode=OneWay}">
-                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.SchedulingBookingPage}" />
-                            <TextBlock
-                                AutomationProperties.Name="{x:Bind l10n:S.SchedulingBookingPage}"
-                                IsTextSelectionEnabled="True"
-                                Text="{x:Bind ViewModel.BookingUrl, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                        </StackPanel>
-                        <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasLastLive, Mode=OneWay}">
-                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.SchedulingLastLive}" />
-                            <TextBlock AutomationProperties.Name="{x:Bind l10n:S.SchedulingLastLive}" Text="{x:Bind ViewModel.LastLive, Mode=OneWay}" />
-                        </StackPanel>
-                        <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasProblem, Mode=OneWay}">
-                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind l10n:S.SchedulingWhatWentWrong}" />
-                            <TextBlock
-                                AutomationProperties.Name="{x:Bind l10n:S.SchedulingWhatWentWrong}"
-                                IsTextSelectionEnabled="True"
-                                Text="{x:Bind ViewModel.Problem, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                        </StackPanel>
+                    </Border>
+
+                    <InfoBar
+                        AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+                        CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
+                        IsClosable="True"
+                        IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+                        Severity="Warning" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            AutomationProperties.Name="{x:Bind l10n:S.SchedulingTurnOn}"
+                            Command="{x:Bind ViewModel.EnableCommand}"
+                            Content="{x:Bind l10n:S.SchedulingTurnOn}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Visibility="{x:Bind ViewModel.OffersEnable, Mode=OneWay}" />
+                        <Button
+                            AutomationProperties.Name="{x:Bind l10n:S.SchedulingCheckAgain}"
+                            Command="{x:Bind ViewModel.CheckAgainCommand}"
+                            Content="{x:Bind l10n:S.SchedulingCheckAgain}"
+                            Visibility="{x:Bind ViewModel.OffersCheck, Mode=OneWay}" />
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+                            IsActive="{x:Bind ViewModel.Busy, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.Busy, Mode=OneWay}" />
                     </StackPanel>
-                </Border>
 
-                <InfoBar
-                    AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
-                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand}"
-                    IsClosable="True"
-                    IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
-                    Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
-                    Severity="Warning" />
-
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <Button
-                        AutomationProperties.Name="{x:Bind l10n:S.SchedulingTurnOn}"
-                        Command="{x:Bind ViewModel.EnableCommand}"
-                        Content="{x:Bind l10n:S.SchedulingTurnOn}"
-                        Style="{StaticResource AccentButtonStyle}"
-                        Visibility="{x:Bind ViewModel.OffersEnable, Mode=OneWay}" />
-                    <Button
-                        AutomationProperties.Name="{x:Bind l10n:S.SchedulingCheckAgain}"
-                        Command="{x:Bind ViewModel.CheckAgainCommand}"
-                        Content="{x:Bind l10n:S.SchedulingCheckAgain}"
-                        Visibility="{x:Bind ViewModel.OffersCheck, Mode=OneWay}" />
-                    <ProgressRing
-                        Width="20"
-                        Height="20"
-                        AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
-                        IsActive="{x:Bind ViewModel.Busy, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.Busy, Mode=OneWay}" />
+                    <!-- The administration's sections built natively, once the booking pages are live. -->
+                    <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasSections, Mode=OneWay}">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource SectionHeaderStyle}"
+                            Text="{x:Bind ViewModel.SectionsHeading, Mode=OneWay}" />
+                        <ListView
+                            AutomationProperties.AutomationId="SchedulingSectionList"
+                            AutomationProperties.Name="{x:Bind ViewModel.SectionsHeading, Mode=OneWay}"
+                            IsItemClickEnabled="True"
+                            ItemClick="OnSectionClick"
+                            ItemsSource="{x:Bind ViewModel.Sections}"
+                            SelectionMode="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="sched:SchedulingSectionEntry">
+                                    <Grid
+                                        Padding="0,8"
+                                        AutomationProperties.Name="{x:Bind AccessibleName}"
+                                        ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="2">
+                                            <TextBlock
+                                                AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                Text="{x:Bind Title}" />
+                                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Subtitle}" />
+                                        </StackPanel>
+                                        <FontIcon
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            AutomationProperties.AccessibilityView="Raw"
+                                            FontSize="12"
+                                            Glyph="&#xE76C;" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
                 </StackPanel>
-
-                <!-- The administration's sections built natively, once the booking pages are live. -->
-                <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasSections, Mode=OneWay}">
-                    <TextBlock
-                        AutomationProperties.HeadingLevel="Level2"
-                        Style="{StaticResource SectionHeaderStyle}"
-                        Text="{x:Bind ViewModel.SectionsHeading, Mode=OneWay}" />
-                    <ListView
-                        AutomationProperties.AutomationId="SchedulingSectionList"
-                        AutomationProperties.Name="{x:Bind ViewModel.SectionsHeading, Mode=OneWay}"
-                        IsItemClickEnabled="True"
-                        ItemClick="OnSectionClick"
-                        ItemsSource="{x:Bind ViewModel.Sections}"
-                        SelectionMode="None">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="sched:SchedulingSectionEntry">
-                                <Grid
-                                    Padding="0,8"
-                                    AutomationProperties.Name="{x:Bind AccessibleName}"
-                                    ColumnSpacing="12">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Spacing="2">
-                                        <TextBlock
-                                            AutomationProperties.AutomationId="{x:Bind AutomationId}"
-                                            Style="{StaticResource BodyStrongTextBlockStyle}"
-                                            Text="{x:Bind Title}" />
-                                        <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Subtitle}" />
-                                    </StackPanel>
-                                    <FontIcon
-                                        Grid.Column="1"
-                                        VerticalAlignment="Center"
-                                        AutomationProperties.AccessibilityView="Raw"
-                                        FontSize="12"
-                                        Glyph="&#xE76C;" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </StackPanel>
-            </StackPanel>
+            </views:PageColumn>
         </ScrollViewer>
         <views:StatusPanel x:Name="Status" Grid.Row="2" />
     </Grid>

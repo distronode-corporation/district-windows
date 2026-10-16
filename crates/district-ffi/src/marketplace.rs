@@ -12,7 +12,7 @@
 use district_core::{
     Capabilities, Event, MarketplaceEvent, MarketplaceScreen, MarketplaceTab, Model, NumberAdmin,
     NumberSearchForm, NumberSearchState, OwnedNumbersList, Route, SignedIn, format_phone_number,
-    numbers_scope_note, price_label,
+    numbers_scope_note,
 };
 use district_l10n::{Locale, WireCategory};
 use district_model::{AvailableNumber, OwnedNumber};
@@ -368,9 +368,17 @@ fn line(parts: &[Option<String>], separator: &str) -> String {
         .join(separator)
 }
 
-/// What the carrier charges a month, as quoted.
+/// What the carrier charges a month, as money is written everywhere else in
+/// the app (the core's `format::price`, as Billing's prices): two decimals,
+/// in the currency the carrier named (`$1.15`, `1,15 $ US`, `€2.50`), or, when
+/// it named none, as a dollar amount (`$1.15`, `1,15 $`). `None` when it quoted
+/// no price: a missing price is not zero.
 fn monthly(amount: Option<f64>, currency: Option<&str>) -> Option<String> {
-    price_label(amount, currency).map(|amount| s::marketplace_monthly(l(), &amount))
+    // A monthly price in major units; the service quotes it to the cent.
+    let cents = (amount? * 100.0).round() as i64;
+    let currency = currency.map(str::trim).filter(|code| !code.is_empty());
+    let price = district_l10n::format::price(l(), cents, currency);
+    Some(s::marketplace_monthly(l(), &price))
 }
 
 fn owned_row(number: &OwnedNumber, admin: &NumberAdmin, can_change: bool) -> NumberRowView {
@@ -428,10 +436,38 @@ mod tests {
             "Texto, Voix, MMS"
         );
         assert_eq!(monthly(None, Some("USD")), None);
+        let both = |amount: f64, currency: Option<&str>| {
+            (
+                monthly(Some(amount), currency).unwrap(),
+                district_l10n::with_locale(Locale::FrCa, || {
+                    monthly(Some(amount), currency).unwrap()
+                }),
+            )
+        };
+        // Two decimals always, in the currency the carrier named.
         assert_eq!(
-            monthly(Some(1.15), Some("USD")).as_deref(),
-            Some("1.15 USD a month")
+            both(1.15, Some("USD")),
+            (
+                "$1.15 a month".to_owned(),
+                "1,15\u{a0}$\u{a0}US par mois".to_owned()
+            )
         );
+        assert_eq!(
+            both(2.5, Some(" eur ")),
+            (
+                "\u{20ac}2.50 a month".to_owned(),
+                "2,50\u{a0}\u{20ac} par mois".to_owned()
+            )
+        );
+        // A held number's price names no currency: the dollar, as Billing.
+        assert_eq!(
+            both(2.5, None),
+            (
+                "$2.50 a month".to_owned(),
+                "2,50\u{a0}$ par mois".to_owned()
+            )
+        );
+        assert_eq!(both(1.0, Some("")).0, "$1.00 a month");
         for tab in [NumbersTab::Owned, NumbersTab::Search, NumbersTab::Carrier] {
             assert_eq!(NumbersTab::from(MarketplaceTab::from(tab)), tab);
         }

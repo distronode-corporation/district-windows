@@ -9,9 +9,25 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Every signed-in page: its padding and the widest its text runs. -->
+            <!--
+                Every signed-in page has one frame, as Windows Settings draws its
+                pages: content anchored to the left edge, inside PagePadding, the
+                level-one heading at its top left, so the heading never moves
+                between pages. A list (calls, contacts, conversations) takes the
+                width it is given; a page of text, cards or a form is held to
+                ReadingWidth, still on the left (HorizontalAlignment="Left"),
+                never centred in the window.
+            -->
             <Thickness x:Key="PagePadding">24,16,24,16</Thickness>
             <x:Double x:Key="ReadingWidth">760</x:Double>
+
+            <!-- A button label that wraps instead of being cut (DialogButtons). -->
+            <DataTemplate x:Key="WrappingLabelTemplate">
+                <TextBlock
+                    Text="{Binding}"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap" />
+            </DataTemplate>
 
             <!-- A line that says something about the page without competing with it. -->
             <Style

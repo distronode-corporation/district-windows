@@ -319,7 +319,8 @@ pub struct EventTypeHostsView {
     /// Its title, the save (offered once the hosts are read), the way out and
     /// why the save failed.
     pub dialog: DialogView,
-    /// Where the read of the hosts stands.
+    /// Where the read of the hosts stands; a failed one offers "Try again"
+    /// (`EventTypeAction::RetryDialogRead`).
     pub status: LoadStatus,
     /// "Routing".
     pub routing_label: String,
@@ -348,6 +349,10 @@ pub struct EventTypeHostsView {
     /// The scheduler's users who could be added: not hosts already, not
     /// archived; none when they could not be read.
     pub candidates: Vec<ChoiceRowView>,
+    /// Where the read of those users stands, which follows the hosts' own; a
+    /// failed one leaves the hosts editable, with nobody to add, and offers
+    /// "Try again" (`EventTypeAction::RetryDialogRead`).
+    pub candidates_status: LoadStatus,
     /// Why the hosts cannot be saved, before anything was sent.
     pub validation: Option<String>,
 }
@@ -587,6 +592,9 @@ pub enum EventTypeAction {
     },
     /// Save the hosts.
     SaveHosts,
+    /// "Try again" in the hosts dialog: read its hosts again after that read
+    /// failed, else the users who could be added after theirs did.
+    RetryDialogRead,
     /// Open the questions.
     OpenQuestions,
     /// Start a new question, placed last.
@@ -666,6 +674,7 @@ pub(crate) fn detail_events(action: EventTypeAction) -> Vec<Event> {
         A::SetHostRole { user_id, role } => E::SetHostRole { user_id, role },
         A::SetHostPriority { user_id, priority } => E::SetHostPriority { user_id, priority },
         A::SaveHosts => E::SaveHosts,
+        A::RetryDialogRead => E::RetryDialogRead,
         A::OpenQuestions => E::OpenQuestions,
         A::AddQuestion => E::AddQuestion,
         A::EditQuestion { id } => E::EditQuestion(id),
@@ -1059,6 +1068,7 @@ fn hosts_view(hosts: &HostsDialog) -> EventTypeHostsView {
                 selected: false,
             })
             .collect(),
+        candidates_status: load_status(&hosts.candidates_load),
         validation: hosts.validation.map(str::to_owned),
     }
 }

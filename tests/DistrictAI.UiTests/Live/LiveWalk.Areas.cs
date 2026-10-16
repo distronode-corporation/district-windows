@@ -133,7 +133,15 @@ internal sealed partial class LiveWalk
     private Outcome Numbers(Check check)
     {
         _ = Ui.Go(App, "Phone numbers", "Phone numbers");
-        Ui.Find(App, ControlType.RadioButton, "Find a number").Patterns.SelectionItem.Pattern.Select();
+        var find = App.FindById("NumbersFindTab", Ui.Step);
+        if (find.Patterns.SelectionItem.PatternOrDefault is { } tab)
+        {
+            tab.Select();
+        }
+        else
+        {
+            find.Click();
+        }
         Ui.Type(App, "Country code", "CA");
         Ui.Type(App, "Area code", "416");
         Ui.Press(App, "Search for numbers");

@@ -49,6 +49,7 @@
               "hosts_dialog": {
                 "add_label": "Add",
                 "candidates": [],
+                "candidates_status": "Loading",
                 "dialog": {
                   "body": "",
                   "can_confirm": false,

@@ -8,114 +8,115 @@
     xmlns:vm="using:DistrictAI.ViewModels">
     <Grid>
         <ScrollViewer AutomationProperties.AutomationId="SchedulingHours">
-            <StackPanel
-                MaxWidth="{StaticResource ReadingWidth}"
-                HorizontalAlignment="Left"
-                Spacing="12">
-                <!-- The two editors, for a member who may change things, whatever the reads below came to: each reads for itself. -->
+            <views:PageColumn>
                 <StackPanel
-                    Orientation="Horizontal"
-                    Spacing="8"
-                    Visibility="{x:Bind ViewModel.OffersWrites, Mode=OneWay}">
-                    <Button
-                        AutomationProperties.AutomationId="HoursWeekButton"
-                        AutomationProperties.Name="{x:Bind ViewModel.WeekLabel, Mode=OneWay}"
-                        Command="{x:Bind ViewModel.OpenWeekCommand, Mode=OneWay}"
-                        Content="{x:Bind ViewModel.WeekLabel, Mode=OneWay}"
-                        Style="{StaticResource AccentButtonStyle}" />
-                    <Button
-                        AutomationProperties.AutomationId="HoursOverridesButton"
-                        AutomationProperties.Name="{x:Bind ViewModel.OverridesLabel, Mode=OneWay}"
-                        Command="{x:Bind ViewModel.OpenOverridesCommand, Mode=OneWay}"
-                        Content="{x:Bind ViewModel.OverridesLabel, Mode=OneWay}" />
+                    MaxWidth="{StaticResource ReadingWidth}"
+                    Spacing="12">
+                    <!-- The two editors, for a member who may change things, whatever the reads below came to: each reads for itself. -->
+                    <views:WrapPanel
+                        HorizontalSpacing="8"
+                        VerticalSpacing="8"
+                        Visibility="{x:Bind ViewModel.OffersWrites, Mode=OneWay}">
+                        <Button
+                            AutomationProperties.AutomationId="HoursWeekButton"
+                            AutomationProperties.Name="{x:Bind ViewModel.WeekLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenWeekCommand, Mode=OneWay}"
+                            Content="{x:Bind ViewModel.WeekLabel, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <Button
+                            AutomationProperties.AutomationId="HoursOverridesButton"
+                            AutomationProperties.Name="{x:Bind ViewModel.OverridesLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenOverridesCommand, Mode=OneWay}"
+                            Content="{x:Bind ViewModel.OverridesLabel, Mode=OneWay}" />
+                    </views:WrapPanel>
+
+                    <!-- The week: every day, Monday first, an empty one too, so a day that is not bookable is never mistaken for one that did not load. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.WeekHeading, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingHoursSummary"
+                                Text="{x:Bind ViewModel.Summary, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingHoursTimesIn"
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.TimesIn, Mode=OneWay}" />
+                            <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
+                            <ItemsRepeater
+                                AutomationProperties.AutomationId="SchedulingHoursWeek"
+                                AutomationProperties.Name="{x:Bind ViewModel.WeekHeading, Mode=OneWay}"
+                                ItemsSource="{x:Bind ViewModel.Week}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="8" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FactItem">
+                                        <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
+                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
+                                            <TextBlock Text="{x:Bind Value}" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- The dated overrides still to come, a run of days as one row: read on their own, and failing alone. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.OverridesHeading, Mode=OneWay}" />
+                            <TextBlock
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.OverridesSubtitle, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                            <ProgressRing
+                                Width="20"
+                                Height="20"
+                                HorizontalAlignment="Left"
+                                AutomationProperties.AutomationId="SchedulingHoursOverridesLoading"
+                                AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+                                IsActive="{x:Bind ViewModel.OverridesLoading, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.OverridesLoading, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingHoursOverridesFailure"
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Text="{x:Bind ViewModel.OverridesFailure, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.HasOverridesFailure, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingHoursNoOverrides"
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.NoOverrides, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.ShowNoOverrides, Mode=OneWay}" />
+                            <ItemsRepeater
+                                AutomationProperties.AutomationId="SchedulingHoursOverrides"
+                                AutomationProperties.Name="{x:Bind ViewModel.OverridesHeading, Mode=OneWay}"
+                                ItemsSource="{x:Bind ViewModel.Overrides}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="8" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FactItem">
+                                        <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
+                                            <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
+                                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Value}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-
-                <!-- The week: every day, Monday first, an empty one too, so a day that is not bookable is never mistaken for one that did not load. -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            AutomationProperties.HeadingLevel="Level2"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Text="{x:Bind ViewModel.WeekHeading, Mode=OneWay}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingHoursSummary"
-                            Text="{x:Bind ViewModel.Summary, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.Load.Ready, Mode=OneWay}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingHoursTimesIn"
-                            Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.TimesIn, Mode=OneWay}" />
-                        <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
-                        <ItemsRepeater
-                            AutomationProperties.AutomationId="SchedulingHoursWeek"
-                            AutomationProperties.Name="{x:Bind ViewModel.WeekHeading, Mode=OneWay}"
-                            ItemsSource="{x:Bind ViewModel.Week}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="vm:FactItem">
-                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
-                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
-                                        <TextBlock Text="{x:Bind Value}" TextWrapping="Wrap" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </StackPanel>
-                </Border>
-
-                <!-- The dated overrides still to come, a run of days as one row: read on their own, and failing alone. -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            AutomationProperties.HeadingLevel="Level2"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Text="{x:Bind ViewModel.OverridesHeading, Mode=OneWay}" />
-                        <TextBlock
-                            Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.OverridesSubtitle, Mode=OneWay}"
-                            TextWrapping="Wrap" />
-                        <ProgressRing
-                            Width="20"
-                            Height="20"
-                            HorizontalAlignment="Left"
-                            AutomationProperties.AutomationId="SchedulingHoursOverridesLoading"
-                            AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
-                            IsActive="{x:Bind ViewModel.OverridesLoading, Mode=OneWay}"
-                            Visibility="{x:Bind ViewModel.OverridesLoading, Mode=OneWay}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingHoursOverridesFailure"
-                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                            Text="{x:Bind ViewModel.OverridesFailure, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.HasOverridesFailure, Mode=OneWay}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingHoursNoOverrides"
-                            Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.NoOverrides, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.ShowNoOverrides, Mode=OneWay}" />
-                        <ItemsRepeater
-                            AutomationProperties.AutomationId="SchedulingHoursOverrides"
-                            AutomationProperties.Name="{x:Bind ViewModel.OverridesHeading, Mode=OneWay}"
-                            ItemsSource="{x:Bind ViewModel.Overrides}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="vm:FactItem">
-                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
-                                        <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
-                                        <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Value}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+            </views:PageColumn>
         </ScrollViewer>
     </Grid>
 </UserControl>

@@ -3,220 +3,86 @@
     x:Class="DistrictAI.Views.Scheduling.SchedulingDeveloperPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:DistrictAI.Views"
     xmlns:l10n="using:DistrictAI.L10n"
     xmlns:sched="using:DistrictAI.ViewModels.Scheduling">
     <Grid>
         <ScrollViewer AutomationProperties.AutomationId="SchedulingDeveloper">
-            <StackPanel
-                MaxWidth="{StaticResource ReadingWidth}"
-                HorizontalAlignment="Left"
-                Spacing="12">
-                <TextBlock
-                    AutomationProperties.AutomationId="SchedulingDeveloperTimesIn"
-                    Style="{StaticResource QuietTextStyle}"
-                    Text="{x:Bind ViewModel.TimesIn, Mode=OneWay}" />
-                <RadioButtons
-                    x:Name="TabChooser"
-                    AutomationProperties.AutomationId="DeveloperTabs"
-                    AutomationProperties.Name="{x:Bind l10n:S.SchedulingDeveloperTabs}"
-                    ItemsSource="{x:Bind ViewModel.Tabs}"
-                    MaxColumns="3"
-                    SelectedIndex="{x:Bind ViewModel.SelectedTab, Mode=OneWay}"
-                    SelectionChanged="OnTabChanged">
-                    <RadioButtons.ItemTemplate>
-                        <DataTemplate x:DataType="sched:DeveloperTabEntry">
-                            <RadioButton
-                                AutomationProperties.AutomationId="{x:Bind AutomationId}"
-                                AutomationProperties.Name="{x:Bind Label}"
-                                Content="{x:Bind Label}" />
-                        </DataTemplate>
-                    </RadioButtons.ItemTemplate>
-                </RadioButtons>
+            <views:PageColumn>
+                <StackPanel
+                    MaxWidth="{StaticResource ReadingWidth}"
+                    Spacing="12">
+                    <TextBlock
+                        AutomationProperties.AutomationId="SchedulingDeveloperTimesIn"
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.TimesIn, Mode=OneWay}" />
+                    <views:TabStrip
+                        x:Name="TabChooser"
+                        AutomationProperties.AutomationId="DeveloperTabs"
+                        AutomationProperties.Name="{x:Bind l10n:S.SchedulingDeveloperTabs}"
+                        ItemsSource="{x:Bind ViewModel.Tabs}"
+                        SelectedIndex="{x:Bind ViewModel.SelectedTab, Mode=OneWay}" />
 
-                <!-- Why the last revoke or delete failed; the next one asked puts it away. -->
-                <InfoBar
-                    AutomationProperties.AutomationId="DeveloperRemovalFailure"
-                    AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
-                    IsClosable="False"
-                    IsOpen="{x:Bind ViewModel.HasRemovalFailure, Mode=OneWay}"
-                    Message="{x:Bind ViewModel.RemovalFailure, Mode=OneWay}"
-                    Severity="Error" />
-                <ProgressRing
-                    Width="20"
-                    Height="20"
-                    HorizontalAlignment="Left"
-                    AutomationProperties.AutomationId="DeveloperRemoving"
-                    AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
-                    IsActive="{x:Bind ViewModel.Removing, Mode=OneWay}"
-                    Visibility="{x:Bind ViewModel.Removing, Mode=OneWay}" />
+                    <!-- Why the last revoke or delete failed; the next one asked puts it away. -->
+                    <InfoBar
+                        AutomationProperties.AutomationId="DeveloperRemovalFailure"
+                        AutomationProperties.Name="{x:Bind l10n:S.SchedulingProblem}"
+                        IsClosable="False"
+                        IsOpen="{x:Bind ViewModel.HasRemovalFailure, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.RemovalFailure, Mode=OneWay}"
+                        Severity="Error" />
+                    <ProgressRing
+                        Width="20"
+                        Height="20"
+                        HorizontalAlignment="Left"
+                        AutomationProperties.AutomationId="DeveloperRemoving"
+                        AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+                        IsActive="{x:Bind ViewModel.Removing, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Removing, Mode=OneWay}" />
 
-                <!-- API keys: never the key itself, which is shown once, when made. -->
-                <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.ShowsKeys, Mode=OneWay}">
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            AutomationProperties.HeadingLevel="Level2"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Text="{x:Bind ViewModel.KeysHeading, Mode=OneWay}" />
-                        <TextBlock
-                            Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.KeysSubtitle, Mode=OneWay}"
-                            TextWrapping="Wrap" />
-                        <ProgressRing
-                            Width="20"
-                            Height="20"
-                            HorizontalAlignment="Left"
-                            AutomationProperties.AutomationId="DeveloperKeysLoading"
-                            AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
-                            IsActive="{x:Bind ViewModel.KeysLoad.Loading, Mode=OneWay}"
-                            Visibility="{x:Bind ViewModel.KeysLoad.Loading, Mode=OneWay}" />
-                        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.KeysLoad.Failed, Mode=OneWay}">
-                            <TextBlock
-                                AutomationProperties.AutomationId="DeveloperKeysFailure"
-                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                Text="{x:Bind ViewModel.KeysLoad.FailureMessage, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                            <Button
-                                AutomationProperties.AutomationId="DeveloperKeysRetry"
-                                AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
-                                Command="{x:Bind ViewModel.KeysLoad.RetryCommand, Mode=OneWay}"
-                                Content="{x:Bind l10n:S.CommonTryAgain}"
-                                Visibility="{x:Bind ViewModel.KeysLoad.CanRetry, Mode=OneWay}" />
-                        </StackPanel>
-                        <TextBlock
-                            AutomationProperties.AutomationId="DeveloperKeysEmpty"
-                            Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.KeysEmpty, Mode=OneWay}"
-                            Visibility="{x:Bind ViewModel.ShowKeysEmpty, Mode=OneWay}" />
-                        <ItemsRepeater AutomationProperties.AutomationId="DeveloperKeys" ItemsSource="{x:Bind ViewModel.Keys}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="sched:ApiKeyEntry">
-                                    <Grid
-                                        AutomationProperties.AutomationId="{x:Bind AutomationId}"
-                                        AutomationProperties.Name="{x:Bind AccessibleName}"
-                                        ColumnSpacing="12">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Spacing="2">
-                                            <TextBlock
-                                                Style="{StaticResource BodyStrongTextBlockStyle}"
-                                                Text="{x:Bind Name}"
-                                                TextWrapping="Wrap" />
-                                            <TextBlock
-                                                Style="{StaticResource QuietTextStyle}"
-                                                Text="{x:Bind Line}"
-                                                TextWrapping="Wrap" />
-                                        </StackPanel>
-                                        <Button
-                                            Grid.Column="1"
-                                            VerticalAlignment="Center"
-                                            AutomationProperties.AutomationId="DeveloperKeyRevoke"
-                                            AutomationProperties.Name="{x:Bind RevokeName}"
-                                            Click="OnRevokeKeyClick"
-                                            Content="{x:Bind RevokeLabel}"
-                                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                            IsEnabled="{x:Bind CanRevoke}"
-                                            Tag="{x:Bind Id}"
-                                            Visibility="{x:Bind OffersRevoke}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                        <Button
-                            AutomationProperties.AutomationId="DeveloperCreateKey"
-                            AutomationProperties.Name="{x:Bind ViewModel.CreateKeyLabel, Mode=OneWay}"
-                            Command="{x:Bind ViewModel.OpenCreateKeyCommand, Mode=OneWay}"
-                            Content="{x:Bind ViewModel.CreateKeyLabel, Mode=OneWay}"
-                            Style="{StaticResource AccentButtonStyle}"
-                            Visibility="{x:Bind ViewModel.ShowsCreateKey, Mode=OneWay}" />
-                    </StackPanel>
-                </Border>
-
-                <!-- Connected apps, beside the address an AI assistant reaches the bookings at. -->
-                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.ShowsApps, Mode=OneWay}">
-                    <Border Style="{StaticResource CardStyle}">
+                    <!-- API keys: never the key itself, which is shown once, when made. -->
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.ShowsKeys, Mode=OneWay}">
                         <StackPanel Spacing="8">
                             <TextBlock
                                 AutomationProperties.HeadingLevel="Level2"
                                 Style="{StaticResource SectionHeaderStyle}"
-                                Text="{x:Bind ViewModel.McpHeading, Mode=OneWay}" />
-                            <TextBlock
-                                AutomationProperties.AutomationId="DeveloperMcpNoHost"
-                                Style="{StaticResource QuietTextStyle}"
-                                Text="{x:Bind ViewModel.McpNoHost, Mode=OneWay}"
-                                TextWrapping="Wrap"
-                                Visibility="{x:Bind ViewModel.NoMcp, Mode=OneWay}" />
-                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasMcp, Mode=OneWay}">
-                                <StackPanel Spacing="2">
-                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.McpUrlLabel, Mode=OneWay}" />
-                                    <TextBlock
-                                        AutomationProperties.AutomationId="DeveloperMcpUrl"
-                                        IsTextSelectionEnabled="True"
-                                        Text="{x:Bind ViewModel.McpUrl, Mode=OneWay}"
-                                        TextWrapping="Wrap" />
-                                </StackPanel>
-                                <StackPanel Spacing="2">
-                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.McpAuthLabel, Mode=OneWay}" />
-                                    <TextBlock
-                                        AutomationProperties.AutomationId="DeveloperMcpAuth"
-                                        FontFamily="Consolas"
-                                        IsTextSelectionEnabled="True"
-                                        Text="{x:Bind ViewModel.McpAuth, Mode=OneWay}"
-                                        TextWrapping="Wrap" />
-                                </StackPanel>
-                            </StackPanel>
+                                Text="{x:Bind ViewModel.KeysHeading, Mode=OneWay}" />
                             <TextBlock
                                 Style="{StaticResource QuietTextStyle}"
-                                Text="{x:Bind ViewModel.McpNote, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel Spacing="8">
-                            <TextBlock
-                                AutomationProperties.HeadingLevel="Level2"
-                                Style="{StaticResource SectionHeaderStyle}"
-                                Text="{x:Bind ViewModel.AppsHeading, Mode=OneWay}" />
-                            <TextBlock
-                                Style="{StaticResource QuietTextStyle}"
-                                Text="{x:Bind ViewModel.AppsSubtitle, Mode=OneWay}"
+                                Text="{x:Bind ViewModel.KeysSubtitle, Mode=OneWay}"
                                 TextWrapping="Wrap" />
                             <ProgressRing
                                 Width="20"
                                 Height="20"
                                 HorizontalAlignment="Left"
-                                AutomationProperties.AutomationId="DeveloperAppsLoading"
+                                AutomationProperties.AutomationId="DeveloperKeysLoading"
                                 AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
-                                IsActive="{x:Bind ViewModel.AppsLoad.Loading, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.AppsLoad.Loading, Mode=OneWay}" />
-                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.AppsLoad.Failed, Mode=OneWay}">
+                                IsActive="{x:Bind ViewModel.KeysLoad.Loading, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.KeysLoad.Loading, Mode=OneWay}" />
+                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.KeysLoad.Failed, Mode=OneWay}">
                                 <TextBlock
-                                    AutomationProperties.AutomationId="DeveloperAppsFailure"
+                                    AutomationProperties.AutomationId="DeveloperKeysFailure"
                                     Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                    Text="{x:Bind ViewModel.AppsLoad.FailureMessage, Mode=OneWay}"
+                                    Text="{x:Bind ViewModel.KeysLoad.FailureMessage, Mode=OneWay}"
                                     TextWrapping="Wrap" />
                                 <Button
-                                    AutomationProperties.AutomationId="DeveloperAppsRetry"
+                                    AutomationProperties.AutomationId="DeveloperKeysRetry"
                                     AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
-                                    Command="{x:Bind ViewModel.AppsLoad.RetryCommand, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.KeysLoad.RetryCommand, Mode=OneWay}"
                                     Content="{x:Bind l10n:S.CommonTryAgain}"
-                                    Visibility="{x:Bind ViewModel.AppsLoad.CanRetry, Mode=OneWay}" />
+                                    Visibility="{x:Bind ViewModel.KeysLoad.CanRetry, Mode=OneWay}" />
                             </StackPanel>
                             <TextBlock
-                                AutomationProperties.AutomationId="DeveloperAppsEmpty"
+                                AutomationProperties.AutomationId="DeveloperKeysEmpty"
                                 Style="{StaticResource QuietTextStyle}"
-                                Text="{x:Bind ViewModel.AppsEmpty, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.ShowAppsEmpty, Mode=OneWay}" />
-                            <ItemsRepeater AutomationProperties.AutomationId="DeveloperApps" ItemsSource="{x:Bind ViewModel.Apps}">
+                                Text="{x:Bind ViewModel.KeysEmpty, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.ShowKeysEmpty, Mode=OneWay}" />
+                            <ItemsRepeater AutomationProperties.AutomationId="DeveloperKeys" ItemsSource="{x:Bind ViewModel.Keys}">
                                 <ItemsRepeater.Layout>
                                     <StackLayout Spacing="8" />
                                 </ItemsRepeater.Layout>
                                 <ItemsRepeater.ItemTemplate>
-                                    <DataTemplate x:DataType="sched:ConnectedAppEntry">
+                                    <DataTemplate x:DataType="sched:ApiKeyEntry">
                                         <Grid
                                             AutomationProperties.AutomationId="{x:Bind AutomationId}"
                                             AutomationProperties.Name="{x:Bind AccessibleName}"
@@ -230,14 +96,17 @@
                                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                                     Text="{x:Bind Name}"
                                                     TextWrapping="Wrap" />
-                                                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind LastUsed}" />
+                                                <TextBlock
+                                                    Style="{StaticResource QuietTextStyle}"
+                                                    Text="{x:Bind Line}"
+                                                    TextWrapping="Wrap" />
                                             </StackPanel>
                                             <Button
                                                 Grid.Column="1"
                                                 VerticalAlignment="Center"
-                                                AutomationProperties.AutomationId="DeveloperAppRevoke"
+                                                AutomationProperties.AutomationId="DeveloperKeyRevoke"
                                                 AutomationProperties.Name="{x:Bind RevokeName}"
-                                                Click="OnRevokeAppClick"
+                                                Click="OnRevokeKeyClick"
                                                 Content="{x:Bind RevokeLabel}"
                                                 Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                                 IsEnabled="{x:Bind CanRevoke}"
@@ -247,201 +116,330 @@
                                     </DataTemplate>
                                 </ItemsRepeater.ItemTemplate>
                             </ItemsRepeater>
+                            <Button
+                                AutomationProperties.AutomationId="DeveloperCreateKey"
+                                AutomationProperties.Name="{x:Bind ViewModel.CreateKeyLabel, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.OpenCreateKeyCommand, Mode=OneWay}"
+                                Content="{x:Bind ViewModel.CreateKeyLabel, Mode=OneWay}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Visibility="{x:Bind ViewModel.ShowsCreateKey, Mode=OneWay}" />
                         </StackPanel>
                     </Border>
-                </StackPanel>
 
-                <!-- Webhooks: each with its deliveries, Edit and Delete; a signing secret is shown once, when added. -->
-                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.ShowsWebhooks, Mode=OneWay}">
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel Spacing="8">
-                            <TextBlock
-                                AutomationProperties.HeadingLevel="Level2"
-                                Style="{StaticResource SectionHeaderStyle}"
-                                Text="{x:Bind ViewModel.WebhooksHeading, Mode=OneWay}" />
-                            <TextBlock
-                                Style="{StaticResource QuietTextStyle}"
-                                Text="{x:Bind ViewModel.WebhooksSubtitle, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                            <ProgressRing
-                                Width="20"
-                                Height="20"
-                                HorizontalAlignment="Left"
-                                AutomationProperties.AutomationId="DeveloperWebhooksLoading"
-                                AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
-                                IsActive="{x:Bind ViewModel.WebhooksLoad.Loading, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.WebhooksLoad.Loading, Mode=OneWay}" />
-                            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.WebhooksLoad.Failed, Mode=OneWay}">
+                    <!-- Connected apps, beside the address an AI assistant reaches the bookings at. -->
+                    <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.ShowsApps, Mode=OneWay}">
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="8">
                                 <TextBlock
-                                    AutomationProperties.AutomationId="DeveloperWebhooksFailure"
-                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                    Text="{x:Bind ViewModel.WebhooksLoad.FailureMessage, Mode=OneWay}"
+                                    AutomationProperties.HeadingLevel="Level2"
+                                    Style="{StaticResource SectionHeaderStyle}"
+                                    Text="{x:Bind ViewModel.McpHeading, Mode=OneWay}" />
+                                <TextBlock
+                                    AutomationProperties.AutomationId="DeveloperMcpNoHost"
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.McpNoHost, Mode=OneWay}"
+                                    TextWrapping="Wrap"
+                                    Visibility="{x:Bind ViewModel.NoMcp, Mode=OneWay}" />
+                                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasMcp, Mode=OneWay}">
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.McpUrlLabel, Mode=OneWay}" />
+                                        <TextBlock
+                                            AutomationProperties.AutomationId="DeveloperMcpUrl"
+                                            IsTextSelectionEnabled="True"
+                                            Text="{x:Bind ViewModel.McpUrl, Mode=OneWay}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.McpAuthLabel, Mode=OneWay}" />
+                                        <TextBlock
+                                            AutomationProperties.AutomationId="DeveloperMcpAuth"
+                                            FontFamily="Consolas"
+                                            IsTextSelectionEnabled="True"
+                                            Text="{x:Bind ViewModel.McpAuth, Mode=OneWay}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.McpNote, Mode=OneWay}"
                                     TextWrapping="Wrap" />
-                                <Button
-                                    AutomationProperties.AutomationId="DeveloperWebhooksRetry"
-                                    AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
-                                    Command="{x:Bind ViewModel.WebhooksLoad.RetryCommand, Mode=OneWay}"
-                                    Content="{x:Bind l10n:S.CommonTryAgain}"
-                                    Visibility="{x:Bind ViewModel.WebhooksLoad.CanRetry, Mode=OneWay}" />
                             </StackPanel>
-                            <TextBlock
-                                AutomationProperties.AutomationId="DeveloperWebhooksEmpty"
-                                Style="{StaticResource QuietTextStyle}"
-                                Text="{x:Bind ViewModel.WebhooksEmpty, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.ShowWebhooksEmpty, Mode=OneWay}" />
-                            <ItemsRepeater AutomationProperties.AutomationId="DeveloperWebhooks" ItemsSource="{x:Bind ViewModel.Webhooks}">
-                                <ItemsRepeater.Layout>
-                                    <StackLayout Spacing="12" />
-                                </ItemsRepeater.Layout>
-                                <ItemsRepeater.ItemTemplate>
-                                    <DataTemplate x:DataType="sched:WebhookEntry">
-                                        <StackPanel
-                                            AutomationProperties.AutomationId="{x:Bind AutomationId}"
-                                            AutomationProperties.Name="{x:Bind AccessibleName}"
-                                            Spacing="4">
-                                            <Grid ColumnSpacing="12">
+                        </Border>
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    AutomationProperties.HeadingLevel="Level2"
+                                    Style="{StaticResource SectionHeaderStyle}"
+                                    Text="{x:Bind ViewModel.AppsHeading, Mode=OneWay}" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.AppsSubtitle, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                                <ProgressRing
+                                    Width="20"
+                                    Height="20"
+                                    HorizontalAlignment="Left"
+                                    AutomationProperties.AutomationId="DeveloperAppsLoading"
+                                    AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+                                    IsActive="{x:Bind ViewModel.AppsLoad.Loading, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.AppsLoad.Loading, Mode=OneWay}" />
+                                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.AppsLoad.Failed, Mode=OneWay}">
+                                    <TextBlock
+                                        AutomationProperties.AutomationId="DeveloperAppsFailure"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        Text="{x:Bind ViewModel.AppsLoad.FailureMessage, Mode=OneWay}"
+                                        TextWrapping="Wrap" />
+                                    <Button
+                                        AutomationProperties.AutomationId="DeveloperAppsRetry"
+                                        AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+                                        Command="{x:Bind ViewModel.AppsLoad.RetryCommand, Mode=OneWay}"
+                                        Content="{x:Bind l10n:S.CommonTryAgain}"
+                                        Visibility="{x:Bind ViewModel.AppsLoad.CanRetry, Mode=OneWay}" />
+                                </StackPanel>
+                                <TextBlock
+                                    AutomationProperties.AutomationId="DeveloperAppsEmpty"
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.AppsEmpty, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.ShowAppsEmpty, Mode=OneWay}" />
+                                <ItemsRepeater AutomationProperties.AutomationId="DeveloperApps" ItemsSource="{x:Bind ViewModel.Apps}">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Spacing="8" />
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="sched:ConnectedAppEntry">
+                                            <Grid
+                                                AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                                AutomationProperties.Name="{x:Bind AccessibleName}"
+                                                ColumnSpacing="12">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock
+                                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                        Text="{x:Bind Name}"
+                                                        TextWrapping="Wrap" />
+                                                    <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind LastUsed}" />
+                                                </StackPanel>
+                                                <Button
+                                                    Grid.Column="1"
+                                                    VerticalAlignment="Center"
+                                                    AutomationProperties.AutomationId="DeveloperAppRevoke"
+                                                    AutomationProperties.Name="{x:Bind RevokeName}"
+                                                    Click="OnRevokeAppClick"
+                                                    Content="{x:Bind RevokeLabel}"
+                                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                    IsEnabled="{x:Bind CanRevoke}"
+                                                    Tag="{x:Bind Id}"
+                                                    Visibility="{x:Bind OffersRevoke}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Webhooks: each with its deliveries, Edit and Delete; a signing secret is shown once, when added. -->
+                    <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.ShowsWebhooks, Mode=OneWay}">
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    AutomationProperties.HeadingLevel="Level2"
+                                    Style="{StaticResource SectionHeaderStyle}"
+                                    Text="{x:Bind ViewModel.WebhooksHeading, Mode=OneWay}" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.WebhooksSubtitle, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                                <ProgressRing
+                                    Width="20"
+                                    Height="20"
+                                    HorizontalAlignment="Left"
+                                    AutomationProperties.AutomationId="DeveloperWebhooksLoading"
+                                    AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+                                    IsActive="{x:Bind ViewModel.WebhooksLoad.Loading, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.WebhooksLoad.Loading, Mode=OneWay}" />
+                                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.WebhooksLoad.Failed, Mode=OneWay}">
+                                    <TextBlock
+                                        AutomationProperties.AutomationId="DeveloperWebhooksFailure"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        Text="{x:Bind ViewModel.WebhooksLoad.FailureMessage, Mode=OneWay}"
+                                        TextWrapping="Wrap" />
+                                    <Button
+                                        AutomationProperties.AutomationId="DeveloperWebhooksRetry"
+                                        AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+                                        Command="{x:Bind ViewModel.WebhooksLoad.RetryCommand, Mode=OneWay}"
+                                        Content="{x:Bind l10n:S.CommonTryAgain}"
+                                        Visibility="{x:Bind ViewModel.WebhooksLoad.CanRetry, Mode=OneWay}" />
+                                </StackPanel>
+                                <TextBlock
+                                    AutomationProperties.AutomationId="DeveloperWebhooksEmpty"
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.WebhooksEmpty, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.ShowWebhooksEmpty, Mode=OneWay}" />
+                                <ItemsRepeater AutomationProperties.AutomationId="DeveloperWebhooks" ItemsSource="{x:Bind ViewModel.Webhooks}">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Spacing="12" />
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="sched:WebhookEntry">
+                                            <StackPanel
+                                                AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                                AutomationProperties.Name="{x:Bind AccessibleName}"
+                                                Spacing="4">
+                                                <Grid ColumnSpacing="12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock
+                                                        IsTextSelectionEnabled="True"
+                                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                        Text="{x:Bind Url}"
+                                                        TextWrapping="Wrap" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                                        Text="{x:Bind StateLabel}"
+                                                        Visibility="{x:Bind IsSuccess}" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                                        Text="{x:Bind StateLabel}"
+                                                        Visibility="{x:Bind IsNeutral}" />
+                                                </Grid>
                                                 <TextBlock
-                                                    IsTextSelectionEnabled="True"
-                                                    Style="{StaticResource BodyStrongTextBlockStyle}"
-                                                    Text="{x:Bind Url}"
+                                                    Style="{StaticResource QuietTextStyle}"
+                                                    Text="{x:Bind Events}"
                                                     TextWrapping="Wrap" />
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <Button
+                                                        AutomationProperties.AutomationId="DeveloperWebhookDeliveries"
+                                                        AutomationProperties.Name="{x:Bind DeliveriesName}"
+                                                        Click="OnDeliveriesClick"
+                                                        Content="{x:Bind DeliveriesLabel}"
+                                                        Tag="{x:Bind Id}" />
+                                                    <Button
+                                                        AutomationProperties.AutomationId="DeveloperWebhookEdit"
+                                                        AutomationProperties.Name="{x:Bind EditName}"
+                                                        Click="OnEditWebhookClick"
+                                                        Content="{x:Bind EditLabel}"
+                                                        Tag="{x:Bind Id}"
+                                                        Visibility="{x:Bind OffersWrites}" />
+                                                    <Button
+                                                        AutomationProperties.AutomationId="DeveloperWebhookDelete"
+                                                        AutomationProperties.Name="{x:Bind DeleteName}"
+                                                        Click="OnDeleteWebhookClick"
+                                                        Content="{x:Bind DeleteLabel}"
+                                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                        IsEnabled="{x:Bind CanDelete}"
+                                                        Tag="{x:Bind Id}"
+                                                        Visibility="{x:Bind OffersWrites}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                                <Button
+                                    AutomationProperties.AutomationId="DeveloperAddWebhook"
+                                    AutomationProperties.Name="{x:Bind ViewModel.AddWebhookLabel, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.OpenCreateWebhookCommand, Mode=OneWay}"
+                                    Content="{x:Bind ViewModel.AddWebhookLabel, Mode=OneWay}"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.ShowsAddWebhook, Mode=OneWay}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- The open webhook's deliveries, read the first time it opens. -->
+                        <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.HasDeliveries, Mode=OneWay}">
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    AutomationProperties.AutomationId="DeveloperDeliveriesHeading"
+                                    AutomationProperties.HeadingLevel="Level3"
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind ViewModel.DeliveriesHeading, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                                <ProgressRing
+                                    Width="20"
+                                    Height="20"
+                                    HorizontalAlignment="Left"
+                                    AutomationProperties.AutomationId="DeveloperDeliveriesLoading"
+                                    AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+                                    IsActive="{x:Bind ViewModel.DeliveriesLoad.Loading, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.DeliveriesLoad.Loading, Mode=OneWay}" />
+                                <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.DeliveriesLoad.Failed, Mode=OneWay}">
+                                    <TextBlock
+                                        AutomationProperties.AutomationId="DeveloperDeliveriesFailure"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        Text="{x:Bind ViewModel.DeliveriesLoad.FailureMessage, Mode=OneWay}"
+                                        TextWrapping="Wrap" />
+                                    <Button
+                                        AutomationProperties.AutomationId="DeveloperDeliveriesRetry"
+                                        AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+                                        Command="{x:Bind ViewModel.DeliveriesLoad.RetryCommand}"
+                                        Content="{x:Bind l10n:S.CommonTryAgain}"
+                                        Visibility="{x:Bind ViewModel.DeliveriesLoad.CanRetry, Mode=OneWay}" />
+                                </StackPanel>
+                                <TextBlock
+                                    AutomationProperties.AutomationId="DeveloperDeliveriesEmpty"
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind ViewModel.DeliveriesEmpty, Mode=OneWay}"
+                                    Visibility="{x:Bind ViewModel.ShowDeliveriesEmpty, Mode=OneWay}" />
+                                <ItemsRepeater AutomationProperties.AutomationId="DeveloperDeliveries" ItemsSource="{x:Bind ViewModel.Deliveries}">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Spacing="8" />
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="sched:DeliveryEntry">
+                                            <Grid
+                                                AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                                AutomationProperties.Name="{x:Bind AccessibleName}"
+                                                ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="{x:Bind When}" />
+                                                    <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Event}" />
+                                                </StackPanel>
                                                 <TextBlock
                                                     Grid.Column="1"
+                                                    VerticalAlignment="Center"
+                                                    AutomationProperties.AutomationId="DeveloperDeliveryOutcome"
                                                     Foreground="{ThemeResource SystemFillColorSuccessBrush}"
                                                     Style="{StaticResource CaptionTextBlockStyle}"
-                                                    Text="{x:Bind StateLabel}"
+                                                    Text="{x:Bind Outcome}"
                                                     Visibility="{x:Bind IsSuccess}" />
                                                 <TextBlock
                                                     Grid.Column="1"
+                                                    VerticalAlignment="Center"
+                                                    AutomationProperties.AutomationId="DeveloperDeliveryOutcome"
+                                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                                    Text="{x:Bind Outcome}"
+                                                    Visibility="{x:Bind IsDanger}" />
+                                                <TextBlock
+                                                    Grid.Column="1"
+                                                    VerticalAlignment="Center"
+                                                    AutomationProperties.AutomationId="DeveloperDeliveryOutcome"
                                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                     Style="{StaticResource CaptionTextBlockStyle}"
-                                                    Text="{x:Bind StateLabel}"
+                                                    Text="{x:Bind Outcome}"
                                                     Visibility="{x:Bind IsNeutral}" />
                                             </Grid>
-                                            <TextBlock
-                                                Style="{StaticResource QuietTextStyle}"
-                                                Text="{x:Bind Events}"
-                                                TextWrapping="Wrap" />
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <Button
-                                                    AutomationProperties.AutomationId="DeveloperWebhookDeliveries"
-                                                    AutomationProperties.Name="{x:Bind DeliveriesName}"
-                                                    Click="OnDeliveriesClick"
-                                                    Content="{x:Bind DeliveriesLabel}"
-                                                    Tag="{x:Bind Id}" />
-                                                <Button
-                                                    AutomationProperties.AutomationId="DeveloperWebhookEdit"
-                                                    AutomationProperties.Name="{x:Bind EditName}"
-                                                    Click="OnEditWebhookClick"
-                                                    Content="{x:Bind EditLabel}"
-                                                    Tag="{x:Bind Id}"
-                                                    Visibility="{x:Bind OffersWrites}" />
-                                                <Button
-                                                    AutomationProperties.AutomationId="DeveloperWebhookDelete"
-                                                    AutomationProperties.Name="{x:Bind DeleteName}"
-                                                    Click="OnDeleteWebhookClick"
-                                                    Content="{x:Bind DeleteLabel}"
-                                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                                    IsEnabled="{x:Bind CanDelete}"
-                                                    Tag="{x:Bind Id}"
-                                                    Visibility="{x:Bind OffersWrites}" />
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
-                            <Button
-                                AutomationProperties.AutomationId="DeveloperAddWebhook"
-                                AutomationProperties.Name="{x:Bind ViewModel.AddWebhookLabel, Mode=OneWay}"
-                                Command="{x:Bind ViewModel.OpenCreateWebhookCommand, Mode=OneWay}"
-                                Content="{x:Bind ViewModel.AddWebhookLabel, Mode=OneWay}"
-                                Style="{StaticResource AccentButtonStyle}"
-                                Visibility="{x:Bind ViewModel.ShowsAddWebhook, Mode=OneWay}" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- The open webhook's deliveries, read the first time it opens. -->
-                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.HasDeliveries, Mode=OneWay}">
-                        <StackPanel Spacing="8">
-                            <TextBlock
-                                AutomationProperties.AutomationId="DeveloperDeliveriesHeading"
-                                AutomationProperties.HeadingLevel="Level3"
-                                Style="{StaticResource BodyStrongTextBlockStyle}"
-                                Text="{x:Bind ViewModel.DeliveriesHeading, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                            <ProgressRing
-                                Width="20"
-                                Height="20"
-                                HorizontalAlignment="Left"
-                                AutomationProperties.AutomationId="DeveloperDeliveriesLoading"
-                                AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
-                                IsActive="{x:Bind ViewModel.DeliveriesLoad.Loading, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.DeliveriesLoad.Loading, Mode=OneWay}" />
-                            <TextBlock
-                                AutomationProperties.AutomationId="DeveloperDeliveriesFailure"
-                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                Text="{x:Bind ViewModel.DeliveriesLoad.FailureMessage, Mode=OneWay}"
-                                TextWrapping="Wrap"
-                                Visibility="{x:Bind ViewModel.DeliveriesLoad.Failed, Mode=OneWay}" />
-                            <TextBlock
-                                AutomationProperties.AutomationId="DeveloperDeliveriesEmpty"
-                                Style="{StaticResource QuietTextStyle}"
-                                Text="{x:Bind ViewModel.DeliveriesEmpty, Mode=OneWay}"
-                                Visibility="{x:Bind ViewModel.ShowDeliveriesEmpty, Mode=OneWay}" />
-                            <ItemsRepeater AutomationProperties.AutomationId="DeveloperDeliveries" ItemsSource="{x:Bind ViewModel.Deliveries}">
-                                <ItemsRepeater.Layout>
-                                    <StackLayout Spacing="8" />
-                                </ItemsRepeater.Layout>
-                                <ItemsRepeater.ItemTemplate>
-                                    <DataTemplate x:DataType="sched:DeliveryEntry">
-                                        <Grid
-                                            AutomationProperties.AutomationId="{x:Bind AutomationId}"
-                                            AutomationProperties.Name="{x:Bind AccessibleName}"
-                                            ColumnSpacing="12">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Spacing="2">
-                                                <TextBlock Text="{x:Bind When}" />
-                                                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Event}" />
-                                            </StackPanel>
-                                            <TextBlock
-                                                Grid.Column="1"
-                                                VerticalAlignment="Center"
-                                                AutomationProperties.AutomationId="DeveloperDeliveryOutcome"
-                                                Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                Text="{x:Bind Outcome}"
-                                                Visibility="{x:Bind IsSuccess}" />
-                                            <TextBlock
-                                                Grid.Column="1"
-                                                VerticalAlignment="Center"
-                                                AutomationProperties.AutomationId="DeveloperDeliveryOutcome"
-                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                Text="{x:Bind Outcome}"
-                                                Visibility="{x:Bind IsDanger}" />
-                                            <TextBlock
-                                                Grid.Column="1"
-                                                VerticalAlignment="Center"
-                                                AutomationProperties.AutomationId="DeveloperDeliveryOutcome"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                Text="{x:Bind Outcome}"
-                                                Visibility="{x:Bind IsNeutral}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
-                        </StackPanel>
-                    </Border>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </views:PageColumn>
         </ScrollViewer>
     </Grid>
 </UserControl>

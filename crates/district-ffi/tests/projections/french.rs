@@ -47,3 +47,24 @@ fn the_calls_per_day_chart_names_its_days_in_french() {
     let english = screen_in(Locale::En, "analytics-loaded");
     assert!(english.contains("\"axis_start\":\"Aug 9\""), "{english}");
 }
+
+/// A support request's status is the core's label in the app's language,
+/// in the list and on the request, never the desk's own word.
+#[test]
+fn a_support_requests_status_is_labelled_in_french() {
+    let french = screen_in(Locale::FrCa, "support-loaded");
+    assert!(french.contains("\"status\":\"En cours\""), "{french}");
+    assert!(french.contains("\"status\":\"Terminée\""), "{french}");
+    assert!(!french.contains("In Progress"), "{french}");
+    let english = screen_in(Locale::En, "support-loaded");
+    assert!(english.contains("\"status\":\"In progress\""), "{english}");
+    assert!(!english.contains("In Progress"), "{english}");
+
+    let french = screen_in(Locale::FrCa, "support-request-loaded");
+    assert!(french.contains("\"status_name\":\"En cours\""), "{french}");
+    let english = screen_in(Locale::En, "support-request-loaded");
+    assert!(
+        english.contains("\"status_name\":\"In progress\""),
+        "{english}"
+    );
+}

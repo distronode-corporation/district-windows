@@ -78,6 +78,16 @@ internal sealed partial class LiveWalk
     /// saved and closed. A crash or no window is a probe finding: WebView2
     /// on Server 2025, or a challenge to the VM's address.
     /// </summary>
+    /// <remarks>
+    /// The page loading proves the nonce-bound hand-off (S33): the window
+    /// first opens the service's /dashboard/handoff/start, which answers with
+    /// a 302 to districtai://handoff; the window cancels that and hands it to
+    /// the core (Platform/Checkout/CheckoutWindow.cs), which only then asks for
+    /// the billing link, bound to that answer's nonce, and opens it in the same
+    /// window. How long the page took after the press is in the detail: the
+    /// core waits at most HAND_OFF_CALLBACK_WAIT (30 s) for the answer, so a
+    /// page that names itself well inside that had its answer reach the core.
+    /// </remarks>
     private Outcome BillingManage(Check check)
     {
         _ = Ui.Go(App, "Billing", "Billing");
@@ -85,16 +95,21 @@ internal sealed partial class LiveWalk
         {
             throw new PreconditionException("Billing offers no \"Manage billing\" (no plan, or purchases off)");
         }
+        var clock = System.Diagnostics.Stopwatch.StartNew();
         Ui.Press(App, "Manage billing");
         var window = Wait.For(() => App.TryWindow(CheckoutTitle), TimeSpan.FromSeconds(30), "the checkout window", App.Describe);
         // Its page's title, once loaded, comes before the window's own.
-        var loaded = Wait.Until(() => (App.TryWindow(CheckoutTitle) is { } now && UiTests.Walk.NameOf(now) != CheckoutTitle), TimeSpan.FromSeconds(20));
+        var loaded = Wait.Until(() => (App.TryWindow(CheckoutTitle) is { } now && UiTests.Walk.NameOf(now) != CheckoutTitle), TimeSpan.FromSeconds(40));
+        var seconds = clock.Elapsed.TotalSeconds;
         window = App.TryWindow(CheckoutTitle) ?? window;
         check.ShotOf(window);
         Ui.PressIn(App, window, "Close checkout");
         Check.Expect(Wait.Until(() => App.TryWindow(CheckoutTitle) is null, Ui.Step), "the checkout window stayed after Close checkout");
+        var handOff = seconds < 30
+            ? "inside the core's 30 s wait, so the hand-off answer reached the core"
+            : "not inside the core's 30 s wait, so the hand-off answer may not have reached the core";
         return Outcome.Pass(loaded
-            ? "the checkout window opened, loaded its page, and closed"
-            : "the checkout window opened (its page did not name itself within 20 s; see the screenshot) and closed");
+            ? $"the checkout window opened, loaded its page {seconds:0.0} s after the press ({handOff}), and closed"
+            : "the checkout window opened (its page did not name itself within 40 s; see the screenshot) and closed");
     }
 }

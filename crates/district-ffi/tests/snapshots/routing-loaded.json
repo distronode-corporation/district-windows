@@ -24,19 +24,19 @@
                     "value": "estimatedValue"
                   },
                   {
-                    "label": "Caller type",
+                    "label": "Caller type (business/consumer)",
                     "value": "callerType"
                   },
                   {
-                    "label": "Line type",
+                    "label": "Line type (mobile/landline/voip)",
                     "value": "lineType"
                   },
                   {
-                    "label": "Is decision maker",
+                    "label": "Decision maker (true/false)",
                     "value": "isDecisionMaker"
                   },
                   {
-                    "label": "Seniority",
+                    "label": "Seniority (e.g. vp, c-suite)",
                     "value": "seniority"
                   }
                 ],
@@ -47,7 +47,7 @@
             "heading": "Rule 1",
             "index": 0,
             "instruction": "",
-            "kept": "Also stored: Action, Match, Target. Kept as they are when the rules are saved.",
+            "kept": "Also stored: action, match, target. Kept as they are when the rules are saved.",
             "operator": {
               "label": "Compared by",
               "picker": {
@@ -112,19 +112,19 @@
                     "value": "estimatedValue"
                   },
                   {
-                    "label": "Caller type",
+                    "label": "Caller type (business/consumer)",
                     "value": "callerType"
                   },
                   {
-                    "label": "Line type",
+                    "label": "Line type (mobile/landline/voip)",
                     "value": "lineType"
                   },
                   {
-                    "label": "Is decision maker",
+                    "label": "Decision maker (true/false)",
                     "value": "isDecisionMaker"
                   },
                   {
-                    "label": "Seniority",
+                    "label": "Seniority (e.g. vp, c-suite)",
                     "value": "seniority"
                   }
                 ],
@@ -135,7 +135,7 @@
             "heading": "Rule 2",
             "index": 1,
             "instruction": "",
-            "kept": "Also stored: Action, Match, Target. Kept as they are when the rules are saved.",
+            "kept": "Also stored: action, match, target. Kept as they are when the rules are saved.",
             "operator": {
               "label": "Compared by",
               "picker": {
@@ -200,19 +200,19 @@
                     "value": "estimatedValue"
                   },
                   {
-                    "label": "Caller type",
+                    "label": "Caller type (business/consumer)",
                     "value": "callerType"
                   },
                   {
-                    "label": "Line type",
+                    "label": "Line type (mobile/landline/voip)",
                     "value": "lineType"
                   },
                   {
-                    "label": "Is decision maker",
+                    "label": "Decision maker (true/false)",
                     "value": "isDecisionMaker"
                   },
                   {
-                    "label": "Seniority",
+                    "label": "Seniority (e.g. vp, c-suite)",
                     "value": "seniority"
                   }
                 ],

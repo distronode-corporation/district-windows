@@ -24,6 +24,8 @@ public sealed partial class SchedulingDeveloperPanel : UserControl
     public SchedulingDeveloperPanel()
     {
         InitializeComponent();
+        TabChooser.Describe = item => item is DeveloperTabEntry tab ? new TabLabel(tab.Label, tab.AutomationId) : new TabLabel(item.ToString() ?? string.Empty);
+        TabChooser.Picked += (_, index) => ViewModel.SelectTab(index);
         Loaded += (_, _) => SyncDialogs();
     }
 
@@ -65,8 +67,6 @@ public sealed partial class SchedulingDeveloperPanel : UserControl
     // An ItemsRepeater whose template uses x:Bind gives what it makes no
     // DataContext, so each row's button carries its row's id in Tag.
     private static string? IdOf(object sender) => (sender as FrameworkElement)?.Tag as string;
-
-    private void OnTabChanged(object sender, SelectionChangedEventArgs e) => ViewModel.SelectTab(TabChooser.SelectedIndex);
 
     private void OnRevokeKeyClick(object sender, RoutedEventArgs e)
     {

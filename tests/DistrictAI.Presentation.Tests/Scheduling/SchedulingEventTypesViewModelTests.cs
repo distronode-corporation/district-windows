@@ -143,7 +143,11 @@ public sealed class SchedulingEventTypesViewModelTests
             Notice: notice,
             Delete: asking ? new SchedulingAskView("Delete event type?", "Its booking page stops working.", "Delete event type", "Cancel") : null);
 
-    private static EventTypeHostsView Hosts(LoadStatus? status = null, EventTypeHostView[]? hosts = null, string? validation = null) =>
+    private static EventTypeHostsView Hosts(
+        LoadStatus? status = null,
+        EventTypeHostView[]? hosts = null,
+        string? validation = null,
+        LoadStatus? candidatesStatus = null) =>
         new(
             Dialog: Dialog("Hosts", "Save", status is null),
             Status: status ?? new LoadStatus.Ready(),
@@ -163,7 +167,9 @@ public sealed class SchedulingEventTypesViewModelTests
             PriorityLabel: "Priority",
             RemoveLabel: "Remove",
             AddLabel: "Add",
-            Candidates: [new("sched-user-2", "sam@example.com", false)],
+            Candidates: candidatesStatus is null or LoadStatus.Ready ? [new("sched-user-2", "sam@example.com", false)] : [],
+            // The core reads who could be added only once the hosts are read.
+            CandidatesStatus: candidatesStatus ?? (status is null ? new LoadStatus.Ready() : new LoadStatus.Loading()),
             Validation: validation);
 
     private static QuestionEditorView QuestionForm(string? id = null, string kind = "select", string[]? options = null, bool canSave = true) =>
@@ -493,6 +499,8 @@ public sealed class SchedulingEventTypesViewModelTests
         Assert.True(vm.Dialog.IsOpen);
         Assert.True(vm.Loading);
         Assert.False(vm.Ready || vm.ShowEmpty || vm.HasCandidates);
+        Assert.False(vm.CandidatesLoad.Loading, "who could be added waits for the hosts");
+        Assert.False(vm.CanRetry || vm.CandidatesLoad.CanRetry);
         Assert.False(vm.Dialog.ConfirmCommand.CanExecute(null));
 
         model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts())), "Event type"));
@@ -558,8 +566,54 @@ public sealed class SchedulingEventTypesViewModelTests
         model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts(status: _failed, hosts: []))), "Event type"));
         Assert.True(vm.Failed);
         Assert.Equal("Offline.", vm.FailureMessage);
+        Assert.False(vm.CandidatesLoad.Loading || vm.CandidatesLoad.Failed);
         model.Show(Page(new SchedulingAdminPage.EventType(Detail()), "Event type"));
         Assert.False(vm.Dialog.IsOpen);
+    }
+
+    [Fact]
+    public void TheHostsDialogTriesAgainWhatFailedToRead()
+    {
+        var (model, sink) = Attached();
+        var vm = model.EventType.HostsEditor;
+
+        // The hosts' read failed: Try again reads them again, once.
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts(status: _failed, hosts: []))), "Event type"));
+        Assert.True(vm.Failed);
+        Assert.True(vm.CanRetry);
+        vm.RetryCommand.Execute(null);
+        Assert.Equal(DetailEvent(new EventTypeAction.RetryDialogRead()), sink.Sent[^1]);
+        Assert.False(vm.RetryCommand.CanExecute(null));
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts(status: new LoadStatus.Loading(), hosts: []))), "Event type"));
+        Assert.True(vm.Loading);
+        Assert.False(vm.CanRetry);
+
+        // The hosts are read; who could be added is on its way.
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts(candidatesStatus: new LoadStatus.Loading()))), "Event type"));
+        Assert.True(vm.Ready);
+        Assert.True(vm.CandidatesLoad.Loading);
+        Assert.False(vm.HasCandidates);
+
+        // Their read failed: the hosts stay editable, and Try again reads them again.
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts(candidatesStatus: _failed))), "Event type"));
+        Assert.True(vm.Ready);
+        Assert.False(vm.Failed);
+        Assert.True(vm.CandidatesLoad.Failed);
+        Assert.Equal("Offline.", vm.CandidatesLoad.FailureMessage);
+        Assert.Equal(2, vm.Hosts.Count);
+        Assert.False(vm.HasCandidates);
+        Assert.True(vm.Dialog.ConfirmCommand.CanExecute(null));
+        Assert.True(vm.CandidatesLoad.CanRetry);
+        var sent = sink.Sent.Count;
+        vm.CandidatesLoad.RetryCommand.Execute(null);
+        Assert.Equal(sent + 1, sink.Sent.Count);
+        Assert.Equal(DetailEvent(new EventTypeAction.RetryDialogRead()), sink.Sent[^1]);
+
+        // Read again: the users show, and nothing is left to try again.
+        model.Show(Page(new SchedulingAdminPage.EventType(Detail(hosts: Hosts())), "Event type"));
+        Assert.True(vm.CandidatesLoad.Ready);
+        Assert.False(vm.CandidatesLoad.CanRetry);
+        Assert.Single(vm.Candidates);
     }
 
     [Fact]

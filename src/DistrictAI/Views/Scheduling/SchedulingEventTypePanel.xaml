@@ -8,164 +8,165 @@
     xmlns:vm="using:DistrictAI.ViewModels">
     <Grid>
         <ScrollViewer AutomationProperties.AutomationId="SchedulingEventType">
-            <StackPanel
-                MaxWidth="{StaticResource ReadingWidth}"
-                HorizontalAlignment="Left"
-                Spacing="12">
-                <TextBlock
-                    AutomationProperties.AutomationId="SchedulingEventTypeName"
-                    AutomationProperties.HeadingLevel="Level2"
-                    Style="{StaticResource SubtitleTextBlockStyle}"
-                    Text="{x:Bind ViewModel.Name, Mode=OneWay}"
-                    TextWrapping="Wrap" />
-
-                <!-- The four writes, for a member who may change things, once the event type is read. -->
+            <views:PageColumn>
                 <StackPanel
-                    Orientation="Horizontal"
-                    Spacing="8"
-                    Visibility="{x:Bind ViewModel.OffersWrites, Mode=OneWay}">
-                    <Button
-                        AutomationProperties.AutomationId="EventTypeEditButton"
-                        AutomationProperties.Name="{x:Bind ViewModel.EditLabel, Mode=OneWay}"
-                        Command="{x:Bind ViewModel.OpenEditorCommand, Mode=OneWay}"
-                        Content="{x:Bind ViewModel.EditLabel, Mode=OneWay}"
-                        Style="{StaticResource AccentButtonStyle}" />
-                    <Button
-                        AutomationProperties.AutomationId="EventTypeManageButton"
-                        AutomationProperties.Name="{x:Bind ViewModel.ManageLabel, Mode=OneWay}"
-                        Command="{x:Bind ViewModel.OpenActionsCommand, Mode=OneWay}"
-                        Content="{x:Bind ViewModel.ManageLabel, Mode=OneWay}" />
-                    <Button
-                        AutomationProperties.AutomationId="EventTypeHostsButton"
-                        AutomationProperties.Name="{x:Bind ViewModel.HostsLabel, Mode=OneWay}"
-                        Command="{x:Bind ViewModel.OpenHostsCommand, Mode=OneWay}"
-                        Content="{x:Bind ViewModel.HostsLabel, Mode=OneWay}" />
-                    <Button
-                        AutomationProperties.AutomationId="EventTypeQuestionsButton"
-                        AutomationProperties.Name="{x:Bind ViewModel.QuestionsLabel, Mode=OneWay}"
-                        Command="{x:Bind ViewModel.OpenQuestionsCommand, Mode=OneWay}"
-                        Content="{x:Bind ViewModel.QuestionsLabel, Mode=OneWay}" />
+                    MaxWidth="{StaticResource ReadingWidth}"
+                    Spacing="12">
+                    <TextBlock
+                        AutomationProperties.AutomationId="SchedulingEventTypeName"
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.Name, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+
+                    <!-- The four writes, for a member who may change things, once the event type is read. -->
+                    <views:WrapPanel
+                        HorizontalSpacing="8"
+                        VerticalSpacing="8"
+                        Visibility="{x:Bind ViewModel.OffersWrites, Mode=OneWay}">
+                        <Button
+                            AutomationProperties.AutomationId="EventTypeEditButton"
+                            AutomationProperties.Name="{x:Bind ViewModel.EditLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenEditorCommand, Mode=OneWay}"
+                            Content="{x:Bind ViewModel.EditLabel, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <Button
+                            AutomationProperties.AutomationId="EventTypeManageButton"
+                            AutomationProperties.Name="{x:Bind ViewModel.ManageLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenActionsCommand, Mode=OneWay}"
+                            Content="{x:Bind ViewModel.ManageLabel, Mode=OneWay}" />
+                        <Button
+                            AutomationProperties.AutomationId="EventTypeHostsButton"
+                            AutomationProperties.Name="{x:Bind ViewModel.HostsLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenHostsCommand, Mode=OneWay}"
+                            Content="{x:Bind ViewModel.HostsLabel, Mode=OneWay}" />
+                        <Button
+                            AutomationProperties.AutomationId="EventTypeQuestionsButton"
+                            AutomationProperties.Name="{x:Bind ViewModel.QuestionsLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.OpenQuestionsCommand, Mode=OneWay}"
+                            Content="{x:Bind ViewModel.QuestionsLabel, Mode=OneWay}" />
+                    </views:WrapPanel>
+
+                    <!-- What it is. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.DetailsHeading, Mode=OneWay}" />
+                            <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingEventTypeDescription"
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.Description, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.HasDescription, Mode=OneWay}" />
+                            <ItemsRepeater AutomationProperties.AutomationId="SchedulingEventTypeFacts" ItemsSource="{x:Bind ViewModel.Facts}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="8" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FactItem">
+                                        <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
+                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
+                                            <TextBlock
+                                                IsTextSelectionEnabled="True"
+                                                Text="{x:Bind Value}"
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Who hosts it: read on its own, and failing alone. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.HostsHeading, Mode=OneWay}" />
+                            <ProgressRing
+                                Width="20"
+                                Height="20"
+                                HorizontalAlignment="Left"
+                                AutomationProperties.AutomationId="SchedulingEventTypeHostsLoading"
+                                AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+                                IsActive="{x:Bind ViewModel.HostsLoading, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.HostsLoading, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingEventTypeHostsFailure"
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Text="{x:Bind ViewModel.HostsFailure, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.HasHostsFailure, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingEventTypeNoHosts"
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.NoHosts, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.ShowNoHosts, Mode=OneWay}" />
+                            <ItemsRepeater AutomationProperties.AutomationId="SchedulingEventTypeHosts" ItemsSource="{x:Bind ViewModel.Hosts}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="8" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FactItem">
+                                        <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
+                                            <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
+                                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Value}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- What it asks, in the order the booker sees it: read on its own, and failing alone. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.QuestionsHeading, Mode=OneWay}" />
+                            <ProgressRing
+                                Width="20"
+                                Height="20"
+                                HorizontalAlignment="Left"
+                                AutomationProperties.AutomationId="SchedulingEventTypeQuestionsLoading"
+                                AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
+                                IsActive="{x:Bind ViewModel.QuestionsLoading, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.QuestionsLoading, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingEventTypeQuestionsFailure"
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Text="{x:Bind ViewModel.QuestionsFailure, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.HasQuestionsFailure, Mode=OneWay}" />
+                            <TextBlock
+                                AutomationProperties.AutomationId="SchedulingEventTypeNoQuestions"
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.NoQuestions, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.ShowNoQuestions, Mode=OneWay}" />
+                            <ItemsRepeater AutomationProperties.AutomationId="SchedulingEventTypeQuestions" ItemsSource="{x:Bind ViewModel.Questions}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="8" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FactItem">
+                                        <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
+                                            <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
+                                            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Value}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-
-                <!-- What it is. -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            AutomationProperties.HeadingLevel="Level2"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Text="{x:Bind ViewModel.DetailsHeading, Mode=OneWay}" />
-                        <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingEventTypeDescription"
-                            Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.Description, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.HasDescription, Mode=OneWay}" />
-                        <ItemsRepeater AutomationProperties.AutomationId="SchedulingEventTypeFacts" ItemsSource="{x:Bind ViewModel.Facts}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="vm:FactItem">
-                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
-                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
-                                        <TextBlock
-                                            IsTextSelectionEnabled="True"
-                                            Text="{x:Bind Value}"
-                                            TextWrapping="Wrap" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </StackPanel>
-                </Border>
-
-                <!-- Who hosts it: read on its own, and failing alone. -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            AutomationProperties.HeadingLevel="Level2"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Text="{x:Bind ViewModel.HostsHeading, Mode=OneWay}" />
-                        <ProgressRing
-                            Width="20"
-                            Height="20"
-                            HorizontalAlignment="Left"
-                            AutomationProperties.AutomationId="SchedulingEventTypeHostsLoading"
-                            AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
-                            IsActive="{x:Bind ViewModel.HostsLoading, Mode=OneWay}"
-                            Visibility="{x:Bind ViewModel.HostsLoading, Mode=OneWay}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingEventTypeHostsFailure"
-                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                            Text="{x:Bind ViewModel.HostsFailure, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.HasHostsFailure, Mode=OneWay}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingEventTypeNoHosts"
-                            Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.NoHosts, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.ShowNoHosts, Mode=OneWay}" />
-                        <ItemsRepeater AutomationProperties.AutomationId="SchedulingEventTypeHosts" ItemsSource="{x:Bind ViewModel.Hosts}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="vm:FactItem">
-                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
-                                        <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
-                                        <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Value}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </StackPanel>
-                </Border>
-
-                <!-- What it asks, in the order the booker sees it: read on its own, and failing alone. -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            AutomationProperties.HeadingLevel="Level2"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Text="{x:Bind ViewModel.QuestionsHeading, Mode=OneWay}" />
-                        <ProgressRing
-                            Width="20"
-                            Height="20"
-                            HorizontalAlignment="Left"
-                            AutomationProperties.AutomationId="SchedulingEventTypeQuestionsLoading"
-                            AutomationProperties.Name="{x:Bind l10n:S.CommonLoading}"
-                            IsActive="{x:Bind ViewModel.QuestionsLoading, Mode=OneWay}"
-                            Visibility="{x:Bind ViewModel.QuestionsLoading, Mode=OneWay}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingEventTypeQuestionsFailure"
-                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                            Text="{x:Bind ViewModel.QuestionsFailure, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.HasQuestionsFailure, Mode=OneWay}" />
-                        <TextBlock
-                            AutomationProperties.AutomationId="SchedulingEventTypeNoQuestions"
-                            Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.NoQuestions, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.ShowNoQuestions, Mode=OneWay}" />
-                        <ItemsRepeater AutomationProperties.AutomationId="SchedulingEventTypeQuestions" ItemsSource="{x:Bind ViewModel.Questions}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="vm:FactItem">
-                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
-                                        <TextBlock Text="{x:Bind Label}" TextWrapping="Wrap" />
-                                        <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind Value}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+            </views:PageColumn>
         </ScrollViewer>
     </Grid>
 </UserControl>

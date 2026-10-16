@@ -21,6 +21,7 @@ public sealed partial class SchedulingBookingsPanel : UserControl
     public SchedulingBookingsPanel()
     {
         InitializeComponent();
+        TabChooser.Picked += (_, index) => ViewModel.SelectTab(index);
         Status.Attach(ViewModel.Load);
         Loaded += (_, _) => SyncDialogs();
     }
@@ -54,8 +55,6 @@ public sealed partial class SchedulingBookingsPanel : UserControl
     }
 
     private static BookingEntry? RowOf(object sender) => (sender as FrameworkElement)?.DataContext as BookingEntry;
-
-    private void OnTabChanged(object sender, SelectionChangedEventArgs e) => ViewModel.SelectTab(TabChooser.SelectedIndex);
 
     private void OnBookingClick(object sender, ItemClickEventArgs e)
     {

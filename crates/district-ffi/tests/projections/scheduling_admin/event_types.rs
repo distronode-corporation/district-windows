@@ -812,6 +812,7 @@ fn each_action_is_its_core_event() {
             },
         ),
         (A::SaveHosts, E::SaveHosts),
+        (A::RetryDialogRead, E::RetryDialogRead),
         (A::OpenQuestions, E::OpenQuestions),
         (A::AddQuestion, E::AddQuestion),
         (A::EditQuestion { id: s("q") }, E::EditQuestion(s("q"))),
@@ -834,4 +835,57 @@ fn each_action_is_its_core_event() {
     ] {
         assert_eq!(detail(sent).events(), [to_detail(event)]);
     }
+}
+
+/// "Try again" in the hosts dialog: a failed read of the hosts is read
+/// again; with the hosts read, a failed read of the users who could be added
+/// leaves the hosts editable, says so, and is read again.
+#[test]
+fn the_hosts_dialog_reads_again_what_failed() {
+    let opened = event_type(signed_in()).ui(detail(EventTypeAction::OpenHosts));
+    let failed = answer_admin(
+        opened,
+        |r| matches!(r, SchedulingAdminRequest::Hosts { .. }),
+        Err(server_error()),
+    );
+    let dialog = event_type_view(&failed).hosts_dialog.expect("open");
+    assert!(matches!(
+        dialog.status,
+        district_ffi::LoadStatus::Failed { .. }
+    ));
+    let again = failed.ui(detail(EventTypeAction::RetryDialogRead));
+    assert_eq!(
+        event_type_view(&again).hosts_dialog.expect("open").status,
+        district_ffi::LoadStatus::Loading
+    );
+    let hosts_read = answer_admin(
+        again,
+        |r| matches!(r, SchedulingAdminRequest::Hosts { .. }),
+        Ok(contracts::json("district-scheduling-hosts.json")),
+    );
+    let dialog = event_type_view(&hosts_read).hosts_dialog.expect("open");
+    assert_eq!(dialog.status, district_ffi::LoadStatus::Ready);
+    assert_eq!(dialog.candidates_status, district_ffi::LoadStatus::Loading);
+
+    let users_failed = answer_admin(
+        hosts_read,
+        |r| matches!(r, SchedulingAdminRequest::Users { .. }),
+        Err(server_error()),
+    );
+    let dialog = event_type_view(&users_failed).hosts_dialog.expect("open");
+    assert_eq!(dialog.status, district_ffi::LoadStatus::Ready);
+    assert!(matches!(
+        dialog.candidates_status,
+        district_ffi::LoadStatus::Failed { .. }
+    ));
+    assert!(dialog.candidates.is_empty() && !dialog.hosts.is_empty());
+    let again = users_failed.ui(detail(EventTypeAction::RetryDialogRead));
+    assert!(again.pending.iter().any(|e| matches!(
+        e,
+        Effect::SchedulingAdmin { request, .. } if matches!(**request, SchedulingAdminRequest::Users { .. })
+    )));
+    let read = event_type_view(&hosting(signed_in()))
+        .hosts_dialog
+        .expect("open");
+    assert_eq!(read.candidates_status, district_ffi::LoadStatus::Ready);
 }

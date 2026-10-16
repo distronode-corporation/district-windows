@@ -60,6 +60,45 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
+## What's new in this version: 3.0.1
+
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (761 characters) and, in the fr-CA listing, the French
+below (958 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon and inside the guillemets.
+
+The French is new for 3.0.1, reviewed by the manager 2026-10-15 and 2026-10-16. The sideload
+dependencies fix (the x86 Windows App Runtime) is left out: it concerns the GitHub
+test build, not the Store copy. If 3.0.0 never reached the Store, the 3.0.0 text below
+followed by these lines without their first one would be 1516 and 1934 characters,
+over the limit: that case needs a shorter text of its own.
+
+en-US:
+
+```text
+District AI 3.0.1:
+- A call ringing on this computer stops as soon as it is answered on another device, the caller hangs up or the ring times out, and its notification goes away.
+- Call routing rules: the caller details and comparisons show the web portal's labels, in English and in French.
+- Phone numbers: monthly prices show two decimals and their currency.
+- Screens fit large text and narrow windows better, and support requests show their status in your language.
+- Booking pages: when your working hours, an event type's hosts or a webhook's deliveries can't be loaded, Try again loads them again.
+- Analytics: the caller sentiment bands keep their colours in French.
+- The app no longer closes unexpectedly while you edit your working hours exceptions.
+```
+
+fr-CA:
+
+```text
+District AI 3.0.1 :
+- Un appel qui sonne sur cet ordinateur s'arrête dès qu'il est pris sur un autre appareil, que l'appelant raccroche ou que la sonnerie expire, et sa notification disparaît.
+- Règles d'acheminement : les champs du contact et les comparaisons affichent les libellés du portail Web, en français comme en anglais.
+- Numéros de téléphone : les prix mensuels s'affichent avec deux décimales et leur devise.
+- Les écrans s'adaptent mieux au texte agrandi et aux fenêtres étroites, et les demandes de soutien affichent leur état dans votre langue.
+- Pages de réservation : lorsque vos heures de disponibilité, les hôtes d'un type de rendez-vous ou les envois d'un webhook ne se chargent pas, « Réessayer » les charge de nouveau.
+- Analytique : les barres du sentiment de l'appelant conservent leurs couleurs en français.
+- L'application ne se ferme plus de façon inattendue pendant que vous modifiez les exceptions de vos heures de disponibilité.
+```
+
 ## What's new in this version: 3.0.0
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text

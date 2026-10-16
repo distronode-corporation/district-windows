@@ -4,8 +4,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:l10n="using:DistrictAI.L10n">
-    <!-- Loading, a load that failed, or nothing to show: whichever applies, centred where the content would be. -->
+    <!--
+        Loading, a load that failed, or nothing to show: whichever applies, centred
+        where the content would be. With none of them it is collapsed (StatusPanel.xaml.cs),
+        so a page that loaded shows no empty band where the panel's padding was.
+    -->
     <StackPanel
+        x:Name="Body"
         MaxWidth="480"
         Padding="24"
         HorizontalAlignment="Center"

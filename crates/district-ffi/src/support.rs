@@ -84,7 +84,8 @@ pub struct SupportRowView {
     pub subject: String,
     /// Its support desk key (`DA-42`), or `support.not_filed_yet`.
     pub reference: String,
-    /// Where it stands, in the support desk's own word, shown as it is.
+    /// Where it stands, as the core labels the desk's status in the app's
+    /// language.
     pub status: String,
     /// When it last changed, as an ISO 8601 instant.
     pub updated_at: String,
@@ -170,7 +171,8 @@ pub struct SupportRequestView {
     pub status: LoadStatus,
     /// Its support desk key (`DA-42`), or `support.not_filed_yet`. Empty until read.
     pub reference: String,
-    /// Where it stands, in the support desk's own word. Empty until read.
+    /// Where it stands, as the core labels the desk's status in the app's
+    /// language. Empty until read.
     pub status_name: String,
     /// Whether it is resolved.
     pub resolved: bool,
@@ -383,9 +385,16 @@ fn row(request: &SupportRequestSummary) -> SupportRowView {
         key: support_request_key(request).to_owned(),
         subject: request.subject.clone(),
         reference: reference(request.issue_key.as_deref()),
-        status: request.status_name.clone(),
+        status: status_label(&request.status_name, &request.status_category),
         updated_at: request.updated_at.clone(),
     }
+}
+
+/// Where a request stands, in the app's language: the core's label for a
+/// status it lists, else its category's (never the desk's own word, which is
+/// the workflow's language).
+fn status_label(name: &str, category: &str) -> String {
+    district_core::l10n::support_status_label(name, category, l()).to_owned()
 }
 
 /// A request's reference: its support desk key, or that it has none yet.
@@ -460,7 +469,7 @@ fn request_view(screen: &SupportRequestScreen) -> SupportRequestView {
             view.status = LoadStatus::Ready;
             view.title = detail.subject.clone();
             view.reference = reference(detail.issue_key.as_deref());
-            view.status_name = detail.status_name.clone();
+            view.status_name = status_label(&detail.status_name, &detail.status_category);
             view.resolved = detail
                 .status_category
                 .eq_ignore_ascii_case(district_model::SUPPORT_STATUS_DONE);

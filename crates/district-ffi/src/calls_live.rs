@@ -216,6 +216,7 @@ fn ring_view(ring: &IncomingRing, elsewhere: Option<&str>) -> IncomingRingView {
     let title = match &ring.phase {
         RingPhase::Waiting => cs::live_waiting_title(l()),
         RingPhase::Ended(RingEnd::Missed) => cs::live_missed_title(l()),
+        RingPhase::Ended(RingEnd::AnsweredElsewhere) => cs::live_answered_elsewhere_title(l()),
         RingPhase::Ringing
         | RingPhase::Answering
         | RingPhase::Ended(RingEnd::CallEnded | RingEnd::AnswerFailed(_)) => cs::ringing_title(l()),
@@ -673,6 +674,20 @@ mod tests {
         .unwrap();
         assert_eq!(view.caller, IncomingRing::TITLE);
         assert_eq!(view.detail.as_deref(), Some(IncomingRing::CALL_ENDED));
+
+        // Stopped by the service's call_ring_cancelled: answered elsewhere.
+        let view = incoming_ring_view(&with_ring(
+            &model,
+            ring("ws-1", RingPhase::Ended(RingEnd::AnsweredElsewhere)),
+        ))
+        .unwrap();
+        assert_eq!(view.caller, IncomingRing::ANSWERED_ELSEWHERE_TITLE);
+        assert_eq!(
+            view.detail.as_deref(),
+            Some(IncomingRing::ANSWERED_ELSEWHERE)
+        );
+        assert!(!view.live && !view.show_answer && !view.can_answer && !view.can_decline);
+        assert!(!view.sounding && view.note.is_none());
 
         let failure = FailureText {
             message: "That call could not be answered.".to_owned(),

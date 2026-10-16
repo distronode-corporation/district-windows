@@ -43,6 +43,11 @@ public sealed partial class HoursWeekViewModel : ObservableObject
     [ObservableProperty]
     public partial string FailureMessage { get; set; } = string.Empty;
 
+    /// <summary>Whether "Try again" is offered for the failed read.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RetryCommand))]
+    public partial bool CanRetry { get; set; }
+
     /// <summary>Whether the windows can be changed: the week is read and no save is on its way.</summary>
     [ObservableProperty]
     public partial bool Editable { get; set; }
@@ -74,6 +79,7 @@ public sealed partial class HoursWeekViewModel : ObservableObject
         Loading = view.Status is LoadStatus.Loading;
         Failed = failure is not null;
         FailureMessage = Display.Failure(failure);
+        CanRetry = failure?.Retryable ?? false;
         Editable = view.Editable;
         Notice = view.Notice ?? string.Empty;
         HasNotice = view.Notice is not null;
@@ -124,6 +130,14 @@ public sealed partial class HoursWeekViewModel : ObservableObject
 
     [RelayCommand]
     private void DismissNotice() => Send(new HoursAction.DismissNotice());
+
+    /// <summary>"Try again": the editor reads its hours again.</summary>
+    [RelayCommand(CanExecute = nameof(CanRetry))]
+    private void Retry()
+    {
+        CanRetry = false;
+        Send(new HoursAction.RetryRead());
+    }
 
     private void Send(HoursAction action) => _context?.Send(SchedulingHoursViewModel.Event(action));
 }
@@ -184,6 +198,11 @@ public sealed partial class HoursOverridesViewModel : ObservableObject
     /// <summary>Why their read failed.</summary>
     [ObservableProperty]
     public partial string FailureMessage { get; set; } = string.Empty;
+
+    /// <summary>Whether "Try again" is offered for the failed read.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RetryCommand))]
+    public partial bool CanRetry { get; set; }
 
     /// <summary>Whether the overrides are read and none is to come.</summary>
     [ObservableProperty]
@@ -311,6 +330,7 @@ public sealed partial class HoursOverridesViewModel : ObservableObject
         Loading = view.Status is LoadStatus.Loading;
         Failed = failure is not null;
         FailureMessage = Display.Failure(failure);
+        CanRetry = failure?.Retryable ?? false;
         Display.Sync(Rows, [.. view.Rows.Select(row => OverrideEntry.From(row, view.DeleteLabel))]);
         ShowEmpty = view.Status is LoadStatus.Ready && view.Rows.Length == 0;
         EmptyText = view.Empty;
@@ -442,6 +462,14 @@ public sealed partial class HoursOverridesViewModel : ObservableObject
             return;
         }
         Send(new HoursAction.EditOverride(Form()));
+    }
+
+    /// <summary>"Try again": the editor reads its hours again.</summary>
+    [RelayCommand(CanExecute = nameof(CanRetry))]
+    private void Retry()
+    {
+        CanRetry = false;
+        Send(new HoursAction.RetryRead());
     }
 
     private void Send(HoursAction action) => _context?.Send(SchedulingHoursViewModel.Event(action));

@@ -89,6 +89,28 @@ impl Session {
         self
     }
 
+    /// The service's start page answers the newest hand-off the core opened
+    /// (in the checkout view or the browser) with its `districtai://handoff`
+    /// link, as the window hands it over: the hand-off's `state` and a nonce.
+    fn hand_off_answered(self) -> Self {
+        let start = self
+            .pending
+            .iter()
+            .rev()
+            .find_map(|effect| match effect {
+                Effect::OpenEmbedded { url, .. } | Effect::OpenOneTimeUrl { url } => url
+                    .expose()
+                    .contains("/dashboard/handoff/start?")
+                    .then(|| url.expose().to_owned()),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("no hand-off opened: {:?}", self.pending));
+        let state = start.split_once("state=").expect("a state").1.to_owned();
+        let nonce = "n".repeat(district_auth::HAND_OFF_NONCE_LEN);
+        let link = format!("districtai://handoff?state={state}&nonce={nonce}");
+        self.send(Event::from_link(&link).expect("the app's own link"))
+    }
+
     /// Answers the newest pending effect `pick` finds with `answer`.
     fn answer(mut self, pick: fn(&Effect) -> bool, answer: impl FnOnce(Ticket) -> Event) -> Self {
         let index = self

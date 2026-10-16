@@ -2583,6 +2583,61 @@ tier = "T3"
 state = "reviewed"
 note = "A routing rule's engine when it sets none: the persona's."
 
+[routing.field_caller_type]
+en = "Caller type (business/consumer)"
+fr = "Type d'appelant (business/consumer)"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+state = "reviewed"
+note = "The caller detail `callerType` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
+
+[routing.field_estimated_value]
+en = "Estimated value"
+fr = "Valeur estimée"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+state = "reviewed"
+note = "The caller detail `estimatedValue` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French."
+
+[routing.field_industry]
+en = "Industry"
+fr = "Secteur d'activité"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+state = "reviewed"
+fr_variant = "The routing builder's caller detail as the web portal labels it, not the contact detail's label (contacts.fact_industry)."
+note = "The caller detail `industry` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French."
+
+[routing.field_is_decision_maker]
+en = "Decision maker (true/false)"
+fr = "Décideur (true/false)"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+state = "reviewed"
+note = "The caller detail `isDecisionMaker` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
+
+[routing.field_line_type]
+en = "Line type (mobile/landline/voip)"
+fr = "Type de ligne (mobile/landline/voip)"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+state = "reviewed"
+note = "The caller detail `lineType` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
+
+[routing.field_seniority]
+en = "Seniority (e.g. vp, c-suite)"
+fr = "Niveau hiérarchique (p. ex. vp, c-suite)"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+state = "reviewed"
+note = "The caller detail `seniority` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
+
 [routing.intro]
 en = "Which callers get which voice and instruction. Rules are checked in this order, and saving replaces every rule stored."
 fr = "Ces règles choisissent la voix et la consigne selon l'appelant. Elles sont vérifiées dans cet ordre, et chaque sauvegarde remplace toutes les règles stockées."
@@ -2610,6 +2665,24 @@ screen = "routing"
 tier = "T3"
 state = "reviewed"
 note = "The line under a routing rule that matches no caller detail yet."
+
+[routing.operator_contains]
+en = "Contains"
+fr = "Contient"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+state = "reviewed"
+note = "The comparison `contains` in a routing rule's picker; a rule's line writes it in lower case. The web portal's label (personaMediaI18n.ts routingOperatorLabels on GitLab main), in English and French."
+
+[routing.operator_equals]
+en = "Equals"
+fr = "Égal à"
+ctx = "label"
+screen = "routing"
+tier = "T3"
+state = "reviewed"
+note = "The comparison `equals` in a routing rule's picker; a rule's line writes it in lower case. The web portal's label (personaMediaI18n.ts routingOperatorLabels on GitLab main), in English and French."
 
 [routing.picker_field]
 en = "Caller detail"

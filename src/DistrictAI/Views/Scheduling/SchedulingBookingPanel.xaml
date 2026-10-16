@@ -8,95 +8,96 @@
     xmlns:vm="using:DistrictAI.ViewModels">
     <Grid>
         <ScrollViewer AutomationProperties.AutomationId="SchedulingBooking">
-            <StackPanel
-                MaxWidth="{StaticResource ReadingWidth}"
-                HorizontalAlignment="Left"
-                Spacing="12">
-                <!-- The booking, as the list shows it. -->
-                <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasSummary, Mode=OneWay}">
-                    <TextBlock
-                        AutomationProperties.AutomationId="SchedulingBookingWhen"
-                        Style="{StaticResource SubtitleTextBlockStyle}"
-                        Text="{x:Bind ViewModel.When, Mode=OneWay}"
-                        TextWrapping="Wrap" />
-                    <TextBlock Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}" TextWrapping="Wrap" />
-                    <TextBlock
-                        IsTextSelectionEnabled="True"
-                        Style="{StaticResource QuietTextStyle}"
-                        Text="{x:Bind ViewModel.Email, Mode=OneWay}" />
-                    <TextBlock
-                        Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="{x:Bind ViewModel.StatusLabel, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.IsSuccess, Mode=OneWay}" />
-                    <TextBlock
-                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="{x:Bind ViewModel.StatusLabel, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.IsDanger, Mode=OneWay}" />
-                    <TextBlock
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="{x:Bind ViewModel.StatusLabel, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.IsNeutral, Mode=OneWay}" />
-                </StackPanel>
-
-                <InfoBar
-                    AutomationProperties.AutomationId="SchedulingBookingNotice"
-                    AutomationProperties.Name="{x:Bind l10n:S.SchedulingChangeNotice}"
-                    CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand, Mode=OneWay}"
-                    IsClosable="True"
-                    IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
-                    Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
-                    Severity="Success" />
-
-                <!-- The cancel, the one write this page offers. -->
-                <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.OffersCancel, Mode=OneWay}">
-                    <StackPanel Spacing="8">
+            <views:PageColumn>
+                <StackPanel
+                    MaxWidth="{StaticResource ReadingWidth}"
+                    Spacing="12">
+                    <!-- The booking, as the list shows it. -->
+                    <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.HasSummary, Mode=OneWay}">
                         <TextBlock
-                            AutomationProperties.HeadingLevel="Level2"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Text="{x:Bind ViewModel.ManageHeading, Mode=OneWay}" />
-                        <Button
-                            AutomationProperties.AutomationId="SchedulingBookingCancelButton"
-                            AutomationProperties.Name="{x:Bind ViewModel.CancelLabel, Mode=OneWay}"
-                            Command="{x:Bind ViewModel.OpenCancelCommand, Mode=OneWay}"
-                            Content="{x:Bind ViewModel.CancelLabel, Mode=OneWay}" />
-                    </StackPanel>
-                </Border>
-
-                <!-- What the booker answered. -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel Spacing="8">
+                            AutomationProperties.AutomationId="SchedulingBookingWhen"
+                            Style="{StaticResource SubtitleTextBlockStyle}"
+                            Text="{x:Bind ViewModel.When, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                        <TextBlock Text="{x:Bind ViewModel.Subtitle, Mode=OneWay}" TextWrapping="Wrap" />
                         <TextBlock
-                            AutomationProperties.HeadingLevel="Level2"
-                            Style="{StaticResource SectionHeaderStyle}"
-                            Text="{x:Bind ViewModel.AnswersHeading, Mode=OneWay}" />
-                        <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
-                        <TextBlock
+                            IsTextSelectionEnabled="True"
                             Style="{StaticResource QuietTextStyle}"
-                            Text="{x:Bind ViewModel.NoQuestions, Mode=OneWay}"
-                            TextWrapping="Wrap"
-                            Visibility="{x:Bind ViewModel.ShowNoQuestions, Mode=OneWay}" />
-                        <ItemsRepeater AutomationProperties.AutomationId="SchedulingBookingAnswers" ItemsSource="{x:Bind ViewModel.Answers}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="vm:FactItem">
-                                    <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
-                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
-                                        <TextBlock
-                                            IsTextSelectionEnabled="True"
-                                            Text="{x:Bind Value}"
-                                            TextWrapping="Wrap" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
+                            Text="{x:Bind ViewModel.Email, Mode=OneWay}" />
+                        <TextBlock
+                            Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind ViewModel.StatusLabel, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsSuccess, Mode=OneWay}" />
+                        <TextBlock
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind ViewModel.StatusLabel, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsDanger, Mode=OneWay}" />
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind ViewModel.StatusLabel, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsNeutral, Mode=OneWay}" />
                     </StackPanel>
-                </Border>
-            </StackPanel>
+
+                    <InfoBar
+                        AutomationProperties.AutomationId="SchedulingBookingNotice"
+                        AutomationProperties.Name="{x:Bind l10n:S.SchedulingChangeNotice}"
+                        CloseButtonCommand="{x:Bind ViewModel.DismissNoticeCommand, Mode=OneWay}"
+                        IsClosable="True"
+                        IsOpen="{x:Bind ViewModel.HasNotice, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.Notice, Mode=OneWay}"
+                        Severity="Success" />
+
+                    <!-- The cancel, the one write this page offers. -->
+                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.OffersCancel, Mode=OneWay}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.ManageHeading, Mode=OneWay}" />
+                            <Button
+                                AutomationProperties.AutomationId="SchedulingBookingCancelButton"
+                                AutomationProperties.Name="{x:Bind ViewModel.CancelLabel, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.OpenCancelCommand, Mode=OneWay}"
+                                Content="{x:Bind ViewModel.CancelLabel, Mode=OneWay}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- What the booker answered. -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                AutomationProperties.HeadingLevel="Level2"
+                                Style="{StaticResource SectionHeaderStyle}"
+                                Text="{x:Bind ViewModel.AnswersHeading, Mode=OneWay}" />
+                            <views:StatusPanel x:Name="Status" HorizontalAlignment="Left" />
+                            <TextBlock
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind ViewModel.NoQuestions, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.ShowNoQuestions, Mode=OneWay}" />
+                            <ItemsRepeater AutomationProperties.AutomationId="SchedulingBookingAnswers" ItemsSource="{x:Bind ViewModel.Answers}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Spacing="8" />
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FactItem">
+                                        <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}" Spacing="2">
+                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
+                                            <TextBlock
+                                                IsTextSelectionEnabled="True"
+                                                Text="{x:Bind Value}"
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </views:PageColumn>
         </ScrollViewer>
     </Grid>
 </UserControl>

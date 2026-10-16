@@ -192,6 +192,8 @@ public sealed class CoreHostTests : IDisposable
         host.Start(_dataDir, "0.1.0", null, Namespace, _english);
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
         Assert.True(host.PushReceived("{\"type\":\"message\",\"messageId\":\"m-1\",\"workspaceId\":\"ws-1\"}"));
+        // A ring's end (3.0.1) is read too: nothing rings here, so it changes nothing.
+        Assert.True(host.PushReceived("{\"type\":\"call_ring_cancelled\",\"callId\":\"c-1\",\"workspaceId\":\"ws-1\",\"reason\":\"answered\"}"));
         Assert.False(host.PushReceived("not a push"));
         // Not a channel: nothing is sent. Signed out: there is no bearer to send with.
         Assert.IsType<PushRegistration.NotAChannel>(await host.RegisterPushChannelAsync("https://example.com/w/"));
@@ -227,6 +229,28 @@ public sealed class CoreHostTests : IDisposable
         host.StateChanged(host.Current.Revision);
         dispatcher.Drain();
         Assert.Equal(1, rendered);
+    }
+
+    [Fact]
+    public async Task ARenderThatThrowsIsReportedAndStillEndsTheWork()
+    {
+        using var trace = new TraceRecorder();
+        var marker = Guid.NewGuid().ToString("N");
+        var dispatcher = new ManualDispatcher();
+        await using var host = new CoreHost(dispatcher, new RecordingBrowser());
+        host.Changed += (_, _) => throw new InvalidOperationException(marker, new FormatException("why"));
+        host.Start(_dataDir, "0.1.0", null, Namespace, _english);
+        await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
+        await Eventually("a render queued", () => dispatcher.Pending > 0);
+
+        // Thrown on, never swallowed: the UI thread ends as it did before.
+        var thrown = Assert.Throws<InvalidOperationException>(dispatcher.Drain);
+        Assert.Equal(marker, thrown.Message);
+        var reported = Assert.Single(trace.Naming(marker));
+        Assert.Contains("an exception escaped rendering the core's view", reported, StringComparison.Ordinal);
+        Assert.Contains($"System.InvalidOperationException, HResult 0x80131509: {marker}", reported, StringComparison.Ordinal);
+        Assert.Contains("inner: System.FormatException, HResult 0x80131537: why", reported, StringComparison.Ordinal);
+        Assert.Contains(nameof(ARenderThatThrowsIsReportedAndStillEndsTheWork), reported, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -334,9 +358,23 @@ public sealed class CoreHostTests : IDisposable
             embedded.Opened);
     }
 
+    [Fact]
+    public void ARingsEndDecodesWithItsReason()
+    {
+        var end = Assert.IsType<PushMessage.RingCancelled>(
+            DistrictFfi.DecodePush("{\"type\":\"call_ring_cancelled\",\"workspaceId\":\"ws-1\",\"callId\":\"c-1\",\"reason\":\"timeout\"}"));
+        Assert.Equal(("c-1", "ws-1", "timeout"), (end.CallId, end.WorkspaceId, end.Reason));
+        // An unknown reason is still a ring's end; the core reads it as withdrawn.
+        Assert.IsType<PushMessage.RingCancelled>(
+            DistrictFfi.DecodePush("{\"type\":\"call_ring_cancelled\",\"workspaceId\":\"ws-1\",\"callId\":\"c-1\",\"reason\":\"parked\"}"));
+        Assert.Null(DistrictFfi.DecodePush("{\"type\":\"call_ring_cancelled\",\"workspaceId\":\"ws-1\"}"));
+    }
+
     [Theory]
     [InlineData("districtai://auth?code=c&state=s", LinkKind.Auth)]
     [InlineData("districtai://handoff", LinkKind.Handoff)]
+    // As protocol activation hands it over (System.Uri.AbsoluteUri adds the path's "/").
+    [InlineData("districtai://handoff/?state=s&nonce=n", LinkKind.Handoff)]
     [InlineData("districtai://elsewhere", LinkKind.Unknown)]
     public void TheLinkKindIsTheCores(string uri, LinkKind kind) =>
         Assert.Equal(kind, DistrictFfi.LinkKind(uri));

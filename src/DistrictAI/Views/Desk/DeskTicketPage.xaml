@@ -137,7 +137,7 @@
                                             Text="{x:Bind Body}"
                                             TextWrapping="Wrap" />
                                         <TextBlock
-                                            Foreground="{ThemeResource TextOnAccentFillColorSecondaryBrush}"
+                                            Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                                             Style="{StaticResource CaptionTextBlockStyle}"
                                             Text="{x:Bind Meta}" />
                                     </StackPanel>
