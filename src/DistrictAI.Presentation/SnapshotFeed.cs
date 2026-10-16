@@ -11,16 +11,16 @@ namespace DistrictAI.ViewModels;
 /// ends the app) while the dialog is opening or the list is being laid out.
 /// Here a change only asks for the next snapshot, posted once until it runs
 /// (<c>post</c>: the UI thread's queue, after layout), and the view gets a
-/// copy it alone holds. Disposed, it stops following the collection, so a
+/// copy it alone holds. Stopped, it follows the collection no more, so a
 /// closed dialog's list never hears of a change again.
 /// </summary>
-internal sealed class SnapshotFeed<T> : IDisposable
+internal sealed class SnapshotFeed<T>
 {
     private readonly ObservableCollection<T> _source;
     private readonly Func<Action, bool> _post;
     private readonly Action<IReadOnlyList<T>> _show;
     private bool _posted;
-    private bool _disposed;
+    private bool _stopped;
 
     /// <summary>
     /// Shows <paramref name="source"/> now, through <paramref name="show"/>,
@@ -39,9 +39,9 @@ internal sealed class SnapshotFeed<T> : IDisposable
     }
 
     /// <summary>Stops following the collection; a snapshot already posted shows nothing.</summary>
-    public void Dispose()
+    internal void Stop()
     {
-        _disposed = true;
+        _stopped = true;
         _source.CollectionChanged -= OnChanged;
     }
 
@@ -62,7 +62,7 @@ internal sealed class SnapshotFeed<T> : IDisposable
     private void Snapshot()
     {
         _posted = false;
-        if (!_disposed)
+        if (!_stopped)
         {
             _show([.. _source]);
         }

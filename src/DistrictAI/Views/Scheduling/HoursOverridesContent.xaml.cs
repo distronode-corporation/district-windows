@@ -25,7 +25,7 @@ public sealed partial class HoursOverridesContent : UserControl
         // the app. Once the dialog closes, its list follows nothing.
         Loaded += (_, _) =>
         {
-            _rows?.Dispose();
+            _rows?.Stop();
             _rows = new SnapshotFeed<OverrideEntry>(
                 ViewModel.Rows,
                 work => DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => work()),
@@ -33,7 +33,7 @@ public sealed partial class HoursOverridesContent : UserControl
         };
         Unloaded += (_, _) =>
         {
-            _rows?.Dispose();
+            _rows?.Stop();
             _rows = null;
             List.ItemsSource = null;
         };
