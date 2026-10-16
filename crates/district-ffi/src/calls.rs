@@ -418,16 +418,11 @@ mod tests {
             .unwrap()
         };
         assert_eq!(duration(&call(Some(65))).as_deref(), Some("1m 5s"));
-        // Core 5.0.0 keeps the length whole, « 1 min 5 s » with every space
-        // U+00A0; 4.0.2 broke between the parts. TODO(core v5.0.0 pin): keep
-        // the first form only.
-        let french = district_l10n::with_locale(Locale::FrCa, || duration(&call(Some(65))));
-        assert!(
-            matches!(
-                french.as_deref(),
-                Some("1\u{a0}min\u{a0}5\u{a0}s" | "1\u{a0}min 5\u{a0}s")
-            ),
-            "{french:?}"
+        // The core keeps the length whole, « 1 min 5 s » with every space
+        // U+00A0.
+        assert_eq!(
+            district_l10n::with_locale(Locale::FrCa, || duration(&call(Some(65)))).as_deref(),
+            Some("1\u{a0}min\u{a0}5\u{a0}s")
         );
         assert_eq!(duration(&call(Some(0))), None);
         assert_eq!(

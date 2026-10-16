@@ -18,6 +18,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - In high contrast, a message this workspace sent keeps an edge, as received ones do.
 - French: the voice audition is called « aperçu » in both its sentences (« L'aperçu est
   terminé. »).
+- The shared core is district-core-rust 5.0.0, which keeps a French call length whole
+  (« 1 min 5 s », every space no-break), gives a webhook's new signing secret its own
+  warning, says in French that another contact already holds a number or address (the
+  service's 409) and offers no retry for it, keeps a ticket's row in the queue in step
+  with a reply or a status change, and clears a booking form's complaint as soon as
+  the value is changed.
 
 ### Changed
 
