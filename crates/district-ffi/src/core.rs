@@ -1542,9 +1542,7 @@ mod tests {
                 .unwrap()
                 .iter()
                 .filter_map(|effect| match effect {
-                    Effect::RequestBillingHandOff { nonce, .. } => {
-                        Some(nonce.as_ref().map(|nonce| nonce.as_str().to_owned()))
-                    }
+                    Effect::RequestBillingHandOff { nonce, .. } => Some(nonce.as_str().to_owned()),
                     _ => None,
                 })
                 .collect::<Vec<_>>()
@@ -1562,7 +1560,7 @@ mod tests {
         let answer = format!("districtai://handoff/?state={state}&nonce={nonce}");
         assert_eq!(core.open_link(answer), LinkKind::Handoff);
         eventually("the link is asked for", || !minted().is_empty()).await;
-        assert_eq!(minted(), vec![Some(nonce)]);
+        assert_eq!(minted(), vec![nonce]);
         core.shutdown().await;
     }
 

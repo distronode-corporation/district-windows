@@ -223,7 +223,7 @@
                 "minted": {
                   "copy_label": "Copy signing secret",
                   "note": "Every delivery to https://hooks.contract.test/bookings is signed with it, in the X-Calnode-Signature header.",
-                  "warning": "Copy it now. It is not shown again."
+                  "warning": "Copy the secret now. It is not shown again."
                 },
                 "notice": null,
                 "url": "https://hooks.example.com/bookings",

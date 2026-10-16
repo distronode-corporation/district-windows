@@ -2206,7 +2206,7 @@ pub fn persona_cooling(l: Locale) -> &'static str {
 pub fn persona_ended(l: Locale) -> &'static str {
     match l {
         Locale::En => "The audition ended.",
-        Locale::FrCa => "L'essai est terminé.",
+        Locale::FrCa => "L'aperçu est terminé.",
     }
 }
 
@@ -3059,6 +3059,15 @@ pub fn welcome_create_account_note(l: Locale) -> &'static str {
     }
 }
 
+/// `workflows.action_result`
+#[must_use]
+pub fn workflows_action_result(l: Locale, action: &str, outcome: &str) -> String {
+    match l {
+        Locale::En => format!("{action}: {outcome}"),
+        Locale::FrCa => format!("{action}\u{00A0}: {outcome}"),
+    }
+}
+
 /// `workflows.batch_label`
 #[must_use]
 pub fn workflows_batch_label(l: Locale) -> &'static str {
@@ -3101,6 +3110,15 @@ pub fn workflows_not_run_yet(l: Locale) -> &'static str {
     match l {
         Locale::En => "Not run yet",
         Locale::FrCa => "Pas encore exécuté",
+    }
+}
+
+/// `workflows.outcome_reason`
+#[must_use]
+pub fn workflows_outcome_reason(l: Locale, outcome: &str, reason: &str) -> String {
+    match l {
+        Locale::En => format!("{outcome} ({reason})"),
+        Locale::FrCa => format!("{outcome} ({reason})"),
     }
 }
 

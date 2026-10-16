@@ -611,7 +611,7 @@ namespace DistrictAI.L10n
         public static string InboxSearchFailed => Current == Locale.FrCa ? "Recherche impossible" : "Could not search";
 
         /// <summary><c>inbox.title</c></summary>
-        public static string InboxTitle => Current == Locale.FrCa ? "Conversations" : "Conversations";
+        public static string InboxTitle => Current == Locale.FrCa ? "Boîte de réception" : "Inbox";
 
         /// <summary><c>inbox.unread</c></summary>
         public static string InboxUnread => Current == Locale.FrCa ? "non lue" : "unread";

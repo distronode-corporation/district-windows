@@ -69,12 +69,14 @@
                         Padding="0,6"
                         AutomationProperties.Name="{x:Bind AccessibleName}"
                         Spacing="4">
-                        <!-- A message this workspace sent. -->
+                        <!-- A message this workspace sent. Its edge is the incoming bubble's stroke, which high contrast draws in the window text colour, so the bubble keeps a boundary there (visual QA W-22). -->
                         <Border
                             MaxWidth="560"
                             Padding="12,8"
                             HorizontalAlignment="Right"
                             Background="{ThemeResource AccentFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
                             CornerRadius="{StaticResource OverlayCornerRadius}"
                             Visibility="{x:Bind IsOutboundMessage}">
                             <StackPanel Spacing="2">

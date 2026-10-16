@@ -166,7 +166,10 @@ fn rows() -> [Row; 15] {
         row(D::Billing, Workspace, s::nav_billing(l()), "\u{E8A5}"),
         row(D::Workflows, Workspace, s::nav_workflows(l()), "\u{E9F5}"),
         row(D::Scheduling, Workspace, s::nav_scheduling(l()), "\u{E787}"),
-        row(D::Desk, Workspace, s::nav_desk(l()), "\u{E897}"),
+        // Headset: the help desk answers customers; Support, the circled
+        // question mark, asks Distronode. Help (E897) beside it read as the
+        // same icon (visual QA W-27).
+        row(D::Desk, Workspace, s::nav_desk(l()), "\u{E95B}"),
         row(D::Support, Workspace, s::nav_support(l()), "\u{E9CE}"),
         row(D::Rooms, Workspace, s::nav_rooms(l()), "\u{E714}"),
         row(D::Settings, Workspace, s::nav_settings(l()), "\u{E713}"),
@@ -340,6 +343,27 @@ mod tests {
                 )
             })
             .collect()
+    }
+
+    /// No two entries share an icon (visual QA W-27: Help desk and Support
+    /// both drew a question mark).
+    #[test]
+    fn every_entry_has_its_own_glyph() {
+        let nav = nav_for(
+            &Route::Overview,
+            &Capabilities::for_role(Some("agency")),
+            true,
+            0,
+        );
+        let glyphs: Vec<&str> = nav
+            .groups
+            .iter()
+            .flat_map(|group| group.entries.iter().map(|entry| entry.glyph.as_str()))
+            .collect();
+        let mut unique = glyphs.clone();
+        unique.sort_unstable();
+        unique.dedup();
+        assert_eq!(unique.len(), glyphs.len(), "{glyphs:?}");
     }
 
     /// Every role, none included, with and without a workspace open.

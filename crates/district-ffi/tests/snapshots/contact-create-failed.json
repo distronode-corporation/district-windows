@@ -8,7 +8,7 @@
           "failure": {
             "message": "A contact with this phone number already exists.",
             "regions_line": null,
-            "retryable": true
+            "retryable": false
           },
           "form": {
             "email": "",

@@ -7,6 +7,35 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- In French, a workflow run's skipped or failed action says why in French: the
+  service's reason opens with a code (`no-recipient: …`), and the line shows that code's
+  label (« ignoré (aucun destinataire) », « HTTP 503 » for a webhook's error); a reason
+  with no label leaves the parenthesis out, where the English sentence used to show.
+  Each action reads « Envoyer un texto : OK », with French typography's space before the
+  colon and OK in capitals. English is unchanged.
+- In high contrast, a message this workspace sent keeps an edge, as received ones do.
+- French: the voice audition is called « aperçu » in both its sentences (« L'aperçu est
+  terminé. »).
+- The shared core is district-core-rust 5.0.0, which keeps a French call length whole
+  (« 1 min 5 s », every space no-break), gives a webhook's new signing secret its own
+  warning, says in French that another contact already holds a number or address (the
+  service's 409) and offers no retry for it, keeps a ticket's row in the queue in step
+  with a reply or a status change, and clears a booking form's complaint as soon as
+  the value is changed.
+
+### Changed
+
+- The Inbox page is headed "Inbox" (« Boîte de réception »), as its entry in the pane
+  is, instead of "Conversations".
+- Help desk has its own icon in the pane, a headset, instead of a question mark like
+  Support's.
+- The ring length slider in Call handling shows its value ("20 seconds") under it as it
+  moves.
+- Booking pages, Team: someone who left with bookings still assigned is a warning
+  InfoBar instead of a card with red text.
+
 ## [3.0.1] - 2026-10-15
 
 ### Fixed

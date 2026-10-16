@@ -1,11 +1,11 @@
 {
-  "signed_off_by": "v3 manager (Opus 5.5 xhigh), final French review, 2026-10-15",
-  "release": "v3.0.1",
-  "commit": "d8c725669323bf220ab676480fb879d23a88abed",
+  "signed_off_by": "v3 manager (Opus 5.5 xhigh), final French review, 2026-10-16",
+  "release": "v3.0.2",
+  "commit": "bf0858e0e361ac5240b18ef5512475660db59768",
   "catalogs": [
     {
       "path": "crates/district-ffi/l10n/ffi.toml",
-      "sha256": "cbe55af34f6b71fafe688692a4705a7bcc2500447d083d8287d9d9a398c8ae5c"
+      "sha256": "d4b975844f621b41a70b533d88187e616e3a5be5fa8b7a5654f0516e66f89c28"
     },
     {
       "path": "src/DistrictAI/l10n/manifest.toml",
@@ -13,7 +13,7 @@
     },
     {
       "path": "src/DistrictAI/l10n/ui.toml",
-      "sha256": "b45a46e2f1fb2611dbd7af8732f5278da5d98d680f8fc3886d381f1b1b74ff81"
+      "sha256": "f92379884f63ca067e5c3be6fc70d756a3f08289d61d8adc71230cdd8072fcba"
     }
   ]
 }

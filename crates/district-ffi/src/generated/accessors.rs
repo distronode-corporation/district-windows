@@ -505,7 +505,7 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::persona_cooling(Locale::En), "Another audition can start in a few seconds.");
     assert_eq!(s::persona_cooling(Locale::FrCa), "Un autre aperçu pourra démarrer dans quelques secondes.");
     assert_eq!(s::persona_ended(Locale::En), "The audition ended.");
-    assert_eq!(s::persona_ended(Locale::FrCa), "L'essai est terminé.");
+    assert_eq!(s::persona_ended(Locale::FrCa), "L'aperçu est terminé.");
     assert_eq!(s::persona_engine_heading(Locale::En), "Language and answers");
     assert_eq!(s::persona_engine_heading(Locale::FrCa), "Langue et réponses");
     assert_eq!(s::persona_open_studio(Locale::En), "Open Voice Studio");
@@ -698,6 +698,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::welcome_create_account_label(Locale::FrCa), "Créer un compte");
     assert_eq!(s::welcome_create_account_note(Locale::En), "Your browser opens the District AI sign-in page, which offers Create an account. When the account is made, you come back here signed in.");
     assert_eq!(s::welcome_create_account_note(Locale::FrCa), "Votre navigateur ouvre la page de connexion de District AI, qui propose «\u{00A0}Créer un compte\u{00A0}». Une fois le compte créé, vous revenez ici avec votre session ouverte.");
+    assert_eq!(s::workflows_action_result(Locale::En, "{action}", "{outcome}"), "{action}: {outcome}");
+    assert_eq!(s::workflows_action_result(Locale::FrCa, "{action}", "{outcome}"), "{action}\u{00A0}: {outcome}");
     assert_eq!(s::workflows_batch_label(Locale::En), "Batch size");
     assert_eq!(s::workflows_batch_label(Locale::FrCa), "Taille du lot");
     assert_eq!(s::workflows_goal_label(Locale::En), "Goal");
@@ -708,6 +710,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::workflows_more_runs(Locale::FrCa), "Afficher plus d'exécutions");
     assert_eq!(s::workflows_not_run_yet(Locale::En), "Not run yet");
     assert_eq!(s::workflows_not_run_yet(Locale::FrCa), "Pas encore exécuté");
+    assert_eq!(s::workflows_outcome_reason(Locale::En, "{outcome}", "{reason}"), "{outcome} ({reason})");
+    assert_eq!(s::workflows_outcome_reason(Locale::FrCa, "{outcome}", "{reason}"), "{outcome} ({reason})");
     assert_eq!(s::workflows_reading_runs(Locale::En), "Reading runs.");
     assert_eq!(s::workflows_reading_runs(Locale::FrCa), "Chargement des exécutions.");
     assert_eq!(s::workflows_switch_name(Locale::En, "{workflow}"), "Turn on {workflow}");
