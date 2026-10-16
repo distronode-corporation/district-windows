@@ -2216,7 +2216,7 @@ note = "The line while another audition must wait."
 
 [persona.ended]
 en = "The audition ended."
-fr = "L'essai est terminé."
+fr = "L'aperçu est terminé."
 ctx = "label"
 screen = "persona"
 tier = "T3"
@@ -3075,6 +3075,16 @@ tier = "T3"
 state = "reviewed"
 note = "The line under it: what the button does, since it cannot open the register page itself."
 
+[workflows.action_result]
+en = "{action}: {outcome}"
+fr = "{action}\u00A0: {outcome}"
+ctx = "label"
+screen = "workflows"
+tier = "T3"
+args = { action = "str", outcome = "str" }
+state = "draft"
+note = "One action of a run and what it came to, as District AI for Linux words it: \"Send SMS: ok\". The run's actions are joined by middle dots."
+
 [workflows.batch_label]
 en = "Batch size"
 fr = "Taille du lot"
@@ -3120,6 +3130,17 @@ screen = "workflows"
 tier = "T3"
 state = "reviewed"
 note = "The line under a workflow that has never run, after its trigger."
+
+[workflows.outcome_reason]
+en = "{outcome} ({reason})"
+fr = "{outcome} ({reason})"
+ctx = "label"
+screen = "workflows"
+tier = "T3"
+args = { outcome = "str", reason = "str" }
+state = "draft"
+same_ok = true
+note = "An action's outcome with why it was skipped or failed. In English the reason is the service's own sentence; in French it is the label of the code that opens it (\"no-recipient\" reads « aucun destinataire »), and for a code the vocabulary does not list the outcome is shown alone (visual QA LC06)."
 
 [workflows.reading_runs]
 en = "Reading runs."
