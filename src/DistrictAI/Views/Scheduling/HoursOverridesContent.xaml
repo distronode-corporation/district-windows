@@ -44,7 +44,8 @@
                 Text="{x:Bind ViewModel.EmptyText, Mode=OneWay}"
                 TextWrapping="Wrap"
                 Visibility="{x:Bind ViewModel.ShowEmpty, Mode=OneWay}" />
-            <ItemsRepeater AutomationProperties.AutomationId="HoursOverridesList" ItemsSource="{x:Bind ViewModel.Rows}">
+            <!-- Its items are snapshots of the rows, set after layout (HoursOverridesContent.xaml.cs), never the live collection. -->
+            <ItemsRepeater x:Name="List" AutomationProperties.AutomationId="HoursOverridesList">
                 <ItemsRepeater.Layout>
                     <StackLayout Spacing="8" />
                 </ItemsRepeater.Layout>
