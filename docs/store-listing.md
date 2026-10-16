@@ -60,6 +60,48 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
+## What's new in this version: 3.0.2
+
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (1092 characters) and, in the fr-CA listing, the French
+below (1412 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon, inside the guillemets and inside the call length.
+
+The French is new for 3.0.2, reviewed by the manager 2026-10-16. The notes carry every
+user-visible entry of the CHANGELOG's 3.0.2 section. If 3.0.1 never reached the Store,
+the 3.0.1 text below followed by these lines without their first one would be 1835
+and 2351 characters, over the limit: that case needs a shorter text of its own.
+
+en-US:
+
+```text
+District AI 3.0.2:
+- Workflows: in French, a run's skipped or failed action now gives its reason in French.
+- In French, a call's length such as "1 min 5 s" no longer breaks across two lines.
+- Contacts: when another contact already has the phone number or email address, the message now says so in French too, and no longer offers to try again.
+- Inbox: the page is now headed "Inbox", like its entry in the navigation pane, instead of "Conversations".
+- Help desk: it has its own icon in the navigation pane (a headset), and a ticket's row in the queue updates as soon as you reply or change its status.
+- Call handling: the ring length slider shows its value, such as "20 seconds", as you move it.
+- Booking pages: a form's error goes away as soon as you change the value, a webhook's new signing secret has its own warning, and in Team, someone who left with bookings still assigned is shown as a warning.
+- In high contrast, messages sent from your workspace keep an outline, as received ones do.
+- Persona: in French, both messages shown when you try your receptionist now say "aperçu".
+```
+
+fr-CA:
+
+```text
+District AI 3.0.2 :
+- Flux de travail : dans une exécution, une action ignorée ou en échec indique maintenant sa raison en français, par exemple « ignoré (aucun destinataire) ».
+- La durée d'un appel, comme « 1 min 5 s », ne se coupe plus sur deux lignes.
+- Contacts : lorsqu'un autre contact a déjà ce numéro de téléphone ou cette adresse courriel, le message le dit maintenant en français et ne propose plus de réessayer.
+- Boîte de réception : la page s'intitule maintenant « Boîte de réception », comme dans le volet de navigation, au lieu de « Conversations ».
+- Comptoir clients : la section a sa propre icône dans le volet de navigation (un casque d'écoute), et la ligne d'un billet dans la file d'attente se met à jour dès que vous y répondez ou changez son état.
+- Gestion des appels : le curseur de durée de sonnerie affiche sa valeur, par exemple « 20 secondes », pendant que vous le déplacez.
+- Pages de réservation : l'erreur d'un formulaire disparaît dès que vous modifiez la valeur, le nouveau secret de signature d'un webhook a son propre avertissement, et dans Équipe, une personne partie à qui des rendez-vous sont encore attribués s'affiche comme un avertissement.
+- En contraste élevé, les messages envoyés par votre espace de travail gardent un contour, comme les messages reçus.
+- Persona : les deux messages affichés quand vous appelez votre réceptionniste parlent maintenant d'« aperçu ».
+```
+
 ## What's new in this version: 3.0.1
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text
