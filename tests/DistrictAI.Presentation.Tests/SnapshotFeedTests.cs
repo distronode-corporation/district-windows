@@ -42,7 +42,7 @@ public sealed class SnapshotFeedTests
         var rows = new ObservableCollection<string> { "a", "b" };
         var queue = new Queue();
         var shown = new List<IReadOnlyList<string>>();
-        using var feed = new SnapshotFeed<string>(rows, queue.Post, shown.Add);
+        _ = new SnapshotFeed<string>(rows, queue.Post, shown.Add);
         Assert.Equal(["a", "b"], Assert.Single(shown));
         Assert.NotSame(rows, shown[0]);
 
@@ -65,14 +65,14 @@ public sealed class SnapshotFeedTests
     }
 
     [Fact]
-    public void DisposedItFollowsNothingAndAPostedSnapshotShowsNothing()
+    public void StoppedItFollowsNothingAndAPostedSnapshotShowsNothing()
     {
         var rows = new ObservableCollection<int> { 1 };
         var queue = new Queue();
         var shown = new List<IReadOnlyList<int>>();
         var feed = new SnapshotFeed<int>(rows, queue.Post, shown.Add);
         rows.Add(2);
-        feed.Dispose();
+        feed.Stop();
         queue.Run();
         rows.Add(3);
         Assert.Equal(0, queue.Count);
@@ -85,7 +85,7 @@ public sealed class SnapshotFeedTests
         var rows = new ObservableCollection<int>();
         var queue = new Queue { Gone = true };
         var shown = new List<IReadOnlyList<int>>();
-        using var feed = new SnapshotFeed<int>(rows, queue.Post, shown.Add);
+        _ = new SnapshotFeed<int>(rows, queue.Post, shown.Add);
         rows.Add(1);
         Assert.Equal(0, queue.Count);
         queue.Gone = false;
