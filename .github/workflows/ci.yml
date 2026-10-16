@@ -612,7 +612,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'the GitHub flavour test package carries scripted scenes' }
           Write-Host "GitHub flavour test package: $($msix[0].Name), signed by $publisher"
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: district-ai-github-test-msix
           path: ${{ runner.temp }}/GitHubTestPackage
@@ -642,7 +642,7 @@ jobs:
           if ($output -notmatch 'Total: 2, Errors: 0, Failed: 0, Skipped: 2') { throw 'the live walk did not report its two tests skipped' }
           if ($output -notmatch 'DISTRICTAI_UI_LIVE=1') { throw 'the skip did not say why (DISTRICTAI_UI_LIVE=1)' }
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: district-ai-ui-tests
           path: ${{ runner.temp }}/ui-tests
@@ -654,7 +654,7 @@ jobs:
 
       # The test package, its framework dependencies and the public test
       # certificate, for testers and for the spikes. Kept a week.
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: district-ai-test-msix
           path: ${{ runner.temp }}/AppPackages
@@ -708,7 +708,7 @@ jobs:
             -DumpArtifacts (Join-Path $env:RUNNER_TEMP 'crash-dumps')
 
       # The walk's pages, for the Store listing and for review. Kept a week.
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: district-ai-screenshots
@@ -718,7 +718,7 @@ jobs:
 
       # A crash's full dumps (the scripted or test build, fictional data only),
       # for reading with dotnet-dump or WinDbg. Kept 3 days.
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ failure() }}
         with:
           name: district-ai-crash-dumps
@@ -754,7 +754,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+      - uses: zizmorcore/zizmor-action@85b2b9fb8e3325e7a23d7d0a9d7ba5ae0f999e3e # v0.7.1
         with:
           version: 1.30.1
           advanced-security: false
