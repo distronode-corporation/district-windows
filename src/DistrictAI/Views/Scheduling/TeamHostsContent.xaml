@@ -138,8 +138,8 @@
                 AutomationProperties.Name="{x:Bind ViewModel.AddLabel, Mode=OneWay}"
                 Header="{x:Bind ViewModel.AddLabel, Mode=OneWay}"
                 IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
-                ItemsSource="{x:Bind ViewModel.Candidates}"
-                SelectedIndex="{x:Bind ViewModel.PickedIndex, Mode=OneWay}"
+                views:SnapshotItems.Source="{x:Bind ViewModel.Candidates}"
+                views:SnapshotItems.SelectedIndex="{x:Bind ViewModel.PickedIndex, Mode=OneWay}"
                 SelectionChanged="OnCandidateChanged">
                 <RadioButtons.ItemTemplate>
                     <DataTemplate x:DataType="sched:ChoiceEntry">
