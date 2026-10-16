@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using DistrictAI.ViewModels;
 using Xunit;
 
@@ -36,15 +37,24 @@ public sealed class SnapshotFeedTests
         }
     }
 
+    /// <summary>Change notifications with no items to read.</summary>
+    private sealed class NotAList : INotifyCollectionChanged
+    {
+        public event NotifyCollectionChangedEventHandler? CollectionChanged
+        {
+            add { }
+            remove { }
+        }
+    }
+
     [Fact]
     public void TheViewGetsACopyNowAndOneSnapshotAfterEachRunOfChanges()
     {
         var rows = new ObservableCollection<string> { "a", "b" };
         var queue = new Queue();
-        var shown = new List<IReadOnlyList<string>>();
-        _ = new SnapshotFeed<string>(rows, queue.Post, shown.Add);
+        var shown = new List<object?[]>();
+        _ = new SnapshotFeed(rows, queue.Post, shown.Add);
         Assert.Equal(["a", "b"], Assert.Single(shown));
-        Assert.NotSame(rows, shown[0]);
 
         // Changes inside one render reach the view later, once, as they ended.
         rows.RemoveAt(0);
@@ -69,8 +79,8 @@ public sealed class SnapshotFeedTests
     {
         var rows = new ObservableCollection<int> { 1 };
         var queue = new Queue();
-        var shown = new List<IReadOnlyList<int>>();
-        var feed = new SnapshotFeed<int>(rows, queue.Post, shown.Add);
+        var shown = new List<object?[]>();
+        var feed = new SnapshotFeed(rows, queue.Post, shown.Add);
         rows.Add(2);
         feed.Stop();
         queue.Run();
@@ -84,16 +94,17 @@ public sealed class SnapshotFeedTests
     {
         var rows = new ObservableCollection<int>();
         var queue = new Queue { Gone = true };
-        var shown = new List<IReadOnlyList<int>>();
-        _ = new SnapshotFeed<int>(rows, queue.Post, shown.Add);
+        var shown = new List<object?[]>();
+        _ = new SnapshotFeed(rows, queue.Post, shown.Add);
         rows.Add(1);
         Assert.Equal(0, queue.Count);
         queue.Gone = false;
         rows.Add(2);
         queue.Run();
         Assert.Equal([1, 2], shown[^1]);
-        Assert.Throws<ArgumentNullException>(() => new SnapshotFeed<int>(null!, queue.Post, shown.Add));
-        Assert.Throws<ArgumentNullException>(() => new SnapshotFeed<int>(rows, null!, shown.Add));
-        Assert.Throws<ArgumentNullException>(() => new SnapshotFeed<int>(rows, queue.Post, null!));
+        Assert.Throws<ArgumentNullException>(() => new SnapshotFeed(null!, queue.Post, shown.Add));
+        Assert.Throws<ArgumentNullException>(() => new SnapshotFeed(rows, null!, shown.Add));
+        Assert.Throws<ArgumentNullException>(() => new SnapshotFeed(rows, queue.Post, null!));
+        Assert.Throws<ArgumentException>(() => new SnapshotFeed(new NotAList(), queue.Post, shown.Add));
     }
 }
