@@ -33,7 +33,7 @@
             HorizontalContentAlignment="Stretch"
             IsEnabled="{x:Bind ViewModel.Editable, Mode=OneWay}"
             IsTabStop="False">
-            <ItemsRepeater AutomationProperties.AutomationId="HoursWeekDays" ItemsSource="{x:Bind ViewModel.Days}">
+            <ItemsRepeater AutomationProperties.AutomationId="HoursWeekDays" views:SnapshotItems.Source="{x:Bind ViewModel.Days}">
                 <ItemsRepeater.Layout>
                     <StackLayout Spacing="12" />
                 </ItemsRepeater.Layout>
@@ -75,7 +75,7 @@
                                 Style="{StaticResource QuietTextStyle}"
                                 Text="{x:Bind NotBookable}"
                                 Visibility="{x:Bind ShowsNone, Mode=OneWay}" />
-                            <ItemsRepeater ItemsSource="{x:Bind Ranges}">
+                            <ItemsRepeater views:SnapshotItems.Source="{x:Bind Ranges}">
                                 <ItemsRepeater.Layout>
                                     <StackLayout Spacing="4" />
                                 </ItemsRepeater.Layout>
