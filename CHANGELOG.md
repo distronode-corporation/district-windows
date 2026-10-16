@@ -13,8 +13,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   service's reason opens with a code (`no-recipient: …`), and the line shows that code's
   label (« ignoré (aucun destinataire) », « HTTP 503 » for a webhook's error); a reason
   with no label leaves the parenthesis out, where the English sentence used to show.
-  Each action reads « Envoyer un texto : ok », with French typography's space before the
-  colon. English is unchanged.
+  Each action reads « Envoyer un texto : OK », with French typography's space before the
+  colon and OK in capitals. English is unchanged.
 - In high contrast, a message this workspace sent keeps an edge, as received ones do.
 - French: the voice audition is called « aperçu » in both its sentences (« L'aperçu est
   terminé. »).

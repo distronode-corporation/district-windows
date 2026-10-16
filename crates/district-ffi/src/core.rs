@@ -823,11 +823,30 @@ mod tests {
     use std::time::Instant;
 
     use district_api::{ReauthReason, TokenError};
-    use district_auth::AccessClaims;
+    use district_auth::{AccessClaims, HandOffNonce};
     use district_core::RestoreError;
 
     use super::*;
     use crate::host::tests::RecordingHost;
+
+    /// The nonce a hand-off effect carries, as text: core 4.0.2 held it in an
+    /// `Option` that could no longer be `None`, and 5.0.0 holds it as it is.
+    /// TODO(core v5.0.0 pin): read `nonce.as_str()` and drop this trait.
+    trait NonceText {
+        fn text(&self) -> Option<String>;
+    }
+
+    impl NonceText for HandOffNonce {
+        fn text(&self) -> Option<String> {
+            Some(self.as_str().to_owned())
+        }
+    }
+
+    impl NonceText for Option<HandOffNonce> {
+        fn text(&self) -> Option<String> {
+            self.as_ref().map(|nonce| nonce.as_str().to_owned())
+        }
+    }
     use crate::screen::SessionScreen;
     use crate::shell::SessionPhase;
 
@@ -1542,9 +1561,7 @@ mod tests {
                 .unwrap()
                 .iter()
                 .filter_map(|effect| match effect {
-                    Effect::RequestBillingHandOff { nonce, .. } => {
-                        Some(nonce.as_ref().map(|nonce| nonce.as_str().to_owned()))
-                    }
+                    Effect::RequestBillingHandOff { nonce, .. } => Some(nonce.text()),
                     _ => None,
                 })
                 .collect::<Vec<_>>()

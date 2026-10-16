@@ -469,8 +469,12 @@ fn run_line(run: &WorkflowRun) -> String {
         .action_results
         .iter()
         .map(|action| {
-            let outcome =
-                localized(WireCategory::WorkflowActionOutcome, &action.outcome).to_lowercase();
+            // Mid-sentence, as a reason is: « ignoré », « échec », and « OK » kept
+            // in capitals, which French writes as an acronym.
+            let outcome = lower_first(&localized(
+                WireCategory::WorkflowActionOutcome,
+                &action.outcome,
+            ));
             let outcome = match action.reason.as_deref().and_then(reason_words) {
                 Some(reason) => s::workflows_outcome_reason(l(), &outcome, &reason),
                 None => outcome,
@@ -624,6 +628,11 @@ mod tests {
             assert!(!detail.contains('('), "{detail}");
             assert!(!detail.contains("email"), "{detail}");
             assert!(detail.contains("\u{a0}: "), "{detail}");
+            assert!(
+                detail.starts_with("Envoyer un texto\u{a0}: OK \u{b7} "),
+                "{detail}"
+            );
+            assert!(detail.contains("\u{a0}: ignor\u{e9}"), "{detail}");
         });
     }
 
@@ -635,6 +644,8 @@ mod tests {
             lower_first("URL du webhook manquante"),
             "URL du webhook manquante"
         );
+        assert_eq!(lower_first("OK"), "OK");
+        assert_eq!(lower_first("Ignor\u{e9}"), "ignor\u{e9}");
         assert_eq!(lower_first("A"), "a");
         assert_eq!(lower_first(""), "");
     }

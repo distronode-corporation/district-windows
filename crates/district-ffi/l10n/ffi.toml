@@ -2220,7 +2220,7 @@ fr = "L'aperçu est terminé."
 ctx = "label"
 screen = "persona"
 tier = "T3"
-state = "reviewed"
+state = "draft"
 note = "The line once it ended."
 
 [persona.engine_heading]

@@ -356,6 +356,52 @@ fn sign_in_ticket(effects: Vec<Effect>) -> Ticket {
         .expect("signing in opens the browser")
 }
 
+/// What core 5.0.0 changes in a snapshot recorded on 4.0.2: (snapshot, the
+/// 4.0.2 text, the 5.0.0 text). A contact the service refuses as taken (409)
+/// offers no retry, and a webhook's new signing secret has its own warning.
+/// A projection matches its snapshot as recorded or with these applied, so
+/// this branch passes on either core. TODO(core v5.0.0 pin): regenerate the
+/// snapshots (UPDATE_SNAPSHOTS=1) and delete this table; the check below then
+/// fails until it is deleted.
+const NEXT_CORE: &[(&str, &str, &str)] = &[
+    (
+        "contact-create-failed",
+        "\"retryable\": true",
+        "\"retryable\": false",
+    ),
+    (
+        "scheduling-admin-developer-webhook-added",
+        "\"warning\": \"Copy it now. It is not shown again.\"",
+        "\"warning\": \"Copy the secret now. It is not shown again.\"",
+    ),
+];
+
+/// A snapshot's text as core 5.0.0 projects it (`NEXT_CORE`).
+fn on_the_next_core(name: &str, expected: &str) -> String {
+    NEXT_CORE
+        .iter()
+        .filter(|(snapshot, _, _)| *snapshot == name)
+        .fold(expected.to_owned(), |text, (_, before, after)| {
+            assert_eq!(
+                text.matches(before).count(),
+                1,
+                "{name}: {before} is not in the snapshot once; remove its NEXT_CORE row"
+            );
+            text.replace(before, after)
+        })
+}
+
+#[test]
+fn the_next_cores_changes_are_still_ahead() {
+    for (name, before, _) in NEXT_CORE {
+        let snapshot = std::fs::read_to_string(dir().join(format!("{name}.json"))).unwrap();
+        assert!(
+            snapshot.contains(before),
+            "{name} no longer holds {before}: remove its NEXT_CORE row"
+        );
+    }
+}
+
 #[test]
 fn every_projection_matches_its_snapshot() {
     let update = std::env::var_os("UPDATE_SNAPSHOTS").is_some();
@@ -374,7 +420,7 @@ fn every_projection_matches_its_snapshot() {
             continue;
         }
         match std::fs::read_to_string(&path) {
-            Ok(expected) if expected == actual => {}
+            Ok(expected) if expected == actual || on_the_next_core(name, &expected) == actual => {}
             Ok(expected) => failures.push(format!(
                 "{name}: the projection changed\n--- {}\n{expected}\n+++ now\n{actual}",
                 path.display()
