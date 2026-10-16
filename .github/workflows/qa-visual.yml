@@ -25,7 +25,8 @@ env:
   # Which UI tests the capture runs (a dotnet test filter). The whole walk is
   # "FullyQualifiedName~DistrictAI.UiTests.SceneWalkTests|FullyQualifiedName~DistrictAI.UiTests.QaShotTests"
   # (run 38771283592); the 3.0.1 after pass takes the whole walk and the sign-in page.
-  QA_FILTER: "FullyQualifiedName~DistrictAI.UiTests.SceneWalkTests|FullyQualifiedName~DistrictAI.UiTests.QaShotTests"
+  QA_FILTER: "FullyQualifiedName~DistrictAI.UiTests.OverridesStressTests"
+  QA_STRESS_ROUNDS: "50"
 
 jobs:
   capture:
@@ -36,17 +37,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # The overrides stress walk (OverridesStressTests), twice per language and theme.
         include:
-          - { name: en-US-light-100, lang: en-US, culture: en-US, theme: light, scale: 100 }
-          - { name: en-US-dark-100, lang: en-US, culture: en-US, theme: dark, scale: 100 }
-          - { name: fr-CA-light-100, lang: fr-CA, culture: fr-CA, theme: light, scale: 100 }
-          - { name: fr-CA-dark-100, lang: fr-CA, culture: fr-CA, theme: dark, scale: 100 }
-          - { name: en-US-light-200, lang: en-US, culture: en-US, theme: light, scale: 200 }
-          - { name: en-US-dark-200, lang: en-US, culture: en-US, theme: dark, scale: 200 }
-          - { name: fr-CA-light-200, lang: fr-CA, culture: fr-CA, theme: light, scale: 200 }
-          - { name: fr-CA-dark-200, lang: fr-CA, culture: fr-CA, theme: dark, scale: 200 }
-          - { name: en-US-hc-100, lang: en-US, culture: en-US, theme: hc, scale: 100 }
-          - { name: fr-CA-hc-100, lang: fr-CA, culture: fr-CA, theme: hc, scale: 100 }
+          - { name: stress-en-US-light-a, lang: en-US, culture: en-US, theme: light, scale: 100 }
+          - { name: stress-en-US-light-b, lang: en-US, culture: en-US, theme: light, scale: 100 }
+          - { name: stress-en-US-hc-a, lang: en-US, culture: en-US, theme: hc, scale: 100 }
+          - { name: stress-en-US-hc-b, lang: en-US, culture: en-US, theme: hc, scale: 100 }
+          - { name: stress-fr-CA-light-a, lang: fr-CA, culture: fr-CA, theme: light, scale: 100 }
+          - { name: stress-fr-CA-light-b, lang: fr-CA, culture: fr-CA, theme: light, scale: 100 }
+          - { name: stress-fr-CA-hc-a, lang: fr-CA, culture: fr-CA, theme: hc, scale: 100 }
+          - { name: stress-fr-CA-hc-b, lang: fr-CA, culture: fr-CA, theme: hc, scale: 100 }
     env:
       AWS_LC_SYS_PREBUILT_NASM: "1"
     steps:
