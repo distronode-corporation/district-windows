@@ -1386,6 +1386,15 @@ tier = "T3"
 state = "reviewed"
 note = "A conversation's channel: SMS."
 
+[inbox.channel_voicemail]
+en = "Voicemail"
+fr = "Boîte vocale"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+state = "reviewed"
+note = "A conversation's channel: a message the voice agent took on a call. The French is the glossary's term for voicemail (the portal's « Boîte vocale et messages »)."
+
 [inbox.delivery_delivered]
 en = "Delivered"
 fr = "Livré"

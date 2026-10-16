@@ -205,10 +205,15 @@ fn can_open(thread_key: &str) -> bool {
 }
 
 /// What a channel is called, as the Linux app names it.
+///
+/// The server writes four: `sms`, `email`, `whatsapp`, and `voicemail` for a
+/// message the voice agent took on a call. Anything else reads as a text
+/// message, as `sms` does.
 fn channel(event_type: &str) -> &'static str {
     match event_type {
         "email" => s::inbox_channel_email(l()),
         "whatsapp" => "WhatsApp",
+        "voicemail" => s::inbox_channel_voicemail(l()),
         _ => s::inbox_channel_text(l()),
     }
 }
@@ -462,6 +467,7 @@ pub(crate) fn thread_view(
 
 #[cfg(test)]
 mod tests {
+    use crate::l10n::Locale;
     use serde_json::json;
 
     use super::*;
@@ -494,6 +500,55 @@ mod tests {
         assert_eq!(delivered(""), None);
         assert_eq!(delivery(&event("sms", "inbound", "received", None)), None);
         assert_eq!(channel("whatsapp"), "WhatsApp");
+        assert_eq!(channel("voicemail"), "Voicemail");
+    }
+
+    #[test]
+    fn every_channel_the_server_writes_has_a_name_in_french() {
+        district_l10n::with_locale(Locale::FrCa, || {
+            assert_eq!(channel("sms"), "Texto");
+            assert_eq!(channel("email"), "Courriel");
+            assert_eq!(channel("whatsapp"), "WhatsApp");
+            assert_eq!(channel("voicemail"), "Boîte vocale");
+        });
+    }
+
+    #[test]
+    fn a_mixed_row_names_its_voicemail_channel() {
+        let conversation: ConversationSummary = serde_json::from_value(json!({
+            "key": "k",
+            "threadKey": "contact:x",
+            "counterpart": "+12025550101",
+            "matchKeys": ["12025550101"],
+            "kind": "phone",
+            "channels": ["sms", "voicemail"],
+            "contactId": "x",
+            "contactName": "Casey",
+            "contactEmail": null,
+            "contactPhone": "+12025550101",
+            "canSms": true,
+            "canEmail": false,
+            "lastMessage": {
+                "body": "Call me back",
+                "direction": "inbound",
+                "type": "voicemail",
+                "status": "received",
+                "createdAt": "2026-10-16T14:00:00.000Z"
+            },
+            "unreadCount": 1,
+            "totalMessages": 2
+        }))
+        .unwrap();
+        assert_eq!(
+            thread_row(&conversation).channel_label,
+            "Text message, Voicemail"
+        );
+        district_l10n::with_locale(Locale::FrCa, || {
+            assert_eq!(
+                thread_row(&conversation).channel_label,
+                "Texto, Boîte vocale"
+            );
+        });
     }
 
     #[test]
