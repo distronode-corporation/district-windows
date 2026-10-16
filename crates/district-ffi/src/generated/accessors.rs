@@ -312,6 +312,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::inbox_channel_email(Locale::FrCa), "Courriel");
     assert_eq!(s::inbox_channel_text(Locale::En), "Text message");
     assert_eq!(s::inbox_channel_text(Locale::FrCa), "Texto");
+    assert_eq!(s::inbox_channel_voicemail(Locale::En), "Voicemail");
+    assert_eq!(s::inbox_channel_voicemail(Locale::FrCa), "Boîte vocale");
     assert_eq!(s::inbox_delivery_delivered(Locale::En), "Delivered");
     assert_eq!(s::inbox_delivery_delivered(Locale::FrCa), "Livré");
     assert_eq!(s::inbox_delivery_read(Locale::En), "Read");

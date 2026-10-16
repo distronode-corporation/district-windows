@@ -1367,6 +1367,15 @@ pub fn inbox_channel_text(l: Locale) -> &'static str {
     }
 }
 
+/// `inbox.channel_voicemail`
+#[must_use]
+pub fn inbox_channel_voicemail(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Voicemail",
+        Locale::FrCa => "Boîte vocale",
+    }
+}
+
 /// `inbox.delivery_delivered`
 #[must_use]
 pub fn inbox_delivery_delivered(l: Locale) -> &'static str {
