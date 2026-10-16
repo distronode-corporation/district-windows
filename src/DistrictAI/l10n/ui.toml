@@ -1741,14 +1741,13 @@ state = "reviewed"
 note = "Title of an error banner."
 
 [inbox.title]
-en = "Conversations"
-fr = "Conversations"
+en = "Inbox"
+fr = "Boîte de réception"
 ctx = "title"
 screen = "inbox"
 tier = "T3"
-state = "reviewed"
-same_ok = true
-note = "Page title, and the name of its list."
+state = "draft"
+note = "Page title, and the name of its list: the same words as the navigation entry that opens it (nav.inbox), so the page is called what the pane calls it (visual QA W-29)."
 
 [inbox.unread]
 en = "unread"

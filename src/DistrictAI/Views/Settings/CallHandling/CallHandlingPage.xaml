@@ -88,6 +88,11 @@
                         StepFrequency="1"
                         Value="{x:Bind ViewModel.Ring, Mode=TwoWay}"
                         Visibility="{x:Bind ViewModel.CanChange, Mode=OneWay}" />
+                    <!-- The slider's value in words ("20 seconds"), as it moves: a slider shows no value of its own (visual QA W-19). -->
+                    <TextBlock
+                        AutomationProperties.AccessibilityView="Raw"
+                        Text="{x:Bind ViewModel.RingWords, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.CanChange, Mode=OneWay}" />
                     <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.ShowRingWords, Mode=OneWay}">
                         <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.RingLabel, Mode=OneWay}" />
                         <TextBlock Text="{x:Bind ViewModel.RingWords, Mode=OneWay}" />

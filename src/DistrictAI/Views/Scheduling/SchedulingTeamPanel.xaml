@@ -12,21 +12,14 @@
                 <StackPanel
                     MaxWidth="{StaticResource ReadingWidth}"
                     Spacing="12">
-                    <!-- Who left the workspace while still holding bookings: never said when the roles could not be read. -->
-                    <Border Style="{StaticResource CardStyle}" Visibility="{x:Bind ViewModel.HasStranded, Mode=OneWay}">
-                        <StackPanel Spacing="4">
-                            <TextBlock
-                                AutomationProperties.HeadingLevel="Level2"
-                                Style="{StaticResource SectionHeaderStyle}"
-                                Text="{x:Bind ViewModel.StrandedHeading, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                AutomationProperties.AutomationId="SchedulingTeamStranded"
-                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                Text="{x:Bind ViewModel.Stranded, Mode=OneWay}"
-                                TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
+                    <!-- Who left the workspace while still holding bookings: never said when the roles could not be read. A warning the member acts on, so the native InfoBar rather than a card (visual QA W-16). -->
+                    <InfoBar
+                        AutomationProperties.AutomationId="SchedulingTeamStranded"
+                        IsClosable="False"
+                        IsOpen="{x:Bind ViewModel.HasStranded, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.Stranded, Mode=OneWay}"
+                        Severity="Warning"
+                        Title="{x:Bind ViewModel.StrandedHeading, Mode=OneWay}" />
 
                     <!-- The members: a failed read is a status page, never an empty list. -->
                     <Border Style="{StaticResource CardStyle}">
