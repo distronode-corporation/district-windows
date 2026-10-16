@@ -63,6 +63,121 @@ public sealed class OverridesStressTests
         Assert.True(crashes.Count == 0, string.Join(Environment.NewLine, crashes));
     }
 
+    /// <summary>
+    /// Each dialog whose content is made again on every open and whose list the
+    /// core's render changes, opened and closed round after round
+    /// (QA_STRESS_ROUNDS each): the overrides' shape, where the crash was.
+    /// </summary>
+    [Fact]
+    public void EachReopenedEditorSurvivesRoundAfterRound()
+    {
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "The UI tests run on Windows only.");
+        Assert.SkipUnless(Environment.GetEnvironmentVariable("DISTRICTAI_UI_SCRIPTED") == "1", "The stress walk needs the scripted test package.");
+        var crashes = new List<string>();
+        foreach (var editor in _editors)
+        {
+            var app = StartAt(editor);
+            var crashed = 0;
+            try
+            {
+                for (var round = 1; round <= Rounds; round++)
+                {
+                    try
+                    {
+                        editor.Open(app);
+                        _ = app.FindById(editor.DialogId, PageTimeout);
+                        Keyboard.Type(VirtualKeyShort.ESCAPE);
+                        Expect(app, () => app.TryFindById(editor.DialogId, onScreen: false) is null, $"{editor.DialogId} to close after Escape");
+                    }
+                    catch (Exception error) when (!app.IsRunning)
+                    {
+                        var line = $"CRASH in {editor.DialogId}, round {round}: the app ended ({error.GetType().Name})";
+                        InstalledApp.Log(line);
+                        crashes.Add(line);
+                        crashed++;
+                        app.Dispose();
+                        app = StartAt(editor);
+                    }
+                }
+            }
+            finally
+            {
+                app.Dispose();
+            }
+            InstalledApp.Log($"reopen stress: {editor.DialogId}, {Rounds} rounds, {crashed} crash(es)");
+        }
+        InstalledApp.Log($"reopen stress: {_editors.Length} editors, {crashes.Count} crash(es)");
+        Assert.True(crashes.Count == 0, string.Join(Environment.NewLine, crashes));
+    }
+
+    /// <summary>A dialog: the booking pages' row its page opens from, what readies the page, what opens it.</summary>
+    private sealed record Editor(string Row, Action<InstalledApp> Ready, Action<InstalledApp> Open, string DialogId);
+
+    private static readonly Editor[] _editors =
+    [
+        new("SchedulingSectionHours", _ => { }, app => app.FindById("HoursWeekButton", PageTimeout).AsButton().Invoke(), "HoursWeekDialog"),
+        new("SchedulingSectionEventTypes", OpenFirstEventType, app => app.FindById("EventTypeHostsButton", PageTimeout).AsButton().Invoke(), "EventTypeHostsDialog"),
+        new("SchedulingSectionEventTypes", OpenFirstEventType, app => app.FindById("EventTypeQuestionsButton", PageTimeout).AsButton().Invoke(), "EventTypeQuestionsDialog"),
+        new("SchedulingSectionEventTypes", OpenFirstEventType, app => app.FindById("EventTypeManageButton", PageTimeout).AsButton().Invoke(), "EventTypeActionsDialog"),
+        new("SchedulingSectionCalendar", _ => { }, app => Press(app.FindById("CalendarChoose", PageTimeout, onScreen: false)), "CalendarPickerDialog"),
+        new("SchedulingSectionDeveloper", app => Press(app.FindById("DeveloperTabWebhooks", PageTimeout)), app => Press(app.FindById("DeveloperWebhookEdit", PageTimeout, onScreen: false)), "DeveloperWebhookDialog"),
+        new("SchedulingSectionSettings", app => ShowSettingsTab(app, "Notifications"), app => Press(app.FindById("SchedulingSettingsEdit", PageTimeout, onScreen: false)), "SettingsNotificationsDialog"),
+        new("SchedulingSectionTeam", _ => { }, app => Press(app.FindById("TeamHosts", PageTimeout, onScreen: false)), "TeamHostsDialog"),
+        new("SchedulingSectionTeam", _ => { }, app => Press(app.FindById("TeamArchive", PageTimeout, onScreen: false)), "TeamArchiveDialog"),
+    ];
+
+    private static InstalledApp StartAt(Editor editor)
+    {
+        var app = InstalledApp.Launch(Scene);
+        _ = app.MainWindow(_startTimeout);
+        _ = Heading(app, WorkspaceName, _startTimeout);
+        OpenUntilById(app, "NavScheduling");
+        ScrollRowIntoView(app, editor.Row);
+        _ = OpenSettingsRowById(app, editor.Row);
+        editor.Ready(app);
+        return app;
+    }
+
+    private static void OpenFirstEventType(InstalledApp app)
+    {
+        var list = app.FindById("SchedulingEventTypesList", PageTimeout);
+        Activate(Wait.For(
+            () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.ListItem)),
+            PageTimeout,
+            "an event type in the list",
+            app.Describe));
+        _ = app.FindById("SchedulingEventTypeName", PageTimeout);
+    }
+
+    private static void ShowSettingsTab(InstalledApp app, string which)
+    {
+        var tab = app.FindById("SchedulingSettingsTab" + which, PageTimeout);
+        if (tab.Patterns.SelectionItem.PatternOrDefault is { } item)
+        {
+            item.Select();
+        }
+        else
+        {
+            Press(tab);
+        }
+        Expect(app, () => app.TryFindById("SchedulingSettingsEdit", onScreen: false) is not null, $"the {which} tab to show");
+    }
+
+    private static void ScrollRowIntoView(InstalledApp app, string rowId)
+    {
+        var walker = app.Automation.TreeWalkerFactory.GetControlViewWalker();
+        var title = app.FindById(rowId, PageTimeout, onScreen: false);
+        for (var at = walker.GetParent(title); at is not null; at = walker.GetParent(at))
+        {
+            if (at.Properties.ControlType.ValueOrDefault == ControlType.ListItem)
+            {
+                at.Patterns.ScrollItem.PatternOrDefault?.ScrollIntoView();
+                break;
+            }
+        }
+        _ = app.FindById(rowId, PageTimeout);
+    }
+
     private static (string Step, Action<InstalledApp> Act)[] Steps(int round)
     {
         var steps = new List<(string, Action<InstalledApp>)>
