@@ -67,8 +67,7 @@ per listing language: en-US below (1092 characters) and, in the fr-CA listing, t
 below (1412 characters). Paste each block as it is: the French holds no-break spaces
 (U+00A0) before each colon, inside the guillemets and inside the call length.
 
-The French is new for 3.0.2 and is a draft, not yet reviewed by the manager: it is not
-to be pasted until this paragraph records that review. The notes carry every
+The French is new for 3.0.2, reviewed by the manager 2026-10-16. The notes carry every
 user-visible entry of the CHANGELOG's 3.0.2 section. If 3.0.1 never reached the Store,
 the 3.0.1 text below followed by these lines without their first one would be 1835
 and 2351 characters, over the limit: that case needs a shorter text of its own.
