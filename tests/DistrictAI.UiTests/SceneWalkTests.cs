@@ -1540,9 +1540,13 @@ public sealed class SceneWalkTests
         var shown = app.FindById("DeveloperSecretValue", PageTimeout, onScreen: false).AsTextBox();
         // The key itself is never logged: only that one shows.
         Assert.False(string.IsNullOrEmpty(shown.Text), "no key was shown");
-        Press(app.FindById("DeveloperSecretCopy", PageTimeout, onScreen: false));
+        // The core's answer renames the button ("Copied" in English): read
+        // from the app, never compared with English, so the walk holds in French.
+        var copy = app.FindById("DeveloperSecretCopy", PageTimeout, onScreen: false);
+        var before = NameOf(copy);
+        Press(copy);
         Assert.True(
-            Wait.Until(() => app.TryFindById("DeveloperSecretCopy", onScreen: false)?.Name == "Copied", PageTimeout),
+            Wait.Until(() => app.TryFindById("DeveloperSecretCopy", onScreen: false) is { } now && NameOf(now) is { Length: > 0 } name && name != before, PageTimeout),
             "Copy did not reach the core");
         Assert.Null(app.TryFindById("DeveloperSecretCopyFailed", onScreen: false));
         InstalledApp.Log("a key was made, shown once and copied");
