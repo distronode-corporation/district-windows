@@ -14,7 +14,21 @@ all-features = true
 # what would retire it.
 unmaintained = "all"
 unsound = "all"
-ignore = []
+ignore = [
+  # zip 0.6.6: three extraction advisories (SUID/SGID bits kept, symlink targets
+  # outside the destination, permissions applied through symlinks). zip arrives only
+  # through webrtc-sys-build 0.3.19, LiveKit's latest release, as a build dependency
+  # of webrtc-sys; the fix is zip >= 9 and no webrtc-sys-build takes it yet. It is
+  # build time only, and every CI and release build that compiles webrtc-sys sets
+  # LK_CUSTOM_WEBRTC to the pinned, checksummed libwebrtc, so webrtc-sys-build
+  # downloads and extracts nothing there. (A local build without it would extract
+  # LiveKit's own prebuilt from GitHub; CONTRIBUTING.md already says to set it.)
+  # Re-check at the next webrtc-sys-build release, or on 2026-11-16, whichever is
+  # first. Decided by Sean on 2026-10-17 (decisions log, GitLab #2).
+  { id = "RUSTSEC-2026-0367", reason = "zip 0.6.6 via webrtc-sys-build 0.3.19, build time only, nothing extracted with LK_CUSTOM_WEBRTC; re-check at the next webrtc-sys-build release or 2026-11-16" },
+  { id = "RUSTSEC-2026-0368", reason = "zip 0.6.6 via webrtc-sys-build 0.3.19, build time only, nothing extracted with LK_CUSTOM_WEBRTC; re-check at the next webrtc-sys-build release or 2026-11-16" },
+  { id = "RUSTSEC-2026-0369", reason = "zip 0.6.6 via webrtc-sys-build 0.3.19, build time only, nothing extracted with LK_CUSTOM_WEBRTC; re-check at the next webrtc-sys-build release or 2026-11-16" },
+]
 
 [licenses]
 # The project is Apache-2.0: permissive licences only. The same list as
