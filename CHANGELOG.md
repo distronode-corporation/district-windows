@@ -7,6 +7,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- rustls-webpki 0.103.16 in Cargo.lock, for RUSTSEC-2026-0382 (CVE-2026-111943):
+  0.103.15 could accept a certificate chain through one of the distrusted emSign
+  intermediates, whose private keys are now public.
+
 ## [3.0.2] - 2026-10-16
 
 ### Fixed

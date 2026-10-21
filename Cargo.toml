@@ -30,7 +30,7 @@ district-host = { git = "https://github.com/distronode-corporation/district-core
 district-live = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v5.0.0", version = "=5.0.0" }
 district-model = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v5.0.0", version = "=5.0.0" }
 
-# Exactly the UniFFI that uniffi-bindgen-cs v0.11.0+v0.31.0 is built on. The
+# Exactly the UniFFI that uniffi-bindgen-cs v0.11.1+v0.31.0 is built on. The
 # generator and the scaffolding must agree on every checksum, so this moves only
 # together with the generator's version in .github/actions/install-uniffi-bindgen-cs
 # and in scripts/generate-bindings.sh.

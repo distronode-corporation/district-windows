@@ -8,7 +8,7 @@
 # it with .github/actions/install-uniffi-bindgen-cs):
 #
 #   cargo install --locked uniffi-bindgen-cs \
-#     --git https://github.com/NordSecurity/uniffi-bindgen-cs --tag v0.11.0+v0.31.0
+#     --git https://github.com/NordSecurity/uniffi-bindgen-cs --tag v0.11.1+v0.31.0
 #
 # The bindings are generated from the library's own metadata ("library mode"),
 # so they are the same whichever platform built it. --no-format: the output is
@@ -17,7 +17,7 @@
 # repository refuses (scripts/check-public-hygiene.py), so each becomes a comma.
 set -euo pipefail
 
-UNIFFI_BINDGEN_CS_TAG="v0.11.0+v0.31.0"
+UNIFFI_BINDGEN_CS_TAG="v0.11.1+v0.31.0"
 root="$(cd "$(dirname "$0")/.." && pwd)"
 out="$root/src/DistrictAI.Core/Generated"
 
