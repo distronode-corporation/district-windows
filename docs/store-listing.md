@@ -60,6 +60,35 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
+## What's new in this version: 3.0.3
+
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (418 characters) and, in the fr-CA listing, the French
+below (534 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon and inside the guillemets.
+
+The notes carry every user-visible entry of the CHANGELOG's 3.0.3 section, the security
+update first. The French is new for 3.0.3, a draft for the manager's review at the gate.
+If 3.0.2 never reached the Store, the 3.0.3 text below followed by the 3.0.2 lines
+without their first one is 1492 and 1927 characters: the English fits, the French is
+over the limit and that case needs a shorter French text of its own.
+
+en-US:
+
+```text
+District AI 3.0.3:
+- Security update: secure connections no longer trust a certificate chain that passes through one of the distrusted emSign certificate authorities, whose private keys are now public (rustls-webpki 0.103.16, RUSTSEC-2026-0382). The app and its shared core both carry the fix.
+- Inbox: a voicemail is now labelled "Voicemail" in a conversation's channels and on its message, instead of "Text message".
+```
+
+fr-CA:
+
+```text
+District AI 3.0.3 :
+- Mise à jour de sécurité : les connexions sécurisées ne font plus confiance à une chaîne de certificats qui passe par l'une des autorités de certification emSign retirées de la liste de confiance, dont les clés privées sont maintenant publiques (rustls-webpki 0.103.16, RUSTSEC-2026-0382). L'application et son noyau partagé intègrent tous deux le correctif.
+- Boîte de réception : un message vocal s'affiche maintenant « Boîte vocale » dans les canaux d'une conversation et sur son message, au lieu de « Texto ».
+```
+
 ## What's new in this version: 3.0.2
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text
