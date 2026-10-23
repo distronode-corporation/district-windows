@@ -7,14 +7,21 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.0.3] - 2026-10-22
+
 ### Security
 
-- rustls-webpki 0.103.16 in Cargo.lock, for RUSTSEC-2026-0382 (CVE-2026-111943):
-  0.103.15 could accept a certificate chain through one of the distrusted emSign
-  intermediates, whose private keys are now public.
+- A security update for secure (TLS) connections: rustls-webpki 0.103.16 in Cargo.lock,
+  for RUSTSEC-2026-0382 (CVE-2026-111943). 0.103.15 could accept a certificate chain
+  through one of the distrusted emSign intermediates, whose private keys are now public.
 - The shared core is district-core-rust 5.0.1, the core's security release for the same
   advisory (its own Cargo.lock takes rustls-webpki 0.103.16, as this app's does); it
   changes nothing the app calls or shows.
+
+### Fixed
+
+- Inbox: a voicemail is called "Voicemail" (« Boîte vocale ») in a conversation's
+  channels and on its message in the thread, where it read "Text message" (« Texto »).
 
 ## [3.0.2] - 2026-10-16
 
