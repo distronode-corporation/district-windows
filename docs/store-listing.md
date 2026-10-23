@@ -64,14 +64,13 @@ bought in the app through District AI's checkout).
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text
 per listing language: en-US below (418 characters) and, in the fr-CA listing, the French
-below (534 characters). Paste each block as it is: the French holds no-break spaces
+below (541 characters). Paste each block as it is: the French holds no-break spaces
 (U+00A0) before each colon and inside the guillemets.
 
 The notes carry every user-visible entry of the CHANGELOG's 3.0.3 section, the security
-update first. The French is new for 3.0.3, a draft for the manager's review at the gate.
-If 3.0.2 never reached the Store, the 3.0.3 text below followed by the 3.0.2 lines
-without their first one is 1492 and 1927 characters: the English fits, the French is
-over the limit and that case needs a shorter French text of its own.
+update first. The French is new for 3.0.3, reviewed by the manager 2026-10-23. 3.0.2 was
+the last published submission, so each text below went in alone, as written here
+(submission 1152921505702209071).
 
 en-US:
 
@@ -86,7 +85,7 @@ fr-CA:
 ```text
 District AI 3.0.3 :
 - Mise à jour de sécurité : les connexions sécurisées ne font plus confiance à une chaîne de certificats qui passe par l'une des autorités de certification emSign retirées de la liste de confiance, dont les clés privées sont maintenant publiques (rustls-webpki 0.103.16, RUSTSEC-2026-0382). L'application et son noyau partagé intègrent tous deux le correctif.
-- Boîte de réception : un message vocal s'affiche maintenant « Boîte vocale » dans les canaux d'une conversation et sur son message, au lieu de « Texto ».
+- Boîte de réception : un message vocal porte maintenant la mention « Boîte vocale » dans les canaux d'une conversation et sur son message, au lieu de « Texto ».
 ```
 
 ## What's new in this version: 3.0.2
