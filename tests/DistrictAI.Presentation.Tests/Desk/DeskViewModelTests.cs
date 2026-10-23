@@ -16,7 +16,7 @@ public sealed class DeskViewModelTests
     ];
 
     private static readonly DeskView _base = new(
-        Title: "Help desk",
+        Title: "Desk",
         Status: V.Loading,
         Off: null,
         Filters: _noCounts,
@@ -71,7 +71,7 @@ public sealed class DeskViewModelTests
         var model = new DeskViewModel();
         model.Show(_base);
         Assert.Same(_base, model.View);
-        Assert.Equal("Help desk", model.Title);
+        Assert.Equal("Desk", model.Title);
         Assert.True(model.Load.Loading);
         Assert.False(model.ShowQueue);
         Assert.False(model.CanFilter);

@@ -428,7 +428,7 @@ namespace DistrictAI.L10n
         public static string DeskNewTicket => Current == Locale.FrCa ? "Nouveau billet" : "New ticket";
 
         /// <summary><c>desk.not_turned_on</c></summary>
-        public static string DeskNotTurnedOn => Current == Locale.FrCa ? "Le comptoir n'a pas été activé" : "The help desk was not turned on";
+        public static string DeskNotTurnedOn => Current == Locale.FrCa ? "Le comptoir n'a pas été activé" : "The Desk was not turned on";
 
         /// <summary><c>desk.raise</c></summary>
         public static string DeskRaise => Current == Locale.FrCa ? "Créer le billet" : "Raise the ticket";
@@ -443,7 +443,7 @@ namespace DistrictAI.L10n
         public static string DeskSettings => Current == Locale.FrCa ? "Paramètres" : "Settings";
 
         /// <summary><c>desk.settings_a11y</c></summary>
-        public static string DeskSettingsA11y => Current == Locale.FrCa ? "Paramètres du comptoir" : "Help desk settings";
+        public static string DeskSettingsA11y => Current == Locale.FrCa ? "Paramètres du comptoir" : "Desk settings";
 
         /// <summary><c>desk.ticket_not_raised</c></summary>
         public static string DeskTicketNotRaised => Current == Locale.FrCa ? "Billet non créé" : "Ticket not raised";
@@ -452,10 +452,10 @@ namespace DistrictAI.L10n
         public static string DeskTickets => Current == Locale.FrCa ? "Billets" : "Tickets";
 
         /// <summary><c>desk.title</c></summary>
-        public static string DeskTitle => Current == Locale.FrCa ? "Comptoir clients" : "Help desk";
+        public static string DeskTitle => Current == Locale.FrCa ? "Comptoir" : "Desk";
 
         /// <summary><c>desk.turning_on</c></summary>
-        public static string DeskTurningOn => Current == Locale.FrCa ? "Activation du comptoir" : "Turning on the help desk";
+        public static string DeskTurningOn => Current == Locale.FrCa ? "Activation du comptoir" : "Turning on the Desk";
 
         /// <summary><c>desk_settings.about_logo</c></summary>
         public static string DeskSettingsAboutLogo => Current == Locale.FrCa ? "À propos du logo" : "About the logo";
@@ -479,7 +479,7 @@ namespace DistrictAI.L10n
         public static string DeskSettingsRemoveLogo => Current == Locale.FrCa ? "Retirer le logo" : "Remove the logo";
 
         /// <summary><c>desk_settings.save</c></summary>
-        public static string DeskSettingsSave => Current == Locale.FrCa ? "Enregistrer les paramètres du comptoir" : "Save the help desk settings";
+        public static string DeskSettingsSave => Current == Locale.FrCa ? "Enregistrer les paramètres du comptoir" : "Save the Desk settings";
 
         /// <summary><c>desk_ticket.changing_status</c></summary>
         public static string DeskTicketChangingStatus => Current == Locale.FrCa ? "Modification du statut" : "Changing the status";

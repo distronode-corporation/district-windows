@@ -218,11 +218,11 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::desk_compose_submit(Locale::FrCa), "Créer");
     assert_eq!(s::desk_compose_title(Locale::En), "New ticket");
     assert_eq!(s::desk_compose_title(Locale::FrCa), "Nouveau billet");
-    assert_eq!(s::desk_customer_note(Locale::En), "Optional. Replies are emailed to the address given here, when the desk emails customers.");
+    assert_eq!(s::desk_customer_note(Locale::En), "Optional. Replies are emailed to the address given here, when the Desk emails customers.");
     assert_eq!(s::desk_customer_note(Locale::FrCa), "Facultatif. Si le comptoir envoie des courriels aux clients, vos réponses sont envoyées à l'adresse indiquée ici.");
     assert_eq!(s::desk_enabled_label(Locale::En), "Take tickets");
     assert_eq!(s::desk_enabled_label(Locale::FrCa), "Recevoir des billets");
-    assert_eq!(s::desk_enabled_note(Locale::En), "While the desk is off, no tickets are recorded.");
+    assert_eq!(s::desk_enabled_note(Locale::En), "While the Desk is off, no tickets are recorded.");
     assert_eq!(s::desk_enabled_note(Locale::FrCa), "Quand le comptoir est désactivé, aucun billet n'est consigné.");
     assert_eq!(s::desk_fact_email(Locale::En), "Email address");
     assert_eq!(s::desk_fact_email(Locale::FrCa), "Adresse courriel");
@@ -238,7 +238,7 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::desk_filter_every(Locale::FrCa), "Tous les billets");
     assert_eq!(s::desk_logo_empty(Locale::En), "This file is empty.");
     assert_eq!(s::desk_logo_empty(Locale::FrCa), "Ce fichier est vide.");
-    assert_eq!(s::desk_logo_help(Locale::En), "Shown to customers on the help desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions.");
+    assert_eq!(s::desk_logo_help(Locale::En), "Shown to customers on the Desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions.");
     assert_eq!(s::desk_logo_help(Locale::FrCa), "Affiché aux clients sur les pages du comptoir. Une image PNG, JPEG ou WebP; District AI en vérifie la taille et les dimensions.");
     assert_eq!(s::desk_logo_none(Locale::En), "No logo yet.");
     assert_eq!(s::desk_logo_none(Locale::FrCa), "Aucun logo.");
@@ -258,7 +258,7 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::desk_notify_label(Locale::FrCa), "Envoyer vos réponses aux clients par courriel");
     assert_eq!(s::desk_settings_intro(Locale::En), "Leave the name blank to show customers the workspace's own name.");
     assert_eq!(s::desk_settings_intro(Locale::FrCa), "Laissez le nom vide pour montrer aux clients le nom de l'espace de travail.");
-    assert_eq!(s::desk_settings_title(Locale::En), "Help desk settings");
+    assert_eq!(s::desk_settings_title(Locale::En), "Desk settings");
     assert_eq!(s::desk_settings_title(Locale::FrCa), "Paramètres du comptoir");
     assert_eq!(s::desk_status_waiting_short(Locale::En), "Waiting");
     assert_eq!(s::desk_status_waiting_short(Locale::FrCa), "En attente");
@@ -266,8 +266,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::desk_ticket_failed_title(Locale::FrCa), "Impossible de charger ce billet");
     assert_eq!(s::desk_ticket_title(Locale::En), "Ticket");
     assert_eq!(s::desk_ticket_title(Locale::FrCa), "Billet");
-    assert_eq!(s::desk_title(Locale::En), "Help desk");
-    assert_eq!(s::desk_title(Locale::FrCa), "Comptoir clients");
+    assert_eq!(s::desk_title(Locale::En), "Desk");
+    assert_eq!(s::desk_title(Locale::FrCa), "Comptoir");
     assert_eq!(s::directory_intro(Locale::En), "Who the receptionist can put a live caller through to. Saving replaces the whole directory.");
     assert_eq!(s::directory_intro(Locale::FrCa), "Les personnes à qui la réceptionniste peut transférer un appel en cours. Chaque sauvegarde remplace tout le répertoire.");
     assert_eq!(s::directory_no_name(Locale::En), "No name");
@@ -462,8 +462,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::nav_calls(Locale::FrCa), "Appels");
     assert_eq!(s::nav_contacts(Locale::En), "Contacts");
     assert_eq!(s::nav_contacts(Locale::FrCa), "Contacts");
-    assert_eq!(s::nav_desk(Locale::En), "Help desk");
-    assert_eq!(s::nav_desk(Locale::FrCa), "Comptoir clients");
+    assert_eq!(s::nav_desk(Locale::En), "Desk");
+    assert_eq!(s::nav_desk(Locale::FrCa), "Comptoir");
     assert_eq!(s::nav_hq(Locale::En), "District HQ");
     assert_eq!(s::nav_hq(Locale::FrCa), "District HQ");
     assert_eq!(s::nav_inbox(Locale::En), "Inbox");
