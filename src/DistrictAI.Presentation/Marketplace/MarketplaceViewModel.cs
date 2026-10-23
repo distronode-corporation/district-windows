@@ -65,10 +65,6 @@ public sealed partial class MarketplaceViewModel : ObservableObject
     [ObservableProperty]
     public partial string WebAction { get; set; } = string.Empty;
 
-    /// <summary>The caption under it.</summary>
-    [ObservableProperty]
-    public partial string WebCaption { get; set; } = string.Empty;
-
     /// <summary>A note that a carrier did not answer, or empty.</summary>
     [ObservableProperty]
     public partial string PartialNote { get; set; } = string.Empty;
@@ -154,7 +150,6 @@ public sealed partial class MarketplaceViewModel : ObservableObject
         Admin.Show(view.Admin);
         OffersWeb = view.OffersWeb;
         WebAction = view.WebAction;
-        WebCaption = view.WebCaption;
         PartialNote = view.PartialNote ?? string.Empty;
         HasPartialNote = view.PartialNote is not null;
         ShowSearch(view.Search);

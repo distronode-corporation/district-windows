@@ -165,13 +165,7 @@
         "owned": [
           {
             "line": "Main line · Local · Twilio · SMS, Voice",
-            "manage": {
-              "busy": false,
-              "can_configure": false,
-              "can_release": false,
-              "note": "Carrier setup and number changes need an agency or client role. Ask someone on this workspace who has one.",
-              "phone_number": "+14165550100"
-            },
+            "manage": null,
             "monthly": "$1.15 a month",
             "number": "+1 416 555 0100"
           },
@@ -208,8 +202,7 @@
         "search": "Idle",
         "tab": "Carrier",
         "title": "Phone numbers",
-        "web_action": "Open the number marketplace on the web",
-        "web_caption": "Numbers are bought on the District AI website. This opens it in your browser."
+        "web_action": "Open the number marketplace on the web"
       }
     }
   },

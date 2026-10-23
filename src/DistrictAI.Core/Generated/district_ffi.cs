@@ -15796,7 +15796,9 @@ class FfiConverterTypeManagedNumbersView: FfiConverterRustBuffer<ManagedNumbersV
 /// </param>
 /// <param name="ScopeNote">
 /// The note saying what the screen does and does not do (buying is on
-/// the web), worded for the role.
+/// the web), worded for the role. The screen says it once, here: the web
+/// link has no caption repeating it, and a viewer's rows do not repeat
+/// who can change numbers.
 /// </param>
 /// <param name="OffersWeb">
 /// Whether to offer the web marketplace: only to a role that could buy
@@ -15804,9 +15806,6 @@ class FfiConverterTypeManagedNumbersView: FfiConverterRustBuffer<ManagedNumbersV
 /// </param>
 /// <param name="WebAction">
 /// The web marketplace link's words.
-/// </param>
-/// <param name="WebCaption">
-/// The caption under it.
 /// </param>
 /// <param name="OwnedStatus">
 /// Where the read of the held numbers stands.
@@ -15843,7 +15842,9 @@ public record MarketplaceView (
     NumbersTab Tab, 
     /// <summary>
     /// The note saying what the screen does and does not do (buying is on
-    /// the web), worded for the role.
+    /// the web), worded for the role. The screen says it once, here: the web
+    /// link has no caption repeating it, and a viewer's rows do not repeat
+    /// who can change numbers.
     /// </summary>
     string ScopeNote, 
     /// <summary>
@@ -15855,10 +15856,6 @@ public record MarketplaceView (
     /// The web marketplace link's words.
     /// </summary>
     string WebAction, 
-    /// <summary>
-    /// The caption under it.
-    /// </summary>
-    string WebCaption, 
     /// <summary>
     /// Where the read of the held numbers stands.
     /// </summary>
@@ -15904,7 +15901,6 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
             ScopeNote: FfiConverterString.INSTANCE.Read(stream),
             OffersWeb: FfiConverterBoolean.INSTANCE.Read(stream),
             WebAction: FfiConverterString.INSTANCE.Read(stream),
-            WebCaption: FfiConverterString.INSTANCE.Read(stream),
             OwnedStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
             OwnedEmpty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
             Owned: FfiConverterSequenceTypeNumberRowView.INSTANCE.Read(stream),
@@ -15923,7 +15919,6 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
             + FfiConverterString.INSTANCE.AllocationSize(value.ScopeNote)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.OffersWeb)
             + FfiConverterString.INSTANCE.AllocationSize(value.WebAction)
-            + FfiConverterString.INSTANCE.AllocationSize(value.WebCaption)
             + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.OwnedStatus)
             + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.OwnedEmpty)
             + FfiConverterSequenceTypeNumberRowView.INSTANCE.AllocationSize(value.Owned)
@@ -15940,7 +15935,6 @@ class FfiConverterTypeMarketplaceView: FfiConverterRustBuffer<MarketplaceView> {
             FfiConverterString.INSTANCE.Write(value.ScopeNote, stream);
             FfiConverterBoolean.INSTANCE.Write(value.OffersWeb, stream);
             FfiConverterString.INSTANCE.Write(value.WebAction, stream);
-            FfiConverterString.INSTANCE.Write(value.WebCaption, stream);
             FfiConverterTypeLoadStatus.INSTANCE.Write(value.OwnedStatus, stream);
             FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.OwnedEmpty, stream);
             FfiConverterSequenceTypeNumberRowView.INSTANCE.Write(value.Owned, stream);
@@ -17836,7 +17830,8 @@ class FfiConverterTypeNumberManageView: FfiConverterRustBuffer<NumberManageView>
 /// </param>
 /// <param name="Manage">
 /// What can be done to a number the workspace holds; `None` for one for
-/// sale.
+/// sale, and for a viewer's own numbers, whose reason (only some roles
+/// change numbers) the screen's `scope_note` already gives.
 /// </param>
 public record NumberRowView (
     /// <summary>
@@ -17855,7 +17850,8 @@ public record NumberRowView (
     string? Monthly, 
     /// <summary>
     /// What can be done to a number the workspace holds; `None` for one for
-    /// sale.
+    /// sale, and for a viewer's own numbers, whose reason (only some roles
+    /// change numbers) the screen's `scope_note` already gives.
     /// </summary>
     NumberManageView? Manage
 ) {

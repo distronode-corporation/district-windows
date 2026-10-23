@@ -94,8 +94,7 @@
         },
         "tab": "Search",
         "title": "Phone numbers",
-        "web_action": "Open the number marketplace on the web",
-        "web_caption": "Numbers are bought on the District AI website. This opens it in your browser."
+        "web_action": "Open the number marketplace on the web"
       }
     }
   },

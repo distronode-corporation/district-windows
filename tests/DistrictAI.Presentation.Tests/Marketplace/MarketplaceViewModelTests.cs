@@ -25,7 +25,6 @@ public sealed class MarketplaceViewModelTests
             ScopeNote: "New numbers cannot be bought in this app. Everything else about a number, including releasing it, is here.",
             OffersWeb: offersWeb,
             WebAction: "Open the number marketplace on the web",
-            WebCaption: "Numbers are bought on the District AI website. This opens it in your browser.",
             OwnedStatus: new LoadStatus.Ready(),
             OwnedEmpty: null,
             Owned: owned ?? [new NumberRowView("+1 416 555 0100", "Main line", "1.15 a month", null)],
