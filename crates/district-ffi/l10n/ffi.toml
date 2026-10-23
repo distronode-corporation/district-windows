@@ -958,7 +958,7 @@ state = "reviewed"
 note = "The form raising a ticket: its heading, as the Linux app words it."
 
 [desk.customer_note]
-en = "Optional. Replies are emailed to the address given here, when the desk emails customers."
+en = "Optional. Replies are emailed to the address given here, when the Desk emails customers."
 fr = "Facultatif. Si le comptoir envoie des courriels aux clients, vos réponses sont envoyées à l'adresse indiquée ici."
 ctx = "body"
 screen = "desk"
@@ -976,7 +976,7 @@ state = "reviewed"
 note = "The \"desk on\" switch, as the Linux app words it."
 
 [desk.enabled_note]
-en = "While the desk is off, no tickets are recorded."
+en = "While the Desk is off, no tickets are recorded."
 fr = "Quand le comptoir est désactivé, aucun billet n'est consigné."
 ctx = "body"
 screen = "desk"
@@ -1038,7 +1038,7 @@ ctx = "label"
 screen = "desk"
 tier = "T3"
 state = "reviewed"
-note = "The help desk queue's filter that shows every ticket."
+note = "The Desk queue's filter that shows every ticket."
 
 [desk.logo_empty]
 en = "This file is empty."
@@ -1050,7 +1050,7 @@ state = "reviewed"
 note = "Why a picked logo is refused when the file holds nothing."
 
 [desk.logo_help]
-en = "Shown to customers on the help desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions."
+en = "Shown to customers on the Desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions."
 fr = "Affiché aux clients sur les pages du comptoir. Une image PNG, JPEG ou WebP; District AI en vérifie la taille et les dimensions."
 ctx = "body"
 screen = "desk"
@@ -1084,7 +1084,7 @@ screen = "desk"
 tier = "T2"
 args = { megabytes = "int" }
 state = "reviewed"
-note = "A help desk logo over the size limit."
+note = "A Desk logo over the size limit."
 
 [desk.logo_type_refused]
 en = "The logo must be a PNG, JPEG or WebP image."
@@ -1141,7 +1141,7 @@ state = "reviewed"
 note = "What the settings say under their heading, as the Linux app words it."
 
 [desk.settings_title]
-en = "Help desk settings"
+en = "Desk settings"
 fr = "Paramètres du comptoir"
 ctx = "title"
 screen = "desk"
@@ -1177,8 +1177,8 @@ state = "reviewed"
 note = "A ticket's heading before it is read, as the Linux app words it."
 
 [desk.title]
-en = "Help desk"
-fr = "Comptoir clients"
+en = "Desk"
+fr = "Comptoir"
 ctx = "title"
 screen = "desk"
 tier = "T3"
@@ -2023,8 +2023,8 @@ same_ok = true
 note = "An entry of the navigation pane, and the name of the page it opens."
 
 [nav.desk]
-en = "Help desk"
-fr = "Comptoir clients"
+en = "Desk"
+fr = "Comptoir"
 ctx = "menu"
 screen = "nav"
 tier = "T3"

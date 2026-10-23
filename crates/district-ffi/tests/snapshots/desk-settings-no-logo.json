@@ -10,12 +10,12 @@
         "can_save": false,
         "enabled": true,
         "enabled_label": "Take tickets",
-        "enabled_note": "While the desk is off, no tickets are recorded.",
+        "enabled_note": "While the Desk is off, no tickets are recorded.",
         "intro": "Leave the name blank to show customers the workspace's own name.",
         "logo_busy": false,
         "logo_failure": null,
         "logo_file_kept": null,
-        "logo_help": "Shown to customers on the help desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions.",
+        "logo_help": "Shown to customers on the Desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions.",
         "logo_line": "No logo yet.",
         "logo_url": null,
         "notify_customers_by_email": true,
@@ -24,7 +24,7 @@
         "saving": false,
         "show_remove_logo": false,
         "status": "Ready",
-        "title": "Help desk settings"
+        "title": "Desk settings"
       }
     }
   },

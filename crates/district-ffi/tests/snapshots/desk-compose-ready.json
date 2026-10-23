@@ -7,7 +7,7 @@
         "can_start": false,
         "compose": {
           "can_submit": true,
-          "customer_note": "Optional. Replies are emailed to the address given here, when the desk emails customers.",
+          "customer_note": "Optional. Replies are emailed to the address given here, when the Desk emails customers.",
           "failure": null,
           "message": "Which card was charged?",
           "message_max": 10000,
@@ -78,7 +78,7 @@
         ],
         "status": "Ready",
         "submitted": null,
-        "title": "Help desk"
+        "title": "Desk"
       }
     }
   },

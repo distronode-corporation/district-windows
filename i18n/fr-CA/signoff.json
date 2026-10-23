@@ -1,11 +1,11 @@
 {
-  "signed_off_by": "v3 Windows worker (Opus 5.5 medium), 2026-10-22: one new entry since v3.0.2, inbox.channel_voicemail « Boîte vocale » (the fr-CA glossary's term, as on macOS and iOS); the v3 manager's French review at the gate",
-  "release": "v3.0.3",
-  "commit": "acb307a4932f61d9747df97d8e891ca3fa189690",
+  "signed_off_by": "v3 manager (Opus 5.5), final French review, 2026-10-23",
+  "release": "main after v3.0.3 (fix batch, no release yet)",
+  "commit": "f711736de8a91a3a4370887147fcc31e30e1ff58",
   "catalogs": [
     {
       "path": "crates/district-ffi/l10n/ffi.toml",
-      "sha256": "4b495bd31d21f748fad4a504b344ab656857af5580fa51a1010bc0a5e9b8695e"
+      "sha256": "99fbe10bfd04c5a7fb8acd9d6a5c0f9859335eb83524395cef5c8e9e42be894d"
     },
     {
       "path": "src/DistrictAI/l10n/manifest.toml",
@@ -13,7 +13,7 @@
     },
     {
       "path": "src/DistrictAI/l10n/ui.toml",
-      "sha256": "f92379884f63ca067e5c3be6fc70d756a3f08289d61d8adc71230cdd8072fcba"
+      "sha256": "b6825dc54307d08626648c13aab2f23c081f22b6b9e851a57e6b86a511ec4c2b"
     }
   ]
 }

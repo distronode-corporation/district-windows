@@ -16,7 +16,7 @@ public sealed class DeskSettingsViewModelTests
     private static readonly byte[] _gif = "GIF89a"u8.ToArray();
 
     private static readonly DeskSettingsView _loading = new(
-        Title: "Help desk settings",
+        Title: "Desk settings",
         Intro: "Leave the name blank to show customers the workspace's own name.",
         Status: V.Loading,
         EnabledLabel: "Take tickets",
@@ -96,7 +96,7 @@ public sealed class DeskSettingsViewModelTests
     public void EachChangeIsSentAsItHappensAndSaveOnce()
     {
         var (model, sink) = Attached(_ready);
-        Assert.Equal(("Help desk settings", "Take tickets", "Email customers your replies", "Name customers see"), (model.Title, model.EnabledLabel, model.NotifyLabel, model.BrandLabel));
+        Assert.Equal(("Desk settings", "Take tickets", "Email customers your replies", "Name customers see"), (model.Title, model.EnabledLabel, model.NotifyLabel, model.BrandLabel));
         Assert.StartsWith("Leave the name blank", model.Intro, StringComparison.Ordinal);
         Assert.Equal("While the desk is off, no tickets are recorded.", model.EnabledNote);
         Assert.True(model.Enabled);

@@ -948,7 +948,7 @@ pub fn desk_compose_title(l: Locale) -> &'static str {
 #[must_use]
 pub fn desk_customer_note(l: Locale) -> &'static str {
     match l {
-        Locale::En => "Optional. Replies are emailed to the address given here, when the desk emails customers.",
+        Locale::En => "Optional. Replies are emailed to the address given here, when the Desk emails customers.",
         Locale::FrCa => "Facultatif. Si le comptoir envoie des courriels aux clients, vos réponses sont envoyées à l'adresse indiquée ici.",
     }
 }
@@ -966,7 +966,7 @@ pub fn desk_enabled_label(l: Locale) -> &'static str {
 #[must_use]
 pub fn desk_enabled_note(l: Locale) -> &'static str {
     match l {
-        Locale::En => "While the desk is off, no tickets are recorded.",
+        Locale::En => "While the Desk is off, no tickets are recorded.",
         Locale::FrCa => "Quand le comptoir est désactivé, aucun billet n'est consigné.",
     }
 }
@@ -1038,7 +1038,7 @@ pub fn desk_logo_empty(l: Locale) -> &'static str {
 #[must_use]
 pub fn desk_logo_help(l: Locale) -> &'static str {
     match l {
-        Locale::En => "Shown to customers on the help desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions.",
+        Locale::En => "Shown to customers on the Desk's pages. A PNG, JPEG or WebP image; District AI checks its size and dimensions.",
         Locale::FrCa => "Affiché aux clients sur les pages du comptoir. Une image PNG, JPEG ou WebP; District AI en vérifie la taille et les dimensions.",
     }
 }
@@ -1128,7 +1128,7 @@ pub fn desk_settings_intro(l: Locale) -> &'static str {
 #[must_use]
 pub fn desk_settings_title(l: Locale) -> &'static str {
     match l {
-        Locale::En => "Help desk settings",
+        Locale::En => "Desk settings",
         Locale::FrCa => "Paramètres du comptoir",
     }
 }
@@ -1164,8 +1164,8 @@ pub fn desk_ticket_title(l: Locale) -> &'static str {
 #[must_use]
 pub fn desk_title(l: Locale) -> &'static str {
     match l {
-        Locale::En => "Help desk",
-        Locale::FrCa => "Comptoir clients",
+        Locale::En => "Desk",
+        Locale::FrCa => "Comptoir",
     }
 }
 
@@ -2016,8 +2016,8 @@ pub fn nav_contacts(l: Locale) -> &'static str {
 #[must_use]
 pub fn nav_desk(l: Locale) -> &'static str {
     match l {
-        Locale::En => "Help desk",
-        Locale::FrCa => "Comptoir clients",
+        Locale::En => "Desk",
+        Locale::FrCa => "Comptoir",
     }
 }
 

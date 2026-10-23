@@ -21,7 +21,7 @@ internal sealed partial class LiveWalk
         {
             throw new PreconditionException("live-config.json names no deskCustomerEmail");
         }
-        _ = Ui.Go(App, "Help desk", "Help desk");
+        _ = Ui.Go(App, "Desk", "Desk");
         if (Ui.TryText(App, "The help desk is off") is not null)
         {
             throw new PreconditionException("the QA workspace's help desk is off");
@@ -29,8 +29,8 @@ internal sealed partial class LiveWalk
         var done = new List<string>();
 
         // Settings: replies are not emailed, then the logo.
-        Ui.Press(App, "Help desk settings");
-        _ = UiTests.Walk.Heading(App, "Help desk settings", Ui.Step);
+        Ui.Press(App, "Desk settings");
+        _ = UiTests.Walk.Heading(App, "Desk settings", Ui.Step);
         Ui.Loaded(App);
         if (Ui.IsOn(App, "Email customers your replies"))
         {
@@ -66,7 +66,7 @@ internal sealed partial class LiveWalk
         }
 
         // A ticket to our own address, a reply that is not emailed, its status changed, resolved.
-        _ = Ui.Go(App, "Help desk", "Help desk");
+        _ = Ui.Go(App, "Desk", "Desk");
         var subject = $"{Config.Prefix} ticket";
         Ui.Press(App, "New ticket");
         Ui.Type(App, "Subject", subject);

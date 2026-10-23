@@ -1193,7 +1193,7 @@ tier = "T3"
 state = "reviewed"
 
 [desk.not_turned_on]
-en = "The help desk was not turned on"
+en = "The Desk was not turned on"
 fr = "Le comptoir n'a pas été activé"
 ctx = "a11y"
 screen = "desk"
@@ -1234,10 +1234,10 @@ ctx = "button"
 screen = "desk"
 tier = "T3"
 state = "reviewed"
-note = "Opens the help desk's settings."
+note = "Opens the Desk settings."
 
 [desk.settings_a11y]
-en = "Help desk settings"
+en = "Desk settings"
 fr = "Paramètres du comptoir"
 ctx = "a11y"
 screen = "desk"
@@ -1263,8 +1263,8 @@ state = "reviewed"
 note = "Name of the list of tickets."
 
 [desk.title]
-en = "Help desk"
-fr = "Comptoir clients"
+en = "Desk"
+fr = "Comptoir"
 ctx = "title"
 screen = "desk"
 tier = "T3"
@@ -1272,7 +1272,7 @@ state = "reviewed"
 note = "Page title."
 
 [desk.turning_on]
-en = "Turning on the help desk"
+en = "Turning on the Desk"
 fr = "Activation du comptoir"
 ctx = "a11y"
 screen = "desk"
@@ -1342,7 +1342,7 @@ tier = "T2"
 state = "reviewed"
 
 [desk_settings.save]
-en = "Save the help desk settings"
+en = "Save the Desk settings"
 fr = "Enregistrer les paramètres du comptoir"
 ctx = "a11y"
 screen = "desk_settings"
