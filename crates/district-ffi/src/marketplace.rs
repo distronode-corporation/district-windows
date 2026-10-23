@@ -36,15 +36,15 @@ pub struct MarketplaceView {
     /// The tab showing.
     pub tab: NumbersTab,
     /// The note saying what the screen does and does not do (buying is on
-    /// the web), worded for the role.
+    /// the web), worded for the role. The screen says it once, here: the web
+    /// link has no caption repeating it, and a viewer's rows do not repeat
+    /// who can change numbers.
     pub scope_note: String,
     /// Whether to offer the web marketplace: only to a role that could buy
     /// there.
     pub offers_web: bool,
     /// The web marketplace link's words.
     pub web_action: String,
-    /// The caption under it.
-    pub web_caption: String,
     /// Where the read of the held numbers stands.
     pub owned_status: LoadStatus,
     /// What to say when the workspace holds none.
@@ -71,7 +71,6 @@ impl Default for MarketplaceView {
             scope_note: numbers_scope_note(false).to_owned(),
             offers_web: false,
             web_action: cs::marketplace_web_action(l()).to_owned(),
-            web_caption: cs::marketplace_web_caption(l()).to_owned(),
             owned_status: LoadStatus::Loading,
             owned_empty: None,
             owned: Vec::new(),
@@ -128,7 +127,8 @@ pub struct NumberRowView {
     /// nothing (never shown as zero).
     pub monthly: Option<String>,
     /// What can be done to a number the workspace holds; `None` for one for
-    /// sale.
+    /// sale, and for a viewer's own numbers, whose reason (only some roles
+    /// change numbers) the screen's `scope_note` already gives.
     pub manage: Option<NumberManageView>,
 }
 
@@ -394,7 +394,9 @@ fn owned_row(number: &OwnedNumber, admin: &NumberAdmin, can_change: bool) -> Num
             " \u{b7} ",
         ),
         monthly: monthly(number.monthly_price, None),
-        manage: Some(manage_view(number, admin, can_change)),
+        // A viewer's note on each row would be the scope note again; a number
+        // Distronode holds keeps its own reason, which the page does not give.
+        manage: (can_change || number.managed).then(|| manage_view(number, admin, can_change)),
     }
 }
 

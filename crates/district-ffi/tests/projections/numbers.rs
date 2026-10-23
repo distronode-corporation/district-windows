@@ -230,8 +230,9 @@ fn only_the_workspaces_own_numbers_are_managed() {
 
     let seen = view(&held(viewer()));
     assert!(seen.owned.iter().all(|row| {
-        let manage = row.manage.as_ref().unwrap();
-        manage.note.is_some() && !manage.can_configure && !manage.can_release
+        row.manage.as_ref().is_none_or(|manage| {
+            manage.note.is_some() && !manage.can_configure && !manage.can_release
+        })
     }));
     let tried = numbers(
         held(viewer()),

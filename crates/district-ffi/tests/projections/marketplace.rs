@@ -169,6 +169,37 @@ fn a_viewer_is_told_who_can() {
     assert_eq!(tried.pending.len(), before);
 }
 
+/// The screen gives each of its help sentences once: the scope note is not
+/// repeated on a viewer's rows, and no row, caption or note says it again. A
+/// number Distronode holds keeps its own reason, which the page does not give.
+#[test]
+fn the_help_shows_once() {
+    for session in [held(signed_in()), held(viewer())] {
+        let view = view(&session);
+        let notes: Vec<&str> = view
+            .owned
+            .iter()
+            .filter_map(|row| row.manage.as_ref()?.note.as_deref())
+            .collect();
+        assert!(!notes.contains(&view.scope_note.as_str()), "{notes:?}");
+        let page = serde_json::to_string(&view).unwrap();
+        assert_eq!(
+            page.matches(&serde_json::to_string(&view.scope_note).unwrap())
+                .count(),
+            1,
+            "{page}"
+        );
+    }
+    let seen = view(&held(viewer()));
+    assert!(seen.owned.iter().any(|row| row.manage.is_none()));
+    assert!(
+        seen.owned
+            .iter()
+            .filter_map(|row| row.manage.as_ref())
+            .all(|manage| manage.note.is_some())
+    );
+}
+
 /// The web marketplace opens in the browser for a member who could buy there.
 #[test]
 fn buying_opens_the_web() {

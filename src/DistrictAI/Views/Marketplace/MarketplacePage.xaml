@@ -117,17 +117,13 @@
                 Style="{StaticResource QuietTextStyle}"
                 Text="{x:Bind ViewModel.ScopeNote, Mode=OneWay}"
                 TextWrapping="Wrap" />
-            <StackPanel Spacing="2" Visibility="{x:Bind ViewModel.OffersWeb, Mode=OneWay}">
-                <HyperlinkButton
-                    Padding="0,4"
-                    AutomationProperties.Name="{x:Bind ViewModel.WebAction, Mode=OneWay}"
-                    Command="{x:Bind ViewModel.OpenWebCommand}"
-                    Content="{x:Bind ViewModel.WebAction, Mode=OneWay}" />
-                <TextBlock
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    Text="{x:Bind ViewModel.WebCaption, Mode=OneWay}"
-                    TextWrapping="Wrap" />
-            </StackPanel>
+            <!-- The scope note above already says numbers are bought on the web: the link has no caption repeating it. -->
+            <HyperlinkButton
+                Padding="0,4"
+                AutomationProperties.Name="{x:Bind ViewModel.WebAction, Mode=OneWay}"
+                Command="{x:Bind ViewModel.OpenWebCommand}"
+                Content="{x:Bind ViewModel.WebAction, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.OffersWeb, Mode=OneWay}" />
         </StackPanel>
 
         <views:TabStrip
