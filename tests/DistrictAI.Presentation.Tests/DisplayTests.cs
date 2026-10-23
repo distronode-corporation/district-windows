@@ -54,6 +54,48 @@ public sealed class DisplayTests
         Assert.DoesNotContain("M", Display.When("2026-03-04T15:30:00Z", at, S.Locale.FrCa), StringComparison.Ordinal);
     }
 
+    // The house French clock (district-l10n's format::time and the contract's
+    // format-vectors.json): the hour, a plain U+0020, "h", and the minutes only
+    // when there are some, whatever the regional format.
+    [Theory]
+    [InlineData(9, 0, "9\u0020h")]
+    [InlineData(9, 30, "9\u0020h\u002030")]
+    [InlineData(17, 0, "17\u0020h")]
+    [InlineData(0, 15, "0\u0020h\u002015")]
+    public void FrenchWritesTheHouseClock(int hour, int minute, string expected)
+    {
+        var text = Display.Time(new DateTimeOffset(2026, 3, 4, hour, minute, 0, TimeSpan.Zero), S.Locale.FrCa);
+        Assert.Equal(expected, text);
+        Assert.DoesNotContain(":", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("\u00A0", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("\u202F", text, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("en-CA")]
+    [InlineData("en-GB")]
+    public void EnglishTimesAreUnchangedInEachCulture(string name)
+    {
+        var before = CultureInfo.CurrentCulture;
+        try
+        {
+            var culture = CultureInfo.GetCultureInfo(name);
+            CultureInfo.CurrentCulture = culture;
+            foreach (var (hour, minute) in new[] { (9, 0), (9, 30), (17, 0) })
+            {
+                var local = new DateTimeOffset(2026, 3, 4, hour, minute, 0, TimeSpan.Zero);
+                var text = Display.Time(local, S.Locale.En);
+                Assert.Equal(local.ToString("t", culture), text);
+                Assert.DoesNotContain(" h", text, StringComparison.Ordinal);
+            }
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = before;
+        }
+    }
+
     [Fact]
     public void EnglishKeepsTheUsersCulture()
     {
