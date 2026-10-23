@@ -7,6 +7,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Clicking a call or message notification left in Action Center after District AI was
+  quit (or the computer restarted) opens the conversation or call it was about, where it
+  only showed the window. The notification now carries what it opens (ids only). Its
+  Answer and Decline buttons still do nothing then, since that call stopped ringing when
+  the app quit.
+
 ## [3.0.3] - 2026-10-22
 
 ### Security

@@ -98,6 +98,13 @@ pub struct NotificationView {
     pub actions: Vec<NotificationActionView>,
     /// What it is about, which picks the toast's style.
     pub kind: NotificationKind,
+    /// What clicking the toast opens, written by [`encode_open_target`] for
+    /// the host to carry in the toast's arguments and hand back to
+    /// [`Core::activate_notification`](crate::Core::activate_notification).
+    /// Ids only (the workspace, the call or message), never a secret or what
+    /// a message says. Empty when the ids cannot be carried; such a toast,
+    /// once forgotten, only shows the window.
+    pub open_target: String,
 }
 
 /// What a notification is about, from the core's target.
@@ -159,7 +166,87 @@ impl From<&Notification> for NotificationView {
                 })
                 .collect(),
             kind: NotificationKind::from(&notification.target),
+            open_target: encode_open_target(&notification.target).unwrap_or_default(),
         }
+    }
+}
+
+/// The version of the open-target format, its first field. A toast written by
+/// another version is refused, as garbled.
+const OPEN_TARGET_VERSION: &str = "1";
+
+/// The longest id an open target carries.
+const OPEN_TARGET_ID_MAX: usize = 128;
+
+/// Whether `id` can be carried in an open target: 1 to [`OPEN_TARGET_ID_MAX`]
+/// ASCII letters, digits, `_`, `-`, `.` or `:`, so it never holds the
+/// separator or anything the toast's own argument encoding would change.
+fn carriable(id: &str) -> bool {
+    (1..=OPEN_TARGET_ID_MAX).contains(&id.len())
+        && id
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'.' | b':'))
+}
+
+/// `target` as a toast carries it: `1|<kind>|<workspace id>|<id>`, where the
+/// kind is `incoming-call`, `call` or `message`. `None` when an id is not
+/// [`carriable`].
+///
+/// A toast outlives the process that showed it (it waits in Action Center
+/// across a Quit or a restart), while the [`NotificationTable`] does not, so
+/// the toast carries what opening it leads to: the same ids the core's
+/// [`NotificationTarget`] holds, nothing more.
+pub(crate) fn encode_open_target(target: &NotificationTarget) -> Option<String> {
+    let (kind, workspace_id, id) = match target {
+        NotificationTarget::IncomingCall {
+            workspace_id,
+            call_id,
+        } => ("incoming-call", workspace_id, call_id),
+        NotificationTarget::Call {
+            workspace_id,
+            call_id,
+        } => ("call", workspace_id, call_id),
+        NotificationTarget::Message {
+            workspace_id,
+            message_id,
+        } => ("message", workspace_id, message_id),
+    };
+    (carriable(workspace_id) && carriable(id))
+        .then(|| format!("{OPEN_TARGET_VERSION}|{kind}|{workspace_id}|{id}"))
+}
+
+/// The [`NotificationTarget`] an [`encode_open_target`] string names. `None`
+/// for anything else: another version, an unknown kind, a missing or extra
+/// field, or an id that could not have been written.
+pub(crate) fn parse_open_target(text: &str) -> Option<NotificationTarget> {
+    let mut fields = text.split('|');
+    let (Some(version), Some(kind), Some(workspace_id), Some(id), None) = (
+        fields.next(),
+        fields.next(),
+        fields.next(),
+        fields.next(),
+        fields.next(),
+    ) else {
+        return None;
+    };
+    if version != OPEN_TARGET_VERSION || !carriable(workspace_id) || !carriable(id) {
+        return None;
+    }
+    let (workspace_id, id) = (workspace_id.to_owned(), id.to_owned());
+    match kind {
+        "incoming-call" => Some(NotificationTarget::IncomingCall {
+            workspace_id,
+            call_id: id,
+        }),
+        "call" => Some(NotificationTarget::Call {
+            workspace_id,
+            call_id: id,
+        }),
+        "message" => Some(NotificationTarget::Message {
+            workspace_id,
+            message_id: id,
+        }),
+        _ => None,
     }
 }
 
@@ -198,21 +285,56 @@ impl NotificationTable {
         self.lock().retain(|old| old.id != id);
     }
 
+    /// [`known`](Self::known) with a notification it does not know read as
+    /// nothing, which is how the table alone answers (its tests ask it so).
+    #[cfg(test)]
+    pub(crate) fn activate(&self, id: &str, action_id: Option<&str>) -> Option<Event> {
+        self.known(id, action_id).flatten()
+    }
+
     /// The event activating the notification `id` sends: opening its target
     /// when `action_id` is `None` (the toast itself was clicked), or the event
-    /// of the action named. `None` for a notification or an action this table
-    /// does not know.
-    pub(crate) fn activate(&self, id: &str, action_id: Option<&str>) -> Option<Event> {
+    /// of the action named, `None` for an action it does not have. The outer
+    /// `None` when this table does not know the notification `id` at all.
+    fn known(&self, id: &str, action_id: Option<&str>) -> Option<Option<Event>> {
         let shown = self.lock();
         let notification = shown.iter().find(|shown| shown.id == id)?;
-        match action_id {
+        Some(match action_id {
             None => Some(Event::OpenNotification(notification.target.clone())),
             Some(wanted) => notification
                 .actions
                 .iter()
                 .find(|action| self::action_id(action) == wanted)
                 .map(NotificationAction::event),
+        })
+    }
+
+    /// The event a toast's activation sends: what [`known`](Self::known)
+    /// answers when this table knows the notification `id`, which is always
+    /// the first choice. Otherwise (a toast left in Action Center by an
+    /// earlier process, or older than the table's memory) the toast's body
+    /// opens the `open_target` it carries, when that is one
+    /// [`encode_open_target`] wrote; anything else does nothing, and the host
+    /// only shows the window.
+    pub(crate) fn activate_toast(
+        &self,
+        id: &str,
+        action_id: Option<&str>,
+        open_target: Option<&str>,
+    ) -> Option<Event> {
+        if let Some(event) = self.known(id, action_id) {
+            return event;
         }
+        if action_id.is_some() {
+            // Answer or Decline on a toast this table no longer knows: the
+            // ring it was for ended with the process that showed it (or long
+            // ago), so there is nothing to answer or decline. Ignored on
+            // purpose, never guessed from the open target.
+            return None;
+        }
+        open_target
+            .and_then(parse_open_target)
+            .map(Event::OpenNotification)
     }
 }
 
@@ -452,6 +574,7 @@ pub(crate) mod tests {
                     },
                 ],
                 kind: NotificationKind::IncomingCall,
+                open_target: "1|incoming-call|ws-1|call-1".to_owned(),
             }
         );
         assert_eq!(
@@ -463,6 +586,7 @@ pub(crate) mod tests {
                 urgent: false,
                 actions: Vec::new(),
                 kind: NotificationKind::Message,
+                open_target: "1|message|ws-1|m-1".to_owned(),
             }
         );
         let mut missed = ringing("call-1");
@@ -471,6 +595,155 @@ pub(crate) mod tests {
             call_id: "call-1".to_owned(),
         };
         assert_eq!(NotificationView::from(&missed).kind, NotificationKind::Call);
+        assert_eq!(
+            NotificationView::from(&missed).open_target,
+            "1|call|ws-1|call-1"
+        );
+        // An id that cannot be carried leaves the target empty.
+        missed.target = NotificationTarget::Call {
+            workspace_id: "ws-1".to_owned(),
+            call_id: "call|1".to_owned(),
+        };
+        assert_eq!(NotificationView::from(&missed).open_target, "");
+    }
+
+    #[test]
+    fn an_open_target_reads_back_as_written() {
+        let targets = [
+            NotificationTarget::IncomingCall {
+                workspace_id: "ws_1".to_owned(),
+                call_id: "CA0123456789abcdef".to_owned(),
+            },
+            NotificationTarget::Call {
+                workspace_id: "ws-1".to_owned(),
+                call_id: "call_contract_answered".to_owned(),
+            },
+            NotificationTarget::Message {
+                workspace_id: "cmg2x.9:a".to_owned(),
+                message_id: "m".repeat(OPEN_TARGET_ID_MAX),
+            },
+        ];
+        for target in targets {
+            let text = encode_open_target(&target).expect("carriable");
+            assert_eq!(parse_open_target(&text), Some(target));
+        }
+    }
+
+    #[test]
+    fn an_open_target_with_ids_it_cannot_carry_is_not_written() {
+        let long = "x".repeat(OPEN_TARGET_ID_MAX + 1);
+        for (workspace_id, call_id) in [
+            ("", "call-1"),
+            ("ws-1", ""),
+            ("ws|1", "call-1"),
+            ("ws-1", "call;1"),
+            ("ws-1", "call=1"),
+            ("ws 1", "call-1"),
+            ("ws-1", "caf\u{e9}"),
+            ("ws-1", long.as_str()),
+        ] {
+            let target = NotificationTarget::Call {
+                workspace_id: workspace_id.to_owned(),
+                call_id: call_id.to_owned(),
+            };
+            assert_eq!(
+                encode_open_target(&target),
+                None,
+                "{workspace_id:?} {call_id:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_garbled_open_target_is_refused() {
+        let long = format!("1|call|ws-1|{}", "x".repeat(OPEN_TARGET_ID_MAX + 1));
+        for text in [
+            "",
+            "|",
+            "1",
+            "1|message",
+            "1|message|ws-1",
+            "1|message|ws-1|",
+            "1|message||m-1",
+            "1|message|ws-1|m-1|",
+            "1|message|ws-1|m-1|extra",
+            "2|message|ws-1|m-1",
+            "01|message|ws-1|m-1",
+            " 1|message|ws-1|m-1",
+            "1|Message|ws-1|m-1",
+            "1|thread|ws-1|m-1",
+            "1|voicemail|ws-1|m-1",
+            "1||ws-1|m-1",
+            "1|message|ws 1|m-1",
+            "1|message|ws-1|m-1\n",
+            "1|message|ws-1|m=1",
+            "1;message;ws-1;m-1",
+            long.as_str(),
+        ] {
+            assert_eq!(parse_open_target(text), None, "{text:?}");
+        }
+    }
+
+    /// A toast an earlier process showed, so the table does not know it: its
+    /// body opens the target it carries, and its buttons do nothing.
+    #[test]
+    fn a_toast_the_table_forgot_opens_what_it_carries() {
+        let table = NotificationTable::default();
+        let carried = encode_open_target(&ringing("call-1").target).unwrap();
+        assert_eq!(
+            table.activate_toast("call:call-1", None, Some(&carried)),
+            Some(Event::OpenNotification(NotificationTarget::IncomingCall {
+                workspace_id: "ws-1".to_owned(),
+                call_id: "call-1".to_owned(),
+            }))
+        );
+        assert_eq!(
+            table.activate_toast("message:m-1", None, Some("1|message|ws-2|m-1")),
+            Some(Event::OpenNotification(NotificationTarget::Message {
+                workspace_id: "ws-2".to_owned(),
+                message_id: "m-1".to_owned(),
+            }))
+        );
+        // The ring ended with the process: a stale Answer or Decline is ignored.
+        assert_eq!(
+            table.activate_toast("call:call-1", Some("answer"), Some(&carried)),
+            None
+        );
+        assert_eq!(
+            table.activate_toast("call:call-1", Some("decline"), Some(&carried)),
+            None
+        );
+        // No target, or a garbled one: only the window shows, as before.
+        assert_eq!(table.activate_toast("call:call-1", None, None), None);
+        assert_eq!(
+            table.activate_toast("call:call-1", None, Some("1|ring|ws-1|call-1")),
+            None
+        );
+        assert_eq!(table.activate_toast("call:call-1", None, Some("")), None);
+    }
+
+    /// While the table knows the toast, it answers, whatever the toast carries.
+    #[test]
+    fn a_toast_the_table_knows_is_answered_by_the_table() {
+        let table = NotificationTable::default();
+        table.shown(&ringing("call-1"));
+        let elsewhere = Some("1|message|ws-9|m-9");
+        assert_eq!(
+            table.activate_toast("call:call-1", None, elsewhere),
+            table.activate("call:call-1", None)
+        );
+        assert_eq!(
+            table.activate_toast("call:call-1", Some("answer"), elsewhere),
+            Some(Event::Ring(RingEvent::Answer {
+                call_id: "call-1".to_owned(),
+            }))
+        );
+        // An action the known notification does not have stays nothing, and
+        // is not read as a click on the body.
+        assert_eq!(
+            table.activate_toast("call:call-1", Some("snooze"), elsewhere),
+            None
+        );
     }
 
     #[test]

@@ -246,8 +246,12 @@ public sealed class CoreHost : UiHost, ICoreSink, IAsyncDisposable
     /// Forwards a toast's activation: the toast itself clicked
     /// (<paramref name="actionId"/> null), or the button whose
     /// <see cref="NotificationActionView.ActionId"/> it is.
+    /// <paramref name="openTarget"/> is the <see cref="NotificationView.OpenTarget"/>
+    /// the toast carried, if any: the core reads it only when it no longer
+    /// remembers the toast (one an earlier run of the app showed).
     /// </summary>
-    public void ActivateNotification(string id, string? actionId) => _core.ActivateNotification(id, actionId);
+    public void ActivateNotification(string id, string? actionId, string? openTarget) =>
+        _core.ActivateNotification(id, actionId, openTarget);
 
     /// <inheritdoc/>
     public void StateChanged(ulong revision)

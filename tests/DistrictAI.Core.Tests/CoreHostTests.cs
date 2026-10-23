@@ -279,7 +279,7 @@ public sealed class CoreHostTests : IDisposable
         var ringing = new NotificationView(
             "call:call-1", "Incoming call", "Transferred from your AI receptionist.", true,
             [new NotificationActionView("Answer", "answer"), new NotificationActionView("Decline", "decline")],
-            NotificationKind.IncomingCall);
+            NotificationKind.IncomingCall, "1|incoming-call|ws-1|call-1");
         await Task.Run(() =>
         {
             host.Notify(ringing);
@@ -308,7 +308,7 @@ public sealed class CoreHostTests : IDisposable
     {
         var dispatcher = new ManualDispatcher();
         await using var host = new CoreHost(dispatcher, new RecordingBrowser());
-        host.Notify(new NotificationView("message:m-1", "New message", "Open District AI to read it.", false, [], NotificationKind.Message));
+        host.Notify(new NotificationView("message:m-1", "New message", "Open District AI to read it.", false, [], NotificationKind.Message, "1|message|ws-1|m-1"));
         host.Withdraw("message:m-1");
         host.StartRingtone();
         host.StopRingtone();
@@ -328,11 +328,17 @@ public sealed class CoreHostTests : IDisposable
     {
         await using var host = new CoreHost(new ManualDispatcher(), new RecordingBrowser());
         // Before the core starts, and for an id it never showed.
-        host.ActivateNotification("call:call-1", "answer");
+        host.ActivateNotification("call:call-1", "answer", null);
         host.Start(_dataDir, "0.1.0", null, Namespace, _english);
         await Eventually("signed out", () => host.Current.Shell.Phase == SessionPhase.SignedOut);
-        host.ActivateNotification("call:call-1", null);
-        host.ActivateNotification("message:m-1", "decline");
+        host.ActivateNotification("call:call-1", null, null);
+        host.ActivateNotification("message:m-1", "decline", null);
+        // A toast an earlier run showed, with what it opens: signed out, the
+        // model has nothing to open, and a stale button or a garbled target
+        // is refused before it reaches the model at all.
+        host.ActivateNotification("message:m-1", null, "1|message|ws-1|m-1");
+        host.ActivateNotification("call:call-1", "answer", "1|incoming-call|ws-1|call-1");
+        host.ActivateNotification("message:m-1", null, "not a target");
         Assert.Equal(SessionPhase.SignedOut, host.Current.Shell.Phase);
     }
 
