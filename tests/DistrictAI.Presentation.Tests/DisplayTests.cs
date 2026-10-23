@@ -58,17 +58,17 @@ public sealed class DisplayTests
     // format-vectors.json): the hour, a plain U+0020, "h", and the minutes only
     // when there are some, whatever the regional format.
     [Theory]
-    [InlineData(9, 0, "9 h")]
-    [InlineData(9, 30, "9 h 30")]
-    [InlineData(17, 0, "17 h")]
-    [InlineData(0, 15, "0 h 15")]
+    [InlineData(9, 0, "9\u0020h")]
+    [InlineData(9, 30, "9\u0020h\u002030")]
+    [InlineData(17, 0, "17\u0020h")]
+    [InlineData(0, 15, "0\u0020h\u002015")]
     public void FrenchWritesTheHouseClock(int hour, int minute, string expected)
     {
         var text = Display.Time(new DateTimeOffset(2026, 3, 4, hour, minute, 0, TimeSpan.Zero), S.Locale.FrCa);
         Assert.Equal(expected, text);
         Assert.DoesNotContain(":", text, StringComparison.Ordinal);
-        Assert.DoesNotContain(" ", text, StringComparison.Ordinal);
-        Assert.DoesNotContain(" ", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("\u00A0", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("\u202F", text, StringComparison.Ordinal);
     }
 
     [Theory]
