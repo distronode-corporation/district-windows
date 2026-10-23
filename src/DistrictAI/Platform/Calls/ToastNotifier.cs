@@ -35,6 +35,11 @@ internal static class ToastNotifier
             .AddArgument(ToastLayout.IdArgument, layout.Id)
             .AddText(layout.Title)
             .AddText(layout.Body);
+        if (layout.OpenTarget.Length > 0)
+        {
+            // Only on the body: a button carries no target (see ToastLayout).
+            builder.AddArgument(ToastLayout.OpenTargetArgument, layout.OpenTarget);
+        }
         switch (layout.Style)
         {
             case ToastStyle.IncomingCall:
@@ -94,6 +99,6 @@ internal static class ToastNotifier
     }
 
     /// <inheritdoc cref="ToastLayout.TryReadActivation"/>
-    public static bool TryReadActivation(IDictionary<string, string> arguments, out string id, out string? actionId) =>
-        ToastLayout.TryReadActivation(arguments, out id, out actionId);
+    public static bool TryReadActivation(IDictionary<string, string> arguments, out string id, out string? actionId, out string? openTarget) =>
+        ToastLayout.TryReadActivation(arguments, out id, out actionId, out openTarget);
 }

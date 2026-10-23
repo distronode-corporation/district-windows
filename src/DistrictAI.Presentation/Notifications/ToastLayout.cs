@@ -36,7 +36,12 @@ public sealed record ToastButton(string Label, string ActionId);
 /// its arguments: the notification's id and the button's action id, never the
 /// content of a message or who is calling. The core keeps the table that turns
 /// them back into what they were for, so a message's toast opens its
-/// conversation through the core, which routes it.
+/// conversation through the core, which routes it. That table lives only as
+/// long as the process, while a toast waits in Action Center across a Quit or
+/// a restart, so the toast's body also carries the core's
+/// <see cref="NotificationView.OpenTarget"/> (ids only, written and checked by
+/// the core): a click on a toast the core no longer remembers still opens the
+/// thread or call it was about.
 /// </remarks>
 /// <param name="Tag">The toast's tag (<see cref="TagFor"/>), by which it is replaced and withdrawn.</param>
 /// <param name="Id">The notification's id, carried as <see cref="IdArgument"/>.</param>
@@ -44,13 +49,21 @@ public sealed record ToastButton(string Label, string ActionId);
 /// <param name="Body">The body.</param>
 /// <param name="Style">Which toast it is.</param>
 /// <param name="Buttons">Its buttons, in order. None for a message.</param>
-public sealed record ToastLayout(string Tag, string Id, string Title, string Body, ToastStyle Style, IReadOnlyList<ToastButton> Buttons)
+/// <param name="OpenTarget">What the body opens, carried as <see cref="OpenTargetArgument"/>; empty for none.</param>
+public sealed record ToastLayout(string Tag, string Id, string Title, string Body, ToastStyle Style, IReadOnlyList<ToastButton> Buttons, string OpenTarget)
 {
     /// <summary>The argument holding the notification's id.</summary>
     public const string IdArgument = "notification-id";
 
     /// <summary>The argument holding the button's action id. Absent for the toast's body.</summary>
     public const string ActionArgument = "notification-action";
+
+    /// <summary>
+    /// The argument holding what the toast's body opens, the core's
+    /// <see cref="NotificationView.OpenTarget"/>. Only on the body; absent
+    /// when the core gave none.
+    /// </summary>
+    public const string OpenTargetArgument = "notification-target";
 
     /// <summary>
     /// The toast for <paramref name="notification"/>. <paramref name="urgentSupported"/>
@@ -75,18 +88,25 @@ public sealed record ToastLayout(string Tag, string Id, string Title, string Bod
             notification.Title,
             notification.Body,
             style,
-            style == ToastStyle.Message ? [] : buttons);
+            style == ToastStyle.Message ? [] : buttons,
+            notification.OpenTarget);
     }
 
     /// <summary>
-    /// Reads the notification id, and the button's action id (null for the
-    /// toast's body), out of a toast activation's <paramref name="arguments"/>.
+    /// Reads the notification id, the button's action id (null for the
+    /// toast's body) and what the body opens (null when the toast carries
+    /// none, or for a button) out of a toast activation's
+    /// <paramref name="arguments"/>. The open target is handed to the core
+    /// as it is: the core alone decides whether it reads back.
     /// </summary>
     /// <returns>False for arguments this class did not write.</returns>
-    public static bool TryReadActivation(IDictionary<string, string> arguments, out string id, out string? actionId)
+    public static bool TryReadActivation(IDictionary<string, string> arguments, out string id, out string? actionId, out string? openTarget)
     {
         ArgumentNullException.ThrowIfNull(arguments);
         actionId = arguments.TryGetValue(ActionArgument, out var action) && action.Length > 0 ? action : null;
+        // A button never opens a target: an Answer or Decline the core no
+        // longer remembers is ignored there, not turned into a click.
+        openTarget = actionId is null && arguments.TryGetValue(OpenTargetArgument, out var target) && target.Length > 0 ? target : null;
         if (arguments.TryGetValue(IdArgument, out var found) && found.Length > 0)
         {
             id = found;
@@ -94,6 +114,7 @@ public sealed record ToastLayout(string Tag, string Id, string Title, string Bod
         }
         id = string.Empty;
         actionId = null;
+        openTarget = null;
         return false;
     }
 

@@ -972,7 +972,7 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     void uniffi_district_ffi_fn_method_core_activate_notification(ulong @ptr,RustBuffer @id,RustBuffer @actionId,ref UniffiRustCallStatus _uniffi_out_err
+     void uniffi_district_ffi_fn_method_core_activate_notification(ulong @ptr,RustBuffer @id,RustBuffer @actionId,RustBuffer @openTarget,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -2490,8 +2490,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_method_core_activate_notification();
-            if (checksum != 18889) {
-                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_activate_notification` checksum `18889`, library returned `{checksum}`");
+            if (checksum != 33028) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_method_core_activate_notification` checksum `33028`, library returned `{checksum}`");
             }
         }
         {
@@ -2872,11 +2872,16 @@ public interface ICore {
     /// A notification the host showed was activated: its toast clicked
     /// (`action_id` `None`), or one of its buttons, named by its
     /// `NotificationActionView::action_id`. The model then opens what the
-    /// notification is about, or answers or declines the call it names. A
-    /// notification this core did not show, or no longer remembers, does
-    /// nothing.
+    /// notification is about, or answers or declines the call it names.
+    ///
+    /// `open_target` is the toast's `NotificationView::open_target`, as the
+    /// toast carried it. It is read only for a click on the body of a toast
+    /// this core does not remember (shown before the app last quit, say), so
+    /// that the click still opens the thread or call it was about. A button
+    /// on such a toast, or a target that does not read back, does nothing
+    /// (see `NotificationTable::activate_toast`).
     /// </summary>
-    void ActivateNotification(string @id, string? @actionId);
+    void ActivateNotification(string @id, string? @actionId, string? @openTarget);
     /// <summary>
     /// Hands the model a `districtai:` link Windows activated the app with,
     /// and says what kind it was. A sign-in's answer goes to the sign-in, a
@@ -3057,14 +3062,19 @@ public class Core : ICore, IDisposable {
     /// A notification the host showed was activated: its toast clicked
     /// (`action_id` `None`), or one of its buttons, named by its
     /// `NotificationActionView::action_id`. The model then opens what the
-    /// notification is about, or answers or declines the call it names. A
-    /// notification this core did not show, or no longer remembers, does
-    /// nothing.
+    /// notification is about, or answers or declines the call it names.
+    ///
+    /// `open_target` is the toast's `NotificationView::open_target`, as the
+    /// toast carried it. It is read only for a click on the body of a toast
+    /// this core does not remember (shown before the app last quit, say), so
+    /// that the click still opens the thread or call it was about. A button
+    /// on such a toast, or a target that does not read back, does nothing
+    /// (see `NotificationTable::activate_toast`).
     /// </summary>
-    public void ActivateNotification(string @id, string? @actionId) {
+    public void ActivateNotification(string @id, string? @actionId, string? @openTarget) {
         CallWithPointer(thisPtr =>
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_district_ffi_fn_method_core_activate_notification(thisPtr, FfiConverterString.INSTANCE.Lower(@id), FfiConverterOptionalString.INSTANCE.Lower(@actionId), ref _status)
+    _UniFFILib.uniffi_district_ffi_fn_method_core_activate_notification(thisPtr, FfiConverterString.INSTANCE.Lower(@id), FfiConverterOptionalString.INSTANCE.Lower(@actionId), FfiConverterOptionalString.INSTANCE.Lower(@openTarget), ref _status)
 ));
     }
     
@@ -17376,6 +17386,14 @@ class FfiConverterTypeNotificationSwitchView: FfiConverterRustBuffer<Notificatio
 /// <param name="Kind">
 /// What it is about, which picks the toast's style.
 /// </param>
+/// <param name="OpenTarget">
+/// What clicking the toast opens, written by [`encode_open_target`] for
+/// the host to carry in the toast's arguments and hand back to
+/// [`Core::activate_notification`](crate::Core::activate_notification).
+/// Ids only (the workspace, the call or message), never a secret or what
+/// a message says. Empty when the ids cannot be carried; such a toast,
+/// once forgotten, only shows the window.
+/// </param>
 public record NotificationView (
     /// <summary>
     /// The same for every notification about the same message or call, so a
@@ -17402,7 +17420,16 @@ public record NotificationView (
     /// <summary>
     /// What it is about, which picks the toast's style.
     /// </summary>
-    NotificationKind Kind
+    NotificationKind Kind, 
+    /// <summary>
+    /// What clicking the toast opens, written by [`encode_open_target`] for
+    /// the host to carry in the toast's arguments and hand back to
+    /// [`Core::activate_notification`](crate::Core::activate_notification).
+    /// Ids only (the workspace, the call or message), never a secret or what
+    /// a message says. Empty when the ids cannot be carried; such a toast,
+    /// once forgotten, only shows the window.
+    /// </summary>
+    string OpenTarget
 ) {
 }
 
@@ -17416,7 +17443,8 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
             Body: FfiConverterString.INSTANCE.Read(stream),
             Urgent: FfiConverterBoolean.INSTANCE.Read(stream),
             Actions: FfiConverterSequenceTypeNotificationActionView.INSTANCE.Read(stream),
-            Kind: FfiConverterTypeNotificationKind.INSTANCE.Read(stream)
+            Kind: FfiConverterTypeNotificationKind.INSTANCE.Read(stream),
+            OpenTarget: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
@@ -17427,7 +17455,8 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
             + FfiConverterString.INSTANCE.AllocationSize(value.Body)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Urgent)
             + FfiConverterSequenceTypeNotificationActionView.INSTANCE.AllocationSize(value.Actions)
-            + FfiConverterTypeNotificationKind.INSTANCE.AllocationSize(value.Kind);
+            + FfiConverterTypeNotificationKind.INSTANCE.AllocationSize(value.Kind)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OpenTarget);
     }
 
     public override void Write(NotificationView value, BigEndianStream stream) {
@@ -17437,6 +17466,7 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
             FfiConverterBoolean.INSTANCE.Write(value.Urgent, stream);
             FfiConverterSequenceTypeNotificationActionView.INSTANCE.Write(value.Actions, stream);
             FfiConverterTypeNotificationKind.INSTANCE.Write(value.Kind, stream);
+            FfiConverterString.INSTANCE.Write(value.OpenTarget, stream);
     }
 }
 

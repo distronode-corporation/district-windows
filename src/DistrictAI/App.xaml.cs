@@ -209,11 +209,14 @@ public sealed partial class App : Application, IDisposable
     /// </summary>
     private void ActivateNotification(IDictionary<string, string> arguments)
     {
-        if (!ToastNotifier.TryReadActivation(arguments, out var id, out var actionId))
+        if (!ToastNotifier.TryReadActivation(arguments, out var id, out var actionId, out var openTarget))
         {
             return;
         }
-        _core?.ActivateNotification(id, actionId);
+        // The open target matters only for a toast an earlier run showed (the
+        // core's table of toasts does not outlive the process); the core
+        // checks it, and does nothing with one it cannot read.
+        _core?.ActivateNotification(id, actionId, openTarget);
         if (actionId is null)
         {
             ShowWindow();

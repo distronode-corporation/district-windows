@@ -323,11 +323,24 @@ impl Core {
     /// A notification the host showed was activated: its toast clicked
     /// (`action_id` `None`), or one of its buttons, named by its
     /// `NotificationActionView::action_id`. The model then opens what the
-    /// notification is about, or answers or declines the call it names. A
-    /// notification this core did not show, or no longer remembers, does
-    /// nothing.
-    pub fn activate_notification(&self, id: String, action_id: Option<String>) {
-        if let Some(event) = self.notifications.activate(&id, action_id.as_deref()) {
+    /// notification is about, or answers or declines the call it names.
+    ///
+    /// `open_target` is the toast's `NotificationView::open_target`, as the
+    /// toast carried it. It is read only for a click on the body of a toast
+    /// this core does not remember (shown before the app last quit, say), so
+    /// that the click still opens the thread or call it was about. A button
+    /// on such a toast, or a target that does not read back, does nothing
+    /// (see `NotificationTable::activate_toast`).
+    pub fn activate_notification(
+        &self,
+        id: String,
+        action_id: Option<String>,
+        open_target: Option<String>,
+    ) {
+        if let Some(event) =
+            self.notifications
+                .activate_toast(&id, action_id.as_deref(), open_target.as_deref())
+        {
             self.deliver(Message::event(event));
         }
     }
@@ -1620,9 +1633,26 @@ mod tests {
         core.notifications
             .shown(&crate::host::tests::ringing("call-1"));
 
-        core.activate_notification("call:call-1".to_owned(), Some("answer".to_owned()));
-        core.activate_notification("call:unknown".to_owned(), None);
-        core.activate_notification("call:call-1".to_owned(), None);
+        core.activate_notification("call:call-1".to_owned(), Some("answer".to_owned()), None);
+        core.activate_notification("call:unknown".to_owned(), None, None);
+        core.activate_notification("call:call-1".to_owned(), None, None);
+        // A toast an earlier process showed: its body opens what it carries,
+        // its buttons do nothing, and a garbled target does nothing.
+        core.activate_notification(
+            "call:call-0".to_owned(),
+            Some("answer".to_owned()),
+            Some("1|incoming-call|ws-1|call-0".to_owned()),
+        );
+        core.activate_notification(
+            "message:m-0".to_owned(),
+            None,
+            Some("1|nonsense".to_owned()),
+        );
+        core.activate_notification(
+            "message:m-0".to_owned(),
+            None,
+            Some("1|message|ws-2|m-0".to_owned()),
+        );
         let mut events = Vec::new();
         while let Ok(Message::Event(event)) = inbox.try_recv() {
             events.push(*event);
@@ -1636,6 +1666,10 @@ mod tests {
                 Event::OpenNotification(district_core::NotificationTarget::IncomingCall {
                     workspace_id: "ws-1".to_owned(),
                     call_id: "call-1".to_owned(),
+                }),
+                Event::OpenNotification(district_core::NotificationTarget::Message {
+                    workspace_id: "ws-2".to_owned(),
+                    message_id: "m-0".to_owned(),
                 }),
             ]
         );
