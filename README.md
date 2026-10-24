@@ -1,6 +1,7 @@
 # District AI for Windows
 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/distronode-corporation/district-windows/badge)](https://scorecard.dev/viewer/?uri=github.com/distronode-corporation/district-windows)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15875/badge)](https://www.bestpractices.dev/projects/15875)
 
 The native Windows client for [District AI](https://www.distronode.com), the AI voice
 receptionist from Distronode. It is a WinUI 3 app written in C#, and everything it decides
