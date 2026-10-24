@@ -6,4 +6,6 @@
 #
 # A handle here that has no write access to the repository is silently ignored by
 # GitHub (no error, no review request), so check access before adding one.
-* @distronode-com
+# @seandean approves every change: the account that writes a pull request (usually
+# @distronode-com) can never approve it, so the owner must be a different person.
+* @seandean
