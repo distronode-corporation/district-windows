@@ -448,7 +448,7 @@ jobs:
           New-Item -ItemType Directory -Force $rust | Out-Null
           $ffi = 'target/release/district_ffi.dll'
           $pdb = 'target/release/district_ffi.pdb'
-          if (-not (Test-Path $pdb)) { throw "no $pdb: the release build wrote no PDB" }
+          if (-not (Test-Path $pdb)) { throw "no ${pdb}: the release build wrote no PDB" }
           Copy-Item $ffi, $pdb $rust
           $ffiHash = (Get-FileHash $ffi -Algorithm SHA256).Hash
           $unpacked = Join-Path $env:RUNNER_TEMP 'inspect\msixupload'
