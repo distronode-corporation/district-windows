@@ -28,6 +28,7 @@
 //! | SessionStore | Credential Manager on Windows ([`CredentialStore`]), memory elsewhere |
 //! | Settings, device id, refresh marker | `district-host` files in the data directory the app names (the MSIX `LocalState`) |
 //! | UrlOpener | [`UiHost::open_url`], in C# |
+//! | Crash reports | The core's `district_crash`, set up only with a DSN and the user's consent, which C# hands to [`crash_reports_apply`] |
 //! | Notifier, RingSurface | [`UiHost::notify`], [`UiHost::start_ringtone`] and the rest, in C#; a toast's activation comes back through [`Core::activate_notification`] |
 //!
 //! # Logging
@@ -77,6 +78,7 @@ mod welcome;
 
 // The boundary itself.
 mod core;
+mod crash;
 mod events;
 mod host;
 mod identity;
@@ -99,6 +101,10 @@ pub use crate::contacts::{
     ContactWritesView, ContactsAction, ContactsView,
 };
 pub use crate::core::{Core, StartConfig, StartError, speaks_french};
+pub use crate::crash::{
+    CrashConsent, CrashReportsError, CrashSettings, CrashStatus, crash_reports_apply,
+    crash_reports_enabled, crash_reports_flush,
+};
 pub use crate::events::UiEvent;
 pub use crate::guard::{DiscardView, Held, leaves_unsaved};
 pub use crate::host::{NotificationActionView, NotificationView, UiHost};

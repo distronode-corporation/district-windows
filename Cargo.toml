@@ -35,6 +35,11 @@ district-model = { git = "https://github.com/distronode-corporation/district-cor
 # together with the generator's version in .github/actions/install-uniffi-bindgen-cs
 # and in scripts/generate-bindings.sh.
 uniffi = { version = "=0.31.0", default-features = false }
+# The core's ninth crate, opt-in crash reports (crates/district-ffi/src/crash.rs),
+# pinned at the same tag and version as the eight above and moved with them.
+# Its own crate in the core, so an app that does not offer crash reports builds
+# no Sentry code.
+district-crash = { git = "https://github.com/distronode-corporation/district-core-rust", tag = "v6.0.0", version = "=6.0.0" }
 # Foreign traits with async methods need it (UniFFI's own requirement: a trait
 # with an `async fn` cannot be a `dyn` trait object without boxing its futures).
 async-trait = "0.1.89"

@@ -923,6 +923,12 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1248,6 +1254,39 @@ static class _UniFFILib {
     public static extern
 #endif
      sbyte uniffi_district_ffi_fn_func_speaks_french(RustBuffer @languages,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_crash_reports_apply(RustBuffer @settings,RustBuffer @consent,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     sbyte uniffi_district_ffi_fn_func_crash_reports_enabled(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     sbyte uniffi_district_ffi_fn_func_crash_reports_flush(uint @timeoutMs,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -2006,6 +2045,39 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_crash_reports_apply(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_crash_reports_enabled(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_crash_reports_flush(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_desk_logo_problem(
     );
 
@@ -2408,6 +2480,24 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_speaks_french();
             if (checksum != 17890) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_speaks_french` checksum `17890`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_crash_reports_apply();
+            if (checksum != 20444) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_crash_reports_apply` checksum `20444`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_crash_reports_enabled();
+            if (checksum != 23814) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_crash_reports_enabled` checksum `23814`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_crash_reports_flush();
+            if (checksum != 27070) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_crash_reports_flush` checksum `27070`, library returned `{checksum}`");
             }
         }
         {
@@ -9677,6 +9767,69 @@ class FfiConverterTypeCopiesView: FfiConverterRustBuffer<CopiesView> {
             FfiConverterOptionalString.INSTANCE.Write(value.Message, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.ThisCopyLine, stream);
             FfiConverterString.INSTANCE.Write(value.WindowTitle, stream);
+    }
+}
+
+
+
+/// <summary>
+/// What reports are about, as the app describes this build.
+/// </summary>
+/// <param name="Dsn">
+/// Where reports go: the DSN the release build carries. `None` or blank in
+/// every other build, and then nothing is ever set up.
+/// </param>
+/// <param name="Release">
+/// The app and its build, `com.distronode.DistrictAI@3.1.0+0123456789ab`:
+/// the package's version, then the first twelve characters of the commit
+/// it was built from. (No angle brackets here: this becomes a C# XML doc
+/// comment.)
+/// </param>
+/// <param name="Environment">
+/// The environment reports are filed under: `production`.
+/// </param>
+public record CrashSettings (
+    /// <summary>
+    /// Where reports go: the DSN the release build carries. `None` or blank in
+    /// every other build, and then nothing is ever set up.
+    /// </summary>
+    string? Dsn, 
+    /// <summary>
+    /// The app and its build, `com.distronode.DistrictAI@3.1.0+0123456789ab`:
+    /// the package's version, then the first twelve characters of the commit
+    /// it was built from. (No angle brackets here: this becomes a C# XML doc
+    /// comment.)
+    /// </summary>
+    string Release, 
+    /// <summary>
+    /// The environment reports are filed under: `production`.
+    /// </summary>
+    string Environment
+) {
+}
+
+class FfiConverterTypeCrashSettings: FfiConverterRustBuffer<CrashSettings> {
+    public static FfiConverterTypeCrashSettings INSTANCE = new FfiConverterTypeCrashSettings();
+
+    public override CrashSettings Read(BigEndianStream stream) {
+        return new CrashSettings(
+            Dsn: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Release: FfiConverterString.INSTANCE.Read(stream),
+            Environment: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CrashSettings value) {
+        return 0
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Dsn)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Release)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Environment);
+    }
+
+    public override void Write(CrashSettings value, BigEndianStream stream) {
+            FfiConverterOptionalString.INSTANCE.Write(value.Dsn, stream);
+            FfiConverterString.INSTANCE.Write(value.Release, stream);
+            FfiConverterString.INSTANCE.Write(value.Environment, stream);
     }
 }
 
@@ -32853,6 +33006,179 @@ class FfiConverterTypeCopyFlavour: FfiConverterRustBuffer<CopyFlavour> {
 
 
 /// <summary>
+/// The user's answer. `Denied` is what the app passes until the user has
+/// said yes.
+/// </summary>
+public enum CrashConsent: int {
+    /// <summary>
+    /// Crash reports are on.
+    /// </summary>
+    Granted,
+    /// <summary>
+    /// Crash reports are off: not answered yet, "Don't send", or the switch
+    /// turned off.
+    /// </summary>
+    Denied
+}
+
+class FfiConverterTypeCrashConsent: FfiConverterRustBuffer<CrashConsent> {
+    public static FfiConverterTypeCrashConsent INSTANCE = new FfiConverterTypeCrashConsent();
+
+    public override CrashConsent Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return CrashConsent.Granted;
+            case 2: return CrashConsent.Denied;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCrashConsent.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(CrashConsent value) {
+        return 4;
+    }
+
+    public override void Write(CrashConsent value, BigEndianStream stream) {
+        switch (value) {
+            case CrashConsent.Granted: stream.WriteInt(1); break;
+            case CrashConsent.Denied: stream.WriteInt(2); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCrashConsent.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A DSN the reporter will not use. Reporting is off after either.
+/// </summary>
+public class CrashReportsException: UniffiException {
+    CrashReportsException() : base() {}
+    CrashReportsException(String @Message) : base(@Message) {}
+
+    // Each variant is a nested class
+    
+    /// <summary>
+    /// The DSN is not one.
+    /// </summary>
+    public class InvalidDsn : CrashReportsException {
+        public InvalidDsn() : base() {}
+    }
+    
+    
+    /// <summary>
+    /// The DSN is plain `http` to another machine.
+    /// </summary>
+    public class InsecureDsn : CrashReportsException {
+        public InsecureDsn() : base() {}
+    }
+    
+    
+
+    
+}
+
+class FfiConverterTypeCrashReportsError : FfiConverterRustBuffer<CrashReportsException>, CallStatusErrorHandler<CrashReportsException> {
+    public static FfiConverterTypeCrashReportsError INSTANCE = new FfiConverterTypeCrashReportsError();
+
+    public override CrashReportsException Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new CrashReportsException.InvalidDsn();
+            case 2:
+                return new CrashReportsException.InsecureDsn();
+            default:
+                throw new InternalException(String.Format("invalid error value '{0}' in FfiConverterTypeCrashReportsError.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(CrashReportsException value) {
+        switch (value) {
+
+            case CrashReportsException.InvalidDsn variant_value:
+                return 4;
+
+            case CrashReportsException.InsecureDsn variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid error value '{0}' in FfiConverterTypeCrashReportsError.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(CrashReportsException value, BigEndianStream stream) {
+        switch (value) {
+            case CrashReportsException.InvalidDsn variant_value:
+                stream.WriteInt(1);
+                break;
+            case CrashReportsException.InsecureDsn variant_value:
+                stream.WriteInt(2);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid error value '{0}' in FfiConverterTypeCrashReportsError.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+/// <summary>
+/// Whether reports are sent after [`crash_reports_apply`].
+/// </summary>
+public enum CrashStatus: int {
+    /// <summary>
+    /// On: a panic is reported.
+    /// </summary>
+    On,
+    /// <summary>
+    /// Off: the user has not said yes.
+    /// </summary>
+    OffNoConsent,
+    /// <summary>
+    /// Off: this build has no DSN.
+    /// </summary>
+    OffNoDsn
+}
+
+class FfiConverterTypeCrashStatus: FfiConverterRustBuffer<CrashStatus> {
+    public static FfiConverterTypeCrashStatus INSTANCE = new FfiConverterTypeCrashStatus();
+
+    public override CrashStatus Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return CrashStatus.On;
+            case 2: return CrashStatus.OffNoConsent;
+            case 3: return CrashStatus.OffNoDsn;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCrashStatus.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(CrashStatus value) {
+        return 4;
+    }
+
+    public override void Write(CrashStatus value, BigEndianStream stream) {
+        switch (value) {
+            case CrashStatus.On: stream.WriteInt(1); break;
+            case CrashStatus.OffNoConsent: stream.WriteInt(2); break;
+            case CrashStatus.OffNoDsn: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCrashStatus.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the member did on the help desk's screens.
 /// </summary>
 public record DeskAction {
@@ -51455,6 +51781,48 @@ public static class DistrictFfi {
         return FfiConverterBoolean.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_district_ffi_fn_func_speaks_french(FfiConverterSequenceString.INSTANCE.Lower(@languages), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// Turns the Rust side's reporting on or off for this process, and says which
+    /// it is: on only with `Granted` and a DSN. Whatever was on before is closed
+    /// first, after what it had queued is sent (up to two seconds).
+    ///
+    /// # Errors
+    ///
+    /// [`CrashReportsError`] when consent is granted but the DSN is unusable;
+    /// reporting is then off.
+    /// </summary>
+    /// <exception cref="CrashReportsException"></exception>
+    public static CrashStatus CrashReportsApply(CrashSettings @settings, CrashConsent @consent) {
+        return FfiConverterTypeCrashStatus.INSTANCE.Lift(
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCrashReportsError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_crash_reports_apply(FfiConverterTypeCrashSettings.INSTANCE.Lower(@settings), FfiConverterTypeCrashConsent.INSTANCE.Lower(@consent), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// Whether the Rust side is reporting now.
+    /// </summary>
+    public static bool CrashReportsEnabled() {
+        return FfiConverterBoolean.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_crash_reports_enabled( ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// Waits up to `timeout_ms` milliseconds for queued reports to be sent, as the
+    /// app quits; `true` when nothing is left, and when reporting is off.
+    /// </summary>
+    public static bool CrashReportsFlush(uint @timeoutMs) {
+        return FfiConverterBoolean.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_crash_reports_flush(FfiConverterUInt32.INSTANCE.Lower(@timeoutMs), ref _status)
 ));
     }
 
