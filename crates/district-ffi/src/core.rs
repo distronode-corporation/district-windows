@@ -1492,6 +1492,160 @@ mod tests {
         core.shutdown().await;
     }
 
+    /// Signed in, with "ring on this computer" on, and the pushed call
+    /// `call-9` of `ws-1` ringing here.
+    async fn ringing() -> (Arc<Core>, Arc<FakeEffects>) {
+        let core = Core::new();
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            ring_here: true,
+            workspace: true,
+            ..FakeEffects::default()
+        });
+        core.start_with(
+            calls_config(),
+            Arc::clone(&effects),
+            Arc::new(RecordingHost::default()),
+        );
+        assert!(core.push_received(
+            r#"{"type":"incoming_call","callId":"call-9","workspaceId":"ws-1"}"#.to_owned()
+        ));
+        eventually("the pushed call rings", || {
+            core.shell().ring.is_some_and(|ring| ring.sounding)
+        })
+        .await;
+        (core, effects)
+    }
+
+    /// The service's end of `call-9`'s ring, for `reason`, as WNS pushes it.
+    fn rings_end(reason: &str) -> String {
+        format!(
+            r#"{{"type":"call_ring_cancelled","callId":"call-9","workspaceId":"ws-1","reason":"{reason}"}}"#
+        )
+    }
+
+    /// How many declines were sent.
+    fn declines(effects: &FakeEffects) -> usize {
+        effects
+            .ran
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|effect| matches!(effect, Effect::DeclineCall { .. }))
+            .count()
+    }
+
+    /// Whether a missed call was notified.
+    fn missed(effect: &Effect) -> bool {
+        matches!(
+            effect,
+            Effect::Notify(notification)
+                if notification.title == district_core::Notification::MISSED_TITLE
+        )
+    }
+
+    /// Whether the ring of `call-9` was silenced: its ringtone stopped and its
+    /// toast taken away.
+    fn silenced(effects: &FakeEffects) -> bool {
+        let ran = effects.ran.lock().unwrap();
+        ran.iter().any(|effect| matches!(effect, Effect::StopRingtone))
+            && ran.iter().any(|effect| {
+                matches!(effect, Effect::WithdrawNotification { id } if id == "call:call-9")
+            })
+    }
+
+    /// The member's press of Decline is sent to the service once, naming the
+    /// call and its workspace, and the ring stops and is put away here. A
+    /// second press, on a ring already gone, sends nothing more.
+    #[tokio::test]
+    async fn a_press_of_decline_tells_the_service_once() {
+        let (core, effects) = ringing().await;
+        core.send(UiEvent::Decline {
+            call_id: "call-9".to_owned(),
+        });
+        eventually("the decline sent", || {
+            effects.ran(|effect| {
+                matches!(
+                    effect,
+                    Effect::DeclineCall { workspace_id, call_id }
+                        if workspace_id == "ws-1" && call_id == "call-9"
+                )
+            })
+        })
+        .await;
+        assert_eq!(core.shell().ring, None);
+        eventually("the ring silenced", || silenced(&effects)).await;
+
+        // The second press, then another call's ring: the actor takes them in
+        // order, so once the second call rings the press has been read.
+        core.send(UiEvent::Decline {
+            call_id: "call-9".to_owned(),
+        });
+        assert!(core.push_received(
+            r#"{"type":"incoming_call","callId":"call-10","workspaceId":"ws-1"}"#.to_owned()
+        ));
+        eventually("the next call rings", || {
+            core.shell()
+                .ring
+                .is_some_and(|ring| ring.call_id == "call-10" && ring.sounding)
+        })
+        .await;
+        core.shutdown().await;
+        assert_eq!(declines(&effects), 1);
+        assert!(!effects.ran(missed));
+    }
+
+    /// Only a person's decision is sent. A ring the service ends at its
+    /// deadline or withdraws is a missed call here and sends no decline, and
+    /// nor does a ring dropped because the computer sleeps or the app quits.
+    #[tokio::test]
+    async fn a_ring_that_ends_by_itself_sends_no_decline() {
+        use district_core::IncomingRing;
+
+        for reason in ["timeout", "withdrawn"] {
+            let (core, effects) = ringing().await;
+            assert!(core.push_received(rings_end(reason)));
+            eventually("the ring missed", || {
+                core.shell().ring.is_some_and(|ring| !ring.live)
+            })
+            .await;
+            assert_eq!(
+                core.shell().ring.unwrap().detail.as_deref(),
+                Some(IncomingRing::MISSED),
+                "{reason}"
+            );
+            eventually("the missed call notified", || effects.ran(missed)).await;
+            core.shutdown().await;
+            assert_eq!(declines(&effects), 0, "{reason}");
+        }
+
+        let (core, effects) = ringing().await;
+        core.suspend().await;
+        assert_eq!(core.shell().ring, None);
+        assert!(silenced(&effects));
+        core.shutdown().await;
+        assert_eq!(declines(&effects), 0, "a sleep");
+
+        let (core, effects) = ringing().await;
+        core.shutdown().await;
+        assert!(silenced(&effects));
+        assert_eq!(declines(&effects), 0, "a quit");
+    }
+
+    /// A ring every member rung declined (the service's `declined`, this
+    /// member among them, on another device) is silenced and put away as a
+    /// press of Decline here is: no missed call, and nothing sent back.
+    #[tokio::test]
+    async fn a_ring_declined_everywhere_goes_with_no_missed_call() {
+        let (core, effects) = ringing().await;
+        assert!(core.push_received(rings_end("declined")));
+        eventually("the ring put away", || core.shell().ring.is_none()).await;
+        eventually("the ring silenced", || silenced(&effects)).await;
+        core.shutdown().await;
+        assert!(!effects.ran(missed));
+        assert_eq!(declines(&effects), 0);
+    }
+
     /// Manage billing's hand-off, as Windows routes it: the start page the
     /// core opens in the checkout view answers with `districtai://handoff`,
     /// which the view (or protocol activation, from the system browser)

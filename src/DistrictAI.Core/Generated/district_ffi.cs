@@ -43113,7 +43113,9 @@ public record UiEvent {
     ) : UiEvent {}
     
     /// <summary>
-    /// Decline it. Nothing is sent to the service.
+    /// Decline it: the member's own refusal, which the core tells the service
+    /// (`Effect::DeclineCall`). A ring that runs out, is withdrawn, or is
+    /// dropped for a sleep, a quit or a sign-out sends nothing.
     /// </summary>
     public record Decline (
         string CallId

@@ -389,6 +389,33 @@ mod tests {
         );
     }
 
+    /// Every reason the service sends reaches the core as itself, `declined`
+    /// (every member rung declined) included, so a ring declined everywhere
+    /// is put away with no missed call; one this build does not know is the
+    /// core's `Withdrawn`.
+    #[test]
+    fn a_rings_end_carries_its_reason_declined_included() {
+        use district_model::RingCancelReason;
+
+        for (reason, read) in [
+            ("answered", RingCancelReason::Answered),
+            ("timeout", RingCancelReason::Timeout),
+            ("call_ended", RingCancelReason::CallEnded),
+            ("declined", RingCancelReason::Declined),
+            ("withdrawn", RingCancelReason::Withdrawn),
+            ("parked", RingCancelReason::Withdrawn),
+        ] {
+            let payload = format!(
+                r#"{{"type":"call_ring_cancelled","callId":"call-1","workspaceId":"ws-1","reason":"{reason}"}}"#
+            );
+            let message = decode_push(&payload).expect("a ring's end");
+            let LiveUpdate::Event(envelope) = message.live_update("user-1").update else {
+                panic!("not an event");
+            };
+            assert_eq!(envelope.ring_cancel_reason(), Some(read), "{reason}");
+        }
+    }
+
     #[test]
     fn a_rings_end_takes_its_waiting_ring_away_and_displaces_nothing_else() {
         let ring = |call_id: &str| PushMessage::IncomingCall {
