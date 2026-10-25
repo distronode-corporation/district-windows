@@ -28,6 +28,9 @@ district-api = { workspace = true }
 district-auth = { workspace = true }
 district-call = { workspace = true }
 district-core = { workspace = true }
+# Opt-in crash reports for the Rust side (src/crash.rs): nothing is set up
+# without the DSN and the user's consent, both of which C# passes in.
+district-crash = { workspace = true }
 district-l10n = { workspace = true }
 district-host = { workspace = true }
 district-live = { workspace = true }

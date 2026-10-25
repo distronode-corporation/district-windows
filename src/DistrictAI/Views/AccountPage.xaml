@@ -56,6 +56,17 @@
                     Style="{StaticResource QuietTextStyle}"
                     Text="{x:Bind ViewModel.StartupMessage, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.HasStartupMessage, Mode=OneWay}" />
+                <StackPanel Visibility="{x:Bind ViewModel.CrashReportsVisible, Mode=OneWay}">
+                    <ToggleSwitch
+                        AutomationProperties.FullDescription="{x:Bind l10n:S.AccountCrashReportsBody}"
+                        AutomationProperties.Name="{x:Bind l10n:S.AccountCrashReports}"
+                        Header="{x:Bind l10n:S.AccountCrashReports}"
+                        IsOn="{x:Bind ViewModel.CrashReportsOn, Mode=TwoWay}" />
+                    <TextBlock
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind l10n:S.AccountCrashReportsBody}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
                 <StackPanel Visibility="{x:Bind ViewModel.RingVisible, Mode=OneWay}">
                     <ToggleSwitch
                         AutomationProperties.FullDescription="{x:Bind ViewModel.RingBody, Mode=OneWay}"

@@ -172,6 +172,55 @@ internal sealed class FakeStartupTask : IStartupTask
     }
 }
 
+/// <summary>The answer about crash reports, kept in memory, as the package's local settings keep it.</summary>
+internal sealed class FakeCrashAnswers : ICrashAnswerStore
+{
+    public CrashConsent? Kept { get; set; }
+
+    /// <summary>When false, every write fails, as a settings store that cannot be written does.</summary>
+    public bool Writable { get; set; } = true;
+
+    public int Writes { get; private set; }
+
+    public CrashConsent? Read() => Kept;
+
+    public bool Write(CrashConsent consent)
+    {
+        Writes++;
+        if (Writable)
+        {
+            Kept = consent;
+        }
+        return Writable;
+    }
+}
+
+/// <summary>Stands in for the reporter: keeps every answer handed to it, and what with.</summary>
+internal sealed class RecordingCrashReporter : ICrashReporter
+{
+    public List<CrashConsent> Applied { get; } = [];
+
+    public List<CrashSettings> With { get; } = [];
+
+    public void Apply(CrashSettings settings, CrashConsent consent)
+    {
+        With.Add(settings);
+        Applied.Add(consent);
+    }
+}
+
+/// <summary>Crash reports over fakes, for a build with a DSN unless told otherwise.</summary>
+internal static class Crash
+{
+    public const string Dsn = "https://key@example.com/1";
+
+    public static CrashReports Reports(
+        string? dsn = Dsn,
+        FakeCrashAnswers? answers = null,
+        RecordingCrashReporter? reporter = null) =>
+        new(CrashReports.SettingsFor(dsn, "3.1.0", "0123456789ab"), answers ?? new FakeCrashAnswers(), reporter ?? new RecordingCrashReporter());
+}
+
 /// <summary>The core's view records, with defaults, so each test names only what it is about.</summary>
 internal static class V
 {

@@ -7,22 +7,35 @@ namespace DistrictAI.ViewModels;
 
 /// <summary>
 /// The account: who is signed in, this build and this computer, starting at
-/// sign-in, the devices, signing out, and where deleting the account starts.
+/// sign-in, sending crash reports, the devices, signing out, and where
+/// deleting the account starts.
 /// </summary>
 public sealed partial class AccountViewModel : ObservableObject
 {
     private readonly IStartupTask _startup;
+    private readonly CrashReports _crashReports;
     private PageContext? _context;
     private bool _startupCanChange;
     private bool _startupBusy;
     private bool _writingRing;
     private bool _writingPurchases;
+    private bool _writingCrashReports;
 
-    /// <summary>An account page that reads and changes start at sign-in through <paramref name="startup"/>.</summary>
-    public AccountViewModel(IStartupTask startup)
+    /// <summary>
+    /// An account page that reads and changes start at sign-in through
+    /// <paramref name="startup"/>, and the answer about crash reports through
+    /// <paramref name="crashReports"/>.
+    /// </summary>
+    public AccountViewModel(IStartupTask startup, CrashReports crashReports)
     {
         ArgumentNullException.ThrowIfNull(startup);
+        ArgumentNullException.ThrowIfNull(crashReports);
         _startup = startup;
+        _crashReports = crashReports;
+        CrashReportsVisible = crashReports.Available;
+        ShowCrashReports();
+        // The question answers it too, and the switch follows.
+        crashReports.Changed += (_, _) => ShowCrashReports();
     }
 
     /// <summary>The user's name, or empty.</summary>
@@ -80,6 +93,21 @@ public sealed partial class AccountViewModel : ObservableObject
     /// <summary>Whether there is a <see cref="StartupMessage"/>.</summary>
     [ObservableProperty]
     public partial bool HasStartupMessage { get; set; }
+
+    /// <summary>
+    /// Whether "Send crash reports" is shown: only in a build that can send
+    /// them (a release, which carries the DSN).
+    /// </summary>
+    [ObservableProperty]
+    public partial bool CrashReportsVisible { get; set; }
+
+    /// <summary>
+    /// Whether crash reports are sent. Off until the user turns it on or
+    /// answers "Send reports" to the question; the switch writes it, which
+    /// hands the new answer to the reporter at once.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool CrashReportsOn { get; set; }
 
     /// <summary>
     /// Whether "Ring on this computer" is shown: once the core has read the
@@ -190,6 +218,28 @@ public sealed partial class AccountViewModel : ObservableObject
         if (!_writingPurchases)
         {
             _context?.Send(new UiEvent.Billing(new BillingAction.SetPurchases(value)));
+        }
+    }
+
+    partial void OnCrashReportsOnChanged(bool value)
+    {
+        if (!_writingCrashReports)
+        {
+            _crashReports.Set(value ? CrashConsent.Granted : CrashConsent.Denied);
+        }
+    }
+
+    // The answer as it is now, written to the switch without handing it on again.
+    private void ShowCrashReports()
+    {
+        _writingCrashReports = true;
+        try
+        {
+            CrashReportsOn = _crashReports.Sending;
+        }
+        finally
+        {
+            _writingCrashReports = false;
         }
     }
 

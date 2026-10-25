@@ -10,10 +10,21 @@ namespace DistrictAI.Core;
 /// exception itself is gone from the crash report. Before it goes, its whole
 /// account is written to the app's trace (<see cref="Trace"/>): its type,
 /// HResult, message and stack, and every inner exception the same way. It is
-/// never swallowed: <see cref="Run"/> throws it on, as it was.
+/// never swallowed: <see cref="Run"/> throws it on, as it was. While the user
+/// has crash reports on, it is also handed to <see cref="Reporter"/>, since
+/// what WinUI does next reaches no handler a crash reporter could hook.
 /// </summary>
 public static class UiFaults
 {
+    /// <summary>
+    /// Handed each exception <see cref="Report"/> writes, after the trace and
+    /// before it is thrown on: the app's crash reporter sets it while crash
+    /// reports are on (DistrictAI's Platform/CrashReporter.cs), and it is null
+    /// otherwise. What it throws is written to the trace and dropped, so the
+    /// exception thrown on is still the original.
+    /// </summary>
+    public static Action<Exception>? Reporter { get; set; }
+
     /// <summary>
     /// Runs <paramref name="work"/>; an exception it throws is reported as
     /// escaping <paramref name="where"/>, then thrown on unchanged.
@@ -32,8 +43,27 @@ public static class UiFaults
         }
     }
 
-    /// <summary>Writes <paramref name="exception"/>'s whole account to the trace, as escaping <paramref name="where"/>.</summary>
-    public static void Report(string where, Exception exception) => Trace.TraceError(Describe(where, exception));
+    /// <summary>
+    /// Writes <paramref name="exception"/>'s whole account to the trace, as
+    /// escaping <paramref name="where"/>, then hands it to <see cref="Reporter"/>
+    /// when one is set.
+    /// </summary>
+    public static void Report(string where, Exception exception)
+    {
+        Trace.TraceError(Describe(where, exception));
+        if (Reporter is not { } reporter)
+        {
+            return;
+        }
+        try
+        {
+            reporter(exception);
+        }
+        catch (Exception error) when (error is not OutOfMemoryException)
+        {
+            Trace.TraceError($"District AI: the crash reporter failed on an exception escaping {where}: {error.GetType().FullName}");
+        }
+    }
 
     /// <summary>
     /// <paramref name="exception"/>'s account: a line naming <paramref name="where"/>,

@@ -32,6 +32,14 @@ These are the rules the app is built to.
 - **Logging.** The app writes no log of its own, and its Rust core is compiled so that
   nothing below warning level can be logged at all, because some libraries it depends on
   would otherwise log secrets at debug level.
+- **Crash reports** are off until you allow them. The app asks once, with Don't send as the
+  default, and you can change it on the Account screen. A report holds the error, where in
+  the app it happened, and the versions of the app and Windows. Reports go to Sentry, in
+  the European Union. They hold neither your computer's name, nor your user name, nor your
+  IP address, and your home folder's name is replaced in any file path; Sentry still sees
+  the connection's IP address, as any server does, and is set not to store it. Only the
+  builds made by this repository's workflows carry the reporting address: a build you
+  compile yourself from source, or a fork's, never asks and never sends.
 - **Calls.** Audio is end-to-end encrypted between participants only in a room the service
   gives an encryption passphrase for, as it does for a meeting room. A phone call is not:
   its room has a telephone leg that the carrier delivers unencrypted.

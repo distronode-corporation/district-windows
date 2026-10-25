@@ -60,6 +60,24 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
+## What's new in the next version
+
+The lines the next version's notes carry for what its CHANGELOG `[Unreleased]` section adds
+so far, to go into its "What's new in this version" texts when the release is cut. The
+French holds a no-break space (U+00A0) before the colon; it was reviewed 2026-10-25.
+
+en-US:
+
+```text
+- Crash reports: off until you allow them. The app asks once, and you can change it on the Account screen.
+```
+
+fr-CA:
+
+```text
+- Rapports de plantage : désactivés tant que vous ne les avez pas autorisés. L'application vous pose la question une fois, et vous pouvez changer ce choix à l'écran Compte.
+```
+
 ## What's new in this version: 3.0.3
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text

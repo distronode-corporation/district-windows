@@ -100,6 +100,26 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Microsoft.Windows.CsWin32" PrivateAssets="all" />
+    <PackageReference Include="Sentry" />
+  </ItemGroup>
+
+  <!--
+    Crash reports (Platform/CrashReporter.cs), off until the user says yes.
+    The DSN and the commit are stamped on the assembly from the environment of
+    the build: WINDOWS_SENTRY_DSN and DISTRICT_AI_BUILD, which release.yml sets
+    for a tag and nothing else sets, so a local build, a fork's and every CI
+    build that is not a release carry neither, never ask and show no switch.
+    Never commit a DSN. SentryNative off: the SDK's native crash handler
+    exists only for Native AOT, which this app does not use. No implicit
+    `using Sentry;`: only CrashReporter names it.
+  -->
+  <PropertyGroup>
+    <SentryNative>false</SentryNative>
+    <SentryImplicitUsings>false</SentryImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="DistrictAI.CrashReportsDsn" Value="$(WINDOWS_SENTRY_DSN)" />
+    <AssemblyMetadata Include="DistrictAI.Build" Value="$(DISTRICT_AI_BUILD)" />
   </ItemGroup>
 
   <ItemGroup>

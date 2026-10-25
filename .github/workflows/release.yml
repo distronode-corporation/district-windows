@@ -10,7 +10,7 @@ name: Release
 # source zip, SHA256SUMS over all of them, and the signed provenance
 # attestation over them (`district-ai-windows_<version>.intoto.jsonl`).
 #
-# Four stages, and only the last can write anything:
+# Five stages, and only the last two can write anything:
 #
 # - `guard` refuses a tag that should not be built: one on a commit that is not
 #   on main (CI never tested it), one that Package.appxmanifest's Version does
@@ -26,6 +26,22 @@ name: Release
 # - `publish` attests the files' provenance, verifies the attestations, creates
 #   a DRAFT release, checks that GitHub holds exactly the expected files, and
 #   only then makes the release public.
+# - `sentry`, once the release is public, uploads the debug files `build`
+#   kept (district_ffi.dll with its PDB, and the app's three assemblies with
+#   their embedded portable PDBs, as the packages carry them) and creates the
+#   Sentry release the crash reports name,
+#   `com.distronode.DistrictAI@<version>+<the commit's first twelve
+#   characters>`, with its commits, then finalizes it. After `publish`, so a
+#   release that never went out has nothing in Sentry, and a Sentry outage
+#   never holds a release back: a failed run is re-run once Sentry answers,
+#   which uploads only what Sentry does not hold yet.
+#
+# Crash reports are off in every build until its user says yes. The packages
+# carry the DSN reports go to, the WINDOWS_SENTRY_DSN repository secret, which
+# `build` bakes into the app only for a tag push (a pull request's dry run
+# builds without it), with DISTRICT_AI_BUILD, the commit's first twelve
+# characters (src/DistrictAI/Platform/CrashReporter.cs). `sentry` needs
+# SENTRY_AUTH_TOKEN, a secret of the `release` environment.
 #
 # Pull requests that touch this workflow or the packaging run the first three
 # stages as a dry run: the same build and certification, nothing attested and
@@ -235,7 +251,12 @@ jobs:
           }
           ./scripts/fetch-libwebrtc.ps1 (Join-Path $env:RUNNER_TEMP 'libwebrtc') -GitHubEnv
 
+      # With line tables, so the PDB the linker writes beside it
+      # (target/release/district_ffi.pdb, never packaged) gives a crash report
+      # from the Rust side its files and lines once Sentry has it.
       - name: Build district_ffi.dll
+        env:
+          CARGO_PROFILE_RELEASE_DEBUG: line-tables-only
         run: cargo build -p district-ffi --locked --release
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
@@ -245,12 +266,34 @@ jobs:
       - name: dotnet restore (locked)
         run: dotnet restore DistrictAI.slnx -p:Platform=x64
 
+      # What the three package builds below stamp on the app
+      # (DistrictAI.csproj) for its crash reports: the commit's first twelve
+      # characters, as the Sentry release names it, here; and, in each of the
+      # three steps' own environment and only for a tag push, the DSN. The DSN
+      # is a repository secret because this job runs in no environment; it is
+      # no secret from anyone holding the package, which carries it. No token
+      # reaches this job. A tag without the DSN is refused rather than released
+      # without crash reports.
+      - name: Name the build for crash reports
+        shell: pwsh
+        env:
+          DSN: ${{ github.event_name == 'push' && secrets.WINDOWS_SENTRY_DSN || '' }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RELEASING -eq 'true' -and -not $env:DSN) { throw 'the WINDOWS_SENTRY_DSN secret is not set: this release would carry no crash reports' }
+          "DISTRICT_AI_BUILD=$($env:GITHUB_SHA.Substring(0, 12))" >> $env:GITHUB_ENV
+
       # The package Partner Center takes: StoreUpload, x64, Release,
-      # ReadyToRun, no bundle, unsigned (the Store signs it). No PDBs and no
-      # symbols package, as in ci.yml: with PDBs the packaging step needs
-      # mspdbcmf.exe, which the runner does not have.
+      # ReadyToRun, no bundle, unsigned (the Store signs it). No PDB files and
+      # no symbols package, as in ci.yml: with PDB files in the payload the
+      # packaging step needs mspdbcmf.exe, which the runner does not have. The
+      # PDBs are embedded in the assemblies instead (DebugType=embedded, here
+      # and in the two builds below), so a crash report from the .NET side
+      # carries its files and lines, and `sentry` uploads them as they ship.
       - name: Build the Store package (.msixupload)
         shell: pwsh
+        env:
+          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'push' && secrets.WINDOWS_SENTRY_DSN || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
           $out = Join-Path $env:RUNNER_TEMP 'StorePackage'
@@ -258,7 +301,7 @@ jobs:
             -p:DistrictFfiProfile=release -warnaserror "-p:DistrictFrench=$env:DISTRICT_FRENCH" `
             -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=StoreUpload `
             -p:AppxBundle=Never -p:AppxPackageSigningEnabled=false -p:PublishReadyToRun=true `
-            -p:AppxSymbolPackageEnabled=false -p:DebugType=none "-p:AppxPackageDir=$out\"
+            -p:AppxSymbolPackageEnabled=false -p:DebugType=embedded "-p:AppxPackageDir=$out\"
           if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
           Get-ChildItem -Recurse $out | Select-Object FullName, Length | Format-Table -AutoSize
 
@@ -269,6 +312,8 @@ jobs:
       # a file. Only the public half is kept, so a tester can trust it.
       - name: Build the sideload test MSIX, signed with a throwaway certificate
         shell: pwsh
+        env:
+          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'push' && secrets.WINDOWS_SENTRY_DSN || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
           $publisher = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity.Publisher
@@ -283,7 +328,7 @@ jobs:
               -p:DistrictFfiProfile=release -warnaserror "-p:DistrictFrench=$env:DISTRICT_FRENCH" `
               -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=SideloadOnly `
               -p:AppxBundle=Never -p:AppxPackageSigningEnabled=true -p:PublishReadyToRun=true `
-              -p:AppxSymbolPackageEnabled=false -p:DebugType=none `
+              -p:AppxSymbolPackageEnabled=false -p:DebugType=embedded `
               "-p:PackageCertificateThumbprint=$($cert.Thumbprint)" "-p:AppxPackageDir=$out\"
             if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
             Export-Certificate -Cert $cert -FilePath (Join-Path $out 'test.cer') | Out-Null
@@ -299,6 +344,8 @@ jobs:
       # here can sign it, and an unsigned package does not install normally.
       - name: Build the GitHub flavour MSIX, unsigned
         shell: pwsh
+        env:
+          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'push' && secrets.WINDOWS_SENTRY_DSN || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
           $out = Join-Path $env:RUNNER_TEMP 'GitHubPackage'
@@ -306,7 +353,7 @@ jobs:
             -p:DistrictFfiProfile=release -warnaserror -p:DistrictFlavour=GitHub "-p:DistrictFrench=$env:DISTRICT_FRENCH" `
             -p:GenerateAppxPackageOnBuild=true -p:UapAppxPackageBuildMode=SideloadOnly `
             -p:AppxBundle=Never -p:AppxPackageSigningEnabled=false -p:PublishReadyToRun=true `
-            -p:AppxSymbolPackageEnabled=false -p:DebugType=none "-p:AppxPackageDir=$out\"
+            -p:AppxSymbolPackageEnabled=false -p:DebugType=embedded "-p:AppxPackageDir=$out\"
           if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with $LASTEXITCODE" }
           Get-ChildItem -Recurse $out | Select-Object FullName, Length | Format-Table -AutoSize
 
@@ -384,6 +431,66 @@ jobs:
           if ($githubMsix.Count -ne 1) { throw "expected one GitHub flavour MSIX, found $($githubMsix.Count)" }
           Test-Msix $githubMsix[0].FullName 'github' $github
           if ((Get-AuthenticodeSignature $githubMsix[0].FullName).SignerCertificate) { throw 'the GitHub flavour package is signed; this release carries it unsigned' }
+
+      # The files Sentry needs to read a crash report, from what ships: the
+      # app's three assemblies out of each package, each holding its CodeView
+      # entry and its embedded portable PDB (ReadyToRun must keep both), and
+      # district_ffi.dll, the same bytes in every package, with the PDB the
+      # linker wrote for it. `sentry` uploads them once the release is public;
+      # the name is not release-*, which `assemble` takes as release assets.
+      - name: Stage the debug files for crash reports
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $debug = Join-Path $env:RUNNER_TEMP 'debug-files'
+          $rust = Join-Path $debug 'rust'
+          New-Item -ItemType Directory -Force $rust | Out-Null
+          $ffi = 'target/release/district_ffi.dll'
+          $pdb = 'target/release/district_ffi.pdb'
+          if (-not (Test-Path $pdb)) { throw "no ${pdb}: the release build wrote no PDB" }
+          Copy-Item $ffi, $pdb $rust
+          $ffiHash = (Get-FileHash $ffi -Algorithm SHA256).Hash
+          $unpacked = Join-Path $env:RUNNER_TEMP 'inspect\msixupload'
+          $packages = [ordered]@{
+            store = @(Get-ChildItem -Recurse $unpacked -Filter '*.msix')[0].FullName
+            sideload = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'SideloadPackage') -Filter 'DistrictAI_*.msix')[0].FullName
+            github = @(Get-ChildItem -Recurse (Join-Path $env:RUNNER_TEMP 'GitHubPackage') -Filter 'DistrictAI_*.msix' | Where-Object { $_.FullName -notmatch '\\Dependencies\\' })[0].FullName
+          }
+          foreach ($label in $packages.Keys) {
+            $dir = Join-Path $debug "dotnet\$label"
+            New-Item -ItemType Directory -Force $dir | Out-Null
+            $zip = [IO.Compression.ZipFile]::OpenRead($packages[$label])
+            try {
+              $packagedFfi = Join-Path $env:RUNNER_TEMP "inspect\$label-district_ffi.dll"
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($zip.GetEntry('district_ffi.dll'), $packagedFfi, $true)
+              if ((Get-FileHash $packagedFfi -Algorithm SHA256).Hash -ne $ffiHash) { throw "the $label package's district_ffi.dll is not the one the PDB was written for" }
+              foreach ($name in 'DistrictAI.dll', 'DistrictAI.Core.dll', 'DistrictAI.Presentation.dll') {
+                $entry = $zip.GetEntry($name)
+                if (-not $entry) { throw "the $label package has no $name" }
+                $file = Join-Path $dir $name
+                [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $file, $true)
+                $stream = [IO.File]::OpenRead($file)
+                try {
+                  $pe = [System.Reflection.PortableExecutable.PEReader]::new($stream)
+                  $kinds = @($pe.ReadDebugDirectory() | ForEach-Object { $_.Type.ToString() })
+                  foreach ($kind in 'CodeView', 'EmbeddedPortablePdb') {
+                    if ($kinds -notcontains $kind) { throw "$label $name has no $kind debug entry (it has: $($kinds -join ', '))" }
+                  }
+                } finally { $stream.Dispose() }
+              }
+            } finally { $zip.Dispose() }
+          }
+          Get-ChildItem -Recurse -File $debug | Select-Object FullName, Length | Format-Table -AutoSize
+          $count = @(Get-ChildItem -Recurse -File $debug).Count
+          if ($count -ne 11) { throw "expected 11 debug files, found $count" }
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: debug-files-windows
+          path: ${{ runner.temp }}/debug-files
+          retention-days: 7
+          if-no-files-found: error
 
       # With DISTRICT_FRENCH true (from 3.0) every package must declare fr-CA,
       # in its manifest and in resources.pri, and every catalog must have
@@ -682,3 +789,67 @@ jobs:
 
       - name: Publish
         run: gh release edit "$TAG" --draft=false --latest
+
+  # The debug files and the Sentry release, once the release is public. It
+  # runs no build: it sees the debug files, the checkout for
+  # `set-commits --auto` (which reads the commit and the repository's remote),
+  # and the token, which nothing else in this workflow holds. On ubuntu, as
+  # District AI for Linux's is: sentry-cli reads PE and PDB files on any
+  # system, and nothing here needs Windows.
+  sentry:
+    needs: [guard, publish]
+    environment: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      SENTRY_URL: https://de.sentry.io
+      SENTRY_ORG: distronode-corporation-eu
+      SENTRY_PROJECT: district-windows
+      SENTRY_DISABLE_UPDATE_CHECK: "true"
+      VERSION: ${{ needs.guard.outputs.version }}
+    steps:
+      # The whole history, so set-commits can find the previous release's
+      # commit.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: $/.github/actions/install-sentry-cli
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: debug-files-windows
+          path: debug-files
+
+      # The eleven files `build` staged, each read on this runner before
+      # anything is sent.
+      - name: The debug files are what Sentry needs
+        run: |
+          set -euo pipefail
+          find debug-files -type f | sort
+          [ "$(find debug-files -type f | wc -l)" -eq 11 ] || { echo "::error::expected exactly eleven debug files"; exit 1; }
+          for file in debug-files/rust/district_ffi.dll debug-files/rust/district_ffi.pdb; do
+            [ -s "$file" ] || { echo "::error::no $file"; exit 1; }
+          done
+          find debug-files -type f -print0 | sort -z | xargs -0 -n 1 sentry-cli debug-files check
+
+      - name: Upload the debug files
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: sentry-cli debug-files upload debug-files
+
+      # The name the app reports under (CrashReports.SettingsFor): the
+      # package's version and the commit's first twelve characters, which
+      # `build` stamped on the app as DISTRICT_AI_BUILD.
+      - name: Create, link and finalize the Sentry release
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          release="com.distronode.DistrictAI@${VERSION}+${GITHUB_SHA::12}"
+          sentry-cli releases new "$release"
+          sentry-cli releases set-commits "$release" --auto
+          sentry-cli releases finalize "$release"
