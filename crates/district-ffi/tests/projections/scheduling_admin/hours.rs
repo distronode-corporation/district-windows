@@ -456,8 +456,9 @@ fn the_week_is_edited_window_by_window() {
         .ui(event(HoursAction::SetRangeStart {
             day: 0,
             key,
-            value: "8:00".to_owned(),
+            value: "25:00".to_owned(),
         }));
+    // The core reads `8:00` as 08:00 since 5.1.0; a time past 23:59 is still refused.
     let editor = hours_view(&session).week_editor.expect("open");
     assert!(editor.days[0].ranges[0].error.is_some());
     let session = session.ui(event(HoursAction::SetRangeStart {

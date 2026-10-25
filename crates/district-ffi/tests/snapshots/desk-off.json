@@ -31,12 +31,12 @@
         ],
         "none_matching": null,
         "off": {
-          "body": "While the desk is off, no tickets are recorded. Turn it on to start taking them.",
+          "body": "While the Desk is off, no tickets are recorded. Turn it on to start taking them.",
           "can_turn_on": true,
           "enabling": false,
           "failure": null,
-          "title": "The help desk is off",
-          "turn_on": "Turn on the help desk"
+          "title": "The Desk is off",
+          "turn_on": "Turn on the Desk"
         },
         "refreshing": false,
         "rows": [],

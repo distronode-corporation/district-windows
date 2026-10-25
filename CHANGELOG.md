@@ -7,6 +7,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The shared core is district-core-rust 5.1.0. In English the Desk is called the Desk
+  ("The Desk is off", "Turn on the Desk", "Could not load the Desk"). The working hours
+  editor shows French times as « 9 h » and « 9 h 30 », reads `9:30` or `9 h 30` as well
+  as `09:30`, still saves HH:MM, and refuses a time past 23:59 before the save. The link
+  to the web marketplace is captioned "Opens in your browser."; the note above the tabs
+  is the one place that says where numbers are bought.
+
 ### Fixed
 
 - Clicking a call or message notification left in Action Center after District AI was

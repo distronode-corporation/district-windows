@@ -22,7 +22,7 @@ internal sealed partial class LiveWalk
             throw new PreconditionException("live-config.json names no deskCustomerEmail");
         }
         _ = Ui.Go(App, "Desk", "Desk");
-        if (Ui.TryText(App, "The help desk is off") is not null)
+        if (Ui.TryText(App, "The Desk is off") is not null)
         {
             throw new PreconditionException("the QA workspace's help desk is off");
         }
