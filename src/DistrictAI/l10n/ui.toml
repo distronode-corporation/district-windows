@@ -18,7 +18,7 @@ fr = "Envoyer les rapports de plantage"
 ctx = "label"
 screen = "account"
 tier = "T1"
-state = "draft"
+state = "reviewed"
 note = "A switch on the account page, under This computer: when the app crashes, it sends a report to Distronode. Off until the user turns it on, or answers Send reports to the question at the first start (crash.question_title). Shown only in a build that can send reports. The same words as District AI for Linux's account_page.crash_reports."
 
 [account.crash_reports_body]
@@ -27,7 +27,7 @@ fr = "Si District AI plante, envoyer un rapport à Distronode pour que nous puis
 ctx = "body"
 screen = "account"
 tier = "T1"
-state = "draft"
+state = "reviewed"
 note = "Under the Send crash reports switch. What it says must stay true of both sides of the app: the core's district-crash (Rust) and the app's CrashScrub (.NET) leave out the machine's name and the user, and replace the user's name in home directory paths. The same words as District AI for Linux's account_page.crash_reports_body."
 
 [account.delete]
@@ -1148,16 +1148,16 @@ fr = "Ne pas envoyer"
 ctx = "button"
 screen = "crash"
 tier = "T1"
-state = "draft"
+state = "reviewed"
 note = "The question's close button, its default, and what closing the question answers: no crash reports are sent."
 
 [crash.question_body]
 en = "If District AI crashes, it can send Distronode a report so we can fix the problem. A report holds the error, where in the app it happened, and the versions of the app and your system. Your computer's name and your user name are left out. Reports go through Sentry, the error reporting service we use. You can change this later on the account screen."
-fr = "Si District AI plante, l'application peut envoyer un rapport à Distronode pour que nous puissions corriger le problème. Un rapport contient l'erreur, l'endroit de l'application où elle s'est produite, et les versions de l'application et de votre système. Le nom de votre ordinateur et votre nom d'utilisateur en sont retirés. Les rapports passent par Sentry, le service de signalement d'erreurs que nous utilisons. Vous pourrez modifier ce choix plus tard à l'écran Compte."
+fr = "Si District AI plante, l'application peut envoyer un rapport à Distronode pour que nous puissions corriger le problème. Un rapport contient l'erreur, l'endroit de l'application où elle s'est produite et les versions de l'application et de votre système. Le nom de votre ordinateur et votre nom d'utilisateur en sont retirés. Les rapports passent par Sentry, le service de signalement d'erreurs que nous utilisons. Vous pourrez modifier ce choix plus tard à l'écran Compte."
 ctx = "body"
 screen = "crash"
 tier = "T1"
-state = "draft"
+state = "reviewed"
 note = "Asked once, the first time the window shows in a build that can send reports (existing users see it once after the update that brings it). What it says must stay true of district-crash (its SECURITY.md, Crash reports) and of the app's CrashScrub. The account screen is the Account item in the navigation pane. The same words as District AI for Linux's crash.question_body."
 
 [crash.question_title]
@@ -1166,7 +1166,7 @@ fr = "Envoyer les rapports de plantage?"
 ctx = "title"
 screen = "crash"
 tier = "T1"
-state = "draft"
+state = "reviewed"
 note = "The question at the first start. The answer is kept; Don't send is the default. The same words as District AI for Linux's crash.question_title."
 
 [crash.send]
@@ -1175,7 +1175,7 @@ fr = "Envoyer les rapports"
 ctx = "button"
 screen = "crash"
 tier = "T1"
-state = "draft"
+state = "reviewed"
 note = "The question's primary button: crash reports are sent from now on, until the switch on the account page is turned off."
 
 [desk.customer]

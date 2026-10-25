@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Crash reports, off until you allow them: the app asks once, with Don't send as the
+  default, and Send crash reports on the Account screen changes it. A report holds the
+  error, where it happened and the versions, never your computer's name, your user name
+  or your IP address.
+
 ### Changed
 
 - Declining a call tells the service. Until now Decline only stopped the ring here, so
