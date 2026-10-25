@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -7,6 +6,7 @@ using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using Sentry;
 using Sentry.Protocol;
+using Trace = System.Diagnostics.Trace;
 
 namespace DistrictAI.Platform;
 
