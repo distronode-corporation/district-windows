@@ -7,6 +7,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-10-25
+
+District AI 3.1.0 can send crash reports, only once you allow them, and a declined call
+now reaches the service, so the receptionist takes the caller's message as soon as
+everyone it rang has declined. It runs on district-core-rust 6.1.0.
+
 ### Added
 
 - Crash reports, off until you allow them: the app asks once, with Don't send as the
@@ -32,6 +38,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   as `09:30`, still saves HH:MM, and refuses a time past 23:59 before the save. The link
   to the web marketplace is captioned "Opens in your browser."; the note above the tabs
   is the one place that says where numbers are bought.
+- The help desk is called the Desk, « Comptoir » in French, in the navigation pane, on
+  its page and in its settings, where it read "Help desk" and « Comptoir clients ».
 
 ### Fixed
 
@@ -40,6 +48,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   only showed the window. The notification now carries what it opens (ids only). Its
   Answer and Decline buttons still do nothing then, since that call stopped ringing when
   the app quit.
+
+### Security
+
+- webpki-root-certs 1.0.10 in Cargo.lock, for RUSTSEC-2026-0383 (CVE-2026-111943): 1.0.9
+  still bundles emSign ECC Root CA - G3, the root of the distrusted emSign intermediates.
+  It reaches the lock through rustls-platform-verifier, which uses it only on wasm32, so
+  no build this project ships compiles it and the app is unchanged; the lock no longer
+  names the old roots.
 
 ## [3.0.3] - 2026-10-22
 

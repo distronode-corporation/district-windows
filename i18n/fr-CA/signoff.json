@@ -1,7 +1,7 @@
 {
-  "signed_off_by": "v3 manager (Opus 5.5), final French review, 2026-10-23",
-  "release": "main after v3.0.3 (fix batch, no release yet)",
-  "commit": "f711736de8a91a3a4370887147fcc31e30e1ff58",
+  "signed_off_by": "ThinkPad manager session 78da7e6a (Opus 5.5), 2026-10-25: xhigh fr-CA review of every catalog change since v3.0.3 (the crash-report strings and copy reviewed 2026-10-25 and applied by Sean's decision on GitLab #2), plus the manager's review of the 3.1.0 release notes",
+  "release": "v3.1.0",
+  "commit": "6eb859b4edcaa57a06a711e8f575d303a7de25b8",
   "catalogs": [
     {
       "path": "crates/district-ffi/l10n/ffi.toml",
@@ -13,7 +13,7 @@
     },
     {
       "path": "src/DistrictAI/l10n/ui.toml",
-      "sha256": "b6825dc54307d08626648c13aab2f23c081f22b6b9e851a57e6b86a511ec4c2b"
+      "sha256": "e3fc79f635df0ce35c8c7429fd30877399add12549c8822b7d260de9fe923b72"
     }
   ]
 }

@@ -60,22 +60,45 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
-## What's new in the next version
+## What's new in this version: 3.1.0
 
-The lines the next version's notes carry for what its CHANGELOG `[Unreleased]` section adds
-so far, to go into its "What's new in this version" texts when the release is cut. The
-French holds a no-break space (U+00A0) before the colon; it was reviewed 2026-10-25.
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (1064 characters) and, in the fr-CA listing, the French
+below (1489 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon and inside the guillemets, and its times keep a plain space
+(« 9 h 30 », U+0020), as the app writes them.
+
+The notes carry every user-visible entry of the CHANGELOG's 3.1.0 section, crash reports
+first. The Security entry (webpki-root-certs 1.0.10) is left out: no build the app ships
+compiles that crate. The crash-report line is the copy reviewed 2026-10-25, with the
+default and what a report leaves out added from the same reviewed copy. The rest of the
+French is new for 3.1.0, reviewed by the manager 2026-10-25. 3.0.3 was the last published
+submission, so each text below goes in alone.
 
 en-US:
 
 ```text
-- Crash reports: off until you allow them. The app asks once, and you can change it on the Account screen.
+District AI 3.1.0:
+- Crash reports: off until you allow them. The app asks once, with Don't send as the default, and you can change it on the Account screen. A report never holds your computer's name, your user name or your IP address.
+- Calls: declining a call now tells the service, so once everyone it rang has declined, your receptionist takes a message right away.
+- Calls: a call's outcome now reads "Callback requested", "Passed to a person" or "Information only", instead of "Callback", "Escalated" or "Info".
+- Desk: the help desk is now called the Desk in the navigation pane, on its page and in its settings.
+- Booking pages: your working hours read "9 h" or "9 h 30" in French, accept 9:30 as well as 09:30, and refuse a time past 23:59 before you save.
+- Phone numbers: where numbers are bought is explained once, above the tabs, and the link to the web marketplace says it opens in your browser.
+- Notifications: clicking a call or message notification left in Action Center after you quit District AI now opens the conversation or call it was about.
 ```
 
 fr-CA:
 
 ```text
-- Rapports de plantage : désactivés tant que vous ne les avez pas autorisés. L'application vous pose la question une fois, et vous pouvez changer ce choix à l'écran Compte.
+District AI 3.1.0 :
+- Rapports de plantage : désactivés tant que vous ne les avez pas autorisés. L'application vous pose la question une fois, « Ne pas envoyer » est le choix par défaut, et vous pouvez changer ce choix à l'écran Compte. Un rapport ne contient ni le nom de votre ordinateur, ni votre nom d'utilisateur, ni votre adresse IP.
+- Appels : quand vous refusez un appel, le service en est maintenant avisé. Dès que tous les membres sollicités l'ont refusé, votre réceptionniste prend un message sans attendre.
+- Appels : le résultat d'un appel s'affiche maintenant « Rappel demandé », « Transmis à une personne » ou « Information seulement », au lieu de « À rappeler », « Transmis à l'équipe » ou « Information ».
+- Comptoir : la section s'appelle maintenant « Comptoir » dans le volet de navigation, sur sa page et dans ses paramètres, au lieu de « Comptoir clients ».
+- Pages de réservation : vos heures de disponibilité s'affichent maintenant « 9 h » ou « 9 h 30 », vous pouvez taper 9:30 aussi bien que 09:30, et une heure après 23 h 59 est refusée avant d'être enregistrée.
+- Numéros de téléphone : l'endroit où acheter des numéros n'est plus expliqué qu'une fois, au-dessus des onglets, et le lien vers la place de marché Web indique qu'il s'ouvre dans votre navigateur.
+- Notifications : un clic sur une notification d'appel ou de message restée dans le centre de notifications après que vous avez quitté District AI ouvre maintenant la conversation ou l'appel en question.
 ```
 
 ## What's new in this version: 3.0.3
