@@ -153,7 +153,9 @@ pub enum UiEvent {
         /// The call, as the ring names it.
         call_id: String,
     },
-    /// Decline it. Nothing is sent to the service.
+    /// Decline it: the member's own refusal, which the core tells the service
+    /// (`Effect::DeclineCall`). A ring that runs out, is withdrawn, or is
+    /// dropped for a sleep, a quit or a sign-out sends nothing.
     Decline {
         /// The call.
         call_id: String,

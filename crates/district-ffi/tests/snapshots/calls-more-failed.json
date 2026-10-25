@@ -35,7 +35,7 @@
           },
           {
             "call_id": "call-2",
-            "detail": "Outbound · Info · 2m 34s",
+            "detail": "Outbound · Information only · 2m 34s",
             "inbound": false,
             "missed": false,
             "started_at": "2026-08-15T14:30:00.000Z",
@@ -80,7 +80,7 @@
           },
           {
             "call_id": "call-7",
-            "detail": "Outbound · Info · 2m 34s",
+            "detail": "Outbound · Information only · 2m 34s",
             "inbound": false,
             "missed": false,
             "started_at": "2026-08-15T14:30:00.000Z",
@@ -125,7 +125,7 @@
           },
           {
             "call_id": "call-12",
-            "detail": "Outbound · Info · 2m 34s",
+            "detail": "Outbound · Information only · 2m 34s",
             "inbound": false,
             "missed": false,
             "started_at": "2026-08-15T14:30:00.000Z",
@@ -170,7 +170,7 @@
           },
           {
             "call_id": "call-17",
-            "detail": "Outbound · Info · 2m 34s",
+            "detail": "Outbound · Information only · 2m 34s",
             "inbound": false,
             "missed": false,
             "started_at": "2026-08-15T14:30:00.000Z",
@@ -215,7 +215,7 @@
           },
           {
             "call_id": "call-22",
-            "detail": "Outbound · Info · 2m 34s",
+            "detail": "Outbound · Information only · 2m 34s",
             "inbound": false,
             "missed": false,
             "started_at": "2026-08-15T14:30:00.000Z",
