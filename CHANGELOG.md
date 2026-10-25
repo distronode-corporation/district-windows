@@ -26,7 +26,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - A call's outcome reads "Callback requested" (« Rappel demandé »), "Passed to a person"
   (« Transmis à une personne ») and "Information only" (« Information seulement »), where
   it read "Callback", "Escalated" and "Info".
-- The shared core is district-core-rust 6.0.0. In English the Desk is called the Desk
+- The shared core is district-core-rust 6.1.0. In English the Desk is called the Desk
   ("The Desk is off", "Turn on the Desk", "Could not load the Desk"). The working hours
   editor shows French times as « 9 h » and « 9 h 30 », reads `9:30` or `9 h 30` as well
   as `09:30`, still saves HH:MM, and refuses a time past 23:59 before the save. The link
