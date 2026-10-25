@@ -44,7 +44,10 @@ public static class CrashScrub
     /// <c>/Users/name</c> (macOS) and <c>drive:\Users\name</c> (Windows, either
     /// slash, any case). The name runs to the next path separator or to a
     /// character no user name may hold; on the Windows form a space does not
-    /// end it (Windows names may hold one), on the others it does.
+    /// end it (Windows names may hold one), on the others it does. Either side
+    /// of <c>Users</c> the separator may be doubled, as every backslash is in a
+    /// Rust <c>Debug</c>-formatted string or in JSON text held in a string (and
+    /// twice over when escaped twice); the separators are kept as they were.
     /// </summary>
     public static string HomePaths(string text)
     {
@@ -118,7 +121,7 @@ public static class CrashScrub
     }
 
     // Where the user's name starts if a home directory begins at `at`, and
-    // whether it is the Windows form.
+    // whether it is the Windows form. A run of separators counts as one.
     private static (int Start, bool Windows)? HomeAt(string text, int at)
     {
         var rest = text.AsSpan(at);
@@ -126,22 +129,37 @@ public static class CrashScrub
         {
             return (at + 6, false);
         }
-        if (rest.Length < 7)
+        var open = Separators(rest);
+        if (open == 0 || rest.Length < open + 5)
         {
             return null;
         }
-        var open = rest[0];
-        var close = rest[6];
-        var word = rest.Slice(1, 5);
-        if (!(IsSeparator(open) && IsSeparator(close) && IsUsersIgnoringAsciiCase(word)))
+        var word = rest.Slice(open, 5);
+        var close = Separators(rest.Slice(open + 5));
+        if (close == 0 || !IsUsersIgnoringAsciiCase(word))
         {
             return null;
         }
-        var drive = at >= 2 && text[at - 1] == ':' && char.IsAsciiLetter(text[at - 2]);
-        var windows = drive || open == '\\' || close == '\\';
+        // A drive is directly before the last separator of the run, as it is
+        // before the one separator of a plain path, so `https://users/` is not
+        // one.
+        var last = at + open - 1;
+        var drive = last >= 2 && text[last - 1] == ':' && char.IsAsciiLetter(text[last - 2]);
+        var windows = drive || rest.Slice(0, open + 5 + close).Contains('\\');
         // Without a drive or a backslash it is macOS, whose folder is `Users`
         // exactly; a lower case `/users/` is more likely part of an address.
-        return windows || word.SequenceEqual("Users") ? (at + 7, windows) : null;
+        return windows || word.SequenceEqual("Users") ? (at + open + 5 + close, windows) : null;
+    }
+
+    // How many path separators `text` starts with.
+    private static int Separators(ReadOnlySpan<char> text)
+    {
+        var count = 0;
+        while (count < text.Length && IsSeparator(text[count]))
+        {
+            count++;
+        }
+        return count;
     }
 
     // "users" in any ASCII case, and only ASCII: as the core compares it.

@@ -22,6 +22,29 @@ public sealed class CrashScrubTests
     }
 
     [Fact]
+    public void EscapedAndDoubledSeparatorsLoseTheNameToo()
+    {
+        // A Rust `Debug`-formatted Windows path, as in an `unwrap` panic or an
+        // error's derived `Debug`: every backslash is doubled.
+        Assert.Equal(@"""C:\\Users\\<user>\\x""", CrashScrub.HomePaths(@"""C:\\Users\\alice\\x"""));
+        Assert.Equal(
+            @"Os { code: 5, path: ""C:\\Users\\<user>\\AppData"" }",
+            CrashScrub.HomePaths(@"Os { code: 5, path: ""C:\\Users\\alice\\AppData"" }"));
+        // JSON text held in a string escapes them the same way, and a string
+        // escaped twice doubles them twice.
+        Assert.Equal(@"{""path"":""c:\\users\\<user>\\x""}", CrashScrub.HomePaths(@"{""path"":""c:\\users\\Alice Smith\\x""}"));
+        Assert.Equal(@"C:\\\\Users\\\\<user>\\\\x", CrashScrub.HomePaths(@"C:\\\\Users\\\\alice\\\\x"));
+        // The verbatim prefix and a UNC share, plain and escaped.
+        Assert.Equal(@"\\host\c$\Users\<user>\x", CrashScrub.HomePaths(@"\\host\c$\Users\alice\x"));
+        Assert.Equal(@"\\\\?\\C:\\Users\\<user>\\x", CrashScrub.HomePaths(@"\\\\?\\C:\\Users\\alice\\x"));
+        // Either slash, doubled or mixed, and a home at the very end.
+        Assert.Equal("C:/Users/<user>/x", CrashScrub.HomePaths("C:/Users/alice/x"));
+        Assert.Equal(@"C:\\Users/<user>\\x", CrashScrub.HomePaths(@"C:\\Users/alice\\x"));
+        Assert.Equal("//Users//<user>", CrashScrub.HomePaths("//Users//alice"));
+        Assert.Equal(@"C:\\Users\\<user>", CrashScrub.HomePaths(@"C:\\Users\\alice"));
+    }
+
+    [Fact]
     public void EveryHomeInASentenceAndOneAtTheVeryEnd()
     {
         Assert.Equal(
@@ -56,6 +79,11 @@ public sealed class CrashScrubTests
             "https://example.com/api/users/42",
             "/users/x",
             @"C:\Users",
+            @"C:\\Users\\",
+            @"C:\\Users\\\\",
+            @"\\Users",
+            "https://example.com//users//42",
+            "https://users/42",
             @"C:\Program Files\x",
             "xUsersx",
             "Users/home",
@@ -119,6 +147,33 @@ public sealed class CrashScrubTests
         Assert.True(extra.ContainsKey("none"));
         Assert.Null(extra["none"]);
         Assert.Equal("/home/<user>", (string?)report["tags"]!["list"]);
+    }
+
+    /// <summary>
+    /// The walk reads each string decoded, so a plain path in a field is one
+    /// backslash per separator (above) whatever the report's JSON makes of it;
+    /// what holds a doubled one is a string that itself holds escaped text,
+    /// which is scrubbed as it is and stays escaped on the way out.
+    /// </summary>
+    [Fact]
+    public void AReportHoldingEscapedPathsLosesTheNames()
+    {
+        var report = new JsonObject
+        {
+            ["message"] = new JsonObject
+            {
+                ["formatted"] = @"called `Result::unwrap()` on an `Err` value: ""C:\\Users\\alice\\x.toml""",
+            },
+            ["extra"] = new JsonObject { ["body"] = @"{""file"":""C:\\Users\\alice\\y""}" },
+        };
+
+        CrashScrub.Event(report);
+
+        Assert.Equal(
+            @"called `Result::unwrap()` on an `Err` value: ""C:\\Users\\<user>\\x.toml""",
+            (string?)report["message"]!["formatted"]);
+        Assert.Equal(@"{""file"":""C:\\Users\\<user>\\y""}", (string?)report["extra"]!["body"]);
+        Assert.DoesNotContain("alice", report.ToJsonString(), StringComparison.Ordinal);
     }
 
     [Fact]
