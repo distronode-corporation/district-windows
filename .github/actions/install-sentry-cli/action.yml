@@ -1,0 +1,27 @@
+name: Install sentry-cli
+description: >-
+  The upstream release of sentry-cli, the Linux x86_64 binary, checked against a
+  pinned SHA-256, into /usr/local/bin. release.yml's `sentry` job (ubuntu) uses
+  it to upload the release's debug files to Sentry and to create the Sentry
+  release. The same version and checksum as District AI for Linux's action.
+
+runs:
+  using: composite
+  steps:
+    # The SHA-256 is the one GitHub records for the release asset
+    # (`gh api repos/getsentry/sentry-cli/releases/tags/<version>`, the asset's
+    # `digest`). Moving the version moves both lines.
+    - name: Install sentry-cli
+      shell: bash
+      env:
+        SENTRY_CLI_VERSION: 3.8.0
+        SENTRY_CLI_SHA256: 13f8cb34ae01a6a272d7d7c22e277a105286615b4020de900ea95a8de47cdbb6
+        # Nothing it runs asks Sentry whether it is the newest.
+        SENTRY_DISABLE_UPDATE_CHECK: "true"
+      run: |
+        set -euo pipefail
+        curl -fsSL -o "$RUNNER_TEMP/sentry-cli" \
+          "https://github.com/getsentry/sentry-cli/releases/download/${SENTRY_CLI_VERSION}/sentry-cli-Linux-x86_64"
+        echo "${SENTRY_CLI_SHA256}  $RUNNER_TEMP/sentry-cli" | sha256sum -c -
+        sudo install -m 0755 "$RUNNER_TEMP/sentry-cli" /usr/local/bin/sentry-cli
+        sentry-cli --version

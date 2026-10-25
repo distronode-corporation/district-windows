@@ -20,7 +20,8 @@ properties and forwards the user's actions to the core as events. It references
 `DistrictAI.Core` and CommunityToolkit.Mvvm and nothing from WinUI or the Windows App SDK,
 so it builds and tests on Linux. What only Windows has reaches it through a small seam the
 app fills: `ICoreSink` (the core, `CoreHost`), `IBrowser`, `IStartupTask` (start at
-sign-in, `StartupRegistration`) and `TimeProvider` (the call bar's clock). Anything that is
+sign-in, `StartupRegistration`), `ICrashAnswerStore` and `ICrashReporter` (crash reports,
+below) and `TimeProvider` (the call bar's clock). Anything that is
 only XAML (an alignment, a brush) stays in the page. `tests/DistrictAI.Presentation.Tests`
 tests the view models against the core's generated records directly, with no native
 library.
@@ -235,6 +236,55 @@ python3 scripts/check-store-copy.py
 
 A string that is genuinely fine goes in its `ALLOW` list by exact `path:line`, with the
 reason. The Store listing's purchase disclosure is in `docs/store-listing.md`.
+
+## Crash reports
+
+Crash reports are off until the user says yes. Both sides of the app follow one answer:
+
+- **The Rust side** is the core's `district-crash`: nothing is set up, no panic handler is
+  installed and nothing is sent unless it is handed both a DSN and the user's consent (its
+  SECURITY.md, "Crash reports", says what a report holds). `crates/district-ffi/src/crash.rs`
+  exports it to C# as `DistrictFfi.CrashReportsApply`, `CrashReportsEnabled` and
+  `CrashReportsFlush`; the crate reads no DSN of its own.
+- **The .NET side** is the Sentry .NET SDK (`Sentry` in `Directory.Packages.props`, the app's
+  project only), set up by `src/DistrictAI/Platform/CrashReporter.cs` only when the Rust
+  side accepted the same DSN with consent, and closed as soon as the answer is no. It
+  reports unhandled exceptions with no personal data, no breadcrumbs, no sessions, no list
+  of assemblies and nothing written to disk, and every report passes through
+  `CrashScrub` (`src/DistrictAI.Core`), which applies the core's rules: the user's name in
+  a home directory path is replaced, and the machine's name, the user and any request are
+  removed. `tests/DistrictAI.Core.Tests/CrashScrubTests.cs` holds it to the core's cases.
+
+The rest is the app's:
+
+- The DSN is the build's: DistrictAI.csproj stamps `WINDOWS_SENTRY_DSN` and
+  `DISTRICT_AI_BUILD` from the build's environment on the assembly. release.yml sets the
+  DSN, from the repository secret of that name, only for a `v` tag, and refuses a tag
+  without it; a build from source, a fork's build and every other CI run have none, and so
+  never send a report, never ask and show no switch. Never commit a DSN.
+- The answer is the package's local setting `CrashReports` (`granted` or `denied`). No value
+  is no answer: the first time the window shows, the app asks once, with "Don't send" as
+  the close button, the default and what closing the question answers, so a user upgrading
+  from a version that never asked is asked once as well. The account page has the switch,
+  "Send crash reports". `CrashReports` in `DistrictAI.Presentation` holds this logic, and
+  its tests are `tests/DistrictAI.Presentation.Tests/CrashReportsTests.cs`.
+- At start the stored answer is handed to both sides before anything else (`Denied` while
+  there is none), and every change hands the new one at once.
+- Reports name the release `com.distronode.DistrictAI@<version>+<build>`: the version is the
+  package's (`major.minor.build`, what the account page and the service see), and the build
+  is the first twelve characters of the commit (`local` without it).
+- Debug files: release.yml builds `district_ffi.dll` with line tables (its PDB stays out of
+  the package) and the app's assemblies with embedded portable PDBs (`DebugType=embedded`,
+  so the package carries no PDB files and the packaging step needs no `mspdbcmf.exe`). The
+  `build` job checks every packaged assembly keeps its CodeView and embedded PDB entries
+  and that each package's `district_ffi.dll` is the one the PDB was written for, and keeps
+  the eleven files as the `debug-files-windows` artifact. The `sentry` job, after the
+  release is public, uploads them to Sentry (organisation `distronode-corporation-eu`,
+  project `district-windows`, at `https://de.sentry.io`) with a pinned, checksummed
+  `sentry-cli` (`.github/actions/install-sentry-cli`), then creates that release with its
+  commits and finalizes it. It needs `SENTRY_AUTH_TOKEN`, a secret of the `release`
+  environment. `WINDOWS_SENTRY_DSN` is a repository secret, because the build job runs in
+  no environment.
 
 ## Releasing
 
