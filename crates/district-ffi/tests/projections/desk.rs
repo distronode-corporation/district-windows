@@ -649,8 +649,8 @@ fn a_desk_that_is_off_says_so_rather_than_empty() {
     assert_eq!(shown.title, s::desk_title(l()));
     assert_eq!(shown.status, LoadStatus::Ready);
     let switched_off = shown.off.expect("the switched-off state");
-    assert_eq!(switched_off.title, "The help desk is off");
-    assert_eq!(switched_off.turn_on, "Turn on the help desk");
+    assert_eq!(switched_off.title, "The Desk is off");
+    assert_eq!(switched_off.turn_on, "Turn on the Desk");
     assert!(switched_off.can_turn_on && !switched_off.enabling);
     assert!(!shown.can_start && !shown.can_filter && shown.empty.is_none());
     let turning = queue_view(&act(off(), DeskAction::TurnOn));
