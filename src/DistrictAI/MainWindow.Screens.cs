@@ -111,7 +111,7 @@ public sealed partial class MainWindow
                 page = _contactDetail;
                 break;
             case ScreenView.Account account:
-                _account ??= Made(new AccountPage(), p => p.Attach(_context));
+                _account ??= Made(new AccountPage(_crashReports), p => p.Attach(_context));
                 _account.Show(account.View);
                 page = _account;
                 break;

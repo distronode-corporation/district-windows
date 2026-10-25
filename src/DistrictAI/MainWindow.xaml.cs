@@ -23,16 +23,18 @@ namespace DistrictAI;
 public sealed partial class MainWindow : Window
 {
     private readonly CoreHost _core;
+    private readonly CrashReports _crashReports;
     private readonly PageContext _context;
     private readonly ObservableCollection<WorkspaceItem> _workspaces = [];
     private CoreSnapshot? _shown;
     private bool _rendering;
     private readonly UISettings _textSettings = new();
 
-    /// <summary>The window over <paramref name="core"/>.</summary>
-    internal MainWindow(CoreHost core)
+    /// <summary>The window over <paramref name="core"/>, asking about and switching <paramref name="crashReports"/>.</summary>
+    internal MainWindow(CoreHost core, CrashReports crashReports)
     {
         _core = core;
+        _crashReports = crashReports;
         InitializeComponent();
         // The District icon in the title bar (and the window's taskbar button):
         // a WinUI window does not take it from the exe's ApplicationIcon.

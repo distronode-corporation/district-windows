@@ -111,6 +111,47 @@ public sealed class UiFaultsTests
         Assert.Single(trace.Naming(marker));
     }
 
+    /// <summary>
+    /// While crash reports are on, the reporter is handed what escapes, and the
+    /// exception is still thrown on unchanged, even when the reporter fails.
+    /// Other tests' exceptions may reach the reporter too (it is the process's),
+    /// so this looks for its own.
+    /// </summary>
+    [Fact]
+    public void TheCrashReporterIsHandedWhatEscapesAndCannotChangeIt()
+    {
+        using var trace = new TraceRecorder();
+        var handed = new List<Exception>();
+        var handedLock = new Lock();
+        try
+        {
+            UiFaults.Reporter = exception =>
+            {
+                lock (handedLock)
+                {
+                    handed.Add(exception);
+                }
+            };
+            var thrown = new InvalidOperationException(Guid.NewGuid().ToString("N"));
+            Assert.Same(thrown, Assert.Throws<InvalidOperationException>(() => UiFaults.Run("a test", () => throw thrown)));
+            lock (handedLock)
+            {
+                Assert.Contains(thrown, handed);
+            }
+
+            var marker = Guid.NewGuid().ToString("N");
+            UiFaults.Reporter = _ => throw new FormatException(marker);
+            var again = new InvalidOperationException("thrown on");
+            Assert.Same(again, Assert.Throws<InvalidOperationException>(() => UiFaults.Run(marker, () => throw again)));
+            var failure = Assert.Single(trace.Naming($"the crash reporter failed on an exception escaping {marker}"));
+            Assert.Contains("System.FormatException", failure, StringComparison.Ordinal);
+        }
+        finally
+        {
+            UiFaults.Reporter = null;
+        }
+    }
+
     [Fact]
     public void AContinuationThatThrowsIsReportedAndThrownOnByTheUiThreadsContext()
     {

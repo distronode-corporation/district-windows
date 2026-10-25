@@ -888,7 +888,7 @@ public sealed class AccountViewModelTests
     [Fact]
     public void ThePurchasesRowShowsOnceReadAndSendsOnlyWhatTheUserChanges()
     {
-        var account = new AccountViewModel(new FakeStartupTask());
+        var account = new AccountViewModel(new FakeStartupTask(), Crash.Reports());
         var (context, sink) = Pages.Context();
         account.Attach(context);
         account.Show(View());
@@ -912,15 +912,16 @@ public sealed class AccountViewModelTests
     }
 
     [Fact]
-    public void ItNeedsAStartupTask()
+    public void ItNeedsAStartupTaskAndCrashReports()
     {
-        Assert.Throws<ArgumentNullException>(() => new AccountViewModel(null!));
+        Assert.Throws<ArgumentNullException>(() => new AccountViewModel(null!, Crash.Reports()));
+        Assert.Throws<ArgumentNullException>(() => new AccountViewModel(new FakeStartupTask(), null!));
     }
 
     [Fact]
     public void ItShowsTheAccount()
     {
-        var account = new AccountViewModel(new FakeStartupTask());
+        var account = new AccountViewModel(new FakeStartupTask(), Crash.Reports());
         account.Show(View(name: "Alex", email: "alex@example.com", ring: true, ringMessage: "No microphone."));
 
         Assert.Equal("Alex", account.Name);
@@ -954,7 +955,7 @@ public sealed class AccountViewModelTests
     [Fact]
     public void TheRingSwitchSendsOnlyWhatTheUserChanges()
     {
-        var account = new AccountViewModel(new FakeStartupTask());
+        var account = new AccountViewModel(new FakeStartupTask(), Crash.Reports());
         account.RingOn = true;
 
         var (context, sink) = Pages.Context();
@@ -969,7 +970,7 @@ public sealed class AccountViewModelTests
     [Fact]
     public void TheRowsSendTheirEvents()
     {
-        var account = new AccountViewModel(new FakeStartupTask());
+        var account = new AccountViewModel(new FakeStartupTask(), Crash.Reports());
         account.OpenDevicesCommand.Execute(null);
         account.SignOutCommand.Execute(null);
         account.DeleteAccountCommand.Execute(null);
@@ -987,7 +988,7 @@ public sealed class AccountViewModelTests
     public async Task StartAtSignInIsReadEachTimeThePageOpens()
     {
         var startup = new FakeStartupTask { Setting = new(Enabled: true, CanChange: true, Message: null) };
-        var account = new AccountViewModel(startup);
+        var account = new AccountViewModel(startup, Crash.Reports());
         Assert.False(account.StartupSwitchEnabled);
 
         await account.LoadStartupAsync();
@@ -1009,7 +1010,7 @@ public sealed class AccountViewModelTests
     public async Task OneReadOrChangeAtATime()
     {
         var startup = new FakeStartupTask();
-        var account = new AccountViewModel(startup);
+        var account = new AccountViewModel(startup, Crash.Reports());
         var pending = new TaskCompletionSource<StartupSetting>();
         startup.Pending = pending;
 
@@ -1030,7 +1031,7 @@ public sealed class AccountViewModelTests
     public async Task TheSwitchChangesTheSettingWhenItMayAndItIsAChange()
     {
         var startup = new FakeStartupTask();
-        var account = new AccountViewModel(startup);
+        var account = new AccountViewModel(startup, Crash.Reports());
 
         // Before it has been read, it cannot be changed.
         await account.SetStartupAsync(true);
@@ -1062,7 +1063,7 @@ public sealed class AccountViewModelTests
     public async Task AFailedReadStillGivesTheSwitchBack()
     {
         var startup = new FakeStartupTask();
-        var account = new AccountViewModel(startup);
+        var account = new AccountViewModel(startup, Crash.Reports());
         await account.LoadStartupAsync();
 
         var pending = new TaskCompletionSource<StartupSetting>();

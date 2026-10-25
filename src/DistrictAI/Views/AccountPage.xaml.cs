@@ -8,13 +8,15 @@ namespace DistrictAI.Views;
 
 /// <summary>
 /// The account: who is signed in, this build and this computer, starting at
-/// sign-in, the devices, signing out, and where deleting the account starts.
+/// sign-in, sending crash reports, the devices, signing out, and where
+/// deleting the account starts.
 /// </summary>
 public sealed partial class AccountPage : UserControl
 {
-    /// <summary>A page with nothing shown yet.</summary>
-    public AccountPage()
+    /// <summary>A page with nothing shown yet, whose switch changes <paramref name="crashReports"/>.</summary>
+    public AccountPage(CrashReports crashReports)
     {
+        ViewModel = new(new StartupRegistration(), crashReports);
         InitializeComponent();
         // Read each time the page opens: the user can change it in Task
         // Manager or Settings while the app runs.
@@ -22,7 +24,7 @@ public sealed partial class AccountPage : UserControl
     }
 
     /// <summary>What the page shows, and its buttons.</summary>
-    public AccountViewModel ViewModel { get; } = new(new StartupRegistration());
+    public AccountViewModel ViewModel { get; }
 
     internal void Attach(PageContext context) => ViewModel.Attach(context);
 

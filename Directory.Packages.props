@@ -14,6 +14,12 @@
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.360" />
+    <!--
+      Crash reports from the .NET side (src/DistrictAI/Platform/CrashReporter.cs),
+      set up only in a release build that carries the DSN, and only once the
+      user has said yes. The app's project only.
+    -->
+    <PackageVersion Include="Sentry" Version="6.12.1" />
     <!-- Tests. -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />

@@ -5,6 +5,7 @@ using DistrictAI.L10n;
 using DistrictAI.Platform;
 using DistrictAI.Platform.Calls;
 using DistrictAI.Platform.Checkout;
+using DistrictAI.ViewModels;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -35,6 +36,7 @@ public sealed partial class App : Application, IDisposable
     private RingtonePlayer? _ringtone;
     private WnsPush? _push;
     private WindowAttention? _attention;
+    private CrashReporter? _crashReporter;
     // Set by Quit, so the window's Closing is no longer turned into a hide.
     private bool _quitting;
 
@@ -48,6 +50,13 @@ public sealed partial class App : Application, IDisposable
     /// <inheritdoc/>
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
+        // Crash reports first, so a crash in anything after is reported once
+        // the user has said yes; until then (and always, in a build with no
+        // DSN) nothing is set up (CrashReports, Platform/CrashReporter.cs).
+        _crashReporter = new CrashReporter();
+        var crashReports = new CrashReports(CrashReporter.BuildSettings(AppVersion()), new CrashAnswerStore(), _crashReporter);
+        crashReports.Start();
+
         // Before the activation is read: a toast's button, pressed while the
         // app was not running, is delivered through this registration.
         var notifications = AppNotificationManager.Default;
@@ -67,7 +76,7 @@ public sealed partial class App : Application, IDisposable
             () => _core?.Send(new UiEvent.Billing(new BillingAction.CheckoutClosed())),
             browser);
         _core = new CoreHost(new QueueDispatcher(queue), browser, checkout);
-        _window = new MainWindow(_core);
+        _window = new MainWindow(_core, crashReports);
         _window.Closed += OnClosed;
         _window.AppWindow.Closing += OnClosing;
         // Before Start: the core may ring, notify or ask for the window as soon
@@ -236,6 +245,8 @@ public sealed partial class App : Application, IDisposable
         }
         _window.AppWindow.Show();
         _window.Activate();
+        // Once, the first time the window shows, in a build that can send reports.
+        _window.AskCrashReports();
     }
 
     /// <summary>The tray menu, as it is when it opens.</summary>
@@ -292,6 +303,9 @@ public sealed partial class App : Application, IDisposable
         }
         finally
         {
+            // After the core, so a crash while it stops is still reported.
+            _crashReporter?.Dispose();
+            _crashReporter = null;
             _ringtone?.Dispose();
             _ringtone = null;
             _tray?.Dispose();
@@ -321,6 +335,8 @@ public sealed partial class App : Application, IDisposable
         _power = null;
         _core?.DisposeAsync().AsTask().GetAwaiter().GetResult();
         _core = null;
+        _crashReporter?.Dispose();
+        _crashReporter = null;
         _ringtone?.Dispose();
         _ringtone = null;
         _tray?.Dispose();
