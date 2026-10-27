@@ -1,7 +1,7 @@
 {
-  "signed_off_by": "ThinkPad manager session 78da7e6a (Opus 5.5), 2026-10-25: xhigh fr-CA review of every catalog change since v3.0.3 (the crash-report strings and copy reviewed 2026-10-25 and applied by Sean's decision on GitLab #2), plus the manager's review of the 3.1.0 release notes",
-  "release": "v3.1.0",
-  "commit": "6eb859b4edcaa57a06a711e8f575d303a7de25b8",
+  "signed_off_by": "PENDING the manager's fr-CA review (ThinkPad worker, Opus 5.5, 2026-10-27, for the 3.2.0 round): ui.toml adds hq.you_said and hq.assistant_said, the spoken pairs of hq.you_asked and hq.answered; ffi.toml and manifest.toml are as signed off for v3.1.0; the core's HQ voice French is district-core-rust 7.0.0's own reviewed catalog. Replace this line with the reviewer once the two strings are reviewed",
+  "release": "v3.2.0",
+  "commit": "6a878b817b6d0972f0e50eb5c595a7a07c62898e",
   "catalogs": [
     {
       "path": "crates/district-ffi/l10n/ffi.toml",
@@ -13,7 +13,7 @@
     },
     {
       "path": "src/DistrictAI/l10n/ui.toml",
-      "sha256": "e3fc79f635df0ce35c8c7429fd30877399add12549c8822b7d260de9fe923b72"
+      "sha256": "855b20c09df05ae20a4b47e5ee2764da56ccd69f245ccf6fbcda4d4772a54c41"
     }
   ]
 }
