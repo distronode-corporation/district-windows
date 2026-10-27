@@ -20,7 +20,7 @@ namespace DistrictAI.UiTests;
 /// scripts/run-ui-tests.ps1 -Scripted sets); the Store build ignores the scene
 /// argument and would sit at the sign-in page.
 /// </remarks>
-public sealed class SceneWalkTests
+public sealed partial class SceneWalkTests
 {
     /// <summary>The scene argument (crates/district-ffi/src/scripted.rs, SCENE_ARG and Scene::SignedIn).</summary>
     public const string SceneArgument = "--district-scripted-scene=signed-in";

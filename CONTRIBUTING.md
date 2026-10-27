@@ -164,7 +164,14 @@ MSIX, never uploaded, and runs the area walk against it (`SceneWalkTests`): ever
 the navigation pane offers is opened, and each page must show its heading, finish loading
 and show no failure; a page a button opens (the blocked callers, from Contacts) is
 walked too. Each page's client area is saved at 1920x1080 in the
-`district-ai-screenshots` artifact, with the whole window once (`00-window.png`). The scenes' own Rust tests (`cargo test -p district-ffi --features scripted
+`district-ai-screenshots` artifact, with the whole window once (`00-window.png`).
+District HQ by voice is walked too (`SceneWalkTests.Voice.cs`), in English and, with
+`--district-scripted-language=fr-CA` beside the scene, in Canadian French: the scene
+answers the session with a made-up room (no audio) whose agent listens, speaks and
+proposes two changes, and `--district-scripted-scene=signed-in-voice-ends` (a Canadian
+workspace) has the agent leave so a call can be placed beside the cards. Each voice
+state is saved at 1920x1080 and at 500x700 (`92-hq-voice-statement-fr-500x700.png` and
+so on), and in the narrow window every card's Confirm and Cancel must be reachable. The scenes' own Rust tests (`cargo test -p district-ffi --features scripted
 --lib scripted`) check the same thing against the projections first, and that each
 fixture still decodes. When an area is built, its effects need answers in `scripted.rs`
 if the core sends ones it does not answer yet, and its page's heading a line in
