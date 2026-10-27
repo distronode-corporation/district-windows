@@ -19,6 +19,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <TextBlock
                 AutomationProperties.HeadingLevel="Level1"
@@ -71,16 +72,33 @@
                             Padding="0,6"
                             AutomationProperties.Name="{x:Bind AccessibleName}"
                             Spacing="4">
-                            <!-- The member's question. -->
+                            <!-- The member's question, typed or spoken (dimmed until final). -->
                             <Border
                                 MaxWidth="560"
                                 Padding="12,8"
                                 HorizontalAlignment="Right"
                                 Background="{ThemeResource AccentFillColorDefaultBrush}"
                                 CornerRadius="{StaticResource OverlayCornerRadius}"
+                                Opacity="{x:Bind TextOpacity}"
                                 Visibility="{x:Bind IsQuestion}">
                                 <TextBlock
                                     Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                    IsTextSelectionEnabled="True"
+                                    Text="{x:Bind Text}"
+                                    TextWrapping="Wrap" />
+                            </Border>
+                            <!-- What District HQ said aloud, as transcribed: plain text, dimmed until final. -->
+                            <Border
+                                MaxWidth="640"
+                                Padding="12,8"
+                                HorizontalAlignment="Left"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{StaticResource OverlayCornerRadius}"
+                                Opacity="{x:Bind TextOpacity}"
+                                Visibility="{x:Bind IsSpokenAnswer}">
+                                <TextBlock
                                     IsTextSelectionEnabled="True"
                                     Text="{x:Bind Text}"
                                     TextWrapping="Wrap" />
@@ -166,9 +184,140 @@
                 </StackPanel>
             </StackPanel>
 
+            <!--
+                District HQ by voice: what the session is doing, with its controls;
+                where the voice is processed, said before anything starts; why a
+                card went; and a card per change proposed by voice.
+            -->
+            <StackPanel
+                x:Name="VoiceControls"
+                Grid.Row="3"
+                Spacing="8">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ProgressRing
+                        Width="16"
+                        Height="16"
+                        VerticalAlignment="Center"
+                        AutomationProperties.Name="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
+                        IsActive="{x:Bind ViewModel.Voice.IsBusy, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Voice.IsBusy, Mode=OneWay}" />
+                    <!-- Plain text, never Markdown: news quietly, a problem as an error. -->
+                    <TextBlock
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        AutomationProperties.AutomationId="VoiceLine"
+                        AutomationProperties.LiveSetting="Polite"
+                        Style="{StaticResource QuietTextStyle}"
+                        Text="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.Voice.ShowsNews, Mode=OneWay}" />
+                    <TextBlock
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        AutomationProperties.LiveSetting="Assertive"
+                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                        Text="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.Voice.ShowsProblem, Mode=OneWay}" />
+                    <StackPanel
+                        Grid.Column="2"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Button
+                            x:Name="VoiceDismiss"
+                            AutomationProperties.AutomationId="VoiceDismiss"
+                            AutomationProperties.Name="{x:Bind l10n:S.CommonDismiss}"
+                            Command="{x:Bind ViewModel.Voice.DismissCommand}"
+                            ToolTipService.ToolTip="{x:Bind l10n:S.CommonDismiss}"
+                            Visibility="{x:Bind ViewModel.Voice.CanDismiss, Mode=OneWay}">
+                            <SymbolIcon Symbol="Cancel" />
+                        </Button>
+                        <ToggleButton
+                            AutomationProperties.AutomationId="VoiceMicrophone"
+                            AutomationProperties.Name="{x:Bind l10n:S.CallBarMute}"
+                            IsChecked="{x:Bind ViewModel.Voice.Muted, Mode=TwoWay}"
+                            ToolTipService.ToolTip="{x:Bind l10n:S.CallBarMute}"
+                            Visibility="{x:Bind ViewModel.Voice.ShowMicrophone, Mode=OneWay}">
+                            <SymbolIcon Symbol="Microphone" />
+                        </ToggleButton>
+                        <Button
+                            x:Name="VoiceStop"
+                            AutomationProperties.AutomationId="VoiceStop"
+                            AutomationProperties.Name="{x:Bind ViewModel.Voice.StopLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.Voice.StopCommand}"
+                            Content="{x:Bind ViewModel.Voice.StopLabel, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.Voice.CanStop, Mode=OneWay}" />
+                        <!-- The icon beside the words, never in their place. -->
+                        <Button
+                            x:Name="VoiceStart"
+                            AutomationProperties.AutomationId="VoiceStart"
+                            AutomationProperties.Name="{x:Bind ViewModel.VoiceStartLabel, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.StartVoiceCommand}"
+                            Visibility="{x:Bind ViewModel.ShowVoiceStart, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="Microphone" />
+                                <TextBlock Text="{x:Bind ViewModel.VoiceStartLabel, Mode=OneWay}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Where the voice is processed: nothing starts until the member accepts. -->
+                <Border
+                    AutomationProperties.AutomationId="VoiceDisclosure"
+                    Style="{StaticResource CardStyle}"
+                    Visibility="{x:Bind ViewModel.HasDisclosure, Mode=OneWay}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind ViewModel.DisclosureTitle, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                        <TextBlock
+                            Text="{x:Bind ViewModel.RegionNotice, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind ViewModel.HasRegionNotice, Mode=OneWay}" />
+                        <TextBlock
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind ViewModel.DisclosureBody, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button
+                                x:Name="VoiceAccept"
+                                AutomationProperties.AutomationId="VoiceAccept"
+                                AutomationProperties.Name="{x:Bind ViewModel.AcceptLabel, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.AcceptVoiceCommand}"
+                                Content="{x:Bind ViewModel.AcceptLabel, Mode=OneWay}"
+                                Style="{StaticResource AccentButtonStyle}" />
+                            <Button
+                                AutomationProperties.AutomationId="VoiceDecline"
+                                AutomationProperties.Name="{x:Bind ViewModel.DeclineLabel, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.DeclineVoiceCommand}"
+                                Content="{x:Bind ViewModel.DeclineLabel, Mode=OneWay}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Why a card went without a result, until dismissed. -->
+                <InfoBar
+                    CloseButtonCommand="{x:Bind ViewModel.Voice.DismissNoticeCommand}"
+                    IsClosable="True"
+                    IsOpen="{x:Bind ViewModel.Voice.HasNotice, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.Voice.Notice, Mode=OneWay}"
+                    Severity="Warning" />
+
+                <hq:VoiceCards x:Name="VoiceCardList" Visibility="{x:Bind ViewModel.Voice.HasCards, Mode=OneWay}" />
+            </StackPanel>
+
             <!-- The card in front of a proposed change. -->
             <Border
-                Grid.Row="3"
+                Grid.Row="4"
                 Style="{StaticResource CardStyle}"
                 Visibility="{x:Bind ViewModel.HasCard, Mode=OneWay}">
                 <StackPanel Spacing="8">
@@ -219,7 +368,7 @@
             </Border>
 
             <!-- The prompt: Enter sends, Shift+Enter starts a new line. -->
-            <Grid Grid.Row="4" ColumnSpacing="8">
+            <Grid Grid.Row="5" ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -246,7 +395,7 @@
             </Grid>
 
             <TextBlock
-                Grid.Row="5"
+                Grid.Row="6"
                 Style="{StaticResource QuietTextStyle}"
                 Text="{x:Bind ViewModel.Footnote, Mode=OneWay}" />
         </Grid>

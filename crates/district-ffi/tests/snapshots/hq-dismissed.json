@@ -5,6 +5,7 @@
         "ask_label": "Ask",
         "can_ask": true,
         "can_retry": false,
+        "can_start_voice": false,
         "card": null,
         "empty": null,
         "failure": null,
@@ -42,8 +43,24 @@
         ],
         "prompt_placeholder": "Ask District HQ",
         "retry_label": "Try again",
+        "show_voice_start": true,
         "thinking": null,
-        "title": "District HQ"
+        "title": "District HQ",
+        "voice": {
+          "busy": false,
+          "can_dismiss": false,
+          "can_stop": false,
+          "cards": [],
+          "line": "Calls and meeting rooms are not available in this build of District AI.",
+          "line_is_problem": false,
+          "muted": true,
+          "notice": null,
+          "show_microphone": false,
+          "stage": "Off",
+          "stop_label": "Stop voice"
+        },
+        "voice_disclosure": null,
+        "voice_start_label": "Start voice"
       }
     }
   },

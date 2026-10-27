@@ -262,7 +262,12 @@ public sealed partial class App : Application, IDisposable
         return items;
     }
 
-    /// <summary>The window's close button hides it to the tray, unless the app is quitting.</summary>
+    /// <summary>
+    /// The window's close button hides it to the tray, unless the app is
+    /// quitting. A District HQ voice session ends with it: its controls are in
+    /// the window, and in the tray nothing would put them back on screen.
+    /// Minimised, the window keeps the session, one click away on the taskbar.
+    /// </summary>
     private void OnClosing(AppWindow sender, AppWindowClosingEventArgs args)
     {
         if (_quitting)
@@ -270,6 +275,7 @@ public sealed partial class App : Application, IDisposable
             return;
         }
         args.Cancel = true;
+        _core?.Send(new UiEvent.Hq(new HqAction.StopVoice()));
         sender.Hide();
         var settings = ApplicationData.Current.LocalSettings.Values;
         if (settings.TryGetValue(TrayTipShownKey, out var shown) && shown is true)

@@ -7,8 +7,10 @@ namespace DistrictAI.ViewModels.Hq;
 
 /// <summary>
 /// District HQ: the conversation, the prompt box, the card in front of a
-/// proposed change, and Report on each answer. Every word but the prompt is
-/// the core's; what the buttons do is decided there too.
+/// proposed change, and Report on each answer; and by voice, Start voice,
+/// where the voice is processed (said before anything starts), the session's
+/// controls and a card per change proposed by voice. Every word but the
+/// prompt is the core's; what the buttons do is decided there too.
 /// </summary>
 public sealed partial class HqViewModel : ObservableObject
 {
@@ -142,7 +144,57 @@ public sealed partial class HqViewModel : ObservableObject
     [ObservableProperty]
     public partial string Footnote { get; set; } = string.Empty;
 
-    internal void Attach(PageContext context) => _context = context;
+    /// <summary>The voice session's controls and the changes proposed by voice.</summary>
+    public HqVoiceViewModel Voice { get; } = new();
+
+    /// <summary>Whether Start voice is shown: to a member who may talk, with no session and no statement up.</summary>
+    [ObservableProperty]
+    public partial bool ShowVoiceStart { get; set; }
+
+    /// <summary>Whether Start voice works now.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StartVoiceCommand))]
+    public partial bool CanStartVoice { get; set; }
+
+    /// <summary>Start voice's words.</summary>
+    [ObservableProperty]
+    public partial string VoiceStartLabel { get; set; } = string.Empty;
+
+    /// <summary>Whether the residency statement is up.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(AcceptVoiceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DeclineVoiceCommand))]
+    public partial bool HasDisclosure { get; set; }
+
+    /// <summary>The statement's heading.</summary>
+    [ObservableProperty]
+    public partial string DisclosureTitle { get; set; } = string.Empty;
+
+    /// <summary>For a workspace whose data lives outside the United States, the line above the statement; or empty.</summary>
+    [ObservableProperty]
+    public partial string RegionNotice { get; set; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="RegionNotice"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasRegionNotice { get; set; }
+
+    /// <summary>Where the voice is processed, the web dashboard's words.</summary>
+    [ObservableProperty]
+    public partial string DisclosureBody { get; set; } = string.Empty;
+
+    /// <summary>The statement's Start voice.</summary>
+    [ObservableProperty]
+    public partial string AcceptLabel { get; set; } = string.Empty;
+
+    /// <summary>The statement's Not now.</summary>
+    [ObservableProperty]
+    public partial string DeclineLabel { get; set; } = string.Empty;
+
+    internal void Attach(PageContext context)
+    {
+        _context = context;
+        Voice.Attach(context);
+    }
 
     internal void Show(HqView view) => Show(view, _context?.ReportSending ?? false);
 
@@ -166,6 +218,23 @@ public sealed partial class HqViewModel : ObservableObject
         PromptPlaceholder = view.PromptPlaceholder;
         AskLabel = view.AskLabel;
         Footnote = view.Footnote;
+        ShowVoice(view);
+    }
+
+    private void ShowVoice(HqView view)
+    {
+        Voice.Show(view.Voice);
+        ShowVoiceStart = view.ShowVoiceStart;
+        CanStartVoice = view.CanStartVoice;
+        VoiceStartLabel = view.VoiceStartLabel;
+        var disclosure = view.VoiceDisclosure;
+        HasDisclosure = disclosure is not null;
+        DisclosureTitle = disclosure?.Title ?? string.Empty;
+        RegionNotice = disclosure?.RegionNotice ?? string.Empty;
+        HasRegionNotice = RegionNotice.Length > 0;
+        DisclosureBody = disclosure?.Body ?? string.Empty;
+        AcceptLabel = disclosure?.AcceptLabel ?? string.Empty;
+        DeclineLabel = disclosure?.DeclineLabel ?? string.Empty;
     }
 
     private void ShowCard(HqCardView? card)
@@ -212,6 +281,18 @@ public sealed partial class HqViewModel : ObservableObject
 
     [RelayCommand(CanExecute = nameof(CanDismiss))]
     private void Dismiss() => Send(new HqAction.Dismiss());
+
+    /// <summary>Start voice: the residency statement the first time in a workspace, the session after that.</summary>
+    [RelayCommand(CanExecute = nameof(CanStartVoice))]
+    private void StartVoice() => Send(new HqAction.StartVoice());
+
+    /// <summary>The statement's Start voice: the session and the microphone start.</summary>
+    [RelayCommand(CanExecute = nameof(HasDisclosure))]
+    private void AcceptVoice() => Send(new HqAction.AcceptVoiceDisclosure());
+
+    /// <summary>The statement's Not now: nothing starts.</summary>
+    [RelayCommand(CanExecute = nameof(HasDisclosure))]
+    private void DeclineVoice() => Send(new HqAction.DeclineVoiceDisclosure());
 
     /// <summary>A link in an answer was clicked: the core opens it, when it is a web page.</summary>
     internal void OpenLink(string url) => Send(new HqAction.OpenLink(url));

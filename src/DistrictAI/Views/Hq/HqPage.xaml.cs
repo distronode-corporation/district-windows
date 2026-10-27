@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using System.ComponentModel;
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Hq;
@@ -18,7 +19,11 @@ namespace DistrictAI.Views.Hq;
 /// <summary>
 /// District HQ: the conversation, each answer drawn from the core's runs (no
 /// markup is read here), the card in front of a proposed change, Report on
-/// each answer, and the prompt box.
+/// each answer, and the prompt box; and by voice, the session's controls, the
+/// residency statement and the cards of changes proposed by voice. The
+/// keyboard follows the session when it was on its controls: to Start voice
+/// in the statement, to Stop voice once it starts, back to Start voice when
+/// it ends.
 /// </summary>
 public sealed partial class HqPage : UserControl
 {
@@ -39,6 +44,8 @@ public sealed partial class HqPage : UserControl
     {
         InitializeComponent();
         ViewModel.Messages.CollectionChanged += OnMessagesChanged;
+        VoiceCardList.Attach(ViewModel.Voice);
+        ViewModel.Voice.PropertyChanged += OnVoiceChanged;
     }
 
     /// <summary>What the page shows, and its actions.</summary>
@@ -91,6 +98,45 @@ public sealed partial class HqPage : UserControl
             return;
         }
         await ReportDialog.OfferAsync(XamlRoot, _context, item.Report, HqViewModel.AnswerTarget).ConfigureAwait(true);
+    }
+
+    /// <summary>
+    /// The session moved to another stage. When the keyboard was on the voice
+    /// controls (or nowhere, its control gone), it goes to the next stage's
+    /// control, once this snapshot has shown it. The stage is written before
+    /// anything hides (<see cref="HqVoiceViewModel.Show"/>), so the focus read
+    /// here is still where the member left it.
+    /// </summary>
+    private void OnVoiceChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(HqVoiceViewModel.Stage) || !IsLoaded || XamlRoot is null)
+        {
+            return;
+        }
+        if (FocusManager.GetFocusedElement(XamlRoot) is DependencyObject focused && !IsWithin(focused, VoiceControls))
+        {
+            return;
+        }
+        Control next = ViewModel.Voice.Stage switch
+        {
+            HqVoiceStage.Disclosing => VoiceAccept,
+            HqVoiceStage.Starting or HqVoiceStage.Live => VoiceStop,
+            _ => VoiceStart,
+        };
+        DispatcherQueue.TryEnqueue(() => next.Focus(FocusState.Programmatic));
+    }
+
+    /// <summary>Whether <paramref name="element"/> is <paramref name="container"/> or inside it.</summary>
+    internal static bool IsWithin(DependencyObject element, DependencyObject container)
+    {
+        for (var at = element; at is not null; at = VisualTreeHelper.GetParent(at))
+        {
+            if (ReferenceEquals(at, container))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>A new answer at the end of the conversation is read out by a screen reader, as a reply in a chat is.</summary>

@@ -9,14 +9,18 @@ public sealed class HqViewModelTests
     private static RichRun Run(string text, bool bold = false, bool italic = false, bool code = false, string? link = null) =>
         new(text, bold, italic, code, link);
 
-    private static HqView View(
+    internal static HqView View(
         HqMessageView[]? messages = null,
         EmptyView? empty = null,
         string? thinking = null,
         FailureView? failure = null,
         bool canRetry = false,
         HqCardView? card = null,
-        bool canAsk = true) =>
+        bool canAsk = true,
+        HqVoiceView? voice = null,
+        bool showVoiceStart = false,
+        bool canStartVoice = false,
+        HqVoiceDisclosureView? disclosure = null) =>
         new(
             "District HQ",
             empty,
@@ -29,7 +33,12 @@ public sealed class HqViewModelTests
             "Ask District HQ",
             "Ask",
             "Try again",
-            "Each question is answered by an AI model.");
+            "Each question is answered by an AI model.",
+            voice ?? HqVoiceViewModelTests.Voice(),
+            showVoiceStart,
+            canStartVoice,
+            "Start voice",
+            disclosure);
 
     private static HqCardView Card(
         string? note = "Nothing has been changed yet.",

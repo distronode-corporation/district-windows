@@ -1,6 +1,7 @@
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using DistrictAI.Views.Calls;
+using DistrictAI.Views.Hq;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 
@@ -8,32 +9,38 @@ namespace DistrictAI;
 
 /// <summary>
 /// The window's calls: over every signed-in screen, the banner of a call
-/// ringing here and the strip of the call under way. The dialler is a screen,
-/// in MainWindow.Screens.cs.
+/// ringing here, the strip of the call under way, and the District HQ voice
+/// dock (a voice session's controls, on every screen but District HQ). The
+/// dialler is a screen, in MainWindow.Screens.cs.
 /// </summary>
 public sealed partial class MainWindow
 {
     private IncomingCallBanner? _ringBanner;
     private CallBar? _callBar;
+    private VoiceDock? _voiceDock;
 
     /// <summary>
-    /// Draws the shell's calls: the ring's banner over the call's strip, in the
-    /// call bar's place, so both stay as the member moves about the app. Runs
-    /// before the screen, whose pages read <see cref="PageContext.CallsAvailable"/>.
+    /// Draws the shell's calls: the ring's banner over the call's strip over
+    /// the voice dock, in the call bar's place, so all three stay as the
+    /// member moves about the app. Runs before the screen, whose pages read
+    /// <see cref="PageContext.CallsAvailable"/>.
     /// </summary>
     private void RenderCalls(ShellView shell)
     {
         _context.CallsAvailable = shell.CallsAvailable;
-        if (_callBar is null || _ringBanner is null)
+        if (_callBar is null || _ringBanner is null || _voiceDock is null)
         {
             _ringBanner = new IncomingCallBanner();
             _ringBanner.Attach(_context);
             _callBar = new CallBar();
             _callBar.Attach(_context);
-            CallBarHost.Content = new StackPanel { Children = { _ringBanner, _callBar } };
+            _voiceDock = new VoiceDock();
+            _voiceDock.Attach(_context);
+            CallBarHost.Content = new StackPanel { Children = { _ringBanner, _callBar, _voiceDock } };
         }
         _ringBanner.Show(shell);
         _callBar.Show(shell);
+        _voiceDock.Show(shell);
     }
 
     // Ctrl+D and Ctrl+Shift+H, from anywhere in the window. A key that has no

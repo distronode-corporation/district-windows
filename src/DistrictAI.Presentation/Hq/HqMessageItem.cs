@@ -5,15 +5,28 @@ namespace DistrictAI.ViewModels.Hq;
 
 /// <summary>
 /// One line of the District HQ conversation: the member's question, an
-/// answer (rich text, with Report), or the app's note on a confirmed change.
+/// answer (rich text, with Report), the app's note on a confirmed change, or
+/// words spoken in a voice session (plain text, dimmed until final).
 /// </summary>
 public sealed record HqMessageItem
 {
     /// <summary>Where it is in the conversation, from 0.</summary>
     public int Index { get; init; }
 
-    /// <summary>The member's question.</summary>
+    /// <summary>The member's question, typed or spoken: drawn as the member's bubble.</summary>
     public bool IsQuestion { get; init; }
+
+    /// <summary>Words spoken in a voice session, the member's or District HQ's.</summary>
+    public bool IsSpoken { get; init; }
+
+    /// <summary>What District HQ said aloud: plain text in the answer's place, with no Report.</summary>
+    public bool IsSpokenAnswer { get; init; }
+
+    /// <summary>Spoken words still being transcribed, which may change.</summary>
+    public bool IsInterim { get; init; }
+
+    /// <summary>How opaque the words are: dimmed until they are final.</summary>
+    public double TextOpacity => IsInterim ? 0.6 : 1.0;
 
     /// <summary>District HQ's answer.</summary>
     public bool IsAnswer { get; init; }
@@ -46,9 +59,11 @@ public sealed record HqMessageItem
     public bool ReportEnabled { get; init; }
 
     /// <summary>What a screen reader says for the line: who said it, then what.</summary>
-    public string AccessibleName => IsQuestion
-        ? S.HqYouAsked(Text)
-        : IsAnswer ? S.HqAnswered(Text) : Text;
+    public string AccessibleName =>
+        IsQuestion ? (IsSpoken ? S.HqYouSaid(Text) : S.HqYouAsked(Text))
+        : IsSpokenAnswer ? S.HqAssistantSaid(Text)
+        : IsAnswer ? S.HqAnswered(Text)
+        : Text;
 
     /// <summary>
     /// The same line when it says the same thing. An answer's paragraphs are
@@ -61,6 +76,9 @@ public sealed record HqMessageItem
         && IsQuestion == other.IsQuestion
         && IsAnswer == other.IsAnswer
         && IsNote == other.IsNote
+        && IsSpoken == other.IsSpoken
+        && IsSpokenAnswer == other.IsSpokenAnswer
+        && IsInterim == other.IsInterim
         && Text == other.Text
         && IsAppliedNote == other.IsAppliedNote
         && IsWarningNote == other.IsWarningNote
@@ -80,6 +98,15 @@ public sealed record HqMessageItem
             Text = question.Text,
         },
         HqMessageView.Answer answer => FromAnswer(answer, reportEnabled),
+        HqMessageView.Spoken spoken => new HqMessageItem
+        {
+            Index = (int)spoken.Index,
+            IsSpoken = true,
+            IsQuestion = spoken.Member,
+            IsSpokenAnswer = !spoken.Member,
+            IsInterim = !spoken.IsFinal,
+            Text = spoken.Text,
+        },
         HqMessageView.Note note => new HqMessageItem
         {
             Index = (int)note.Index,
