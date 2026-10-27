@@ -1,5 +1,5 @@
 {
-  "signed_off_by": "PENDING the manager's fr-CA review (ThinkPad worker, Opus 5.5, 2026-10-27, for the 3.2.0 round): ui.toml adds hq.you_said and hq.assistant_said, the spoken pairs of hq.you_asked and hq.answered; ffi.toml and manifest.toml are as signed off for v3.1.0; the core's HQ voice French is district-core-rust 7.0.0's own reviewed catalog. Replace this line with the reviewer once the two strings are reviewed",
+  "signed_off_by": "ThinkPad manager session 78da7e6a (Opus 5.5), 2026-10-27: reviewed ui.toml's two new screen-reader strings hq.you_said (« Vous avez dit : {text} », length warning 22/21 accepted) and hq.assistant_said (« District HQ a dit : {text} »), the spoken pairs of hq.you_asked and hq.answered, and the 3.2.0 Store notes (two wording fixes applied); ffi.toml and manifest.toml are as signed off for v3.1.0; the core's HQ voice French is district-core-rust 7.0.0's own reviewed catalog.",
   "release": "v3.2.0",
   "commit": "6a878b817b6d0972f0e50eb5c595a7a07c62898e",
   "catalogs": [
