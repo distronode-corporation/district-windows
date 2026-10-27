@@ -7,6 +7,37 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- District HQ by voice. Start voice on District HQ first says where your voice is
+  processed (in the United States, for every workspace, with a line of its own for a
+  workspace whose data lives in Canada, Europe or Asia-Pacific), and starts nothing until
+  you accept; then the assistant joins an end-to-end encrypted room, a line says what it
+  is doing, and both sides' words join the conversation as they are spoken. The assistant
+  is told which page you are on, and which call, contact or conversation is open, as the
+  web dashboard tells it, by the page's name and an id only. A change asked for by voice
+  is a card, applied only when you say "confirm" or click its Confirm, and cancelled the
+  same ways. The session goes on when you leave District HQ: a voice dock under the call
+  strip on every other screen shows what the assistant is doing, the microphone, Stop
+  voice and every change waiting, in full, to confirm or cancel there, with Review in
+  District HQ to go back to the conversation. The session ends when you press Stop voice
+  (on District HQ or in the dock), close the window to the tray, or after 30 minutes;
+  minimising the window keeps it. The keyboard goes with the session: to Start voice in
+  the statement, to Stop voice once it starts, and back to the voice button (or the
+  dock's next control) when it ends. Agency and client members only.
+
+### Changed
+
+- Try again after a District HQ question that failed sends your last typed question, even
+  when spoken words or a note came after it.
+- Built on district-core-rust 7.0.0.
+
+### Fixed
+
+- Voice Studio's signal chain and meter count the brain's measured time again for an
+  unsaved edit, at the setting the service measured it on: an edit could read "At least
+  520 ms" for a brain the service measures at about 970 ms.
+
 ## [3.1.0] - 2026-10-25
 
 District AI 3.1.0 can send crash reports, only once you allow them, and a declined call
