@@ -16,7 +16,7 @@ through the same channels; we will route it.
 
 ## Supported versions
 
-Only the latest release (3.1.0) receives security fixes, in the Microsoft Store build and
+Only the latest release (3.2.0) receives security fixes, in the Microsoft Store build and
 the builds on GitHub Releases alike. Fixes ship in a new release rather than being
 backported.
 

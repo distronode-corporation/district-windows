@@ -7,6 +7,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-10-27
+
+District AI 3.2.0 brings District HQ by voice: talk to the assistant, see both sides'
+words as they are spoken, and confirm or cancel each change it proposes, from District HQ
+or from the voice dock on any other screen. It runs on district-core-rust 7.0.0.
+
 ### Added
 
 - District HQ by voice. Start voice on District HQ first says where your voice is

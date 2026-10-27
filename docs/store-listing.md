@@ -60,6 +60,40 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
+## What's new in this version: 3.2.0
+
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (776 characters) and, in the fr-CA listing, the French
+below (1012 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon and inside the guillemets.
+
+The notes carry every user-visible entry of the CHANGELOG's 3.2.0 section, District HQ by
+voice first; "Built on district-core-rust 7.0.0" is left out, as it changes nothing on its
+own. The French names on screen (« Démarrer le mode vocal », « Arrêter le mode vocal »,
+« je confirme ») are the core's reviewed strings; the rest of the French is new for 3.2.0
+and waits for the manager's review. 3.1.0 was the last published submission, so each text
+below goes in alone.
+
+en-US:
+
+```text
+District AI 3.2.0:
+- District HQ by voice: press Start voice on District HQ and talk to the assistant. It first says where your voice is processed and starts nothing until you accept. Both sides' words join the conversation as they are spoken, and a change you ask for is a card, made only when you say "confirm" or click Confirm.
+- Voice dock: the session goes on when you leave District HQ, with what the assistant is doing, the microphone, Stop voice and every change waiting under the call strip on every screen. Closing the window to the tray ends the session; minimising keeps it.
+- District HQ: Try again after a question that failed sends your last typed question.
+- Voice: the time to first word of an unsaved edit counts the assistant's measured thinking time again.
+```
+
+fr-CA:
+
+```text
+District AI 3.2.0 :
+- District HQ par la voix : appuyez sur « Démarrer le mode vocal » dans District HQ et parlez à l'assistant. Il indique d'abord où votre voix est traitée et ne démarre rien avant que vous acceptiez. Les paroles des deux côtés s'ajoutent à la conversation au fil de l'échange, et un changement que vous demandez devient une carte, appliqué seulement quand vous dites « je confirme » ou cliquez sur Confirmer.
+- Mode vocal sur les autres écrans : la session continue quand vous quittez District HQ. Ce que fait l'assistant, le microphone, « Arrêter le mode vocal » et chaque changement en attente restent affichés sous la barre d'appel, sur chaque écran. Fermer la fenêtre dans la zone de notification met fin à la session; la réduire la conserve.
+- District HQ : « Réessayer » après une question qui a échoué envoie votre dernière question tapée.
+- Voix : pour une modification non enregistrée, le délai avant le premier mot tient de nouveau compte du temps de réflexion mesuré de l'assistant.
+```
+
 ## What's new in this version: 3.1.0
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text
