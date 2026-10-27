@@ -27,6 +27,12 @@ namespace DistrictAI.Views.Hq;
 /// </summary>
 public sealed partial class HqPage : UserControl
 {
+    /// <summary>The share of the page's height the statement and the voice cards may take.</summary>
+    private const double VoiceShare = 0.45;
+
+    /// <summary>The least room they are given, however short the page.</summary>
+    private const double MinVoiceHeight = 96;
+
     /// <summary>The answer a <see cref="RichTextBlock"/> shows: setting it draws the answer's paragraphs.</summary>
     public static readonly DependencyProperty AnswerProperty = DependencyProperty.RegisterAttached(
         "Answer",
@@ -72,6 +78,15 @@ public sealed partial class HqPage : UserControl
     }
 
     internal void Show(HqView view) => ViewModel.Show(view, _context?.ReportSending ?? false);
+
+    /// <summary>
+    /// The page changed size: the residency statement, a card's notice and
+    /// the cards are held to their share of its height (96 at least, a
+    /// card's head), so in a short window, or under a call strip, they scroll
+    /// and the prompt stays on screen.
+    /// </summary>
+    private void OnPageSizeChanged(object sender, SizeChangedEventArgs e) =>
+        VoiceScroll.MaxHeight = Math.Max(MinVoiceHeight, e.NewSize.Height * VoiceShare);
 
     /// <summary>
     /// Enter sends; Shift+Enter is a new line. Taken before the box sees the

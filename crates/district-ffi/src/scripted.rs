@@ -14,6 +14,12 @@
 //! sends. Nothing reaches the network: every effect is answered here or not at
 //! all. An effect with no fixture (a write, a live connection, a call) gets no
 //! answer, and its screen stays as the model leaves it.
+//!
+//! District HQ by voice is the one exception to "no live connection": its
+//! session is answered with a made-up credential, and its room (no media
+//! engine, no audio anywhere) is played by [`voice_room`], so the walk can see
+//! the session's states. [`LANGUAGE_ARG`] starts a scene in another language,
+//! for the walk's French pass.
 
 use std::collections::HashMap;
 use std::future::Future;
@@ -21,15 +27,32 @@ use std::sync::{Mutex, PoisonError};
 
 use district_api::{ApiError, ErrorDetail};
 use district_auth::AccessClaims;
-use district_core::{Effect, Event};
+use district_core::{
+    Effect, Event, Locale, MediaEvent, MediaUpdate, MicrophoneState, Participant, Speaker,
+    SpeechSegment, Ticket,
+};
 use district_live::{LiveUpdate, WorkspaceUpdate};
 use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
+use tokio::sync::mpsc::UnboundedSender;
 
 use super::Effects;
 
 /// The command-line argument that names the scene: `--district-scripted-scene=signed-in`.
 pub(crate) const SCENE_ARG: &str = "--district-scripted-scene=";
+
+/// The command-line argument that names the language a scene runs in, as a
+/// Windows language tag: `--district-scripted-language=fr-CA`. Read only
+/// beside [`SCENE_ARG`], in place of the user's Windows languages, by the
+/// window and the core alike.
+pub(crate) const LANGUAGE_ARG: &str = "--district-scripted-language=";
+
+/// The media server a scripted voice session's credential names: never
+/// dialled, only told apart from a call's.
+const VOICE_URL: &str = "wss://media.example.com/scripted-hq-voice";
+
+/// The voice agent's identity in the scripted room.
+const VOICE_AGENT: &str = "agent-hq-scripted";
 
 /// What `scripts/check-scripted.py` looks for in a DLL: present in a scripted
 /// build, absent from every build that ships.
@@ -55,6 +78,12 @@ pub(crate) enum Scene {
     /// week's and the overrides' editors' own reads, an event type's hosts
     /// dialog's read of its hosts, and a webhook's deliveries.
     FailingReads,
+    /// As [`Scene::SignedIn`], but the workspace is in Canada, so District
+    /// HQ's residency statement has its region line, and the voice agent
+    /// leaves the session as soon as it has spoken and proposed its changes:
+    /// the session ends with its cards still waiting, and a call can be placed
+    /// beside them.
+    VoiceEnds,
 }
 
 /// The scene the command line asks for: none without [`SCENE_ARG`], an error
@@ -69,26 +98,127 @@ pub(crate) fn scene(args: impl IntoIterator<Item = String>) -> Result<Option<Sce
     match name.as_str() {
         "signed-in" => Ok(Some(Scene::SignedIn)),
         "signed-in-failing-reads" => Ok(Some(Scene::FailingReads)),
+        "signed-in-voice-ends" => Ok(Some(Scene::VoiceEnds)),
         other => Err(format!("{MARKER}: no scene named {other:?}")),
     }
+}
+
+/// The languages a scene's command line names ([`LANGUAGE_ARG`]), in place of
+/// the user's own: `None` without one, or without a scene named beside it, so
+/// a scripted build started as any other speaks the user's languages.
+pub(crate) fn languages(args: impl IntoIterator<Item = String>) -> Option<Vec<String>> {
+    let mut scene = false;
+    let mut language = None;
+    for arg in args {
+        scene |= arg.starts_with(SCENE_ARG);
+        if let Some(tag) = arg.strip_prefix(LANGUAGE_ARG) {
+            language = Some(tag.to_owned());
+        }
+    }
+    language.filter(|_| scene).map(|tag| vec![tag])
 }
 
 /// The effects of a scripted scene.
 pub(crate) struct Scripted {
     scene: Scene,
     reads: Mutex<FailingReads>,
+    voice: Mutex<VoiceSession>,
+    /// Where the scripted voice room's reports go: the model's media updates,
+    /// as the call engine's go in a build that ships.
+    media: UnboundedSender<MediaUpdate>,
+}
+
+/// The scripted voice session.
+#[derive(Debug, Default)]
+struct VoiceSession {
+    /// The language the session was asked for in.
+    locale: Locale,
+    /// The room's session, while it is joined.
+    session: Option<Ticket>,
 }
 
 impl Scripted {
-    pub(crate) fn new(scene: Scene) -> Self {
+    pub(crate) fn new(scene: Scene, media: UnboundedSender<MediaUpdate>) -> Self {
         Self {
             scene,
             reads: Mutex::new(FailingReads::default()),
+            voice: Mutex::new(VoiceSession::default()),
+            media,
+        }
+    }
+
+    fn voice(&self) -> std::sync::MutexGuard<'_, VoiceSession> {
+        self.voice.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// The scene's answer to a District HQ voice effect (`Some`, holding the
+    /// event or none), or `None` for any other effect. The credential is made
+    /// up and joinable; the room it names is played by [`voice_room`], its
+    /// reports sent on as the engine's are; the microphone does as it is
+    /// told. Nothing else of the session is answered: a card's Confirm and
+    /// Cancel, and the screen reports, go unanswered, as with no network.
+    fn voice_answer(&self, effect: &Effect) -> Option<Option<Event>> {
+        match effect {
+            Effect::RequestHqVoice { ticket, locale, .. } => {
+                self.voice().locale = *locale;
+                Some(Some(Event::HqVoiceIssued {
+                    ticket: *ticket,
+                    result: voice_credential(),
+                }))
+            }
+            Effect::ConnectMedia {
+                session,
+                credential,
+                ..
+            } if credential.url() == VOICE_URL => {
+                let locale = {
+                    let mut voice = self.voice();
+                    voice.session = Some(*session);
+                    voice.locale
+                };
+                for event in voice_room(locale, self.scene == Scene::VoiceEnds) {
+                    // Closed only once the actor has stopped.
+                    self.media
+                        .send(MediaUpdate {
+                            session: *session,
+                            event,
+                        })
+                        .ok();
+                }
+                Some(None)
+            }
+            Effect::SetMicrophone { session, enabled }
+                if self.voice().session == Some(*session) =>
+            {
+                Some(Some(Event::Media(MediaUpdate {
+                    session: *session,
+                    event: MediaEvent::Microphone(if *enabled {
+                        MicrophoneState::On
+                    } else {
+                        MicrophoneState::Off
+                    }),
+                })))
+            }
+            Effect::DisconnectMedia { session } if self.voice().session == Some(*session) => {
+                self.voice().session = None;
+                Some(None)
+            }
+            _ => None,
         }
     }
 
     /// The scene's answer to `effect`, if it has one.
     fn answer(&self, effect: Effect) -> Option<Event> {
+        if let Some(answer) = self.voice_answer(&effect) {
+            return answer;
+        }
+        if let (Scene::VoiceEnds, Effect::LoadWorkspaces { ticket }) = (self.scene, &effect) {
+            return Some(Event::WorkspacesLoaded {
+                ticket: *ticket,
+                remembered: None,
+                result: serde_json::from_value(workspaces_in("ca")).map_err(|_| broken()),
+            });
+        }
         if let (
             Scene::FailingReads,
             Effect::SchedulingAdmin {
@@ -196,12 +326,17 @@ fn broken() -> ApiError {
 
 /// The one workspace: an agency's, so every area its role allows is offered.
 fn workspaces() -> Value {
+    workspaces_in("us")
+}
+
+/// The one workspace, its data in `region`.
+fn workspaces_in(region: &str) -> Value {
     json!({
         "success": true,
         "workspaces": [{
             "id": WORKSPACE_ID,
             "name": WORKSPACE_NAME,
-            "region": "us",
+            "region": region,
             "role": "agency",
             "subscriptionTier": "VoicePro"
         }],
@@ -727,6 +862,105 @@ fn availability(available: bool) -> Result<district_model::AvailabilityResponse,
     .map_err(|_| broken())
 }
 
+/// A voice session's credential: an HQ room with a passphrase, so the core
+/// joins it, on [`VOICE_URL`], which only this scene answers. The core has no
+/// fixture for it: the smallest answer of the shape it decodes.
+fn voice_credential() -> Result<district_model::HqVoiceTokenResponse, ApiError> {
+    serde_json::from_value(json!({
+        "success": true,
+        "token": "scripted-voice-token",
+        "url": VOICE_URL,
+        "roomName": format!("{}{WORKSPACE_ID}_scripted", district_model::HQ_ROOM_PREFIX),
+        "processingRegion": "us",
+        "e2ee": { "key": "scripted-voice-passphrase" },
+    }))
+    .map_err(|_| broken())
+}
+
+/// The scripted voice room, as the engine reports it once joined, in
+/// `locale`: the microphone on, the agent in the room and listening, the
+/// member's request and the agent's reply, and the two changes it proposes
+/// (one sentence each, long enough to wrap), as the voice agent sends them on
+/// [`district_model::HQ_PROPOSAL_TOPIC`]. Then the member still speaking, or,
+/// when the session `ends`, the agent leaving instead.
+fn voice_room(locale: Locale, ends: bool) -> Vec<MediaEvent> {
+    let french = locale == Locale::FrCa;
+    let line = |id: &str, speaker, english: &str, francais: &str, is_final| {
+        MediaEvent::Speech(SpeechSegment {
+            segment_id: id.to_owned(),
+            speaker,
+            text: (if french { francais } else { english }).to_owned(),
+            is_final,
+        })
+    };
+    let proposal =
+        |id: &str, tool: &str, args: Value, english: &str, francais: &str| MediaEvent::AgentData {
+            topic: district_model::HQ_PROPOSAL_TOPIC.to_owned(),
+            payload: json!({
+                "type": "HQ_PROPOSAL",
+                "proposalId": id,
+                "tool": tool,
+                "args": args,
+                "summary": if french { francais } else { english },
+            })
+            .to_string()
+            .into_bytes(),
+        };
+    let mut room = vec![
+        MediaEvent::Connecting,
+        MediaEvent::Connected,
+        MediaEvent::Microphone(MicrophoneState::On),
+        MediaEvent::ParticipantJoined(Participant::new(
+            VOICE_AGENT,
+            Some("District HQ".to_owned()),
+            true,
+        )),
+        MediaEvent::AgentState("listening".to_owned()),
+        line(
+            "scripted-member-1",
+            Speaker::Member,
+            "Change the greeting to say good afternoon, and let our phones ring longer before the receptionist answers.",
+            "Changez l'accueil pour dire bon après-midi, et laissez sonner nos téléphones plus longtemps avant que la réceptionniste réponde.",
+            true,
+        ),
+        line(
+            "scripted-agent-1",
+            Speaker::Agent,
+            "I have prepared both changes. Confirm or cancel each one on its card.",
+            "J'ai préparé les deux changements. Confirmez ou annulez chacun d'eux sur sa carte.",
+            true,
+        ),
+        proposal(
+            "11111111-1111-4111-8111-111111111111",
+            "update_persona",
+            json!({ "greeting": "Good afternoon, thanks for calling Example Dental." }),
+            "Update the AI receptionist persona (greeting \u{2192} \"Good afternoon, thanks for calling Example Dental.\").",
+            "Mettre à jour la persona de la réceptionniste (accueil \u{2192} «\u{a0}Bon après-midi, merci d'appeler Example Dental.\u{a0}»).",
+        ),
+        proposal(
+            "22222222-2222-4222-8222-222222222222",
+            "update_call_handling",
+            json!({ "appRingSeconds": 30 }),
+            "Ring the team's apps for 30 seconds before the AI receptionist answers a call.",
+            "Faire sonner les applications de l'équipe pendant 30\u{a0}secondes avant que la réceptionniste réponde à un appel.",
+        ),
+    ];
+    if ends {
+        room.push(MediaEvent::ParticipantLeft {
+            identity: VOICE_AGENT.to_owned(),
+        });
+    } else {
+        room.push(line(
+            "scripted-member-2",
+            Speaker::Member,
+            "Thanks. Could you also",
+            "Merci. Pourriez-vous aussi",
+            false,
+        ));
+    }
+    room
+}
+
 /// The recorded transcript snapshot, for `call_id` in the scripted
 /// workspace, with the assistant's reply to it still being heard.
 fn transcript_snapshot(call_id: &str) -> Option<Event> {
@@ -754,6 +988,7 @@ fn transcript_snapshot(call_id: &str) -> Option<Event> {
 #[cfg(test)]
 mod tests {
     use district_core::{CoreConfig, Model, Route, SessionState};
+    use tokio::sync::mpsc::unbounded_channel;
 
     use super::*;
     use crate::screen::{ScreenView, screen_view};
@@ -770,7 +1005,269 @@ mod tests {
             ])),
             Ok(Some(Scene::SignedIn))
         );
+        assert_eq!(
+            scene(args(&[
+                "DistrictAI.exe",
+                "--district-scripted-scene=signed-in-voice-ends"
+            ])),
+            Ok(Some(Scene::VoiceEnds))
+        );
         assert!(scene(args(&["DistrictAI.exe", "--district-scripted-scene=nope"])).is_err());
+    }
+
+    /// A language is taken from the command line only beside a scene, so a
+    /// scripted build started without one speaks the user's languages.
+    #[test]
+    fn a_language_is_named_only_beside_a_scene() {
+        let args = |list: &[&str]| list.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
+        assert_eq!(
+            languages(args(&[
+                "DistrictAI.exe",
+                "--district-scripted-scene=signed-in",
+                "--district-scripted-language=fr-CA",
+            ])),
+            Some(vec!["fr-CA".to_owned()])
+        );
+        assert_eq!(
+            languages(args(&[
+                "DistrictAI.exe",
+                "--district-scripted-language=fr-CA"
+            ])),
+            None
+        );
+        assert_eq!(
+            languages(args(&[
+                "DistrictAI.exe",
+                "--district-scripted-scene=signed-in"
+            ])),
+            None
+        );
+        assert_eq!(
+            Locale::from_tags(
+                &languages(args(&[
+                    "--district-scripted-language=fr-CA",
+                    "--district-scripted-scene=signed-in-voice-ends",
+                ]))
+                .unwrap()
+            ),
+            Locale::FrCa
+        );
+    }
+
+    /// A scene played as the actor plays it, the voice room's reports
+    /// included, in a build that can carry calls.
+    struct Played {
+        scripted: Scripted,
+        reports: tokio::sync::mpsc::UnboundedReceiver<MediaUpdate>,
+        model: Model,
+    }
+
+    impl Played {
+        fn new(scene: Scene) -> Self {
+            let (media, reports) = unbounded_channel();
+            let (model, first) = Model::new(CoreConfig {
+                web_base_url: "https://www.distronode.com".to_owned(),
+                app_version: "0.1.0".to_owned(),
+                calls_available: true,
+                in_app_purchases: true,
+                locale: Locale::En,
+            });
+            let mut played = Self {
+                scripted: Scripted::new(scene, media),
+                reports,
+                model,
+            };
+            played.settle(first);
+            played
+        }
+
+        /// Answers every effect, and hands the model each report of the
+        /// room, until nothing is left.
+        fn settle(&mut self, mut pending: Vec<Effect>) {
+            for _ in 0..1000 {
+                if let Some(effect) = pending.pop() {
+                    if let Some(event) = self.scripted.answer(effect) {
+                        assert!(
+                            !format!("{event:?}").contains("result: Err("),
+                            "an answer did not decode: {event:?}"
+                        );
+                        pending.extend(self.model.update(event));
+                    }
+                } else if let Ok(update) = self.reports.try_recv() {
+                    pending.extend(self.model.update(Event::Media(update)));
+                } else {
+                    return;
+                }
+            }
+            panic!("the scene never settles");
+        }
+
+        fn ui(&mut self, event: crate::events::UiEvent) {
+            let mut pending = Vec::new();
+            for event in event.events() {
+                pending.extend(self.model.update(event));
+            }
+            self.settle(pending);
+        }
+
+        fn hq(&mut self, action: crate::hq::HqAction) {
+            self.ui(crate::events::UiEvent::Hq { action });
+        }
+
+        fn open(&mut self, destination: crate::nav::NavDestination) {
+            self.ui(crate::events::UiEvent::Navigate { destination });
+        }
+
+        fn page(&self) -> crate::hq::HqView {
+            match screen_view(&self.model) {
+                ScreenView::Hq { view } => view,
+                other => panic!("not District HQ: {other:?}"),
+            }
+        }
+
+        fn dock(&self) -> crate::hq::HqVoiceDockView {
+            shell_view(&self.model).voice_dock.expect("the voice dock")
+        }
+    }
+
+    fn spoken(view: &crate::hq::HqView) -> Vec<(String, bool, bool)> {
+        view.messages
+            .iter()
+            .filter_map(|message| match message {
+                crate::hq::HqMessageView::Spoken {
+                    text,
+                    member,
+                    is_final,
+                    ..
+                } => Some((text.clone(), *member, *is_final)),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// The UI walk's voice states, in the signed-in scene: Start voice shows
+    /// the residency statement (no region line: a United States
+    /// workspace); Start voice under it joins the scripted room, where the
+    /// agent listens, both sides' words show, and two changes wait on their
+    /// cards; away from District HQ the dock shows them, and the microphone
+    /// turns off and on again as the member asks. Stop voice ends it, the
+    /// cards staying.
+    #[test]
+    fn the_voice_session_listens_and_proposes_two_changes() {
+        use crate::hq::{HqAction as H, HqVoiceStage};
+        use crate::nav::NavDestination as D;
+
+        let mut played = Played::new(Scene::SignedIn);
+        played.open(D::Hq);
+        let page = played.page();
+        assert!(page.show_voice_start && page.can_start_voice, "{page:?}");
+
+        played.hq(H::StartVoice);
+        let disclosure = played
+            .page()
+            .voice_disclosure
+            .expect("the residency statement");
+        assert_eq!(disclosure.region_notice, None);
+
+        played.hq(H::AcceptVoiceDisclosure);
+        let page = played.page();
+        assert_eq!(page.voice.stage, HqVoiceStage::Live);
+        assert_eq!(
+            page.voice.line.as_deref(),
+            Some("Listening. Speak to District HQ.")
+        );
+        assert!(!page.voice.line_is_problem && !page.voice.busy);
+        assert!(page.voice.show_microphone && !page.voice.muted && page.voice.can_stop);
+        let lines = spoken(&page);
+        assert_eq!(lines.len(), 3, "{lines:?}");
+        assert!(lines[0].1 && lines[0].2, "the member's words, final");
+        assert!(!lines[1].1 && lines[1].2, "the agent's reply, final");
+        assert!(lines[2].1 && !lines[2].2, "the member still speaking");
+        assert_eq!(page.voice.cards.len(), 2);
+        assert!(page.voice.cards[0].summary.contains("Good afternoon"));
+        assert!(
+            page.voice
+                .cards
+                .iter()
+                .all(|card| card.can_confirm && card.can_cancel)
+        );
+
+        played.open(D::Calls);
+        let dock = played.dock();
+        assert_eq!(dock.voice.cards.len(), 2);
+        assert!(dock.can_review && dock.voice.can_stop && !dock.voice.muted);
+        assert_eq!(unsettled(&screen_view(&played.model)), None);
+
+        played.ui(crate::events::UiEvent::Microphone { on: false });
+        assert!(played.dock().voice.muted, "the microphone stayed on");
+        played.ui(crate::events::UiEvent::Microphone { on: true });
+        assert!(!played.dock().voice.muted, "the microphone stayed off");
+
+        played.hq(H::StopVoice);
+        let dock = played.dock();
+        assert_eq!(dock.voice.stage, HqVoiceStage::Off);
+        assert_eq!(dock.voice.cards.len(), 2);
+        assert_eq!(played.scripted.voice().session, None);
+    }
+
+    /// The same session in French (as the walk's French pass starts it):
+    /// the agent speaks the session's language, and its cards say so.
+    #[test]
+    fn the_voice_room_speaks_the_sessions_language() {
+        use crate::hq::HqAction as H;
+
+        district_l10n::with_locale(Locale::FrCa, || {
+            let mut played = Played::new(Scene::SignedIn);
+            played.open(crate::nav::NavDestination::Hq);
+            played.hq(H::StartVoice);
+            played.hq(H::AcceptVoiceDisclosure);
+            let page = played.page();
+            assert_eq!(
+                page.voice.line.as_deref(),
+                Some("À l'écoute. Parlez à District HQ.")
+            );
+            assert!(spoken(&page)[1].0.starts_with("J'ai préparé"));
+            assert!(page.voice.cards[1].summary.contains("réceptionniste"));
+        });
+    }
+
+    /// The voice-ends scene: a Canadian workspace, so the statement has its
+    /// region line; the agent leaves once it has proposed, so the session
+    /// ends, says why and keeps its two cards; and a call placed then shows
+    /// its strip and live transcript with the dock and its cards beside it.
+    #[test]
+    fn in_the_voice_ends_scene_a_call_goes_beside_the_cards_left() {
+        use crate::hq::{HqAction as H, HqVoiceStage};
+        use crate::nav::NavDestination as D;
+
+        let mut played = Played::new(Scene::VoiceEnds);
+        played.open(D::Hq);
+        played.hq(H::StartVoice);
+        let disclosure = played
+            .page()
+            .voice_disclosure
+            .expect("the residency statement");
+        assert!(disclosure.region_notice.is_some(), "{disclosure:?}");
+
+        played.hq(H::AcceptVoiceDisclosure);
+        let page = played.page();
+        assert_eq!(page.voice.stage, HqVoiceStage::Ended);
+        assert!(page.voice.line_is_problem && page.voice.can_dismiss);
+        assert_eq!(page.voice.cards.len(), 2);
+        assert_eq!(spoken(&page).len(), 2);
+        assert_eq!(played.scripted.voice().session, None, "the room was left");
+
+        played.open(D::Calls);
+        assert_eq!(unsettled(&screen_view(&played.model)), None);
+        played.ui(crate::events::UiEvent::CallNumber {
+            number: "+12125550142".to_owned(),
+        });
+        let shell = shell_view(&played.model);
+        let call = serde_json::to_value(shell.call.expect("the call strip")).unwrap();
+        assert_eq!(call["transcript"]["phase"], "Live", "{call}");
+        let dock = shell.voice_dock.expect("the voice dock");
+        assert_eq!(dock.voice.stage, HqVoiceStage::Ended);
+        assert_eq!(dock.voice.cards.len(), 2);
     }
 
     /// Runs `model` as the actor does, answering every effect the scene
@@ -833,7 +1330,7 @@ mod tests {
         };
         use crate::views::LoadStatus;
 
-        let scripted = Scripted::new(Scene::FailingReads);
+        let scripted = Scripted::new(Scene::FailingReads, unbounded_channel().0);
         let settle = |model: &mut Model, mut pending: Vec<Effect>| {
             while let Some(effect) = pending.pop() {
                 if let Some(event) = scripted.answer(effect) {

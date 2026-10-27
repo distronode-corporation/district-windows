@@ -77,6 +77,10 @@ pub struct StartConfig {
 /// strings follow it and both speak the same language.
 #[uniffi::export]
 pub fn speaks_french(languages: Vec<String>) -> bool {
+    // A scripted scene may name its own language (scripted.rs, LANGUAGE_ARG),
+    // which the window follows as the core does.
+    #[cfg(feature = "scripted")]
+    let languages = scripted::languages(std::env::args()).unwrap_or(languages);
     Locale::from_tags(&languages) == Locale::FrCa
 }
 
@@ -597,21 +601,27 @@ fn start_scripted(
     host: Arc<dyn UiHost>,
     snapshot: &Arc<SnapshotCell>,
 ) -> UnboundedSender<Message> {
+    let languages =
+        scripted::languages(std::env::args()).unwrap_or_else(|| config.languages.clone());
     let (model, first) = Model::new(CoreConfig {
         web_base_url: "https://www.distronode.com".to_owned(),
         app_version: config.app_version.clone(),
         calls_available: district_call::CALLS_AVAILABLE,
         in_app_purchases: true,
-        locale: Locale::from_tags(&config.languages),
+        locale: Locale::from_tags(&languages),
     });
-    launch(
+    // The scripted voice room's reports, forwarded as the call engine's are.
+    let (media, updates) = unbounded_channel();
+    let sender = launch(
         runtime,
         model,
         first,
-        Arc::new(scripted::Scripted::new(scene)),
+        Arc::new(scripted::Scripted::new(scene, media)),
         host,
         Arc::clone(snapshot),
-    )
+    );
+    forward(runtime, updates, sender.clone(), Event::Media);
+    sender
 }
 
 /// The session store: Credential Manager on Windows.

@@ -2,6 +2,7 @@ using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
 using DistrictAI.Views.Calls;
 using DistrictAI.Views.Hq;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 
@@ -15,6 +16,12 @@ namespace DistrictAI;
 /// </summary>
 public sealed partial class MainWindow
 {
+    /// <summary>The share of the window's height the call bar and the voice dock may take together before they scroll.</summary>
+    private const double CallBarShare = 0.5;
+
+    /// <summary>The least room they are given, however short the window.</summary>
+    private const double MinCallBarHeight = 240;
+
     private IncomingCallBanner? _ringBanner;
     private CallBar? _callBar;
     private VoiceDock? _voiceDock;
@@ -36,11 +43,25 @@ public sealed partial class MainWindow
             _callBar.Attach(_context);
             _voiceDock = new VoiceDock();
             _voiceDock.Attach(_context);
+            _voiceDock.LimitCards(ContentArea.ActualHeight);
             CallBarHost.Content = new StackPanel { Children = { _ringBanner, _callBar, _voiceDock } };
         }
         _ringBanner.Show(shell);
         _callBar.Show(shell);
         _voiceDock.Show(shell);
+    }
+
+    /// <summary>
+    /// The window's area changed size: the call bar and the voice dock are
+    /// held to their share of it, and the dock's cards to theirs (a call strip
+    /// with its transcript and two cards are taller than a 700-pixel window's
+    /// half), so what does not fit scrolls rather than falling off the bottom.
+    /// </summary>
+    private void OnContentAreaSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var height = e.NewSize.Height;
+        CallBarScroll.MaxHeight = Math.Max(MinCallBarHeight, height * CallBarShare);
+        _voiceDock?.LimitCards(height);
     }
 
     // Ctrl+D and Ctrl+Shift+H, from anywhere in the window. A key that has no

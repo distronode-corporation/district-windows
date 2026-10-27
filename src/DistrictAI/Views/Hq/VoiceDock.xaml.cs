@@ -20,6 +20,15 @@ namespace DistrictAI.Views.Hq;
 /// </summary>
 public sealed partial class VoiceDock : UserControl
 {
+    /// <summary>The share of the window's height the cards may take.</summary>
+    private const double CardShare = 0.3;
+
+    /// <summary>The least room the cards are given, however short the window.</summary>
+    private const double MinCardHeight = 120;
+
+    /// <summary>The most room the cards take, however tall the window.</summary>
+    private const double MaxCardHeight = 320;
+
     /// <summary>A dock with no session.</summary>
     public VoiceDock()
     {
@@ -34,6 +43,15 @@ public sealed partial class VoiceDock : UserControl
     internal void Attach(PageContext context) => ViewModel.Attach(context);
 
     internal void Show(ShellView shell) => ViewModel.Show(shell.VoiceDock);
+
+    /// <summary>
+    /// Holds the cards to their share of a window area <paramref name="height"/>
+    /// high: 320 at most, as on a full-height window, and less in a short one
+    /// (120 at least, a card's head and its buttons), so the call strip above
+    /// and the cards together leave the page some room, and the cards scroll.
+    /// </summary>
+    internal void LimitCards(double height) =>
+        DockCardScroll.MaxHeight = Math.Clamp(height * CardShare, MinCardHeight, MaxCardHeight);
 
     /// <summary>
     /// The session moved to another stage while the keyboard was in the dock
