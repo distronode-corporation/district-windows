@@ -3,6 +3,7 @@
     x:Class="DistrictAI.Views.Hq.VoiceCards"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:DistrictAI.Views"
     xmlns:vm="using:DistrictAI.ViewModels.Hq"
     IsTabStop="False">
     <!-- A card per change proposed by voice, oldest first: the same card on District HQ and in the voice dock. -->
@@ -20,7 +21,7 @@
                             AutomationProperties.HeadingLevel="Level2"
                             Style="{StaticResource BodyStrongTextBlockStyle}"
                             Text="{x:Bind Title}"
-                            TextWrapping="Wrap" />
+                            TextWrapping="WrapWholeWords" />
                         <!-- The service's own sentence: what the change would do. -->
                         <TextBlock
                             IsTextSelectionEnabled="True"
@@ -32,22 +33,30 @@
                             Text="{x:Bind Failure}"
                             TextWrapping="Wrap"
                             Visibility="{x:Bind HasFailure}" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
+                        <!-- A grid, not a horizontal stack, so the note wraps at the card's edge rather than running past it. -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <ProgressRing
                                 Width="16"
                                 Height="16"
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Top"
                                 AutomationProperties.Name="{x:Bind Note}"
                                 IsActive="{x:Bind IsBusy}"
                                 Visibility="{x:Bind IsBusy}" />
                             <TextBlock
+                                Grid.Column="1"
                                 AutomationProperties.LiveSetting="Polite"
                                 Style="{StaticResource QuietTextStyle}"
                                 Text="{x:Bind Note}"
-                                TextWrapping="Wrap"
+                                TextWrapping="WrapWholeWords"
                                 Visibility="{x:Bind HasNote}" />
-                        </StackPanel>
-                        <!-- Confirm first, then Cancel, as on the card of a typed proposal. -->
-                        <StackPanel Orientation="Horizontal" Spacing="8">
+                        </Grid>
+                        <!-- Confirm first, then Cancel, as on the card of a typed proposal; Cancel under Confirm when the card is too narrow for both. -->
+                        <views:WrapPanel HorizontalSpacing="8" VerticalSpacing="8">
                             <Button
                                 AutomationProperties.AutomationId="VoiceCardConfirm"
                                 AutomationProperties.Name="{x:Bind ConfirmLabel}"
@@ -69,7 +78,7 @@
                                 Click="OnCancel"
                                 Content="{x:Bind CancelLabel}"
                                 IsEnabled="{x:Bind CanCancel}" />
-                        </StackPanel>
+                        </views:WrapPanel>
                     </StackPanel>
                 </Border>
             </DataTemplate>

@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:hq="using:DistrictAI.Views.Hq"
     xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:views="using:DistrictAI.Views"
     AutomationProperties.AutomationId="VoiceDock"
     AutomationProperties.LandmarkType="Custom"
     AutomationProperties.LocalizedLandmarkType="{x:Bind ViewModel.Title, Mode=OneWay}"
@@ -21,40 +22,42 @@
             AutomationProperties.HeadingLevel="Level2"
             Style="{StaticResource BodyStrongTextBlockStyle}"
             Text="{x:Bind ViewModel.Title, Mode=OneWay}"
-            TextWrapping="Wrap" />
-        <Grid ColumnSpacing="8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <ProgressRing
-                Width="16"
-                Height="16"
-                VerticalAlignment="Center"
-                AutomationProperties.Name="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
-                IsActive="{x:Bind ViewModel.Voice.IsBusy, Mode=OneWay}"
-                Visibility="{x:Bind ViewModel.Voice.IsBusy, Mode=OneWay}" />
-            <!-- What the assistant is doing, or why the session ended: plain text, never Markdown. -->
-            <TextBlock
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                AutomationProperties.AutomationId="VoiceDockLine"
-                AutomationProperties.LiveSetting="Polite"
-                Style="{StaticResource QuietTextStyle}"
-                Text="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
-                TextWrapping="Wrap"
-                Visibility="{x:Bind ViewModel.Voice.ShowsNews, Mode=OneWay}" />
-            <TextBlock
-                Grid.Column="1"
-                VerticalAlignment="Center"
-                AutomationProperties.LiveSetting="Assertive"
-                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                Text="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
-                TextWrapping="Wrap"
-                Visibility="{x:Bind ViewModel.Voice.ShowsProblem, Mode=OneWay}" />
+            TextWrapping="WrapWholeWords" />
+        <!-- The line, and its buttons beside it, or under it when a narrow window leaves the line too little room. -->
+        <views:StatusRow>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ProgressRing
+                    Width="16"
+                    Height="16"
+                    Margin="0,0,8,0"
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
+                    IsActive="{x:Bind ViewModel.Voice.IsBusy, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.Voice.IsBusy, Mode=OneWay}" />
+                <!-- What the assistant is doing, or why the session ended: plain text, never Markdown. -->
+                <TextBlock
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    AutomationProperties.AutomationId="VoiceDockLine"
+                    AutomationProperties.LiveSetting="Polite"
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.Voice.ShowsNews, Mode=OneWay}" />
+                <TextBlock
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    AutomationProperties.LiveSetting="Assertive"
+                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Text="{x:Bind ViewModel.Voice.Line, Mode=OneWay}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.Voice.ShowsProblem, Mode=OneWay}" />
+            </Grid>
             <StackPanel
-                Grid.Column="2"
                 VerticalAlignment="Center"
                 Orientation="Horizontal"
                 Spacing="8">
@@ -83,7 +86,7 @@
                     Content="{x:Bind ViewModel.Voice.StopLabel, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.Voice.CanStop, Mode=OneWay}" />
             </StackPanel>
-        </Grid>
+        </views:StatusRow>
         <!-- Why a card went without a result; the dismiss button above puts it away. -->
         <TextBlock
             AutomationProperties.LiveSetting="Assertive"
@@ -91,9 +94,16 @@
             Text="{x:Bind ViewModel.Voice.Notice, Mode=OneWay}"
             TextWrapping="Wrap"
             Visibility="{x:Bind ViewModel.Voice.HasNotice, Mode=OneWay}" />
-        <!-- Each change in full, to confirm or cancel here. Tall cards scroll inside the dock rather than push the page away. -->
+        <!--
+            Each change in full, to confirm or cancel here. Tall cards scroll
+            inside the dock rather than push the page away: at most 320 high,
+            less in a short window (LimitCards), so two cards and a call strip
+            above them never put Confirm and Cancel out of reach.
+        -->
         <ScrollViewer
+            x:Name="DockCardScroll"
             MaxHeight="320"
+            AutomationProperties.AutomationId="VoiceDockCards"
             HorizontalScrollBarVisibility="Disabled"
             VerticalScrollBarVisibility="Auto"
             Visibility="{x:Bind ViewModel.Voice.HasCards, Mode=OneWay}">

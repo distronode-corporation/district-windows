@@ -70,7 +70,7 @@
             </NavigationView.PaneCustomContent>
             <!-- The entries are the core's (ShellView.Nav), built in MainWindow.Nav.cs. -->
 
-            <Grid>
+            <Grid x:Name="ContentArea" SizeChanged="OnContentAreaSizeChanged">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -110,8 +110,21 @@
                         AutomationProperties.Name="{x:Bind l10n:S.ShellReportBar}"
                         CloseButtonClick="OnReportClosed" />
                 </StackPanel>
-                <!-- The call bar and the District HQ voice dock (MainWindow.Calls.cs). -->
-                <ContentPresenter x:Name="CallBarHost" Grid.Row="1" />
+                <!--
+                    The call bar and the District HQ voice dock (MainWindow.Calls.cs),
+                    held to a share of a short window (OnContentAreaSizeChanged) and
+                    scrolled there, so a call strip and a dock of cards together never
+                    push the dock's buttons, or the page, out of the window.
+                -->
+                <ScrollViewer
+                    x:Name="CallBarScroll"
+                    Grid.Row="1"
+                    AutomationProperties.AutomationId="CallBarScroll"
+                    HorizontalScrollBarVisibility="Disabled"
+                    IsTabStop="False"
+                    VerticalScrollBarVisibility="Auto">
+                    <ContentPresenter x:Name="CallBarHost" />
+                </ScrollViewer>
                 <ContentControl
                     x:Name="PageHost"
                     Grid.Row="2"
