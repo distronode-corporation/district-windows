@@ -1,0 +1,72 @@
+{
+  "screen": {
+    "Hq": {
+      "view": {
+        "ask_label": "Ask",
+        "can_ask": true,
+        "can_retry": false,
+        "can_start_voice": false,
+        "card": null,
+        "empty": {
+          "body": "Ask about your calls, contacts, the receptionist or your knowledge base.",
+          "title": "Ask District HQ"
+        },
+        "failure": null,
+        "footnote": "Each question is answered by an AI model, which is billed. A change it proposes is made only when you confirm it.",
+        "messages": [],
+        "prompt_placeholder": "Ask District HQ",
+        "retry_label": "Try again",
+        "show_voice_start": false,
+        "thinking": null,
+        "title": "District HQ",
+        "voice": {
+          "busy": false,
+          "can_dismiss": false,
+          "can_stop": false,
+          "cards": [],
+          "line": null,
+          "line_is_problem": false,
+          "muted": true,
+          "notice": null,
+          "show_microphone": false,
+          "stage": "Disclosing",
+          "stop_label": "Stop voice"
+        },
+        "voice_disclosure": {
+          "accept_label": "Start voice",
+          "body": "Your voice is processed in the United States, and so is what District HQ reads for you during a voice session (calls, contacts, messages and knowledge). Voice mode runs on Gemini Live in Google Cloud's us-east4 region for every workspace, whatever your workspace's region. Nothing is recorded.",
+          "decline_label": "Not now",
+          "region_notice": "This workspace's data lives in Canada, but District HQ voice conversations are processed in the United States.",
+          "title": "Where your voice is processed"
+        },
+        "voice_start_label": "Start voice"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": true,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Hq",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

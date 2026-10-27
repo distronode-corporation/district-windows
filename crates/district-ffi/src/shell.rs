@@ -1,7 +1,8 @@
 //! The window's frame: which part of the session the app is in, and while
 //! signed in, the navigation pane (nav.rs), the workspace switcher, the inbox's
-//! unread count, the live updates' state, a report under way, and the call
-//! strip (the call under way and the call ringing here).
+//! unread count, the live updates' state, a report under way, the call
+//! strip (the call under way and the call ringing here), and the District HQ
+//! voice dock.
 
 use std::time::SystemTime;
 
@@ -13,6 +14,7 @@ use serde::Serialize;
 
 use crate::calls_live::{ActiveCallView, IncomingRingView, active_call_view, incoming_ring_view};
 use crate::guard::DiscardView;
+use crate::hq::{HqVoiceDockView, voice_dock_view};
 use crate::l10n::{l, s};
 use crate::nav::{NavView, nav_view};
 use crate::views::{ReportStatus, humanize};
@@ -63,6 +65,14 @@ pub struct ShellView {
     /// left out of the snapshots while there is none.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub discard: Option<DiscardView>,
+    /// A District HQ voice session's controls and cards, on every screen but
+    /// District HQ (which has its own), while one is being started or is
+    /// under way, has ended with something to say, or left changes to
+    /// decide. It outlives a change of screen, so the window shows it over
+    /// every screen, under the call strip. Left out of the snapshots while
+    /// there is none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub voice_dock: Option<HqVoiceDockView>,
 }
 
 /// The workspaces the member can open, and the open one.
@@ -188,6 +198,7 @@ pub(crate) fn shell_for(
         ring: None,
         calls_available,
         discard: None,
+        voice_dock: None,
     };
     match session {
         SessionState::Restoring(_) => outside(SessionPhase::Restoring),
@@ -212,6 +223,7 @@ pub(crate) fn shell_for(
                 ring: incoming_ring_view(signed_in),
                 calls_available,
                 discard: None,
+                voice_dock: voice_dock_view(signed_in),
             }
         }
     }

@@ -607,6 +607,9 @@ namespace DistrictAI.L10n
         /// <summary><c>hq.ask_again</c></summary>
         public static string HqAskAgain => Current == Locale.FrCa ? "Reposer la question" : "Ask the question again";
 
+        /// <summary><c>hq.assistant_said</c></summary>
+        public static string HqAssistantSaid(string text) => Current == Locale.FrCa ? string.Concat("District HQ a dit\u00A0: ", text) : string.Concat("District HQ said: ", text);
+
         /// <summary><c>hq.conversation</c></summary>
         public static string HqConversation => Current == Locale.FrCa ? "Conversation avec District HQ" : "Conversation with District HQ";
 
@@ -615,6 +618,9 @@ namespace DistrictAI.L10n
 
         /// <summary><c>hq.you_asked</c></summary>
         public static string HqYouAsked(string text) => Current == Locale.FrCa ? string.Concat("Votre question\u00A0: ", text) : string.Concat("You asked: ", text);
+
+        /// <summary><c>hq.you_said</c></summary>
+        public static string HqYouSaid(string text) => Current == Locale.FrCa ? string.Concat("Vous avez dit\u00A0: ", text) : string.Concat("You said: ", text);
 
         /// <summary><c>inbox.matching</c></summary>
         public static string InboxMatching => Current == Locale.FrCa ? "Messages trouvés" : "Matching messages";

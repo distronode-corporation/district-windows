@@ -68,3 +68,33 @@ fn a_support_requests_status_is_labelled_in_french() {
         "{english}"
     );
 }
+
+/// District HQ by voice speaks the core's reviewed French: the residency
+/// statement and its per-region line, and the voice dock on another screen.
+#[test]
+fn hq_voice_is_in_french() {
+    let french = screen_in(Locale::FrCa, "hq-voice-disclosure-region");
+    assert!(french.contains("Où votre voix est traitée"), "{french}");
+    assert!(
+        french.contains("Votre voix est traitée aux États-Unis"),
+        "{french}"
+    );
+    assert!(
+        french.contains("se trouvent dans la région Canada"),
+        "{french}"
+    );
+    assert!(french.contains("\"Démarrer le mode vocal\""), "{french}");
+    let (_, docked) = cases()
+        .into_iter()
+        .find(|(case, _)| *case == "hq-voice-dock")
+        .expect("the dock case");
+    let dock =
+        with_locale(Locale::FrCa, || shell_view(&docked.model).voice_dock).expect("the dock");
+    assert_eq!(dock.title, "Mode vocal District HQ");
+    assert_eq!(dock.review_label, "Vérifier dans District HQ");
+    assert_eq!(dock.voice.stop_label, "Arrêter le mode vocal");
+    assert_eq!(
+        dock.voice.line.as_deref(),
+        Some("À l'écoute. Parlez à District HQ.")
+    );
+}

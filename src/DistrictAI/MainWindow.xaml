@@ -110,7 +110,7 @@
                         AutomationProperties.Name="{x:Bind l10n:S.ShellReportBar}"
                         CloseButtonClick="OnReportClosed" />
                 </StackPanel>
-                <!-- The call bar, filled by the calls work. -->
+                <!-- The call bar and the District HQ voice dock (MainWindow.Calls.cs). -->
                 <ContentPresenter x:Name="CallBarHost" Grid.Row="1" />
                 <ContentControl
                     x:Name="PageHost"

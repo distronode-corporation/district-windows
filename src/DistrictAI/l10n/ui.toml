@@ -1730,6 +1730,16 @@ screen = "hq"
 tier = "T3"
 state = "reviewed"
 
+[hq.assistant_said]
+en = "District HQ said: {text}"
+fr = "District HQ a dit\u00A0: {text}"
+ctx = "a11y"
+screen = "hq"
+tier = "T0"
+args = { text = "str" }
+state = "reviewed"
+note = "Screen-reader text of what District HQ said aloud in a voice session, as transcribed (the pair of hq.answered, for a typed answer). District HQ is the assistant's name: never translated."
+
 [hq.conversation]
 en = "Conversation with District HQ"
 fr = "Conversation avec District HQ"
@@ -1757,6 +1767,16 @@ tier = "T3"
 args = { text = "str" }
 state = "reviewed"
 note = "Screen-reader text of the user's question."
+
+[hq.you_said]
+en = "You said: {text}"
+fr = "Vous avez dit\u00A0: {text}"
+ctx = "a11y"
+screen = "hq"
+tier = "T3"
+args = { text = "str" }
+state = "reviewed"
+note = "Screen-reader text of what the user said aloud in a voice session, as transcribed (the pair of hq.you_asked, for a typed question)."
 
 [inbox.matching]
 en = "Matching messages"

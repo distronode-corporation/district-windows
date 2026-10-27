@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Hq.VoiceCards"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:DistrictAI.ViewModels.Hq"
+    IsTabStop="False">
+    <!-- A card per change proposed by voice, oldest first: the same card on District HQ and in the voice dock. -->
+    <ItemsControl x:Name="Cards" IsTabStop="False">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Spacing="8" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:HqVoiceCardItem">
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            AutomationProperties.HeadingLevel="Level2"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind Title}"
+                            TextWrapping="Wrap" />
+                        <!-- The service's own sentence: what the change would do. -->
+                        <TextBlock
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind Summary}"
+                            TextWrapping="Wrap" />
+                        <TextBlock
+                            AutomationProperties.LiveSetting="Assertive"
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Text="{x:Bind Failure}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind HasFailure}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ProgressRing
+                                Width="16"
+                                Height="16"
+                                AutomationProperties.Name="{x:Bind Note}"
+                                IsActive="{x:Bind IsBusy}"
+                                Visibility="{x:Bind IsBusy}" />
+                            <TextBlock
+                                AutomationProperties.LiveSetting="Polite"
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind Note}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind HasNote}" />
+                        </StackPanel>
+                        <!-- Confirm first, then Cancel, as on the card of a typed proposal. -->
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button
+                                AutomationProperties.AutomationId="VoiceCardConfirm"
+                                AutomationProperties.Name="{x:Bind ConfirmLabel}"
+                                Click="OnConfirm"
+                                Content="{x:Bind ConfirmLabel}"
+                                IsEnabled="{x:Bind CanConfirm}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Visibility="{x:Bind IsSuggested}" />
+                            <Button
+                                AutomationProperties.AutomationId="VoiceCardConfirm"
+                                AutomationProperties.Name="{x:Bind ConfirmLabel}"
+                                Click="OnConfirm"
+                                Content="{x:Bind ConfirmLabel}"
+                                IsEnabled="{x:Bind CanConfirm}"
+                                Visibility="{x:Bind IsConfirmPlain}" />
+                            <Button
+                                AutomationProperties.AutomationId="VoiceCardCancel"
+                                AutomationProperties.Name="{x:Bind CancelLabel}"
+                                Click="OnCancel"
+                                Content="{x:Bind CancelLabel}"
+                                IsEnabled="{x:Bind CanCancel}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

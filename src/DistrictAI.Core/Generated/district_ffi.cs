@@ -14429,6 +14429,25 @@ class FfiConverterTypeHqCardView: FfiConverterRustBuffer<HqCardView> {
 /// <param name="Footnote">
 /// The line under the prompt box, `hq.footnote`.
 /// </param>
+/// <param name="Voice">
+/// The voice session's controls and the changes proposed by voice.
+/// </param>
+/// <param name="ShowVoiceStart">
+/// Whether to show Start voice: to an agency or client member, while no
+/// session is being started or under way and the residency statement
+/// (with its own Start voice) is not up.
+/// </param>
+/// <param name="CanStartVoice">
+/// Whether Start voice works now: no session, call, room or audition
+/// under way, in a build with calls.
+/// </param>
+/// <param name="VoiceStartLabel">
+/// Start voice's label, `hq.voice_start`, beside a microphone icon.
+/// </param>
+/// <param name="VoiceDisclosure">
+/// Where the member's voice is processed, said before the first session
+/// in a workspace and before anything is asked for.
+/// </param>
 public record HqView (
     /// <summary>
     /// The heading, `hq.title`.
@@ -14481,7 +14500,31 @@ public record HqView (
     /// <summary>
     /// The line under the prompt box, `hq.footnote`.
     /// </summary>
-    string Footnote
+    string Footnote, 
+    /// <summary>
+    /// The voice session's controls and the changes proposed by voice.
+    /// </summary>
+    HqVoiceView Voice, 
+    /// <summary>
+    /// Whether to show Start voice: to an agency or client member, while no
+    /// session is being started or under way and the residency statement
+    /// (with its own Start voice) is not up.
+    /// </summary>
+    bool ShowVoiceStart, 
+    /// <summary>
+    /// Whether Start voice works now: no session, call, room or audition
+    /// under way, in a build with calls.
+    /// </summary>
+    bool CanStartVoice, 
+    /// <summary>
+    /// Start voice's label, `hq.voice_start`, beside a microphone icon.
+    /// </summary>
+    string VoiceStartLabel, 
+    /// <summary>
+    /// Where the member's voice is processed, said before the first session
+    /// in a workspace and before anything is asked for.
+    /// </summary>
+    HqVoiceDisclosureView? VoiceDisclosure
 ) {
 }
 
@@ -14501,7 +14544,12 @@ class FfiConverterTypeHqView: FfiConverterRustBuffer<HqView> {
             PromptPlaceholder: FfiConverterString.INSTANCE.Read(stream),
             AskLabel: FfiConverterString.INSTANCE.Read(stream),
             RetryLabel: FfiConverterString.INSTANCE.Read(stream),
-            Footnote: FfiConverterString.INSTANCE.Read(stream)
+            Footnote: FfiConverterString.INSTANCE.Read(stream),
+            Voice: FfiConverterTypeHqVoiceView.INSTANCE.Read(stream),
+            ShowVoiceStart: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanStartVoice: FfiConverterBoolean.INSTANCE.Read(stream),
+            VoiceStartLabel: FfiConverterString.INSTANCE.Read(stream),
+            VoiceDisclosure: FfiConverterOptionalTypeHqVoiceDisclosureView.INSTANCE.Read(stream)
         );
     }
 
@@ -14518,7 +14566,12 @@ class FfiConverterTypeHqView: FfiConverterRustBuffer<HqView> {
             + FfiConverterString.INSTANCE.AllocationSize(value.PromptPlaceholder)
             + FfiConverterString.INSTANCE.AllocationSize(value.AskLabel)
             + FfiConverterString.INSTANCE.AllocationSize(value.RetryLabel)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Footnote);
+            + FfiConverterString.INSTANCE.AllocationSize(value.Footnote)
+            + FfiConverterTypeHqVoiceView.INSTANCE.AllocationSize(value.Voice)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowVoiceStart)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanStartVoice)
+            + FfiConverterString.INSTANCE.AllocationSize(value.VoiceStartLabel)
+            + FfiConverterOptionalTypeHqVoiceDisclosureView.INSTANCE.AllocationSize(value.VoiceDisclosure);
     }
 
     public override void Write(HqView value, BigEndianStream stream) {
@@ -14534,6 +14587,457 @@ class FfiConverterTypeHqView: FfiConverterRustBuffer<HqView> {
             FfiConverterString.INSTANCE.Write(value.AskLabel, stream);
             FfiConverterString.INSTANCE.Write(value.RetryLabel, stream);
             FfiConverterString.INSTANCE.Write(value.Footnote, stream);
+            FfiConverterTypeHqVoiceView.INSTANCE.Write(value.Voice, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowVoiceStart, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanStartVoice, stream);
+            FfiConverterString.INSTANCE.Write(value.VoiceStartLabel, stream);
+            FfiConverterOptionalTypeHqVoiceDisclosureView.INSTANCE.Write(value.VoiceDisclosure, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A change proposed by voice, until the member resolves it, by voice or by
+/// a click on Confirm or Cancel.
+/// </summary>
+/// <param name="ProposalId">
+/// The proposal: what Confirm and Cancel name.
+/// </param>
+/// <param name="Title">
+/// The heading, `hq.confirm_title`.
+/// </param>
+/// <param name="Summary">
+/// The service's sentence saying what the change would do.
+/// </param>
+/// <param name="Note">
+/// The note under it: what to do with it, or what is being done; after a
+/// confirmation that failed, that the change may have been made.
+/// </param>
+/// <param name="Failure">
+/// Why the last click failed. The card stays, for the member to decide
+/// again.
+/// </param>
+/// <param name="Busy">
+/// Whether a click is being sent for it (show a progress ring).
+/// </param>
+/// <param name="CancelLabel">
+/// Cancel's label, `hq.voice_cancel_action`.
+/// </param>
+/// <param name="ConfirmLabel">
+/// Confirm's label, `hq.confirm_action`.
+/// </param>
+/// <param name="CanCancel">
+/// Whether Cancel works now: nothing is in flight for it.
+/// </param>
+/// <param name="CanConfirm">
+/// Whether Confirm works now: nothing is in flight for it, and the member
+/// may change the workspace.
+/// </param>
+/// <param name="Suggested">
+/// Whether its Confirm is the suggested action: the first card's only, so
+/// that one is on screen at a time.
+/// </param>
+public record HqVoiceCardView (
+    /// <summary>
+    /// The proposal: what Confirm and Cancel name.
+    /// </summary>
+    string ProposalId, 
+    /// <summary>
+    /// The heading, `hq.confirm_title`.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The service's sentence saying what the change would do.
+    /// </summary>
+    string Summary, 
+    /// <summary>
+    /// The note under it: what to do with it, or what is being done; after a
+    /// confirmation that failed, that the change may have been made.
+    /// </summary>
+    string? Note, 
+    /// <summary>
+    /// Why the last click failed. The card stays, for the member to decide
+    /// again.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// Whether a click is being sent for it (show a progress ring).
+    /// </summary>
+    bool Busy, 
+    /// <summary>
+    /// Cancel's label, `hq.voice_cancel_action`.
+    /// </summary>
+    string CancelLabel, 
+    /// <summary>
+    /// Confirm's label, `hq.confirm_action`.
+    /// </summary>
+    string ConfirmLabel, 
+    /// <summary>
+    /// Whether Cancel works now: nothing is in flight for it.
+    /// </summary>
+    bool CanCancel, 
+    /// <summary>
+    /// Whether Confirm works now: nothing is in flight for it, and the member
+    /// may change the workspace.
+    /// </summary>
+    bool CanConfirm, 
+    /// <summary>
+    /// Whether its Confirm is the suggested action: the first card's only, so
+    /// that one is on screen at a time.
+    /// </summary>
+    bool Suggested
+) {
+}
+
+class FfiConverterTypeHqVoiceCardView: FfiConverterRustBuffer<HqVoiceCardView> {
+    public static FfiConverterTypeHqVoiceCardView INSTANCE = new FfiConverterTypeHqVoiceCardView();
+
+    public override HqVoiceCardView Read(BigEndianStream stream) {
+        return new HqVoiceCardView(
+            ProposalId: FfiConverterString.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Summary: FfiConverterString.INSTANCE.Read(stream),
+            Note: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Busy: FfiConverterBoolean.INSTANCE.Read(stream),
+            CancelLabel: FfiConverterString.INSTANCE.Read(stream),
+            ConfirmLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanCancel: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanConfirm: FfiConverterBoolean.INSTANCE.Read(stream),
+            Suggested: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HqVoiceCardView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.ProposalId)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Summary)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Busy)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CancelLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConfirmLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanCancel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanConfirm)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Suggested);
+    }
+
+    public override void Write(HqVoiceCardView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.ProposalId, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Summary, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Busy, stream);
+            FfiConverterString.INSTANCE.Write(value.CancelLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ConfirmLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanCancel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanConfirm, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Suggested, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The residency statement, before the first voice session in a workspace.
+/// </summary>
+/// <param name="Title">
+/// The heading, `hq.voice_disclosure_title`.
+/// </param>
+/// <param name="RegionNotice">
+/// For a workspace whose data lives in Canada, Europe or Asia-Pacific, the
+/// line above the statement: its data stays there, its voice
+/// conversations are processed in the United States. `None` for a United
+/// States workspace.
+/// </param>
+/// <param name="Body">
+/// The statement, the web dashboard's word for word.
+/// </param>
+/// <param name="AcceptLabel">
+/// The button that starts the session, `hq.voice_disclosure_accept`.
+/// </param>
+/// <param name="DeclineLabel">
+/// The button that closes it, `hq.voice_disclosure_decline`.
+/// </param>
+public record HqVoiceDisclosureView (
+    /// <summary>
+    /// The heading, `hq.voice_disclosure_title`.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// For a workspace whose data lives in Canada, Europe or Asia-Pacific, the
+    /// line above the statement: its data stays there, its voice
+    /// conversations are processed in the United States. `None` for a United
+    /// States workspace.
+    /// </summary>
+    string? RegionNotice, 
+    /// <summary>
+    /// The statement, the web dashboard's word for word.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The button that starts the session, `hq.voice_disclosure_accept`.
+    /// </summary>
+    string AcceptLabel, 
+    /// <summary>
+    /// The button that closes it, `hq.voice_disclosure_decline`.
+    /// </summary>
+    string DeclineLabel
+) {
+}
+
+class FfiConverterTypeHqVoiceDisclosureView: FfiConverterRustBuffer<HqVoiceDisclosureView> {
+    public static FfiConverterTypeHqVoiceDisclosureView INSTANCE = new FfiConverterTypeHqVoiceDisclosureView();
+
+    public override HqVoiceDisclosureView Read(BigEndianStream stream) {
+        return new HqVoiceDisclosureView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            RegionNotice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            AcceptLabel: FfiConverterString.INSTANCE.Read(stream),
+            DeclineLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HqVoiceDisclosureView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RegionNotice)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AcceptLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DeclineLabel);
+    }
+
+    public override void Write(HqVoiceDisclosureView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.RegionNotice, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.AcceptLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DeclineLabel, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The voice dock: a voice session's controls and cards on every screen but
+/// District HQ, which has its own. The microphone is never live without the
+/// controls that stop it on screen.
+/// </summary>
+/// <param name="Title">
+/// Its heading and accessible name, `hq.voice_dock_label`.
+/// </param>
+/// <param name="ReviewLabel">
+/// "Review in District HQ", `hq.voice_dock_review`: opens the
+/// conversation ([`HqAction::Open`]).
+/// </param>
+/// <param name="CanReview">
+/// Whether to offer it: while changes proposed by voice are waiting.
+/// </param>
+/// <param name="Voice">
+/// The session's controls and cards, as on District HQ.
+/// </param>
+public record HqVoiceDockView (
+    /// <summary>
+    /// Its heading and accessible name, `hq.voice_dock_label`.
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// "Review in District HQ", `hq.voice_dock_review`: opens the
+    /// conversation ([`HqAction::Open`]).
+    /// </summary>
+    string ReviewLabel, 
+    /// <summary>
+    /// Whether to offer it: while changes proposed by voice are waiting.
+    /// </summary>
+    bool CanReview, 
+    /// <summary>
+    /// The session's controls and cards, as on District HQ.
+    /// </summary>
+    HqVoiceView Voice
+) {
+}
+
+class FfiConverterTypeHqVoiceDockView: FfiConverterRustBuffer<HqVoiceDockView> {
+    public static FfiConverterTypeHqVoiceDockView INSTANCE = new FfiConverterTypeHqVoiceDockView();
+
+    public override HqVoiceDockView Read(BigEndianStream stream) {
+        return new HqVoiceDockView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            ReviewLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanReview: FfiConverterBoolean.INSTANCE.Read(stream),
+            Voice: FfiConverterTypeHqVoiceView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HqVoiceDockView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ReviewLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanReview)
+            + FfiConverterTypeHqVoiceView.INSTANCE.AllocationSize(value.Voice);
+    }
+
+    public override void Write(HqVoiceDockView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.ReviewLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanReview, stream);
+            FfiConverterTypeHqVoiceView.INSTANCE.Write(value.Voice, stream);
+    }
+}
+
+
+
+/// <summary>
+/// A voice session's controls and the changes it proposed: on District HQ,
+/// and in the voice dock on every other screen.
+/// </summary>
+/// <param name="Stage">
+/// Where the session stands.
+/// </param>
+/// <param name="Line">
+/// What the session is doing ("Listening. Speak to District HQ."), or why
+/// it ended or could not start. Never Markdown.
+/// </param>
+/// <param name="LineIsProblem">
+/// Whether [`line`](Self::line) is a problem (show it as an error) rather
+/// than news.
+/// </param>
+/// <param name="Busy">
+/// Whether to show a progress ring by the line: while the session is
+/// asked for and the assistant has not joined.
+/// </param>
+/// <param name="CanStop">
+/// Whether Stop voice is shown: a session is being started or is under
+/// way.
+/// </param>
+/// <param name="StopLabel">
+/// Stop voice's label, `hq.voice_stop`.
+/// </param>
+/// <param name="ShowMicrophone">
+/// Whether the microphone button is shown: while the session's room is
+/// live.
+/// </param>
+/// <param name="Muted">
+/// Whether the microphone is off (or could not be used): pressing the
+/// button asks for it on (`UiEvent::Microphone`).
+/// </param>
+/// <param name="CanDismiss">
+/// Whether to offer dismissing what the line says: after the session
+/// ended or could not start, and in the dock, a card's notice too.
+/// </param>
+/// <param name="Notice">
+/// Why the last card went without a result (the service no longer knows
+/// it, or refused it as asked), until dismissed.
+/// </param>
+/// <param name="Cards">
+/// The changes proposed by voice and not yet resolved, oldest first.
+/// </param>
+public record HqVoiceView (
+    /// <summary>
+    /// Where the session stands.
+    /// </summary>
+    HqVoiceStage Stage, 
+    /// <summary>
+    /// What the session is doing ("Listening. Speak to District HQ."), or why
+    /// it ended or could not start. Never Markdown.
+    /// </summary>
+    string? Line, 
+    /// <summary>
+    /// Whether [`line`](Self::line) is a problem (show it as an error) rather
+    /// than news.
+    /// </summary>
+    bool LineIsProblem, 
+    /// <summary>
+    /// Whether to show a progress ring by the line: while the session is
+    /// asked for and the assistant has not joined.
+    /// </summary>
+    bool Busy, 
+    /// <summary>
+    /// Whether Stop voice is shown: a session is being started or is under
+    /// way.
+    /// </summary>
+    bool CanStop, 
+    /// <summary>
+    /// Stop voice's label, `hq.voice_stop`.
+    /// </summary>
+    string StopLabel, 
+    /// <summary>
+    /// Whether the microphone button is shown: while the session's room is
+    /// live.
+    /// </summary>
+    bool ShowMicrophone, 
+    /// <summary>
+    /// Whether the microphone is off (or could not be used): pressing the
+    /// button asks for it on (`UiEvent::Microphone`).
+    /// </summary>
+    bool Muted, 
+    /// <summary>
+    /// Whether to offer dismissing what the line says: after the session
+    /// ended or could not start, and in the dock, a card's notice too.
+    /// </summary>
+    bool CanDismiss, 
+    /// <summary>
+    /// Why the last card went without a result (the service no longer knows
+    /// it, or refused it as asked), until dismissed.
+    /// </summary>
+    FailureView? Notice, 
+    /// <summary>
+    /// The changes proposed by voice and not yet resolved, oldest first.
+    /// </summary>
+    HqVoiceCardView[] Cards
+) {
+}
+
+class FfiConverterTypeHqVoiceView: FfiConverterRustBuffer<HqVoiceView> {
+    public static FfiConverterTypeHqVoiceView INSTANCE = new FfiConverterTypeHqVoiceView();
+
+    public override HqVoiceView Read(BigEndianStream stream) {
+        return new HqVoiceView(
+            Stage: FfiConverterTypeHqVoiceStage.INSTANCE.Read(stream),
+            Line: FfiConverterOptionalString.INSTANCE.Read(stream),
+            LineIsProblem: FfiConverterBoolean.INSTANCE.Read(stream),
+            Busy: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanStop: FfiConverterBoolean.INSTANCE.Read(stream),
+            StopLabel: FfiConverterString.INSTANCE.Read(stream),
+            ShowMicrophone: FfiConverterBoolean.INSTANCE.Read(stream),
+            Muted: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanDismiss: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Cards: FfiConverterSequenceTypeHqVoiceCardView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(HqVoiceView value) {
+        return 0
+            + FfiConverterTypeHqVoiceStage.INSTANCE.AllocationSize(value.Stage)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Line)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.LineIsProblem)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Busy)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanStop)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StopLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowMicrophone)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Muted)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDismiss)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterSequenceTypeHqVoiceCardView.INSTANCE.AllocationSize(value.Cards);
+    }
+
+    public override void Write(HqVoiceView value, BigEndianStream stream) {
+            FfiConverterTypeHqVoiceStage.INSTANCE.Write(value.Stage, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Line, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.LineIsProblem, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Busy, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanStop, stream);
+            FfiConverterString.INSTANCE.Write(value.StopLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowMicrophone, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Muted, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanDismiss, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Notice, stream);
+            FfiConverterSequenceTypeHqVoiceCardView.INSTANCE.Write(value.Cards, stream);
     }
 }
 
@@ -25923,6 +26427,14 @@ class FfiConverterTypeSettingsTabView: FfiConverterRustBuffer<SettingsTabView> {
 /// `UiEvent::DiscardChanges` or `UiEvent::KeepEditing`. The actor sets it;
 /// left out of the snapshots while there is none.
 /// </param>
+/// <param name="VoiceDock">
+/// A District HQ voice session's controls and cards, on every screen but
+/// District HQ (which has its own), while one is being started or is
+/// under way, has ended with something to say, or left changes to
+/// decide. It outlives a change of screen, so the window shows it over
+/// every screen, under the call strip. Left out of the snapshots while
+/// there is none.
+/// </param>
 public record ShellView (
     /// <summary>
     /// Where the session is. The app shows the sign-in page for every phase but
@@ -25990,7 +26502,16 @@ public record ShellView (
     /// `UiEvent::DiscardChanges` or `UiEvent::KeepEditing`. The actor sets it;
     /// left out of the snapshots while there is none.
     /// </summary>
-    DiscardView? Discard
+    DiscardView? Discard, 
+    /// <summary>
+    /// A District HQ voice session's controls and cards, on every screen but
+    /// District HQ (which has its own), while one is being started or is
+    /// under way, has ended with something to say, or left changes to
+    /// decide. It outlives a change of screen, so the window shows it over
+    /// every screen, under the call strip. Left out of the snapshots while
+    /// there is none.
+    /// </summary>
+    HqVoiceDockView? VoiceDock
 ) {
 }
 
@@ -26011,7 +26532,8 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             Call: FfiConverterOptionalTypeActiveCallView.INSTANCE.Read(stream),
             Ring: FfiConverterOptionalTypeIncomingRingView.INSTANCE.Read(stream),
             CallsAvailable: FfiConverterBoolean.INSTANCE.Read(stream),
-            Discard: FfiConverterOptionalTypeDiscardView.INSTANCE.Read(stream)
+            Discard: FfiConverterOptionalTypeDiscardView.INSTANCE.Read(stream),
+            VoiceDock: FfiConverterOptionalTypeHqVoiceDockView.INSTANCE.Read(stream)
         );
     }
 
@@ -26029,7 +26551,8 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             + FfiConverterOptionalTypeActiveCallView.INSTANCE.AllocationSize(value.Call)
             + FfiConverterOptionalTypeIncomingRingView.INSTANCE.AllocationSize(value.Ring)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CallsAvailable)
-            + FfiConverterOptionalTypeDiscardView.INSTANCE.AllocationSize(value.Discard);
+            + FfiConverterOptionalTypeDiscardView.INSTANCE.AllocationSize(value.Discard)
+            + FfiConverterOptionalTypeHqVoiceDockView.INSTANCE.AllocationSize(value.VoiceDock);
     }
 
     public override void Write(ShellView value, BigEndianStream stream) {
@@ -26046,6 +26569,7 @@ class FfiConverterTypeShellView: FfiConverterRustBuffer<ShellView> {
             FfiConverterOptionalTypeIncomingRingView.INSTANCE.Write(value.Ring, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CallsAvailable, stream);
             FfiConverterOptionalTypeDiscardView.INSTANCE.Write(value.Discard, stream);
+            FfiConverterOptionalTypeHqVoiceDockView.INSTANCE.Write(value.VoiceDock, stream);
     }
 }
 
@@ -35576,6 +36100,54 @@ public record HqAction {
         string Url
     ) : HqAction {}
     
+    /// <summary>
+    /// Start voice: the residency statement the first time in a workspace,
+    /// the session itself after that.
+    /// </summary>
+    public record StartVoice: HqAction {}
+    
+    
+    /// <summary>
+    /// Start voice under the residency statement: the session and the
+    /// microphone start.
+    /// </summary>
+    public record AcceptVoiceDisclosure: HqAction {}
+    
+    
+    /// <summary>
+    /// Not now, under the residency statement: nothing starts.
+    /// </summary>
+    public record DeclineVoiceDisclosure: HqAction {}
+    
+    
+    /// <summary>
+    /// Stop voice, on District HQ or in the dock. Also what the window sends
+    /// when it is closed to the tray, which leaves no controls on screen.
+    /// </summary>
+    public record StopVoice: HqAction {}
+    
+    
+    /// <summary>
+    /// Confirm a change proposed by voice.
+    /// </summary>
+    public record ConfirmVoiceCard (
+        string ProposalId
+    ) : HqAction {}
+    
+    /// <summary>
+    /// Cancel a change proposed by voice.
+    /// </summary>
+    public record CancelVoiceCard (
+        string ProposalId
+    ) : HqAction {}
+    
+    /// <summary>
+    /// Put away what the voice controls say: why a session ended or could not
+    /// start, or why a card went.
+    /// </summary>
+    public record DismissVoiceNotice: HqAction {}
+    
+    
 
     
 }
@@ -35606,6 +36178,29 @@ class FfiConverterTypeHqAction : FfiConverterRustBuffer<HqAction>{
                 return new HqAction.OpenLink(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
+            case 7:
+                return new HqAction.StartVoice(
+                );
+            case 8:
+                return new HqAction.AcceptVoiceDisclosure(
+                );
+            case 9:
+                return new HqAction.DeclineVoiceDisclosure(
+                );
+            case 10:
+                return new HqAction.StopVoice(
+                );
+            case 11:
+                return new HqAction.ConfirmVoiceCard(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 12:
+                return new HqAction.CancelVoiceCard(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 13:
+                return new HqAction.DismissVoiceNotice(
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Read()", value));
         }
@@ -35627,6 +36222,22 @@ class FfiConverterTypeHqAction : FfiConverterRustBuffer<HqAction>{
             case HqAction.OpenLink variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Url);
+            case HqAction.StartVoice variant_value:
+                return 4;
+            case HqAction.AcceptVoiceDisclosure variant_value:
+                return 4;
+            case HqAction.DeclineVoiceDisclosure variant_value:
+                return 4;
+            case HqAction.StopVoice variant_value:
+                return 4;
+            case HqAction.ConfirmVoiceCard variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ProposalId);
+            case HqAction.CancelVoiceCard variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.ProposalId);
+            case HqAction.DismissVoiceNotice variant_value:
+                return 4;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.AllocationSize()", value));
         }
@@ -35653,6 +36264,29 @@ class FfiConverterTypeHqAction : FfiConverterRustBuffer<HqAction>{
             case HqAction.OpenLink variant_value:
                 stream.WriteInt(6);
                 FfiConverterString.INSTANCE.Write(variant_value.Url, stream);
+                break;
+            case HqAction.StartVoice variant_value:
+                stream.WriteInt(7);
+                break;
+            case HqAction.AcceptVoiceDisclosure variant_value:
+                stream.WriteInt(8);
+                break;
+            case HqAction.DeclineVoiceDisclosure variant_value:
+                stream.WriteInt(9);
+                break;
+            case HqAction.StopVoice variant_value:
+                stream.WriteInt(10);
+                break;
+            case HqAction.ConfirmVoiceCard variant_value:
+                stream.WriteInt(11);
+                FfiConverterString.INSTANCE.Write(variant_value.ProposalId, stream);
+                break;
+            case HqAction.CancelVoiceCard variant_value:
+                stream.WriteInt(12);
+                FfiConverterString.INSTANCE.Write(variant_value.ProposalId, stream);
+                break;
+            case HqAction.DismissVoiceNotice variant_value:
+                stream.WriteInt(13);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqAction.Write()", value));
@@ -35697,6 +36331,18 @@ public record HqMessageView {
         bool Applied
     ) : HqMessageView {}
     
+    /// <summary>
+    /// Words spoken in a voice session, as transcribed: plain text, never
+    /// Markdown, which grows until it is final. A line is drawn again when
+    /// its words change.
+    /// </summary>
+    public record Spoken (
+        uint Index,
+        string Text,
+        bool Member,
+        bool IsFinal
+    ) : HqMessageView {}
+    
 
     
 }
@@ -35724,6 +36370,13 @@ class FfiConverterTypeHqMessageView : FfiConverterRustBuffer<HqMessageView>{
                     FfiConverterString.INSTANCE.Read(stream),
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
+            case 4:
+                return new HqMessageView.Spoken(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.Read()", value));
         }
@@ -35745,6 +36398,12 @@ class FfiConverterTypeHqMessageView : FfiConverterRustBuffer<HqMessageView>{
                     + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text)
                     + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Applied);
+            case HqMessageView.Spoken variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Member)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.IsFinal);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.AllocationSize()", value));
         }
@@ -35769,8 +36428,86 @@ class FfiConverterTypeHqMessageView : FfiConverterRustBuffer<HqMessageView>{
                 FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
                 FfiConverterBoolean.INSTANCE.Write(variant_value.Applied, stream);
                 break;
+            case HqMessageView.Spoken variant_value:
+                stream.WriteInt(4);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Member, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.IsFinal, stream);
+                break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqMessageView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Where a voice session stands: what the keyboard follows (Start voice in
+/// the residency statement, Stop voice once it starts, back to the voice
+/// button when it ends). One variant per core `HqVoicePhase`.
+/// </summary>
+public enum HqVoiceStage: int {
+    /// <summary>
+    /// No session.
+    /// </summary>
+    Off,
+    /// <summary>
+    /// The residency statement is up, and nothing has been asked for.
+    /// </summary>
+    Disclosing,
+    /// <summary>
+    /// The session is being asked for and its room joined.
+    /// </summary>
+    Starting,
+    /// <summary>
+    /// The session is under way.
+    /// </summary>
+    Live,
+    /// <summary>
+    /// It ended without the member stopping it.
+    /// </summary>
+    Ended,
+    /// <summary>
+    /// It could not start.
+    /// </summary>
+    Failed
+}
+
+class FfiConverterTypeHqVoiceStage: FfiConverterRustBuffer<HqVoiceStage> {
+    public static FfiConverterTypeHqVoiceStage INSTANCE = new FfiConverterTypeHqVoiceStage();
+
+    public override HqVoiceStage Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return HqVoiceStage.Off;
+            case 2: return HqVoiceStage.Disclosing;
+            case 3: return HqVoiceStage.Starting;
+            case 4: return HqVoiceStage.Live;
+            case 5: return HqVoiceStage.Ended;
+            case 6: return HqVoiceStage.Failed;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqVoiceStage.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(HqVoiceStage value) {
+        return 4;
+    }
+
+    public override void Write(HqVoiceStage value, BigEndianStream stream) {
+        switch (value) {
+            case HqVoiceStage.Off: stream.WriteInt(1); break;
+            case HqVoiceStage.Disclosing: stream.WriteInt(2); break;
+            case HqVoiceStage.Starting: stream.WriteInt(3); break;
+            case HqVoiceStage.Live: stream.WriteInt(4); break;
+            case HqVoiceStage.Ended: stream.WriteInt(5); break;
+            case HqVoiceStage.Failed: stream.WriteInt(6); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeHqVoiceStage.Write()", value));
         }
     }
 }
@@ -46080,6 +46817,68 @@ class FfiConverterOptionalTypeHqCardView: FfiConverterRustBuffer<HqCardView?> {
 
 
 
+class FfiConverterOptionalTypeHqVoiceDisclosureView: FfiConverterRustBuffer<HqVoiceDisclosureView?> {
+    public static FfiConverterOptionalTypeHqVoiceDisclosureView INSTANCE = new FfiConverterOptionalTypeHqVoiceDisclosureView();
+
+    public override HqVoiceDisclosureView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeHqVoiceDisclosureView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(HqVoiceDisclosureView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeHqVoiceDisclosureView.INSTANCE.AllocationSize((HqVoiceDisclosureView)value);
+        }
+    }
+
+    public override void Write(HqVoiceDisclosureView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeHqVoiceDisclosureView.INSTANCE.Write((HqVoiceDisclosureView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeHqVoiceDockView: FfiConverterRustBuffer<HqVoiceDockView?> {
+    public static FfiConverterOptionalTypeHqVoiceDockView INSTANCE = new FfiConverterOptionalTypeHqVoiceDockView();
+
+    public override HqVoiceDockView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeHqVoiceDockView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(HqVoiceDockView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeHqVoiceDockView.INSTANCE.AllocationSize((HqVoiceDockView)value);
+        }
+    }
+
+    public override void Write(HqVoiceDockView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeHqVoiceDockView.INSTANCE.Write((HqVoiceDockView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeIncomingRingView: FfiConverterRustBuffer<IncomingRingView?> {
     public static FfiConverterOptionalTypeIncomingRingView INSTANCE = new FfiConverterOptionalTypeIncomingRingView();
 
@@ -49124,6 +49923,52 @@ class FfiConverterSequenceTypeHoursRangeView: FfiConverterRustBuffer<HoursRangeV
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeHoursRangeView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeHqVoiceCardView: FfiConverterRustBuffer<HqVoiceCardView[]> {
+    public static FfiConverterSequenceTypeHqVoiceCardView INSTANCE = new FfiConverterSequenceTypeHqVoiceCardView();
+
+    public override HqVoiceCardView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new HqVoiceCardView[length];
+        var readFn = FfiConverterTypeHqVoiceCardView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(HqVoiceCardView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeHqVoiceCardView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(HqVoiceCardView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeHqVoiceCardView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
