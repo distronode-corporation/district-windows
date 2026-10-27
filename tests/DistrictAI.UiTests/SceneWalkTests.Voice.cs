@@ -113,7 +113,10 @@ public sealed partial class SceneWalkTests
 
         OpenUntilById(app, "NavHq");
         Press(app.FindById("VoiceStart", PageTimeout), allow: "the scene answers the session; nothing leaves the computer");
-        _ = app.FindById("VoiceDisclosure", PageTimeout);
+        // The statement, by its own two buttons: its card (a Border,
+        // "VoiceDisclosure") has no automation peer, so UI Automation never
+        // shows it, whatever its AutomationId (run 40590367227).
+        _ = app.FindById("VoiceAccept", PageTimeout);
         _ = app.FindById("VoiceDecline", PageTimeout);
         InstalledApp.Log("the residency statement shows, with its region line");
         Shoot(app, handle, shots, 92, "statement", language, problems, "VoiceAccept", "VoiceDecline");
