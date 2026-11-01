@@ -1,9 +1,18 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/distronode-logo-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset=".github/assets/distronode-logo-light.png">
+  <img alt="Distronode" src=".github/assets/distronode-logo-light.png" width="220">
+</picture>
+
 # District AI for Windows
 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/distronode-corporation/district-windows/badge)](https://scorecard.dev/viewer/?uri=github.com/distronode-corporation/district-windows)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15875/badge)](https://www.bestpractices.dev/projects/15875)
+[![Latest release](https://img.shields.io/github/v/release/distronode-corporation/district-windows?label=release)](https://github.com/distronode-corporation/district-windows/releases/latest)
 
-The native Windows client for [District AI](https://www.distronode.com), the AI voice
+<a href="https://apps.microsoft.com/detail/9P9F0NNFJ3CP"><img alt="Get it from Microsoft" src="https://get.microsoft.com/images/en-us%20dark.svg" height="48"></a>
+
+The native Windows client for [District AI](https://www.distronode.com/district-ai), the AI voice
 receptionist from Distronode. It is a WinUI 3 app written in C#, and everything it decides
 (signing in, what each screen shows, live updates, calls) comes from the same Rust core as
 [District AI for Linux](https://github.com/distronode-corporation/district-linux).
@@ -19,6 +28,15 @@ receptionist from Distronode. It is a WinUI 3 app written in C#, and everything 
 [GitLab mirror](https://gitlab.com/distronode-corporation/district-windows)
 (read-only mirror; issues and pull requests live on GitHub),
 [CHANGELOG](CHANGELOG.md).
+
+![The District AI window on Windows, showing the Overview of a fictional dental practice](docs/images/window.png)
+
+<p>
+  <img alt="District HQ by voice, with two proposed changes waiting for Confirm or Cancel" src="docs/images/district-hq-voice.png" width="49%">
+  <img alt="Analytics: calls per day, the call funnel, caller sentiment and the month's usage" src="docs/images/analytics.png" width="49%">
+</p>
+
+*The real app, from the scripted scenes CI photographs: every name and number is a fixture.*
 
 ## What it is for
 
