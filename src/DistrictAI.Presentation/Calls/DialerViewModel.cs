@@ -12,8 +12,8 @@ namespace DistrictAI.ViewModels.Calls;
 /// </summary>
 public interface IDialRules
 {
-    /// <summary>The box went from <paramref name="previous"/> to <paramref name="next"/>, formatted as the core will format it.</summary>
-    DialEntryFormat Format(string previous, string next, uint caret, bool forward, string? country);
+    /// <summary>The box went from <paramref name="previous"/> to <paramref name="edited"/>, formatted as the core will format it.</summary>
+    DialEntryFormat Format(string previous, string edited, uint caret, bool forward, string? country);
 
     /// <summary>The box after <paramref name="iso"/> is picked, as the core will make it.</summary>
     DialEntryFormat Pick(string shown, string? country, string iso);
@@ -26,8 +26,8 @@ public interface IDialRules
 public sealed class FfiDialRules : IDialRules
 {
     /// <inheritdoc/>
-    public DialEntryFormat Format(string previous, string next, uint caret, bool forward, string? country) =>
-        DistrictFfi.DialEntryFormat(previous, next, caret, forward, country);
+    public DialEntryFormat Format(string previous, string edited, uint caret, bool forward, string? country) =>
+        DistrictFfi.DialEntryFormat(previous, edited, caret, forward, country);
 
     /// <inheritdoc/>
     public DialEntryFormat Pick(string shown, string? country, string iso) =>

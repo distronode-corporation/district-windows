@@ -7,15 +7,15 @@ namespace DistrictAI.Presentation.Tests.Calls;
 /// <summary>The core's dialler rules, scripted: each edit shows as the text typed plus a mark, under a country the test names.</summary>
 internal sealed class FakeDialRules : IDialRules
 {
-    public List<(string Previous, string Next, uint Caret, bool Forward, string? Country)> Formats { get; } = [];
+    public List<(string Previous, string Edited, uint Caret, bool Forward, string? Country)> Formats { get; } = [];
 
     public string? NextCountry { get; set; } = "CA";
 
-    public DialEntryFormat Format(string previous, string next, uint caret, bool forward, string? country)
+    public DialEntryFormat Format(string previous, string edited, uint caret, bool forward, string? country)
     {
-        Formats.Add((previous, next, caret, forward, country));
-        var shown = $"({next})";
-        return new DialEntryFormat(Cleaned: next, Shown: shown, Country: NextCountry, CountryButton: $"{NextCountry} +1", Caret: (uint)shown.Length);
+        Formats.Add((previous, edited, caret, forward, country));
+        var shown = $"({edited})";
+        return new DialEntryFormat(Cleaned: edited, Shown: shown, Country: NextCountry, CountryButton: $"{NextCountry} +1", Caret: (uint)shown.Length);
     }
 
     public DialEntryFormat Pick(string shown, string? country, string iso) =>
