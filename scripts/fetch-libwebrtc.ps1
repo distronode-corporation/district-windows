@@ -42,7 +42,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$WebrtcSysBuildVersion = '0.3.19'
+# 0.3.20 is 0.3.19 with zip ^9 in place of zip ^0.6 (RUSTSEC-2026-0367, -0368,
+# -0369 and -0429) and nothing else: its src/ is byte for byte 0.3.19's and its
+# WEBRTC_TAG is still webrtc-89d790b, so the libwebrtc below is the one it links.
+$WebrtcSysBuildVersion = '0.3.20'
 # The release of this repository that holds the archive. The number after
 # "audio-win" counts builds of the same WebRTC commit.
 $Release = 'libwebrtc-89d790b-audio-win-1'

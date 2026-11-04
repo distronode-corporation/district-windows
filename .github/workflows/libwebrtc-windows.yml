@@ -192,7 +192,7 @@ jobs:
           cat > notes.md <<EOF
           The audio-only libwebrtc that District AI for Windows links for calls:
           LiveKit's Windows build of libwebrtc for its Rust SDK (webrtc-sys-build
-          0.3.19), from WebRTC commit 89d790b40447c3c5c54c3edd58aa53d285e35fa7 and
+          0.3.20), from WebRTC commit 89d790b40447c3c5c54c3edd58aa53d285e35fa7 and
           LiveKit's patches, built with ffmpeg_branding="Chromium",
           rtc_use_h264=false and rtc_use_h265=false, so no H.264 or H.265 codec and
           no FFmpeg. Built by .github/workflows/libwebrtc-windows.yml in run
