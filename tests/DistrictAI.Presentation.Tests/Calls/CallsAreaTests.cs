@@ -4,21 +4,84 @@ using Xunit;
 
 namespace DistrictAI.Presentation.Tests.Calls;
 
+/// <summary>The core's dialler rules, scripted: each edit shows as the text typed plus a mark, under a country the test names.</summary>
+internal sealed class FakeDialRules : IDialRules
+{
+    public List<(string Previous, string Next, uint Caret, bool Forward, string? Country)> Formats { get; } = [];
+
+    public string? NextCountry { get; set; } = "CA";
+
+    public DialEntryFormat Format(string previous, string next, uint caret, bool forward, string? country)
+    {
+        Formats.Add((previous, next, caret, forward, country));
+        var shown = $"({next})";
+        return new DialEntryFormat(Cleaned: next, Shown: shown, Country: NextCountry, CountryButton: $"{NextCountry} +1", Caret: (uint)shown.Length);
+    }
+
+    public DialEntryFormat Pick(string shown, string? country, string iso) =>
+        new(Cleaned: "digits", Shown: $"{iso}:{shown}", Country: iso, CountryButton: $"{iso} +44", Caret: 3);
+
+    public DialCountryList Countries(string query, string? home, string? current) =>
+        query.Length == 0
+            ? new DialCountryList(
+                Suggested: [new DialCountryRow("CA", "Canada", "+1", current == "CA")],
+                Countries: [new DialCountryRow("AF", "Afghanistan", "+93", false), new DialCountryRow("CA", "Canada", "+1", current == "CA")],
+                SuggestedTitle: "Suggested",
+                CountriesTitle: "All countries",
+                NoMatch: null,
+                SearchPlaceholder: "Country name or code",
+                Title: "Country")
+            : new DialCountryList([], [], "Suggested", string.Empty, query == "zzz" ? "No country matches." : null, "Country name or code", "Country");
+}
+
 public sealed class DialerViewModelTests
 {
-    private static DialerView View(string number = "", string formatted = "", bool canDial = false, FailureView? failure = null, string? note = null) =>
-        new(number, canDial, Dialing: false, failure, note, formatted, "Type a number.", "Placing a call turns on your microphone.");
+    private static DialerView View(
+        string number = "",
+        string? country = null,
+        bool canDial = false,
+        FailureView? failure = null,
+        string? note = null,
+        string? destination = null,
+        string? problem = null,
+        string? home = null) =>
+        new(
+            number,
+            country,
+            CountryButton: country is null ? "Country" : $"{country} +1",
+            CountryLabel: country is null ? "Country" : "Canada, calling code +1",
+            home,
+            Placeholder: "(416) 555-0199",
+            destination,
+            problem,
+            canDial,
+            Dialing: false,
+            failure,
+            note,
+            Hint: "Type the number as you would dial it locally (Canada), or start with + and its country code.",
+            MicrophoneNote: "Placing a call turns on your microphone.");
 
     [Fact]
     public void ItCopiesTheDialler()
     {
-        var dialer = new DialerViewModel();
-        Assert.Equal("\u00A0", dialer.Formatted);
+        var dialer = new DialerViewModel(new FakeDialRules());
+        Assert.Equal("\u00A0", dialer.Destination);
 
-        dialer.Show(View("5550100", "555 0100", canDial: true, failure: V.Failure("Could not place it."), note: "Finish the call first."));
-        Assert.Equal("5550100", dialer.Number);
-        Assert.Equal("555 0100", dialer.Formatted);
-        Assert.Equal("Type a number.", dialer.Hint);
+        dialer.Show(View(
+            "(416) 555-0199",
+            "CA",
+            canDial: true,
+            failure: V.Failure("Could not place it."),
+            note: "Finish the call first.",
+            destination: "Rings Canada \u00B7 +1 416 555 0199"));
+        Assert.Equal("(416) 555-0199", dialer.Number);
+        Assert.Equal("CA +1", dialer.CountryButton);
+        Assert.Equal("Canada, calling code +1", dialer.CountryLabel);
+        Assert.Equal("(416) 555-0199", dialer.Placeholder);
+        Assert.Equal("Rings Canada \u00B7 +1 416 555 0199", dialer.Destination);
+        Assert.StartsWith("Type the number", dialer.Hint);
+        Assert.True(dialer.ShowHint);
+        Assert.False(dialer.HasProblem);
         Assert.Equal("Placing a call turns on your microphone.", dialer.MicrophoneNote);
         Assert.True(dialer.CanDial);
         Assert.True(dialer.DialCommand.CanExecute(null));
@@ -28,44 +91,99 @@ public sealed class DialerViewModelTests
         Assert.Equal("Finish the call first.", dialer.Note);
         Assert.True(dialer.HasNote);
 
-        dialer.Show(View(note: string.Empty));
-        Assert.Equal("\u00A0", dialer.Formatted);
+        dialer.Show(View(note: string.Empty, problem: "That is the wrong number of digits."));
+        Assert.Equal("\u00A0", dialer.Destination);
+        Assert.Equal("That is the wrong number of digits.", dialer.Problem);
+        Assert.True(dialer.HasProblem);
+        Assert.False(dialer.ShowHint);
+        Assert.Equal("Country", dialer.CountryButton);
         Assert.False(dialer.DialCommand.CanExecute(null));
         Assert.False(dialer.HasFailure);
-        Assert.Equal(string.Empty, dialer.Note);
-        Assert.False(dialer.HasNote);
-
-        dialer.Show(View());
         Assert.Equal(string.Empty, dialer.Note);
         Assert.False(dialer.HasNote);
     }
 
     [Fact]
-    public void TypingIsSentAndTheCoresEchoDoesNotRewriteTheBox()
+    public void AnEditIsFormattedAtOnceAndTheCleanedNumberSent()
     {
         var (context, sink) = Pages.Context();
-        var dialer = new DialerViewModel();
+        var rules = new FakeDialRules();
+        var dialer = new DialerViewModel(rules);
         dialer.Attach(context);
+        var carets = new List<int>();
+        dialer.CaretMoved += (_, caret) => carets.Add(caret);
+        dialer.CaretSource = () => 1;
 
-        dialer.Number = "5";
-        dialer.Number = "55";
-        // The core's answer to the first edit, after the second was typed.
-        dialer.Show(View("5"));
-        Assert.Equal("55", dialer.Number);
+        dialer.Number = "4";
+        Assert.Equal("(4)", dialer.Number);
+        Assert.Equal("CA +1", dialer.CountryButton);
+        dialer.NextDeleteForward = true;
+        dialer.Number = "(4)5";
+        Assert.Equal("((4)5)", dialer.Number);
+        Assert.False(dialer.NextDeleteForward, "a delete's direction counts once");
+        Assert.Equal([3, 6], carets);
+        Assert.Equal([("", "4", 1u, false, (string?)null), ("(4)", "(4)5", 1u, true, "CA")], rules.Formats);
+
+        // The core's answer to the first edit, after the second was formatted.
+        dialer.Show(View("(4)", "US"));
+        Assert.Equal("((4)5)", dialer.Number);
+        // The box's country until the core catches up.
+        Assert.Equal("CA +1", dialer.CountryButton);
+        // Caught up: the core's country.
+        dialer.Show(View("((4)5)", "US"));
+        Assert.Equal("US +1", dialer.CountryButton);
 
         // A number the box did not send (a call back) is written, and not sent back.
-        dialer.Show(View("+12125550100"));
-        Assert.Equal("+12125550100", dialer.Number);
+        dialer.Show(View("(212) 555-0100", "US"));
+        Assert.Equal("(212) 555-0100", dialer.Number);
 
-        Assert.Equal([new UiEvent.DialerEdit("5"), new UiEvent.DialerEdit("55")], sink.Sent);
+        Assert.Equal([new UiEvent.DialerEdit("4"), new UiEvent.DialerEdit("(4)5")], sink.Sent);
+    }
+
+    [Fact]
+    public void TheCountryListSuggestsThenListsAndAPickIsSent()
+    {
+        var (context, sink) = Pages.Context();
+        var dialer = new DialerViewModel(new FakeDialRules());
+        dialer.Attach(context);
+        dialer.Show(View(country: "CA", home: "CA"));
+
+        dialer.SearchCountries(string.Empty);
+        Assert.Equal("Country", dialer.CountriesTitle);
+        Assert.Equal("Country name or code", dialer.CountrySearchPlaceholder);
+        Assert.False(dialer.HasNoCountryMatch);
+        Assert.Equal(
+            ["Suggested", "Canada", "All countries", "Afghanistan", "Canada"],
+            dialer.Countries.Select(row => row.Name));
+        Assert.True(dialer.Countries[0].IsHeading);
+        Assert.True(dialer.Countries[1].Selected);
+
+        dialer.SearchCountries("zzz");
+        Assert.Empty(dialer.Countries);
+        Assert.Equal("No country matches.", dialer.NoCountryMatch);
+        Assert.True(dialer.HasNoCountryMatch);
+        dialer.PickFirstCountry();
+        Assert.Empty(sink.Sent);
+
+        dialer.SearchCountries(string.Empty);
+        dialer.PickFirstCountry();
+        Assert.Equal("CA:", dialer.Number);
+        Assert.Equal("CA +44", dialer.CountryButton);
+        dialer.PickCountry("GB");
+        Assert.Equal("GB:CA:", dialer.Number);
+        dialer.CheckLength();
+        Assert.Equal(
+            [new UiEvent.DialerPickCountry("CA"), new UiEvent.DialerPickCountry("GB"), new UiEvent.DialerCheckLength()],
+            sink.Sent);
     }
 
     [Fact]
     public void CallSendsTheDial()
     {
-        var dialer = new DialerViewModel();
+        var dialer = new DialerViewModel(new FakeDialRules());
         dialer.Number = "5";
         dialer.DialCommand.Execute(null);
+        dialer.CheckLength();
 
         var (context, sink) = Pages.Context();
         dialer.Attach(context);

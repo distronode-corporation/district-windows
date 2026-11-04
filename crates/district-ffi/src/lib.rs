@@ -93,7 +93,9 @@ mod views;
 pub use crate::account::{AccountView, ConfirmView, DeviceRowView, DevicesView};
 pub use crate::calls::{CallDetailView, CallRowView, CallsView, TranscriptState};
 pub use crate::calls_live::{
-    ActiveCallView, DialerView, IncomingRingView, active_call_view, dialer_view, incoming_ring_view,
+    ActiveCallView, DialCountryList, DialCountryRow, DialEntryFormat, DialerView, IncomingRingView,
+    active_call_view, dial_country_list, dial_entry_format, dial_pick_format, dialer_view,
+    incoming_ring_view,
 };
 pub use crate::compose::{ComposeAction, ComposeChannelView, ComposeEntryView, ComposeView};
 pub use crate::contacts::{

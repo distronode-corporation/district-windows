@@ -7,6 +7,20 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The dialler is country-aware (dialler design A, the core's rules): a country button
+  in front of the number (its ISO code and calling code, `CA +1`, since Windows draws a
+  flag emoji as two letters) opens a searchable list, Suggested first (the workspace's
+  own country, the one chosen, Canada and the United States). The number is typed the
+  local way and formatted as it is typed; a pasted `+` number moves the button and the
+  box keeps the local form. Before Call a line reads "Rings <country> · <international
+  number>", and that E.164 number is what is sent. A wrong length keeps Call off and is
+  said once the box loses the keyboard, on Enter, or when the switched-off Call button
+  is pressed. district-ffi adds `dial_entry_format`, `dial_pick_format` and
+  `dial_country_list`, and the `DialerPickCountry` and `DialerCheckLength` events; the
+  core is pinned to district-core-rust's dialler branch until it is released.
+
 ## [3.2.0] - 2026-10-27
 
 District AI 3.2.0 brings District HQ by voice: talk to the assistant, see both sides'
