@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- `webrtc-sys-build` 0.3.20, which takes `zip` 9.3.0 in place of 0.6.6, so the build no
+  longer carries RUSTSEC-2026-0429 (and the three zip advisories `deny.toml` ignored,
+  whose entries are gone). 0.3.20 is 0.3.19 with only that dependency changed and the
+  same WebRTC tag, so the pinned libwebrtc (`libwebrtc-89d790b-audio-win-1`) stays.
+
 ## [3.2.0] - 2026-10-27
 
 District AI 3.2.0 brings District HQ by voice: talk to the assistant, see both sides'
