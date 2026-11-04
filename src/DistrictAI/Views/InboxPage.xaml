@@ -92,6 +92,11 @@
                                 TextTrimming="CharacterEllipsis"
                                 TextWrapping="Wrap" />
                             <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ChannelLabel}" />
+                            <TextBlock
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Text="{x:Bind Assignee}"
+                                TextTrimming="CharacterEllipsis"
+                                Visibility="{x:Bind HasAssignee}" />
                         </StackPanel>
                         <TextBlock
                             Grid.Column="2"

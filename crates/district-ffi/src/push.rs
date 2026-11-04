@@ -34,7 +34,9 @@ use std::time::{Duration, Instant};
 use district_api::{ApiClient, ApiError, Endpoint, TokenSource};
 use district_core::RING_DEADLINE;
 use district_live::{LiveUpdate, WorkspaceUpdate};
-use district_model::{PushRegistrationResponse, TelemetryEnvelope, TelemetryEventType};
+use district_model::{
+    META_CHANNELS_CAPABILITY, PushRegistrationResponse, TelemetryEnvelope, TelemetryEventType,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use url::Url;
@@ -250,7 +252,17 @@ pub(crate) struct WnsRegistration {
     token: String,
     platform: &'static str,
     kind: &'static str,
+    /// What this build can open: Messenger and Instagram threads, so the
+    /// service pushes those messages to it too. The same as the core's
+    /// `meta_channels` ([`META_CHANNELS`](crate::core::META_CHANNELS)) and the
+    /// presence's declaration; the service replaces the list at every
+    /// registration.
+    capabilities: [&'static str; 1],
 }
+
+// The channel declares Messenger and Instagram because the app renders them:
+// the core's flag and this declaration are one decision.
+const _: () = assert!(crate::core::META_CHANNELS);
 
 impl WnsRegistration {
     pub(crate) fn new(channel_uri: String) -> Self {
@@ -258,6 +270,7 @@ impl WnsRegistration {
             token: channel_uri,
             platform: "windows",
             kind: "wns",
+            capabilities: [META_CHANNELS_CAPABILITY],
         }
     }
 }
@@ -269,6 +282,7 @@ impl fmt::Debug for WnsRegistration {
             .field("token", &"<redacted>")
             .field("platform", &self.platform)
             .field("kind", &self.kind)
+            .field("capabilities", &self.capabilities)
             .finish()
     }
 }
@@ -555,8 +569,14 @@ mod tests {
         assert!(!format!("{registration:?}").contains("secret"));
         assert_eq!(
             serde_json::to_value(&registration).unwrap(),
-            json!({"token": "https://a.notify.windows.com/w/?token=secret", "platform": "windows", "kind": "wns"})
+            json!({
+                "token": "https://a.notify.windows.com/w/?token=secret",
+                "platform": "windows",
+                "kind": "wns",
+                "capabilities": ["metaChannels"]
+            })
         );
+        assert!(format!("{registration:?}").contains("metaChannels"));
     }
 
     /// Records what it was asked to register and answers `answer`.

@@ -2,6 +2,21 @@
   "screen": {
     "Thread": {
       "view": {
+        "assignment": {
+          "can_assign": false,
+          "failure": null,
+          "label": "Assigned to",
+          "line": "Unassigned",
+          "options": [
+            {
+              "email": null,
+              "label": "Unassigned"
+            }
+          ],
+          "saving": false,
+          "selected": 0,
+          "show_picker": true
+        },
         "composer": {
           "ai_draft": {
             "billing_note": "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed.",
@@ -11,15 +26,33 @@
           },
           "attaching": false,
           "attachments": [],
+          "attachments_note": null,
           "busy": null,
           "can_attach": true,
+          "can_choose_channel": true,
           "can_draft_reply": true,
           "can_send": true,
+          "channel_label": "Reply channel",
+          "channels": [
+            {
+              "channel": "sms",
+              "label": "Text message",
+              "selected": true,
+              "to": "14165550142"
+            },
+            {
+              "channel": "email",
+              "label": "Email",
+              "selected": false,
+              "to": "ada@example.com"
+            }
+          ],
           "failure": null,
           "generating": false,
           "sending": false,
           "show_attach": true,
-          "text": "Thanks for waiting - Thursday at 2pm is confirmed. See you then."
+          "text": "Thanks for waiting - Thursday at 2pm is confirmed. See you then.",
+          "whatsapp": null
         },
         "has_more": false,
         "items": [

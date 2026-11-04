@@ -38,6 +38,9 @@ public sealed partial class ThreadViewModel : ObservableObject
     /// <summary>The reply box.</summary>
     public ComposerViewModel Composer { get; } = new();
 
+    /// <summary>Who owns the conversation, in the header.</summary>
+    public AssignmentViewModel Assignment { get; } = new();
+
     /// <summary>Whether "Older messages" is offered.</summary>
     [ObservableProperty]
     public partial bool HasMore { get; set; }
@@ -63,6 +66,7 @@ public sealed partial class ThreadViewModel : ObservableObject
         _context = context;
         Load.Attach(context);
         Composer.Attach(context);
+        Assignment.Attach(context);
     }
 
     internal void Show(ThreadView view, bool reportSending)
@@ -72,6 +76,7 @@ public sealed partial class ThreadViewModel : ObservableObject
         ReadOnlyNote = view.ReadOnlyNote;
         HasReadOnlyNote = view.ReadOnlyNote.Length > 0;
         Composer.Show(view.ThreadKey, view.Composer, reportSending);
+        Assignment.Show(view.Assignment);
         Load.Show(view.Status, view.Items.Length > 0, NoMessages, view.Refreshing, view.RefreshFailure);
         Display.Sync(Items, [.. view.Items.Select(item => TimelineItem.From(item, !reportSending))]);
         HasMore = Load.Ready && view.HasMore;

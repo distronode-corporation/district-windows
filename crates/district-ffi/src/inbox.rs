@@ -4,16 +4,16 @@
 
 use district_core::{
     Capabilities, ConversationList, InboxScreen, SearchState, ThreadHistory, ThreadScreen,
-    format_call_duration, format_phone_number,
+    format_call_duration, format_phone_number, reply_channel_label,
 };
 use district_model::{
-    ConversationSummary, MESSAGE_SEARCH_MIN_QUERY_LENGTH, MessageSearchHit, ThreadRef,
-    TimelineEvent,
+    CHANNEL_INSTAGRAM, CHANNEL_MESSENGER, ConversationSummary, MESSAGE_SEARCH_MIN_QUERY_LENGTH,
+    MessageSearchHit, ThreadRef, TimelineEvent,
 };
 use serde::Serialize;
 
 use crate::compose::{ComposeEntryView, ComposeView, compose_entry, compose_view};
-use crate::composer::{ComposerView, composer, read_only_note};
+use crate::composer::{AssignmentView, ComposerView, assignment, composer, read_only_note};
 use crate::l10n::{cs, l, s};
 use crate::views::{
     AiTextView, EmptyView, FailureView, LoadStatus, ReportAvailability, ai_summary, failure,
@@ -64,6 +64,9 @@ pub struct ThreadRowView {
     /// Whether it can be opened. False for a key this build cannot read, which
     /// the core refuses to open.
     pub can_open: bool,
+    /// Who owns it: "Assigned to ada@example.com", or nothing for a thread
+    /// nobody owns.
+    pub assignee: Option<String>,
 }
 
 /// The search over every message.
@@ -132,6 +135,9 @@ pub struct ThreadView {
     /// The reply box (crate::composer): `None` for a member who may not reply
     /// here, and on a thread with nowhere to reply to.
     pub composer: Option<ComposerView>,
+    /// Who owns the conversation, and the picker that changes it, in the
+    /// header: `None` while the thread is not open.
+    pub assignment: Option<AssignmentView>,
 }
 
 /// One event of a conversation.
@@ -206,13 +212,16 @@ fn can_open(thread_key: &str) -> bool {
 
 /// What a channel is called, as the Linux app names it.
 ///
-/// The server writes four: `sms`, `email`, `whatsapp`, and `voicemail` for a
-/// message the voice agent took on a call. Anything else reads as a text
-/// message, as `sms` does.
+/// The server writes `sms`, `email`, `whatsapp`, `messenger`, `instagram`, and
+/// `voicemail` for a message the voice agent took on a call. Anything else
+/// reads as a text message, as `sms` does.
 fn channel(event_type: &str) -> &'static str {
     match event_type {
         "email" => s::inbox_channel_email(l()),
         "whatsapp" => "WhatsApp",
+        CHANNEL_MESSENGER | CHANNEL_INSTAGRAM => {
+            reply_channel_label(event_type).unwrap_or_default()
+        }
         "voicemail" => s::inbox_channel_voicemail(l()),
         _ => s::inbox_channel_text(l()),
     }
@@ -245,6 +254,7 @@ fn thread_row(conversation: &ConversationSummary) -> ThreadRowView {
         unread: conversation.has_unread(),
         last_at: instant(&last.created_at),
         can_open: can_open(&conversation.thread_key),
+        assignee: InboxScreen::assignee_line(conversation),
     }
 }
 
@@ -442,6 +452,7 @@ pub(crate) fn thread_view(
         refresh_failure: None,
         read_only_note: read_only_note(screen, capabilities),
         composer: composer(screen, capabilities),
+        assignment: assignment(screen, capabilities),
     };
     match screen.map(|screen| &screen.history) {
         None | Some(ThreadHistory::Loading) => {}

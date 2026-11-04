@@ -324,6 +324,34 @@ fn broken() -> ApiError {
     }
 }
 
+/// The inbox as the service answers the app, which asks with `metaChannels=1`
+/// and `assignments=1`: the reply options fixture's threads (WhatsApp,
+/// Messenger, Instagram, and the contact's email, text and WhatsApp), each with
+/// its owner from the assignee fixture, the contact's thread first, so the walk
+/// opens the conversation it always has.
+fn conversations() -> Value {
+    let mut list: Value =
+        serde_json::from_str(fixture!("district-conversations-reply-options.json"))
+            .unwrap_or_default();
+    let owners: Value =
+        serde_json::from_str(fixture!("district-conversations-assignee.json")).unwrap_or_default();
+    let owner_of = |key: &Value| {
+        owners["conversations"]
+            .as_array()
+            .and_then(|rows| rows.iter().find(|row| row["threadKey"] == *key))
+            .map_or(Value::Null, |row| row["assigneeEmail"].clone())
+    };
+    if let Some(rows) = list["conversations"].as_array_mut() {
+        for row in rows.iter_mut() {
+            let owner = owner_of(&row["threadKey"]);
+            row["assignedToMe"] = json!(false);
+            row["assigneeEmail"] = owner;
+        }
+        rows.sort_by_key(|row| row["threadKey"] != json!("contact:contact_contract_1"));
+    }
+    list
+}
+
 /// The one workspace: an agency's, so every area its role allows is offered.
 fn workspaces() -> Value {
     workspaces_in("us")
@@ -380,7 +408,7 @@ fn signed_in(effect: Effect) -> Option<Event> {
         },
         Effect::LoadConversations { ticket, .. } => Event::ConversationsLoaded {
             ticket,
-            result: decode(fixture!("district-conversations.json")),
+            result: decode(&conversations().to_string()),
         },
         Effect::LoadUnreadCount { ticket, .. } => Event::UnreadCountLoaded {
             ticket,
@@ -580,6 +608,20 @@ fn signed_in(effect: Effect) -> Option<Event> {
         Effect::WriteMessaging { ticket, write, .. } => Event::SettingsWritten {
             ticket,
             result: written(messaging_answer(&write)?),
+        },
+        // The thread's WhatsApp window is closed, so its sender's templates
+        // are offered; a change of owner lands as the service records it.
+        Effect::LoadWhatsAppWindow { ticket, .. } => Event::WhatsAppWindowLoaded {
+            ticket,
+            result: decode(fixture!("district-whatsapp-window-closed.json")),
+        },
+        Effect::LoadWhatsAppTemplates { ticket, .. } => Event::WhatsAppTemplatesLoaded {
+            ticket,
+            result: decode(fixture!("district-whatsapp-templates.json")),
+        },
+        Effect::AssignConversation { ticket, .. } => Event::ConversationAssigned {
+            ticket,
+            result: decode(fixture!("district-conversation-assign.json")),
         },
         Effect::LoadMembers { ticket, .. } => Event::MembersLoaded {
             ticket,
@@ -1070,6 +1112,7 @@ mod tests {
                 app_version: "0.1.0".to_owned(),
                 calls_available: true,
                 in_app_purchases: true,
+                meta_channels: true,
                 locale: Locale::En,
             });
             let mut played = Self {
@@ -1300,6 +1343,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available,
             in_app_purchases: true,
+            meta_channels: true,
             locale: district_core::Locale::En,
         });
         settle(&mut model, first);
@@ -1343,6 +1387,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: false,
             in_app_purchases: true,
+            meta_channels: true,
             locale: district_core::Locale::En,
         });
         settle(&mut model, first);
@@ -2843,6 +2888,58 @@ mod tests {
             panic!("the conversation opens: {screen:?}");
         };
         assert!(view.composer.is_some(), "no reply box: {view:?}");
+        assert_eq!(unsettled(&screen), None, "{screen:?}");
+    }
+
+    /// The walk's parity scene: Messenger and Instagram rows with their
+    /// owners, the contact's three reply channels, the owner picker, and
+    /// WhatsApp's closed window offering the approved template.
+    #[test]
+    fn the_inbox_shows_meta_threads_owners_and_a_closed_window() {
+        let mut model = started();
+        let ScreenView::Inbox { view } = after(&mut model, Event::Navigate(Route::Inbox)) else {
+            panic!("the inbox opens");
+        };
+        assert_eq!(view.threads.len(), 5);
+        assert_eq!(view.threads[0].title, "Contract Test Caller");
+        assert_eq!(
+            view.threads[0].assignee.as_deref(),
+            Some("Assigned to contract@example.com")
+        );
+        assert!(
+            view.threads
+                .iter()
+                .any(|row| row.channel_label == "Messenger")
+        );
+        let ScreenView::Thread { view } = after(
+            &mut model,
+            Event::Navigate(Route::Thread {
+                thread_key: view.threads[0].thread_key.clone(),
+            }),
+        ) else {
+            panic!("the conversation opens");
+        };
+        let composer = view.composer.expect("a reply box");
+        assert!(composer.can_choose_channel);
+        assert_eq!(composer.channels.len(), 3);
+        let assignment = view.assignment.expect("an owner picker");
+        assert!(assignment.can_assign && assignment.options.len() == 4);
+        let screen = after(
+            &mut model,
+            Event::Thread(district_core::ThreadEvent::ChooseChannel(
+                "whatsapp".to_owned(),
+            )),
+        );
+        let ScreenView::Thread { view } = &screen else {
+            panic!("still the conversation");
+        };
+        let templates = view
+            .composer
+            .as_ref()
+            .and_then(|composer| composer.whatsapp.as_ref())
+            .and_then(|whatsapp| whatsapp.templates.as_ref())
+            .expect("the closed window offers templates");
+        assert_eq!(templates.options.len(), 1);
         assert_eq!(unsettled(&screen), None, "{screen:?}");
     }
 }

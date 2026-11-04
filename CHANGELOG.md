@@ -7,6 +7,32 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Messenger and Instagram conversations in the Inbox, labelled by channel, and each
+  conversation's owner under its row ("Assigned to ..."). The app reads the inbox with
+  the core's `meta_channels` on, and its presence and WNS channel declare
+  `capabilities: ["metaChannels"]`, so the service also pushes those messages to it.
+- A reply channel chooser in a conversation, listing the channels the service names for
+  it (text message, email, WhatsApp, Messenger, Instagram), the first chosen; images go
+  by text message only, and Send says so while they are held on another channel.
+- An owner picker in a conversation's header ("Unassigned" and the workspace's Agency and
+  Client members, the current owner kept even when a Viewer); a Viewer sees the owner's
+  line without the picker. One change is sent at a time.
+- On WhatsApp, a closed customer-service window turns the box into a template picker: the
+  approved templates, one field per variable, the filled preview as the service will
+  store it, and Send template.
+- district-ffi: `ComposerView` gains `channel_label`, `channels`, `can_choose_channel`,
+  `attachments_note` and `whatsapp` (`WhatsAppView`, `TemplatePickerView`);
+  `ThreadView` gains `assignment` (`AssignmentView`); `ThreadRowView` gains `assignee`;
+  `ComposerAction` gains `ChooseChannel`, `Assign`, `DismissAssignFailure`,
+  `ChooseTemplate`, `TemplateVariable` and `SendTemplate`. Every word is the core's.
+
+### Changed
+
+- The core is pinned to district-core-rust's `feat/app-parity-desktop` branch
+  (district-core-rust#65, version 7.0.1) until it is released as 8.0.0.
+
 ### Security
 
 - `webrtc-sys-build` 0.3.20, which takes `zip` 9.3.0 in place of 0.6.6, so the build no

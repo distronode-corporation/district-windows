@@ -121,10 +121,48 @@ public sealed partial class ComposerViewModel : ObservableObject
     [ObservableProperty]
     public partial bool DraftReportEnabled { get; set; }
 
+    /// <summary>The channel chooser's label: "Reply channel".</summary>
+    [ObservableProperty]
+    public partial string ChannelLabel { get; set; } = string.Empty;
+
+    /// <summary>The ways to reply the service lists for the conversation.</summary>
+    public ObservableCollection<ChannelChoice> Channels { get; } = [];
+
+    /// <summary>Whether the chooser shows: there is more than one way to reply.</summary>
+    [ObservableProperty]
+    public partial bool ShowChannels { get; set; }
+
+    /// <summary>Whether the chooser works now: not while anything is on its way.</summary>
+    [ObservableProperty]
+    public partial bool CanChooseChannel { get; set; }
+
+    /// <summary>The channel the reply goes on.</summary>
+    [ObservableProperty]
+    public partial ChannelChoice? SelectedChannel { get; set; }
+
+    /// <summary>Said beside the images when the channel cannot carry them, or empty.</summary>
+    [ObservableProperty]
+    public partial string AttachmentsNote { get; set; } = string.Empty;
+
+    /// <summary>Whether there is an <see cref="AttachmentsNote"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasAttachmentsNote { get; set; }
+
+    /// <summary>Whether the free-text box and Send show: not while WhatsApp allows only a template.</summary>
+    [ObservableProperty]
+    public partial bool ShowText { get; set; } = true;
+
+    /// <summary>The WhatsApp window and its templates.</summary>
+    public TemplatePickerViewModel WhatsApp { get; } = new();
+
     /// <summary>What a report on the reply in the box is about.</summary>
     internal ReportTarget DraftTarget => new ReportTarget.AiDraft(ThreadKey);
 
-    internal void Attach(PageContext context) => _context = context;
+    internal void Attach(PageContext context)
+    {
+        _context = context;
+        WhatsApp.Attach(context);
+    }
 
     /// <summary>
     /// Shows <paramref name="view"/>, the box under <paramref name="threadKey"/>,
@@ -143,9 +181,13 @@ public sealed partial class ComposerViewModel : ObservableObject
         {
             _phase = DraftPhase.None;
             HasAiDraft = false;
-            CanAttach = CanSend = CanDraftReply = false;
+            CanAttach = CanSend = CanDraftReply = CanChooseChannel = false;
+            WhatsApp.Show(null);
             return;
         }
+        ShowChannelsOf(view);
+        WhatsApp.Show(view.Whatsapp);
+        ShowText = view.Whatsapp?.WindowClosed is null;
         var written = _echo.Write(view.Text, Text);
         if (written)
         {
@@ -204,6 +246,37 @@ public sealed partial class ComposerViewModel : ObservableObject
             _phase = DraftPhase.None;
         }
         HasAiDraft = _phase == DraftPhase.Written;
+    }
+
+    /// <summary>The channel chooser, from <paramref name="view"/>.</summary>
+    private void ShowChannelsOf(ComposerView view)
+    {
+        _writing = true;
+        try
+        {
+            ChannelLabel = view.ChannelLabel;
+            Display.Sync(Channels, [.. view.Channels.Select(channel => new ChannelChoice(channel.Channel, channel.Label, channel.To))]);
+            var selected = Array.FindIndex(view.Channels, channel => channel.Selected);
+            SelectedChannel = selected >= 0 ? Channels[selected] : null;
+            ShowChannels = view.Channels.Length > 1;
+            CanChooseChannel = view.CanChooseChannel;
+            AttachmentsNote = view.AttachmentsNote ?? string.Empty;
+            HasAttachmentsNote = view.AttachmentsNote is not null;
+        }
+        finally
+        {
+            _writing = false;
+        }
+    }
+
+    partial void OnSelectedChannelChanged(ChannelChoice? value)
+    {
+        if (_writing || value is null || _context is null || !CanChooseChannel)
+        {
+            return;
+        }
+        CanChooseChannel = false;
+        _context.Send(new UiEvent.Composer(new ComposerAction.ChooseChannel(value.Channel)));
     }
 
     partial void OnTextChanged(string value)
@@ -299,4 +372,14 @@ public sealed record AttachmentChip(string Url, string Name)
 {
     /// <summary>The remove button's accessible name: "Remove Image 1".</summary>
     public string RemoveLabel => S.ComposerRemoveAttachment(Name);
+}
+
+/// <summary>One way to reply, in the channel chooser.</summary>
+/// <param name="Channel">The channel as the service names it, to choose it by.</param>
+/// <param name="Label">Its name: "Text message", "WhatsApp".</param>
+/// <param name="To">Where the reply goes on it.</param>
+public sealed record ChannelChoice(string Channel, string Label, string To)
+{
+    /// <inheritdoc/>
+    public override string ToString() => Label;
 }

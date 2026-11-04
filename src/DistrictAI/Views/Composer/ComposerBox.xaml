@@ -34,6 +34,82 @@
                 Content="{x:Bind l10n:S.CommonDismiss}" />
         </Grid>
 
+        <!-- The channel the reply goes on, when the service lists more than one. -->
+        <ComboBox
+            MinWidth="200"
+            AutomationProperties.AutomationId="ReplyChannel"
+            AutomationProperties.Name="{x:Bind ViewModel.ChannelLabel, Mode=OneWay}"
+            Header="{x:Bind ViewModel.ChannelLabel, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.CanChooseChannel, Mode=OneWay}"
+            ItemsSource="{x:Bind ViewModel.Channels}"
+            SelectedItem="{x:Bind ViewModel.SelectedChannel, Mode=TwoWay}"
+            Visibility="{x:Bind ViewModel.ShowChannels, Mode=OneWay}" />
+
+        <!-- WhatsApp's closed window: only an approved template can go. -->
+        <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.WhatsApp.Visible, Mode=OneWay}">
+            <InfoBar
+                AutomationProperties.AutomationId="WhatsAppWindowClosed"
+                IsClosable="False"
+                IsOpen="{x:Bind ViewModel.WhatsApp.HasWindowClosed, Mode=OneWay}"
+                Message="{x:Bind ViewModel.WhatsApp.WindowClosed, Mode=OneWay}"
+                Severity="Warning" />
+            <TextBlock
+                AutomationProperties.LiveSetting="Polite"
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.WhatsApp.Message, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind ViewModel.WhatsApp.HasMessage, Mode=OneWay}" />
+            <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.WhatsApp.ShowPicker, Mode=OneWay}">
+                <ComboBox
+                    MinWidth="280"
+                    AutomationProperties.AutomationId="TemplatePicker"
+                    AutomationProperties.Name="{x:Bind ViewModel.WhatsApp.Label, Mode=OneWay}"
+                    Header="{x:Bind ViewModel.WhatsApp.Label, Mode=OneWay}"
+                    ItemsSource="{x:Bind ViewModel.WhatsApp.Options}"
+                    PlaceholderText="{x:Bind ViewModel.WhatsApp.Placeholder, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.WhatsApp.SelectedTemplate, Mode=TwoWay}" />
+                <ItemsControl ItemsSource="{x:Bind ViewModel.WhatsApp.Variables}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="composer:TemplateVariableField">
+                            <StackPanel Padding="0,0,0,8" Spacing="2">
+                                <TextBox
+                                    AutomationProperties.AutomationId="TemplateVariable"
+                                    AutomationProperties.Name="{x:Bind Label}"
+                                    Header="{x:Bind Label}"
+                                    Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock
+                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Required, Mode=OneWay}"
+                                    Visibility="{x:Bind HasRequired, Mode=OneWay}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.WhatsApp.HasPreview, Mode=OneWay}">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.WhatsApp.PreviewLabel, Mode=OneWay}" />
+                    <Border
+                        Padding="12,8"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource ControlCornerRadius}">
+                        <TextBlock
+                            AutomationProperties.AutomationId="TemplatePreview"
+                            IsTextSelectionEnabled="True"
+                            Text="{x:Bind ViewModel.WhatsApp.Preview, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </Border>
+                </StackPanel>
+                <Button
+                    AutomationProperties.AutomationId="SendTemplate"
+                    AutomationProperties.Name="{x:Bind ViewModel.WhatsApp.SendLabel, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.WhatsApp.SendCommand}"
+                    Content="{x:Bind ViewModel.WhatsApp.SendLabel, Mode=OneWay}"
+                    Style="{StaticResource AccentButtonStyle}" />
+            </StackPanel>
+        </StackPanel>
+
         <!-- A reply the model wrote, in the box for the member to read and edit before sending. -->
         <StackPanel
             Orientation="Horizontal"
@@ -89,6 +165,13 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
+        <!-- Why Send waits: the images go by text message only. -->
+        <TextBlock
+            Style="{StaticResource QuietTextStyle}"
+            Text="{x:Bind ViewModel.AttachmentsNote, Mode=OneWay}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.HasAttachmentsNote, Mode=OneWay}" />
+
         <!-- Enter is a new line; Ctrl+Enter sends. -->
         <TextBox
             x:Name="Box"
@@ -103,9 +186,10 @@
             PreviewKeyDown="OnBoxPreviewKeyDown"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             Text="{x:Bind ViewModel.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            TextWrapping="Wrap" />
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.ShowText, Mode=OneWay}" />
 
-        <Grid ColumnSpacing="8">
+        <Grid ColumnSpacing="8" Visibility="{x:Bind ViewModel.ShowText, Mode=OneWay}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />

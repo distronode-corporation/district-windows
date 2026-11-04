@@ -49,6 +49,9 @@ mod workflows;
 // French (3.0).
 mod french;
 
+// App parity (4.0): reply channels, owners and WhatsApp templates.
+mod parity;
+
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 
@@ -165,6 +168,7 @@ fn cases() -> Vec<Case> {
         composer::cases(),
         compose::cases(),
         settings::cases(),
+        parity::cases(),
     ]
     .into_iter()
     .flatten()
@@ -234,6 +238,7 @@ fn config() -> CoreConfig {
         calls_available: false,
         // As the app builds it: Windows buys in the app.
         in_app_purchases: true,
+        meta_channels: true,
         locale: district_core::Locale::En,
     }
 }

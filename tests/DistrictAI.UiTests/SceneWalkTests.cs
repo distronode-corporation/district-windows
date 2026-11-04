@@ -262,6 +262,84 @@ public sealed partial class SceneWalkTests
     }
 
     /// <summary>
+    /// App parity: the Inbox lists Messenger and Instagram conversations and
+    /// says who owns each; a conversation offers the channels the service
+    /// lists and an owner picker of the Agency and Client members; WhatsApp's
+    /// closed window offers the approved template, filled field by field with
+    /// the core's preview. Saved as 97-parity-inbox.png to
+    /// 101-parity-template-filled.png when screenshots are on. Nothing is sent.
+    /// </summary>
+    [Fact]
+    public void TheInboxOffersChannelsOwnersAndTemplates()
+    {
+        RequireScriptedPackage();
+        var shots = Environment.GetEnvironmentVariable("DISTRICTAI_SCREENSHOTS");
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        var handle = window.Properties.NativeWindowHandle.Value;
+        _ = Heading(app, WorkspaceName, _startTimeout);
+        if (shots is { Length: > 0 })
+        {
+            SizeClient(handle, 1920, 1080);
+        }
+        void Shot(string name)
+        {
+            if (shots is { Length: > 0 })
+            {
+                Save(handle, Path.Combine(shots, name), clientOnly: true);
+            }
+        }
+
+        OpenUntilFoundById(app, "NavInbox", "InboxHeading");
+        _ = app.Find(ControlType.Text, "Messenger", PageTimeout);
+        _ = app.Find(ControlType.Text, "Assigned to contract@example.com", PageTimeout);
+        Shot("97-parity-inbox.png");
+
+        OpenFirstConversation(app);
+        _ = app.FindById(ReplyBoxId, PageTimeout);
+        var owner = app.FindById("AssigneePicker", PageTimeout);
+        Expect(app, () => app.TryFindById("AssigneePicker") is { IsEnabled: true }, "the owner picker to work once the members are read");
+        Shot("98-parity-thread.png");
+
+        owner.Patterns.ExpandCollapse.Pattern.Expand();
+        _ = Wait.For(
+            () => owner.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem)) is { Length: 4 } items ? items : null,
+            PageTimeout,
+            "Unassigned and three members in the owner picker",
+            app.Describe);
+        Shot("99-parity-owner-picker.png");
+        owner.Patterns.ExpandCollapse.Pattern.Collapse();
+
+        var channel = app.FindById("ReplyChannel", PageTimeout);
+        channel.Patterns.ExpandCollapse.Pattern.Expand();
+        _ = Wait.For(
+            () => channel.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem)) is { Length: 3 } items ? items : null,
+            PageTimeout,
+            "Email, Text message and WhatsApp in the channel chooser",
+            app.Describe);
+        Shot("100-parity-channels.png");
+        channel.Patterns.ExpandCollapse.Pattern.Collapse();
+        Choose(app, channel, items => items.FirstOrDefault(item => NameOf(item) == "WhatsApp"), "WhatsApp in the channel chooser");
+
+        _ = app.FindById("WhatsAppWindowClosed", PageTimeout);
+        var picker = app.FindById("TemplatePicker", PageTimeout);
+        Choose(app, picker, items => items.FirstOrDefault(), "the approved template");
+        var fields = Wait.For(
+            () => AllById(app, "TemplateVariable") is { Length: 2 } found ? found : null,
+            PageTimeout,
+            "the template's two variables",
+            app.Describe);
+        fields[0].AsTextBox().Text = "Ada";
+        fields[1].AsTextBox().Text = "Thursday";
+        Expect(app, () => app.TryFindById("TemplatePreview") is { } preview
+            && NameOf(preview) == "Hi Ada, this is a reminder of your appointment on Thursday.",
+            "the filled preview");
+        Expect(app, () => app.TryFindById("SendTemplate") is { IsEnabled: true }, "Send template to work");
+        Shot("101-parity-template-filled.png");
+        Assert.True(app.IsRunning, "the app ended in the conversation");
+    }
+
+    /// <summary>
     /// The call shortcuts (MainWindow.xaml's accelerators) during a placed
     /// call: Ctrl+D turns the microphone the other way (the call bar's Mute
     /// toggled) and back again, and Ctrl+Shift+H ends the call.

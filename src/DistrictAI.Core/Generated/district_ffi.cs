@@ -5295,6 +5295,162 @@ class FfiConverterTypeApiKeyRowView: FfiConverterRustBuffer<ApiKeyRowView> {
 
 
 /// <summary>
+/// One choice of the owner picker.
+/// </summary>
+/// <param name="Email">
+/// The member's address, or nothing for "Unassigned".
+/// </param>
+/// <param name="Label">
+/// What the choice reads.
+/// </param>
+public record AssigneeOptionView (
+    /// <summary>
+    /// The member's address, or nothing for "Unassigned".
+    /// </summary>
+    string? Email, 
+    /// <summary>
+    /// What the choice reads.
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeAssigneeOptionView: FfiConverterRustBuffer<AssigneeOptionView> {
+    public static FfiConverterTypeAssigneeOptionView INSTANCE = new FfiConverterTypeAssigneeOptionView();
+
+    public override AssigneeOptionView Read(BigEndianStream stream) {
+        return new AssigneeOptionView(
+            Email: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(AssigneeOptionView value) {
+        return 0
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Email)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(AssigneeOptionView value, BigEndianStream stream) {
+            FfiConverterOptionalString.INSTANCE.Write(value.Email, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Who owns the conversation, and the picker that changes it.
+/// </summary>
+/// <param name="Label">
+/// The picker's label: "Assigned to".
+/// </param>
+/// <param name="Line">
+/// The owner in one line, for a member who sees it without the picker:
+/// "Assigned to ada@example.com", or "Unassigned".
+/// </param>
+/// <param name="ShowPicker">
+/// Whether to show the picker: the member may assign (a Viewer sees
+/// `line` only).
+/// </param>
+/// <param name="Options">
+/// The picker's choices: "Unassigned" first, then the Agency and Client
+/// members, and the owner when they are not among them.
+/// </param>
+/// <param name="Selected">
+/// The choice showing: the owner's, or "Unassigned".
+/// </param>
+/// <param name="CanAssign">
+/// Whether the picker works now (members read, no change on its way).
+/// </param>
+/// <param name="Saving">
+/// Whether a change is on its way.
+/// </param>
+/// <param name="Failure">
+/// Why the last change failed, in the core's words.
+/// </param>
+public record AssignmentView (
+    /// <summary>
+    /// The picker's label: "Assigned to".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// The owner in one line, for a member who sees it without the picker:
+    /// "Assigned to ada@example.com", or "Unassigned".
+    /// </summary>
+    string Line, 
+    /// <summary>
+    /// Whether to show the picker: the member may assign (a Viewer sees
+    /// `line` only).
+    /// </summary>
+    bool ShowPicker, 
+    /// <summary>
+    /// The picker's choices: "Unassigned" first, then the Agency and Client
+    /// members, and the owner when they are not among them.
+    /// </summary>
+    AssigneeOptionView[] Options, 
+    /// <summary>
+    /// The choice showing: the owner's, or "Unassigned".
+    /// </summary>
+    uint Selected, 
+    /// <summary>
+    /// Whether the picker works now (members read, no change on its way).
+    /// </summary>
+    bool CanAssign, 
+    /// <summary>
+    /// Whether a change is on its way.
+    /// </summary>
+    bool Saving, 
+    /// <summary>
+    /// Why the last change failed, in the core's words.
+    /// </summary>
+    FailureView? Failure
+) {
+}
+
+class FfiConverterTypeAssignmentView: FfiConverterRustBuffer<AssignmentView> {
+    public static FfiConverterTypeAssignmentView INSTANCE = new FfiConverterTypeAssignmentView();
+
+    public override AssignmentView Read(BigEndianStream stream) {
+        return new AssignmentView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Line: FfiConverterString.INSTANCE.Read(stream),
+            ShowPicker: FfiConverterBoolean.INSTANCE.Read(stream),
+            Options: FfiConverterSequenceTypeAssigneeOptionView.INSTANCE.Read(stream),
+            Selected: FfiConverterUInt32.INSTANCE.Read(stream),
+            CanAssign: FfiConverterBoolean.INSTANCE.Read(stream),
+            Saving: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(AssignmentView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Line)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowPicker)
+            + FfiConverterSequenceTypeAssigneeOptionView.INSTANCE.AllocationSize(value.Options)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Selected)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanAssign)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Saving)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure);
+    }
+
+    public override void Write(AssignmentView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Line, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowPicker, stream);
+            FfiConverterSequenceTypeAssigneeOptionView.INSTANCE.Write(value.Options, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Selected, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanAssign, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One image waiting to go with the next message.
 /// </summary>
 /// <param name="Url">
@@ -8716,6 +8872,24 @@ class FfiConverterTypeComposeView: FfiConverterRustBuffer<ComposeView> {
 /// <param name="AiDraft">
 /// The AI button and what goes with a reply it wrote.
 /// </param>
+/// <param name="ChannelLabel">
+/// The reply channel chooser's label: "Reply channel".
+/// </param>
+/// <param name="Channels">
+/// The ways to reply the service lists for this thread, in its order, the
+/// one in use marked. Offer the chooser only with `can_choose_channel`.
+/// </param>
+/// <param name="CanChooseChannel">
+/// Whether to offer the chooser now: more than one channel, and nothing on
+/// its way.
+/// </param>
+/// <param name="AttachmentsNote">
+/// Said beside the images when the channel chosen cannot carry them
+/// (Send waits until they are removed), or nothing.
+/// </param>
+/// <param name="Whatsapp">
+/// The WhatsApp window and its templates, while the reply goes by WhatsApp.
+/// </param>
 public record ComposerView (
     /// <summary>
     /// What the box holds, as the core holds it: what was typed, a saved
@@ -8769,7 +8943,30 @@ public record ComposerView (
     /// <summary>
     /// The AI button and what goes with a reply it wrote.
     /// </summary>
-    AiDraftOfferView AiDraft
+    AiDraftOfferView AiDraft, 
+    /// <summary>
+    /// The reply channel chooser's label: "Reply channel".
+    /// </summary>
+    string ChannelLabel, 
+    /// <summary>
+    /// The ways to reply the service lists for this thread, in its order, the
+    /// one in use marked. Offer the chooser only with `can_choose_channel`.
+    /// </summary>
+    ReplyChannelView[] Channels, 
+    /// <summary>
+    /// Whether to offer the chooser now: more than one channel, and nothing on
+    /// its way.
+    /// </summary>
+    bool CanChooseChannel, 
+    /// <summary>
+    /// Said beside the images when the channel chosen cannot carry them
+    /// (Send waits until they are removed), or nothing.
+    /// </summary>
+    string? AttachmentsNote, 
+    /// <summary>
+    /// The WhatsApp window and its templates, while the reply goes by WhatsApp.
+    /// </summary>
+    WhatsAppView? Whatsapp
 ) {
 }
 
@@ -8789,7 +8986,12 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
             Generating: FfiConverterBoolean.INSTANCE.Read(stream),
             Busy: FfiConverterOptionalString.INSTANCE.Read(stream),
             Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
-            AiDraft: FfiConverterTypeAiDraftOfferView.INSTANCE.Read(stream)
+            AiDraft: FfiConverterTypeAiDraftOfferView.INSTANCE.Read(stream),
+            ChannelLabel: FfiConverterString.INSTANCE.Read(stream),
+            Channels: FfiConverterSequenceTypeReplyChannelView.INSTANCE.Read(stream),
+            CanChooseChannel: FfiConverterBoolean.INSTANCE.Read(stream),
+            AttachmentsNote: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Whatsapp: FfiConverterOptionalTypeWhatsAppView.INSTANCE.Read(stream)
         );
     }
 
@@ -8806,7 +9008,12 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Generating)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Busy)
             + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
-            + FfiConverterTypeAiDraftOfferView.INSTANCE.AllocationSize(value.AiDraft);
+            + FfiConverterTypeAiDraftOfferView.INSTANCE.AllocationSize(value.AiDraft)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ChannelLabel)
+            + FfiConverterSequenceTypeReplyChannelView.INSTANCE.AllocationSize(value.Channels)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChooseChannel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.AttachmentsNote)
+            + FfiConverterOptionalTypeWhatsAppView.INSTANCE.AllocationSize(value.Whatsapp);
     }
 
     public override void Write(ComposerView value, BigEndianStream stream) {
@@ -8822,6 +9029,11 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
             FfiConverterOptionalString.INSTANCE.Write(value.Busy, stream);
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
             FfiConverterTypeAiDraftOfferView.INSTANCE.Write(value.AiDraft, stream);
+            FfiConverterString.INSTANCE.Write(value.ChannelLabel, stream);
+            FfiConverterSequenceTypeReplyChannelView.INSTANCE.Write(value.Channels, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanChooseChannel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.AttachmentsNote, stream);
+            FfiConverterOptionalTypeWhatsAppView.INSTANCE.Write(value.Whatsapp, stream);
     }
 }
 
@@ -20719,6 +20931,73 @@ class FfiConverterTypeRenameView: FfiConverterRustBuffer<RenameView> {
 
 
 /// <summary>
+/// One way to reply.
+/// </summary>
+/// <param name="Channel">
+/// The channel as the service names it (`sms`, `email`, `whatsapp`,
+/// `messenger`, `instagram`), to choose it by.
+/// </param>
+/// <param name="Label">
+/// Its name: "Text message", "Email", "WhatsApp", "Messenger".
+/// </param>
+/// <param name="To">
+/// Where the reply goes on it.
+/// </param>
+/// <param name="Selected">
+/// Whether the reply goes on it now.
+/// </param>
+public record ReplyChannelView (
+    /// <summary>
+    /// The channel as the service names it (`sms`, `email`, `whatsapp`,
+    /// `messenger`, `instagram`), to choose it by.
+    /// </summary>
+    string Channel, 
+    /// <summary>
+    /// Its name: "Text message", "Email", "WhatsApp", "Messenger".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// Where the reply goes on it.
+    /// </summary>
+    string To, 
+    /// <summary>
+    /// Whether the reply goes on it now.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeReplyChannelView: FfiConverterRustBuffer<ReplyChannelView> {
+    public static FfiConverterTypeReplyChannelView INSTANCE = new FfiConverterTypeReplyChannelView();
+
+    public override ReplyChannelView Read(BigEndianStream stream) {
+        return new ReplyChannelView(
+            Channel: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            To: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ReplyChannelView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Channel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.To)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(ReplyChannelView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Channel, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.To, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The calls over the period: the figures and their charts.
 /// </summary>
 /// <param name="Title">
@@ -29261,6 +29540,255 @@ class FfiConverterTypeTeamRowView: FfiConverterRustBuffer<TeamRowView> {
 
 
 /// <summary>
+/// One approved template.
+/// </summary>
+/// <param name="Id">
+/// Its id, to choose it by.
+/// </param>
+/// <param name="Label">
+/// Its line in the picker: "appointment_reminder (en_US)".
+/// </param>
+public record TemplateOptionView (
+    /// <summary>
+    /// Its id, to choose it by.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// Its line in the picker: "appointment_reminder (en_US)".
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeTemplateOptionView: FfiConverterRustBuffer<TemplateOptionView> {
+    public static FfiConverterTypeTemplateOptionView INSTANCE = new FfiConverterTypeTemplateOptionView();
+
+    public override TemplateOptionView Read(BigEndianStream stream) {
+        return new TemplateOptionView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TemplateOptionView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(TemplateOptionView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The template picker a closed window offers.
+/// </summary>
+/// <param name="Message">
+/// Instead of the picker: "Loading templates", the sentence for a number
+/// with no approved template, or for templates that could not be read.
+/// </param>
+/// <param name="Label">
+/// The picker's label: "Template".
+/// </param>
+/// <param name="Placeholder">
+/// The picker's placeholder: "Choose an approved template".
+/// </param>
+/// <param name="Options">
+/// The approved templates, each by its id with its name and language.
+/// </param>
+/// <param name="Chosen">
+/// The id of the template chosen.
+/// </param>
+/// <param name="Variables">
+/// One field per `{{n}}` of the chosen template, in order.
+/// </param>
+/// <param name="PreviewLabel">
+/// The preview's label: "Preview".
+/// </param>
+/// <param name="Preview">
+/// The chosen template with what is typed filled in, as the service will
+/// store it; an empty variable shows as its `{{n}}`.
+/// </param>
+/// <param name="SendLabel">
+/// The send button: "Send template".
+/// </param>
+/// <param name="CanSend">
+/// Whether the send button works now.
+/// </param>
+/// <param name="Sending">
+/// Whether a template is on its way.
+/// </param>
+public record TemplatePickerView (
+    /// <summary>
+    /// Instead of the picker: "Loading templates", the sentence for a number
+    /// with no approved template, or for templates that could not be read.
+    /// </summary>
+    string? Message, 
+    /// <summary>
+    /// The picker's label: "Template".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// The picker's placeholder: "Choose an approved template".
+    /// </summary>
+    string Placeholder, 
+    /// <summary>
+    /// The approved templates, each by its id with its name and language.
+    /// </summary>
+    TemplateOptionView[] Options, 
+    /// <summary>
+    /// The id of the template chosen.
+    /// </summary>
+    string? Chosen, 
+    /// <summary>
+    /// One field per `{{n}}` of the chosen template, in order.
+    /// </summary>
+    TemplateVariableView[] Variables, 
+    /// <summary>
+    /// The preview's label: "Preview".
+    /// </summary>
+    string PreviewLabel, 
+    /// <summary>
+    /// The chosen template with what is typed filled in, as the service will
+    /// store it; an empty variable shows as its `{{n}}`.
+    /// </summary>
+    string? Preview, 
+    /// <summary>
+    /// The send button: "Send template".
+    /// </summary>
+    string SendLabel, 
+    /// <summary>
+    /// Whether the send button works now.
+    /// </summary>
+    bool CanSend, 
+    /// <summary>
+    /// Whether a template is on its way.
+    /// </summary>
+    bool Sending
+) {
+}
+
+class FfiConverterTypeTemplatePickerView: FfiConverterRustBuffer<TemplatePickerView> {
+    public static FfiConverterTypeTemplatePickerView INSTANCE = new FfiConverterTypeTemplatePickerView();
+
+    public override TemplatePickerView Read(BigEndianStream stream) {
+        return new TemplatePickerView(
+            Message: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Placeholder: FfiConverterString.INSTANCE.Read(stream),
+            Options: FfiConverterSequenceTypeTemplateOptionView.INSTANCE.Read(stream),
+            Chosen: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Variables: FfiConverterSequenceTypeTemplateVariableView.INSTANCE.Read(stream),
+            PreviewLabel: FfiConverterString.INSTANCE.Read(stream),
+            Preview: FfiConverterOptionalString.INSTANCE.Read(stream),
+            SendLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanSend: FfiConverterBoolean.INSTANCE.Read(stream),
+            Sending: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TemplatePickerView value) {
+        return 0
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Message)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Placeholder)
+            + FfiConverterSequenceTypeTemplateOptionView.INSTANCE.AllocationSize(value.Options)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Chosen)
+            + FfiConverterSequenceTypeTemplateVariableView.INSTANCE.AllocationSize(value.Variables)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PreviewLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Preview)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SendLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSend)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Sending);
+    }
+
+    public override void Write(TemplatePickerView value, BigEndianStream stream) {
+            FfiConverterOptionalString.INSTANCE.Write(value.Message, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Placeholder, stream);
+            FfiConverterSequenceTypeTemplateOptionView.INSTANCE.Write(value.Options, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Chosen, stream);
+            FfiConverterSequenceTypeTemplateVariableView.INSTANCE.Write(value.Variables, stream);
+            FfiConverterString.INSTANCE.Write(value.PreviewLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Preview, stream);
+            FfiConverterString.INSTANCE.Write(value.SendLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSend, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Sending, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One variable of the chosen template.
+/// </summary>
+/// <param name="Index">
+/// Its place, from zero, to change it by.
+/// </param>
+/// <param name="Label">
+/// "Variable {{1}}".
+/// </param>
+/// <param name="Value">
+/// What is typed.
+/// </param>
+/// <param name="Required">
+/// "Fill in this variable" while it is empty.
+/// </param>
+public record TemplateVariableView (
+    /// <summary>
+    /// Its place, from zero, to change it by.
+    /// </summary>
+    uint Index, 
+    /// <summary>
+    /// "Variable {{1}}".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// What is typed.
+    /// </summary>
+    string Value, 
+    /// <summary>
+    /// "Fill in this variable" while it is empty.
+    /// </summary>
+    string? Required
+) {
+}
+
+class FfiConverterTypeTemplateVariableView: FfiConverterRustBuffer<TemplateVariableView> {
+    public static FfiConverterTypeTemplateVariableView INSTANCE = new FfiConverterTypeTemplateVariableView();
+
+    public override TemplateVariableView Read(BigEndianStream stream) {
+        return new TemplateVariableView(
+            Index: FfiConverterUInt32.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Value: FfiConverterString.INSTANCE.Read(stream),
+            Required: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TemplateVariableView value) {
+        return 0
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Index)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Required);
+    }
+
+    public override void Write(TemplateVariableView value, BigEndianStream stream) {
+            FfiConverterUInt32.INSTANCE.Write(value.Index, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Required, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One term in the chooser.
 /// </summary>
 /// <param name="Term">
@@ -29330,6 +29858,10 @@ class FfiConverterTypeTermOptionView: FfiConverterRustBuffer<TermOptionView> {
 /// Whether it can be opened. False for a key this build cannot read, which
 /// the core refuses to open.
 /// </param>
+/// <param name="Assignee">
+/// Who owns it: "Assigned to ada@example.com", or nothing for a thread
+/// nobody owns.
+/// </param>
 public record ThreadRowView (
     /// <summary>
     /// The thread, to open it by.
@@ -29359,7 +29891,12 @@ public record ThreadRowView (
     /// Whether it can be opened. False for a key this build cannot read, which
     /// the core refuses to open.
     /// </summary>
-    bool CanOpen
+    bool CanOpen, 
+    /// <summary>
+    /// Who owns it: "Assigned to ada@example.com", or nothing for a thread
+    /// nobody owns.
+    /// </summary>
+    string? Assignee
 ) {
 }
 
@@ -29374,7 +29911,8 @@ class FfiConverterTypeThreadRowView: FfiConverterRustBuffer<ThreadRowView> {
             ChannelLabel: FfiConverterString.INSTANCE.Read(stream),
             Unread: FfiConverterBoolean.INSTANCE.Read(stream),
             LastAt: FfiConverterOptionalString.INSTANCE.Read(stream),
-            CanOpen: FfiConverterBoolean.INSTANCE.Read(stream)
+            CanOpen: FfiConverterBoolean.INSTANCE.Read(stream),
+            Assignee: FfiConverterOptionalString.INSTANCE.Read(stream)
         );
     }
 
@@ -29386,7 +29924,8 @@ class FfiConverterTypeThreadRowView: FfiConverterRustBuffer<ThreadRowView> {
             + FfiConverterString.INSTANCE.AllocationSize(value.ChannelLabel)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Unread)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LastAt)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanOpen);
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanOpen)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Assignee);
     }
 
     public override void Write(ThreadRowView value, BigEndianStream stream) {
@@ -29397,6 +29936,7 @@ class FfiConverterTypeThreadRowView: FfiConverterRustBuffer<ThreadRowView> {
             FfiConverterBoolean.INSTANCE.Write(value.Unread, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.LastAt, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanOpen, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Assignee, stream);
     }
 }
 
@@ -29439,6 +29979,10 @@ class FfiConverterTypeThreadRowView: FfiConverterRustBuffer<ThreadRowView> {
 /// <param name="Composer">
 /// The reply box (crate::composer): `None` for a member who may not reply
 /// here, and on a thread with nowhere to reply to.
+/// </param>
+/// <param name="Assignment">
+/// Who owns the conversation, and the picker that changes it, in the
+/// header: `None` while the thread is not open.
 /// </param>
 public record ThreadView (
     /// <summary>
@@ -29486,7 +30030,12 @@ public record ThreadView (
     /// The reply box (crate::composer): `None` for a member who may not reply
     /// here, and on a thread with nowhere to reply to.
     /// </summary>
-    ComposerView? Composer
+    ComposerView? Composer, 
+    /// <summary>
+    /// Who owns the conversation, and the picker that changes it, in the
+    /// header: `None` while the thread is not open.
+    /// </summary>
+    AssignmentView? Assignment
 ) {
 }
 
@@ -29505,7 +30054,8 @@ class FfiConverterTypeThreadView: FfiConverterRustBuffer<ThreadView> {
             Refreshing: FfiConverterBoolean.INSTANCE.Read(stream),
             RefreshFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
             ReadOnlyNote: FfiConverterString.INSTANCE.Read(stream),
-            Composer: FfiConverterOptionalTypeComposerView.INSTANCE.Read(stream)
+            Composer: FfiConverterOptionalTypeComposerView.INSTANCE.Read(stream),
+            Assignment: FfiConverterOptionalTypeAssignmentView.INSTANCE.Read(stream)
         );
     }
 
@@ -29521,7 +30071,8 @@ class FfiConverterTypeThreadView: FfiConverterRustBuffer<ThreadView> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Refreshing)
             + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RefreshFailure)
             + FfiConverterString.INSTANCE.AllocationSize(value.ReadOnlyNote)
-            + FfiConverterOptionalTypeComposerView.INSTANCE.AllocationSize(value.Composer);
+            + FfiConverterOptionalTypeComposerView.INSTANCE.AllocationSize(value.Composer)
+            + FfiConverterOptionalTypeAssignmentView.INSTANCE.AllocationSize(value.Assignment);
     }
 
     public override void Write(ThreadView value, BigEndianStream stream) {
@@ -29536,6 +30087,7 @@ class FfiConverterTypeThreadView: FfiConverterRustBuffer<ThreadView> {
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.RefreshFailure, stream);
             FfiConverterString.INSTANCE.Write(value.ReadOnlyNote, stream);
             FfiConverterOptionalTypeComposerView.INSTANCE.Write(value.Composer, stream);
+            FfiConverterOptionalTypeAssignmentView.INSTANCE.Write(value.Assignment, stream);
     }
 }
 
@@ -31045,6 +31597,55 @@ class FfiConverterTypeWebhookRowView: FfiConverterRustBuffer<WebhookRowView> {
             FfiConverterString.INSTANCE.Write(value.StateLabel, stream);
             FfiConverterTypeRunTone.INSTANCE.Write(value.Tone, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Open, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The WhatsApp side of the reply box.
+/// </summary>
+/// <param name="WindowClosed">
+/// "Window closed: WhatsApp only allows a template now", once the service
+/// says so; nothing while the window is open or not known. Free text is off
+/// while it shows.
+/// </param>
+/// <param name="Templates">
+/// The template picker, while the window is closed.
+/// </param>
+public record WhatsAppView (
+    /// <summary>
+    /// "Window closed: WhatsApp only allows a template now", once the service
+    /// says so; nothing while the window is open or not known. Free text is off
+    /// while it shows.
+    /// </summary>
+    string? WindowClosed, 
+    /// <summary>
+    /// The template picker, while the window is closed.
+    /// </summary>
+    TemplatePickerView? Templates
+) {
+}
+
+class FfiConverterTypeWhatsAppView: FfiConverterRustBuffer<WhatsAppView> {
+    public static FfiConverterTypeWhatsAppView INSTANCE = new FfiConverterTypeWhatsAppView();
+
+    public override WhatsAppView Read(BigEndianStream stream) {
+        return new WhatsAppView(
+            WindowClosed: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Templates: FfiConverterOptionalTypeTemplatePickerView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WhatsAppView value) {
+        return 0
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.WindowClosed)
+            + FfiConverterOptionalTypeTemplatePickerView.INSTANCE.AllocationSize(value.Templates);
+    }
+
+    public override void Write(WhatsAppView value, BigEndianStream stream) {
+            FfiConverterOptionalString.INSTANCE.Write(value.WindowClosed, stream);
+            FfiConverterOptionalTypeTemplatePickerView.INSTANCE.Write(value.Templates, stream);
     }
 }
 
@@ -33067,7 +33668,8 @@ class FfiConverterTypeComposeAction : FfiConverterRustBuffer<ComposeAction>{
 
 
 /// <summary>
-/// Something the member did in the reply box.
+/// Something the member did in the reply box, or with the conversation's owner
+/// picker in its header.
 /// </summary>
 public record ComposerAction {
     
@@ -33117,6 +33719,47 @@ public record ComposerAction {
     public record DismissFailure: ComposerAction {}
     
     
+    /// <summary>
+    /// Reply on another channel.
+    /// </summary>
+    public record ChooseChannel (
+        string Channel
+    ) : ComposerAction {}
+    
+    /// <summary>
+    /// Give the conversation to a member, or take it back.
+    /// </summary>
+    public record Assign (
+        string? Assignee
+    ) : ComposerAction {}
+    
+    /// <summary>
+    /// Put away the owner picker's failure line.
+    /// </summary>
+    public record DismissAssignFailure: ComposerAction {}
+    
+    
+    /// <summary>
+    /// Choose a WhatsApp template.
+    /// </summary>
+    public record ChooseTemplate (
+        string Id
+    ) : ComposerAction {}
+    
+    /// <summary>
+    /// A template variable changed.
+    /// </summary>
+    public record TemplateVariable (
+        uint Index,
+        string Value
+    ) : ComposerAction {}
+    
+    /// <summary>
+    /// Send the chosen template, filled. Billed.
+    /// </summary>
+    public record SendTemplate: ComposerAction {}
+    
+    
 
     
 }
@@ -33151,6 +33794,29 @@ class FfiConverterTypeComposerAction : FfiConverterRustBuffer<ComposerAction>{
             case 7:
                 return new ComposerAction.DismissFailure(
                 );
+            case 8:
+                return new ComposerAction.ChooseChannel(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 9:
+                return new ComposerAction.Assign(
+                    FfiConverterOptionalString.INSTANCE.Read(stream)
+                );
+            case 10:
+                return new ComposerAction.DismissAssignFailure(
+                );
+            case 11:
+                return new ComposerAction.ChooseTemplate(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 12:
+                return new ComposerAction.TemplateVariable(
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 13:
+                return new ComposerAction.SendTemplate(
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposerAction.Read()", value));
         }
@@ -33174,6 +33840,23 @@ class FfiConverterTypeComposerAction : FfiConverterRustBuffer<ComposerAction>{
             case ComposerAction.DraftReply variant_value:
                 return 4;
             case ComposerAction.DismissFailure variant_value:
+                return 4;
+            case ComposerAction.ChooseChannel variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Channel);
+            case ComposerAction.Assign variant_value:
+                return 4
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.Assignee);
+            case ComposerAction.DismissAssignFailure variant_value:
+                return 4;
+            case ComposerAction.ChooseTemplate variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Id);
+            case ComposerAction.TemplateVariable variant_value:
+                return 4
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.Index)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Value);
+            case ComposerAction.SendTemplate variant_value:
                 return 4;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposerAction.AllocationSize()", value));
@@ -33205,6 +33888,29 @@ class FfiConverterTypeComposerAction : FfiConverterRustBuffer<ComposerAction>{
                 break;
             case ComposerAction.DismissFailure variant_value:
                 stream.WriteInt(7);
+                break;
+            case ComposerAction.ChooseChannel variant_value:
+                stream.WriteInt(8);
+                FfiConverterString.INSTANCE.Write(variant_value.Channel, stream);
+                break;
+            case ComposerAction.Assign variant_value:
+                stream.WriteInt(9);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.Assignee, stream);
+                break;
+            case ComposerAction.DismissAssignFailure variant_value:
+                stream.WriteInt(10);
+                break;
+            case ComposerAction.ChooseTemplate variant_value:
+                stream.WriteInt(11);
+                FfiConverterString.INSTANCE.Write(variant_value.Id, stream);
+                break;
+            case ComposerAction.TemplateVariable variant_value:
+                stream.WriteInt(12);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.Index, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Value, stream);
+                break;
+            case ComposerAction.SendTemplate variant_value:
+                stream.WriteInt(13);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeComposerAction.Write()", value));
@@ -45732,6 +46438,37 @@ class FfiConverterOptionalTypeAiTextView: FfiConverterRustBuffer<AiTextView?> {
 
 
 
+class FfiConverterOptionalTypeAssignmentView: FfiConverterRustBuffer<AssignmentView?> {
+    public static FfiConverterOptionalTypeAssignmentView INSTANCE = new FfiConverterOptionalTypeAssignmentView();
+
+    public override AssignmentView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeAssignmentView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(AssignmentView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeAssignmentView.INSTANCE.AllocationSize((AssignmentView)value);
+        }
+    }
+
+    public override void Write(AssignmentView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeAssignmentView.INSTANCE.Write((AssignmentView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeAuditionView: FfiConverterRustBuffer<AuditionView?> {
     public static FfiConverterOptionalTypeAuditionView INSTANCE = new FfiConverterOptionalTypeAuditionView();
 
@@ -48026,6 +48763,37 @@ class FfiConverterOptionalTypeTeamHostsView: FfiConverterRustBuffer<TeamHostsVie
 
 
 
+class FfiConverterOptionalTypeTemplatePickerView: FfiConverterRustBuffer<TemplatePickerView?> {
+    public static FfiConverterOptionalTypeTemplatePickerView INSTANCE = new FfiConverterOptionalTypeTemplatePickerView();
+
+    public override TemplatePickerView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTemplatePickerView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TemplatePickerView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTemplatePickerView.INSTANCE.AllocationSize((TemplatePickerView)value);
+        }
+    }
+
+    public override void Write(TemplatePickerView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTemplatePickerView.INSTANCE.Write((TemplatePickerView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeTranscriptView: FfiConverterRustBuffer<TranscriptView?> {
     public static FfiConverterOptionalTypeTranscriptView INSTANCE = new FfiConverterOptionalTypeTranscriptView();
 
@@ -48112,6 +48880,37 @@ class FfiConverterOptionalTypeWebhookEditorView: FfiConverterRustBuffer<WebhookE
         } else {
             stream.WriteByte(1);
             FfiConverterTypeWebhookEditorView.INSTANCE.Write((WebhookEditorView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeWhatsAppView: FfiConverterRustBuffer<WhatsAppView?> {
+    public static FfiConverterOptionalTypeWhatsAppView INSTANCE = new FfiConverterOptionalTypeWhatsAppView();
+
+    public override WhatsAppView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeWhatsAppView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(WhatsAppView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeWhatsAppView.INSTANCE.AllocationSize((WhatsAppView)value);
+        }
+    }
+
+    public override void Write(WhatsAppView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeWhatsAppView.INSTANCE.Write((WhatsAppView)value, stream);
         }
     }
 }
@@ -48359,6 +49158,52 @@ class FfiConverterSequenceTypeApiKeyRowView: FfiConverterRustBuffer<ApiKeyRowVie
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeApiKeyRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeAssigneeOptionView: FfiConverterRustBuffer<AssigneeOptionView[]> {
+    public static FfiConverterSequenceTypeAssigneeOptionView INSTANCE = new FfiConverterSequenceTypeAssigneeOptionView();
+
+    public override AssigneeOptionView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new AssigneeOptionView[length];
+        var readFn = FfiConverterTypeAssigneeOptionView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(AssigneeOptionView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeAssigneeOptionView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(AssigneeOptionView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeAssigneeOptionView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -50758,6 +51603,52 @@ class FfiConverterSequenceTypePlanOptionView: FfiConverterRustBuffer<PlanOptionV
 
 
 
+class FfiConverterSequenceTypeReplyChannelView: FfiConverterRustBuffer<ReplyChannelView[]> {
+    public static FfiConverterSequenceTypeReplyChannelView INSTANCE = new FfiConverterSequenceTypeReplyChannelView();
+
+    public override ReplyChannelView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ReplyChannelView[length];
+        var readFn = FfiConverterTypeReplyChannelView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ReplyChannelView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeReplyChannelView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ReplyChannelView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeReplyChannelView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeRichRun: FfiConverterRustBuffer<RichRun[]> {
     public static FfiConverterSequenceTypeRichRun INSTANCE = new FfiConverterSequenceTypeRichRun();
 
@@ -51901,6 +52792,98 @@ class FfiConverterSequenceTypeTeamRowView: FfiConverterRustBuffer<TeamRowView[]>
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeTeamRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeTemplateOptionView: FfiConverterRustBuffer<TemplateOptionView[]> {
+    public static FfiConverterSequenceTypeTemplateOptionView INSTANCE = new FfiConverterSequenceTypeTemplateOptionView();
+
+    public override TemplateOptionView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new TemplateOptionView[length];
+        var readFn = FfiConverterTypeTemplateOptionView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(TemplateOptionView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeTemplateOptionView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(TemplateOptionView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeTemplateOptionView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeTemplateVariableView: FfiConverterRustBuffer<TemplateVariableView[]> {
+    public static FfiConverterSequenceTypeTemplateVariableView INSTANCE = new FfiConverterSequenceTypeTemplateVariableView();
+
+    public override TemplateVariableView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new TemplateVariableView[length];
+        var readFn = FfiConverterTypeTemplateVariableView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(TemplateVariableView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeTemplateVariableView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(TemplateVariableView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeTemplateVariableView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
