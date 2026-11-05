@@ -432,44 +432,44 @@ def main():
         sub_id = base["id"]
         print(f"   new submission id {sub_id} (status {base.get('status')})")
 
-    sas = base.get("fileUploadUrl")
-    body = edit_submission(base, args, notes, pkgs, fr_shots)
-    body.pop("fileUploadUrl", None)
-    for k in ("id", "status", "statusDetails"):
-        body.pop(k, None)
-
-    problems, warnings = [], []
-    for lang, l in body["listings"].items():
-        check_listing(lang, l["baseListing"], problems, warnings)
-
+    # From POST on, the submission exists. Anything that stops a live run before the
+    # commit deletes it again (only this one, by the id POST returned), so a failed
+    # run never leaves a pending draft that blocks every later run.
     put_path = f"{app_path}/submissions/{sub_id}"
-    printable = storeapi.redact(body)
-    print(f"== {'WOULD ' if args.dry_run else ''}PUT {put_path}  Content-Type: application/json")
-    print(json.dumps(printable, indent=2, ensure_ascii=False))
-
-    zip_entries = [os.path.basename(p) for p in pkgs] + ["fr-ca/" + os.path.basename(p) for p, _, _ in fr_shots]
-    print(f"== {'WOULD ' if args.dry_run else ''}upload one ZIP to the submission's fileUploadUrl "
-          f"(SAS, redacted) as a block blob, {BLOCK // (1024 * 1024)} MiB blocks; entries: {json.dumps(zip_entries)}")
-    if args.submit:
-        print(f"== WILL POST {put_path}/commit (sends it to certification; publish mode {body.get('targetPublishMode')})")
-    else:
-        print(f"== no commit: the submission stays a draft (PendingCommit). Pass --submit to commit.")
-
-    print("== listing check")
-    for w in warnings:
-        print("   warning: " + w)
-    for p in problems:
-        print("   INCOMPLETE: " + p)
-    if not problems:
-        print("   complete")
-
-    if args.dry_run:
-        print("== dry run: nothing was created, uploaded or committed")
-        return
-    # From here on the submission exists. Anything that stops the run before the commit
-    # deletes it again (only this one, by the id POST returned), so a failed run never
-    # leaves a pending draft that blocks every later run.
     try:
+        sas = base.get("fileUploadUrl")
+        body = edit_submission(base, args, notes, pkgs, fr_shots)
+        body.pop("fileUploadUrl", None)
+        for k in ("id", "status", "statusDetails"):
+            body.pop(k, None)
+
+        problems, warnings = [], []
+        for lang, l in body["listings"].items():
+            check_listing(lang, l["baseListing"], problems, warnings)
+
+        printable = storeapi.redact(body)
+        print(f"== {'WOULD ' if args.dry_run else ''}PUT {put_path}  Content-Type: application/json")
+        print(json.dumps(printable, indent=2, ensure_ascii=False))
+
+        zip_entries = [os.path.basename(p) for p in pkgs] + ["fr-ca/" + os.path.basename(p) for p, _, _ in fr_shots]
+        print(f"== {'WOULD ' if args.dry_run else ''}upload one ZIP to the submission's fileUploadUrl "
+              f"(SAS, redacted) as a block blob, {BLOCK // (1024 * 1024)} MiB blocks; entries: {json.dumps(zip_entries)}")
+        if args.submit:
+            print(f"== WILL POST {put_path}/commit (sends it to certification; publish mode {body.get('targetPublishMode')})")
+        else:
+            print(f"== no commit: the submission stays a draft (PendingCommit). Pass --submit to commit.")
+
+        print("== listing check")
+        for w in warnings:
+            print("   warning: " + w)
+        for p in problems:
+            print("   INCOMPLETE: " + p)
+        if not problems:
+            print("   complete")
+
+        if args.dry_run:
+            print("== dry run: nothing was created, uploaded or committed")
+            return
         if args.submit and problems:
             die("the listing is incomplete; not committing")
 
@@ -489,7 +489,8 @@ def main():
             print(f"== uploaded {zpath} in {n} blocks")
 
     except (Exception, SystemExit):
-        discard(dc, put_path, sub_id)
+        if not args.dry_run:
+            discard(dc, put_path, sub_id)
         raise
 
     if not args.submit:
