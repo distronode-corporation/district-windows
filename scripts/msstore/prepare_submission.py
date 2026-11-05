@@ -321,6 +321,15 @@ def upload_block_blob(sas_url, path):
     return len(ids)
 
 
+def discard(dc, put_path, sub_id):
+    """DELETE the submission this run created, after a failure before its commit."""
+    st, resp = dc.call("DELETE", put_path)
+    print(f"== DELETE {put_path} -> {st} (the submission this run created, so no draft is left pending)")
+    if st not in (200, 204):
+        print(f"   could not delete {sub_id}: {json.dumps(storeapi.redact(resp))[:300]}; delete it in Partner Center",
+              file=sys.stderr)
+
+
 # ---------------------------------------------------------------- main
 
 def main():
@@ -457,23 +466,31 @@ def main():
     if args.dry_run:
         print("== dry run: nothing was created, uploaded or committed")
         return
-    if args.submit and problems:
-        die("the listing is incomplete; not committing (the draft exists: fix it, or delete it)")
+    # From here on the submission exists. Anything that stops the run before the commit
+    # deletes it again (only this one, by the id POST returned), so a failed run never
+    # leaves a pending draft that blocks every later run.
+    try:
+        if args.submit and problems:
+            die("the listing is incomplete; not committing")
 
-    st, resp = dc.call("PUT", put_path, body)
-    print(f"== PUT {put_path} -> {st}")
-    if st != 200:
-        die(json.dumps(storeapi.redact(resp))[:2000])
+        st, resp = dc.call("PUT", put_path, body)
+        print(f"== PUT {put_path} -> {st}")
+        if st != 200:
+            die(json.dumps(storeapi.redact(resp))[:2000])
 
-    if have_files:
-        work = os.environ.get("RUNNER_TEMP") or os.environ.get("TMPDIR") or "."
-        zpath = os.path.join(work, f"msstore-{sub_id}.zip")
-        build_zip(pkgs, fr_shots, zpath)
-        try:
-            n = upload_block_blob(sas, zpath)
-        finally:
-            os.remove(zpath)
-        print(f"== uploaded {zpath} in {n} blocks")
+        if have_files:
+            work = os.environ.get("RUNNER_TEMP") or os.environ.get("TMPDIR") or "."
+            zpath = os.path.join(work, f"msstore-{sub_id}.zip")
+            build_zip(pkgs, fr_shots, zpath)
+            try:
+                n = upload_block_blob(sas, zpath)
+            finally:
+                os.remove(zpath)
+            print(f"== uploaded {zpath} in {n} blocks")
+
+    except (Exception, SystemExit):
+        discard(dc, put_path, sub_id)
+        raise
 
     if not args.submit:
         print(f"== DRAFT submission {sub_id} left uncommitted. Review it in Partner Center, then commit with the API"
@@ -483,7 +500,8 @@ def main():
     st, resp = dc.call("POST", f"{put_path}/commit")
     print(f"== POST {put_path}/commit -> {st} {json.dumps(storeapi.redact(resp))[:300]}")
     if st not in (200, 202):
-        die(f"commit refused (HTTP {st}); the draft {sub_id} is still there")
+        discard(dc, put_path, sub_id)
+        die(f"commit refused (HTTP {st})")
     stat = {}
     for _ in range(30):
         time.sleep(20)
