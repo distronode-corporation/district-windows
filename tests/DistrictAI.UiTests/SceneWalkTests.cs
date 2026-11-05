@@ -266,8 +266,9 @@ public sealed partial class SceneWalkTests
     /// says who owns each; a conversation offers the channels the service
     /// lists and an owner picker of the Agency and Client members; WhatsApp's
     /// closed window offers the approved template, filled field by field with
-    /// the core's preview. Saved as 97-parity-inbox.png to
-    /// 101-parity-template-filled.png when screenshots are on. Nothing is sent.
+    /// the core's preview. Saved as 110-parity-inbox.png to
+    /// 113-parity-template-filled.png when screenshots are on. Only the
+    /// owner changes (the scene answers with its fixture); nothing is sent.
     /// </summary>
     [Fact]
     public void TheInboxOffersChannelsOwnersAndTemplates()
@@ -293,37 +294,28 @@ public sealed partial class SceneWalkTests
         OpenUntilFoundById(app, "NavInbox", "InboxHeading");
         _ = app.Find(ControlType.Text, "Messenger", PageTimeout);
         _ = app.Find(ControlType.Text, "Assigned to contract@example.com", PageTimeout);
-        Shot("97-parity-inbox.png");
+        Shot("110-parity-inbox.png");
 
+        // The contact's conversation: its three channels, email first, and
+        // the owner picker once the members are read.
         OpenFirstConversation(app);
         _ = app.FindById(ReplyBoxId, PageTimeout);
-        var owner = app.FindById("AssigneePicker", PageTimeout);
+        _ = app.FindById("ReplyChannel", PageTimeout);
         Expect(app, () => app.TryFindById("AssigneePicker") is { IsEnabled: true }, "the owner picker to work once the members are read");
-        Shot("98-parity-thread.png");
+        Shot("111-parity-thread.png");
 
-        owner.Patterns.ExpandCollapse.Pattern.Expand();
-        _ = Wait.For(
-            () => owner.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem)) is { Length: 4 } items ? items : null,
-            PageTimeout,
-            "Unassigned and three members in the owner picker",
-            app.Describe);
-        Shot("99-parity-owner-picker.png");
-        owner.Patterns.ExpandCollapse.Pattern.Collapse();
+        // A new owner: the service's answer names who it went to.
+        Choose(app, app.FindById("AssigneePicker", PageTimeout), items => items.FirstOrDefault(item => NameOf(item) == "founder@example.com"), "a member in the owner picker");
+        Expect(app, () => app.TryFindById("AssigneePicker") is { IsEnabled: true } picker
+            && picker.AsComboBox().SelectedItem is { } chosen
+            && NameOf(chosen) == "teammate@example.com",
+            "the owner the service recorded");
+        Shot("112-parity-assigned.png");
 
-        var channel = app.FindById("ReplyChannel", PageTimeout);
-        channel.Patterns.ExpandCollapse.Pattern.Expand();
-        _ = Wait.For(
-            () => channel.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem)) is { Length: 3 } items ? items : null,
-            PageTimeout,
-            "Email, Text message and WhatsApp in the channel chooser",
-            app.Describe);
-        Shot("100-parity-channels.png");
-        channel.Patterns.ExpandCollapse.Pattern.Collapse();
-        Choose(app, channel, items => items.FirstOrDefault(item => NameOf(item) == "WhatsApp"), "WhatsApp in the channel chooser");
-
+        // WhatsApp: the window is closed, so the box offers the approved template.
+        Choose(app, app.FindById("ReplyChannel", PageTimeout), items => items.FirstOrDefault(item => NameOf(item) == "WhatsApp"), "WhatsApp in the channel chooser");
         _ = app.FindById("WhatsAppWindowClosed", PageTimeout);
-        var picker = app.FindById("TemplatePicker", PageTimeout);
-        Choose(app, picker, items => items.FirstOrDefault(), "the approved template");
+        Choose(app, app.FindById("TemplatePicker", PageTimeout), items => items.FirstOrDefault(), "the approved template");
         var fields = Wait.For(
             () => AllById(app, "TemplateVariable") is { Length: 2 } found ? found : null,
             PageTimeout,
@@ -335,7 +327,7 @@ public sealed partial class SceneWalkTests
             && NameOf(preview) == "Hi Ada, this is a reminder of your appointment on Thursday.",
             "the filled preview");
         Expect(app, () => app.TryFindById("SendTemplate") is { IsEnabled: true }, "Send template to work");
-        Shot("101-parity-template-filled.png");
+        Shot("113-parity-template-filled.png");
         Assert.True(app.IsRunning, "the app ended in the conversation");
     }
 
