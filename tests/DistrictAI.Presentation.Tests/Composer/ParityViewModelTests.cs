@@ -9,7 +9,7 @@ namespace DistrictAI.Presentation.Tests.Composer;
 /// <summary>App parity: the reply channel, the conversation's owner and the WhatsApp templates.</summary>
 public sealed class ParityViewModelTests
 {
-    private static readonly ReplyChannelView[] Channels =
+    private static readonly ReplyChannelView[] _channels =
     [
         new("email", "Email", "ada@example.com", true),
         new("sms", "Text message", "14165550142", false),
@@ -23,7 +23,7 @@ public sealed class ParityViewModelTests
         WhatsAppView? whatsapp = null) =>
         new("", [], false, false, false, true, false, false, false, null, null,
             new AiDraftOfferView("Draft a reply with AI", "Billed.", "AI draft", ReportAvailability.InApp),
-            "Reply channel", channels ?? Channels, canChooseChannel, attachmentsNote, whatsapp);
+            "Reply channel", channels ?? _channels, canChooseChannel, attachmentsNote, whatsapp);
 
     private static TemplateVariableView Variable(uint index, string value) =>
         new(index, $"Variable {{{{{index + 1}}}}}", value, value.Trim().Length == 0 ? "Fill in this variable" : null);
