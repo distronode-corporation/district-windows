@@ -54,7 +54,10 @@ $ErrorActionPreference = 'Stop'
 # A native command that exits non-zero stops the script, as `set -e` does.
 $PSNativeCommandUseErrorActionPreference = $true
 
-$WebrtcSysBuildVersion = '0.3.19'
+# 0.3.20 is 0.3.19 with zip ^9 in place of zip ^0.6 (RUSTSEC-2026-0367, -0368,
+# -0369 and -0429) and nothing else: its src/ is byte for byte 0.3.19's and its
+# WEBRTC_TAG is still webrtc-89d790b, so the libwebrtc below is the one it links.
+$WebrtcSysBuildVersion = '0.3.20'
 $RustSdksCommit = '24f7126929efde0da13d22e02d8c7a5a05be682d'
 $WebrtcCommit = '89d790b40447c3c5c54c3edd58aa53d285e35fa7'
 $Archive = 'webrtc-win-x64-release.zip'
