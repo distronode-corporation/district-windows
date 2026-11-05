@@ -95,23 +95,32 @@ $SdkNames = @(
 # codec.
 $MentionPattern = 'h264|h265|ffmpeg|openh264'
 
-$root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-
-# Cargo.lock names webrtc-sys-build once the build links the LiveKit engine.
-# When it does, it must be the version these pins are for.
-$lock = Get-Content -Raw (Join-Path $root 'Cargo.lock')
-$locked = [regex]::Match($lock, '(?m)^name = "webrtc-sys-build"\r?\nversion = "([^"]+)"')
-if ($locked.Success -and $locked.Groups[1].Value -ne $WebrtcSysBuildVersion) {
-    throw ("Cargo.lock has webrtc-sys-build '$($locked.Groups[1].Value)', but this script is " +
-        "pinned to $WebrtcSysBuildVersion's libwebrtc. Move the pins (see the comment at the top " +
-        'of this script) in the same change as the SDK.')
-}
-
 New-Item -ItemType Directory -Force -Path $Directory | Out-Null
 $work = (Resolve-Path $Directory).Path
 if (Get-ChildItem -Force $work) {
     throw "$work is not empty; give this script an empty or missing directory."
 }
+
+# The pins agree with each other: the published webrtc-sys-build at
+# $WebrtcSysBuildVersion names, as its WEBRTC_TAG, "webrtc-" and the first
+# seven characters of $WebrtcCommit. This build reads no Cargo.lock: its archive
+# is made before the change that moves the lock to it, and
+# scripts/fetch-libwebrtc.ps1 is what refuses a lock whose webrtc-sys-build is
+# not the archive's.
+$crate = Join-Path $work 'webrtc-sys-build.crate'
+Invoke-WebRequest -Uri "https://static.crates.io/crates/webrtc-sys-build/webrtc-sys-build-$WebrtcSysBuildVersion.crate" -OutFile $crate
+$crateDir = Join-Path $work 'webrtc-sys-build'
+New-Item -ItemType Directory -Path $crateDir | Out-Null
+& (Join-Path $env:SystemRoot 'System32\tar.exe') -xzf $crate -C $crateDir
+$crateLib = Get-Content -Raw (Join-Path $crateDir "webrtc-sys-build-$WebrtcSysBuildVersion\src\lib.rs")
+$crateTag = [regex]::Match($crateLib, 'pub const WEBRTC_TAG: &str = "([^"]+)";')
+$wantTag = 'webrtc-' + $WebrtcCommit.Substring(0, 7)
+if (-not $crateTag.Success -or $crateTag.Groups[1].Value -ne $wantTag) {
+    throw ("webrtc-sys-build $WebrtcSysBuildVersion names WEBRTC_TAG " +
+        "'$($crateTag.Groups[1].Value)', not ${wantTag}; move the pins together.")
+}
+Write-Host "webrtc-sys-build $WebrtcSysBuildVersion names $wantTag"
+Remove-Item -Recurse -Force $crate, $crateDir
 
 # Fetch one commit of a repository into a directory, without its history.
 # Extra `git config` pairs are set before the checkout.
