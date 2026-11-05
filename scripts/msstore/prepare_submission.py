@@ -56,6 +56,8 @@ PUBLISHER = "CN=88F0B47E-0C40-4DCA-A217-DF66120AACBE"
 NBSP = chr(0xA0)
 BLOCK = 4 * 1024 * 1024  # valid block size under every Blob service version
 
+# Statuses after a successful commit (the submission API's status values).
+COMMITTED = {"PreProcessing", "Certification", "Release", "Publishing", "Published"}
 LIMITS = {"description": 10000, "releaseNotes": 1500, "shortDescription": 1000, "title": 256}
 
 
@@ -393,11 +395,24 @@ def main():
     if pend:
         die(f"submission {pend.get('id')} is already pending; finish or delete it in Partner Center first")
 
+    # The listing is checked on the last published submission (what POST would copy)
+    # BEFORE anything is created: a submit that would refuse later must not leave a
+    # pending draft behind, which blocks every later run until someone deletes it.
+    st, published = dc.call("GET", f"{app_path}/submissions/{last['id']}")
+    print(f"== GET {app_path}/submissions/{last['id']} -> {st} (the submission POST copies)")
+    if st != 200:
+        die(json.dumps(storeapi.redact(published))[:500])
+    pre = edit_submission(published, args, notes, pkgs, fr_shots)
+    pre_problems = []
+    for lang, l in pre["listings"].items():
+        check_listing(lang, l["baseListing"], pre_problems, [])
+    if pre_problems and (args.dry_run or args.submit):
+        for p in pre_problems:
+            print("   INCOMPLETE: " + p)
+        die("the listing would be incomplete; nothing was created")
+
     if args.dry_run:
-        st, base = dc.call("GET", f"{app_path}/submissions/{last['id']}")
-        print(f"== GET {app_path}/submissions/{last['id']} -> {st} (stand-in for the copy POST would create)")
-        if st != 200:
-            die(json.dumps(base)[:500])
+        base = published
         sub_id = "<new submission id from POST>"
         print(f"== WOULD POST {app_path}/submissions (no body)")
     else:
@@ -466,14 +481,25 @@ def main():
         return
 
     st, resp = dc.call("POST", f"{put_path}/commit")
-    print(f"== POST {put_path}/commit -> {st} {json.dumps(resp)[:300]}")
+    print(f"== POST {put_path}/commit -> {st} {json.dumps(storeapi.redact(resp))[:300]}")
+    if st not in (200, 202):
+        die(f"commit refused (HTTP {st}); the draft {sub_id} is still there")
+    stat = {}
     for _ in range(30):
         time.sleep(20)
         st, stat = dc.call("GET", f"{put_path}/status")
-        print(f"   status {st} {stat.get('status')}")
-        if stat.get("status") not in ("CommitStarted",):
-            print(json.dumps(stat, indent=2)[:3000])
+        status = (stat or {}).get("status")
+        print(f"   status {st} {status}")
+        if st == 200 and status != "CommitStarted":
             break
+    status = (stat or {}).get("status")
+    print(json.dumps(storeapi.redact(stat), indent=2)[:3000])
+    if status in COMMITTED:
+        print(f"== submission {sub_id} committed: {status}")
+        return
+    if status == "CommitStarted":
+        die(f"submission {sub_id} still CommitStarted after 10 minutes; read its status in Partner Center")
+    die(f"submission {sub_id} ended {status!r}, not committed")
 
 
 if __name__ == "__main__":
