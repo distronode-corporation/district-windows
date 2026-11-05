@@ -54,12 +54,13 @@ $ErrorActionPreference = 'Stop'
 # A native command that exits non-zero stops the script, as `set -e` does.
 $PSNativeCommandUseErrorActionPreference = $true
 
-# 0.3.20 is 0.3.19 with zip ^9 in place of zip ^0.6 (RUSTSEC-2026-0367, -0368,
-# -0369 and -0429) and nothing else: its src/ is byte for byte 0.3.19's and its
-# WEBRTC_TAG is still webrtc-89d790b, so the libwebrtc below is the one it links.
-$WebrtcSysBuildVersion = '0.3.20'
-$RustSdksCommit = '24f7126929efde0da13d22e02d8c7a5a05be682d'
-$WebrtcCommit = '89d790b40447c3c5c54c3edd58aa53d285e35fa7'
+# webrtc-sys-build 0.3.21's WEBRTC_TAG is webrtc-a545de4. LiveKit's release tag
+# webrtc-a545de4 names rust-sdks commit 524123e, and its recipe's .gclient
+# branch, m150_release of webrtc-sdk/webrtc, was at a545de4 when LiveKit built
+# it. The same pins as District AI for Linux's scripts/build-libwebrtc.sh.
+$WebrtcSysBuildVersion = '0.3.21'
+$RustSdksCommit = '524123ee0069e8c01342c90978ad0dd5e4c58275'
+$WebrtcCommit = 'a545de45259b47dfac5f3635863e47cb601f1bb2'
 $Archive = 'webrtc-win-x64-release.zip'
 $Unpacked = 'win-x64-release'
 
@@ -153,12 +154,13 @@ Set-Once $cmd 'rtc_use_h264=true' 'rtc_use_h264=false rtc_use_h265=false'
 # the generator parses, and without the fix there is no LICENSE.md.
 # The patch has a context line that is empty (no leading space), which git
 # apply reads as corrupt once the checkout has given it CRLF endings, as the
-# runner's git does: it is applied with LF endings.
+# runner's git does: it is applied with LF endings. The recipe applies its
+# patches in one loop over their names (skipping one already applied, and
+# stopping on one that does not apply), so the fix joins that list, after
+# add_licenses.
 $licenceFix = Join-Path $recipe 'patches\fix_license_json_parsing.patch'
 [IO.File]::WriteAllText($licenceFix, [IO.File]::ReadAllText($licenceFix).Replace("`r`n", "`n"), [Text.UTF8Encoding]::new($false))
-$applyLicenses = 'call git apply "%COMMAND_DIR%/patches/add_licenses.patch" -v --ignore-space-change --ignore-whitespace --whitespace=nowarn'
-$eol = if ([IO.File]::ReadAllText($cmd).Contains("`r`n")) { "`r`n" } else { "`n" }
-Set-Once $cmd $applyLicenses ($applyLicenses + $eol + $applyLicenses.Replace('add_licenses.patch', 'fix_license_json_parsing.patch'))
+Set-Once $cmd 'for %%p in (add_licenses add_deps ' 'for %%p in (add_licenses fix_license_json_parsing add_deps '
 Set-Once (Join-Path $recipe '.gclient') "webrtc.git@m150_release'" "webrtc.git@$WebrtcCommit'"
 Add-Content -NoNewline -Path (Join-Path $recipe '.gclient') -Value "`ntarget_os = [`"win`"]`n"
 Write-Host 'The recipe, as this build runs it:'

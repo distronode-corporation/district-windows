@@ -56,7 +56,7 @@ jobs:
           case "$NUMBER" in
             '' | *[!0-9]* | 0*) echo "::error::number must be a positive whole number, not '$NUMBER'"; exit 1 ;;
           esac
-          echo "release=libwebrtc-89d790b-audio-win-$NUMBER" >> "$GITHUB_OUTPUT"
+          echo "release=libwebrtc-a545de4-audio-win-$NUMBER" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -192,7 +192,7 @@ jobs:
           cat > notes.md <<EOF
           The audio-only libwebrtc that District AI for Windows links for calls:
           LiveKit's Windows build of libwebrtc for its Rust SDK (webrtc-sys-build
-          0.3.20), from WebRTC commit 89d790b40447c3c5c54c3edd58aa53d285e35fa7 and
+          0.3.21), from WebRTC commit a545de45259b47dfac5f3635863e47cb601f1bb2 and
           LiveKit's patches, built with ffmpeg_branding="Chromium",
           rtc_use_h264=false and rtc_use_h265=false, so no H.264 or H.265 codec and
           no FFmpeg. Built by .github/workflows/libwebrtc-windows.yml in run
