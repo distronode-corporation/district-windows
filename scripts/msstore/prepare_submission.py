@@ -395,7 +395,7 @@ def discard(dc, put_path, sub_id):
     return False
 
 
-NOT_DELETED = "it never went through: delete it in Partner Center before a re-run"
+NOT_DELETED = "it never went through, so delete it in Partner Center before a re-run"
 
 
 # ---------------------------------------------------------------- main

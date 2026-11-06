@@ -11,7 +11,9 @@ name: Store
 #   `ref`.
 # - `ref` is that full commit. docs/store-listing.md's "What's new in this
 #   version: X.Y.Z" section is read there, so the Store notes are the tagged ones.
-#   The scripts themselves run from main, the commit this workflow was dispatched on.
+#   The scripts themselves run from main, the commit this workflow was dispatched on:
+#   `gh workflow run store.yml --ref main ...`. A run dispatched from any other branch
+#   or tag fails in its first job, before the Store job or its environment is reached.
 # - `mode` is `dry-run` (read-only GETs; prints every request it would send),
 #   `draft` (creates and uploads the submission, leaves it uncommitted for
 #   review in Partner Center) or `submit` (the same, then commits it to
@@ -60,8 +62,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Its own job, with no environment and no permissions, so a run dispatched from a
+  # tag or another branch fails here, before anything asks for a deployment. It stays
+  # alongside the environment's own branch rule: it travels with every future tag.
+  main-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - name: Dispatched from main
+        run: |
+          [ "$GITHUB_REF" = refs/heads/main ] || {
+            echo "::error::run store.yml from main (gh workflow run store.yml --ref main); the release goes in the version and ref inputs, not $GITHUB_REF"
+            exit 1
+          }
+
   store:
-    environment: release
+    needs: main-only
+    # `msstore`: branch main only, and every run waits for a maintainer's review. The
+    # workload identity binding admits only this workflow on main in this environment.
+    environment: msstore
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:
