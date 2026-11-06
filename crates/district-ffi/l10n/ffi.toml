@@ -2935,7 +2935,7 @@ ctx = "label"
 screen = "supervise"
 tier = "T2"
 state = "reviewed"
-note = "While the member has taken a live call over: the microphone, as the call engine reports it, is not sending (muted, or not published yet). New in 3.3.0; the French is a draft for Sean's review."
+note = "While the member has taken a live call over: the microphone, as the call engine reports it, is not sending (muted, or not published yet). Reviewed by Sean, 2026-11-06."
 
 [supervise.microphone_on]
 en = "Your microphone is on. The caller hears you."
@@ -2944,7 +2944,7 @@ ctx = "label"
 screen = "supervise"
 tier = "T2"
 state = "reviewed"
-note = "While the member has taken a live call over: the microphone, as the call engine reports it, is sending. New in 3.3.0; the French is a draft for Sean's review."
+note = "While the member has taken a live call over: the microphone, as the call engine reports it, is sending. Reviewed by Sean, 2026-11-06."
 
 [support.compose_needs]
 en = "A subject of {min} to {max} characters, and a message."
