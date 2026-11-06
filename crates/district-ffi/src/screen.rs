@@ -269,16 +269,24 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
         Route::Calls => ScreenView::Calls {
             view: calls_view(&signed_in.calls),
         },
-        Route::CallDetail { call_id } => ScreenView::CallDetail {
-            view: call_detail_view(
-                signed_in
-                    .call
-                    .as_ref()
-                    .filter(|screen| screen.call_id == *call_id)
-                    .unwrap_or(&loading_call(call_id)),
-                &capabilities,
-            ),
-        },
+        Route::CallDetail { call_id } => {
+            let open = signed_in
+                .call
+                .as_ref()
+                .filter(|screen| screen.call_id == *call_id);
+            ScreenView::CallDetail {
+                view: call_detail_view(
+                    open.unwrap_or(&loading_call(call_id)),
+                    &capabilities,
+                    // The card is the open call's: a call not read yet has none.
+                    if open.is_some() {
+                        crate::supervise::supervise_view(signed_in)
+                    } else {
+                        crate::supervise::hidden()
+                    },
+                ),
+            }
+        }
         Route::Contacts => ScreenView::Contacts {
             view: contacts_view(&signed_in.contacts, &capabilities),
         },
