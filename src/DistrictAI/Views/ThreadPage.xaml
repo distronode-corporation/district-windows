@@ -15,11 +15,55 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TextBlock
-            AutomationProperties.HeadingLevel="Level1"
-            Style="{StaticResource TitleTextBlockStyle}"
-            Text="{x:Bind ViewModel.Title, Mode=OneWay}"
-            TextTrimming="CharacterEllipsis" />
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                VerticalAlignment="Center"
+                AutomationProperties.HeadingLevel="Level1"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+                TextTrimming="CharacterEllipsis" />
+            <!-- Who owns the conversation: the picker for a member who may assign, the owner's line for one who may not. -->
+            <StackPanel
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Spacing="4"
+                Visibility="{x:Bind ViewModel.Assignment.Visible, Mode=OneWay}">
+                <ComboBox
+                    MinWidth="240"
+                    AutomationProperties.AutomationId="AssigneePicker"
+                    AutomationProperties.Name="{x:Bind ViewModel.Assignment.Label, Mode=OneWay}"
+                    Header="{x:Bind ViewModel.Assignment.Label, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.Assignment.CanAssign, Mode=OneWay}"
+                    ItemsSource="{x:Bind ViewModel.Assignment.Options}"
+                    SelectedItem="{x:Bind ViewModel.Assignment.SelectedOption, Mode=TwoWay}"
+                    Visibility="{x:Bind ViewModel.Assignment.ShowPicker, Mode=OneWay}" />
+                <TextBlock
+                    AutomationProperties.AutomationId="AssigneeLine"
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.Assignment.Line, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.Assignment.ShowLine, Mode=OneWay}" />
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    Visibility="{x:Bind ViewModel.Assignment.HasFailure, Mode=OneWay}">
+                    <TextBlock
+                        MaxWidth="320"
+                        VerticalAlignment="Center"
+                        AutomationProperties.LiveSetting="Assertive"
+                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                        Text="{x:Bind ViewModel.Assignment.Failure, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <Button
+                        AutomationProperties.Name="{x:Bind l10n:S.CommonDismiss}"
+                        Command="{x:Bind ViewModel.Assignment.DismissFailureCommand}"
+                        Content="{x:Bind l10n:S.CommonDismiss}" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
         <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
 
         <ListView

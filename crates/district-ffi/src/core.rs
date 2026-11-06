@@ -23,10 +23,9 @@ use tokio::task::JoinHandle;
 use crate::events::UiEvent;
 
 /// Whether District AI for Windows lists and answers Messenger and Instagram
-/// threads: the core's `meta_channels`, and what the presence declares when it
-/// registers. Not yet: without it the core keeps the inbox as it was, the
-/// service leaves those messages out, and a reply goes by text or email.
-pub(crate) const META_CHANNELS: bool = false;
+/// threads (app parity 1 and 2): the core's `meta_channels`, and what the
+/// presence and the WNS channel declare when they register.
+pub(crate) const META_CHANNELS: bool = true;
 
 use crate::guard::{DiscardView, Held};
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
@@ -586,6 +585,9 @@ fn start_real(
         // District AI for Windows buys in the app: checkout in a view inside
         // the window (district-core's `purchase`, src/billing.rs).
         in_app_purchases: true,
+        // District AI for Windows lists and answers Messenger and Instagram
+        // threads (app parity 1 and 2), and its presence and WNS registration
+        // declare it.
         meta_channels: META_CHANNELS,
         locale: Locale::from_tags(&config.languages),
     };
@@ -1022,7 +1024,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: false,
             in_app_purchases: true,
-            meta_channels: false,
+            meta_channels: true,
             locale: district_core::Locale::En,
         }
     }

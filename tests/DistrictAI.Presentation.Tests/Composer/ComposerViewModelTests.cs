@@ -22,7 +22,11 @@ public sealed class ComposerViewModelTests
         bool generating = false,
         string? busy = null,
         FailureView? failure = null,
-        ReportAvailability report = ReportAvailability.InApp) =>
+        ReportAvailability report = ReportAvailability.InApp,
+        ReplyChannelView[]? channels = null,
+        bool canChooseChannel = false,
+        string? attachmentsNote = null,
+        WhatsAppView? whatsapp = null) =>
         new(
             text,
             attachments ?? [],
@@ -35,7 +39,12 @@ public sealed class ComposerViewModelTests
             generating,
             busy,
             failure,
-            new AiDraftOfferView("Draft a reply with AI", Note, "AI draft", report));
+            new AiDraftOfferView("Draft a reply with AI", Note, "AI draft", report),
+            "Reply channel",
+            channels ?? [new ReplyChannelView("sms", "Text message", "+14165550142", true)],
+            canChooseChannel,
+            attachmentsNote,
+            whatsapp);
 
     private static UiEvent.Composer Action(ComposerAction action) => new(action);
 
@@ -260,8 +269,8 @@ public sealed class ComposerViewModelTests
 
 public sealed class ThreadComposerTests
 {
-    private static ThreadView Thread(string note, ComposerView? composer) =>
-        new("contact:c-1", "Alex", V.Ready, [], false, false, null, false, null, note, composer);
+    private static ThreadView Thread(string note, ComposerView? composer, AssignmentView? assignment = null) =>
+        new("contact:c-1", "Alex", V.Ready, [], false, false, null, false, null, note, composer, assignment);
 
     /// <summary>The thread shows the box for a member who may reply, and the core's note for one who may not.</summary>
     [Fact]
@@ -276,7 +285,8 @@ public sealed class ThreadComposerTests
         Assert.False(thread.Composer.Visible);
 
         var box = new ComposerView("", [], true, true, false, true, false, false, false, null, null,
-            new AiDraftOfferView("Draft a reply with AI", "Billed.", "AI draft", ReportAvailability.InApp));
+            new AiDraftOfferView("Draft a reply with AI", "Billed.", "AI draft", ReportAvailability.InApp),
+            "Reply channel", [], false, null, null);
         thread.Show(Thread(string.Empty, box), reportSending: false);
         Assert.False(thread.HasReadOnlyNote);
         Assert.True(thread.Composer.Visible);

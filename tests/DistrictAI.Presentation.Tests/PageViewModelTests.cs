@@ -652,7 +652,7 @@ public sealed class ThreadViewModelTests
         bool hasMore = false,
         bool loadingOlder = false,
         FailureView? olderFailure = null) =>
-        new("t-1", "Alex", status ?? V.Ready, items ?? [_note], hasMore, loadingOlder, olderFailure, false, null, "Reply on the web.", null);
+        new("t-1", "Alex", status ?? V.Ready, items ?? [_note], hasMore, loadingOlder, olderFailure, false, null, "Reply on the web.", null, null);
 
     [Fact]
     public void ItShowsTheConversation()

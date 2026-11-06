@@ -2,6 +2,21 @@
   "screen": {
     "Thread": {
       "view": {
+        "assignment": {
+          "can_assign": false,
+          "failure": null,
+          "label": "Assigned to",
+          "line": "Unassigned",
+          "options": [
+            {
+              "email": null,
+              "label": "Unassigned"
+            }
+          ],
+          "saving": false,
+          "selected": 0,
+          "show_picker": true
+        },
         "composer": {
           "ai_draft": {
             "billing_note": "Writes a suggested reply into the box for you to read before sending. Each suggestion is billed.",
@@ -11,15 +26,33 @@
           },
           "attaching": false,
           "attachments": [],
+          "attachments_note": null,
           "busy": "Sending",
           "can_attach": true,
+          "can_choose_channel": false,
           "can_draft_reply": true,
           "can_send": false,
+          "channel_label": "Reply channel",
+          "channels": [
+            {
+              "channel": "sms",
+              "label": "Text message",
+              "selected": true,
+              "to": "14165550142"
+            },
+            {
+              "channel": "email",
+              "label": "Email",
+              "selected": false,
+              "to": "ada@example.com"
+            }
+          ],
           "failure": null,
           "generating": false,
           "sending": true,
           "show_attach": true,
-          "text": "On my way."
+          "text": "On my way.",
+          "whatsapp": null
         },
         "has_more": false,
         "items": [

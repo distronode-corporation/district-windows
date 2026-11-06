@@ -30,6 +30,7 @@
         "status": "Ready",
         "threads": [
           {
+            "assignee": null,
             "can_open": true,
             "channel_label": "Email, Text message",
             "last_at": "2026-08-15T14:20:00.000Z",
@@ -39,6 +40,7 @@
             "unread": true
           },
           {
+            "assignee": null,
             "can_open": true,
             "channel_label": "Text message",
             "last_at": "2026-08-15T13:10:00.000Z",

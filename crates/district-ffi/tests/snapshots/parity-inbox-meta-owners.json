@@ -1,0 +1,108 @@
+{
+  "screen": {
+    "Inbox": {
+      "view": {
+        "compose": null,
+        "empty": null,
+        "new_message": {
+          "label": "New message",
+          "offered": true
+        },
+        "partial_note": null,
+        "read_only_note": "",
+        "refresh_failure": null,
+        "refreshing": false,
+        "search": {
+          "active": false,
+          "empty": null,
+          "failure": null,
+          "hits": [],
+          "min_query_length": 2,
+          "query": "",
+          "running": false,
+          "truncated": false,
+          "truncated_note": null
+        },
+        "status": "Ready",
+        "threads": [
+          {
+            "assignee": null,
+            "can_open": true,
+            "channel_label": "WhatsApp",
+            "last_at": "2026-08-15T14:40:00.000Z",
+            "preview": "Hi, do you do flat roofs?",
+            "thread_key": "addr:14165550177",
+            "title": "+1 416 555 0177",
+            "unread": true
+          },
+          {
+            "assignee": null,
+            "can_open": true,
+            "channel_label": "Messenger",
+            "last_at": "2026-08-15T14:35:00.000Z",
+            "preview": "Are you open Saturday?",
+            "thread_key": "addr:fb:5550101",
+            "title": "fb:5550101",
+            "unread": true
+          },
+          {
+            "assignee": null,
+            "can_open": true,
+            "channel_label": "Instagram",
+            "last_at": "2026-08-15T14:30:00.000Z",
+            "preview": "Saw your post, what does a repair cost?",
+            "thread_key": "addr:ig:5550102",
+            "title": "ig:5550102",
+            "unread": false
+          },
+          {
+            "assignee": "Assigned to contract@example.com",
+            "can_open": true,
+            "channel_label": "Email, Text message",
+            "last_at": "2026-08-15T14:20:00.000Z",
+            "preview": "Following up by email - could we move Thursday to Friday?",
+            "thread_key": "contact:contact_contract_1",
+            "title": "Contract Test Caller",
+            "unread": true
+          },
+          {
+            "assignee": null,
+            "can_open": true,
+            "channel_label": "Text message",
+            "last_at": "2026-08-15T13:10:00.000Z",
+            "preview": "Is this the roofing company?",
+            "thread_key": "addr:14165550181",
+            "title": "+1 416 555 0181",
+            "unread": false
+          }
+        ]
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": false,
+    "live": null,
+    "nav_selected": "Inbox",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 3,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

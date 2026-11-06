@@ -262,6 +262,80 @@ public sealed partial class SceneWalkTests
     }
 
     /// <summary>
+    /// App parity: the Inbox lists Messenger and Instagram conversations and
+    /// says who owns each; a conversation offers the channels the service
+    /// lists and an owner picker of the Agency and Client members; WhatsApp's
+    /// closed window offers the approved template, filled field by field with
+    /// the core's preview. Saved as 110-parity-inbox.png to
+    /// 113-parity-template-filled.png when screenshots are on. Only the
+    /// owner changes (the scene answers with its fixture); nothing is sent.
+    /// </summary>
+    [Fact]
+    public void TheInboxOffersChannelsOwnersAndTemplates()
+    {
+        RequireScriptedPackage();
+        var shots = Environment.GetEnvironmentVariable("DISTRICTAI_SCREENSHOTS");
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        var handle = window.Properties.NativeWindowHandle.Value;
+        _ = Heading(app, WorkspaceName, _startTimeout);
+        if (shots is { Length: > 0 })
+        {
+            SizeClient(handle, 1920, 1080);
+        }
+        void Shot(string name)
+        {
+            if (shots is { Length: > 0 })
+            {
+                Save(handle, Path.Combine(shots, name), clientOnly: true);
+            }
+        }
+
+        OpenUntilFoundById(app, "NavInbox", "InboxHeading");
+        _ = app.Find(ControlType.Text, "Messenger", PageTimeout);
+        _ = app.Find(ControlType.Text, "Assigned to contract@example.com", PageTimeout);
+        Shot("110-parity-inbox.png");
+
+        // The contact's conversation: its three channels, email first, and
+        // the owner picker once the members are read.
+        OpenFirstConversation(app);
+        _ = app.FindById(ReplyBoxId, PageTimeout);
+        _ = app.FindById("ReplyChannel", PageTimeout);
+        Expect(app, () => app.TryFindById("AssigneePicker") is { IsEnabled: true }, "the owner picker to work once the members are read");
+        // The free-text box has its AI button, and the button's billing note.
+        _ = app.FindById("DraftReplyNote", PageTimeout);
+        Shot("111-parity-thread.png");
+
+        // A new owner: the service's answer names who it went to.
+        PickByKeyboard(app, "AssigneePicker", "founder@example.com");
+        Expect(app, () => app.TryFindById("AssigneePicker") is { IsEnabled: true } picker
+            && picker.AsComboBox().SelectedItem is { } chosen
+            && NameOf(chosen) == "teammate@example.com",
+            "the owner the service recorded");
+        Shot("112-parity-assigned.png");
+
+        // WhatsApp: the window is closed, so the box offers the approved template.
+        PickByKeyboard(app, "ReplyChannel", "WhatsApp");
+        _ = app.FindById("WhatsAppWindowClosed", PageTimeout);
+        PickByKeyboard(app, "TemplatePicker", "appointment_reminder (en_US)");
+        var fields = Wait.For(
+            () => AllById(app, "TemplateVariable") is { Length: 2 } found ? found : null,
+            PageTimeout,
+            "the template's two variables",
+            app.Describe);
+        fields[0].AsTextBox().Text = "Ada";
+        fields[1].AsTextBox().Text = "Thursday";
+        Expect(app, () => app.TryFindById("TemplatePreview") is { } preview
+            && NameOf(preview) == "Hi Ada, this is a reminder of your appointment on Thursday.",
+            "the filled preview");
+        Expect(app, () => app.TryFindById("SendTemplate") is { IsEnabled: true }, "Send template to work");
+        // The AI button goes with the free-text box, and its billing note with it.
+        Expect(app, () => app.TryFindById("DraftReplyNote") is null, "no AI note beside the template");
+        Shot("113-parity-template-filled.png");
+        Assert.True(app.IsRunning, "the app ended in the conversation");
+    }
+
+    /// <summary>
     /// The dialler reads the number in the country on its button (design A):
     /// the country list opens and its search narrows it; a +41 number with a
     /// digit too few for Switzerland moves the button there, keeps Call off
@@ -1432,6 +1506,35 @@ public sealed partial class SceneWalkTests
         {
             box.Patterns.ExpandCollapse.Pattern.Collapse();
         }
+    }
+
+    /// <summary>
+    /// Opens the choice box <paramref name="boxId"/> from the keyboard (F4),
+    /// moves to the item named <paramref name="wanted"/> with the arrow keys
+    /// and takes it with Enter, as a member does. Used where choosing through
+    /// UI Automation's selection was refused as "not enabled" on CI (a box
+    /// whose choice is sent to the core at once, so only one choice may be
+    /// made: the arrows only move while the box is open).
+    /// </summary>
+    private static void PickByKeyboard(InstalledApp app, string boxId, string wanted)
+    {
+        var box = app.FindById(boxId, PageTimeout);
+        Expect(app, () => app.TryFindById(boxId) is { IsEnabled: true }, $"{boxId} to work");
+        box.Focus();
+        Keyboard.Type(VirtualKeyShort.F4);
+        Expect(app, () => box.Patterns.ExpandCollapse.Pattern.ExpandCollapseState.ValueOrDefault == ExpandCollapseState.Expanded, $"{boxId} to open");
+        string Focused() => app.Automation.FocusedElement() is { } focused ? NameOf(focused) : string.Empty;
+        foreach (var key in new[] { VirtualKeyShort.UP, VirtualKeyShort.DOWN })
+        {
+            for (var press = 0; press < 8 && Focused() != wanted; press++)
+            {
+                Keyboard.Type(key);
+                Thread.Sleep(150);
+            }
+        }
+        Assert.Equal(wanted, Focused());
+        Keyboard.Type(VirtualKeyShort.RETURN);
+        Expect(app, () => box.Patterns.ExpandCollapse.Pattern.ExpandCollapseState.ValueOrDefault == ExpandCollapseState.Collapsed, $"{boxId} to close");
     }
 
     /// <summary>Closes the open notice <paramref name="noticeId"/> with its own close button, as a member does.</summary>

@@ -123,6 +123,10 @@ pub(crate) struct Scripted {
     scene: Scene,
     reads: Mutex<FailingReads>,
     voice: Mutex<VoiceSession>,
+    /// The owner each scripted assignment recorded, by thread key, which the
+    /// inbox's next reads report as the service does: the core takes the open
+    /// thread's owner from the list read after an assignment.
+    owners: Mutex<HashMap<String, String>>,
     /// Where the scripted voice room's reports go: the model's media updates,
     /// as the call engine's go in a build that ships.
     media: UnboundedSender<MediaUpdate>,
@@ -143,6 +147,7 @@ impl Scripted {
             scene,
             reads: Mutex::new(FailingReads::default()),
             voice: Mutex::new(VoiceSession::default()),
+            owners: Mutex::new(HashMap::new()),
             media,
         }
     }
@@ -236,7 +241,29 @@ impl Scripted {
                 result: Err(broken()),
             });
         }
-        signed_in(effect)
+        if let Effect::LoadConversations { ticket, .. } = &effect {
+            let owners = self.owners.lock().unwrap_or_else(PoisonError::into_inner);
+            return Some(Event::ConversationsLoaded {
+                ticket: *ticket,
+                result: decode(&conversations(&owners).to_string()),
+            });
+        }
+        let answer = signed_in(effect);
+        if let Some(Event::ConversationAssigned {
+            result:
+                Ok(district_model::ConversationAssignResponse {
+                    assignment: Some(given),
+                    ..
+                }),
+            ..
+        }) = &answer
+        {
+            self.owners
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .insert(given.thread_key.clone(), given.assignee_email.clone());
+        }
+        answer
     }
 }
 
@@ -324,6 +351,38 @@ fn broken() -> ApiError {
     }
 }
 
+/// The inbox as the service answers the app, which asks with `metaChannels=1`
+/// and `assignments=1`: the reply options fixture's threads (WhatsApp,
+/// Messenger, Instagram, and the contact's email, text and WhatsApp), each with
+/// its owner from the assignee fixture (or, once the scene has recorded an
+/// assignment, from `recorded`), the contact's thread first, so the walk opens
+/// the conversation it always has.
+fn conversations(recorded: &HashMap<String, String>) -> Value {
+    let mut list: Value =
+        serde_json::from_str(fixture!("district-conversations-reply-options.json"))
+            .unwrap_or_default();
+    let owners: Value =
+        serde_json::from_str(fixture!("district-conversations-assignee.json")).unwrap_or_default();
+    let owner_of = |key: &Value| {
+        owners["conversations"]
+            .as_array()
+            .and_then(|rows| rows.iter().find(|row| row["threadKey"] == *key))
+            .map_or(Value::Null, |row| row["assigneeEmail"].clone())
+    };
+    if let Some(rows) = list["conversations"].as_array_mut() {
+        for row in rows.iter_mut() {
+            let owner = row["threadKey"]
+                .as_str()
+                .and_then(|key| recorded.get(key))
+                .map_or_else(|| owner_of(&row["threadKey"]), |given| json!(given));
+            row["assignedToMe"] = json!(false);
+            row["assigneeEmail"] = owner;
+        }
+        rows.sort_by_key(|row| row["threadKey"] != json!("contact:contact_contract_1"));
+    }
+    list
+}
+
 /// The one workspace: an agency's, so every area its role allows is offered.
 fn workspaces() -> Value {
     workspaces_in("us")
@@ -380,7 +439,7 @@ fn signed_in(effect: Effect) -> Option<Event> {
         },
         Effect::LoadConversations { ticket, .. } => Event::ConversationsLoaded {
             ticket,
-            result: decode(fixture!("district-conversations.json")),
+            result: decode(&conversations(&HashMap::new()).to_string()),
         },
         Effect::LoadUnreadCount { ticket, .. } => Event::UnreadCountLoaded {
             ticket,
@@ -580,6 +639,20 @@ fn signed_in(effect: Effect) -> Option<Event> {
         Effect::WriteMessaging { ticket, write, .. } => Event::SettingsWritten {
             ticket,
             result: written(messaging_answer(&write)?),
+        },
+        // The thread's WhatsApp window is closed, so its sender's templates
+        // are offered; a change of owner lands as the service records it.
+        Effect::LoadWhatsAppWindow { ticket, .. } => Event::WhatsAppWindowLoaded {
+            ticket,
+            result: decode(fixture!("district-whatsapp-window-closed.json")),
+        },
+        Effect::LoadWhatsAppTemplates { ticket, .. } => Event::WhatsAppTemplatesLoaded {
+            ticket,
+            result: decode(fixture!("district-whatsapp-templates.json")),
+        },
+        Effect::AssignConversation { ticket, .. } => Event::ConversationAssigned {
+            ticket,
+            result: decode(fixture!("district-conversation-assign.json")),
         },
         Effect::LoadMembers { ticket, .. } => Event::MembersLoaded {
             ticket,
@@ -1070,7 +1143,7 @@ mod tests {
                 app_version: "0.1.0".to_owned(),
                 calls_available: true,
                 in_app_purchases: true,
-                meta_channels: false,
+                meta_channels: true,
                 locale: Locale::En,
             });
             let mut played = Self {
@@ -1301,7 +1374,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available,
             in_app_purchases: true,
-            meta_channels: false,
+            meta_channels: true,
             locale: district_core::Locale::En,
         });
         settle(&mut model, first);
@@ -1345,7 +1418,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: false,
             in_app_purchases: true,
-            meta_channels: false,
+            meta_channels: true,
             locale: district_core::Locale::En,
         });
         settle(&mut model, first);
@@ -2847,5 +2920,90 @@ mod tests {
         };
         assert!(view.composer.is_some(), "no reply box: {view:?}");
         assert_eq!(unsettled(&screen), None, "{screen:?}");
+    }
+
+    /// The walk's parity scene: Messenger and Instagram rows with their
+    /// owners, the contact's three reply channels, the owner picker, and
+    /// WhatsApp's closed window offering the approved template.
+    #[test]
+    fn the_inbox_shows_meta_threads_owners_and_a_closed_window() {
+        let mut model = started();
+        let ScreenView::Inbox { view } = after(&mut model, Event::Navigate(Route::Inbox)) else {
+            panic!("the inbox opens");
+        };
+        assert_eq!(view.threads.len(), 5);
+        assert_eq!(view.threads[0].title, "Contract Test Caller");
+        assert_eq!(
+            view.threads[0].assignee.as_deref(),
+            Some("Assigned to contract@example.com")
+        );
+        assert!(
+            view.threads
+                .iter()
+                .any(|row| row.channel_label == "Messenger")
+        );
+        let ScreenView::Thread { view } = after(
+            &mut model,
+            Event::Navigate(Route::Thread {
+                thread_key: view.threads[0].thread_key.clone(),
+            }),
+        ) else {
+            panic!("the conversation opens");
+        };
+        let composer = view.composer.expect("a reply box");
+        assert!(composer.can_choose_channel);
+        assert_eq!(composer.channels.len(), 3);
+        let assignment = view.assignment.expect("an owner picker");
+        assert!(assignment.can_assign && assignment.options.len() == 4);
+        let screen = after(
+            &mut model,
+            Event::Thread(district_core::ThreadEvent::ChooseChannel(
+                "whatsapp".to_owned(),
+            )),
+        );
+        let ScreenView::Thread { view } = &screen else {
+            panic!("still the conversation");
+        };
+        let templates = view
+            .composer
+            .as_ref()
+            .and_then(|composer| composer.whatsapp.as_ref())
+            .and_then(|whatsapp| whatsapp.templates.as_ref())
+            .expect("the closed window offers templates");
+        assert_eq!(templates.options.len(), 1);
+        assert_eq!(unsettled(&screen), None, "{screen:?}");
+    }
+
+    /// An owner the walk picks lands as the service records it, and stays:
+    /// the core reads the inbox again after the change and takes the open
+    /// thread's owner from its row, so the scene reports the owner it
+    /// recorded there too, as the service does.
+    #[test]
+    fn an_assignment_lands_and_the_list_read_after_it_keeps_it() {
+        let mut played = Played::new(Scene::SignedIn);
+        let pending = played.model.update(Event::Navigate(Route::Inbox));
+        played.settle(pending);
+        let ScreenView::Inbox { view } = screen_view(&played.model) else {
+            panic!("the inbox opens");
+        };
+        let thread_key = view.threads[0].thread_key.clone();
+        let pending = played
+            .model
+            .update(Event::Navigate(Route::Thread { thread_key }));
+        played.settle(pending);
+        let pending = played
+            .model
+            .update(Event::Thread(district_core::ThreadEvent::Assign(Some(
+                "founder@example.com".to_owned(),
+            ))));
+        played.settle(pending);
+        let ScreenView::Thread { view } = screen_view(&played.model) else {
+            panic!("still the conversation");
+        };
+        let assignment = view.assignment.expect("an owner picker");
+        let chosen = &assignment.options[assignment.selected as usize];
+        assert_eq!(chosen.email.as_deref(), Some("teammate@example.com"));
+        assert_eq!(assignment.line, "Assigned to teammate@example.com");
+        assert!(assignment.can_assign && !assignment.saving);
     }
 }
