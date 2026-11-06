@@ -26,7 +26,8 @@ public sealed class ComposerViewModelTests
         ReplyChannelView[]? channels = null,
         bool canChooseChannel = false,
         string? attachmentsNote = null,
-        WhatsAppView? whatsapp = null) =>
+        WhatsAppView? whatsapp = null,
+        MetaView? meta = null) =>
         new(
             text,
             attachments ?? [],
@@ -44,7 +45,8 @@ public sealed class ComposerViewModelTests
             channels ?? [new ReplyChannelView("sms", "Text message", "+14165550142", true)],
             canChooseChannel,
             attachmentsNote,
-            whatsapp);
+            whatsapp,
+            meta);
 
     private static UiEvent.Composer Action(ComposerAction action) => new(action);
 
@@ -286,7 +288,7 @@ public sealed class ThreadComposerTests
 
         var box = new ComposerView("", [], true, true, false, true, false, false, false, null, null,
             new AiDraftOfferView("Draft a reply with AI", "Billed.", "AI draft", ReportAvailability.InApp),
-            "Reply channel", [], false, null, null);
+            "Reply channel", [], false, null, null, null);
         thread.Show(Thread(string.Empty, box), reportSending: false);
         Assert.False(thread.HasReadOnlyNote);
         Assert.True(thread.Composer.Visible);

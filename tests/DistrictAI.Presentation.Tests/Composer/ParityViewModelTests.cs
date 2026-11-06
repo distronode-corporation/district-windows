@@ -6,7 +6,10 @@ using Xunit;
 
 namespace DistrictAI.Presentation.Tests.Composer;
 
-/// <summary>App parity: the reply channel, the conversation's owner and the WhatsApp templates.</summary>
+/// <summary>
+/// App parity: the reply channel, the conversation's owner, the WhatsApp
+/// templates and the Messenger and Instagram reply window.
+/// </summary>
 public sealed class ParityViewModelTests
 {
     private static readonly ReplyChannelView[] _channels =
@@ -20,10 +23,14 @@ public sealed class ParityViewModelTests
         ReplyChannelView[]? channels = null,
         bool canChooseChannel = true,
         string? attachmentsNote = null,
-        WhatsAppView? whatsapp = null) =>
-        new("", [], false, false, false, true, false, false, false, null, null,
+        WhatsAppView? whatsapp = null,
+        MetaView? meta = null,
+        string text = "",
+        bool canSend = false,
+        bool canDraftReply = true) =>
+        new(text, [], false, false, canSend, canDraftReply, false, false, false, null, null,
             new AiDraftOfferView("Draft a reply with AI", "Billed.", "AI draft", ReportAvailability.InApp),
-            "Reply channel", channels ?? _channels, canChooseChannel, attachmentsNote, whatsapp);
+            "Reply channel", channels ?? _channels, canChooseChannel, attachmentsNote, whatsapp, meta);
 
     private static TemplateVariableView Variable(uint index, string value) =>
         new(index, $"Variable {{{{{index + 1}}}}}", value, value.Trim().Length == 0 ? "Fill in this variable" : null);
@@ -243,5 +250,85 @@ public sealed class ParityViewModelTests
         Assert.True(row.HasAssignee);
         Assert.Contains("Assigned to ada@example.com", row.AccessibleName);
         Assert.False(ThreadRowItem.From(V.ThreadRow()).HasAssignee);
+    }
+
+    private const string HumanAgent = "Human agent reply (7-day window)";
+
+    private const string MetaClosed =
+        "Reply window closed: Messenger and Instagram allow a reply only within 24 hours of the customer's last message.";
+
+    private static readonly ReplyChannelView[] _messenger = [new("messenger", "Messenger", "fb:5550101", true)];
+
+    [Fact]
+    public void TheHumanAgentWindowShowsItsBadgeAndOnlyAPersonReplies()
+    {
+        var (box, sink) = Shown(Box(_messenger, canChooseChannel: false, meta: new MetaView(HumanAgent, null),
+            text: "Thanks", canSend: true, canDraftReply: false));
+        Assert.True(box.HasMetaHumanAgent);
+        Assert.Equal(HumanAgent, box.MetaHumanAgent);
+        Assert.False(box.HasMetaWindowClosed);
+        Assert.True(box.ShowText);
+        Assert.True(box.SendCommand.CanExecute(null));
+        Assert.False(box.DraftReplyCommand.CanExecute(null));
+
+        // The AI button stays off: pressing it sends nothing.
+        box.DraftReplyCommand.Execute(null);
+        Assert.Empty(sink.Sent);
+    }
+
+    [Fact]
+    public void AClosedMetaWindowWarnsAndKeepsTheBoxWithSendOff()
+    {
+        var (box, sink) = Shown(Box(_messenger, canChooseChannel: false, meta: new MetaView(null, MetaClosed),
+            text: "Thanks", canSend: false, canDraftReply: false));
+        Assert.True(box.HasMetaWindowClosed);
+        Assert.Equal(MetaClosed, box.MetaWindowClosed);
+        Assert.False(box.HasMetaHumanAgent);
+        // Web parity: the box stays, with what was typed, and Send is off.
+        Assert.True(box.ShowText);
+        Assert.Equal("Thanks", box.Text);
+        Assert.False(box.SendCommand.CanExecute(null));
+        box.SendCommand.Execute(null);
+        Assert.Empty(sink.Sent);
+        // Not WhatsApp's: no template picker.
+        Assert.False(box.WhatsApp.Visible);
+    }
+
+    [Fact]
+    public void AnOpenLoadingOrUnknownMetaWindowSaysNothing()
+    {
+        var (box, _) = Shown(Box(_messenger, canChooseChannel: false, meta: new MetaView(null, null),
+            text: "Thanks", canSend: true));
+        Assert.False(box.HasMetaHumanAgent);
+        Assert.False(box.HasMetaWindowClosed);
+        Assert.Equal(string.Empty, box.MetaHumanAgent);
+        Assert.Equal(string.Empty, box.MetaWindowClosed);
+        Assert.True(box.SendCommand.CanExecute(null));
+        Assert.True(box.DraftReplyCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public void TheMetaLinesFollowTheCoreAndGoWithTheBox()
+    {
+        var (box, _) = Shown(Box(_messenger, canChooseChannel: false, meta: new MetaView(null, MetaClosed)));
+        Assert.True(box.HasMetaWindowClosed);
+
+        // The customer wrote again: the core reads the window open.
+        box.Show("contact:c-1", Box(_messenger, canChooseChannel: false, meta: new MetaView(null, null)), reportSending: false);
+        Assert.False(box.HasMetaWindowClosed);
+        Assert.Equal(string.Empty, box.MetaWindowClosed);
+
+        box.Show("contact:c-1", Box(_messenger, canChooseChannel: false, meta: new MetaView(HumanAgent, null)), reportSending: false);
+        Assert.True(box.HasMetaHumanAgent);
+
+        // Another channel (no Meta side), and then another conversation with no box: both lines go.
+        box.Show("contact:c-1", Box(), reportSending: false);
+        Assert.False(box.HasMetaHumanAgent);
+        Assert.False(box.HasMetaWindowClosed);
+        box.Show("addr:ig:5550102", Box(_messenger, canChooseChannel: false, meta: new MetaView(null, MetaClosed)), reportSending: false);
+        Assert.True(box.HasMetaWindowClosed);
+        box.Show("addr:ig:5550102", null, reportSending: false);
+        Assert.False(box.HasMetaWindowClosed);
+        Assert.False(box.HasMetaHumanAgent);
     }
 }

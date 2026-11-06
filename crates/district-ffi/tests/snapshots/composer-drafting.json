@@ -49,6 +49,7 @@
           ],
           "failure": null,
           "generating": true,
+          "meta": null,
           "sending": false,
           "show_attach": true,
           "text": "",

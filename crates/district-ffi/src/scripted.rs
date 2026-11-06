@@ -160,7 +160,8 @@ impl Scripted {
     /// event or none), or `None` for any other effect. The credential is made
     /// up and joinable; the room it names is played by [`voice_room`], its
     /// reports sent on as the engine's are; the microphone does as it is
-    /// told. Nothing else of the session is answered: a card's Confirm and
+    /// told, and the grace window the agent leaving opens is over at once.
+    /// Nothing else of the session is answered: a card's Confirm and
     /// Cancel, and the screen reports, go unanswered, as with no network.
     fn voice_answer(&self, effect: &Effect) -> Option<Option<Event>> {
         match effect {
@@ -207,6 +208,14 @@ impl Scripted {
             Effect::DisconnectMedia { session } if self.voice().session == Some(*session) => {
                 self.voice().session = None;
                 Some(None)
+            }
+            // The agent leaving opens the core's grace window (a rebuilt
+            // connection reports the agent gone, then back). The made-up room
+            // never comes back, so the window is over at once.
+            Effect::Wait { ticket, delay }
+                if *delay == district_core::EMPTY_ROOM_GRACE && self.voice().session.is_some() =>
+            {
+                Some(Some(Event::WaitOver { ticket: *ticket }))
             }
             _ => None,
         }
@@ -649,6 +658,19 @@ fn signed_in(effect: Effect) -> Option<Event> {
         Effect::LoadWhatsAppTemplates { ticket, .. } => Event::WhatsAppTemplatesLoaded {
             ticket,
             result: decode(fixture!("district-whatsapp-templates.json")),
+        },
+        // The Messenger customer wrote days ago, so only a person may reply
+        // (the human agent window); the Instagram customer's window has
+        // closed, so nothing can be sent there.
+        Effect::LoadMetaWindow {
+            ticket, channel, ..
+        } => Event::MetaWindowLoaded {
+            ticket,
+            result: decode(if channel == district_model::CHANNEL_INSTAGRAM {
+                fixture!("district-meta-window-closed.json")
+            } else {
+                fixture!("district-meta-window-human-agent.json")
+            }),
         },
         Effect::AssignConversation { ticket, .. } => Event::ConversationAssigned {
             ticket,
@@ -2972,6 +2994,50 @@ mod tests {
             .expect("the closed window offers templates");
         assert_eq!(templates.options.len(), 1);
         assert_eq!(unsettled(&screen), None, "{screen:?}");
+    }
+
+    /// The walk's Meta reply windows: the Messenger thread is in its human
+    /// agent window (a badge, Send works, the AI button does not) and the
+    /// Instagram thread's has closed (a warning, the box stays, Send is off).
+    #[test]
+    fn the_meta_threads_show_their_reply_windows() {
+        let mut model = started();
+        let _ = after(&mut model, Event::Navigate(Route::Inbox));
+        let mut open = |thread_key: &str, text: &str| {
+            let _ = after(
+                &mut model,
+                Event::Navigate(Route::Thread {
+                    thread_key: thread_key.to_owned(),
+                }),
+            );
+            let screen = after(
+                &mut model,
+                Event::Thread(district_core::ThreadEvent::Compose(text.to_owned())),
+            );
+            assert_eq!(unsettled(&screen), None, "{screen:?}");
+            let ScreenView::Thread { view } = screen else {
+                panic!("the conversation opens");
+            };
+            view.composer.expect("a reply box")
+        };
+        let messenger = open("addr:fb:5550101", "Hello");
+        let meta = messenger.meta.as_ref().expect("the Messenger window");
+        assert_eq!(
+            meta.human_agent.as_deref(),
+            Some("Human agent reply (7-day window)")
+        );
+        assert_eq!(meta.window_closed, None);
+        assert!(messenger.can_send && !messenger.can_draft_reply);
+        let instagram = open("addr:ig:5550102", "Hello");
+        let meta = instagram.meta.as_ref().expect("the Instagram window");
+        assert_eq!(meta.human_agent, None);
+        assert!(
+            meta.window_closed
+                .as_deref()
+                .is_some_and(|line| line.starts_with("Reply window closed"))
+        );
+        assert!(!instagram.can_send && !instagram.can_draft_reply);
+        assert_eq!(instagram.text, "Hello");
     }
 
     /// An owner the walk picks lands as the service records it, and stays:

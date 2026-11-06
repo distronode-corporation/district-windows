@@ -49,6 +49,7 @@
           ],
           "failure": null,
           "generating": false,
+          "meta": null,
           "sending": true,
           "show_attach": true,
           "text": "On my way.",

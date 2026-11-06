@@ -9008,6 +9008,10 @@ class FfiConverterTypeComposeView: FfiConverterRustBuffer<ComposeView> {
 /// <param name="Whatsapp">
 /// The WhatsApp window and its templates, while the reply goes by WhatsApp.
 /// </param>
+/// <param name="Meta">
+/// The Messenger or Instagram reply window, while the reply goes by one of
+/// them.
+/// </param>
 public record ComposerView (
     /// <summary>
     /// What the box holds, as the core holds it: what was typed, a saved
@@ -9084,7 +9088,12 @@ public record ComposerView (
     /// <summary>
     /// The WhatsApp window and its templates, while the reply goes by WhatsApp.
     /// </summary>
-    WhatsAppView? Whatsapp
+    WhatsAppView? Whatsapp, 
+    /// <summary>
+    /// The Messenger or Instagram reply window, while the reply goes by one of
+    /// them.
+    /// </summary>
+    MetaView? Meta
 ) {
 }
 
@@ -9109,7 +9118,8 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
             Channels: FfiConverterSequenceTypeReplyChannelView.INSTANCE.Read(stream),
             CanChooseChannel: FfiConverterBoolean.INSTANCE.Read(stream),
             AttachmentsNote: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Whatsapp: FfiConverterOptionalTypeWhatsAppView.INSTANCE.Read(stream)
+            Whatsapp: FfiConverterOptionalTypeWhatsAppView.INSTANCE.Read(stream),
+            Meta: FfiConverterOptionalTypeMetaView.INSTANCE.Read(stream)
         );
     }
 
@@ -9131,7 +9141,8 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
             + FfiConverterSequenceTypeReplyChannelView.INSTANCE.AllocationSize(value.Channels)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanChooseChannel)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.AttachmentsNote)
-            + FfiConverterOptionalTypeWhatsAppView.INSTANCE.AllocationSize(value.Whatsapp);
+            + FfiConverterOptionalTypeWhatsAppView.INSTANCE.AllocationSize(value.Whatsapp)
+            + FfiConverterOptionalTypeMetaView.INSTANCE.AllocationSize(value.Meta);
     }
 
     public override void Write(ComposerView value, BigEndianStream stream) {
@@ -9152,6 +9163,7 @@ class FfiConverterTypeComposerView: FfiConverterRustBuffer<ComposerView> {
             FfiConverterBoolean.INSTANCE.Write(value.CanChooseChannel, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.AttachmentsNote, stream);
             FfiConverterOptionalTypeWhatsAppView.INSTANCE.Write(value.Whatsapp, stream);
+            FfiConverterOptionalTypeMetaView.INSTANCE.Write(value.Meta, stream);
     }
 }
 
@@ -18389,6 +18401,58 @@ class FfiConverterTypeMessagingView: FfiConverterRustBuffer<MessagingView> {
             FfiConverterOptionalTypeCreatorCellView.INSTANCE.Write(value.Creator, stream);
             FfiConverterOptionalTypeMessagingConfirmView.INSTANCE.Write(value.Confirm, stream);
             FfiConverterOptionalTypeMessagingFormView.INSTANCE.Write(value.Form, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The Messenger and Instagram side of the reply box, as the web Inbox shows
+/// it: a badge in the human agent window, a warning once the window has
+/// closed, and nothing while it is open, being read or not known. No
+/// countdown.
+/// </summary>
+/// <param name="HumanAgent">
+/// "Human agent reply (7-day window)", the badge over the box while only a
+/// person may reply (the AI button is off), or nothing.
+/// </param>
+/// <param name="WindowClosed">
+/// Why nothing can be sent, once the service says the window is closed:
+/// the box stays, Send and the AI button are off. Nothing otherwise.
+/// </param>
+public record MetaView (
+    /// <summary>
+    /// "Human agent reply (7-day window)", the badge over the box while only a
+    /// person may reply (the AI button is off), or nothing.
+    /// </summary>
+    string? HumanAgent, 
+    /// <summary>
+    /// Why nothing can be sent, once the service says the window is closed:
+    /// the box stays, Send and the AI button are off. Nothing otherwise.
+    /// </summary>
+    string? WindowClosed
+) {
+}
+
+class FfiConverterTypeMetaView: FfiConverterRustBuffer<MetaView> {
+    public static FfiConverterTypeMetaView INSTANCE = new FfiConverterTypeMetaView();
+
+    public override MetaView Read(BigEndianStream stream) {
+        return new MetaView(
+            HumanAgent: FfiConverterOptionalString.INSTANCE.Read(stream),
+            WindowClosed: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(MetaView value) {
+        return 0
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.HumanAgent)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.WindowClosed);
+    }
+
+    public override void Write(MetaView value, BigEndianStream stream) {
+            FfiConverterOptionalString.INSTANCE.Write(value.HumanAgent, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.WindowClosed, stream);
     }
 }
 
@@ -49361,6 +49425,37 @@ class FfiConverterOptionalTypeMessagingFormView: FfiConverterRustBuffer<Messagin
         } else {
             stream.WriteByte(1);
             FfiConverterTypeMessagingFormView.INSTANCE.Write((MessagingFormView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeMetaView: FfiConverterRustBuffer<MetaView?> {
+    public static FfiConverterOptionalTypeMetaView INSTANCE = new FfiConverterOptionalTypeMetaView();
+
+    public override MetaView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeMetaView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(MetaView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeMetaView.INSTANCE.AllocationSize((MetaView)value);
+        }
+    }
+
+    public override void Write(MetaView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeMetaView.INSTANCE.Write((MetaView)value, stream);
         }
     }
 }

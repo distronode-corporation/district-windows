@@ -158,6 +158,21 @@ internal static class Walk
         Activate(first);
     }
 
+    /// <summary>
+    /// Opens the Inbox's conversation whose row names the channel
+    /// <paramref name="channelLabel"/> ("Messenger"), as a click on it does.
+    /// </summary>
+    public static void OpenConversationOn(InstalledApp app, string channelLabel)
+    {
+        var list = app.FindById("ConversationList", PageTimeout);
+        var label = Wait.For(
+            () => list.FindFirstDescendant(cf => cf.ByControlType(ControlType.Text).And(cf.ByName(channelLabel))),
+            PageTimeout,
+            $"a {channelLabel} conversation in the Inbox",
+            app.Describe);
+        Activate(ListItemOf(app, label));
+    }
+
     /// <summary>Chooses the entry named <paramref name="entry"/>, as a click does.</summary>
     public static void Open(InstalledApp app, string entry) =>
         Activate(app.Find(ControlType.ListItem, entry, PageTimeout));
