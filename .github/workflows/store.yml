@@ -11,6 +11,7 @@ name: Store
 #   `ref`.
 # - `ref` is that full commit. docs/store-listing.md's "What's new in this
 #   version: X.Y.Z" section is read there, so the Store notes are the tagged ones.
+#   The scripts themselves run from main, the commit this workflow was dispatched on.
 # - `mode` is `dry-run` (read-only GETs; prints every request it would send),
 #   `draft` (creates and uploads the submission, leaves it uncommitted for
 #   review in Partner Center) or `submit` (the same, then commits it to
@@ -60,8 +61,6 @@ concurrency:
 
 jobs:
   store:
-    # The `release` environment admits main and v* tags only, and the workload
-    # identity provider admits only this repository in that environment.
     environment: release
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -74,7 +73,6 @@ jobs:
       VERSION: ${{ inputs.version }}
       REF: ${{ inputs.ref }}
       MODE: ${{ inputs.mode }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
       GCP_SA_DOMAIN: distronode.iam.gserviceaccount.com
       # Where scripts/msstore/storeapi.py reads the Store API credentials.
@@ -96,23 +94,32 @@ jobs:
           fi
           echo "v$VERSION at $REF, mode $MODE"
 
+      # The scripts run from the dispatched workflow commit (main), so every fix to them
+      # applies to every release, old tags included. Only the listing text is read
+      # from the release commit, below.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.ref }}
           fetch-depth: 0
           persist-credentials: false
 
       - name: The tag points at ref, on main, and the release is public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          tag_commit=$(gh api "repos/$GH_REPO/commits/v$VERSION" --jq .sha)
+          # The tag itself (a branch with the same name does not count).
+          tag_commit=$(git rev-parse --verify --quiet "refs/tags/v$VERSION^{commit}") \
+            || { echo "::error::there is no tag v$VERSION"; exit 1; }
           [ "$tag_commit" = "$REF" ] || { echo "::error::v$VERSION is $tag_commit, not $REF"; exit 1; }
           git merge-base --is-ancestor "$REF" refs/remotes/origin/main \
             || { echo "::error::$REF is not on main"; exit 1; }
           draft=$(gh release view "v$VERSION" --json isDraft --jq .isDraft)
           [ "$draft" = "false" ] || { echo "::error::the v$VERSION release is still a draft"; exit 1; }
+          git show "$REF:docs/store-listing.md" > "$RUNNER_TEMP/store-listing.md"
 
       - name: Download the Store package and check it
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/pkg"
@@ -120,8 +127,10 @@ jobs:
             --pattern "DistrictAI_${VERSION}_x64.msixupload" --pattern SHA256SUMS
           cd "$RUNNER_TEMP/pkg"
           grep " DistrictAI_${VERSION}_x64.msixupload\$" SHA256SUMS | sha256sum -c -
+          # Bound to the exact commit, not only the tag name, and to GitHub-hosted runners.
           gh attestation verify "DistrictAI_${VERSION}_x64.msixupload" --repo "$GH_REPO" \
-            --signer-workflow "$GH_REPO/.github/workflows/release.yml" --source-ref "refs/tags/v$VERSION"
+            --signer-workflow "$GH_REPO/.github/workflows/release.yml" --source-ref "refs/tags/v$VERSION" \
+            --source-digest "$REF" --deny-self-hosted-runners
 
       - name: Authenticate to Google Cloud
         id: gcp
@@ -145,6 +154,6 @@ jobs:
             submit) flag=--submit ;;
           esac
           python3 scripts/msstore/prepare_submission.py \
-            --version "$VERSION" --ref "$REF" --listing-md docs/store-listing.md \
+            --version "$VERSION" --ref "$REF" --listing-md "$RUNNER_TEMP/store-listing.md" \
             --msixupload "$RUNNER_TEMP/pkg/DistrictAI_${VERSION}_x64.msixupload" \
             --sha256sums "$RUNNER_TEMP/pkg/SHA256SUMS" $flag

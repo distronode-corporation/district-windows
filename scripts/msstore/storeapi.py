@@ -4,8 +4,9 @@ Credentials come from Secret Manager straight into memory: the project and the
 secret names are the environment's (GSM_PROJECT, MSSTORE_TENANT_SECRET,
 MSSTORE_CLIENT_ID_SECRET, MSSTORE_CLIENT_SECRET_SECRET; store.yml sets them),
 read with GSM_ACCESS_TOKEN in Actions and through `gcloud` elsewhere. Nothing
-here prints, logs or writes a secret value. The submission's SAS fileUploadUrl is a credential too: it is redacted
-before anything is shown or saved.
+here prints, logs or writes a secret value; in Actions the access token is masked as
+soon as it is known. The submission's signed URLs (fileUploadUrl, reportUrl) and its
+notesForCertification (the reviewer account) are redacted before anything is shown.
 """
 import base64
 import json
@@ -17,7 +18,9 @@ import urllib.request
 
 DEVCENTER = "https://manage.devcenter.microsoft.com"
 APP_ID = "9P9F0NNFJ3CP"  # Store ID of "District AI" (docs/district_windows.md)
-REDACT_KEYS = {"fileUploadUrl"}
+# fileUploadUrl and reportUrl are signed URLs; notesForCertification holds the reviewer
+# account (docs/store-listing.md). store.yml's log is public.
+REDACT_KEYS = {"fileUploadUrl", "notesForCertification", "reportUrl"}
 
 
 def env(name):
@@ -54,7 +57,10 @@ def token():
     req = urllib.request.Request(
         f"https://login.microsoftonline.com/{urllib.parse.quote(tenant)}/oauth2/v2.0/token", data=body, method="POST")
     with urllib.request.urlopen(req, timeout=60) as r:
-        return json.load(r)["access_token"]
+        tok = json.load(r)["access_token"]
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        print(f"::add-mask::{tok}")
+    return tok
 
 
 class DevCenter:
@@ -81,7 +87,7 @@ class DevCenter:
 
 def redact(obj):
     if isinstance(obj, dict):
-        return {k: ("<redacted SAS url>" if k in REDACT_KEYS and v else redact(v)) for k, v in obj.items()}
+        return {k: (f"<redacted, {len(str(v))} chars>" if k in REDACT_KEYS and v else redact(v)) for k, v in obj.items()}
     if isinstance(obj, list):
         return [redact(v) for v in obj]
     return obj
