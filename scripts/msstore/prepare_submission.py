@@ -377,12 +377,25 @@ def mask(value):
 
 
 def discard(dc, put_path, sub_id):
-    """DELETE the submission this run created, after a failure before its commit."""
-    st, resp = dc.call("DELETE", put_path)
-    print(f"== DELETE {put_path} -> {st} (the submission this run created, so no draft is left pending)")
-    if st not in (200, 204):
-        print(f"   could not delete {sub_id}: {json.dumps(storeapi.redact(resp))[:300]}; delete it in Partner Center",
+    """DELETE this run's submission (one last read as never committed, or FAILED).
+
+    True only when Partner Center confirms it with a 2xx. A non-2xx answer or no answer
+    at all returns False and says so; it never raises, so a caller's own error (or its
+    closing line) is always the last thing the log shows."""
+    try:
+        st, resp = dc.call("DELETE", put_path)
+    except TRANSPORT as e:
+        print(f"== DELETE {put_path} -> no answer ({type(e).__name__}); submission {sub_id} may still be pending",
               file=sys.stderr)
+        return False
+    if st is not None and 200 <= st < 300:
+        print(f"== DELETE {put_path} -> {st}: deleted")
+        return True
+    print(f"== DELETE {put_path} -> {st}: NOT deleted: {json.dumps(storeapi.redact(resp))[:300]}", file=sys.stderr)
+    return False
+
+
+NOT_DELETED = "it never went through: delete it in Partner Center before a re-run"
 
 
 # ---------------------------------------------------------------- main
@@ -559,9 +572,10 @@ def main():
 
     except BaseException:
         # Before the commit, deleting this run's draft is always safe, a runner cancel
-        # (KeyboardInterrupt) included.
-        if not args.dry_run:
-            discard(dc, put_path, sub_id)
+        # (KeyboardInterrupt) included. The original error is re-raised either way, so it
+        # stays the run's last error; a DELETE that failed is named just above it.
+        if not args.dry_run and not discard(dc, put_path, sub_id):
+            print(f"REFUSED: submission {sub_id} could NOT be deleted; {NOT_DELETED}", file=sys.stderr)
         raise
 
     if not args.submit:
@@ -606,8 +620,10 @@ def create_submission(dc, app_path, published=None):
                          and sub.get("applicationPackages") == published.get("applicationPackages")
                          and sub.get("listings") == published.get("listings"))
             if untouched:
-                discard(dc, f"{app_path}/submissions/{pid}", pid)
-                die(f"creating the submission failed ({st}); the untouched draft it left ({pid}) was deleted")
+                if discard(dc, f"{app_path}/submissions/{pid}", pid):
+                    die(f"creating the submission failed ({st}); the untouched draft it left ({pid}) was deleted")
+                die(f"creating the submission failed ({st}); the untouched draft it left ({pid}) could NOT be "
+                    f"deleted: {NOT_DELETED}")
             die(f"creating the submission failed ({st}); submission {pid} is pending (status "
                 f"{(sub or {}).get('status')!r}) and is not provably this run's untouched draft: kept, check Partner Center")
     die(f"creating the submission failed ({st}): {json.dumps(storeapi.redact(base))[:1000]}")
@@ -642,8 +658,9 @@ def commit_and_wait(dc, put_path, sub_id, polls=30, interval=20):
     if refused:
         status, _ = read_status(dc, put_path)
         if status == "PendingCommit":
-            discard(dc, put_path, sub_id)
-            die(f"commit refused (HTTP {st}); the draft read PendingCommit and was deleted, so a re-run starts clean")
+            if discard(dc, put_path, sub_id):
+                die(f"commit refused (HTTP {st}); the draft read PendingCommit and was deleted, so a re-run starts clean")
+            die(f"commit refused (HTTP {st}); the draft read PendingCommit but could NOT be deleted: {NOT_DELETED}")
         die(f"commit refused (HTTP {st}), but submission {sub_id} reads {status!r}; kept, check Partner Center")
     if not accepted:
         print(f"   the commit's outcome is unknown (HTTP {st}); the status decides, nothing is deleted on it")
@@ -663,8 +680,10 @@ def commit_and_wait(dc, put_path, sub_id, polls=30, interval=20):
     if status in FAILED:
         errors = ((stat or {}).get("statusDetails") or {}).get("errors") or []
         detail = "; ".join(f"{e.get('code')}: {e.get('details')}" for e in errors) or "no error details"
-        discard(dc, put_path, sub_id)
-        die(f"submission {sub_id} ended {status} ({detail}); the draft was deleted, so a re-run starts clean")
+        if discard(dc, put_path, sub_id):
+            die(f"submission {sub_id} ended {status} ({detail}); the draft was deleted, so a re-run starts clean")
+        die(f"submission {sub_id} ended {status} ({detail}) and could NOT be deleted: delete it in Partner Center "
+            "before a re-run")
     if status in KEPT_TERMINAL:
         die(f"submission {sub_id} ended {status}; kept (not deleted): it passed certification or is no longer "
             "pending. Read it in Partner Center")
@@ -683,9 +702,9 @@ class _FakePC:
     """An in-process Partner Center for the self-test: answers by (method, path suffix)."""
 
     def __init__(self, post=(201, None), commit=(202, {}), statuses=((200, {"status": "PreProcessing"}),),
-                 app=None, sub=None, put=(200, {})):
+                 app=None, sub=None, put=(200, {}), delete=(204, None)):
         self.post, self.commit, self.statuses = post, commit, list(statuses)
-        self.app, self.sub, self.put = app, sub, put
+        self.app, self.sub, self.put, self.delete = app, sub, put, delete
         self.calls = []
 
     @staticmethod
@@ -697,7 +716,7 @@ class _FakePC:
     def call(self, method, path, body=None):
         self.calls.append((method, path))
         if method == "DELETE":
-            return 204, None
+            return self._answer(self.delete)
         if method == "PUT":
             return self._answer(self.put)
         if method == "POST" and path.endswith("/commit"):
@@ -721,11 +740,13 @@ def _quiet(fn):
             fn()
     except SystemExit as e:
         code = e.code
+    except BaseException as e:  # a runner cancel, or an error main() lets through
+        code = type(e).__name__
     return code, out.getvalue()
 
 
-def _main_case(tmp, fake, upload):
-    """main() --submit against a fake, with a real package, SHA256SUMS and listing."""
+def _main_case(tmp, fake, upload, mode="--submit"):
+    """main() (--submit by default) against a fake, with a real package, SHA256SUMS and listing."""
     manifest = ('<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10">'
                 f'<Identity Name="{IDENTITY_NAME}" Publisher="{PUBLISHER}" Version="3.3.0.0" '
                 'ProcessorArchitecture="x64"/><Resources><Resource Language="EN-US"/>'
@@ -745,13 +766,10 @@ def _main_case(tmp, fake, upload):
     storeapi.DevCenter = lambda: fake
     globals()["upload_block_blob"] = upload
     sys.argv = ["p", "--version", "3.3.0", "--ref", "0" * 40, "--listing-md", os.path.join(tmp, "listing.md"),
-                "--msixupload", pkg, "--sha256sums", os.path.join(tmp, "SHA256SUMS"), "--submit"]
+                "--msixupload", pkg, "--sha256sums", os.path.join(tmp, "SHA256SUMS")] + ([mode] if mode else [])
     os.environ["RUNNER_TEMP"] = tmp
     try:
-        try:
-            return _quiet(main)
-        except KeyboardInterrupt:
-            return "interrupted", ""
+        return _quiet(main)
     finally:
         storeapi.DevCenter, sys.argv = real_dc, real_argv
         globals()["upload_block_blob"] = real_upload
@@ -770,16 +788,17 @@ def self_test():
     time = NoSleep
     results = []
 
-    def check(name, fake, fn, want_code, want_delete, want_text):
+    def check(name, fake, fn, want_code, want_delete, want_text, forbid=None):
         code, text = _quiet(fn)
-        ok = code == want_code and fake.deleted() == want_delete and want_text in text
+        ok = (code == want_code and fake.deleted() == want_delete and want_text in text
+              and (forbid is None or forbid not in text))
         results.append(ok)
         print(("ok   " if ok else "FAIL ") + name + ("" if ok else f" (exit {code}, DELETE {fake.deleted()})"))
 
-    def commit(name, want_code, want_delete, want_text, **kw):
+    def commit(name, want_code, want_delete, want_text, forbid=None, **kw):
         fake = _FakePC(**kw)
         check(name, fake, lambda: commit_and_wait(fake, "/s/2", "2", polls=3, interval=0),
-              want_code, want_delete, want_text)
+              want_code, want_delete, want_text, forbid)
 
     ok200 = (200, {"status": "PreProcessing"})
     pending_commit = (200, {"status": "PendingCommit"})
@@ -806,15 +825,26 @@ def self_test():
     commit("an unknown status keeps the submission", 2, False, "kept", statuses=[(200, {"status": "Mystery"})])
     commit("a poll that times out keeps the submission", 2, False, "kept",
            statuses=[(200, {"status": "CommitStarted"})])
+    # A DELETE Partner Center refuses, or never answers, is reported as not done (exit 2),
+    # never as "deleted" and never as a traceback.
+    commit("a refused commit whose DELETE fails says it was not deleted", 2, True, "could NOT be deleted",
+           "was deleted", commit=(409, {}), statuses=[pending_commit], delete=(500, {}))
+    commit("a refused commit whose DELETE gets no answer says so", 2, True, "could NOT be deleted",
+           "was deleted", commit=(409, {}), statuses=[pending_commit], delete=TimeoutError("t"))
+    commit("CommitFailed whose DELETE is refused says it was not deleted", 2, True, "could NOT be deleted",
+           "was deleted", statuses=[(200, {"status": "CommitFailed"})], delete=(409, {"code": "InvalidState"}))
+    commit("CommitFailed whose DELETE gets no answer says so", 2, True, "could NOT be deleted",
+           "was deleted", statuses=[(200, {"status": "CommitFailed"})], delete=urllib.error.URLError("down"))
 
     published = {"applicationPackages": [{"fileName": "a", "fileStatus": "Uploaded", "version": "3.2.0.0"}],
                  "listings": {"en-us": {"baseListing": {"releaseNotes": "old"}}}}
     untouched = (200, {**copy.deepcopy(published), "id": "9", "status": "PendingCommit"})
     app_pending = (200, {"pendingApplicationSubmission": {"id": "9"}})
 
-    def create(name, want_code, want_delete, want_text, **kw):
+    def create(name, want_code, want_delete, want_text, forbid=None, **kw):
         fake = _FakePC(**kw)
-        check(name, fake, lambda: create_submission(fake, "/a", published), want_code, want_delete, want_text)
+        check(name, fake, lambda: create_submission(fake, "/a", published), want_code, want_delete, want_text,
+              forbid)
 
     create("a POST that times out deletes the untouched draft it left", 2, True, "(9) was deleted",
            post=TimeoutError("t"), app=app_pending, sub=untouched)
@@ -832,6 +862,11 @@ def self_test():
     create("a POST refused with 4xx deletes nothing", 2, False, "409", post=(409, {"code": "InvalidState"}),
            app=app_pending, sub=untouched)
     create("a created submission is returned", 0, False, "-> 201", post=(201, {"id": "5"}))
+    create("an untouched draft whose DELETE fails is not called deleted", 2, True, "could NOT be deleted",
+           "was deleted", post=TimeoutError("t"), app=app_pending, sub=untouched, delete=(409, {}))
+    create("an untouched draft whose DELETE gets no answer is not called deleted", 2, True,
+           "could NOT be deleted", "was deleted", post=(503, {}), app=app_pending, sub=untouched,
+           delete=TimeoutError("t"))
 
     for name, version, want_code in (("the live version is refused", "3.2.0.0", 2),
                                      ("an older version is refused", "3.1.0.0", 2),
@@ -845,24 +880,138 @@ def self_test():
     results.append(code == 2)
     print(("ok   " if code == 2 else "FAIL ") + "3.1.1 never takes the 3.1.10 section")
 
-    base = {**copy.deepcopy(published), "id": "2", "status": "PendingCommit", "fileUploadUrl": "https://sas?sig=x",
+    # Markers in every field that must never reach the public log: the reviewer account
+    # (notesForCertification), the signed report URL and the SAS upload URL.
+    sas_url, notes_pw, report_sig = "https://sas.invalid/c?sv=1&sig=MARK-SAS", "MARK-NOTES", "MARK-REPORT"
+    markers = ("MARK-SAS", notes_pw, report_sig)
+    reports = {"certificationReports": [{"reportUrl": "https://r.invalid/?sig=" + report_sig}]}
+    base = {**copy.deepcopy(published), "id": "2", "status": "PendingCommit", "fileUploadUrl": sas_url,
+            "notesForCertification": "Reviewer account, password " + notes_pw, "statusDetails": reports,
             "listings": {lang: {"baseListing": {"releaseNotes": "old", "description": "d", "images": [{"fileName": "1"}],
                                                 "shortDescription": "s", "features": ["f"], "keywords": ["k"]}}
                          for lang in ("en-us", "fr-ca")}}
+    app_path = f"/v1.0/my/applications/{storeapi.APP_ID}"
+    app_free = (200, {"pendingApplicationSubmission": None, "lastPublishedApplicationSubmission": {"id": "1"}})
+    app_busy = (200, {"pendingApplicationSubmission": {"id": "9"}, "lastPublishedApplicationSubmission": {"id": "1"}})
+
+    def no_upload(sas, path):
+        raise AssertionError("uploaded")
+
+    def cancel(sas, path):
+        raise KeyboardInterrupt
+
+    def upload_403(sas, path):
+        raise urllib.error.HTTPError("https://sas.invalid/c", 403, "Forbidden", None, io.BytesIO(b""))
+
+    def main_case(tmp, name, want_code, want_texts, upload=lambda s, p: 1, mode="--submit", forbid=None,
+                  calls=None, writes=None, **kw):
+        kw.setdefault("post", (201, copy.deepcopy(base)))
+        kw.setdefault("app", app_free)
+        kw.setdefault("sub", (200, copy.deepcopy(base)))
+        fake = _FakePC(**kw)
+        code, text = _main_case(tmp, fake, upload, mode)
+        made = [m for m, _ in fake.calls if m in ("POST", "PUT", "DELETE")]
+        leaked = [ln for ln in text.splitlines() if any(m in ln for m in markers) and not ln.startswith("::add-mask::")]
+        ok = (code == want_code and all(t in text for t in want_texts) and (forbid is None or forbid not in text)
+              and not leaked and (calls is None or fake.calls == calls) and (writes is None or made == writes))
+        results.append(ok)
+        print(("ok   " if ok else "FAIL ") + name + ("" if ok else f" (exit {code}, calls {fake.calls}, "
+                                                        f"{len(leaked)} leaked lines)"))
+
+    # In Actions the SAS is masked (an ::add-mask:: line, which the runner consumes);
+    # every other line must be free of all three markers, there and outside Actions.
+    real_actions = os.environ.get("GITHUB_ACTIONS")
     with tempfile.TemporaryDirectory() as tmp:
-        for name, upload, put, want in (
-                ("a runner cancel during the upload deletes the draft", None, (200, {}), "interrupted"),
-                ("a failed PUT deletes the draft", None, (500, {"code": "x"}), 2)):
-            def boom(sas, path):
-                raise KeyboardInterrupt
-            fake = _FakePC(post=(201, copy.deepcopy(base)), put=put,
-                           app=(200, {"pendingApplicationSubmission": None,
-                                      "lastPublishedApplicationSubmission": {"id": "1"}}),
-                           sub=(200, copy.deepcopy(base)))
-            code, _ = _main_case(tmp, fake, boom if upload is None and want == "interrupted" else (lambda s, p: 1))
-            ok = code == want and fake.deleted()
-            results.append(ok)
-            print(("ok   " if ok else "FAIL ") + name + ("" if ok else f" (exit {code}, DELETE {fake.deleted()})"))
+        try:
+            for actions in ("true", None):
+                if actions:
+                    os.environ["GITHUB_ACTIONS"] = actions
+                else:
+                    os.environ.pop("GITHUB_ACTIONS", None)
+                where = "in Actions" if actions else "outside Actions"
+                main_case(tmp, f"a committed run logs no certification notes, report or SAS URL ({where})", 0,
+                          ["committed: PreProcessing"], put=(200, copy.deepcopy(base)),
+                          commit=(202, {"status": "CommitStarted", "statusDetails": reports}),
+                          statuses=[(200, {"status": "PreProcessing", "statusDetails": reports})],
+                          writes=["POST", "PUT", "POST"])
+                main_case(tmp, f"a refused PUT logs none of them either, nor its failed DELETE ({where})", 2,
+                          ["could NOT be deleted"], put=(500, copy.deepcopy(base)),
+                          delete=(500, {"fileUploadUrl": sas_url, "notesForCertification": notes_pw}))
+        finally:
+            if real_actions is None:
+                os.environ.pop("GITHUB_ACTIONS", None)
+            else:
+                os.environ["GITHUB_ACTIONS"] = real_actions
+
+        main_case(tmp, "a dry run makes exactly the two GETs", 0, ["dry run: nothing was created"],
+                  upload=no_upload, mode="--dry-run",
+                  calls=[("GET", app_path), ("GET", f"{app_path}/submissions/1")])
+        main_case(tmp, "a runner cancel during the upload deletes the draft", "KeyboardInterrupt",
+                  ["-> 204: deleted"], upload=cancel, writes=["POST", "PUT", "DELETE"])
+        main_case(tmp, "a failed PUT deletes the draft", 2, ["-> 204: deleted"], put=(500, {"code": "x"}),
+                  writes=["POST", "PUT", "DELETE"])
+        main_case(tmp, "a failed PUT whose DELETE is refused says so and keeps the PUT error", 2,
+                  ['REFUSED: {"code": "x"}', "submission 2 could NOT be deleted"], forbid=": deleted",
+                  put=(500, {"code": "x"}), delete=(409, {}), writes=["POST", "PUT", "DELETE"])
+        main_case(tmp, "an upload error whose DELETE gets no answer re-raises the upload error", "HTTPError",
+                  ["no answer (TimeoutError)", "submission 2 could NOT be deleted"], upload=upload_403,
+                  delete=TimeoutError("t"), writes=["POST", "PUT", "DELETE"])
+        for status, advice in (("PendingCommit", "it never went through"), ("CertificationFailed", "it never went through"),
+                               ("Certification", "do NOT delete"), (None, "do NOT delete")):
+            read = (200, {"status": status}) if status else urllib.error.URLError("down")
+            main_case(tmp, f"a submission already pending ({status or 'unreadable'}) is refused: {advice}", 2,
+                      ["is already pending", advice], app=app_busy, statuses=[read], writes=[])
+
+    # DevCenter.call itself: what each kind of answer becomes (the fake above replaces it).
+    class Answer:
+        def __init__(self, status, raw):
+            self.status, self.raw = status, raw
+
+        def read(self):
+            return self.raw
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def dc_call(answer, body=None):
+        seen = []
+
+        def urlopen(req, timeout=None):
+            seen.append((req.get_method(), req.full_url, req.get_header("Authorization"),
+                         req.get_header("Content-type")))
+            if isinstance(answer, int):
+                raise urllib.error.HTTPError(req.full_url, answer, "x", None, io.BytesIO(raw))
+            return answer
+        real = urllib.request.urlopen
+        urllib.request.urlopen = urlopen
+        try:
+            dc = object.__new__(storeapi.DevCenter)
+            dc._tok = "tok"
+            try:
+                return dc.call("PUT" if body else "GET", "/p", body), seen
+            except TRANSPORT as e:
+                return type(e).__name__, seen
+        finally:
+            urllib.request.urlopen = real
+
+    for name, answer, raw, body, want in (
+            ("a 409 with a JSON body is returned as JSON", 409, b'{"code": "InvalidState"}', None,
+             (409, {"code": "InvalidState"})),
+            ("a 500 with a non-JSON body is returned as raw text", 500, b"<html>down</html>", None,
+             (500, {"raw": "<html>down</html>"})),
+            ("a 204 with no body is None", Answer(204, b""), b"", None, (204, None)),
+            ("a 200 JSON answer is parsed, and a body is sent as JSON", Answer(200, b'{"id": "5"}'), b"",
+             {"a": 1}, (200, {"id": "5"})),
+            ("a 200 non-JSON answer raises a transport error", Answer(200, b"<html/>"), b"", None, "JSONDecodeError")):
+        got, seen = dc_call(answer, body)
+        sent_ok = seen == [("PUT" if body else "GET", storeapi.DEVCENTER + "/p", "Bearer tok",
+                            "application/json" if body else None)]
+        ok = got == want and sent_ok
+        results.append(ok)
+        print(("ok   " if ok else "FAIL ") + "DevCenter.call: " + name + ("" if ok else f" (got {got!r}, sent {seen})"))
     time = real_time
     if not all(results):
         print(f"{results.count(False)} of {len(results)} cases failed", file=sys.stderr)
