@@ -1,1 +1,1 @@
-Screenshots for the app parity pull request (#123), from CI run 42142607743 (artifact district-ai-screenshots) on a087c30, the inbox cropped to its content. Images only, no code. Can be deleted after it merges.
+Screenshots for the app parity pull request (#123), from CI run 42144762383 (artifact district-ai-screenshots) on ba54ec4, the inbox cropped to its content. Images only, no code. Can be deleted after it merges.
