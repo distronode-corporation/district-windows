@@ -595,10 +595,10 @@ fn a_call_that_ends_leaves_the_live_list() {
     let live = calls_view(&session).live.expect("the live list");
     assert_eq!(live.rows.len(), 1);
     assert_eq!(live.rows[0].call_id, LIVE);
-    let session = calls_page(
-        session.ui(UiEvent::Refresh),
-        contracts::json("district-calls.json"),
-    );
+    // The newest page read again, the call on it now over.
+    let mut ended = log_with_live_call();
+    ended[0]["status"] = json!("completed");
+    let session = calls_page(session.ui(UiEvent::Refresh), ended);
     assert_eq!(calls_view(&session).live, None);
 }
 
@@ -739,12 +739,12 @@ fn the_microphone_shown_is_the_one_the_engine_reports() {
         Some("Your microphone is off. The caller does not hear you.")
     );
     // Listening holds no microphone, whatever the engine last said of one.
-    let listening = media(
+    let heard = media(
         listening(on_live_call(agency())),
         MediaEvent::Microphone(MicrophoneState::Off),
     );
-    assert_eq!(shown(&listening).microphone, MicrophoneView::None);
-    assert_eq!(shown(&listening).microphone_line, None);
+    assert_eq!(shown(&heard).microphone, MicrophoneView::None);
+    assert_eq!(shown(&heard).microphone_line, None);
     // A microphone the engine reports on is on, in any phase.
     let odd = media(
         listening(on_live_call(agency())),
