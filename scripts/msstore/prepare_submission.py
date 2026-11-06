@@ -31,6 +31,7 @@ the API." (learn.microsoft.com/en-us/windows/uwp/monetize/manage-app-submissions
 """
 import argparse
 import base64
+import contextlib
 import copy
 import hashlib
 import io
@@ -57,7 +58,9 @@ NBSP = chr(0xA0)
 BLOCK = 4 * 1024 * 1024  # valid block size under every Blob service version
 
 # Statuses after a successful commit (the submission API's status values).
-COMMITTED = {"PreProcessing", "Certification", "Release", "Publishing", "Published"}
+COMMITTED = {"PreProcessing", "Certification", "Release", "PendingPublication", "Publishing", "Published"}
+# Terminal failures the submission API documents: the submission stays pending until deleted.
+FAILED = {"CommitFailed", "PreProcessingFailed", "CertificationFailed", "ReleaseFailed"}
 LIMITS = {"description": 10000, "releaseNotes": 1500, "shortDescription": 1000, "title": 256}
 
 
@@ -498,14 +501,25 @@ def main():
               " (POST .../commit) or submit it there (Partner Center edits lock the API out of it).")
         return
 
+    commit_and_wait(dc, put_path, sub_id)
+
+
+def commit_and_wait(dc, put_path, sub_id, polls=30, interval=20):
+    """POST the commit and poll its status.
+
+    A refused commit, or a terminal failure (FAILED), deletes the draft this run made:
+    left pending, it blocks every later run until someone deletes it in Partner Center.
+    A status still in progress, an unknown one or a poll that times out keeps the
+    submission, because it may still go through; deleting it, or starting another,
+    could make a second live submission."""
     st, resp = dc.call("POST", f"{put_path}/commit")
     print(f"== POST {put_path}/commit -> {st} {json.dumps(storeapi.redact(resp))[:300]}")
     if st not in (200, 202):
         discard(dc, put_path, sub_id)
         die(f"commit refused (HTTP {st})")
     stat = {}
-    for _ in range(30):
-        time.sleep(20)
+    for _ in range(polls):
+        time.sleep(interval)
         st, stat = dc.call("GET", f"{put_path}/status")
         status = (stat or {}).get("status")
         print(f"   status {st} {status}")
@@ -516,10 +530,79 @@ def main():
     if status in COMMITTED:
         print(f"== submission {sub_id} committed: {status}")
         return
+    if status in FAILED:
+        errors = ((stat or {}).get("statusDetails") or {}).get("errors") or []
+        detail = "; ".join(f"{e.get('code')}: {e.get('details')}" for e in errors) or "no error details"
+        discard(dc, put_path, sub_id)
+        die(f"submission {sub_id} ended {status} ({detail}); the draft was deleted, so a re-run starts clean")
     if status == "CommitStarted":
-        die(f"submission {sub_id} still CommitStarted after 10 minutes; read its status in Partner Center")
-    die(f"submission {sub_id} ended {status!r}, not committed")
+        die(f"submission {sub_id} still CommitStarted after {polls * interval // 60} minutes; read its status "
+            "in Partner Center (kept: it may still go through)")
+    die(f"submission {sub_id} ended {status!r}, not a known committed or failed status; kept for Partner Center")
+
+
+# ---------------------------------------------------------------- self-test
+
+def self_test():
+    """commit_and_wait against a fake Partner Center: which statuses delete the draft."""
+    global time
+    real_time = time
+
+    class NoSleep:
+        @staticmethod
+        def sleep(_):
+            pass
+    time = NoSleep
+    failures = []
+
+    def run(commit_code, statuses):
+        calls = []
+
+        class DC:
+            def call(self, method, path, body=None):
+                calls.append(method)
+                if method == "POST":
+                    return commit_code, {}
+                if method == "DELETE":
+                    return 204, None
+                return statuses.pop(0) if len(statuses) > 1 else statuses[0]
+        code = 0
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+                commit_and_wait(DC(), "/s/2", "2", polls=3, interval=0)
+        except SystemExit as e:
+            code = e.code
+        return code, calls, out.getvalue()
+
+    failed = (200, {"status": "CommitFailed", "statusDetails": {"errors": [{"code": "InvalidState", "details": "x"}]}})
+    cases = [
+        ("CommitFailed deletes the draft and fails", (200, [failed]), 2, True, "InvalidState: x"),
+        ("CertificationFailed deletes the draft and fails",
+         (200, [(200, {"status": "CertificationFailed"})]), 2, True, "no error details"),
+        ("a refused commit deletes the draft", (409, [(200, {})]), 2, True, "HTTP 409"),
+        ("a poll that times out keeps the submission",
+         (200, [(200, {"status": "CommitStarted"})]), 2, False, "kept"),
+        ("an unknown status keeps the submission", (200, [(200, {"status": "Mystery"})]), 2, False, "kept"),
+        ("a status read that keeps failing keeps the submission", (200, [(503, {"raw": "x"})]), 2, False, "kept"),
+        ("Certification is committed", (200, [(200, {"status": "CommitStarted"}), (200, {"status": "Certification"})]),
+         0, False, "committed: Certification"),
+    ]
+    for name, (code, statuses), want_code, want_delete, want_text in cases:
+        got_code, calls, text = run(code, list(statuses))
+        deleted = "DELETE" in calls
+        if got_code != want_code or deleted != want_delete or want_text not in text:
+            failures.append(f"{name}: exit {got_code}, DELETE {deleted}")
+        print(("ok   " if not failures or not failures[-1].startswith(name) else "FAIL ") + name)
+    time = real_time
+    if failures:
+        print("\n".join(failures), file=sys.stderr)
+        sys.exit(1)
+    print(f"{len(cases)} cases passed")
 
 
 if __name__ == "__main__":
-    main()
+    if sys.argv[1:] == ["--self-test"]:
+        self_test()
+    else:
+        main()
