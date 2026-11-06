@@ -234,6 +234,8 @@ fn config() -> CoreConfig {
         calls_available: false,
         // As the app builds it: Windows buys in the app.
         in_app_purchases: true,
+        // As the app builds it: no Messenger or Instagram threads yet.
+        meta_channels: false,
         locale: district_core::Locale::En,
     }
 }

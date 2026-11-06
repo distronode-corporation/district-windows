@@ -22,7 +22,7 @@
               "detail": "Reasoning · Processed in the United States · Median 450 ms over 300 calls · Stable",
               "leg": "llm",
               "open": false,
-              "title": "Brain: Gemini 2.5 Flash"
+              "title": "Brain: Gemini 3.5 Flash"
             },
             {
               "detail": "Speech synthesis · Processed in the United States · Median 120 ms over 100 calls · Stable",

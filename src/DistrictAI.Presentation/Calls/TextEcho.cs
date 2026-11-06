@@ -21,6 +21,9 @@ internal sealed class TextEcho
     /// <summary>The core's value when the box was last drawn.</summary>
     private string _acknowledged = string.Empty;
 
+    /// <summary>Whether every text the box sent has come back from the core.</summary>
+    public bool Settled => _pending.Count == 0;
+
     /// <summary>The box now holds <paramref name="text"/>, which is being sent to the core.</summary>
     public void Typed(string text) => _pending.Add(text);
 

@@ -262,6 +262,73 @@ public sealed partial class SceneWalkTests
     }
 
     /// <summary>
+    /// The dialler reads the number in the country on its button (design A):
+    /// the country list opens and its search narrows it; a +41 number with a
+    /// digit too few for Switzerland moves the button there, keeps Call off
+    /// and, once Enter is pressed, says the wrong length; a whole +1 number
+    /// reads in its local form with the line naming the country and the
+    /// number sent. Saved as 92-dialer.png to 96-dialer-rings.png when
+    /// screenshots are on. No call is placed.
+    /// </summary>
+    [Fact]
+    public void TheDiallerReadsTheNumberInItsCountry()
+    {
+        RequireScriptedPackage();
+        var shots = Environment.GetEnvironmentVariable("DISTRICTAI_SCREENSHOTS");
+        using var app = InstalledApp.Launch(SceneArgument);
+        var window = app.MainWindow(_startTimeout);
+        var handle = window.Properties.NativeWindowHandle.Value;
+        _ = Heading(app, WorkspaceName, _startTimeout);
+        if (shots is { Length: > 0 })
+        {
+            SizeClient(handle, 1920, 1080);
+        }
+        void Shot(string name)
+        {
+            if (shots is { Length: > 0 })
+            {
+                Save(handle, Path.Combine(shots, name), clientOnly: true);
+            }
+        }
+
+        OpenUntilById(app, "NavCalls");
+        app.FindById("PlaceCallButton", PageTimeout).AsButton().Invoke();
+        var box = app.FindById("DialNumberBox", PageTimeout).AsTextBox();
+        Shot("92-dialer.png");
+
+        app.FindById("DialCountryButton", PageTimeout).AsButton().Invoke();
+        _ = app.Find(ControlType.Text, "Suggested", PageTimeout);
+        Shot("93-dialer-countries.png");
+        app.FindById("DialCountrySearch", PageTimeout).AsTextBox().Text = "germ";
+        _ = app.Find(ControlType.Text, "Germany", PageTimeout);
+        Expect(app, () => app.TryFindById("DialCountryList") is { } list
+            && list.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem)).Length == 1,
+            "the search to leave one country");
+        Shot("94-dialer-country-search.png");
+        Keyboard.Type(VirtualKeyShort.ESCAPE);
+
+        // The billed call: +41 is Switzerland's code, and eight digits after
+        // it are a digit too few. Nothing is said while typing; Enter says it.
+        box.Text = "+" + "41" + "65550123";
+        Expect(app, () => app.TryFindById("DialCountryButton")?.Name.StartsWith("Switzerland", StringComparison.Ordinal) == true,
+            "the button to name Switzerland");
+        Expect(app, () => app.TryFindById("DialCallButton") is { IsEnabled: false }, "Call to stay off");
+        Expect(app, () => app.TryFindById("DialProblem") is null, "nothing said while typing");
+        box.Focus();
+        Keyboard.Type(VirtualKeyShort.RETURN);
+        _ = app.FindById("DialProblem", PageTimeout);
+        Shot("95-dialer-wrong-length.png");
+
+        box.Text = "+12125550142";
+        Expect(app, () => box.Text == "(212) 555-0142", "the box to show the local form");
+        Expect(app, () => app.TryFindById("DialDestination")?.Name == "Rings United States \u00B7 +1 212 555 0142",
+            "the line naming the country and the number");
+        Expect(app, () => app.TryFindById("DialCallButton") is { IsEnabled: true }, "Call to work");
+        Shot("96-dialer-rings.png");
+        Assert.True(app.IsRunning, "the app ended in the dialler");
+    }
+
+    /// <summary>
     /// The call shortcuts (MainWindow.xaml's accelerators) during a placed
     /// call: Ctrl+D turns the microphone the other way (the call bar's Mute
     /// toggled) and back again, and Ctrl+Shift+H ends the call.

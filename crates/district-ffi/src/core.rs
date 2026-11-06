@@ -21,6 +21,13 @@ use tokio::sync::oneshot;
 use tokio::task::JoinHandle;
 
 use crate::events::UiEvent;
+
+/// Whether District AI for Windows lists and answers Messenger and Instagram
+/// threads: the core's `meta_channels`, and what the presence declares when it
+/// registers. Not yet: without it the core keeps the inbox as it was, the
+/// service leaves those messages out, and a reply goes by text or email.
+pub(crate) const META_CHANNELS: bool = false;
+
 use crate::guard::{DiscardView, Held};
 use crate::host::{HostNotifier, HostOpener, HostRing, NotificationTable, UiHost};
 use crate::identity::client_identity;
@@ -536,7 +543,11 @@ fn start_real(
     let client = || ApiClient::new(api_config.clone(), coordinator.clone());
     let api = client().map_err(config_error)?;
     let registrar: Arc<dyn ChannelRegistrar> = Arc::new(client().map_err(config_error)?);
-    let presence = DesktopPresence::new(Arc::new(client().map_err(config_error)?), platform);
+    let presence = DesktopPresence::new(
+        Arc::new(client().map_err(config_error)?),
+        platform,
+        META_CHANNELS,
+    );
     // The live updates' credential states its expiry by the service's clock.
     let live_config = LiveConfig {
         clock: Arc::new(coordinator.server_clock()),
@@ -575,6 +586,7 @@ fn start_real(
         // District AI for Windows buys in the app: checkout in a view inside
         // the window (district-core's `purchase`, src/billing.rs).
         in_app_purchases: true,
+        meta_channels: META_CHANNELS,
         locale: Locale::from_tags(&config.languages),
     };
     let (model, first) = Model::new(core_config);
@@ -608,6 +620,7 @@ fn start_scripted(
         app_version: config.app_version.clone(),
         calls_available: district_call::CALLS_AVAILABLE,
         in_app_purchases: true,
+        meta_channels: META_CHANNELS,
         locale: Locale::from_tags(&languages),
     });
     // The scripted voice room's reports, forwarded as the call engine's are.
@@ -1009,6 +1022,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: false,
             in_app_purchases: true,
+            meta_channels: false,
             locale: district_core::Locale::En,
         }
     }
