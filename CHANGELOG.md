@@ -34,6 +34,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   be read or names a state this build does not know, nothing is said and nothing is
   blocked. No countdown. district-ffi: `ComposerView` gains `meta` (`MetaView`). Every
   word is the core's.
+- From district-core-rust 9.0.0, a placed call's far end or the District HQ voice agent
+  leaving ends the call or the session only once the core's 2-second grace window is over
+  with them still gone, so a connection the media library rebuilds no longer hangs up.
+  The voice-ends scripted scene ends its made-up room's window at once.
 
 ### Changed
 

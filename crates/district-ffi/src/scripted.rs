@@ -160,7 +160,8 @@ impl Scripted {
     /// event or none), or `None` for any other effect. The credential is made
     /// up and joinable; the room it names is played by [`voice_room`], its
     /// reports sent on as the engine's are; the microphone does as it is
-    /// told. Nothing else of the session is answered: a card's Confirm and
+    /// told, and the grace window the agent leaving opens is over at once.
+    /// Nothing else of the session is answered: a card's Confirm and
     /// Cancel, and the screen reports, go unanswered, as with no network.
     fn voice_answer(&self, effect: &Effect) -> Option<Option<Event>> {
         match effect {
@@ -207,6 +208,14 @@ impl Scripted {
             Effect::DisconnectMedia { session } if self.voice().session == Some(*session) => {
                 self.voice().session = None;
                 Some(None)
+            }
+            // The agent leaving opens the core's grace window (a rebuilt
+            // connection reports the agent gone, then back). The made-up room
+            // never comes back, so the window is over at once.
+            Effect::Wait { ticket, delay }
+                if *delay == district_core::EMPTY_ROOM_GRACE && self.voice().session.is_some() =>
+            {
+                Some(Some(Event::WaitOver { ticket: *ticket }))
             }
             _ => None,
         }

@@ -615,7 +615,7 @@ dependencies = [
 [[package]]
 name = "district-api"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 dependencies = [
  "district-l10n",
  "district-model",
@@ -630,7 +630,7 @@ dependencies = [
 [[package]]
 name = "district-auth"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 dependencies = [
  "base64 0.22.1",
  "district-api",
@@ -649,7 +649,7 @@ dependencies = [
 [[package]]
 name = "district-call"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 dependencies = [
  "district-core",
  "district-model",
@@ -664,7 +664,7 @@ dependencies = [
 [[package]]
 name = "district-core"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 dependencies = [
  "district-api",
  "district-auth",
@@ -681,7 +681,7 @@ dependencies = [
 [[package]]
 name = "district-crash"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 dependencies = [
  "sentry",
  "serde_json",
@@ -716,7 +716,7 @@ dependencies = [
 [[package]]
 name = "district-host"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 dependencies = [
  "district-auth",
  "district-core",
@@ -730,12 +730,12 @@ dependencies = [
 [[package]]
 name = "district-l10n"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 
 [[package]]
 name = "district-live"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 dependencies = [
  "district-api",
  "district-model",
@@ -755,7 +755,7 @@ dependencies = [
 [[package]]
 name = "district-model"
 version = "9.0.0"
-source = "git+https://github.com/distronode-corporation/district-core-rust?rev=256f710b7c2d2c6dc90b887ed3863126999415ed#256f710b7c2d2c6dc90b887ed3863126999415ed"
+source = "git+https://github.com/distronode-corporation/district-core-rust?tag=v9.0.0#9c579d1b16b7cb056f4bc78080bbfb3910341e2e"
 dependencies = [
  "serde",
  "serde_json",
@@ -786,7 +786,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2265,7 +2265,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2513,7 +2513,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2572,7 +2572,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2921,7 +2921,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3017,7 +3017,7 @@ dependencies = [
  "getrandom 0.4.3",
  "once_cell",
  "rustix",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3764,7 +3764,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
