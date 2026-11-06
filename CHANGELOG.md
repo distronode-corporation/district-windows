@@ -7,17 +7,30 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-11-06
+
+District AI 3.3.0 brings the web Inbox's channels to Windows: Messenger and Instagram
+conversations, a reply channel chooser, conversation owners, WhatsApp templates once the
+customer-service window has closed, and the Messenger and Instagram reply window. Live
+supervise lets you listen in on a call under way, send your receptionist a note, or take
+the call over. The dialler knows the country it rings, and calls no longer drop when the
+connection is rebuilt. It runs on district-core-rust 9.0.0, and from this release the
+Microsoft Store copy is sent from this repository's own Store workflow.
+
 ### Added
 
 - Live supervise: a Live calls list over the call log, and on a call under way a card
-  to listen in, send the receptionist a note, and take the call over after a
-  confirmation, then hand it back. The card says listening or on the call only once the
-  room is joined, and the microphone it shows is the one the call engine reports.
-  Closing the window to the tray ends the session, as it ends District HQ by voice;
-  minimising keeps it.
-- district-ffi: `CallsView` gains `live` (`LiveCallsView`), `CallDetailView` gains
-  `supervise` (`SuperviseView`), and `UiEvent` gains `Supervise` (`SuperviseAction`),
-  read against the model by `UiEvent::events_in` for `SuperviseAction::End`.
+  to Listen, send the receptionist a note, and Take over the call after a confirmation,
+  then hand it back. The card says you are listening or on the call only once the room
+  is joined, and the microphone it shows is the one the call engine reports. Closing the
+  window to the tray ends the session, as it ends District HQ by voice; minimising
+  keeps it.
+- The Messenger and Instagram reply window, as the web Inbox shows it: in the human
+  agent window a "Human agent reply (7-day window)" badge over the box, and the AI
+  button is off; once the window has closed, a warning, the box kept with what was
+  typed, and Send and the AI button off. While the window is being read, cannot be read
+  or names a state this build does not know, nothing is said and nothing is blocked. No
+  countdown.
 - Messenger and Instagram conversations in the Inbox, labelled by channel, and each
   conversation's owner under its row ("Assigned to ..."). The app reads the inbox with
   the core's `meta_channels` on, and its presence and WNS channel declare
@@ -32,21 +45,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   approved templates, one field per variable, the filled preview as the service will
   store it, and Send template.
 - district-ffi: `ComposerView` gains `channel_label`, `channels`, `can_choose_channel`,
-  `attachments_note` and `whatsapp` (`WhatsAppView`, `TemplatePickerView`);
-  `ThreadView` gains `assignment` (`AssignmentView`); `ThreadRowView` gains `assignee`;
-  `ComposerAction` gains `ChooseChannel`, `Assign`, `DismissAssignFailure`,
-  `ChooseTemplate`, `TemplateVariable` and `SendTemplate`. Every word is the core's.
-- The Messenger and Instagram reply window, as the web Inbox shows it (district-core-rust
-  9.0.0): in the human agent window a "Human agent reply (7-day window)" badge over the
-  box, and the AI button is off; once the window has closed, a warning, the box kept with
-  what was typed, and Send and the AI button off. While the window is being read, cannot
-  be read or names a state this build does not know, nothing is said and nothing is
-  blocked. No countdown. district-ffi: `ComposerView` gains `meta` (`MetaView`). Every
-  word is the core's.
-- From district-core-rust 9.0.0, a placed call's far end or the District HQ voice agent
-  leaving ends the call or the session only once the core's 2-second grace window is over
-  with them still gone, so a connection the media library rebuilds no longer hangs up.
-  The voice-ends scripted scene ends its made-up room's window at once.
+  `attachments_note`, `whatsapp` (`WhatsAppView`, `TemplatePickerView`) and `meta`
+  (`MetaView`); `ThreadView` gains `assignment` (`AssignmentView`); `ThreadRowView`
+  gains `assignee`; `ComposerAction` gains `ChooseChannel`, `Assign`,
+  `DismissAssignFailure`, `ChooseTemplate`, `TemplateVariable` and `SendTemplate`.
+  `CallsView` gains `live` (`LiveCallsView`), `CallDetailView` gains `supervise`
+  (`SuperviseView`), and `UiEvent` gains `Supervise` (`SuperviseAction`), read against
+  the model by `UiEvent::events_in` for `SuperviseAction::End`. Every word on the inbox's
+  new controls is the core's.
 
 ### Changed
 
@@ -60,18 +66,36 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   said once the box loses the keyboard, on Enter, or when the switched-off Call button
   is pressed. district-ffi adds `dial_entry_format`, `dial_pick_format` and
   `dial_country_list`, and the `DialerPickCountry` and `DialerCheckLength` events.
-- The core is district-core-rust 8.0.0 (up from 7.0.0), the release that carries the
-  dialler and app parity. It brings livekit 0.10 (webrtc-sys-build 0.3.21), so calls link the new
-  audio-only libwebrtc `libwebrtc-a545de4-audio-win-1`, built by
+- The core is district-core-rust 9.0.0 (up from 7.0.0): 8.0.0 carries the dialler, app
+  parity and live supervise, and 9.0.0 the Messenger and Instagram reply window and the
+  call fixes below. It brings livekit 0.10 (webrtc-sys-build 0.3.21), so calls link the
+  new audio-only libwebrtc `libwebrtc-a545de4-audio-win-1`, built by
   libwebrtc-windows.yml run 42131057678 from the same WebRTC commit as District AI for
   Linux's, with the same arguments (no H.264, H.265 or FFmpeg).
+- The Microsoft Store channel: a release now reaches the Microsoft Store from this
+  repository's `store.yml`, which takes the published release's Store package, checks it
+  against the release's SHA256SUMS and its provenance attestation, and sends it to
+  Partner Center with the "What's new" text of `docs/store-listing.md` at the tagged
+  commit, so the Store copy is the tagged build. A draft or a submission needs the
+  maintainers' approval; a dry run sends nothing.
+
+### Fixed
+
+- Calls no longer drop when the connection is rebuilt. When the network falls back to a
+  full reconnection, the call library briefly reports everyone else in the room as
+  having left; a call you placed took that as the other side hanging up, and ended it,
+  and District HQ by voice took it as the assistant leaving. Both now wait for the
+  connection to come back, then look at who is there: the far end or the HQ voice agent
+  leaving ends the call or the session only once the core's 2-second grace window is
+  over with them still gone.
+- A call hung up while it was still joining no longer leaves its room joined with the
+  microphone on.
 
 ### Security
 
-- `webrtc-sys-build` 0.3.20, which takes `zip` 9.3.0 in place of 0.6.6, so the build no
+- `webrtc-sys-build` takes `zip` 9.3.0 in place of 0.6.6 (from 0.3.20), so the build no
   longer carries RUSTSEC-2026-0429 (and the three zip advisories `deny.toml` ignored,
-  whose entries are gone). 0.3.20 is 0.3.19 with only that dependency changed and the
-  same WebRTC tag, so the pinned libwebrtc (`libwebrtc-89d790b-audio-win-1`) stays.
+  whose entries are gone).
 
 ## [3.2.0] - 2026-10-27
 
