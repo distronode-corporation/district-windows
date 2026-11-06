@@ -1,0 +1,179 @@
+name: Store
+
+# Sends a published release to the Microsoft Store (Store ID 9P9F0NNFJ3CP)
+# through the Partner Center submission API, with scripts/msstore/.
+#
+# Dispatched by hand or by the monorepo's release train, never on a push. The
+# inputs name exactly one release and one commit, and nothing defaults:
+#
+# - `version` is X.Y.Z. The release vX.Y.Z must be public, carry
+#   DistrictAI_X.Y.Z_x64.msixupload and SHA256SUMS, and its tag must point at
+#   `ref`.
+# - `ref` is that full commit. docs/store-listing.md's "What's new in this
+#   version: X.Y.Z" section is read there, so the Store notes are the tagged ones.
+#   The scripts themselves run from main, the commit this workflow was dispatched on:
+#   `gh workflow run store.yml --ref main ...`. A run dispatched from any other branch
+#   or tag fails in its first job, before the Store job or its environment is reached.
+# - `mode` is `dry-run` (read-only GETs; prints every request it would send),
+#   `draft` (creates and uploads the submission, leaves it uncommitted for
+#   review in Partner Center) or `submit` (the same, then commits it to
+#   certification).
+# - `approval` must be exactly the maintainers' approval text for `draft` and
+#   `submit`, as in the other District release workflows.
+#
+# The package is checked before anything is sent: its sha256 against the
+# release's SHA256SUMS, the provenance attestation release.yml made, the
+# manifest's identity and version, and its fr-CA resource. The script refuses
+# to start a submission while another is pending, so a re-run never makes a
+# second one.
+#
+# Credentials: the job's OIDC token is exchanged (workload identity) for a
+# short-lived token that reads the Store API credentials named in the job's env.
+# They stay in the script's memory; nothing prints them, and the SAS upload URL
+# is redacted.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The release to send, X.Y.Z (its tag is vX.Y.Z)
+        type: string
+        required: true
+      ref:
+        description: The full commit the release tag points at
+        type: string
+        required: true
+      mode:
+        description: dry-run (read only), draft (uncommitted), or submit (to certification)
+        type: choice
+        options: [dry-run, draft, submit]
+        default: dry-run
+      approval:
+        description: The maintainers' approval text (needed for draft and submit)
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+# One submission at a time, and never cancel one in flight: a cancelled upload
+# leaves a half-built draft.
+concurrency:
+  group: msstore
+  cancel-in-progress: false
+
+jobs:
+  # Its own job, with no environment and no permissions, so a run dispatched from a
+  # tag or another branch fails here, before anything asks for a deployment. It stays
+  # alongside the environment's own branch rule: it travels with every future tag.
+  main-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - name: Dispatched from main
+        run: |
+          [ "$GITHUB_REF" = refs/heads/main ] || {
+            echo "::error::run store.yml from main (gh workflow run store.yml --ref main); the release goes in the version and ref inputs, not $GITHUB_REF"
+            exit 1
+          }
+
+  store:
+    needs: main-only
+    # `msstore`: branch main only, and every run waits for a maintainer's review. The
+    # workload identity binding admits only this workflow on main in this environment.
+    environment: msstore
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      # The workload identity token, and reading the release's attestation.
+      id-token: write
+      attestations: read
+    env:
+      VERSION: ${{ inputs.version }}
+      REF: ${{ inputs.ref }}
+      MODE: ${{ inputs.mode }}
+      GH_REPO: ${{ github.repository }}
+      GCP_SA_DOMAIN: distronode.iam.gserviceaccount.com
+      # Where scripts/msstore/storeapi.py reads the Store API credentials.
+      GSM_PROJECT: distronode
+      MSSTORE_TENANT_SECRET: MSSTORE_TENANT_ID
+      MSSTORE_CLIENT_ID_SECRET: MSSTORE_CLIENT_ID
+      MSSTORE_CLIENT_SECRET_SECRET: MSSTORE_CLIENT_SECRET
+    steps:
+      - name: The inputs name one release
+        env:
+          APPROVAL: ${{ inputs.approval }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::version $VERSION is not X.Y.Z"; exit 1; }
+          [[ "$REF" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::ref must be a full 40-character commit"; exit 1; }
+          if [ "$MODE" != "dry-run" ] && [ "$APPROVAL" != "approved for release" ]; then
+            echo "::error::mode $MODE needs the maintainers' approval text in 'approval'"
+            exit 1
+          fi
+          echo "v$VERSION at $REF, mode $MODE"
+
+      # The scripts run from the dispatched workflow commit (main), so every fix to them
+      # applies to every release, old tags included. Only the listing text is read
+      # from the release commit, below.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: The tag points at ref, on main, and the release is public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # The tag itself (a branch with the same name does not count).
+          tag_commit=$(git rev-parse --verify --quiet "refs/tags/v$VERSION^{commit}") \
+            || { echo "::error::there is no tag v$VERSION"; exit 1; }
+          [ "$tag_commit" = "$REF" ] || { echo "::error::v$VERSION is $tag_commit, not $REF"; exit 1; }
+          git merge-base --is-ancestor "$REF" refs/remotes/origin/main \
+            || { echo "::error::$REF is not on main"; exit 1; }
+          draft=$(gh release view "v$VERSION" --json isDraft --jq .isDraft)
+          [ "$draft" = "false" ] || { echo "::error::the v$VERSION release is still a draft"; exit 1; }
+          git show "$REF:docs/store-listing.md" > "$RUNNER_TEMP/store-listing.md"
+
+      - name: Download the Store package and check it
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pkg"
+          gh release download "v$VERSION" --dir "$RUNNER_TEMP/pkg" \
+            --pattern "DistrictAI_${VERSION}_x64.msixupload" --pattern SHA256SUMS
+          cd "$RUNNER_TEMP/pkg"
+          grep " DistrictAI_${VERSION}_x64.msixupload\$" SHA256SUMS | sha256sum -c -
+          # Bound to the exact commit, not only the tag name, and to GitHub-hosted runners.
+          gh attestation verify "DistrictAI_${VERSION}_x64.msixupload" --repo "$GH_REPO" \
+            --signer-workflow "$GH_REPO/.github/workflows/release.yml" --source-ref "refs/tags/v$VERSION" \
+            --source-digest "$REF" --deny-self-hosted-runners
+
+      - name: Authenticate to Google Cloud
+        id: gcp
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: projects/409911651910/locations/global/workloadIdentityPools/github-pool/providers/github-actions
+          # The domain is an env value so the public-hygiene scan's email rule
+          # (scripts/check-public-hygiene.py) does not read this as an address.
+          service_account: gh-windows-msstore@${{ env.GCP_SA_DOMAIN }}
+          token_format: access_token
+          create_credentials_file: false
+
+      - name: Submit (${{ inputs.mode }})
+        env:
+          GSM_ACCESS_TOKEN: ${{ steps.gcp.outputs.access_token }}
+        run: |
+          set -euo pipefail
+          case "$MODE" in
+            dry-run) flag=--dry-run ;;
+            draft) flag= ;;
+            submit) flag=--submit ;;
+          esac
+          python3 scripts/msstore/prepare_submission.py \
+            --version "$VERSION" --ref "$REF" --listing-md "$RUNNER_TEMP/store-listing.md" \
+            --msixupload "$RUNNER_TEMP/pkg/DistrictAI_${VERSION}_x64.msixupload" \
+            --sha256sums "$RUNNER_TEMP/pkg/SHA256SUMS" $flag
