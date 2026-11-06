@@ -635,7 +635,11 @@ def read_status(dc, put_path):
     except TRANSPORT as e:
         print(f"   status read failed: {type(e).__name__}")
         return None, None
-    status = (stat or {}).get("status") if st == 200 else None
+    if st == 200 and not isinstance(stat, dict):
+        # A 200 whose JSON is not an object (a list, a string) says nothing: no answer.
+        print(f"   status {st} not a JSON object ({type(stat).__name__}); counted as no answer")
+        return None, None
+    status = stat.get("status") if st == 200 else None
     print(f"   status {st} {status}")
     return status, (stat if st == 200 else None)
 
@@ -817,6 +821,8 @@ def self_test():
            commit=TimeoutError("t"), statuses=[ok200])
     commit("an unknown commit outcome that never started is kept", 2, False, "kept",
            commit=(503, {}), statuses=[pending_commit])
+    commit("a status answer that is not a JSON object counts as no answer", 0, False, "committed",
+           statuses=[(200, ["x"]), ok200])
     commit("one failed status read does not fail a commit", 0, False, "committed",
            statuses=[urllib.error.URLError("down"), ok200])
     commit("status reads that always fail keep the submission", 2, False, "no status read succeeded",
