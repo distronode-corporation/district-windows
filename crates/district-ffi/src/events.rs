@@ -136,6 +136,15 @@ pub enum UiEvent {
         /// The number.
         number: String,
     },
+    /// The dialler's country list: this country (ISO 3166) was picked.
+    DialerPickCountry {
+        /// The country.
+        iso: String,
+    },
+    /// The member stopped typing in the dialler's box (it lost the keyboard,
+    /// or the switched-off Call button was pressed): a wrong length is said
+    /// from now until the next edit.
+    DialerCheckLength,
     /// The dialler's "Call" (or Enter in its box).
     Dial,
     /// Call `number` from anywhere (a call's or a contact's "Call back"): the
@@ -343,6 +352,8 @@ impl UiEvent {
             UiEvent::DiscardChanges | UiEvent::KeepEditing => return Vec::new(),
             UiEvent::OpenDialer => Event::Navigate(Route::Dialer),
             UiEvent::DialerEdit { number } => Event::Dialer(DialerEvent::Edit(number)),
+            UiEvent::DialerPickCountry { iso } => Event::Dialer(DialerEvent::PickCountry(iso)),
+            UiEvent::DialerCheckLength => Event::Dialer(DialerEvent::CheckLength),
             UiEvent::Dial => Event::Dialer(DialerEvent::Dial),
             UiEvent::CallNumber { number } => {
                 return vec![
@@ -490,6 +501,16 @@ mod tests {
                     number: "+1 212".to_owned(),
                 },
                 Event::Dialer(DialerEvent::Edit("+1 212".to_owned())),
+            ),
+            (
+                UiEvent::DialerPickCountry {
+                    iso: "GB".to_owned(),
+                },
+                Event::Dialer(DialerEvent::PickCountry("GB".to_owned())),
+            ),
+            (
+                UiEvent::DialerCheckLength,
+                Event::Dialer(DialerEvent::CheckLength),
             ),
             (UiEvent::Dial, Event::Dialer(DialerEvent::Dial)),
             (UiEvent::HangUp, Event::Call(CallEvent::HangUp)),

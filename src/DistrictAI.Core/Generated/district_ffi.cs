@@ -929,6 +929,12 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1221,6 +1227,39 @@ static class _UniFFILib {
     public static extern
 #endif
      void uniffi_district_ffi_fn_method_uihost_present_window(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_dial_country_list(RustBuffer @query,RustBuffer @home,RustBuffer @current,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_dial_entry_format(RustBuffer @previous,RustBuffer @next,uint @caret,sbyte @forward,RustBuffer @country,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_dial_pick_format(RustBuffer @shown,RustBuffer @country,RustBuffer @iso,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -2012,6 +2051,39 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_dial_country_list(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_dial_entry_format(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_district_ffi_checksum_func_dial_pick_format(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_composer_pick(
     );
 
@@ -2464,6 +2536,24 @@ static class _UniFFILib {
         }
     }
     static void uniffiCheckApiChecksums() {
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_dial_country_list();
+            if (checksum != 36963) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_dial_country_list` checksum `36963`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_dial_entry_format();
+            if (checksum != 15266) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_dial_entry_format` checksum `15266`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_dial_pick_format();
+            if (checksum != 51537) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_dial_pick_format` checksum `51537`, library returned `{checksum}`");
+            }
+        }
         {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_composer_pick();
             if (checksum != 1022) {
@@ -11765,14 +11855,286 @@ class FfiConverterTypeDevicesView: FfiConverterRustBuffer<DevicesView> {
 
 
 /// <summary>
-/// The dialler: the number typed, how it reads, and whether Call works.
+/// The dialler's country list for a search.
+/// </summary>
+/// <param name="Suggested">
+/// With no search: the home country, the one on the button, Canada and the
+/// United States. Empty while searching.
+/// </param>
+/// <param name="Countries">
+/// With no search, every country, alphabetical; while searching, the
+/// matches, ranked (exact ISO code, name prefix, calling code, contains).
+/// </param>
+/// <param name="SuggestedTitle">
+/// "Suggested".
+/// </param>
+/// <param name="CountriesTitle">
+/// "All countries", or empty while searching.
+/// </param>
+/// <param name="NoMatch">
+/// "No country matches." when a search found nothing.
+/// </param>
+/// <param name="SearchPlaceholder">
+/// The search box's placeholder.
+/// </param>
+/// <param name="Title">
+/// The list's title, "Country".
+/// </param>
+public record DialCountryList (
+    /// <summary>
+    /// With no search: the home country, the one on the button, Canada and the
+    /// United States. Empty while searching.
+    /// </summary>
+    DialCountryRow[] Suggested, 
+    /// <summary>
+    /// With no search, every country, alphabetical; while searching, the
+    /// matches, ranked (exact ISO code, name prefix, calling code, contains).
+    /// </summary>
+    DialCountryRow[] Countries, 
+    /// <summary>
+    /// "Suggested".
+    /// </summary>
+    string SuggestedTitle, 
+    /// <summary>
+    /// "All countries", or empty while searching.
+    /// </summary>
+    string CountriesTitle, 
+    /// <summary>
+    /// "No country matches." when a search found nothing.
+    /// </summary>
+    string? NoMatch, 
+    /// <summary>
+    /// The search box's placeholder.
+    /// </summary>
+    string SearchPlaceholder, 
+    /// <summary>
+    /// The list's title, "Country".
+    /// </summary>
+    string Title
+) {
+}
+
+class FfiConverterTypeDialCountryList: FfiConverterRustBuffer<DialCountryList> {
+    public static FfiConverterTypeDialCountryList INSTANCE = new FfiConverterTypeDialCountryList();
+
+    public override DialCountryList Read(BigEndianStream stream) {
+        return new DialCountryList(
+            Suggested: FfiConverterSequenceTypeDialCountryRow.INSTANCE.Read(stream),
+            Countries: FfiConverterSequenceTypeDialCountryRow.INSTANCE.Read(stream),
+            SuggestedTitle: FfiConverterString.INSTANCE.Read(stream),
+            CountriesTitle: FfiConverterString.INSTANCE.Read(stream),
+            NoMatch: FfiConverterOptionalString.INSTANCE.Read(stream),
+            SearchPlaceholder: FfiConverterString.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DialCountryList value) {
+        return 0
+            + FfiConverterSequenceTypeDialCountryRow.INSTANCE.AllocationSize(value.Suggested)
+            + FfiConverterSequenceTypeDialCountryRow.INSTANCE.AllocationSize(value.Countries)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SuggestedTitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CountriesTitle)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NoMatch)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SearchPlaceholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title);
+    }
+
+    public override void Write(DialCountryList value, BigEndianStream stream) {
+            FfiConverterSequenceTypeDialCountryRow.INSTANCE.Write(value.Suggested, stream);
+            FfiConverterSequenceTypeDialCountryRow.INSTANCE.Write(value.Countries, stream);
+            FfiConverterString.INSTANCE.Write(value.SuggestedTitle, stream);
+            FfiConverterString.INSTANCE.Write(value.CountriesTitle, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.NoMatch, stream);
+            FfiConverterString.INSTANCE.Write(value.SearchPlaceholder, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One row of the dialler's country list.
+/// </summary>
+/// <param name="Iso">
+/// The ISO 3166 code: what a pick sends.
+/// </param>
+/// <param name="Name">
+/// The name in the app's language.
+/// </param>
+/// <param name="CallingCode">
+/// `+1`.
+/// </param>
+/// <param name="Selected">
+/// The country on the button.
+/// </param>
+public record DialCountryRow (
+    /// <summary>
+    /// The ISO 3166 code: what a pick sends.
+    /// </summary>
+    string Iso, 
+    /// <summary>
+    /// The name in the app's language.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// `+1`.
+    /// </summary>
+    string CallingCode, 
+    /// <summary>
+    /// The country on the button.
+    /// </summary>
+    bool Selected
+) {
+}
+
+class FfiConverterTypeDialCountryRow: FfiConverterRustBuffer<DialCountryRow> {
+    public static FfiConverterTypeDialCountryRow INSTANCE = new FfiConverterTypeDialCountryRow();
+
+    public override DialCountryRow Read(BigEndianStream stream) {
+        return new DialCountryRow(
+            Iso: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            CallingCode: FfiConverterString.INSTANCE.Read(stream),
+            Selected: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DialCountryRow value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Iso)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CallingCode)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Selected);
+    }
+
+    public override void Write(DialCountryRow value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Iso, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.CallingCode, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Selected, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One edit of the dialler's box, formatted as the core will format it: what
+/// to show at once, and what to send as
+/// [`UiEvent::DialerEdit`](crate::UiEvent::DialerEdit).
+/// </summary>
+/// <param name="Cleaned">
+/// What to send to the core: digits and a leading `+`.
+/// </param>
+/// <param name="Shown">
+/// What the box shows now.
+/// </param>
+/// <param name="Country">
+/// The country on the button now (it moves when the number names its
+/// own), or `None`.
+/// </param>
+/// <param name="CountryButton">
+/// The button's text for that country (`CA +1`, or "Country").
+/// </param>
+/// <param name="Caret">
+/// Where the cursor goes in [`shown`](Self::shown), in characters.
+/// </param>
+public record DialEntryFormat (
+    /// <summary>
+    /// What to send to the core: digits and a leading `+`.
+    /// </summary>
+    string Cleaned, 
+    /// <summary>
+    /// What the box shows now.
+    /// </summary>
+    string Shown, 
+    /// <summary>
+    /// The country on the button now (it moves when the number names its
+    /// own), or `None`.
+    /// </summary>
+    string? Country, 
+    /// <summary>
+    /// The button's text for that country (`CA +1`, or "Country").
+    /// </summary>
+    string CountryButton, 
+    /// <summary>
+    /// Where the cursor goes in [`shown`](Self::shown), in characters.
+    /// </summary>
+    uint Caret
+) {
+}
+
+class FfiConverterTypeDialEntryFormat: FfiConverterRustBuffer<DialEntryFormat> {
+    public static FfiConverterTypeDialEntryFormat INSTANCE = new FfiConverterTypeDialEntryFormat();
+
+    public override DialEntryFormat Read(BigEndianStream stream) {
+        return new DialEntryFormat(
+            Cleaned: FfiConverterString.INSTANCE.Read(stream),
+            Shown: FfiConverterString.INSTANCE.Read(stream),
+            Country: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CountryButton: FfiConverterString.INSTANCE.Read(stream),
+            Caret: FfiConverterUInt32.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DialEntryFormat value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Cleaned)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Shown)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Country)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CountryButton)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Caret);
+    }
+
+    public override void Write(DialEntryFormat value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Cleaned, stream);
+            FfiConverterString.INSTANCE.Write(value.Shown, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Country, stream);
+            FfiConverterString.INSTANCE.Write(value.CountryButton, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Caret, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The dialler: the country on its button, the number in the local form of
+/// that country, the line naming where it rings, and whether Call works
+/// (dialler design A; the rules are the core's `district_core::dialer`).
 /// </summary>
 /// <param name="Number">
-/// What the member typed, exactly as typed. The box shows this and is
-/// never rewritten to match [`formatted`](Self::formatted).
+/// What the box shows: the number formatted in the local form of the
+/// country on the button (`(416) 555-0199`). The core writes it after every
+/// edit; C# formats each edit at once with [`dial_entry_format`] and gets
+/// the same text back here.
+/// </param>
+/// <param name="Country">
+/// The country on the button (ISO 3166), or `None` until one is known.
+/// </param>
+/// <param name="CountryButton">
+/// The button's text: the country's ISO code and calling code (`CA +1`),
+/// or "Country". Not a flag: Windows draws a flag emoji as two letters.
+/// </param>
+/// <param name="CountryLabel">
+/// The button's accessible name: "Canada, calling code +1".
+/// </param>
+/// <param name="Home">
+/// The workspace's own country, from its numbers, or `None`.
+/// </param>
+/// <param name="Placeholder">
+/// The box's placeholder: an example local number for the country, or
+/// `+…` with none, or empty.
+/// </param>
+/// <param name="Destination">
+/// "Rings Canada · +1 416 555 0199" once the number is whole: the
+/// country and the number that is sent.
+/// </param>
+/// <param name="Problem">
+/// Why Call is off, once there is something to correct: a wrong length
+/// only after the member stopped typing, no country, or an emergency code.
 /// </param>
 /// <param name="CanDial">
-/// Whether Call works: a role that may place calls, enough digits, and no
+/// Whether Call works: a role that may place calls, a whole number, and no
 /// call, meeting or ring in the way.
 /// </param>
 /// <param name="Dialing">
@@ -11785,23 +12147,54 @@ class FfiConverterTypeDevicesView: FfiConverterRustBuffer<DevicesView> {
 /// <param name="Note">
 /// "Finish the call or meeting you are in first." while one is in the way.
 /// </param>
-/// <param name="Formatted">
-/// The number as it reads: its digits grouped, nothing removed.
-/// </param>
 /// <param name="Hint">
-/// The line above the keypad.
+/// The line under the box: how to type a number in the country.
 /// </param>
 /// <param name="MicrophoneNote">
 /// "Placing a call turns on your microphone."
 /// </param>
 public record DialerView (
     /// <summary>
-    /// What the member typed, exactly as typed. The box shows this and is
-    /// never rewritten to match [`formatted`](Self::formatted).
+    /// What the box shows: the number formatted in the local form of the
+    /// country on the button (`(416) 555-0199`). The core writes it after every
+    /// edit; C# formats each edit at once with [`dial_entry_format`] and gets
+    /// the same text back here.
     /// </summary>
     string Number, 
     /// <summary>
-    /// Whether Call works: a role that may place calls, enough digits, and no
+    /// The country on the button (ISO 3166), or `None` until one is known.
+    /// </summary>
+    string? Country, 
+    /// <summary>
+    /// The button's text: the country's ISO code and calling code (`CA +1`),
+    /// or "Country". Not a flag: Windows draws a flag emoji as two letters.
+    /// </summary>
+    string CountryButton, 
+    /// <summary>
+    /// The button's accessible name: "Canada, calling code +1".
+    /// </summary>
+    string CountryLabel, 
+    /// <summary>
+    /// The workspace's own country, from its numbers, or `None`.
+    /// </summary>
+    string? Home, 
+    /// <summary>
+    /// The box's placeholder: an example local number for the country, or
+    /// `+…` with none, or empty.
+    /// </summary>
+    string Placeholder, 
+    /// <summary>
+    /// "Rings Canada · +1 416 555 0199" once the number is whole: the
+    /// country and the number that is sent.
+    /// </summary>
+    string? Destination, 
+    /// <summary>
+    /// Why Call is off, once there is something to correct: a wrong length
+    /// only after the member stopped typing, no country, or an emergency code.
+    /// </summary>
+    string? Problem, 
+    /// <summary>
+    /// Whether Call works: a role that may place calls, a whole number, and no
     /// call, meeting or ring in the way.
     /// </summary>
     bool CanDial, 
@@ -11819,11 +12212,7 @@ public record DialerView (
     /// </summary>
     string? Note, 
     /// <summary>
-    /// The number as it reads: its digits grouped, nothing removed.
-    /// </summary>
-    string Formatted, 
-    /// <summary>
-    /// The line above the keypad.
+    /// The line under the box: how to type a number in the country.
     /// </summary>
     string Hint, 
     /// <summary>
@@ -11839,11 +12228,17 @@ class FfiConverterTypeDialerView: FfiConverterRustBuffer<DialerView> {
     public override DialerView Read(BigEndianStream stream) {
         return new DialerView(
             Number: FfiConverterString.INSTANCE.Read(stream),
+            Country: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CountryButton: FfiConverterString.INSTANCE.Read(stream),
+            CountryLabel: FfiConverterString.INSTANCE.Read(stream),
+            Home: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Placeholder: FfiConverterString.INSTANCE.Read(stream),
+            Destination: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Problem: FfiConverterOptionalString.INSTANCE.Read(stream),
             CanDial: FfiConverterBoolean.INSTANCE.Read(stream),
             Dialing: FfiConverterBoolean.INSTANCE.Read(stream),
             Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
             Note: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Formatted: FfiConverterString.INSTANCE.Read(stream),
             Hint: FfiConverterString.INSTANCE.Read(stream),
             MicrophoneNote: FfiConverterString.INSTANCE.Read(stream)
         );
@@ -11852,22 +12247,34 @@ class FfiConverterTypeDialerView: FfiConverterRustBuffer<DialerView> {
     public override int AllocationSize(DialerView value) {
         return 0
             + FfiConverterString.INSTANCE.AllocationSize(value.Number)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Country)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CountryButton)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CountryLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Home)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Placeholder)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Destination)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Problem)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDial)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Dialing)
             + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Note)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Formatted)
             + FfiConverterString.INSTANCE.AllocationSize(value.Hint)
             + FfiConverterString.INSTANCE.AllocationSize(value.MicrophoneNote);
     }
 
     public override void Write(DialerView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Number, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Country, stream);
+            FfiConverterString.INSTANCE.Write(value.CountryButton, stream);
+            FfiConverterString.INSTANCE.Write(value.CountryLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Home, stream);
+            FfiConverterString.INSTANCE.Write(value.Placeholder, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Destination, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Problem, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanDial, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Dialing, stream);
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
-            FfiConverterString.INSTANCE.Write(value.Formatted, stream);
             FfiConverterString.INSTANCE.Write(value.Hint, stream);
             FfiConverterString.INSTANCE.Write(value.MicrophoneNote, stream);
     }
@@ -44849,6 +45256,21 @@ public record UiEvent {
     ) : UiEvent {}
     
     /// <summary>
+    /// The dialler's country list: this country (ISO 3166) was picked.
+    /// </summary>
+    public record DialerPickCountry (
+        string Iso
+    ) : UiEvent {}
+    
+    /// <summary>
+    /// The member stopped typing in the dialler's box (it lost the keyboard,
+    /// or the switched-off Call button was pressed): a wrong length is said
+    /// from now until the next edit.
+    /// </summary>
+    public record DialerCheckLength: UiEvent {}
+    
+    
+    /// <summary>
     /// The dialler's "Call" (or Enter in its box).
     /// </summary>
     public record Dial: UiEvent {}
@@ -45208,130 +45630,137 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                     FfiConverterString.INSTANCE.Read(stream)
                 );
             case 36:
-                return new UiEvent.Dial(
+                return new UiEvent.DialerPickCountry(
+                    FfiConverterString.INSTANCE.Read(stream)
                 );
             case 37:
+                return new UiEvent.DialerCheckLength(
+                );
+            case 38:
+                return new UiEvent.Dial(
+                );
+            case 39:
                 return new UiEvent.CallNumber(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 38:
+            case 40:
                 return new UiEvent.HangUp(
                 );
-            case 39:
+            case 41:
                 return new UiEvent.DismissCall(
                 );
-            case 40:
+            case 42:
                 return new UiEvent.Answer(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 41:
+            case 43:
                 return new UiEvent.Decline(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 42:
+            case 44:
                 return new UiEvent.DismissRing(
                 );
-            case 43:
+            case 45:
                 return new UiEvent.Microphone(
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
-            case 44:
+            case 46:
                 return new UiEvent.SetRingOnThisComputer(
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
-            case 45:
+            case 47:
                 return new UiEvent.Contacts(
                     FfiConverterTypeContactsAction.INSTANCE.Read(stream)
                 );
-            case 46:
+            case 48:
                 return new UiEvent.Blocked(
                     FfiConverterTypeBlockedAction.INSTANCE.Read(stream)
                 );
-            case 47:
+            case 49:
                 return new UiEvent.Hq(
                     FfiConverterTypeHqAction.INSTANCE.Read(stream)
                 );
-            case 48:
+            case 50:
                 return new UiEvent.Analytics(
                     FfiConverterTypeAnalyticsAction.INSTANCE.Read(stream)
                 );
-            case 49:
+            case 51:
                 return new UiEvent.Marketplace(
                     FfiConverterTypeMarketplaceAction.INSTANCE.Read(stream)
                 );
-            case 50:
+            case 52:
                 return new UiEvent.Billing(
                     FfiConverterTypeBillingAction.INSTANCE.Read(stream)
                 );
-            case 51:
+            case 53:
                 return new UiEvent.Workflows(
                     FfiConverterTypeWorkflowsAction.INSTANCE.Read(stream)
                 );
-            case 52:
+            case 54:
                 return new UiEvent.Scheduling(
                     FfiConverterTypeSchedulingAction.INSTANCE.Read(stream)
                 );
-            case 53:
+            case 55:
                 return new UiEvent.SchedulingAdmin(
                     FfiConverterTypeSchedulingAdminAction.INSTANCE.Read(stream)
                 );
-            case 54:
+            case 56:
                 return new UiEvent.Desk(
                     FfiConverterTypeDeskAction.INSTANCE.Read(stream)
                 );
-            case 55:
+            case 57:
                 return new UiEvent.Support(
                     FfiConverterTypeSupportAction.INSTANCE.Read(stream)
                 );
-            case 56:
+            case 58:
                 return new UiEvent.Rooms(
                     FfiConverterTypeRoomsAction.INSTANCE.Read(stream)
                 );
-            case 57:
+            case 59:
                 return new UiEvent.Composer(
                     FfiConverterTypeComposerAction.INSTANCE.Read(stream)
                 );
-            case 58:
+            case 60:
                 return new UiEvent.Settings(
                     FfiConverterTypeSettingsAction.INSTANCE.Read(stream)
                 );
-            case 59:
+            case 61:
                 return new UiEvent.Persona(
                     FfiConverterTypePersonaAction.INSTANCE.Read(stream)
                 );
-            case 60:
+            case 62:
                 return new UiEvent.VoiceStudio(
                     FfiConverterTypeVoiceStudioAction.INSTANCE.Read(stream)
                 );
-            case 61:
+            case 63:
                 return new UiEvent.CallHandling(
                     FfiConverterTypeCallHandlingAction.INSTANCE.Read(stream)
                 );
-            case 62:
+            case 64:
                 return new UiEvent.Routing(
                     FfiConverterTypeRoutingAction.INSTANCE.Read(stream)
                 );
-            case 63:
+            case 65:
                 return new UiEvent.Directory(
                     FfiConverterTypeDirectoryAction.INSTANCE.Read(stream)
                 );
-            case 64:
+            case 66:
                 return new UiEvent.Tools(
                     FfiConverterTypeToolsAction.INSTANCE.Read(stream)
                 );
-            case 65:
+            case 67:
                 return new UiEvent.Knowledge(
                     FfiConverterTypeKnowledgeAction.INSTANCE.Read(stream)
                 );
-            case 66:
+            case 68:
                 return new UiEvent.Messaging(
                     FfiConverterTypeMessagingAction.INSTANCE.Read(stream)
                 );
-            case 67:
+            case 69:
                 return new UiEvent.Members(
                     FfiConverterTypeMembersAction.INSTANCE.Read(stream)
                 );
-            case 68:
+            case 70:
                 return new UiEvent.Numbers(
                     FfiConverterTypeNumbersAction.INSTANCE.Read(stream)
                 );
@@ -45425,6 +45854,11 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case UiEvent.DialerEdit variant_value:
                 return 4
                     + FfiConverterString.INSTANCE.AllocationSize(variant_value.Number);
+            case UiEvent.DialerPickCountry variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Iso);
+            case UiEvent.DialerCheckLength variant_value:
+                return 4;
             case UiEvent.Dial variant_value:
                 return 4;
             case UiEvent.CallNumber variant_value:
@@ -45645,132 +46079,139 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                 stream.WriteInt(35);
                 FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
                 break;
-            case UiEvent.Dial variant_value:
+            case UiEvent.DialerPickCountry variant_value:
                 stream.WriteInt(36);
+                FfiConverterString.INSTANCE.Write(variant_value.Iso, stream);
+                break;
+            case UiEvent.DialerCheckLength variant_value:
+                stream.WriteInt(37);
+                break;
+            case UiEvent.Dial variant_value:
+                stream.WriteInt(38);
                 break;
             case UiEvent.CallNumber variant_value:
-                stream.WriteInt(37);
+                stream.WriteInt(39);
                 FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
                 break;
             case UiEvent.HangUp variant_value:
-                stream.WriteInt(38);
+                stream.WriteInt(40);
                 break;
             case UiEvent.DismissCall variant_value:
-                stream.WriteInt(39);
+                stream.WriteInt(41);
                 break;
             case UiEvent.Answer variant_value:
-                stream.WriteInt(40);
+                stream.WriteInt(42);
                 FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
             case UiEvent.Decline variant_value:
-                stream.WriteInt(41);
+                stream.WriteInt(43);
                 FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
             case UiEvent.DismissRing variant_value:
-                stream.WriteInt(42);
+                stream.WriteInt(44);
                 break;
             case UiEvent.Microphone variant_value:
-                stream.WriteInt(43);
+                stream.WriteInt(45);
                 FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
                 break;
             case UiEvent.SetRingOnThisComputer variant_value:
-                stream.WriteInt(44);
+                stream.WriteInt(46);
                 FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
                 break;
             case UiEvent.Contacts variant_value:
-                stream.WriteInt(45);
+                stream.WriteInt(47);
                 FfiConverterTypeContactsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Blocked variant_value:
-                stream.WriteInt(46);
+                stream.WriteInt(48);
                 FfiConverterTypeBlockedAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Hq variant_value:
-                stream.WriteInt(47);
+                stream.WriteInt(49);
                 FfiConverterTypeHqAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Analytics variant_value:
-                stream.WriteInt(48);
+                stream.WriteInt(50);
                 FfiConverterTypeAnalyticsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Marketplace variant_value:
-                stream.WriteInt(49);
+                stream.WriteInt(51);
                 FfiConverterTypeMarketplaceAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Billing variant_value:
-                stream.WriteInt(50);
+                stream.WriteInt(52);
                 FfiConverterTypeBillingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Workflows variant_value:
-                stream.WriteInt(51);
+                stream.WriteInt(53);
                 FfiConverterTypeWorkflowsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Scheduling variant_value:
-                stream.WriteInt(52);
+                stream.WriteInt(54);
                 FfiConverterTypeSchedulingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.SchedulingAdmin variant_value:
-                stream.WriteInt(53);
+                stream.WriteInt(55);
                 FfiConverterTypeSchedulingAdminAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Desk variant_value:
-                stream.WriteInt(54);
+                stream.WriteInt(56);
                 FfiConverterTypeDeskAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Support variant_value:
-                stream.WriteInt(55);
+                stream.WriteInt(57);
                 FfiConverterTypeSupportAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Rooms variant_value:
-                stream.WriteInt(56);
+                stream.WriteInt(58);
                 FfiConverterTypeRoomsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Composer variant_value:
-                stream.WriteInt(57);
+                stream.WriteInt(59);
                 FfiConverterTypeComposerAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Settings variant_value:
-                stream.WriteInt(58);
+                stream.WriteInt(60);
                 FfiConverterTypeSettingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Persona variant_value:
-                stream.WriteInt(59);
+                stream.WriteInt(61);
                 FfiConverterTypePersonaAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.VoiceStudio variant_value:
-                stream.WriteInt(60);
+                stream.WriteInt(62);
                 FfiConverterTypeVoiceStudioAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.CallHandling variant_value:
-                stream.WriteInt(61);
+                stream.WriteInt(63);
                 FfiConverterTypeCallHandlingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Routing variant_value:
-                stream.WriteInt(62);
+                stream.WriteInt(64);
                 FfiConverterTypeRoutingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Directory variant_value:
-                stream.WriteInt(63);
+                stream.WriteInt(65);
                 FfiConverterTypeDirectoryAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Tools variant_value:
-                stream.WriteInt(64);
+                stream.WriteInt(66);
                 FfiConverterTypeToolsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Knowledge variant_value:
-                stream.WriteInt(65);
+                stream.WriteInt(67);
                 FfiConverterTypeKnowledgeAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Messaging variant_value:
-                stream.WriteInt(66);
+                stream.WriteInt(68);
                 FfiConverterTypeMessagingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Members variant_value:
-                stream.WriteInt(67);
+                stream.WriteInt(69);
                 FfiConverterTypeMembersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Numbers variant_value:
-                stream.WriteInt(68);
+                stream.WriteInt(70);
                 FfiConverterTypeNumbersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -50407,6 +50848,52 @@ class FfiConverterSequenceTypeDeviceRowView: FfiConverterRustBuffer<DeviceRowVie
 
 
 
+class FfiConverterSequenceTypeDialCountryRow: FfiConverterRustBuffer<DialCountryRow[]> {
+    public static FfiConverterSequenceTypeDialCountryRow INSTANCE = new FfiConverterSequenceTypeDialCountryRow();
+
+    public override DialCountryRow[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DialCountryRow[length];
+        var readFn = FfiConverterTypeDialCountryRow.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DialCountryRow[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDialCountryRow.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DialCountryRow[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDialCountryRow.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeDirectoryEntryView: FfiConverterRustBuffer<DirectoryEntryView[]> {
     public static FfiConverterSequenceTypeDirectoryEntryView INSTANCE = new FfiConverterSequenceTypeDirectoryEntryView();
 
@@ -53570,6 +54057,46 @@ internal static class _UniFFIAsync {
 }
 #pragma warning restore 8625
 public static class DistrictFfi {
+    /// <summary>
+    /// The country list for `query`, with `home` and `current` for its suggested
+    /// group and its tick.
+    /// </summary>
+    public static DialCountryList DialCountryList(string @query, string? @home, string? @current) {
+        return FfiConverterTypeDialCountryList.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_dial_country_list(FfiConverterString.INSTANCE.Lower(@query), FfiConverterOptionalString.INSTANCE.Lower(@home), FfiConverterOptionalString.INSTANCE.Lower(@current), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// Formats one edit of the box at once, exactly as the core will when it is
+    /// sent: the box went from `previous` to `next` with the cursor at character
+    /// `caret`, a single-character delete went forward when `forward`, and
+    /// `country` is on the button. Events reach the core on a later turn, so a box
+    /// written only from the core would lose a key typed in between.
+    /// </summary>
+    public static DialEntryFormat DialEntryFormat(string @previous, string @next, uint @caret, bool @forward, string? @country) {
+        return FfiConverterTypeDialEntryFormat.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_dial_entry_format(FfiConverterString.INSTANCE.Lower(@previous), FfiConverterString.INSTANCE.Lower(@next), FfiConverterUInt32.INSTANCE.Lower(@caret), FfiConverterBoolean.INSTANCE.Lower(@forward), FfiConverterOptionalString.INSTANCE.Lower(@country), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// The box after `iso` is picked over `shown` with `country` on the button, as
+    /// the core will make it on
+    /// [`UiEvent::DialerPickCountry`](crate::UiEvent::DialerPickCountry).
+    /// </summary>
+    public static DialEntryFormat DialPickFormat(string @shown, string? @country, string @iso) {
+        return FfiConverterTypeDialEntryFormat.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_dial_pick_format(FfiConverterString.INSTANCE.Lower(@shown), FfiConverterOptionalString.INSTANCE.Lower(@country), FfiConverterString.INSTANCE.Lower(@iso), ref _status)
+));
+    }
+
+
     /// <summary>
     /// The file chooser for an attachment: the core's image types, one file at a
     /// time. The core takes one upload at a time and drops an image picked while

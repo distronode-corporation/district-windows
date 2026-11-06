@@ -10,21 +10,45 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use district_core::{
-    ActiveCall, CallDirection, CallEnd, CallPhase, IncomingRing, MediaOwner, MediaSession,
-    MicrophoneState, RingEnd, RingPhase, SignedIn, WorkspacesState,
+    ActiveCall, CallDirection, CallEnd, CallPhase, DeleteDirection, IncomingRing, MediaOwner,
+    MediaSession, MicrophoneState, RingEnd, RingPhase, SignedIn, WorkspacesState, calling_code,
+    caret_after_entry_chars, clean_dial_input, country_name, edit_dial_input, entry_chars_before,
+    entry_for_pick, read_dial_entry, search_countries, sorted_countries, suggested_countries,
 };
 
 use crate::l10n::{cs, l, s};
 use crate::transcript::{TranscriptView, transcript_view};
 use crate::views::FailureView;
 
-/// The dialler: the number typed, how it reads, and whether Call works.
+/// The dialler: the country on its button, the number in the local form of
+/// that country, the line naming where it rings, and whether Call works
+/// (dialler design A; the rules are the core's `district_core::dialer`).
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, uniffi::Record)]
 pub struct DialerView {
-    /// What the member typed, exactly as typed. The box shows this and is
-    /// never rewritten to match [`formatted`](Self::formatted).
+    /// What the box shows: the number formatted in the local form of the
+    /// country on the button (`(416) 555-0199`). The core writes it after every
+    /// edit; C# formats each edit at once with [`dial_entry_format`] and gets
+    /// the same text back here.
     pub number: String,
-    /// Whether Call works: a role that may place calls, enough digits, and no
+    /// The country on the button (ISO 3166), or `None` until one is known.
+    pub country: Option<String>,
+    /// The button's text: the country's ISO code and calling code (`CA +1`),
+    /// or "Country". Not a flag: Windows draws a flag emoji as two letters.
+    pub country_button: String,
+    /// The button's accessible name: "Canada, calling code +1".
+    pub country_label: String,
+    /// The workspace's own country, from its numbers, or `None`.
+    pub home: Option<String>,
+    /// The box's placeholder: an example local number for the country, or
+    /// `+…` with none, or empty.
+    pub placeholder: String,
+    /// "Rings Canada · +1 416 555 0199" once the number is whole: the
+    /// country and the number that is sent.
+    pub destination: Option<String>,
+    /// Why Call is off, once there is something to correct: a wrong length
+    /// only after the member stopped typing, no country, or an emergency code.
+    pub problem: Option<String>,
+    /// Whether Call works: a role that may place calls, a whole number, and no
     /// call, meeting or ring in the way.
     pub can_dial: bool,
     /// The dial is on its way.
@@ -34,12 +58,170 @@ pub struct DialerView {
     pub failure: Option<FailureView>,
     /// "Finish the call or meeting you are in first." while one is in the way.
     pub note: Option<String>,
-    /// The number as it reads: its digits grouped, nothing removed.
-    pub formatted: String,
-    /// The line above the keypad.
+    /// The line under the box: how to type a number in the country.
     pub hint: String,
     /// "Placing a call turns on your microphone."
     pub microphone_note: String,
+}
+
+/// One edit of the dialler's box, formatted as the core will format it: what
+/// to show at once, and what to send as
+/// [`UiEvent::DialerEdit`](crate::UiEvent::DialerEdit).
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, uniffi::Record)]
+pub struct DialEntryFormat {
+    /// What to send to the core: digits and a leading `+`.
+    pub cleaned: String,
+    /// What the box shows now.
+    pub shown: String,
+    /// The country on the button now (it moves when the number names its
+    /// own), or `None`.
+    pub country: Option<String>,
+    /// The button's text for that country (`CA +1`, or "Country").
+    pub country_button: String,
+    /// Where the cursor goes in [`shown`](Self::shown), in characters.
+    pub caret: u32,
+}
+
+/// One row of the dialler's country list.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, uniffi::Record)]
+pub struct DialCountryRow {
+    /// The ISO 3166 code: what a pick sends.
+    pub iso: String,
+    /// The name in the app's language.
+    pub name: String,
+    /// `+1`.
+    pub calling_code: String,
+    /// The country on the button.
+    pub selected: bool,
+}
+
+/// The dialler's country list for a search.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, uniffi::Record)]
+pub struct DialCountryList {
+    /// With no search: the home country, the one on the button, Canada and the
+    /// United States. Empty while searching.
+    pub suggested: Vec<DialCountryRow>,
+    /// With no search, every country, alphabetical; while searching, the
+    /// matches, ranked (exact ISO code, name prefix, calling code, contains).
+    pub countries: Vec<DialCountryRow>,
+    /// "Suggested".
+    pub suggested_title: String,
+    /// "All countries", or empty while searching.
+    pub countries_title: String,
+    /// "No country matches." when a search found nothing.
+    pub no_match: Option<String>,
+    /// The search box's placeholder.
+    pub search_placeholder: String,
+    /// The list's title, "Country".
+    pub title: String,
+}
+
+/// The button's text for `country`: `CA +1`, or "Country".
+fn country_button(country: Option<&str>) -> String {
+    match country.and_then(|iso| calling_code(iso).map(|code| (iso, code))) {
+        Some((iso, code)) => format!("{iso} +{code}"),
+        None => cs::dialer_country(l()).to_owned(),
+    }
+}
+
+/// Formats one edit of the box at once, exactly as the core will when it is
+/// sent: the box went from `previous` to `next` with the cursor at character
+/// `caret`, a single-character delete went forward when `forward`, and
+/// `country` is on the button. Events reach the core on a later turn, so a box
+/// written only from the core would lose a key typed in between.
+#[uniffi::export]
+pub fn dial_entry_format(
+    previous: String,
+    next: String,
+    caret: u32,
+    forward: bool,
+    country: Option<String>,
+) -> DialEntryFormat {
+    let direction = if forward {
+        DeleteDirection::Forward
+    } else {
+        DeleteDirection::Backward
+    };
+    let cleaned = edit_dial_input(&previous, &next, direction);
+    let mut before = entry_chars_before(&next, caret as usize);
+    // A backspace over punctuation took the digit before it too.
+    if !forward && cleaned.len() < clean_dial_input(&next).len() {
+        before = before.saturating_sub(1);
+    }
+    let reading = read_dial_entry(&cleaned, country.as_deref());
+    let country = reading.iso.map(str::to_owned).or(country);
+    let shown = reading.national;
+    // A number that named its country lost its code to the button: the
+    // cursor goes to the end.
+    let caret = if cleaned.starts_with('+') && !shown.starts_with('+') {
+        shown.chars().count()
+    } else {
+        caret_after_entry_chars(&shown, before)
+    };
+    DialEntryFormat {
+        country_button: country_button(country.as_deref()),
+        caret: u32::try_from(caret).unwrap_or(u32::MAX),
+        cleaned,
+        shown,
+        country,
+    }
+}
+
+/// The box after `iso` is picked over `shown` with `country` on the button, as
+/// the core will make it on
+/// [`UiEvent::DialerPickCountry`](crate::UiEvent::DialerPickCountry).
+#[uniffi::export]
+pub fn dial_pick_format(shown: String, country: Option<String>, iso: String) -> DialEntryFormat {
+    let kept = entry_for_pick(&shown, country.as_deref());
+    let reading = read_dial_entry(&kept, Some(&iso));
+    let country = Some(reading.iso.unwrap_or(&iso).to_owned());
+    let shown = reading.national;
+    DialEntryFormat {
+        country_button: country_button(country.as_deref()),
+        caret: u32::try_from(shown.chars().count()).unwrap_or(u32::MAX),
+        cleaned: kept,
+        shown,
+        country,
+    }
+}
+
+/// The country list for `query`, with `home` and `current` for its suggested
+/// group and its tick.
+#[uniffi::export]
+pub fn dial_country_list(
+    query: String,
+    home: Option<String>,
+    current: Option<String>,
+) -> DialCountryList {
+    let row = |iso: &str| DialCountryRow {
+        iso: iso.to_owned(),
+        name: country_name(iso, l()).to_owned(),
+        calling_code: format!("+{}", calling_code(iso).unwrap_or_default()),
+        selected: current.as_deref() == Some(iso),
+    };
+    let searching = !query.trim().is_empty();
+    let (suggested, countries) = if searching {
+        (Vec::new(), search_countries(&query, l()))
+    } else {
+        (
+            suggested_countries(home.as_deref(), current.as_deref()),
+            sorted_countries(l()),
+        )
+    };
+    DialCountryList {
+        no_match: (searching && countries.is_empty())
+            .then(|| cs::dialer_countries_no_match(l()).to_owned()),
+        suggested: suggested.into_iter().map(row).collect(),
+        countries: countries.into_iter().map(row).collect(),
+        suggested_title: cs::dialer_countries_suggested(l()).to_owned(),
+        countries_title: if searching {
+            String::new()
+        } else {
+            cs::dialer_countries_all(l()).to_owned()
+        },
+        search_placeholder: cs::dialer_country_search(l()).to_owned(),
+        title: cs::dialer_country(l()).to_owned(),
+    }
 }
 
 /// The phone call on this desktop, placed or answered, until its summary is
@@ -126,6 +308,13 @@ pub fn dialer_view(signed_in: &SignedIn) -> DialerView {
         .filter(|call| matches!(call.direction, CallDirection::Outbound { .. }));
     DialerView {
         number: dialer.entry.clone(),
+        country: dialer.country.clone(),
+        country_button: country_button(dialer.country.as_deref()),
+        country_label: dialer.country_label(),
+        home: dialer.home.clone(),
+        placeholder: dialer.placeholder().to_owned(),
+        destination: dialer.destination(),
+        problem: dialer.problem(),
         can_dial: signed_in.can_place_call(),
         dialing: call.is_some_and(|call| call.phase == CallPhase::Dialing),
         failure: call.and_then(|call| match &call.phase {
@@ -139,8 +328,7 @@ pub fn dialer_view(signed_in: &SignedIn) -> DialerView {
         note: signed_in
             .media_busy()
             .then(|| cs::dialer_busy_note(l()).to_owned()),
-        formatted: dialer.formatted(),
-        hint: cs::dialer_hint(l()).to_owned(),
+        hint: dialer.hint(),
         microphone_note: cs::dialer_microphone_note(l()).to_owned(),
     }
 }
@@ -394,27 +582,152 @@ mod tests {
     }
 
     #[test]
-    fn the_dialler_reads_the_number_and_says_when_call_works() {
+    fn the_dialler_reads_the_number_in_its_country_and_says_when_call_works() {
         let mut model = signed_in_as("agency");
         let view = dialer_view(signed_in(&model));
         assert_eq!(
             view,
             DialerView {
                 number: String::new(),
+                country: None,
+                country_button: "Country".to_owned(),
+                country_label: "Country".to_owned(),
+                home: None,
+                placeholder: DialerScreen::PLACEHOLDER_INTERNATIONAL.to_owned(),
+                destination: None,
+                problem: None,
                 can_dial: false,
                 dialing: false,
                 failure: None,
                 note: None,
-                formatted: String::new(),
-                hint: DialerScreen::HINT.to_owned(),
+                hint: "Choose a country, or start with + and the country code.".to_owned(),
                 microphone_note: DialerScreen::MICROPHONE_NOTE.to_owned(),
             }
         );
         model.update(Event::Dialer(DialerEvent::Edit(NUMBER.to_owned())));
         let view = dialer_view(signed_in(&model));
-        assert_eq!(view.number, NUMBER);
-        assert_eq!(view.formatted, "+1 212 555 0142");
+        assert_eq!(view.number, "(212) 555-0142", "the local form");
+        assert_eq!(view.country.as_deref(), Some("US"));
+        assert_eq!(view.country_button, "US +1");
+        assert_eq!(view.country_label, "United States, calling code +1");
+        assert_eq!(
+            view.destination.as_deref(),
+            Some("Rings United States \u{b7} +1 212 555 0142")
+        );
+        assert_eq!(view.placeholder, "(206) 555-0142");
         assert!(view.can_dial);
+        // A number of a length its country never issues: Call off, said once
+        // the member stops.
+        model.update(Event::Dialer(DialerEvent::Edit("(212) 555".to_owned())));
+        let view = dialer_view(signed_in(&model));
+        assert!(!view.can_dial && view.problem.is_none());
+        model.update(Event::Dialer(DialerEvent::CheckLength));
+        assert!(
+            dialer_view(signed_in(&model))
+                .problem
+                .is_some_and(|problem| problem.starts_with("That is the wrong number of digits"))
+        );
+    }
+
+    #[test]
+    fn an_edit_is_formatted_as_the_core_will_format_it() {
+        let canada = Some("CA".to_owned());
+        let typed = dial_entry_format(
+            "(416) 555-019".to_owned(),
+            "(416) 555-0199".to_owned(),
+            14,
+            false,
+            canada.clone(),
+        );
+        assert_eq!(
+            typed,
+            DialEntryFormat {
+                cleaned: "4165550199".to_owned(),
+                shown: "(416) 555-0199".to_owned(),
+                country: canada.clone(),
+                country_button: "CA +1".to_owned(),
+                caret: 14,
+            }
+        );
+        // A pasted + number moves the button and keeps the local form, the
+        // cursor at the end.
+        let pasted = format!("+{}", "442079460958");
+        let moved = dial_entry_format(String::new(), pasted.clone(), 13, false, canada.clone());
+        assert_eq!(
+            (moved.shown.as_str(), moved.country.as_deref()),
+            ("020 7946 0958", Some("GB"))
+        );
+        assert_eq!((moved.cleaned, moved.caret), (pasted, 13));
+        // A backspace over the `)` takes the 6 before it; a forward delete the
+        // 5 after it.
+        let back = dial_entry_format(
+            "(416) 555".to_owned(),
+            "(416 555".to_owned(),
+            4,
+            false,
+            canada.clone(),
+        );
+        assert_eq!(
+            (back.cleaned.as_str(), back.shown.as_str(), back.caret),
+            ("41555", "(415) 55", 3)
+        );
+        let forward = dial_entry_format(
+            "(416) 555".to_owned(),
+            "(416 555".to_owned(),
+            4,
+            true,
+            canada,
+        );
+        assert_eq!(forward.cleaned, "41655");
+        // Digits with no country keep none.
+        let none = dial_entry_format(String::new(), "4".to_owned(), 1, false, None);
+        assert_eq!(
+            (none.country, none.country_button.as_str()),
+            (None, "Country")
+        );
+    }
+
+    #[test]
+    fn a_pick_reads_the_digits_again_in_the_country_picked() {
+        let picked = dial_pick_format("4165550199".to_owned(), None, "GB".to_owned());
+        // The core shows no trunk 0 where none was typed.
+        assert_eq!(picked.shown, "4165 550199");
+        assert_eq!(
+            (picked.country.as_deref(), picked.country_button.as_str()),
+            (Some("GB"), "GB +44")
+        );
+        assert_eq!(picked.caret, 11);
+        // A + with no digit after its code is cleared.
+        let cleared = dial_pick_format("+7".to_owned(), Some("RU".to_owned()), "FR".to_owned());
+        assert_eq!((cleared.shown.as_str(), cleared.cleaned.as_str()), ("", ""));
+    }
+
+    #[test]
+    fn the_country_list_suggests_then_lists_or_ranks_a_search() {
+        let list = dial_country_list(String::new(), Some("FR".to_owned()), Some("CA".to_owned()));
+        let isos = |rows: &[DialCountryRow]| rows.iter().map(|r| r.iso.clone()).collect::<Vec<_>>();
+        assert_eq!(isos(&list.suggested), ["FR", "CA", "US"]);
+        assert!(list.countries.len() > 200);
+        assert_eq!(list.countries[0].name, "Afghanistan");
+        assert_eq!(list.countries[0].calling_code, "+93");
+        assert!(list.suggested.iter().any(|r| r.iso == "CA" && r.selected));
+        assert_eq!(
+            (list.suggested_title.as_str(), list.countries_title.as_str()),
+            ("Suggested", "All countries")
+        );
+        assert_eq!(
+            (list.title.as_str(), list.search_placeholder.as_str()),
+            ("Country", "Country name or code")
+        );
+        assert_eq!(list.no_match, None);
+        let germ = dial_country_list("germ".to_owned(), None, None);
+        assert_eq!(
+            (isos(&germ.suggested).len(), isos(&germ.countries)),
+            (0, vec!["DE".to_owned()])
+        );
+        assert_eq!(germ.countries_title, "");
+        let none = dial_country_list("zzz".to_owned(), None, None);
+        assert_eq!(none.no_match.as_deref(), Some("No country matches."));
     }
 
     #[test]

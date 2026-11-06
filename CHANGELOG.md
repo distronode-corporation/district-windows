@@ -30,8 +30,21 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- The core is pinned to district-core-rust's `feat/app-parity-desktop` branch
-  (district-core-rust#65, version 7.0.1) until it is released as 8.0.0.
+- The dialler is country-aware (dialler design A, the core's rules): a country button
+  in front of the number (its ISO code and calling code, `CA +1`, since Windows draws a
+  flag emoji as two letters) opens a searchable list, Suggested first (the workspace's
+  own country, the one chosen, Canada and the United States). The number is typed the
+  local way and formatted as it is typed; a pasted `+` number moves the button and the
+  box keeps the local form. Before Call a line reads "Rings <country> · <international
+  number>", and that E.164 number is what is sent. A wrong length keeps Call off and is
+  said once the box loses the keyboard, on Enter, or when the switched-off Call button
+  is pressed. district-ffi adds `dial_entry_format`, `dial_pick_format` and
+  `dial_country_list`, and the `DialerPickCountry` and `DialerCheckLength` events.
+- The core is district-core-rust 8.0.0 (up from 7.0.0), the release that carries the
+  dialler and app parity. It brings livekit 0.10 (webrtc-sys-build 0.3.21), so calls link the new
+  audio-only libwebrtc `libwebrtc-a545de4-audio-win-1`, built by
+  libwebrtc-windows.yml run 42131057678 from the same WebRTC commit as District AI for
+  Linux's, with the same arguments (no H.264, H.265 or FFmpeg).
 
 ### Security
 

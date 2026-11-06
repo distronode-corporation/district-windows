@@ -54,12 +54,13 @@ $ErrorActionPreference = 'Stop'
 # A native command that exits non-zero stops the script, as `set -e` does.
 $PSNativeCommandUseErrorActionPreference = $true
 
-# 0.3.20 is 0.3.19 with zip ^9 in place of zip ^0.6 (RUSTSEC-2026-0367, -0368,
-# -0369 and -0429) and nothing else: its src/ is byte for byte 0.3.19's and its
-# WEBRTC_TAG is still webrtc-89d790b, so the libwebrtc below is the one it links.
-$WebrtcSysBuildVersion = '0.3.20'
-$RustSdksCommit = '24f7126929efde0da13d22e02d8c7a5a05be682d'
-$WebrtcCommit = '89d790b40447c3c5c54c3edd58aa53d285e35fa7'
+# webrtc-sys-build 0.3.21's WEBRTC_TAG is webrtc-a545de4. LiveKit's release tag
+# webrtc-a545de4 names rust-sdks commit 524123e, and its recipe's .gclient
+# branch, m150_release of webrtc-sdk/webrtc, was at a545de4 when LiveKit built
+# it. The same pins as District AI for Linux's scripts/build-libwebrtc.sh.
+$WebrtcSysBuildVersion = '0.3.21'
+$RustSdksCommit = '524123ee0069e8c01342c90978ad0dd5e4c58275'
+$WebrtcCommit = 'a545de45259b47dfac5f3635863e47cb601f1bb2'
 $Archive = 'webrtc-win-x64-release.zip'
 $Unpacked = 'win-x64-release'
 
@@ -94,23 +95,32 @@ $SdkNames = @(
 # codec.
 $MentionPattern = 'h264|h265|ffmpeg|openh264'
 
-$root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-
-# Cargo.lock names webrtc-sys-build once the build links the LiveKit engine.
-# When it does, it must be the version these pins are for.
-$lock = Get-Content -Raw (Join-Path $root 'Cargo.lock')
-$locked = [regex]::Match($lock, '(?m)^name = "webrtc-sys-build"\r?\nversion = "([^"]+)"')
-if ($locked.Success -and $locked.Groups[1].Value -ne $WebrtcSysBuildVersion) {
-    throw ("Cargo.lock has webrtc-sys-build '$($locked.Groups[1].Value)', but this script is " +
-        "pinned to $WebrtcSysBuildVersion's libwebrtc. Move the pins (see the comment at the top " +
-        'of this script) in the same change as the SDK.')
-}
-
 New-Item -ItemType Directory -Force -Path $Directory | Out-Null
 $work = (Resolve-Path $Directory).Path
 if (Get-ChildItem -Force $work) {
     throw "$work is not empty; give this script an empty or missing directory."
 }
+
+# The pins agree with each other: the published webrtc-sys-build at
+# $WebrtcSysBuildVersion names, as its WEBRTC_TAG, "webrtc-" and the first
+# seven characters of $WebrtcCommit. This build reads no Cargo.lock: its archive
+# is made before the change that moves the lock to it, and
+# scripts/fetch-libwebrtc.ps1 is what refuses a lock whose webrtc-sys-build is
+# not the archive's.
+$crate = Join-Path $work 'webrtc-sys-build.crate'
+Invoke-WebRequest -Uri "https://static.crates.io/crates/webrtc-sys-build/webrtc-sys-build-$WebrtcSysBuildVersion.crate" -OutFile $crate
+$crateDir = Join-Path $work 'webrtc-sys-build'
+New-Item -ItemType Directory -Path $crateDir | Out-Null
+& (Join-Path $env:SystemRoot 'System32\tar.exe') -xzf $crate -C $crateDir
+$crateLib = Get-Content -Raw (Join-Path $crateDir "webrtc-sys-build-$WebrtcSysBuildVersion\src\lib.rs")
+$crateTag = [regex]::Match($crateLib, 'pub const WEBRTC_TAG: &str = "([^"]+)";')
+$wantTag = 'webrtc-' + $WebrtcCommit.Substring(0, 7)
+if (-not $crateTag.Success -or $crateTag.Groups[1].Value -ne $wantTag) {
+    throw ("webrtc-sys-build $WebrtcSysBuildVersion names WEBRTC_TAG " +
+        "'$($crateTag.Groups[1].Value)', not ${wantTag}; move the pins together.")
+}
+Write-Host "webrtc-sys-build $WebrtcSysBuildVersion names $wantTag"
+Remove-Item -Recurse -Force $crate, $crateDir
 
 # Fetch one commit of a repository into a directory, without its history.
 # Extra `git config` pairs are set before the checkout.
@@ -153,12 +163,13 @@ Set-Once $cmd 'rtc_use_h264=true' 'rtc_use_h264=false rtc_use_h265=false'
 # the generator parses, and without the fix there is no LICENSE.md.
 # The patch has a context line that is empty (no leading space), which git
 # apply reads as corrupt once the checkout has given it CRLF endings, as the
-# runner's git does: it is applied with LF endings.
+# runner's git does: it is applied with LF endings. The recipe applies its
+# patches in one loop over their names (skipping one already applied, and
+# stopping on one that does not apply), so the fix joins that list, after
+# add_licenses.
 $licenceFix = Join-Path $recipe 'patches\fix_license_json_parsing.patch'
 [IO.File]::WriteAllText($licenceFix, [IO.File]::ReadAllText($licenceFix).Replace("`r`n", "`n"), [Text.UTF8Encoding]::new($false))
-$applyLicenses = 'call git apply "%COMMAND_DIR%/patches/add_licenses.patch" -v --ignore-space-change --ignore-whitespace --whitespace=nowarn'
-$eol = if ([IO.File]::ReadAllText($cmd).Contains("`r`n")) { "`r`n" } else { "`n" }
-Set-Once $cmd $applyLicenses ($applyLicenses + $eol + $applyLicenses.Replace('add_licenses.patch', 'fix_license_json_parsing.patch'))
+Set-Once $cmd 'for %%p in (add_licenses add_deps ' 'for %%p in (add_licenses fix_license_json_parsing add_deps '
 Set-Once (Join-Path $recipe '.gclient') "webrtc.git@m150_release'" "webrtc.git@$WebrtcCommit'"
 Add-Content -NoNewline -Path (Join-Path $recipe '.gclient') -Value "`ntarget_os = [`"win`"]`n"
 Write-Host 'The recipe, as this build runs it:'

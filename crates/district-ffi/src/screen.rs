@@ -353,6 +353,7 @@ fn loading_call(call_id: &str) -> district_core::CallDetailScreen {
         call: district_core::CallView::Loading,
         transcript: district_core::TranscriptView::Loading,
         refresh_failure: None,
+        supervise: district_core::Supervision::default(),
     }
 }
 
