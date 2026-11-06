@@ -49,6 +49,7 @@
           ],
           "failure": null,
           "generating": false,
+          "meta": null,
           "sending": false,
           "show_attach": true,
           "text": "Thanks for waiting - Thursday at 2pm is confirmed. See you then.",

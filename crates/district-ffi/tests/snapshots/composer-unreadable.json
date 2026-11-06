@@ -53,6 +53,7 @@
             "retryable": false
           },
           "generating": false,
+          "meta": null,
           "sending": false,
           "show_attach": true,
           "text": "",

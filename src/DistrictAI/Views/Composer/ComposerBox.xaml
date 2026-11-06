@@ -45,6 +45,28 @@
             SelectedItem="{x:Bind ViewModel.SelectedChannel, Mode=TwoWay}"
             Visibility="{x:Bind ViewModel.ShowChannels, Mode=OneWay}" />
 
+        <!-- Messenger or Instagram, in the human agent window: only a person may reply. -->
+        <Border
+            Padding="8,2"
+            HorizontalAlignment="Left"
+            Background="{ThemeResource SystemFillColorAttentionBackgroundBrush}"
+            CornerRadius="{StaticResource ControlCornerRadius}"
+            Visibility="{x:Bind ViewModel.HasMetaHumanAgent, Mode=OneWay}">
+            <TextBlock
+                AutomationProperties.AutomationId="MetaHumanAgent"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind ViewModel.MetaHumanAgent, Mode=OneWay}" />
+        </Border>
+
+        <!-- Messenger or Instagram, the window closed: the box stays, nothing can be sent. -->
+        <InfoBar
+            AutomationProperties.AutomationId="MetaWindowClosed"
+            IsClosable="False"
+            IsOpen="{x:Bind ViewModel.HasMetaWindowClosed, Mode=OneWay}"
+            Message="{x:Bind ViewModel.MetaWindowClosed, Mode=OneWay}"
+            Severity="Warning"
+            Visibility="{x:Bind ViewModel.HasMetaWindowClosed, Mode=OneWay}" />
+
         <!-- WhatsApp's closed window: only an approved template can go. -->
         <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.WhatsApp.Visible, Mode=OneWay}">
             <InfoBar
@@ -232,6 +254,7 @@
             </StackPanel>
             <Button
                 Grid.Column="3"
+                AutomationProperties.AutomationId="SendReply"
                 AutomationProperties.Name="{x:Bind l10n:S.CommonSend}"
                 Command="{x:Bind ViewModel.SendCommand}"
                 Content="{x:Bind l10n:S.CommonSend}"

@@ -162,6 +162,28 @@ public sealed partial class ComposerViewModel : ObservableObject
     /// <summary>The WhatsApp window and its templates.</summary>
     public TemplatePickerViewModel WhatsApp { get; } = new();
 
+    /// <summary>
+    /// "Human agent reply (7-day window)", the badge over the box while a
+    /// Messenger or Instagram reply may come only from a person, or empty.
+    /// </summary>
+    [ObservableProperty]
+    public partial string MetaHumanAgent { get; set; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="MetaHumanAgent"/> badge.</summary>
+    [ObservableProperty]
+    public partial bool HasMetaHumanAgent { get; set; }
+
+    /// <summary>
+    /// Why nothing can be sent once the Messenger or Instagram window has
+    /// closed, or empty. The box stays; the core turns Send and the AI button off.
+    /// </summary>
+    [ObservableProperty]
+    public partial string MetaWindowClosed { get; set; } = string.Empty;
+
+    /// <summary>Whether there is a <see cref="MetaWindowClosed"/> warning.</summary>
+    [ObservableProperty]
+    public partial bool HasMetaWindowClosed { get; set; }
+
     /// <summary>What a report on the reply in the box is about.</summary>
     internal ReportTarget DraftTarget => new ReportTarget.AiDraft(ThreadKey);
 
@@ -190,10 +212,12 @@ public sealed partial class ComposerViewModel : ObservableObject
             HasAiDraft = false;
             CanAttach = CanSend = CanDraftReply = CanChooseChannel = false;
             WhatsApp.Show(null);
+            ShowMeta(null);
             return;
         }
         ShowChannelsOf(view);
         WhatsApp.Show(view.Whatsapp);
+        ShowMeta(view.Meta);
         ShowText = view.Whatsapp?.WindowClosed is null;
         ShowDraftReplyNote = ShowText;
         var written = _echo.Write(view.Text, Text);
@@ -254,6 +278,19 @@ public sealed partial class ComposerViewModel : ObservableObject
             _phase = DraftPhase.None;
         }
         HasAiDraft = _phase == DraftPhase.Written;
+    }
+
+    /// <summary>
+    /// The Messenger or Instagram window, from <paramref name="meta"/>: the
+    /// badge and the warning, each only when the core says it. Not read yet,
+    /// unreadable or unknown, the core says neither and blocks nothing.
+    /// </summary>
+    private void ShowMeta(MetaView? meta)
+    {
+        MetaHumanAgent = meta?.HumanAgent ?? string.Empty;
+        HasMetaHumanAgent = meta?.HumanAgent is not null;
+        MetaWindowClosed = meta?.WindowClosed ?? string.Empty;
+        HasMetaWindowClosed = meta?.WindowClosed is not null;
     }
 
     /// <summary>The channel chooser, from <paramref name="view"/>.</summary>

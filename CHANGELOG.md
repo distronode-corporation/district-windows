@@ -27,6 +27,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `ThreadView` gains `assignment` (`AssignmentView`); `ThreadRowView` gains `assignee`;
   `ComposerAction` gains `ChooseChannel`, `Assign`, `DismissAssignFailure`,
   `ChooseTemplate`, `TemplateVariable` and `SendTemplate`. Every word is the core's.
+- The Messenger and Instagram reply window, as the web Inbox shows it (district-core-rust
+  9.0.0): in the human agent window a "Human agent reply (7-day window)" badge over the
+  box, and the AI button is off; once the window has closed, a warning, the box kept with
+  what was typed, and Send and the AI button off. While the window is being read, cannot
+  be read or names a state this build does not know, nothing is said and nothing is
+  blocked. No countdown. district-ffi: `ComposerView` gains `meta` (`MetaView`). Every
+  word is the core's.
 
 ### Changed
 
