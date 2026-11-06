@@ -101,7 +101,7 @@ public sealed class SuperviseViewModelTests
         return (card, sink, said);
     }
 
-    private static UiEvent Action(SuperviseAction action) => new UiEvent.Supervise(action);
+    private static UiEvent.Supervise Action(SuperviseAction action) => new(action);
 
     [Fact]
     public void NoCardHidesIt()
