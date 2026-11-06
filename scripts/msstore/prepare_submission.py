@@ -428,10 +428,7 @@ def main():
         sub_id = "<new submission id from POST>"
         print(f"== WOULD POST {app_path}/submissions (no body)")
     else:
-        st, base = dc.call("POST", f"{app_path}/submissions")
-        print(f"== POST {app_path}/submissions -> {st}")
-        if st not in (200, 201):
-            die(json.dumps(storeapi.redact(base))[:1000])
+        base = create_submission(dc, app_path)
         sub_id = base["id"]
         print(f"   new submission id {sub_id} (status {base.get('status')})")
 
@@ -502,6 +499,36 @@ def main():
         return
 
     commit_and_wait(dc, put_path, sub_id)
+
+
+def create_submission(dc, app_path):
+    """POST a new submission and return it.
+
+    When the answer never arrives (a network error or timeout) or is a 5xx, the
+    submission may exist without this run knowing its id. No submission was pending
+    when the run began (checked above, and store.yml runs one at a time), so a
+    pending one now is this run's: it is deleted by the id the application reports,
+    and the run fails."""
+    try:
+        st, base = dc.call("POST", f"{app_path}/submissions")
+    except (OSError, urllib.error.URLError) as e:
+        st, base = None, {"error": type(e).__name__}
+    print(f"== POST {app_path}/submissions -> {st}")
+    if st in (200, 201) and (base or {}).get("id"):
+        return base
+    if st is None or st >= 500 or st in (200, 201):
+        try:
+            rst, app = dc.call("GET", app_path)
+        except (OSError, urllib.error.URLError):
+            rst, app = None, {}
+        pend = (app or {}).get("pendingApplicationSubmission") if rst == 200 else None
+        if pend and pend.get("id"):
+            discard(dc, f"{app_path}/submissions/{pend['id']}", pend["id"])
+            die(f"creating the submission failed ({st}); the submission it left ({pend['id']}) was deleted")
+        if rst != 200:
+            die(f"creating the submission failed ({st}) and the application could not be re-read; check Partner "
+                "Center for a pending submission before any re-run")
+    die(f"creating the submission failed ({st}): {json.dumps(storeapi.redact(base))[:1000]}")
 
 
 def commit_and_wait(dc, put_path, sub_id, polls=30, interval=20):
@@ -588,6 +615,46 @@ def self_test():
         ("Certification is committed", (200, [(200, {"status": "CommitStarted"}), (200, {"status": "Certification"})]),
          0, False, "committed: Certification"),
     ]
+    def create(post, app):
+        calls = []
+
+        class DC:
+            def call(self, method, path, body=None):
+                calls.append(method)
+                if method == "POST":
+                    if isinstance(post, Exception):
+                        raise post
+                    return post
+                if method == "DELETE":
+                    return 204, None
+                return app
+        code, out = 0, io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+                create_submission(DC(), "/a")
+        except SystemExit as e:
+            code = e.code
+        return code, calls, out.getvalue()
+
+    pending = (200, {"pendingApplicationSubmission": {"id": "9"}})
+    create_cases = [
+        ("a POST that times out deletes the submission it left", (TimeoutError("t"), pending), 2, True, "(9) was deleted"),
+        ("a POST answered 503 deletes the submission it left", ((503, {}), pending), 2, True, "(9) was deleted"),
+        ("a POST that left nothing deletes nothing", ((503, {}), (200, {"pendingApplicationSubmission": None})),
+         2, False, "failed (503)"),
+        ("an unreadable application after a failed POST deletes nothing", (OSError("x"), (500, {})), 2, False,
+         "check Partner Center"),
+        ("a POST refused with 4xx deletes nothing", ((409, {"code": "InvalidState"}), pending), 2, False, "409"),
+        ("a created submission is returned", ((201, {"id": "5"}), pending), 0, False, "-> 201"),
+    ]
+    for name, (post, app), want_code, want_delete, want_text in create_cases:
+        got_code, calls, text = create(post, app)
+        deleted = "DELETE" in calls
+        ok = got_code == want_code and deleted == want_delete and want_text in text
+        if not ok:
+            failures.append(f"{name}: exit {got_code}, DELETE {deleted}")
+        print(("ok   " if ok else "FAIL ") + name)
+    cases_total = len(create_cases)
     for name, (code, statuses), want_code, want_delete, want_text in cases:
         got_code, calls, text = run(code, list(statuses))
         deleted = "DELETE" in calls
@@ -598,7 +665,7 @@ def self_test():
     if failures:
         print("\n".join(failures), file=sys.stderr)
         sys.exit(1)
-    print(f"{len(cases)} cases passed")
+    print(f"{len(cases) + cases_total} cases passed")
 
 
 if __name__ == "__main__":
