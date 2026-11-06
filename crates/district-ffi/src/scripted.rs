@@ -123,6 +123,10 @@ pub(crate) struct Scripted {
     scene: Scene,
     reads: Mutex<FailingReads>,
     voice: Mutex<VoiceSession>,
+    /// The owner each scripted assignment recorded, by thread key, which the
+    /// inbox's next reads report as the service does: the core takes the open
+    /// thread's owner from the list read after an assignment.
+    owners: Mutex<HashMap<String, String>>,
     /// Where the scripted voice room's reports go: the model's media updates,
     /// as the call engine's go in a build that ships.
     media: UnboundedSender<MediaUpdate>,
@@ -143,6 +147,7 @@ impl Scripted {
             scene,
             reads: Mutex::new(FailingReads::default()),
             voice: Mutex::new(VoiceSession::default()),
+            owners: Mutex::new(HashMap::new()),
             media,
         }
     }
@@ -236,7 +241,29 @@ impl Scripted {
                 result: Err(broken()),
             });
         }
-        signed_in(effect)
+        if let Effect::LoadConversations { ticket, .. } = &effect {
+            let owners = self.owners.lock().unwrap_or_else(PoisonError::into_inner);
+            return Some(Event::ConversationsLoaded {
+                ticket: *ticket,
+                result: decode(&conversations(&owners).to_string()),
+            });
+        }
+        let answer = signed_in(effect);
+        if let Some(Event::ConversationAssigned {
+            result:
+                Ok(district_model::ConversationAssignResponse {
+                    assignment: Some(given),
+                    ..
+                }),
+            ..
+        }) = &answer
+        {
+            self.owners
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .insert(given.thread_key.clone(), given.assignee_email.clone());
+        }
+        answer
     }
 }
 
@@ -327,9 +354,10 @@ fn broken() -> ApiError {
 /// The inbox as the service answers the app, which asks with `metaChannels=1`
 /// and `assignments=1`: the reply options fixture's threads (WhatsApp,
 /// Messenger, Instagram, and the contact's email, text and WhatsApp), each with
-/// its owner from the assignee fixture, the contact's thread first, so the walk
-/// opens the conversation it always has.
-fn conversations() -> Value {
+/// its owner from the assignee fixture (or, once the scene has recorded an
+/// assignment, from `recorded`), the contact's thread first, so the walk opens
+/// the conversation it always has.
+fn conversations(recorded: &HashMap<String, String>) -> Value {
     let mut list: Value =
         serde_json::from_str(fixture!("district-conversations-reply-options.json"))
             .unwrap_or_default();
@@ -343,7 +371,10 @@ fn conversations() -> Value {
     };
     if let Some(rows) = list["conversations"].as_array_mut() {
         for row in rows.iter_mut() {
-            let owner = owner_of(&row["threadKey"]);
+            let owner = row["threadKey"]
+                .as_str()
+                .and_then(|key| recorded.get(key))
+                .map_or_else(|| owner_of(&row["threadKey"]), |given| json!(given));
             row["assignedToMe"] = json!(false);
             row["assigneeEmail"] = owner;
         }
@@ -408,7 +439,7 @@ fn signed_in(effect: Effect) -> Option<Event> {
         },
         Effect::LoadConversations { ticket, .. } => Event::ConversationsLoaded {
             ticket,
-            result: decode(&conversations().to_string()),
+            result: decode(&conversations(&HashMap::new()).to_string()),
         },
         Effect::LoadUnreadCount { ticket, .. } => Event::UnreadCountLoaded {
             ticket,
@@ -2941,5 +2972,38 @@ mod tests {
             .expect("the closed window offers templates");
         assert_eq!(templates.options.len(), 1);
         assert_eq!(unsettled(&screen), None, "{screen:?}");
+    }
+
+    /// An owner the walk picks lands as the service records it, and stays:
+    /// the core reads the inbox again after the change and takes the open
+    /// thread's owner from its row, so the scene reports the owner it
+    /// recorded there too, as the service does.
+    #[test]
+    fn an_assignment_lands_and_the_list_read_after_it_keeps_it() {
+        let mut played = Played::new(Scene::SignedIn);
+        let pending = played.model.update(Event::Navigate(Route::Inbox));
+        played.settle(pending);
+        let ScreenView::Inbox { view } = screen_view(&played.model) else {
+            panic!("the inbox opens");
+        };
+        let thread_key = view.threads[0].thread_key.clone();
+        let pending = played
+            .model
+            .update(Event::Navigate(Route::Thread { thread_key }));
+        played.settle(pending);
+        let pending = played
+            .model
+            .update(Event::Thread(district_core::ThreadEvent::Assign(Some(
+                "founder@example.com".to_owned(),
+            ))));
+        played.settle(pending);
+        let ScreenView::Thread { view } = screen_view(&played.model) else {
+            panic!("still the conversation");
+        };
+        let assignment = view.assignment.expect("an owner picker");
+        let chosen = &assignment.options[assignment.selected as usize];
+        assert_eq!(chosen.email.as_deref(), Some("teammate@example.com"));
+        assert_eq!(assignment.line, "Assigned to teammate@example.com");
+        assert!(assignment.can_assign && !assignment.saving);
     }
 }
