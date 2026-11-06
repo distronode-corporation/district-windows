@@ -17,6 +17,7 @@ pub(crate) fn inbox(session: Session) -> Session {
 }
 
 pub(crate) fn conversations(session: Session, value: Value) -> Session {
+    let value = with_reply_options(value);
     session.answer(
         |e| matches!(e, Effect::LoadConversations { .. }),
         |ticket| Event::ConversationsLoaded {
@@ -24,6 +25,39 @@ pub(crate) fn conversations(session: Session, value: Value) -> Session {
             result: Ok(contracts::decode("conversations", value)),
         },
     )
+}
+
+/// `list` as the service answers the app, which reads it with
+/// `metaChannels=1`: every row with its `replyOptions`. A row without them
+/// (the older fixtures) gets the service's own choice, text first, then
+/// email, each only when the row says it can be sent.
+pub(crate) fn with_reply_options(mut list: Value) -> Value {
+    let rows = list["conversations"].as_array_mut().expect("a list");
+    for row in rows
+        .iter_mut()
+        .filter(|row| row.get("replyOptions").is_none())
+    {
+        let counterpart = row["counterpart"].as_str().unwrap_or_default().to_owned();
+        let address = |key: &str, email: bool| {
+            row[key]
+                .as_str()
+                .map(str::to_owned)
+                .or_else(|| (counterpart.contains('@') == email).then(|| counterpart.clone()))
+        };
+        let mut options = Vec::new();
+        if row["canSms"] == json!(true)
+            && let Some(to) = address("contactPhone", false)
+        {
+            options.push(json!({"channel": "sms", "to": to}));
+        }
+        if row["canEmail"] == json!(true)
+            && let Some(to) = address("contactEmail", true)
+        {
+            options.push(json!({"channel": "email", "to": to}));
+        }
+        row["replyOptions"] = json!(options);
+    }
+    list
 }
 
 pub(crate) fn search_hits() -> Value {

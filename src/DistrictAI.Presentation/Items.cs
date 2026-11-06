@@ -51,17 +51,21 @@ public sealed record CallRowItem(string CallId, string Title, string Detail, str
 /// <param name="Unread">Whether it has unread messages.</param>
 /// <param name="When">When the latest message arrived, in local time.</param>
 /// <param name="CanOpen">Whether this build can open it.</param>
-public sealed record ThreadRowItem(string ThreadKey, string Title, string Preview, string ChannelLabel, bool Unread, string When, bool CanOpen)
+/// <param name="Assignee">Who owns it ("Assigned to ada@example.com"), or empty.</param>
+public sealed record ThreadRowItem(string ThreadKey, string Title, string Preview, string ChannelLabel, bool Unread, string When, bool CanOpen, string Assignee = "")
 {
     /// <summary>A conversation this build cannot open is shown faded.</summary>
     public double RowOpacity => CanOpen ? 1.0 : 0.6;
 
+    /// <summary>Whether someone owns it: its <see cref="Assignee"/> line shows.</summary>
+    public bool HasAssignee => Assignee.Length > 0;
+
     /// <summary>What a screen reader says for the row.</summary>
     public string AccessibleName =>
-        string.Join(", ", new[] { Title, Unread ? S.InboxUnread : string.Empty, ChannelLabel, Preview, When }.Where(part => part.Length > 0));
+        string.Join(", ", new[] { Title, Unread ? S.InboxUnread : string.Empty, ChannelLabel, Assignee, Preview, When }.Where(part => part.Length > 0));
 
     internal static ThreadRowItem From(ThreadRowView row) =>
-        new(row.ThreadKey, row.Title, row.Preview, row.ChannelLabel, row.Unread, Display.When(row.LastAt), row.CanOpen);
+        new(row.ThreadKey, row.Title, row.Preview, row.ChannelLabel, row.Unread, Display.When(row.LastAt), row.CanOpen, row.Assignee ?? string.Empty);
 
     /// <inheritdoc/>
     public override string ToString() => AccessibleName;

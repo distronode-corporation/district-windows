@@ -2,6 +2,21 @@
   "screen": {
     "Thread": {
       "view": {
+        "assignment": {
+          "can_assign": false,
+          "failure": null,
+          "label": "Assigned to",
+          "line": "Unassigned",
+          "options": [
+            {
+              "email": null,
+              "label": "Unassigned"
+            }
+          ],
+          "saving": false,
+          "selected": 0,
+          "show_picker": false
+        },
         "composer": null,
         "has_more": false,
         "items": [

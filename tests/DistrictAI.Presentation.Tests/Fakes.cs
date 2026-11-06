@@ -244,8 +244,8 @@ internal static class V
     public static CallRowView CallRow(string id = "call-1", string title = "Alex", string detail = "Inbound", string? summary = null, string startedAt = "2020-01-02T03:04:05Z") =>
         new(id, title, detail, summary, startedAt, Inbound: true, Missed: false);
 
-    public static ThreadRowView ThreadRow(string key = "t-1", bool canOpen = true, bool unread = false, string? lastAt = null) =>
-        new(key, "Alex", "Hello", "Text message", unread, lastAt, canOpen);
+    public static ThreadRowView ThreadRow(string key = "t-1", bool canOpen = true, bool unread = false, string? lastAt = null, string? assignee = null) =>
+        new(key, "Alex", "Hello", "Text message", unread, lastAt, canOpen, assignee);
 
     public static SearchHitView Hit(string key = "t-1", bool canOpen = true, string? at = null) =>
         new(key, "Alex", "the match", at, canOpen);
