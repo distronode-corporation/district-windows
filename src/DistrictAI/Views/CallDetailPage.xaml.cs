@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace DistrictAI.Views;
 
-/// <summary>One call: its details, the AI summary and analysis, and the transcript.</summary>
+/// <summary>One call: its details, the AI summary and analysis, the transcript, and its supervise card while it is under way.</summary>
 public sealed partial class CallDetailPage : UserControl
 {
     private PageContext? _context;
@@ -16,6 +16,7 @@ public sealed partial class CallDetailPage : UserControl
         InitializeComponent();
         Status.Attach(ViewModel.Load);
         Refresh.Attach(ViewModel.Load);
+        SuperviseCard.Attach(ViewModel.Supervise);
     }
 
     /// <summary>What the page shows, and its buttons.</summary>

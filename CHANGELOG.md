@@ -9,6 +9,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Live supervise: a Live calls list over the call log, and on a call under way a card
+  to listen in, send the receptionist a note, and take the call over after a
+  confirmation, then hand it back. The card says listening or on the call only once the
+  room is joined, and the microphone it shows is the one the call engine reports.
+  Closing the window to the tray ends the session, as it ends District HQ by voice;
+  minimising keeps it.
+- district-ffi: `CallsView` gains `live` (`LiveCallsView`), `CallDetailView` gains
+  `supervise` (`SuperviseView`), and `UiEvent` gains `Supervise` (`SuperviseAction`),
+  read against the model by `UiEvent::events_in` for `SuperviseAction::End`.
 - Messenger and Instagram conversations in the Inbox, labelled by channel, and each
   conversation's owner under its row ("Assigned to ..."). The app reads the inbox with
   the core's `meta_channels` on, and its presence and WNS channel declare

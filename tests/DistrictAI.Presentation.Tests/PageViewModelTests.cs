@@ -473,13 +473,13 @@ public sealed class CallsViewModelTests
     public void ItListsTheCallsAndOffersPlaceACallInABuildThatCanCall()
     {
         var calls = new CallsViewModel();
-        calls.Show(new CallsView(V.Ready, [V.CallRow()], null, V.Paging()));
+        calls.Show(new CallsView(V.Ready, [V.CallRow()], null, V.Paging(), null));
         Assert.Single(calls.Rows);
         Assert.False(calls.CanPlaceCall);
 
         var (context, _) = Pages.Context(callsAvailable: true);
         calls.Attach(context);
-        calls.Show(new CallsView(V.Ready, [], new EmptyView("No calls yet", string.Empty), V.Paging(refreshing: true)));
+        calls.Show(new CallsView(V.Ready, [], new EmptyView("No calls yet", string.Empty), V.Paging(refreshing: true), null));
         Assert.Empty(calls.Rows);
         Assert.True(calls.Load.ShowEmpty);
         Assert.True(calls.Load.Refreshing);
@@ -496,7 +496,7 @@ public sealed class CallsViewModelTests
 
         var (context, sink) = Pages.Context();
         calls.Attach(context);
-        calls.Show(new CallsView(V.Ready, [V.CallRow()], null, V.Paging(canLoadMore: true)));
+        calls.Show(new CallsView(V.Ready, [V.CallRow()], null, V.Paging(canLoadMore: true), null));
         calls.OpenCall(row);
         calls.PlaceCallCommand.Execute(null);
         calls.Paging.LoadMoreCommand.Execute(null);
@@ -517,7 +517,7 @@ public sealed class CallDetailViewModelTests
         TranscriptState? transcript = null,
         ReportAvailability report = ReportAvailability.Hidden,
         string? callback = null) =>
-        new("call-1", V.Ready, "Alex", startedAt, duration, [new FactView("Direction", "Inbound")], summary, analysis ?? [], followUp ?? [], transcript ?? new TranscriptState.Loading(), null, report, callback);
+        new("call-1", V.Ready, "Alex", startedAt, duration, [new FactView("Direction", "Inbound")], summary, analysis ?? [], followUp ?? [], transcript ?? new TranscriptState.Loading(), null, report, callback, null);
 
     [Fact]
     public void ItShowsTheCall()

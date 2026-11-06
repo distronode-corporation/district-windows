@@ -10,6 +10,7 @@ use district_model::{CallAnalysis, CallSummary, PhoneIntel};
 use serde::Serialize;
 
 use crate::l10n::{cs, l, s};
+use crate::supervise::{LiveCallsView, SuperviseView, live_calls_view};
 use crate::views::{
     AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView, ReportAvailability,
     ai_summary, facts, failure, humanize, wire,
@@ -48,6 +49,11 @@ pub struct CallsView {
     pub empty: Option<EmptyView>,
     /// The next page, and the newest page read again.
     pub paging: PagingView,
+    /// The Live calls list over the log: its calls under way, which can be
+    /// listened to from their pages. Left out of the snapshots while there is
+    /// none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub live: Option<LiveCallsView>,
 }
 
 /// One call.
@@ -80,6 +86,11 @@ pub struct CallDetailView {
     pub report: ReportAvailability,
     /// The number to call back, in E.164, when the call carries one.
     pub callback_number: Option<String>,
+    /// Supervising the call while it is under way: listening in, a note to
+    /// the receptionist, taking it over. Left out of the snapshots while there
+    /// is no card.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supervise: Option<SuperviseView>,
 }
 
 /// A call's transcript.
@@ -126,6 +137,7 @@ pub(crate) fn calls_view(log: &CallLog) -> CallsView {
         rows: Vec::new(),
         empty: None,
         paging: PagingView::default(),
+        live: None,
     };
     match log {
         CallLog::NotLoaded | CallLog::Loading => nothing,
@@ -141,6 +153,7 @@ pub(crate) fn calls_view(log: &CallLog) -> CallsView {
                 .is_empty()
                 .then(|| EmptyView::new(cs::calls_empty_title(l()), cs::calls_empty_body(l()))),
             paging: (&rows.paging).into(),
+            live: live_calls_view(log),
         },
     }
 }
@@ -327,10 +340,11 @@ pub(crate) fn dialable(number: Option<&str>) -> Option<String> {
     }
 }
 
-/// One call as the Linux call view shows it.
+/// One call as the Linux call view shows it, with its `supervise` card.
 pub(crate) fn call_detail_view(
     screen: &CallDetailScreen,
     capabilities: &Capabilities,
+    supervise: Option<SuperviseView>,
 ) -> CallDetailView {
     let mut view = CallDetailView {
         call_id: screen.call_id.clone(),
@@ -346,6 +360,7 @@ pub(crate) fn call_detail_view(
         refresh_failure: failure(screen.refresh_failure.as_ref()),
         report: ReportAvailability::Hidden,
         callback_number: None,
+        supervise,
     };
     match &screen.call {
         CallView::Loading => {}

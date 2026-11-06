@@ -2,16 +2,20 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DistrictAI.Core.Ffi;
+using DistrictAI.ViewModels.Calls;
 
 namespace DistrictAI.ViewModels;
 
-/// <summary>One call: its facts, the AI summary and analysis, and the transcript.</summary>
+/// <summary>One call: its facts, the AI summary and analysis, the transcript, and supervising it while it is under way.</summary>
 public sealed partial class CallDetailViewModel : ObservableObject
 {
     private PageContext? _context;
 
     /// <summary>Loading, failure and a failed refresh.</summary>
     public LoadStateViewModel Load { get; } = new();
+
+    /// <summary>Listening in, a note to the receptionist, taking over: the card of a call under way.</summary>
+    public SuperviseViewModel Supervise { get; } = new();
 
     /// <summary>Number, direction, start, duration and outcome.</summary>
     public ObservableCollection<FactItem> Facts { get; } = [];
@@ -107,6 +111,7 @@ public sealed partial class CallDetailViewModel : ObservableObject
     {
         _context = context;
         Load.Attach(context);
+        Supervise.Attach(context);
     }
 
     internal void Show(CallDetailView view, bool reportSending)
@@ -131,6 +136,7 @@ public sealed partial class CallDetailViewModel : ObservableObject
         ReportEnabled = !reportSending;
         CallbackNumber = view.CallbackNumber ?? string.Empty;
         CanCall = CallbackNumber.Length > 0 && (_context?.CallsAvailable ?? false);
+        Supervise.Show(view.Supervise);
     }
 
     private void ShowTranscript(TranscriptState transcript)

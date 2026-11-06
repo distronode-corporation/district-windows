@@ -1,8 +1,8 @@
 //! What the window forwards: the user's actions.
 
 use district_core::{
-    CallEvent, CallsEvent, ContactsEvent, DevicesEvent, DialerEvent, Event, InboxEvent, RingEvent,
-    Route, SupportEvent, Tab, ThreadEvent,
+    CallEvent, CallsEvent, ContactsEvent, DevicesEvent, DialerEvent, Event, InboxEvent, Model,
+    RingEvent, Route, SupportEvent, Tab, ThreadEvent,
 };
 use district_model::Platform;
 
@@ -12,7 +12,7 @@ use crate::shell::TabView;
 use crate::views::ReportTarget;
 use crate::{
     analytics, billing, blocked, composer, contacts, desk, hq, marketplace, rooms, scheduling,
-    scheduling_admin, settings, support, workflows,
+    scheduling_admin, settings, supervise, support, workflows,
 };
 
 /// Something the user did in the window. Most are one core event
@@ -192,6 +192,12 @@ pub enum UiEvent {
         /// What.
         action: crate::blocked::BlockedAction,
     },
+    /// Something done on the open call's supervise card: listening in, a
+    /// note to the receptionist, taking over and handing back.
+    Supervise {
+        /// What.
+        action: crate::supervise::SuperviseAction,
+    },
     /// Something done on District HQ.
     Hq {
         /// What.
@@ -305,7 +311,23 @@ pub enum UiEvent {
 }
 
 impl UiEvent {
+    /// The core events this action is in `model`'s state, as the actor hands
+    /// them over: [`events`](Self::events), except for an action that means
+    /// different events in different states, which is read against the model
+    /// ([`SuperviseAction::End`](crate::supervise::SuperviseAction::End), the
+    /// window closing to the tray).
+    pub fn events_in(self, model: &Model) -> Vec<Event> {
+        match self {
+            UiEvent::Supervise {
+                action: crate::supervise::SuperviseAction::End,
+            } => supervise::end_events(model),
+            action => action.events(),
+        }
+    }
+
     /// The core events this action is, in the order the core is to hear them.
+    /// [`SuperviseAction::End`](crate::supervise::SuperviseAction::End) is
+    /// none here: see [`events_in`](Self::events_in).
     pub fn events(self) -> Vec<Event> {
         let one = match self {
             UiEvent::SignIn => Event::SignIn,
@@ -370,6 +392,7 @@ impl UiEvent {
             UiEvent::SetRingOnThisComputer { on } => Event::SetRingOnThisComputer(on),
             UiEvent::Contacts { action } => return contacts::events(action),
             UiEvent::Blocked { action } => return blocked::events(action),
+            UiEvent::Supervise { action } => return supervise::events(action),
             UiEvent::Hq { action } => return hq::events(action),
             UiEvent::Analytics { action } => return analytics::events(action),
             UiEvent::Marketplace { action } => return marketplace::events(action),

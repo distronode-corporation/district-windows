@@ -61,6 +61,7 @@ pub mod rooms;
 pub mod scheduling;
 pub mod scheduling_admin;
 pub mod settings;
+pub mod supervise;
 pub mod support;
 pub mod workflows;
 

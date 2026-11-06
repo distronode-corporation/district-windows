@@ -52,6 +52,9 @@ mod french;
 // App parity (4.0): reply channels, owners and WhatsApp templates.
 mod parity;
 
+// Live supervise (3.3.0).
+mod supervise;
+
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 
@@ -86,7 +89,7 @@ impl Session {
 
     /// Applies what the user did, as the actor does.
     fn ui(mut self, action: UiEvent) -> Self {
-        for event in action.events() {
+        for event in action.events_in(&self.model) {
             self = self.send(event);
         }
         self
@@ -169,6 +172,7 @@ fn cases() -> Vec<Case> {
         compose::cases(),
         settings::cases(),
         parity::cases(),
+        supervise::cases(),
     ]
     .into_iter()
     .flatten()

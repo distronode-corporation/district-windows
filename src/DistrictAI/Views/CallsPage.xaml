@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid ColumnSpacing="12">
@@ -36,8 +37,45 @@
             </Button>
         </Grid>
         <views:RefreshStrip x:Name="Refresh" Grid.Row="1" />
-        <ListView
+        <!-- The calls under way, over the log: each opens its page, where it is listened to. -->
+        <StackPanel
             Grid.Row="2"
+            AutomationProperties.AutomationId="LiveCalls"
+            Spacing="4"
+            Visibility="{x:Bind ViewModel.HasLive, Mode=OneWay}">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="{x:Bind ViewModel.LiveTitle, Mode=OneWay}" />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.LiveBody, Mode=OneWay}" />
+            <ListView
+                AutomationProperties.Name="{x:Bind ViewModel.LiveTitle, Mode=OneWay}"
+                IsItemClickEnabled="True"
+                ItemClick="OnCallClick"
+                ItemsSource="{x:Bind ViewModel.Live}"
+                SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CallRowItem">
+                        <StackPanel
+                            Padding="0,8"
+                            AutomationProperties.Name="{x:Bind AccessibleName}"
+                            Spacing="2">
+                            <TextBlock
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Text="{x:Bind Title}"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                Style="{StaticResource QuietTextStyle}"
+                                Text="{x:Bind Detail}"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+        <ListView
+            Grid.Row="3"
             AutomationProperties.Name="{x:Bind l10n:S.CallsTitle}"
             IsItemClickEnabled="True"
             ItemClick="OnCallClick"
@@ -104,6 +142,6 @@
                 </StackPanel>
             </ListView.Footer>
         </ListView>
-        <views:StatusPanel x:Name="Status" Grid.Row="2" />
+        <views:StatusPanel x:Name="Status" Grid.Row="3" />
     </Grid>
 </UserControl>

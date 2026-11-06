@@ -7066,6 +7066,11 @@ class FfiConverterTypeCalendarRowView: FfiConverterRustBuffer<CalendarRowView> {
 /// <param name="CallbackNumber">
 /// The number to call back, in E.164, when the call carries one.
 /// </param>
+/// <param name="Supervise">
+/// Supervising the call while it is under way: listening in, a note to
+/// the receptionist, taking it over. Left out of the snapshots while there
+/// is no card.
+/// </param>
 public record CallDetailView (
     /// <summary>
     /// The call's id, as the route carries it.
@@ -7119,7 +7124,13 @@ public record CallDetailView (
     /// <summary>
     /// The number to call back, in E.164, when the call carries one.
     /// </summary>
-    string? CallbackNumber
+    string? CallbackNumber, 
+    /// <summary>
+    /// Supervising the call while it is under way: listening in, a note to
+    /// the receptionist, taking it over. Left out of the snapshots while there
+    /// is no card.
+    /// </summary>
+    SuperviseView? Supervise
 ) {
 }
 
@@ -7140,7 +7151,8 @@ class FfiConverterTypeCallDetailView: FfiConverterRustBuffer<CallDetailView> {
             Transcript: FfiConverterTypeTranscriptState.INSTANCE.Read(stream),
             RefreshFailure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
             Report: FfiConverterTypeReportAvailability.INSTANCE.Read(stream),
-            CallbackNumber: FfiConverterOptionalString.INSTANCE.Read(stream)
+            CallbackNumber: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Supervise: FfiConverterOptionalTypeSuperviseView.INSTANCE.Read(stream)
         );
     }
 
@@ -7158,7 +7170,8 @@ class FfiConverterTypeCallDetailView: FfiConverterRustBuffer<CallDetailView> {
             + FfiConverterTypeTranscriptState.INSTANCE.AllocationSize(value.Transcript)
             + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.RefreshFailure)
             + FfiConverterTypeReportAvailability.INSTANCE.AllocationSize(value.Report)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.CallbackNumber);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.CallbackNumber)
+            + FfiConverterOptionalTypeSuperviseView.INSTANCE.AllocationSize(value.Supervise);
     }
 
     public override void Write(CallDetailView value, BigEndianStream stream) {
@@ -7175,6 +7188,7 @@ class FfiConverterTypeCallDetailView: FfiConverterRustBuffer<CallDetailView> {
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.RefreshFailure, stream);
             FfiConverterTypeReportAvailability.INSTANCE.Write(value.Report, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.CallbackNumber, stream);
+            FfiConverterOptionalTypeSuperviseView.INSTANCE.Write(value.Supervise, stream);
     }
 }
 
@@ -7578,6 +7592,11 @@ class FfiConverterTypeCallRowView: FfiConverterRustBuffer<CallRowView> {
 /// <param name="Paging">
 /// The next page, and the newest page read again.
 /// </param>
+/// <param name="Live">
+/// The Live calls list over the log: its calls under way, which can be
+/// listened to from their pages. Left out of the snapshots while there is
+/// none.
+/// </param>
 public record CallsView (
     /// <summary>
     /// Where the first read stands.
@@ -7594,7 +7613,13 @@ public record CallsView (
     /// <summary>
     /// The next page, and the newest page read again.
     /// </summary>
-    PagingView Paging
+    PagingView Paging, 
+    /// <summary>
+    /// The Live calls list over the log: its calls under way, which can be
+    /// listened to from their pages. Left out of the snapshots while there is
+    /// none.
+    /// </summary>
+    LiveCallsView? Live
 ) {
 }
 
@@ -7606,7 +7631,8 @@ class FfiConverterTypeCallsView: FfiConverterRustBuffer<CallsView> {
             Status: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
             Rows: FfiConverterSequenceTypeCallRowView.INSTANCE.Read(stream),
             Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
-            Paging: FfiConverterTypePagingView.INSTANCE.Read(stream)
+            Paging: FfiConverterTypePagingView.INSTANCE.Read(stream),
+            Live: FfiConverterOptionalTypeLiveCallsView.INSTANCE.Read(stream)
         );
     }
 
@@ -7615,7 +7641,8 @@ class FfiConverterTypeCallsView: FfiConverterRustBuffer<CallsView> {
             + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.Status)
             + FfiConverterSequenceTypeCallRowView.INSTANCE.AllocationSize(value.Rows)
             + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
-            + FfiConverterTypePagingView.INSTANCE.AllocationSize(value.Paging);
+            + FfiConverterTypePagingView.INSTANCE.AllocationSize(value.Paging)
+            + FfiConverterOptionalTypeLiveCallsView.INSTANCE.AllocationSize(value.Live);
     }
 
     public override void Write(CallsView value, BigEndianStream stream) {
@@ -7623,6 +7650,7 @@ class FfiConverterTypeCallsView: FfiConverterRustBuffer<CallsView> {
             FfiConverterSequenceTypeCallRowView.INSTANCE.Write(value.Rows, stream);
             FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
             FfiConverterTypePagingView.INSTANCE.Write(value.Paging, stream);
+            FfiConverterOptionalTypeLiveCallsView.INSTANCE.Write(value.Live, stream);
     }
 }
 
@@ -16906,6 +16934,63 @@ class FfiConverterTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerView> {
     public override void Write(LiveBannerView value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Message, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanRefresh, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The Live calls list, over the call log: the calls under way.
+/// </summary>
+/// <param name="Title">
+/// "Live calls".
+/// </param>
+/// <param name="Body">
+/// What can be done from one: listen, a note, take over.
+/// </param>
+/// <param name="Rows">
+/// The calls under way, newest first. Never empty: with none, there is
+/// no list.
+/// </param>
+public record LiveCallsView (
+    /// <summary>
+    /// "Live calls".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What can be done from one: listen, a note, take over.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// The calls under way, newest first. Never empty: with none, there is
+    /// no list.
+    /// </summary>
+    CallRowView[] Rows
+) {
+}
+
+class FfiConverterTypeLiveCallsView: FfiConverterRustBuffer<LiveCallsView> {
+    public static FfiConverterTypeLiveCallsView INSTANCE = new FfiConverterTypeLiveCallsView();
+
+    public override LiveCallsView Read(BigEndianStream stream) {
+        return new LiveCallsView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Rows: FfiConverterSequenceTypeCallRowView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(LiveCallsView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterSequenceTypeCallRowView.INSTANCE.AllocationSize(value.Rows);
+    }
+
+    public override void Write(LiveCallsView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterSequenceTypeCallRowView.INSTANCE.Write(value.Rows, stream);
     }
 }
 
@@ -28616,6 +28701,345 @@ class FfiConverterTypeSubscriptionRowView: FfiConverterRustBuffer<SubscriptionRo
 
 
 /// <summary>
+/// One line of the call, as the receptionist's transcript gives it.
+/// </summary>
+/// <param name="Speaker">
+/// "Caller", or the receptionist's own name.
+/// </param>
+/// <param name="Text">
+/// What was said.
+/// </param>
+/// <param name="Caller">
+/// Whether the caller said it.
+/// </param>
+public record SuperviseLineView (
+    /// <summary>
+    /// "Caller", or the receptionist's own name.
+    /// </summary>
+    string Speaker, 
+    /// <summary>
+    /// What was said.
+    /// </summary>
+    string Text, 
+    /// <summary>
+    /// Whether the caller said it.
+    /// </summary>
+    bool Caller
+) {
+}
+
+class FfiConverterTypeSuperviseLineView: FfiConverterRustBuffer<SuperviseLineView> {
+    public static FfiConverterTypeSuperviseLineView INSTANCE = new FfiConverterTypeSuperviseLineView();
+
+    public override SuperviseLineView Read(BigEndianStream stream) {
+        return new SuperviseLineView(
+            Speaker: FfiConverterString.INSTANCE.Read(stream),
+            Text: FfiConverterString.INSTANCE.Read(stream),
+            Caller: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SuperviseLineView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Speaker)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Text)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Caller);
+    }
+
+    public override void Write(SuperviseLineView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Speaker, stream);
+            FfiConverterString.INSTANCE.Write(value.Text, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Caller, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Supervising the open call: the card on its page, while the call is in
+/// progress or a session on it ended and says how.
+/// </summary>
+/// <param name="State">
+/// Where it stands.
+/// </param>
+/// <param name="Status">
+/// The line saying so ("Connecting you to the call.", "You are
+/// listening", "Reconnecting. The call is still here."), or `None` while
+/// idle.
+/// </param>
+/// <param name="ListenTitle">
+/// "Listen in".
+/// </param>
+/// <param name="ListenBody">
+/// "Hear the call as it happens. The caller does not hear you."
+/// </param>
+/// <param name="ListenLabel">
+/// "Listen".
+/// </param>
+/// <param name="CanListen">
+/// Whether Listen works.
+/// </param>
+/// <param name="StopListeningLabel">
+/// "Stop listening".
+/// </param>
+/// <param name="CanStopListening">
+/// Whether Stop listening works: listening, or connecting to.
+/// </param>
+/// <param name="CanSupervise">
+/// Whether the member's role lets them whisper and take over (a viewer
+/// sees neither).
+/// </param>
+/// <param name="TakeOverLabel">
+/// "Take over the call".
+/// </param>
+/// <param name="CanTakeOver">
+/// Whether Take over the call works.
+/// </param>
+/// <param name="HandBackLabel">
+/// "Hand back to your receptionist".
+/// </param>
+/// <param name="CanHandBack">
+/// Whether Hand back works.
+/// </param>
+/// <param name="Confirm">
+/// The confirmation, while it shows. Nothing is asked of the service
+/// until its Take over is pressed.
+/// </param>
+/// <param name="OnCallBody">
+/// What being on the call means, while on it.
+/// </param>
+/// <param name="Failure">
+/// Why the last listen or takeover did not happen.
+/// </param>
+/// <param name="Whisper">
+/// The note.
+/// </param>
+/// <param name="LinesHeading">
+/// "Live transcript".
+/// </param>
+/// <param name="Lines">
+/// The call's lines heard in this session, oldest first.
+/// </param>
+/// <param name="LinesWaiting">
+/// What shows while listening or on the call and nothing has been heard
+/// yet.
+/// </param>
+/// <param name="Microphone">
+/// The microphone, as the engine reports it.
+/// </param>
+/// <param name="MicrophoneLine">
+/// The line saying where the microphone stands, while in the room with
+/// one: whether the caller hears the member.
+/// </param>
+/// <param name="CanMute">
+/// Whether the mute button works: on the call and connected, with a
+/// microphone that could be opened.
+/// </param>
+/// <param name="MediaNotice">
+/// The connection's notice (audio that could not be decrypted), other
+/// than reconnecting, which is the [`status`](Self::status), and a
+/// blocked microphone, which is [`MicrophoneView::Blocked`].
+/// </param>
+public record SuperviseView (
+    /// <summary>
+    /// Where it stands.
+    /// </summary>
+    SuperviseState State, 
+    /// <summary>
+    /// The line saying so ("Connecting you to the call.", "You are
+    /// listening", "Reconnecting. The call is still here."), or `None` while
+    /// idle.
+    /// </summary>
+    string? Status, 
+    /// <summary>
+    /// "Listen in".
+    /// </summary>
+    string ListenTitle, 
+    /// <summary>
+    /// "Hear the call as it happens. The caller does not hear you."
+    /// </summary>
+    string ListenBody, 
+    /// <summary>
+    /// "Listen".
+    /// </summary>
+    string ListenLabel, 
+    /// <summary>
+    /// Whether Listen works.
+    /// </summary>
+    bool CanListen, 
+    /// <summary>
+    /// "Stop listening".
+    /// </summary>
+    string StopListeningLabel, 
+    /// <summary>
+    /// Whether Stop listening works: listening, or connecting to.
+    /// </summary>
+    bool CanStopListening, 
+    /// <summary>
+    /// Whether the member's role lets them whisper and take over (a viewer
+    /// sees neither).
+    /// </summary>
+    bool CanSupervise, 
+    /// <summary>
+    /// "Take over the call".
+    /// </summary>
+    string TakeOverLabel, 
+    /// <summary>
+    /// Whether Take over the call works.
+    /// </summary>
+    bool CanTakeOver, 
+    /// <summary>
+    /// "Hand back to your receptionist".
+    /// </summary>
+    string HandBackLabel, 
+    /// <summary>
+    /// Whether Hand back works.
+    /// </summary>
+    bool CanHandBack, 
+    /// <summary>
+    /// The confirmation, while it shows. Nothing is asked of the service
+    /// until its Take over is pressed.
+    /// </summary>
+    TakeOverConfirmView? Confirm, 
+    /// <summary>
+    /// What being on the call means, while on it.
+    /// </summary>
+    string? OnCallBody, 
+    /// <summary>
+    /// Why the last listen or takeover did not happen.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// The note.
+    /// </summary>
+    WhisperView Whisper, 
+    /// <summary>
+    /// "Live transcript".
+    /// </summary>
+    string LinesHeading, 
+    /// <summary>
+    /// The call's lines heard in this session, oldest first.
+    /// </summary>
+    SuperviseLineView[] Lines, 
+    /// <summary>
+    /// What shows while listening or on the call and nothing has been heard
+    /// yet.
+    /// </summary>
+    string? LinesWaiting, 
+    /// <summary>
+    /// The microphone, as the engine reports it.
+    /// </summary>
+    MicrophoneView Microphone, 
+    /// <summary>
+    /// The line saying where the microphone stands, while in the room with
+    /// one: whether the caller hears the member.
+    /// </summary>
+    string? MicrophoneLine, 
+    /// <summary>
+    /// Whether the mute button works: on the call and connected, with a
+    /// microphone that could be opened.
+    /// </summary>
+    bool CanMute, 
+    /// <summary>
+    /// The connection's notice (audio that could not be decrypted), other
+    /// than reconnecting, which is the [`status`](Self::status), and a
+    /// blocked microphone, which is [`MicrophoneView::Blocked`].
+    /// </summary>
+    string? MediaNotice
+) {
+}
+
+class FfiConverterTypeSuperviseView: FfiConverterRustBuffer<SuperviseView> {
+    public static FfiConverterTypeSuperviseView INSTANCE = new FfiConverterTypeSuperviseView();
+
+    public override SuperviseView Read(BigEndianStream stream) {
+        return new SuperviseView(
+            State: FfiConverterTypeSuperviseState.INSTANCE.Read(stream),
+            Status: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ListenTitle: FfiConverterString.INSTANCE.Read(stream),
+            ListenBody: FfiConverterString.INSTANCE.Read(stream),
+            ListenLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanListen: FfiConverterBoolean.INSTANCE.Read(stream),
+            StopListeningLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanStopListening: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSupervise: FfiConverterBoolean.INSTANCE.Read(stream),
+            TakeOverLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanTakeOver: FfiConverterBoolean.INSTANCE.Read(stream),
+            HandBackLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanHandBack: FfiConverterBoolean.INSTANCE.Read(stream),
+            Confirm: FfiConverterOptionalTypeTakeOverConfirmView.INSTANCE.Read(stream),
+            OnCallBody: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Whisper: FfiConverterTypeWhisperView.INSTANCE.Read(stream),
+            LinesHeading: FfiConverterString.INSTANCE.Read(stream),
+            Lines: FfiConverterSequenceTypeSuperviseLineView.INSTANCE.Read(stream),
+            LinesWaiting: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Microphone: FfiConverterTypeMicrophoneView.INSTANCE.Read(stream),
+            MicrophoneLine: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanMute: FfiConverterBoolean.INSTANCE.Read(stream),
+            MediaNotice: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(SuperviseView value) {
+        return 0
+            + FfiConverterTypeSuperviseState.INSTANCE.AllocationSize(value.State)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ListenTitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ListenBody)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ListenLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanListen)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StopListeningLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanStopListening)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSupervise)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TakeOverLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanTakeOver)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HandBackLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanHandBack)
+            + FfiConverterOptionalTypeTakeOverConfirmView.INSTANCE.AllocationSize(value.Confirm)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.OnCallBody)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterTypeWhisperView.INSTANCE.AllocationSize(value.Whisper)
+            + FfiConverterString.INSTANCE.AllocationSize(value.LinesHeading)
+            + FfiConverterSequenceTypeSuperviseLineView.INSTANCE.AllocationSize(value.Lines)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LinesWaiting)
+            + FfiConverterTypeMicrophoneView.INSTANCE.AllocationSize(value.Microphone)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.MicrophoneLine)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanMute)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.MediaNotice);
+    }
+
+    public override void Write(SuperviseView value, BigEndianStream stream) {
+            FfiConverterTypeSuperviseState.INSTANCE.Write(value.State, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Status, stream);
+            FfiConverterString.INSTANCE.Write(value.ListenTitle, stream);
+            FfiConverterString.INSTANCE.Write(value.ListenBody, stream);
+            FfiConverterString.INSTANCE.Write(value.ListenLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanListen, stream);
+            FfiConverterString.INSTANCE.Write(value.StopListeningLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanStopListening, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSupervise, stream);
+            FfiConverterString.INSTANCE.Write(value.TakeOverLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanTakeOver, stream);
+            FfiConverterString.INSTANCE.Write(value.HandBackLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanHandBack, stream);
+            FfiConverterOptionalTypeTakeOverConfirmView.INSTANCE.Write(value.Confirm, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.OnCallBody, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterTypeWhisperView.INSTANCE.Write(value.Whisper, stream);
+            FfiConverterString.INSTANCE.Write(value.LinesHeading, stream);
+            FfiConverterSequenceTypeSuperviseLineView.INSTANCE.Write(value.Lines, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.LinesWaiting, stream);
+            FfiConverterTypeMicrophoneView.INSTANCE.Write(value.Microphone, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.MicrophoneLine, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanMute, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.MediaNotice, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The form raising a request.
 /// </summary>
 /// <param name="Title">
@@ -29326,6 +29750,71 @@ class FfiConverterTypeSupportView: FfiConverterRustBuffer<SupportView> {
             FfiConverterOptionalString.INSTANCE.Write(value.Submitted, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanStart, stream);
             FfiConverterOptionalTypeSupportComposeView.INSTANCE.Write(value.Compose, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The takeover confirmation.
+/// </summary>
+/// <param name="Title">
+/// "Take over this call?"
+/// </param>
+/// <param name="Body">
+/// What happens: the receptionist steps back and the microphone is live.
+/// </param>
+/// <param name="Confirm">
+/// "Take over".
+/// </param>
+/// <param name="Cancel">
+/// "Cancel".
+/// </param>
+public record TakeOverConfirmView (
+    /// <summary>
+    /// "Take over this call?"
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What happens: the receptionist steps back and the microphone is live.
+    /// </summary>
+    string Body, 
+    /// <summary>
+    /// "Take over".
+    /// </summary>
+    string Confirm, 
+    /// <summary>
+    /// "Cancel".
+    /// </summary>
+    string Cancel
+) {
+}
+
+class FfiConverterTypeTakeOverConfirmView: FfiConverterRustBuffer<TakeOverConfirmView> {
+    public static FfiConverterTypeTakeOverConfirmView INSTANCE = new FfiConverterTypeTakeOverConfirmView();
+
+    public override TakeOverConfirmView Read(BigEndianStream stream) {
+        return new TakeOverConfirmView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Body: FfiConverterString.INSTANCE.Read(stream),
+            Confirm: FfiConverterString.INSTANCE.Read(stream),
+            Cancel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TakeOverConfirmView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Body)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Confirm)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Cancel);
+    }
+
+    public override void Write(TakeOverConfirmView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Body, stream);
+            FfiConverterString.INSTANCE.Write(value.Confirm, stream);
+            FfiConverterString.INSTANCE.Write(value.Cancel, stream);
     }
 }
 
@@ -32117,6 +32606,139 @@ class FfiConverterTypeWhatsAppView: FfiConverterRustBuffer<WhatsAppView> {
     public override void Write(WhatsAppView value, BigEndianStream stream) {
             FfiConverterOptionalString.INSTANCE.Write(value.WindowClosed, stream);
             FfiConverterOptionalTypeTemplatePickerView.INSTANCE.Write(value.Templates, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The note to the receptionist.
+/// </summary>
+/// <param name="Title">
+/// "Note to your receptionist".
+/// </param>
+/// <param name="Draft">
+/// What is typed. C# writes its box from this only when the box is not
+/// focused, as for every other field the core holds.
+/// </param>
+/// <param name="Placeholder">
+/// The box's placeholder: an example, or why a note cannot be sent.
+/// </param>
+/// <param name="SendLabel">
+/// "Send note".
+/// </param>
+/// <param name="CanEdit">
+/// Whether the box takes a note at all: a member whose role may send one,
+/// to a call with a receptionist on it, while not on the call themselves.
+/// </param>
+/// <param name="CanSend">
+/// Whether Send works: the core's `can_whisper`, and a draft that is not
+/// blank.
+/// </param>
+/// <param name="Sending">
+/// Whether a note is on its way. One at a time; it is never sent again by
+/// itself.
+/// </param>
+/// <param name="Failure">
+/// Why the last note was not sent or not delivered. The draft is kept.
+/// </param>
+/// <param name="Outcome">
+/// What the receptionist did with the last note, once the service says.
+/// </param>
+/// <param name="OutcomeWords">
+/// The first words of that note, to say which one.
+/// </param>
+public record WhisperView (
+    /// <summary>
+    /// "Note to your receptionist".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What is typed. C# writes its box from this only when the box is not
+    /// focused, as for every other field the core holds.
+    /// </summary>
+    string Draft, 
+    /// <summary>
+    /// The box's placeholder: an example, or why a note cannot be sent.
+    /// </summary>
+    string Placeholder, 
+    /// <summary>
+    /// "Send note".
+    /// </summary>
+    string SendLabel, 
+    /// <summary>
+    /// Whether the box takes a note at all: a member whose role may send one,
+    /// to a call with a receptionist on it, while not on the call themselves.
+    /// </summary>
+    bool CanEdit, 
+    /// <summary>
+    /// Whether Send works: the core's `can_whisper`, and a draft that is not
+    /// blank.
+    /// </summary>
+    bool CanSend, 
+    /// <summary>
+    /// Whether a note is on its way. One at a time; it is never sent again by
+    /// itself.
+    /// </summary>
+    bool Sending, 
+    /// <summary>
+    /// Why the last note was not sent or not delivered. The draft is kept.
+    /// </summary>
+    FailureView? Failure, 
+    /// <summary>
+    /// What the receptionist did with the last note, once the service says.
+    /// </summary>
+    string? Outcome, 
+    /// <summary>
+    /// The first words of that note, to say which one.
+    /// </summary>
+    string? OutcomeWords
+) {
+}
+
+class FfiConverterTypeWhisperView: FfiConverterRustBuffer<WhisperView> {
+    public static FfiConverterTypeWhisperView INSTANCE = new FfiConverterTypeWhisperView();
+
+    public override WhisperView Read(BigEndianStream stream) {
+        return new WhisperView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Draft: FfiConverterString.INSTANCE.Read(stream),
+            Placeholder: FfiConverterString.INSTANCE.Read(stream),
+            SendLabel: FfiConverterString.INSTANCE.Read(stream),
+            CanEdit: FfiConverterBoolean.INSTANCE.Read(stream),
+            CanSend: FfiConverterBoolean.INSTANCE.Read(stream),
+            Sending: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
+            Outcome: FfiConverterOptionalString.INSTANCE.Read(stream),
+            OutcomeWords: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WhisperView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Draft)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Placeholder)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SendLabel)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanEdit)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanSend)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Sending)
+            + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Outcome)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.OutcomeWords);
+    }
+
+    public override void Write(WhisperView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Draft, stream);
+            FfiConverterString.INSTANCE.Write(value.Placeholder, stream);
+            FfiConverterString.INSTANCE.Write(value.SendLabel, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanEdit, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanSend, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Sending, stream);
+            FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Failure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Outcome, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.OutcomeWords, stream);
     }
 }
 
@@ -39172,6 +39794,67 @@ class FfiConverterTypeMessagingSource: FfiConverterRustBuffer<MessagingSource> {
 
 
 /// <summary>
+/// The local microphone, as the engine last reported it on the supervise
+/// session.
+/// </summary>
+public enum MicrophoneView: int {
+    /// <summary>
+    /// No session holds a microphone: not in the room, or listening (the
+    /// listen-only credential publishes nothing).
+    /// </summary>
+    None,
+    /// <summary>
+    /// In the room with the microphone off: not published yet, or muted.
+    /// </summary>
+    Off,
+    /// <summary>
+    /// Sending: the caller hears the member.
+    /// </summary>
+    On,
+    /// <summary>
+    /// It could not be opened (no device, or Windows refused it): nobody hears
+    /// the member. C# shows "Microphone blocked" with a link to
+    /// `ms-settings:privacy-microphone`.
+    /// </summary>
+    Blocked
+}
+
+class FfiConverterTypeMicrophoneView: FfiConverterRustBuffer<MicrophoneView> {
+    public static FfiConverterTypeMicrophoneView INSTANCE = new FfiConverterTypeMicrophoneView();
+
+    public override MicrophoneView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return MicrophoneView.None;
+            case 2: return MicrophoneView.Off;
+            case 3: return MicrophoneView.On;
+            case 4: return MicrophoneView.Blocked;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMicrophoneView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(MicrophoneView value) {
+        return 4;
+    }
+
+    public override void Write(MicrophoneView value, BigEndianStream stream) {
+        switch (value) {
+            case MicrophoneView.None: stream.WriteInt(1); break;
+            case MicrophoneView.Off: stream.WriteInt(2); break;
+            case MicrophoneView.On: stream.WriteInt(3); break;
+            case MicrophoneView.Blocked: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeMicrophoneView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Where an entry of the navigation pane goes.
 /// </summary>
 public enum NavDestination: int {
@@ -43916,6 +44599,274 @@ class FfiConverterTypeStudioPicker: FfiConverterRustBuffer<StudioPicker> {
 
 
 /// <summary>
+/// What the member does on the card. Each is one core event, except
+/// [`End`](Self::End).
+/// </summary>
+public record SuperviseAction {
+    
+    /// <summary>
+    /// Listen in.
+    /// </summary>
+    public record Listen: SuperviseAction {}
+    
+    
+    /// <summary>
+    /// Stop listening.
+    /// </summary>
+    public record StopListening: SuperviseAction {}
+    
+    
+    /// <summary>
+    /// The note's text changed.
+    /// </summary>
+    public record EditWhisper (
+        string Text
+    ) : SuperviseAction {}
+    
+    /// <summary>
+    /// Send the note.
+    /// </summary>
+    public record SendWhisper: SuperviseAction {}
+    
+    
+    /// <summary>
+    /// Take over the call: shows the confirmation, asks for nothing.
+    /// </summary>
+    public record TakeOver: SuperviseAction {}
+    
+    
+    /// <summary>
+    /// Close the confirmation.
+    /// </summary>
+    public record CancelTakeOver: SuperviseAction {}
+    
+    
+    /// <summary>
+    /// Take over, from the confirmation.
+    /// </summary>
+    public record ConfirmTakeOver: SuperviseAction {}
+    
+    
+    /// <summary>
+    /// Hand the call back to the receptionist.
+    /// </summary>
+    public record HandBack: SuperviseAction {}
+    
+    
+    /// <summary>
+    /// Put away a failure, or how the session ended.
+    /// </summary>
+    public record Dismiss: SuperviseAction {}
+    
+    
+    /// <summary>
+    /// The window closed to the tray: end the session, whatever it is doing,
+    /// so the microphone is never live without the controls that stop it on
+    /// screen. Which core event that is depends on the state, so the actor
+    /// asks [`end_events`] with the model in hand.
+    /// </summary>
+    public record End: SuperviseAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeSuperviseAction : FfiConverterRustBuffer<SuperviseAction>{
+    public static FfiConverterRustBuffer<SuperviseAction> INSTANCE = new FfiConverterTypeSuperviseAction();
+
+    public override SuperviseAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new SuperviseAction.Listen(
+                );
+            case 2:
+                return new SuperviseAction.StopListening(
+                );
+            case 3:
+                return new SuperviseAction.EditWhisper(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new SuperviseAction.SendWhisper(
+                );
+            case 5:
+                return new SuperviseAction.TakeOver(
+                );
+            case 6:
+                return new SuperviseAction.CancelTakeOver(
+                );
+            case 7:
+                return new SuperviseAction.ConfirmTakeOver(
+                );
+            case 8:
+                return new SuperviseAction.HandBack(
+                );
+            case 9:
+                return new SuperviseAction.Dismiss(
+                );
+            case 10:
+                return new SuperviseAction.End(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSuperviseAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SuperviseAction value) {
+        switch (value) {
+            case SuperviseAction.Listen variant_value:
+                return 4;
+            case SuperviseAction.StopListening variant_value:
+                return 4;
+            case SuperviseAction.EditWhisper variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Text);
+            case SuperviseAction.SendWhisper variant_value:
+                return 4;
+            case SuperviseAction.TakeOver variant_value:
+                return 4;
+            case SuperviseAction.CancelTakeOver variant_value:
+                return 4;
+            case SuperviseAction.ConfirmTakeOver variant_value:
+                return 4;
+            case SuperviseAction.HandBack variant_value:
+                return 4;
+            case SuperviseAction.Dismiss variant_value:
+                return 4;
+            case SuperviseAction.End variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSuperviseAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(SuperviseAction value, BigEndianStream stream) {
+        switch (value) {
+            case SuperviseAction.Listen variant_value:
+                stream.WriteInt(1);
+                break;
+            case SuperviseAction.StopListening variant_value:
+                stream.WriteInt(2);
+                break;
+            case SuperviseAction.EditWhisper variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Text, stream);
+                break;
+            case SuperviseAction.SendWhisper variant_value:
+                stream.WriteInt(4);
+                break;
+            case SuperviseAction.TakeOver variant_value:
+                stream.WriteInt(5);
+                break;
+            case SuperviseAction.CancelTakeOver variant_value:
+                stream.WriteInt(6);
+                break;
+            case SuperviseAction.ConfirmTakeOver variant_value:
+                stream.WriteInt(7);
+                break;
+            case SuperviseAction.HandBack variant_value:
+                stream.WriteInt(8);
+                break;
+            case SuperviseAction.Dismiss variant_value:
+                stream.WriteInt(9);
+                break;
+            case SuperviseAction.End variant_value:
+                stream.WriteInt(10);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSuperviseAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Where supervising the open call stands, as the page shows it.
+/// </summary>
+public enum SuperviseState: int {
+    /// <summary>
+    /// Not in the call's room: Listen and Take over are offered.
+    /// </summary>
+    Idle,
+    /// <summary>
+    /// Asking for the listen-only credential, or joining the room with it.
+    /// Never shown as listening until the engine says the room is joined.
+    /// </summary>
+    Connecting,
+    /// <summary>
+    /// In the room, listening. The caller does not hear the member.
+    /// </summary>
+    Listening,
+    /// <summary>
+    /// Asking for the takeover credential, or joining the room again with the
+    /// microphone. Never shown as on the call until the room is joined.
+    /// </summary>
+    TakingOver,
+    /// <summary>
+    /// On the call: the receptionist has stepped back.
+    /// </summary>
+    OnCall,
+    /// <summary>
+    /// Listening or on the call, with the connection lost for a moment and
+    /// being resumed.
+    /// </summary>
+    Reconnecting,
+    /// <summary>
+    /// The session ended without the member ending it: the call ended, or the
+    /// connection went for good. [`SuperviseView::status`] says which.
+    /// </summary>
+    Ended
+}
+
+class FfiConverterTypeSuperviseState: FfiConverterRustBuffer<SuperviseState> {
+    public static FfiConverterTypeSuperviseState INSTANCE = new FfiConverterTypeSuperviseState();
+
+    public override SuperviseState Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return SuperviseState.Idle;
+            case 2: return SuperviseState.Connecting;
+            case 3: return SuperviseState.Listening;
+            case 4: return SuperviseState.TakingOver;
+            case 5: return SuperviseState.OnCall;
+            case 6: return SuperviseState.Reconnecting;
+            case 7: return SuperviseState.Ended;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSuperviseState.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(SuperviseState value) {
+        return 4;
+    }
+
+    public override void Write(SuperviseState value, BigEndianStream stream) {
+        switch (value) {
+            case SuperviseState.Idle: stream.WriteInt(1); break;
+            case SuperviseState.Connecting: stream.WriteInt(2); break;
+            case SuperviseState.Listening: stream.WriteInt(3); break;
+            case SuperviseState.TakingOver: stream.WriteInt(4); break;
+            case SuperviseState.OnCall: stream.WriteInt(5); break;
+            case SuperviseState.Reconnecting: stream.WriteInt(6); break;
+            case SuperviseState.Ended: stream.WriteInt(7); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeSuperviseState.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the member did on the support screens.
 /// </summary>
 public record SupportAction {
@@ -45412,6 +46363,14 @@ public record UiEvent {
     ) : UiEvent {}
     
     /// <summary>
+    /// Something done on the open call's supervise card: listening in, a
+    /// note to the receptionist, taking over and handing back.
+    /// </summary>
+    public record Supervise (
+        SuperviseAction Action
+    ) : UiEvent {}
+    
+    /// <summary>
     /// Something done on District HQ.
     /// </summary>
     public record Hq (
@@ -45741,90 +46700,94 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                     FfiConverterTypeBlockedAction.INSTANCE.Read(stream)
                 );
             case 49:
+                return new UiEvent.Supervise(
+                    FfiConverterTypeSuperviseAction.INSTANCE.Read(stream)
+                );
+            case 50:
                 return new UiEvent.Hq(
                     FfiConverterTypeHqAction.INSTANCE.Read(stream)
                 );
-            case 50:
+            case 51:
                 return new UiEvent.Analytics(
                     FfiConverterTypeAnalyticsAction.INSTANCE.Read(stream)
                 );
-            case 51:
+            case 52:
                 return new UiEvent.Marketplace(
                     FfiConverterTypeMarketplaceAction.INSTANCE.Read(stream)
                 );
-            case 52:
+            case 53:
                 return new UiEvent.Billing(
                     FfiConverterTypeBillingAction.INSTANCE.Read(stream)
                 );
-            case 53:
+            case 54:
                 return new UiEvent.Workflows(
                     FfiConverterTypeWorkflowsAction.INSTANCE.Read(stream)
                 );
-            case 54:
+            case 55:
                 return new UiEvent.Scheduling(
                     FfiConverterTypeSchedulingAction.INSTANCE.Read(stream)
                 );
-            case 55:
+            case 56:
                 return new UiEvent.SchedulingAdmin(
                     FfiConverterTypeSchedulingAdminAction.INSTANCE.Read(stream)
                 );
-            case 56:
+            case 57:
                 return new UiEvent.Desk(
                     FfiConverterTypeDeskAction.INSTANCE.Read(stream)
                 );
-            case 57:
+            case 58:
                 return new UiEvent.Support(
                     FfiConverterTypeSupportAction.INSTANCE.Read(stream)
                 );
-            case 58:
+            case 59:
                 return new UiEvent.Rooms(
                     FfiConverterTypeRoomsAction.INSTANCE.Read(stream)
                 );
-            case 59:
+            case 60:
                 return new UiEvent.Composer(
                     FfiConverterTypeComposerAction.INSTANCE.Read(stream)
                 );
-            case 60:
+            case 61:
                 return new UiEvent.Settings(
                     FfiConverterTypeSettingsAction.INSTANCE.Read(stream)
                 );
-            case 61:
+            case 62:
                 return new UiEvent.Persona(
                     FfiConverterTypePersonaAction.INSTANCE.Read(stream)
                 );
-            case 62:
+            case 63:
                 return new UiEvent.VoiceStudio(
                     FfiConverterTypeVoiceStudioAction.INSTANCE.Read(stream)
                 );
-            case 63:
+            case 64:
                 return new UiEvent.CallHandling(
                     FfiConverterTypeCallHandlingAction.INSTANCE.Read(stream)
                 );
-            case 64:
+            case 65:
                 return new UiEvent.Routing(
                     FfiConverterTypeRoutingAction.INSTANCE.Read(stream)
                 );
-            case 65:
+            case 66:
                 return new UiEvent.Directory(
                     FfiConverterTypeDirectoryAction.INSTANCE.Read(stream)
                 );
-            case 66:
+            case 67:
                 return new UiEvent.Tools(
                     FfiConverterTypeToolsAction.INSTANCE.Read(stream)
                 );
-            case 67:
+            case 68:
                 return new UiEvent.Knowledge(
                     FfiConverterTypeKnowledgeAction.INSTANCE.Read(stream)
                 );
-            case 68:
+            case 69:
                 return new UiEvent.Messaging(
                     FfiConverterTypeMessagingAction.INSTANCE.Read(stream)
                 );
-            case 69:
+            case 70:
                 return new UiEvent.Members(
                     FfiConverterTypeMembersAction.INSTANCE.Read(stream)
                 );
-            case 70:
+            case 71:
                 return new UiEvent.Numbers(
                     FfiConverterTypeNumbersAction.INSTANCE.Read(stream)
                 );
@@ -45952,6 +46915,9 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case UiEvent.Blocked variant_value:
                 return 4
                     + FfiConverterTypeBlockedAction.INSTANCE.AllocationSize(variant_value.Action);
+            case UiEvent.Supervise variant_value:
+                return 4
+                    + FfiConverterTypeSuperviseAction.INSTANCE.AllocationSize(variant_value.Action);
             case UiEvent.Hq variant_value:
                 return 4
                     + FfiConverterTypeHqAction.INSTANCE.AllocationSize(variant_value.Action);
@@ -46190,92 +47156,96 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                 stream.WriteInt(48);
                 FfiConverterTypeBlockedAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
-            case UiEvent.Hq variant_value:
+            case UiEvent.Supervise variant_value:
                 stream.WriteInt(49);
+                FfiConverterTypeSuperviseAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case UiEvent.Hq variant_value:
+                stream.WriteInt(50);
                 FfiConverterTypeHqAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Analytics variant_value:
-                stream.WriteInt(50);
+                stream.WriteInt(51);
                 FfiConverterTypeAnalyticsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Marketplace variant_value:
-                stream.WriteInt(51);
+                stream.WriteInt(52);
                 FfiConverterTypeMarketplaceAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Billing variant_value:
-                stream.WriteInt(52);
+                stream.WriteInt(53);
                 FfiConverterTypeBillingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Workflows variant_value:
-                stream.WriteInt(53);
+                stream.WriteInt(54);
                 FfiConverterTypeWorkflowsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Scheduling variant_value:
-                stream.WriteInt(54);
+                stream.WriteInt(55);
                 FfiConverterTypeSchedulingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.SchedulingAdmin variant_value:
-                stream.WriteInt(55);
+                stream.WriteInt(56);
                 FfiConverterTypeSchedulingAdminAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Desk variant_value:
-                stream.WriteInt(56);
+                stream.WriteInt(57);
                 FfiConverterTypeDeskAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Support variant_value:
-                stream.WriteInt(57);
+                stream.WriteInt(58);
                 FfiConverterTypeSupportAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Rooms variant_value:
-                stream.WriteInt(58);
+                stream.WriteInt(59);
                 FfiConverterTypeRoomsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Composer variant_value:
-                stream.WriteInt(59);
+                stream.WriteInt(60);
                 FfiConverterTypeComposerAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Settings variant_value:
-                stream.WriteInt(60);
+                stream.WriteInt(61);
                 FfiConverterTypeSettingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Persona variant_value:
-                stream.WriteInt(61);
+                stream.WriteInt(62);
                 FfiConverterTypePersonaAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.VoiceStudio variant_value:
-                stream.WriteInt(62);
+                stream.WriteInt(63);
                 FfiConverterTypeVoiceStudioAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.CallHandling variant_value:
-                stream.WriteInt(63);
+                stream.WriteInt(64);
                 FfiConverterTypeCallHandlingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Routing variant_value:
-                stream.WriteInt(64);
+                stream.WriteInt(65);
                 FfiConverterTypeRoutingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Directory variant_value:
-                stream.WriteInt(65);
+                stream.WriteInt(66);
                 FfiConverterTypeDirectoryAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Tools variant_value:
-                stream.WriteInt(66);
+                stream.WriteInt(67);
                 FfiConverterTypeToolsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Knowledge variant_value:
-                stream.WriteInt(67);
+                stream.WriteInt(68);
                 FfiConverterTypeKnowledgeAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Messaging variant_value:
-                stream.WriteInt(68);
+                stream.WriteInt(69);
                 FfiConverterTypeMessagingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Members variant_value:
-                stream.WriteInt(69);
+                stream.WriteInt(70);
                 FfiConverterTypeMembersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Numbers variant_value:
-                stream.WriteInt(70);
+                stream.WriteInt(71);
                 FfiConverterTypeNumbersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -48276,6 +49246,37 @@ class FfiConverterOptionalTypeLiveBannerView: FfiConverterRustBuffer<LiveBannerV
 
 
 
+class FfiConverterOptionalTypeLiveCallsView: FfiConverterRustBuffer<LiveCallsView?> {
+    public static FfiConverterOptionalTypeLiveCallsView INSTANCE = new FfiConverterOptionalTypeLiveCallsView();
+
+    public override LiveCallsView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeLiveCallsView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(LiveCallsView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeLiveCallsView.INSTANCE.AllocationSize((LiveCallsView)value);
+        }
+    }
+
+    public override void Write(LiveCallsView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeLiveCallsView.INSTANCE.Write((LiveCallsView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeManagedNumbersView: FfiConverterRustBuffer<ManagedNumbersView?> {
     public static FfiConverterOptionalTypeManagedNumbersView INSTANCE = new FfiConverterOptionalTypeManagedNumbersView();
 
@@ -49175,6 +50176,37 @@ class FfiConverterOptionalTypeStudioFormView: FfiConverterRustBuffer<StudioFormV
 
 
 
+class FfiConverterOptionalTypeSuperviseView: FfiConverterRustBuffer<SuperviseView?> {
+    public static FfiConverterOptionalTypeSuperviseView INSTANCE = new FfiConverterOptionalTypeSuperviseView();
+
+    public override SuperviseView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeSuperviseView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(SuperviseView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeSuperviseView.INSTANCE.AllocationSize((SuperviseView)value);
+        }
+    }
+
+    public override void Write(SuperviseView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeSuperviseView.INSTANCE.Write((SuperviseView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeSupportComposeView: FfiConverterRustBuffer<SupportComposeView?> {
     public static FfiConverterOptionalTypeSupportComposeView INSTANCE = new FfiConverterOptionalTypeSupportComposeView();
 
@@ -49199,6 +50231,37 @@ class FfiConverterOptionalTypeSupportComposeView: FfiConverterRustBuffer<Support
         } else {
             stream.WriteByte(1);
             FfiConverterTypeSupportComposeView.INSTANCE.Write((SupportComposeView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeTakeOverConfirmView: FfiConverterRustBuffer<TakeOverConfirmView?> {
+    public static FfiConverterOptionalTypeTakeOverConfirmView INSTANCE = new FfiConverterOptionalTypeTakeOverConfirmView();
+
+    public override TakeOverConfirmView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTakeOverConfirmView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TakeOverConfirmView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTakeOverConfirmView.INSTANCE.AllocationSize((TakeOverConfirmView)value);
+        }
+    }
+
+    public override void Write(TakeOverConfirmView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTakeOverConfirmView.INSTANCE.Write((TakeOverConfirmView)value, stream);
         }
     }
 }
@@ -53098,6 +54161,52 @@ class FfiConverterSequenceTypeSubscriptionRowView: FfiConverterRustBuffer<Subscr
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeSubscriptionRowView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeSuperviseLineView: FfiConverterRustBuffer<SuperviseLineView[]> {
+    public static FfiConverterSequenceTypeSuperviseLineView INSTANCE = new FfiConverterSequenceTypeSuperviseLineView();
+
+    public override SuperviseLineView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new SuperviseLineView[length];
+        var readFn = FfiConverterTypeSuperviseLineView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(SuperviseLineView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeSuperviseLineView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(SuperviseLineView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeSuperviseLineView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

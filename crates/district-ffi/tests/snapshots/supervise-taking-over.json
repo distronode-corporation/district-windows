@@ -1,0 +1,147 @@
+{
+  "screen": {
+    "CallDetail": {
+      "view": {
+        "analysis": [
+          {
+            "label": "Key points",
+            "value": "• wants thursday"
+          },
+          {
+            "label": "Action items",
+            "value": "• confirm the slot"
+          },
+          {
+            "label": "Topics",
+            "value": "• booking"
+          }
+        ],
+        "call_id": "CA0123456789live",
+        "callback_number": "+14165550142",
+        "duration_label": "1m 5s",
+        "facts": [
+          {
+            "label": "Status",
+            "value": "In progress"
+          },
+          {
+            "label": "Direction",
+            "value": "Inbound"
+          },
+          {
+            "label": "Caller's number",
+            "value": "+1 416 555 0142"
+          },
+          {
+            "label": "Location",
+            "value": "Ontario, Canada"
+          },
+          {
+            "label": "Line type",
+            "value": "Mobile"
+          },
+          {
+            "label": "Carrier",
+            "value": "Rogers"
+          },
+          {
+            "label": "Sentiment",
+            "value": "Positive"
+          },
+          {
+            "label": "Outcome",
+            "value": "Booked"
+          }
+        ],
+        "follow_up": [
+          {
+            "label": "Email sent to",
+            "value": "followup@example.com"
+          },
+          {
+            "label": "Text message",
+            "value": "Thanks for calling. Your appointment is confirmed."
+          }
+        ],
+        "refresh_failure": null,
+        "report": "InApp",
+        "started_at": "2026-08-15T14:30:00.000Z",
+        "status": "Ready",
+        "summary": {
+          "label": "AI summary",
+          "text": "Caller booked an appointment for Thursday."
+        },
+        "supervise": {
+          "can_hand_back": true,
+          "can_listen": false,
+          "can_mute": false,
+          "can_stop_listening": false,
+          "can_supervise": true,
+          "can_take_over": false,
+          "confirm": null,
+          "failure": null,
+          "hand_back_label": "Hand back to your receptionist",
+          "lines": [],
+          "lines_heading": "Live transcript",
+          "lines_waiting": null,
+          "listen_body": "Hear the call as it happens. The caller does not hear you.",
+          "listen_label": "Listen",
+          "listen_title": "Listen in",
+          "media_notice": null,
+          "microphone": "Off",
+          "microphone_line": "Your microphone is off. The caller does not hear you.",
+          "on_call_body": null,
+          "state": "TakingOver",
+          "status": "Taking over the call.",
+          "stop_listening_label": "Stop listening",
+          "take_over_label": "Take over the call",
+          "whisper": {
+            "can_edit": true,
+            "can_send": false,
+            "draft": "",
+            "failure": null,
+            "outcome": null,
+            "outcome_words": null,
+            "placeholder": "For example: Offer a 10% discount to book today.",
+            "send_label": "Send note",
+            "sending": false,
+            "title": "Note to your receptionist"
+          }
+        },
+        "title": "Contract Test Caller",
+        "transcript": "Loading"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": true,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Calls",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-2",
+          "name": "Bravo Client",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}
