@@ -60,6 +60,52 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
+## What's new in this version: 3.3.0
+
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (1073 characters) and, in the fr-CA listing, the French
+below (1277 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon and inside the guillemets.
+
+The notes carry every user-visible entry of the CHANGELOG's 3.3.0 section, the inbox
+first. Three entries are left out: the district-ffi additions and "Built on
+district-core-rust 9.0.0", which change nothing on their own, and the Microsoft Store
+channel, which changes how the Store copy is sent, not the app. The French names on
+screen (« Boîte de réception », « Envoyer », « Appeler », « Clavier ») are the app's and
+the core's reviewed strings, and « Appels en cours » and « souffler une consigne » are the
+reviewed French of the web dashboard's Live calls page; the rest of the French is new for
+3.3.0 and was signed off by Sean on 2026-11-06 as written. Before pasting, check
+which version Partner Center last published: if it is not 3.2.0, the notes of each version
+in between go above these.
+
+en-US:
+
+```text
+District AI 3.3.0:
+- Inbox: Messenger and Instagram conversations, labelled by channel, with each conversation's owner under its row.
+- Reply by text message, email, WhatsApp, Messenger or Instagram: choose the channel in the conversation. Images go by text message.
+- Assign a conversation to a member of your team, or leave it unassigned.
+- WhatsApp: once its 24-hour window has closed, choose an approved template, fill in its fields and send it.
+- Messenger and Instagram: the reply window, as on the web Inbox. In the 7-day human agent window you can still reply yourself, without an AI draft; once the window has closed, Send is off until the customer writes again.
+- Live calls: listen in on a call under way, send your receptionist a note, or take the call over and hand it back.
+- Dialler: a country button with a searchable list of countries. Type the number the local way; the line above Call says which country it rings.
+- Calls no longer drop when the connection is rebuilt, and a call hung up while it was still connecting no longer leaves your microphone on.
+```
+
+fr-CA:
+
+```text
+District AI 3.3.0 :
+- Boîte de réception : les conversations Messenger et Instagram, identifiées par canal, avec la personne assignée sous chaque conversation.
+- Répondez par texto, courriel, WhatsApp, Messenger ou Instagram : choisissez le canal dans la conversation. Les images partent par texto.
+- Assignez une conversation à un membre de votre équipe, ou laissez-la non assignée.
+- WhatsApp : après la fenêtre de 24 heures, choisissez un modèle approuvé, remplissez ses champs et envoyez-le.
+- Messenger et Instagram : la fenêtre de réponse, comme dans la boîte de réception Web. Pendant la fenêtre de 7 jours d'un agent humain, vous pouvez encore répondre vous-même, sans brouillon de l'IA; une fois la fenêtre fermée, « Envoyer » est désactivé jusqu'à ce que le client écrive de nouveau.
+- Appels en cours : vous pouvez écouter un appel en direct, souffler une consigne à votre réceptionniste, ou prendre l'appel et le lui redonner ensuite.
+- Clavier : un bouton de pays et une liste de pays où chercher. Saisissez le numéro comme vous le composeriez sur place; la ligne au-dessus de « Appeler » indique le pays de destination.
+- Les appels ne sont plus coupés quand la connexion est rétablie, et un appel raccroché pendant sa connexion ne laisse plus votre micro ouvert.
+```
+
 ## What's new in this version: 3.2.0
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text
