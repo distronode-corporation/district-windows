@@ -10,7 +10,7 @@ use district_model::{CallAnalysis, CallSummary, PhoneIntel};
 use serde::Serialize;
 
 use crate::l10n::{cs, l, s};
-use crate::supervise::{SuperviseView, is_live, live_calls};
+use crate::supervise::{LiveCallsView, SuperviseView, live_calls_view};
 use crate::views::{
     AiTextView, EmptyView, FactView, FailureView, LoadStatus, PagingView, ReportAvailability,
     ai_summary, facts, failure, humanize, wire,
@@ -36,9 +36,6 @@ pub struct CallRowView {
     pub inbound: bool,
     /// Whether nobody answered it.
     pub missed: bool,
-    /// Whether it is under way (`in-progress`): a call that can be listened
-    /// to from its page.
-    pub live: bool,
 }
 
 /// The call log.
@@ -52,14 +49,11 @@ pub struct CallsView {
     pub empty: Option<EmptyView>,
     /// The next page, and the newest page read again.
     pub paging: PagingView,
-    /// The Live calls list: the calls of the log under way, newest first.
-    /// Opening one shows its page, where the member listens in, sends a note
-    /// or takes over. Empty when none is.
-    pub live: Vec<CallRowView>,
-    /// The list's heading, "Live calls".
-    pub live_title: String,
-    /// The line under it.
-    pub live_body: String,
+    /// The Live calls list over the log: its calls under way, which can be
+    /// listened to from their pages. Left out of the snapshots while there is
+    /// none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub live: Option<LiveCallsView>,
 }
 
 /// One call.
@@ -93,8 +87,10 @@ pub struct CallDetailView {
     /// The number to call back, in E.164, when the call carries one.
     pub callback_number: Option<String>,
     /// Supervising the call while it is under way: listening in, a note to
-    /// the receptionist, taking it over.
-    pub supervise: SuperviseView,
+    /// the receptionist, taking it over. Left out of the snapshots while there
+    /// is no card.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supervise: Option<SuperviseView>,
 }
 
 /// A call's transcript.
@@ -141,9 +137,7 @@ pub(crate) fn calls_view(log: &CallLog) -> CallsView {
         rows: Vec::new(),
         empty: None,
         paging: PagingView::default(),
-        live: Vec::new(),
-        live_title: crate::supervise::live_calls_title(),
-        live_body: crate::supervise::live_calls_body(),
+        live: None,
     };
     match log {
         CallLog::NotLoaded | CallLog::Loading => nothing,
@@ -159,8 +153,7 @@ pub(crate) fn calls_view(log: &CallLog) -> CallsView {
                 .is_empty()
                 .then(|| EmptyView::new(cs::calls_empty_title(l()), cs::calls_empty_body(l()))),
             paging: (&rows.paging).into(),
-            live: live_calls(log),
-            ..nothing
+            live: live_calls_view(log),
         },
     }
 }
@@ -215,7 +208,6 @@ pub(crate) fn call_row(call: &CallSummary) -> CallRowView {
         started_at: call.created_at.clone(),
         inbound: !outbound(call),
         missed,
-        live: is_live(&call.status),
     }
 }
 
@@ -348,11 +340,11 @@ pub(crate) fn dialable(number: Option<&str>) -> Option<String> {
     }
 }
 
-/// One call as the Linux call view shows it, with its supervise card.
+/// One call as the Linux call view shows it, with its `supervise` card.
 pub(crate) fn call_detail_view(
     screen: &CallDetailScreen,
     capabilities: &Capabilities,
-    supervise: SuperviseView,
+    supervise: Option<SuperviseView>,
 ) -> CallDetailView {
     let mut view = CallDetailView {
         call_id: screen.call_id.clone(),

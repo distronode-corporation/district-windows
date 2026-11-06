@@ -16,19 +16,21 @@
 //! # The live calls
 //!
 //! The call log's calls in progress, newest first, are the Live calls list
-//! ([`live_calls`]), as Android's is (district-android #117): the core reads
-//! the log again whenever a call starts, changes or ends, so a call leaves the
-//! list when it ends. Opening one shows its page, where the controls are.
+//! ([`live_calls_view`]), as Android's is (district-android #117): the core
+//! reads the log again whenever a call starts, changes or ends, so a call
+//! leaves the list when it ends. Opening one shows its page, where the
+//! controls are.
 //!
 //! # When a session ends
 //!
 //! The core ends a session when the member stops or hands back, when the call
 //! ends or its room goes, when the page is left, the workspace is switched or
-//! closed, at sign-out, and when the desktop sleeps or the app quits. The one
-//! end the core cannot see is the window closing to the tray, which leaves no
-//! controls on screen: the window sends [`SuperviseAction::End`] then, which
-//! [`end_events`] turns into whichever core event ends the session in the
-//! state it is in.
+//! closed, at sign-out or when the session ends, and when the desktop sleeps
+//! or the app quits; each forgets a credential still being asked for, so a
+//! late answer joins nothing. The one end the core cannot see is the window
+//! closing to the tray, which leaves no controls on screen: the window sends
+//! [`SuperviseAction::End`] then, which [`end_events`] turns into whichever
+//! core event ends the session in the state it is in.
 
 use district_core::{
     CallLog, Event, MediaConnection, MediaSession, MicrophoneState, Model, Route, SessionState,
@@ -106,6 +108,9 @@ pub struct WhisperView {
     pub placeholder: String,
     /// "Send note".
     pub send_label: String,
+    /// Whether the box takes a note at all: a member whose role may send one,
+    /// to a call with a receptionist on it, while not on the call themselves.
+    pub can_edit: bool,
     /// Whether Send works: the core's `can_whisper`, and a draft that is not
     /// blank.
     pub can_send: bool,
@@ -133,12 +138,10 @@ pub struct TakeOverConfirmView {
     pub cancel: String,
 }
 
-/// Supervising the open call: the card on its page.
+/// Supervising the open call: the card on its page, while the call is in
+/// progress or a session on it ended and says how.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
 pub struct SuperviseView {
-    /// Whether the card shows: the call is in progress, or a session on it
-    /// ended and says how. A call that is over shows no controls.
-    pub shown: bool,
     /// Where it stands.
     pub state: SuperviseState,
     /// The line saying so ("Connecting you to the call.", "You are
@@ -181,20 +184,33 @@ pub struct SuperviseView {
     pub lines_heading: String,
     /// The call's lines heard in this session, oldest first.
     pub lines: Vec<SuperviseLineView>,
-    /// What shows while listening and nothing has been heard yet.
+    /// What shows while listening or on the call and nothing has been heard
+    /// yet.
     pub lines_waiting: Option<String>,
     /// The microphone, as the engine reports it.
     pub microphone: MicrophoneView,
-    /// The line saying where the microphone stands, while in the room:
-    /// whether the caller hears the member.
+    /// The line saying where the microphone stands, while in the room with
+    /// one: whether the caller hears the member.
     pub microphone_line: Option<String>,
-    /// Whether the mute button works: on the call, with a microphone that
-    /// could be opened.
+    /// Whether the mute button works: on the call and connected, with a
+    /// microphone that could be opened.
     pub can_mute: bool,
-    /// The connection's notice (audio that could not be decrypted, a
-    /// microphone that could not be used), other than reconnecting, which is
-    /// the [`status`](Self::status).
+    /// The connection's notice (audio that could not be decrypted), other
+    /// than reconnecting, which is the [`status`](Self::status), and a
+    /// blocked microphone, which is [`MicrophoneView::Blocked`].
     pub media_notice: Option<String>,
+}
+
+/// The Live calls list, over the call log: the calls under way.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct LiveCallsView {
+    /// "Live calls".
+    pub title: String,
+    /// What can be done from one: listen, a note, take over.
+    pub body: String,
+    /// The calls under way, newest first. Never empty: with none, there is
+    /// no list.
+    pub rows: Vec<CallRowView>,
 }
 
 /// What the member does on the card. Each is one core event, except
@@ -224,15 +240,13 @@ pub enum SuperviseAction {
     Dismiss,
     /// The window closed to the tray: end the session, whatever it is doing,
     /// so the microphone is never live without the controls that stop it on
-    /// screen. Which core event that is depends on the state
-    /// ([`end_events`]); the actor asks for it with the model in hand.
+    /// screen. Which core event that is depends on the state, so the actor
+    /// asks [`end_events`] with the model in hand.
     End,
 }
 
-/// The core events of `action`. [`SuperviseAction::End`] is the events that
-/// end a session in every state that can be told without the model: stop
-/// listening and hand back. The actor uses [`end_events`] instead, which also
-/// ends a takeover still being asked for.
+/// The core event of `action`. [`SuperviseAction::End`] has none of its own:
+/// see [`end_events`].
 pub(crate) fn events(action: SuperviseAction) -> Vec<Event> {
     let one = match action {
         SuperviseAction::Listen => SuperviseEvent::Listen,
@@ -244,12 +258,7 @@ pub(crate) fn events(action: SuperviseAction) -> Vec<Event> {
         SuperviseAction::ConfirmTakeOver => SuperviseEvent::ConfirmTakeOver,
         SuperviseAction::HandBack => SuperviseEvent::HandBack,
         SuperviseAction::Dismiss => SuperviseEvent::Dismiss,
-        SuperviseAction::End => {
-            return vec![
-                Event::Supervise(SuperviseEvent::StopListening),
-                Event::Supervise(SuperviseEvent::HandBack),
-            ];
-        }
+        SuperviseAction::End => return Vec::new(),
     };
     vec![Event::Supervise(one)]
 }
@@ -258,13 +267,14 @@ pub(crate) fn events(action: SuperviseAction) -> Vec<Event> {
 /// state, for the window closing to the tray.
 ///
 /// Listening or connecting to listen is Stop listening; on the call, or
-/// taking over with a room held, is Hand back. A takeover still being asked
-/// for with no room held has no control of its own (the core offers Hand
-/// back only once a room is held), and its credential would otherwise join
-/// the call with the microphone on while the window is hidden: only leaving
-/// the call's page forgets it, so the page goes back to the call log. With no
-/// session, nothing.
-pub fn end_events(model: &Model) -> Vec<Event> {
+/// taking over with the listening room still held, is Hand back. Each leaves
+/// the room and forgets any credential being asked for. A takeover still
+/// being asked for with no room held has no control of its own (the core
+/// offers Hand back only once a room is held), and its credential would
+/// otherwise join the call with the microphone on while the window is hidden:
+/// only leaving the call's page forgets it, so the page goes back to the call
+/// log. With no session, nothing.
+pub(crate) fn end_events(model: &Model) -> Vec<Event> {
     let SessionState::SignedIn(signed_in) = model.session() else {
         return Vec::new();
     };
@@ -272,13 +282,13 @@ pub fn end_events(model: &Model) -> Vec<Event> {
         return Vec::new();
     };
     let controls = signed_in.supervise_controls();
-    match supervision.phase {
-        SupervisePhase::Idle | SupervisePhase::Ended(_) => Vec::new(),
+    let event = match supervision.phase {
+        SupervisePhase::Idle | SupervisePhase::Ended(_) => return Vec::new(),
         SupervisePhase::Joining | SupervisePhase::Listening if controls.can_stop_listening => {
-            vec![Event::Supervise(SuperviseEvent::StopListening)]
+            Event::Supervise(SuperviseEvent::StopListening)
         }
         SupervisePhase::TakingOver | SupervisePhase::OnCall if controls.can_hand_back => {
-            vec![Event::Supervise(SuperviseEvent::HandBack)]
+            Event::Supervise(SuperviseEvent::HandBack)
         }
         // A takeover asked for with no room held, or a session the controls
         // no longer offer a way out of (the call read again as over between
@@ -287,29 +297,26 @@ pub fn end_events(model: &Model) -> Vec<Event> {
         SupervisePhase::Joining
         | SupervisePhase::Listening
         | SupervisePhase::TakingOver
-        | SupervisePhase::OnCall => vec![Event::Navigate(Route::Calls)],
-    }
+        | SupervisePhase::OnCall => Event::Navigate(Route::Calls),
+    };
+    vec![event]
 }
 
-/// The card for the open call in `signed_in`.
-pub(crate) fn supervise_view(signed_in: &SignedIn) -> SuperviseView {
-    let supervision = signed_in.supervision().cloned().unwrap_or_default();
-    card(
-        &supervision,
-        signed_in.supervise_controls(),
-        signed_in.supervise_session(),
-        signed_in.whisper_placeholder(),
-    )
-}
-
-/// The card of a call not read yet: hidden, offering nothing.
-pub(crate) fn hidden() -> SuperviseView {
-    card(
-        &Supervision::default(),
-        SuperviseControls::default(),
-        None,
-        cs::supervise_whisper_placeholder(l()),
-    )
+/// The card for the open call in `signed_in`, or `None` while there is
+/// nothing to show: a call that is not under way, with no session on it that
+/// ended and says how.
+pub(crate) fn supervise_view(signed_in: &SignedIn) -> Option<SuperviseView> {
+    let supervision = signed_in.supervision()?;
+    let controls = signed_in.supervise_controls();
+    let ended = matches!(supervision.phase, SupervisePhase::Ended(_));
+    (controls.live || ended).then(|| {
+        card(
+            supervision,
+            controls,
+            signed_in.supervise_session(),
+            signed_in.whisper_placeholder(),
+        )
+    })
 }
 
 /// The card for `supervision`, with what `controls` offer, the supervise
@@ -343,7 +350,6 @@ fn card(
     let on_call = phase == SupervisePhase::OnCall;
     let draft_blank = supervision.whisper.draft.trim().is_empty();
     SuperviseView {
-        shown: controls.live || matches!(phase, SupervisePhase::Ended(_)),
         state,
         status,
         listen_title: cs::supervise_listen_title(l()).to_owned(),
@@ -372,6 +378,9 @@ fn card(
             draft: supervision.whisper.draft.clone(),
             placeholder: placeholder.to_owned(),
             send_label: cs::supervise_whisper_send(l()).to_owned(),
+            // `can_whisper` without the note in flight: the box stays
+            // editable while one is on its way.
+            can_edit: controls.can_whisper || supervision.whisper.is_sending(),
             can_send: controls.can_whisper && !draft_blank,
             sending: supervision.whisper.is_sending(),
             failure: supervision.whisper.failure.as_ref().map(FailureView::from),
@@ -408,9 +417,8 @@ fn card(
                     && session.microphone != MicrophoneState::Unavailable
             }),
         media_notice: session
-            .filter(|_| !reconnecting)
+            .filter(|_| !reconnecting && microphone != MicrophoneView::Blocked)
             .and_then(MediaSession::notice)
-            .filter(|_| microphone != MicrophoneView::Blocked)
             .map(str::to_owned),
     }
 }
@@ -435,31 +443,21 @@ fn microphone(supervision: &Supervision, session: Option<&MediaSession>) -> Micr
     }
 }
 
-/// The call log's calls in progress, newest first: the Live calls list. Empty
-/// until the log is read.
-pub(crate) fn live_calls(log: &CallLog) -> Vec<CallRowView> {
-    match log {
-        CallLog::Ready(rows) => rows
-            .calls
-            .iter()
-            .filter(|call| call.status == IN_PROGRESS)
-            .map(call_row)
-            .collect(),
-        CallLog::NotLoaded | CallLog::Loading | CallLog::Failed(_) => Vec::new(),
-    }
-}
-
-/// Whether `status` is a call under way.
-pub(crate) fn is_live(status: &str) -> bool {
-    status == IN_PROGRESS
-}
-
-/// The heading of the Live calls list.
-pub(crate) fn live_calls_title() -> String {
-    s::supervise_live_calls_title(l()).to_owned()
-}
-
-/// The line under it.
-pub(crate) fn live_calls_body() -> String {
-    s::supervise_live_calls_body(l()).to_owned()
+/// The Live calls list: the call log's calls in progress, newest first, or
+/// `None` when the log is not read or has none.
+pub(crate) fn live_calls_view(log: &CallLog) -> Option<LiveCallsView> {
+    let CallLog::Ready(page) = log else {
+        return None;
+    };
+    let rows: Vec<CallRowView> = page
+        .calls
+        .iter()
+        .filter(|call| call.status == IN_PROGRESS)
+        .map(call_row)
+        .collect();
+    (!rows.is_empty()).then(|| LiveCallsView {
+        title: s::supervise_live_calls_title(l()).to_owned(),
+        body: s::supervise_live_calls_body(l()).to_owned(),
+        rows,
+    })
 }

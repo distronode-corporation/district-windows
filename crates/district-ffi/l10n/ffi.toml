@@ -2910,6 +2910,42 @@ tier = "T3"
 state = "reviewed"
 note = "A workspace member's role, under the workspace's name in the workspace picker."
 
+[supervise.live_calls_body]
+en = "Calls happening right now. Listen in, send your receptionist a private note, or take the call yourself."
+fr = "Les appels en ce moment. Écoutez, soufflez une consigne à votre réceptionniste ou prenez l'appel vous-même."
+ctx = "body"
+screen = "supervise"
+tier = "T2"
+state = "reviewed"
+note = "The line under the Live calls list on the calls page. The web dashboard's Live calls subtitle (liveI18n.ts pageSubtitle), with its reviewed French."
+
+[supervise.live_calls_title]
+en = "Live calls"
+fr = "Appels en cours"
+ctx = "title"
+screen = "supervise"
+tier = "T2"
+state = "reviewed"
+note = "The heading of the list of calls under way, over the call log. The web dashboard's Live calls page title (liveI18n.ts pageTitle), with its reviewed French."
+
+[supervise.microphone_off]
+en = "Your microphone is off. The caller does not hear you."
+fr = "Votre micro est fermé. L'appelant ne vous entend pas."
+ctx = "label"
+screen = "supervise"
+tier = "T2"
+state = "reviewed"
+note = "While the member has taken a live call over: the microphone, as the call engine reports it, is not sending (muted, or not published yet). New in 3.3.0; the French is a draft for Sean's review."
+
+[supervise.microphone_on]
+en = "Your microphone is on. The caller hears you."
+fr = "Votre micro est ouvert. L'appelant vous entend."
+ctx = "label"
+screen = "supervise"
+tier = "T2"
+state = "reviewed"
+note = "While the member has taken a live call over: the microphone, as the call engine reports it, is sending. New in 3.3.0; the French is a draft for Sean's review."
+
 [support.compose_needs]
 en = "A subject of {min} to {max} characters, and a message."
 fr = "Requis\u00A0: un objet de {min} à {max} caractères et un message."

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Calls.SupervisePanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:calls="using:DistrictAI.ViewModels.Calls"
+    xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:views="using:DistrictAI.Views"
+    AutomationProperties.AutomationId="SupervisePanel"
+    Visibility="{x:Bind ViewModel.IsShown, Mode=OneWay}">
+    <!--
+        Supervising a live call, on its page: Listen, the note, Take over and
+        Hand back. Every word and every rule is the core's (SuperviseViewModel);
+        this lays them out. The confirmation is in the card, never a dialog,
+        and says what the caller hears before the microphone goes live.
+    -->
+    <Border Style="{StaticResource CardStyle}">
+        <StackPanel Spacing="8">
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource BodyStrongTextBlockStyle}"
+                Text="{x:Bind ViewModel.ListenTitle, Mode=OneWay}"
+                TextWrapping="WrapWholeWords" />
+            <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.ListenBody, Mode=OneWay}" />
+
+            <!-- Where the session stands: said only once the core says it. -->
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="8"
+                Visibility="{x:Bind ViewModel.HasStatus, Mode=OneWay}">
+                <ProgressRing
+                    Width="16"
+                    Height="16"
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="{x:Bind ViewModel.Status, Mode=OneWay}"
+                    IsActive="{x:Bind ViewModel.IsWorking, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.IsWorking, Mode=OneWay}" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    AutomationProperties.AutomationId="SuperviseStatus"
+                    AutomationProperties.LiveSetting="Polite"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Status, Mode=OneWay}"
+                    TextWrapping="WrapWholeWords" />
+            </StackPanel>
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.OnCallBody, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasOnCallBody, Mode=OneWay}" />
+
+            <!-- The microphone, as the call engine reports it. -->
+            <TextBlock
+                AutomationProperties.AutomationId="SuperviseMicrophone"
+                Text="{x:Bind ViewModel.MicrophoneLine, Mode=OneWay}"
+                TextWrapping="WrapWholeWords"
+                Visibility="{x:Bind ViewModel.HasMicrophoneLine, Mode=OneWay}" />
+            <InfoBar
+                AutomationProperties.Name="{x:Bind l10n:S.CallBarMicBlocked}"
+                IsClosable="False"
+                IsOpen="{x:Bind ViewModel.MicrophoneBlocked, Mode=OneWay}"
+                Message="{x:Bind l10n:S.CallBarMicBlockedMessage}"
+                Severity="Warning">
+                <InfoBar.ActionButton>
+                    <HyperlinkButton
+                        AutomationProperties.Name="{x:Bind l10n:S.CallBarOpenMicSettings}"
+                        Content="{x:Bind l10n:S.CallBarOpenMicSettings}"
+                        NavigateUri="ms-settings:privacy-microphone" />
+                </InfoBar.ActionButton>
+            </InfoBar>
+            <InfoBar
+                IsClosable="False"
+                IsOpen="{x:Bind ViewModel.HasMediaNotice, Mode=OneWay}"
+                Message="{x:Bind ViewModel.MediaNotice, Mode=OneWay}"
+                Severity="Warning" />
+            <InfoBar
+                AutomationProperties.AutomationId="SuperviseFailure"
+                IsClosable="False"
+                IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
+                Message="{x:Bind ViewModel.Failure, Mode=OneWay}"
+                Severity="Error" />
+
+            <views:WrapPanel HorizontalSpacing="8" VerticalSpacing="8">
+                <Button
+                    AutomationProperties.AutomationId="SuperviseListen"
+                    Command="{x:Bind ViewModel.ListenCommand}"
+                    Content="{x:Bind ViewModel.ListenLabel, Mode=OneWay}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Visibility="{x:Bind ViewModel.CanListen, Mode=OneWay}" />
+                <Button
+                    AutomationProperties.AutomationId="SuperviseStopListening"
+                    Command="{x:Bind ViewModel.StopListeningCommand}"
+                    Content="{x:Bind ViewModel.StopListeningLabel, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.CanStopListening, Mode=OneWay}" />
+                <Button
+                    AutomationProperties.AutomationId="SuperviseTakeOver"
+                    Command="{x:Bind ViewModel.TakeOverCommand}"
+                    Content="{x:Bind ViewModel.TakeOverLabel, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.CanTakeOver, Mode=OneWay}" />
+                <Button
+                    AutomationProperties.AutomationId="SuperviseMute"
+                    Command="{x:Bind ViewModel.ToggleMuteCommand}"
+                    Visibility="{x:Bind ViewModel.ShowsMute, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Microphone" />
+                        <TextBlock Text="{x:Bind ViewModel.MuteLabel, Mode=OneWay}" />
+                    </StackPanel>
+                </Button>
+                <Button
+                    AutomationProperties.AutomationId="SuperviseHandBack"
+                    Command="{x:Bind ViewModel.HandBackCommand}"
+                    Content="{x:Bind ViewModel.HandBackLabel, Mode=OneWay}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Visibility="{x:Bind ViewModel.CanHandBack, Mode=OneWay}" />
+                <Button
+                    AutomationProperties.AutomationId="SuperviseDismiss"
+                    Command="{x:Bind ViewModel.DismissCommand}"
+                    Content="{x:Bind l10n:S.CommonDismiss}"
+                    Visibility="{x:Bind ViewModel.CanDismiss, Mode=OneWay}" />
+            </views:WrapPanel>
+
+            <!-- The takeover confirmation: nothing is asked for until its Take over. -->
+            <Border
+                Padding="12"
+                AutomationProperties.AutomationId="SuperviseConfirm"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource ControlCornerRadius}"
+                Visibility="{x:Bind ViewModel.IsConfirming, Mode=OneWay}">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        AutomationProperties.HeadingLevel="Level3"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Text="{x:Bind ViewModel.ConfirmTitle, Mode=OneWay}"
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="{x:Bind ViewModel.ConfirmBody, Mode=OneWay}" TextWrapping="WrapWholeWords" />
+                    <views:WrapPanel HorizontalSpacing="8" VerticalSpacing="8">
+                        <Button
+                            AutomationProperties.AutomationId="SuperviseConfirmTakeOver"
+                            Command="{x:Bind ViewModel.ConfirmTakeOverCommand}"
+                            Content="{x:Bind ViewModel.ConfirmLabel, Mode=OneWay}"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <Button
+                            AutomationProperties.AutomationId="SuperviseCancelTakeOver"
+                            Command="{x:Bind ViewModel.CancelTakeOverCommand}"
+                            Content="{x:Bind ViewModel.CancelLabel, Mode=OneWay}" />
+                    </views:WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- The note to the receptionist, for a role that may send one. -->
+            <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.CanSupervise, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level3"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind ViewModel.WhisperTitle, Mode=OneWay}" />
+                <TextBox
+                    AutomationProperties.AutomationId="SuperviseWhisper"
+                    AutomationProperties.Name="{x:Bind ViewModel.WhisperTitle, Mode=OneWay}"
+                    AcceptsReturn="False"
+                    IsEnabled="{x:Bind ViewModel.CanEditWhisper, Mode=OneWay}"
+                    PlaceholderText="{x:Bind ViewModel.WhisperPlaceholder, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.WhisperDraft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button
+                        AutomationProperties.AutomationId="SuperviseSendWhisper"
+                        Command="{x:Bind ViewModel.SendWhisperCommand}"
+                        Content="{x:Bind ViewModel.WhisperSendLabel, Mode=OneWay}" />
+                    <ProgressRing
+                        Width="16"
+                        Height="16"
+                        VerticalAlignment="Center"
+                        AutomationProperties.Name="{x:Bind ViewModel.WhisperSendLabel, Mode=OneWay}"
+                        IsActive="{x:Bind ViewModel.WhisperSending, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.WhisperSending, Mode=OneWay}" />
+                </StackPanel>
+                <InfoBar
+                    IsClosable="False"
+                    IsOpen="{x:Bind ViewModel.HasWhisperFailure, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.WhisperFailure, Mode=OneWay}"
+                    Severity="Error" />
+                <TextBlock
+                    AutomationProperties.AutomationId="SuperviseWhisperOutcome"
+                    Text="{x:Bind ViewModel.WhisperOutcome, Mode=OneWay}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.HasWhisperOutcome, Mode=OneWay}" />
+                <TextBlock
+                    FontStyle="Italic"
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind ViewModel.WhisperOutcomeWords, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.HasWhisperOutcomeWords, Mode=OneWay}" />
+            </StackPanel>
+
+            <!-- The call's lines, heard in this session. -->
+            <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasLines, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level3"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind ViewModel.LinesHeading, Mode=OneWay}" />
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Lines}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="4" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="calls:SuperviseLineItem">
+                            <StackPanel AutomationProperties.Name="{x:Bind AccessibleName}">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Speaker}" />
+                                <TextBlock
+                                    IsTextSelectionEnabled="True"
+                                    Text="{x:Bind Text}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </StackPanel>
+            <TextBlock
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.LinesWaiting, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasLinesWaiting, Mode=OneWay}" />
+
+            <!-- Narrator's polite live region: the microphone going live, the end, a note's answer. -->
+            <TextBlock
+                x:Name="Announcer"
+                Height="1"
+                AutomationProperties.LiveSetting="Polite"
+                Opacity="0" />
+        </StackPanel>
+    </Border>
+</UserControl>

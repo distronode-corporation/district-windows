@@ -662,6 +662,14 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::shell_role_client(Locale::FrCa), "Membre");
     assert_eq!(s::shell_role_viewer(Locale::En), "Viewer");
     assert_eq!(s::shell_role_viewer(Locale::FrCa), "Lecteur");
+    assert_eq!(s::supervise_live_calls_body(Locale::En), "Calls happening right now. Listen in, send your receptionist a private note, or take the call yourself.");
+    assert_eq!(s::supervise_live_calls_body(Locale::FrCa), "Les appels en ce moment. Écoutez, soufflez une consigne à votre réceptionniste ou prenez l'appel vous-même.");
+    assert_eq!(s::supervise_live_calls_title(Locale::En), "Live calls");
+    assert_eq!(s::supervise_live_calls_title(Locale::FrCa), "Appels en cours");
+    assert_eq!(s::supervise_microphone_off(Locale::En), "Your microphone is off. The caller does not hear you.");
+    assert_eq!(s::supervise_microphone_off(Locale::FrCa), "Votre micro est fermé. L'appelant ne vous entend pas.");
+    assert_eq!(s::supervise_microphone_on(Locale::En), "Your microphone is on. The caller hears you.");
+    assert_eq!(s::supervise_microphone_on(Locale::FrCa), "Votre micro est ouvert. L'appelant vous entend.");
     assert_eq!(s::support_compose_needs(Locale::En, 1204, 1204), "A subject of 1204 to 1204 characters, and a message.");
     assert_eq!(s::support_compose_needs(Locale::FrCa, 1204, 1204), "Requis\u{00A0}: un objet de 1\u{00A0}204 à 1\u{00A0}204 caractères et un message.");
     assert_eq!(s::support_compose_title(Locale::En), "New support request");

@@ -264,9 +264,11 @@ public sealed partial class App : Application, IDisposable
 
     /// <summary>
     /// The window's close button hides it to the tray, unless the app is
-    /// quitting. A District HQ voice session ends with it: its controls are in
-    /// the window, and in the tray nothing would put them back on screen.
-    /// Minimised, the window keeps the session, one click away on the taskbar.
+    /// quitting. A District HQ voice session ends with it, and so does
+    /// supervising a live call (listening, or on the call with the microphone
+    /// live): their controls are in the window, and in the tray nothing would
+    /// put them back on screen. Minimised, the window keeps both, one click
+    /// away on the taskbar.
     /// </summary>
     private void OnClosing(AppWindow sender, AppWindowClosingEventArgs args)
     {
@@ -276,6 +278,7 @@ public sealed partial class App : Application, IDisposable
         }
         args.Cancel = true;
         _core?.Send(new UiEvent.Hq(new HqAction.StopVoice()));
+        _core?.Send(new UiEvent.Supervise(new SuperviseAction.End()));
         sender.Hide();
         var settings = ApplicationData.Current.LocalSettings.Values;
         if (settings.TryGetValue(TrayTipShownKey, out var shown) && shown is true)

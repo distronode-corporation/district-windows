@@ -279,11 +279,7 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
                     open.unwrap_or(&loading_call(call_id)),
                     &capabilities,
                     // The card is the open call's: a call not read yet has none.
-                    if open.is_some() {
-                        crate::supervise::supervise_view(signed_in)
-                    } else {
-                        crate::supervise::hidden()
-                    },
+                    open.and_then(|_| crate::supervise::supervise_view(signed_in)),
                 ),
             }
         }

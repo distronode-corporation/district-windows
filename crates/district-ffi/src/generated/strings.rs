@@ -2897,6 +2897,42 @@ pub fn shell_role_viewer(l: Locale) -> &'static str {
     }
 }
 
+/// `supervise.live_calls_body`
+#[must_use]
+pub fn supervise_live_calls_body(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Calls happening right now. Listen in, send your receptionist a private note, or take the call yourself.",
+        Locale::FrCa => "Les appels en ce moment. Écoutez, soufflez une consigne à votre réceptionniste ou prenez l'appel vous-même.",
+    }
+}
+
+/// `supervise.live_calls_title`
+#[must_use]
+pub fn supervise_live_calls_title(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Live calls",
+        Locale::FrCa => "Appels en cours",
+    }
+}
+
+/// `supervise.microphone_off`
+#[must_use]
+pub fn supervise_microphone_off(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Your microphone is off. The caller does not hear you.",
+        Locale::FrCa => "Votre micro est fermé. L'appelant ne vous entend pas.",
+    }
+}
+
+/// `supervise.microphone_on`
+#[must_use]
+pub fn supervise_microphone_on(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Your microphone is on. The caller hears you.",
+        Locale::FrCa => "Votre micro est ouvert. L'appelant vous entend.",
+    }
+}
+
 /// `support.compose_needs`
 #[must_use]
 pub fn support_compose_needs(l: Locale, min: i64, max: i64) -> String {

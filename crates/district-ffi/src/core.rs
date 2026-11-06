@@ -732,7 +732,10 @@ impl<X: Effects> Actor<X> {
                             self.held.keep();
                             Vec::new()
                         }
-                        action => self.held.pass(&self.model, action.events()),
+                        action => {
+                            let events = action.events_in(&self.model);
+                            self.held.pass(&self.model, events)
+                        }
                     };
                     for event in events {
                         next.extend(self.model.update(event));

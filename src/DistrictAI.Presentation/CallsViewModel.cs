@@ -19,6 +19,21 @@ public sealed partial class CallsViewModel : ObservableObject
     /// <summary>The calls.</summary>
     public ObservableCollection<CallRowItem> Rows { get; } = [];
 
+    /// <summary>The calls under way, over the log: each opens the page where it is listened to.</summary>
+    public ObservableCollection<CallRowItem> Live { get; } = [];
+
+    /// <summary>Whether any call is under way, so the Live calls list shows.</summary>
+    [ObservableProperty]
+    public partial bool HasLive { get; set; }
+
+    /// <summary>"Live calls".</summary>
+    [ObservableProperty]
+    public partial string LiveTitle { get; set; } = string.Empty;
+
+    /// <summary>What can be done from a live call.</summary>
+    [ObservableProperty]
+    public partial string LiveBody { get; set; } = string.Empty;
+
     /// <summary>Whether "Place a call" is offered: in a build that can carry calls.</summary>
     [ObservableProperty]
     public partial bool CanPlaceCall { get; set; }
@@ -35,6 +50,10 @@ public sealed partial class CallsViewModel : ObservableObject
         Load.Show(view.Status, view.Rows.Length > 0, view.Empty, view.Paging.Refreshing, view.Paging.RefreshFailure);
         Paging.Show(view.Paging);
         Display.Sync(Rows, [.. view.Rows.Select(CallRowItem.From)]);
+        Display.Sync(Live, [.. (view.Live?.Rows ?? []).Select(CallRowItem.From)]);
+        HasLive = Live.Count > 0;
+        LiveTitle = view.Live?.Title ?? string.Empty;
+        LiveBody = view.Live?.Body ?? string.Empty;
         CanPlaceCall = _context?.CallsAvailable ?? false;
     }
 
