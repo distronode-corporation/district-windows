@@ -477,7 +477,7 @@ def main():
             pst, pstat = dc.call("GET", f"{app_path}/submissions/{pid}/status")
         except TRANSPORT:
             pst, pstat = None, {}
-        status = (pstat or {}).get("status") if pst == 200 else None
+        status = pstat.get("status") if pst == 200 and isinstance(pstat, dict) else None
         if status == "PendingCommit" or status in FAILED:
             advice = "it never went through: finish it or delete it in Partner Center, then re-run"
         else:
@@ -599,24 +599,26 @@ def create_submission(dc, app_path, published=None):
     except TRANSPORT as e:
         st, base = None, {"error": type(e).__name__}
     print(f"== POST {app_path}/submissions -> {st}")
-    if st is not None and 200 <= st < 300 and (base or {}).get("id"):
+    base = base if isinstance(base, dict) else {}  # a non-object answer is an unknown outcome
+    if st is not None and 200 <= st < 300 and base.get("id"):
         return base
     if st is None or st >= 500 or st == 408 or 200 <= st < 300:
         try:
             rst, app = dc.call("GET", app_path)
         except TRANSPORT:
             rst, app = None, {}
-        if rst != 200:
+        if rst != 200 or not isinstance(app, dict):
             die(f"creating the submission failed ({st}) and the application could not be re-read; check Partner "
                 "Center for a pending submission before any re-run")
-        pend = (app or {}).get("pendingApplicationSubmission")
+        pend = app.get("pendingApplicationSubmission")
         if pend and pend.get("id"):
             pid = pend["id"]
             try:
                 gst, sub = dc.call("GET", f"{app_path}/submissions/{pid}")
             except TRANSPORT:
                 gst, sub = None, {}
-            untouched = (gst == 200 and (sub or {}).get("status") == "PendingCommit" and published is not None
+            sub = sub if isinstance(sub, dict) else {}  # a non-object answer proves nothing: kept
+            untouched = (gst == 200 and sub.get("status") == "PendingCommit" and published is not None
                          and sub.get("applicationPackages") == published.get("applicationPackages")
                          and sub.get("listings") == published.get("listings"))
             if untouched:
@@ -625,7 +627,7 @@ def create_submission(dc, app_path, published=None):
                 die(f"creating the submission failed ({st}); the untouched draft it left ({pid}) could NOT be "
                     f"deleted: {NOT_DELETED}")
             die(f"creating the submission failed ({st}); submission {pid} is pending (status "
-                f"{(sub or {}).get('status')!r}) and is not provably this run's untouched draft: kept, check Partner Center")
+                f"{sub.get('status')!r}) and is not provably this run's untouched draft: kept, check Partner Center")
     die(f"creating the submission failed ({st}): {json.dumps(storeapi.redact(base))[:1000]}")
 
 
@@ -873,6 +875,13 @@ def self_test():
     create("an untouched draft whose DELETE gets no answer is not called deleted", 2, True,
            "could NOT be deleted", "was deleted", post=(503, {}), app=app_pending, sub=untouched,
            delete=TimeoutError("t"))
+    # A 200 whose JSON is not an object (a list, a string) is an unknown outcome, never a crash.
+    create("a 200 POST answer that is not an object re-reads and deletes the untouched draft", 2, True,
+           "(9) was deleted", post=(200, ["x"]), app=app_pending, sub=untouched)
+    create("a submission read that is not an object keeps the pending one", 2, False, "not provably",
+           post=(503, {}), app=app_pending, sub=(200, ["x"]))
+    create("an application re-read that is not an object deletes nothing", 2, False, "could not be re-read",
+           post=(503, {}), app=(200, ["x"]))
 
     for name, version, want_code in (("the live version is refused", "3.2.0.0", 2),
                                      ("an older version is refused", "3.1.0.0", 2),
@@ -967,6 +976,8 @@ def self_test():
             read = (200, {"status": status}) if status else urllib.error.URLError("down")
             main_case(tmp, f"a submission already pending ({status or 'unreadable'}) is refused: {advice}", 2,
                       ["is already pending", advice], app=app_busy, statuses=[read], writes=[])
+        main_case(tmp, "a pending submission whose status is not an object is refused: do NOT delete", 2,
+                  ["is already pending", "do NOT delete"], app=app_busy, statuses=[(200, ["x"])], writes=[])
 
     # DevCenter.call itself: what each kind of answer becomes (the fake above replaces it).
     class Answer:
