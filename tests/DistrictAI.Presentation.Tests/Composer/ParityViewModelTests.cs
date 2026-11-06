@@ -112,6 +112,23 @@ public sealed class ParityViewModelTests
     }
 
     [Fact]
+    public void TheAiNoteGoesWithTheAiButton()
+    {
+        var (box, _) = Shown(Box());
+        Assert.True(box.ShowText);
+        Assert.True(box.ShowDraftReplyNote);
+
+        // A closed window hides the box and its AI button, and the note that goes with them.
+        box.Show("contact:c-1", Box(whatsapp: Closed(Picker())), reportSending: false);
+        Assert.False(box.ShowText);
+        Assert.False(box.ShowDraftReplyNote);
+
+        // An open window brings them back.
+        box.Show("contact:c-1", Box(whatsapp: new WhatsAppView(null, null)), reportSending: false);
+        Assert.True(box.ShowDraftReplyNote);
+    }
+
+    [Fact]
     public void EachVariableIsSentAsTypedAndThePreviewIsTheCores()
     {
         var (box, sink) = Shown(Box(whatsapp: Closed(Picker("wa_tpl_reminder", [Variable(0, ""), Variable(1, "")],

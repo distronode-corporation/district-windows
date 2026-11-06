@@ -302,6 +302,8 @@ public sealed partial class SceneWalkTests
         _ = app.FindById(ReplyBoxId, PageTimeout);
         _ = app.FindById("ReplyChannel", PageTimeout);
         Expect(app, () => app.TryFindById("AssigneePicker") is { IsEnabled: true }, "the owner picker to work once the members are read");
+        // The free-text box has its AI button, and the button's billing note.
+        _ = app.FindById("DraftReplyNote", PageTimeout);
         Shot("111-parity-thread.png");
 
         // A new owner: the service's answer names who it went to.
@@ -327,6 +329,8 @@ public sealed partial class SceneWalkTests
             && NameOf(preview) == "Hi Ada, this is a reminder of your appointment on Thursday.",
             "the filled preview");
         Expect(app, () => app.TryFindById("SendTemplate") is { IsEnabled: true }, "Send template to work");
+        // The AI button goes with the free-text box, and its billing note with it.
+        Expect(app, () => app.TryFindById("DraftReplyNote") is null, "no AI note beside the template");
         Shot("113-parity-template-filled.png");
         Assert.True(app.IsRunning, "the app ended in the conversation");
     }

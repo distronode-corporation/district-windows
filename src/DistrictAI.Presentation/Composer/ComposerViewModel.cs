@@ -152,6 +152,13 @@ public sealed partial class ComposerViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowText { get; set; } = true;
 
+    /// <summary>
+    /// Whether the AI button's note shows: only with the button, which goes with the
+    /// free-text box, so not while WhatsApp allows only a template.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool ShowDraftReplyNote { get; set; } = true;
+
     /// <summary>The WhatsApp window and its templates.</summary>
     public TemplatePickerViewModel WhatsApp { get; } = new();
 
@@ -188,6 +195,7 @@ public sealed partial class ComposerViewModel : ObservableObject
         ShowChannelsOf(view);
         WhatsApp.Show(view.Whatsapp);
         ShowText = view.Whatsapp?.WindowClosed is null;
+        ShowDraftReplyNote = ShowText;
         var written = _echo.Write(view.Text, Text);
         if (written)
         {

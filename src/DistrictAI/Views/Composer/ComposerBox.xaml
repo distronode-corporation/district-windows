@@ -239,10 +239,12 @@
                 ToolTipService.ToolTip="{x:Bind l10n:S.ComposerSendTooltip}" />
         </Grid>
 
-        <!-- The AI button's note: what it does, and that each press is billed. -->
+        <!-- The AI button's note: what it does, and that each press is billed. Only with the button. -->
         <TextBlock
+            AutomationProperties.AutomationId="DraftReplyNote"
             Style="{StaticResource QuietTextStyle}"
             Text="{x:Bind ViewModel.DraftReplyNote, Mode=OneWay}"
-            TextWrapping="Wrap" />
+            TextWrapping="Wrap"
+            Visibility="{x:Bind ViewModel.ShowDraftReplyNote, Mode=OneWay}" />
     </StackPanel>
 </UserControl>
