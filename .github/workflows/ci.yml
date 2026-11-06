@@ -286,6 +286,11 @@ jobs:
       - name: The French sign-off check still catches what it claims to
         run: python3 scripts/check-fr-signoff.py --self-test
 
+      # The Store lane (store.yml): which commit outcomes delete the draft, against
+      # a fake Partner Center. No network, no credential.
+      - name: The Store submission script deletes only a draft that failed
+        run: python3 scripts/msstore/prepare_submission.py --self-test
+
       # 1.0 offers no sign-up and no purchase in the app, as its Store listing says.
       - name: No sign-up or purchase wording in the app (and the check still catches it)
         run: |
