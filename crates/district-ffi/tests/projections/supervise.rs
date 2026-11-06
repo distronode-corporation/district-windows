@@ -768,6 +768,9 @@ fn the_microphone_shown_is_the_one_the_engine_reports() {
     ));
     assert_eq!(view.state, SuperviseState::Reconnecting);
     assert!(!view.can_mute);
+    // Nor is the caller said to hear the member until the room is back.
+    assert_eq!(view.microphone, MicrophoneView::On);
+    assert_eq!(view.microphone_line, None);
     assert_eq!(
         view.status.as_deref(),
         Some("Reconnecting. The call is still here.")

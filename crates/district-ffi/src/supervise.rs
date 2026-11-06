@@ -406,7 +406,10 @@ fn card(
             && supervision.lines().is_empty())
         .then(|| cs::supervise_transcript_waiting(l()).to_owned()),
         microphone,
+        // Not while reconnecting: whether the caller hears the member is not
+        // known until the room is back, and the status says so.
         microphone_line: match microphone {
+            _ if reconnecting => None,
             MicrophoneView::On => Some(s::supervise_microphone_on(l()).to_owned()),
             MicrophoneView::Off => Some(s::supervise_microphone_off(l()).to_owned()),
             MicrophoneView::None | MicrophoneView::Blocked => None,

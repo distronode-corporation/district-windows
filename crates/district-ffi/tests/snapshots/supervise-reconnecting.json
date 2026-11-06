@@ -89,7 +89,7 @@
           "listen_title": "Listen in",
           "media_notice": null,
           "microphone": "On",
-          "microphone_line": "Your microphone is on. The caller hears you.",
+          "microphone_line": null,
           "on_call_body": "Your receptionist has stepped back and is waiting on the line. Hand the call back and it carries on.",
           "state": "Reconnecting",
           "status": "Reconnecting. The call is still here.",
