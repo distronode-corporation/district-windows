@@ -1070,6 +1070,7 @@ mod tests {
                 app_version: "0.1.0".to_owned(),
                 calls_available: true,
                 in_app_purchases: true,
+                meta_channels: false,
                 locale: Locale::En,
             });
             let mut played = Self {
@@ -1300,6 +1301,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available,
             in_app_purchases: true,
+            meta_channels: false,
             locale: district_core::Locale::En,
         });
         settle(&mut model, first);
@@ -1343,6 +1345,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: false,
             in_app_purchases: true,
+            meta_channels: false,
             locale: district_core::Locale::En,
         });
         settle(&mut model, first);

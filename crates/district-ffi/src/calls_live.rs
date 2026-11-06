@@ -496,6 +496,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: true,
             in_app_purchases: true,
+            meta_channels: false,
             locale: district_core::Locale::En,
         });
         let ticket = ticket_in(effects);
@@ -689,12 +690,13 @@ mod tests {
     #[test]
     fn a_pick_reads_the_digits_again_in_the_country_picked() {
         let picked = dial_pick_format("4165550199".to_owned(), None, "GB".to_owned());
-        assert_eq!(picked.shown, "04165 550199");
+        // The core shows no trunk 0 where none was typed.
+        assert_eq!(picked.shown, "4165 550199");
         assert_eq!(
             (picked.country.as_deref(), picked.country_button.as_str()),
             (Some("GB"), "GB +44")
         );
-        assert_eq!(picked.caret, 12);
+        assert_eq!(picked.caret, 11);
         // A + with no digit after its code is cleared.
         let cleared = dial_pick_format("+7".to_owned(), Some("RU".to_owned()), "FR".to_owned());
         assert_eq!((cleared.shown.as_str(), cleared.cleaned.as_str()), ("", ""));
@@ -909,6 +911,7 @@ mod tests {
             app_version: "0.1.0".to_owned(),
             calls_available: true,
             in_app_purchases: true,
+            meta_channels: false,
             locale: district_core::Locale::En,
         });
         signed_in(&model);

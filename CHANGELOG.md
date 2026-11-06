@@ -18,8 +18,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   number>", and that E.164 number is what is sent. A wrong length keeps Call off and is
   said once the box loses the keyboard, on Enter, or when the switched-off Call button
   is pressed. district-ffi adds `dial_entry_format`, `dial_pick_format` and
-  `dial_country_list`, and the `DialerPickCountry` and `DialerCheckLength` events; the
-  core is pinned to district-core-rust's dialler branch until it is released.
+  `dial_country_list`, and the `DialerPickCountry` and `DialerCheckLength` events.
+- The core is district-core-rust 8.0.0 (up from 7.0.0), the release that carries the
+  dialler. It brings livekit 0.10 (webrtc-sys-build 0.3.21), so calls link the new
+  audio-only libwebrtc `libwebrtc-a545de4-audio-win-1`, built by
+  libwebrtc-windows.yml run 42131057678 from the same WebRTC commit as District AI for
+  Linux's, with the same arguments (no H.264, H.265 or FFmpeg).
 
 ### Security
 

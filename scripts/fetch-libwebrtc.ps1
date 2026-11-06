@@ -42,18 +42,17 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# 0.3.20 is 0.3.19 with zip ^9 in place of zip ^0.6 (RUSTSEC-2026-0367, -0368,
-# -0369 and -0429) and nothing else: its src/ is byte for byte 0.3.19's and its
-# WEBRTC_TAG is still webrtc-89d790b, so the libwebrtc below is the one it links.
-$WebrtcSysBuildVersion = '0.3.20'
+# webrtc-sys-build 0.3.21's WEBRTC_TAG is webrtc-a545de4, the WebRTC commit
+# scripts/build-libwebrtc.ps1 builds.
+$WebrtcSysBuildVersion = '0.3.21'
 # The release of this repository that holds the archive. The number after
 # "audio-win" counts builds of the same WebRTC commit.
-$Release = 'libwebrtc-89d790b-audio-win-1'
+$Release = 'libwebrtc-a545de4-audio-win-1'
 $Archive = 'webrtc-win-x64-release.zip'
-# Published by libwebrtc-windows.yml run 37839872970, with a build provenance
+# Published by libwebrtc-windows.yml run 42131057678, with a build provenance
 # attestation (gh attestation verify webrtc-win-x64-release.zip --repo
 # distronode-corporation/district-windows).
-$Sha256 = '2ebac04343a2b4e3705164831409432356f52ceda751829689c1366e3ba214c6'
+$Sha256 = 'a9b991e7baff30c32423507d82a8d80bee6b85ec0812b45a4e83a5af2d78ec02'
 $Url = "https://github.com/distronode-corporation/district-windows/releases/download/$Release/$Archive"
 $Unpacked = 'win-x64-release'
 
