@@ -431,12 +431,18 @@ fn voice_confirmed(session: Session, result: Result<&str, ApiError>) -> Session 
 }
 
 /// The agent leaves: the session ends.
+/// The agent leaves and stays gone: the core's grace window (district-core
+/// 9.0.0, `EMPTY_ROOM_GRACE`) is over with the agent still away.
 fn agent_left(session: Session) -> Session {
     media(
         session,
         MediaEvent::ParticipantLeft {
             identity: "agent-hq".to_owned(),
         },
+    )
+    .answer(
+        |e| matches!(e, Effect::Wait { delay, .. } if *delay == district_core::EMPTY_ROOM_GRACE),
+        |ticket| Event::WaitOver { ticket },
     )
 }
 

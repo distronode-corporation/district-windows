@@ -12,8 +12,8 @@
 //! [`ThreadView::composer`]: crate::ThreadView::composer
 
 use district_core::{
-    AssigneeList, Capabilities, Composer, Event, TemplateList, ThreadAssignment, ThreadEvent,
-    ThreadScreen, WhatsAppComposer, reply_channel_label,
+    AssigneeList, Capabilities, Composer, Event, MetaComposer, MetaWindowState, TemplateList,
+    ThreadAssignment, ThreadEvent, ThreadScreen, WhatsAppComposer, reply_channel_label,
 };
 use district_model::CHANNEL_SMS;
 use serde::Serialize;
@@ -73,6 +73,9 @@ pub struct ComposerView {
     pub attachments_note: Option<String>,
     /// The WhatsApp window and its templates, while the reply goes by WhatsApp.
     pub whatsapp: Option<WhatsAppView>,
+    /// The Messenger or Instagram reply window, while the reply goes by one of
+    /// them.
+    pub meta: Option<MetaView>,
 }
 
 /// One way to reply.
@@ -98,6 +101,20 @@ pub struct WhatsAppView {
     pub window_closed: Option<String>,
     /// The template picker, while the window is closed.
     pub templates: Option<TemplatePickerView>,
+}
+
+/// The Messenger and Instagram side of the reply box, as the web Inbox shows
+/// it: a badge in the human agent window, a warning once the window has
+/// closed, and nothing while it is open, being read or not known. No
+/// countdown.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, uniffi::Record)]
+pub struct MetaView {
+    /// "Human agent reply (7-day window)", the badge over the box while only a
+    /// person may reply (the AI button is off), or nothing.
+    pub human_agent: Option<String>,
+    /// Why nothing can be sent, once the service says the window is closed:
+    /// the box stays, Send and the AI button are off. Nothing otherwise.
+    pub window_closed: Option<String>,
 }
 
 /// The template picker a closed window offers.
@@ -374,8 +391,26 @@ pub(crate) fn composer(
                 .whatsapp
                 .as_ref()
                 .map(|whatsapp| whatsapp_view(whatsapp, controls.can_send_template)),
+            meta: screen.meta.as_ref().map(meta_view),
         }
     })
+}
+
+/// The Messenger or Instagram window: a badge in the human agent window, a
+/// warning once it is closed. Not read yet, unreadable or a state this build
+/// does not know blocks nothing and says nothing, as the core decides.
+fn meta_view(meta: &MetaComposer) -> MetaView {
+    let (human_agent, window_closed) = match &meta.window {
+        MetaWindowState::HumanAgent { .. } => (Some(cs::thread_meta_human_agent(l())), None),
+        MetaWindowState::Closed => (None, Some(cs::thread_meta_window_closed(l()))),
+        MetaWindowState::Loading | MetaWindowState::Open { .. } | MetaWindowState::Unknown(_) => {
+            (None, None)
+        }
+    };
+    MetaView {
+        human_agent: human_agent.map(str::to_owned),
+        window_closed: window_closed.map(str::to_owned),
+    }
 }
 
 /// The WhatsApp window and, once it is closed, its templates.

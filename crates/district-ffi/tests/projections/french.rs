@@ -98,3 +98,19 @@ fn hq_voice_is_in_french() {
         Some("À l'écoute. Parlez à District HQ.")
     );
 }
+
+/// The Messenger and Instagram window's badge and warning are the core's
+/// reviewed French, as the web Inbox says them.
+#[test]
+fn the_meta_reply_window_is_in_french() {
+    let badge = screen_in(Locale::FrCa, "parity-thread-meta-human-agent");
+    assert!(
+        badge.contains("\"human_agent\":\"Réponse d'un agent humain (fenêtre de 7 jours)\""),
+        "{badge}"
+    );
+    let closed = screen_in(Locale::FrCa, "parity-thread-meta-closed");
+    assert!(
+        closed.contains("\"window_closed\":\"Fenêtre de réponse fermée : Messenger et Instagram"),
+        "{closed}"
+    );
+}

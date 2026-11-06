@@ -266,9 +266,11 @@ public sealed partial class SceneWalkTests
     /// says who owns each; a conversation offers the channels the service
     /// lists and an owner picker of the Agency and Client members; WhatsApp's
     /// closed window offers the approved template, filled field by field with
-    /// the core's preview. Saved as 110-parity-inbox.png to
-    /// 113-parity-template-filled.png when screenshots are on. Only the
-    /// owner changes (the scene answers with its fixture); nothing is sent.
+    /// the core's preview; the Messenger conversation is in its human agent
+    /// window (the badge) and the Instagram one's window has closed (the
+    /// warning, the box kept, Send off). Saved as 110-parity-inbox.png to
+    /// 115-parity-meta-closed.png when screenshots are on. Only the owner
+    /// changes (the scene answers with its fixture); nothing is sent.
     /// </summary>
     [Fact]
     public void TheInboxOffersChannelsOwnersAndTemplates()
@@ -332,6 +334,24 @@ public sealed partial class SceneWalkTests
         // The AI button goes with the free-text box, and its billing note with it.
         Expect(app, () => app.TryFindById("DraftReplyNote") is null, "no AI note beside the template");
         Shot("113-parity-template-filled.png");
+
+        // Messenger, in the human agent window: the badge, and a typed reply could go.
+        OpenUntilFoundById(app, "NavInbox", "InboxHeading");
+        OpenConversationOn(app, "Messenger");
+        _ = app.FindById("MetaHumanAgent", PageTimeout);
+        Expect(app, () => app.TryFindById("MetaWindowClosed") is null, "no closed warning in the human agent window");
+        app.FindById(ReplyBoxId, PageTimeout).AsTextBox().Text = "Thanks for writing";
+        Expect(app, () => app.TryFindById("SendReply") is { IsEnabled: true }, "Send to work in the human agent window");
+        Shot("114-parity-meta-human-agent.png");
+
+        // Instagram, the window closed: the warning, the box kept, Send off.
+        OpenUntilFoundById(app, "NavInbox", "InboxHeading");
+        OpenConversationOn(app, "Instagram");
+        _ = app.FindById("MetaWindowClosed", PageTimeout);
+        app.FindById(ReplyBoxId, PageTimeout).AsTextBox().Text = "Thanks for writing";
+        Expect(app, () => app.TryFindById("SendReply") is { IsEnabled: false }, "Send to stay off once the window has closed");
+        Expect(app, () => app.TryFindById("MetaHumanAgent") is null, "no human agent badge once the window has closed");
+        Shot("115-parity-meta-closed.png");
         Assert.True(app.IsRunning, "the app ended in the conversation");
     }
 
