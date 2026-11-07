@@ -1700,13 +1700,17 @@ public sealed partial class SceneWalkTests
     /// Deliveries opens its deliveries under their heading and closes them
     /// again, its Edit opens its form, where an event is switched on and the
     /// save lands, and the second webhook's Delete asks, naming nothing but
-    /// the webhook, and lands. Escape closes each dialog.
+    /// the webhook, and lands. Escape closes each dialog. It runs in English
+    /// and in French: every check reads an id, the fixture's names or what the
+    /// app showed before, never an English title.
     /// </summary>
-    [Fact]
-    public void DevelopersRowsActAndARevokeAsksOnce()
+    [Theory]
+    [InlineData("en")]
+    [InlineData("fr")]
+    public void DevelopersRowsActAndARevokeAsksOnce(string language)
     {
         RequireScriptedPackage();
-        using var app = InstalledApp.Launch(SceneArgument);
+        using var app = InstalledApp.Launch(Arguments(SceneArgument, language));
         var window = app.MainWindow(_startTimeout);
         _ = Heading(app, WorkspaceName, _startTimeout);
 
@@ -1748,7 +1752,9 @@ public sealed partial class SceneWalkTests
         // Zapier's Revoke: asked once, naming it, then it lands.
         Press(app.FindById("DeveloperKeyRevoke", PageTimeout, onScreen: false));
         var removal = app.FindById("DeveloperRemovalDialog", PageTimeout);
-        Assert.Equal("Revoke Zapier?", removal.Name);
+        // The question names the key: the fixture's name, in either language.
+        var revokeKey = removal.Name;
+        Assert.Contains("Zapier", revokeKey, StringComparison.Ordinal);
         _ = app.FindById("DeveloperRemovalBody", PageTimeout, onScreen: false);
         Press(Wait.For(
             () => removal.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
@@ -1770,7 +1776,9 @@ public sealed partial class SceneWalkTests
         var mcp = app.FindById("DeveloperMcpUrl", PageTimeout, onScreen: false);
         Assert.EndsWith("/mcp", mcp.Name, StringComparison.Ordinal);
         Press(app.FindById("DeveloperAppRevoke", PageTimeout, onScreen: false));
-        Assert.Equal("Revoke Raycast?", app.FindById("DeveloperRemovalDialog", PageTimeout).Name);
+        var revokeApp = app.FindById("DeveloperRemovalDialog", PageTimeout).Name;
+        Assert.Contains("Raycast", revokeApp, StringComparison.Ordinal);
+        Assert.DoesNotContain("Zapier", revokeApp, StringComparison.Ordinal);
         Keyboard.Type(VirtualKeyShort.ESCAPE);
         Assert.True(
             Wait.Until(() => app.TryFindById("DeveloperRemovalDialog", onScreen: false) is null, PageTimeout),
@@ -1794,8 +1802,11 @@ public sealed partial class SceneWalkTests
 
         // Its Edit: its own form, an event switched on, and the save lands.
         Press(app.FindById("DeveloperWebhookEdit", PageTimeout, onScreen: false));
+        // The fixed address below is what says this is the edit form, not
+        // the add form; the title only has to be there.
         var editor = app.FindById("DeveloperWebhookDialog", PageTimeout);
-        Assert.Equal("Edit webhook", editor.Name);
+        var editTitle = editor.Name;
+        Assert.False(string.IsNullOrWhiteSpace(editTitle), "the webhook's form has no title");
         Assert.Contains(
             "hooks.contract.test/bookings",
             app.FindById("DeveloperWebhookUrlFixed", PageTimeout, onScreen: false).Name,
@@ -1821,8 +1832,15 @@ public sealed partial class SceneWalkTests
             "both webhooks' Delete",
             app.Describe);
         Press(deletes[1]);
+        // It asks, naming nothing but the webhook: not its address, not a
+        // key or an app, and not the edit form's title.
         var delete = app.FindById("DeveloperRemovalDialog", PageTimeout);
-        Assert.Equal("Delete this webhook?", delete.Name);
+        var deleteTitle = delete.Name;
+        Assert.False(string.IsNullOrWhiteSpace(deleteTitle), "the webhook's delete asks nothing");
+        Assert.DoesNotContain("hooks.contract.test", deleteTitle, StringComparison.Ordinal);
+        Assert.DoesNotContain("Zapier", deleteTitle, StringComparison.Ordinal);
+        Assert.DoesNotContain("Raycast", deleteTitle, StringComparison.Ordinal);
+        Assert.NotEqual(editTitle, deleteTitle);
         Press(Wait.For(
             () => delete.FindFirstDescendant(cf => cf.ByAutomationId("PrimaryButton")) is { IsEnabled: true } enabled ? enabled : null,
             PageTimeout,
