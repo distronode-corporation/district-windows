@@ -101,21 +101,25 @@
                     IsTextSelectionEnabled="True"
                     Style="{StaticResource BodyStrongTextBlockStyle}"
                     Text="{x:Bind Registrations.RequirementsHeading, Mode=OneWay}"
-                    TextWrapping="Wrap" />
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Registrations.HasRequirementsHeading, Mode=OneWay}" />
                 <TextBlock
                     Style="{StaticResource QuietTextStyle}"
                     Text="{x:Bind Registrations.RequirementsBody, Mode=OneWay}"
-                    TextWrapping="Wrap" />
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Registrations.HasRequirementsBody, Mode=OneWay}" />
                 <TextBlock
                     Style="{StaticResource CaptionTextBlockStyle}"
                     Text="{x:Bind Registrations.RequirementsNote, Mode=OneWay}"
-                    TextWrapping="Wrap" />
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Registrations.HasRequirementsNote, Mode=OneWay}" />
                 <TextBlock
                     AutomationProperties.AutomationId="RequirementsFailure"
                     AutomationProperties.LiveSetting="Assertive"
                     Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                     Text="{x:Bind Registrations.RequirementsFailure, Mode=OneWay}"
-                    TextWrapping="Wrap" />
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Registrations.HasRequirementsFailure, Mode=OneWay}" />
                 <Button
                     AutomationProperties.AutomationId="RequirementsRetry"
                     AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
@@ -161,7 +165,8 @@
                     <TextBlock
                         Style="{StaticResource CaptionTextBlockStyle}"
                         Text="{x:Bind Registrations.StatusCaption, Mode=OneWay}"
-                        TextWrapping="Wrap" />
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind Registrations.HasFilings, Mode=OneWay}" />
                     <StackPanel
                         AutomationProperties.AutomationId="RegistrationsEmpty"
                         Spacing="4"
@@ -172,11 +177,21 @@
                             Text="{x:Bind Registrations.ListLoad.EmptyBody, Mode=OneWay}"
                             TextWrapping="Wrap" />
                     </StackPanel>
-                    <ItemsRepeater AutomationProperties.AutomationId="Filings" ItemsSource="{x:Bind Registrations.Filings}">
-                        <ItemsRepeater.Layout>
-                            <StackLayout Spacing="12" />
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
+                    <!--
+                        ItemsControl, not ItemsRepeater, wherever a template's
+                        button reads its item from its DataContext, as the voice
+                        cards do.
+                    -->
+                    <ItemsControl
+                        AutomationProperties.AutomationId="Filings"
+                        IsTabStop="False"
+                        ItemsSource="{x:Bind Registrations.Filings}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="12" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:FilingItem">
                                 <Border
                                     AutomationProperties.AutomationId="Filing"
@@ -214,8 +229,8 @@
                                         </StackPanel>
                                         <StackPanel Spacing="2" Visibility="{x:Bind HasDocuments}">
                                             <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind DocumentsEyebrow}" />
-                                            <ItemsRepeater ItemsSource="{x:Bind Documents}">
-                                                <ItemsRepeater.ItemTemplate>
+                                            <ItemsControl IsTabStop="False" ItemsSource="{x:Bind Documents}">
+                                                <ItemsControl.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:FilingDocumentItem">
                                                         <Grid Padding="0,2" ColumnSpacing="8">
                                                             <Grid.ColumnDefinitions>
@@ -237,11 +252,14 @@
                                                                 Visibility="{x:Bind Removable}" />
                                                         </Grid>
                                                     </DataTemplate>
-                                                </ItemsRepeater.ItemTemplate>
-                                            </ItemsRepeater>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
                                         </StackPanel>
-                                        <ItemsRepeater ItemsSource="{x:Bind Details}" Visibility="{x:Bind HasDetails}">
-                                            <ItemsRepeater.ItemTemplate>
+                                        <ItemsControl
+                                            IsTabStop="False"
+                                            ItemsSource="{x:Bind Details}"
+                                            Visibility="{x:Bind HasDetails}">
+                                            <ItemsControl.ItemTemplate>
                                                 <DataTemplate x:DataType="vm:DetailItem">
                                                     <TextBox
                                                         Margin="0,2"
@@ -250,10 +268,10 @@
                                                         Header="{x:Bind Field}"
                                                         Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                                 </DataTemplate>
-                                            </ItemsRepeater.ItemTemplate>
-                                        </ItemsRepeater>
-                                        <ItemsRepeater ItemsSource="{x:Bind Uploads}">
-                                            <ItemsRepeater.ItemTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <ItemsControl IsTabStop="False" ItemsSource="{x:Bind Uploads}">
+                                            <ItemsControl.ItemTemplate>
                                                 <DataTemplate x:DataType="vm:UploadItem">
                                                     <Button
                                                         Margin="0,2"
@@ -263,8 +281,8 @@
                                                         Content="{x:Bind Label}"
                                                         IsEnabled="{x:Bind Armed}" />
                                                 </DataTemplate>
-                                            </ItemsRepeater.ItemTemplate>
-                                        </ItemsRepeater>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
                                         <Button
                                             AutomationProperties.AutomationId="FilingFile"
                                             AutomationProperties.Name="{x:Bind FileAction}"
@@ -276,8 +294,8 @@
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
                 <views:StatusPanel x:Name="ListStatus" />
             </Grid>

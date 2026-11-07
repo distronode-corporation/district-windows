@@ -330,9 +330,29 @@ public sealed partial class RegistrationsViewModel : ObservableObject
     [ObservableProperty]
     public partial string RequirementsFailure { get; set; } = string.Empty;
 
+    /// <summary>Whether there is a <see cref="RequirementsHeading"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasRequirementsHeading { get; set; }
+
+    /// <summary>Whether there is a <see cref="RequirementsBody"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasRequirementsBody { get; set; }
+
+    /// <summary>Whether there is a <see cref="RequirementsNote"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasRequirementsNote { get; set; }
+
+    /// <summary>Whether there is a <see cref="RequirementsFailure"/>.</summary>
+    [ObservableProperty]
+    public partial bool HasRequirementsFailure { get; set; }
+
     /// <summary>Whether "Try again" is offered for the lookup.</summary>
     [ObservableProperty]
     public partial bool CanRetryRequirements { get; set; }
+
+    /// <summary>Whether there are filings: the status caption shows over them.</summary>
+    [ObservableProperty]
+    public partial bool HasFilings { get; set; }
 
     /// <summary>That a status is read only when the list is, or empty.</summary>
     [ObservableProperty]
@@ -386,6 +406,7 @@ public sealed partial class RegistrationsViewModel : ObservableObject
         ShowRequirementsOf(view.Requirements);
         ListLoad.Show(view.ListStatus, view.Filings.Length > 0, view.Empty, false, null);
         StatusCaption = view.StatusCaption ?? string.Empty;
+        HasFilings = view.Filings.Length > 0;
         Display.Sync(Gates, [.. view.Gates.Select(gate => new GateItem(gate.Label, gate.Countries))]);
         var shown = Filings.ToDictionary(filing => filing.Id);
         Display.Sync(Filings, [.. view.Filings.Select(filing => FilingItem.From(filing, shown.GetValueOrDefault(filing.Id), Typed))]);
@@ -403,6 +424,10 @@ public sealed partial class RegistrationsViewModel : ObservableObject
             RequirementsView.Ready ready => (ready.Eyebrow, ready.Name, string.Empty, ready.NotPurchasable ?? string.Empty, string.Empty, false),
             _ => (string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, false),
         };
+        HasRequirementsHeading = RequirementsHeading.Length > 0;
+        HasRequirementsBody = RequirementsBody.Length > 0;
+        HasRequirementsNote = RequirementsNote.Length > 0;
+        HasRequirementsFailure = RequirementsFailure.Length > 0;
         Display.Sync(
             Requirements,
             requirements is RequirementsView.Ready { Requirements: var rows }

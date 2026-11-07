@@ -142,6 +142,7 @@ public sealed class RegistrationsViewModelTests
 
         model.Show(Tab(requirements: new RequirementsView.Failed("What this country asks for", new FailureView("The service did not answer.", null, true))));
         Assert.Equal("The service did not answer.", model.RequirementsFailure);
+        Assert.True(model.HasRequirementsFailure && !model.HasRequirementsHeading);
         Assert.True(model.CanRetryRequirements);
         model.RetryRequirementsCommand.Execute(null);
         Assert.Equal(new NumberAdminAction.CheckRequirements(), Action(sink.Sent[^1]));

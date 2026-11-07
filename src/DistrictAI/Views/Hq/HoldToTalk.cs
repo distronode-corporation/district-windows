@@ -22,7 +22,19 @@ internal static class HoldToTalk
     {
         // The button's own press handling marks the pointer events handled, so
         // these listen to handled ones too.
-        button.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler((_, _) => voice().Hold()), true);
+        // The primary button, a touch or a pen only: another mouse button's
+        // release is not always delivered (the right one opens a context
+        // menu), which would leave the microphone on.
+        button.AddHandler(
+            UIElement.PointerPressedEvent,
+            new PointerEventHandler((_, e) =>
+            {
+                if (e.GetCurrentPoint(button).Properties.IsLeftButtonPressed)
+                {
+                    voice().Hold();
+                }
+            }),
+            true);
         button.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler((_, _) => voice().Release()), true);
         button.AddHandler(UIElement.PointerCanceledEvent, new PointerEventHandler((_, _) => voice().Release()), true);
         button.AddHandler(UIElement.PointerCaptureLostEvent, new PointerEventHandler((_, _) => voice().Release()), true);

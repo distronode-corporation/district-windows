@@ -71,7 +71,9 @@ public sealed partial class SceneWalkTests
 
         // File it asks first; Escape closes the question with nothing filed
         // (the scene answers no write).
-        Press(app.FindById("FilingFile", PageTimeout, onScreen: false), allow: "it only asks; the question is closed with Escape");
+        var file = app.FindById("FilingFile", PageTimeout, onScreen: false);
+        Assert.True(file.IsEnabled, "the draft's File it works before anything is filed");
+        Press(file, allow: "it only asks; the question is closed with Escape");
         _ = app.FindById("NumberConfirmationDialog", PageTimeout);
         InstalledApp.Log("File it asks first");
         Keyboard.Type(VirtualKeyShort.ESCAPE);
