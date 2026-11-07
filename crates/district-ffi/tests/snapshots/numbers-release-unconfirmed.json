@@ -20,6 +20,8 @@
           },
           "number_notice": "Something went wrong on our side. Please try again shortly.",
           "number_unrepeatable": "We could not confirm whether that went through, so it is not offered again. Reload to see where things stand.",
+          "registrations": null,
+          "registrations_tab": "Registrations",
           "release_action": "Release this number"
         },
         "form": {

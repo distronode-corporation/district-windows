@@ -51,9 +51,20 @@ public sealed partial class HqVoiceViewModel : ObservableObject
     [ObservableProperty]
     public partial string StopLabel { get; set; } = string.Empty;
 
-    /// <summary>Whether the microphone button is shown: while the session's room is live.</summary>
+    /// <summary>Whether the microphone button is shown: while the session's room is live, with an open microphone.</summary>
     [ObservableProperty]
     public partial bool ShowMicrophone { get; set; }
+
+    /// <summary>Whether Hold to talk is shown in its place: a push-to-talk session's room is live.</summary>
+    [ObservableProperty]
+    public partial bool ShowHold { get; set; }
+
+    /// <summary>Hold to talk's words.</summary>
+    [ObservableProperty]
+    public partial string HoldLabel { get; set; } = string.Empty;
+
+    /// <summary>Whether Hold to talk is held down: the microphone was asked on.</summary>
+    public bool Held { get; private set; }
 
     /// <summary>
     /// Whether the microphone is off. The microphone button writes it, which
@@ -92,6 +103,13 @@ public sealed partial class HqVoiceViewModel : ObservableObject
         CanStop = view.CanStop;
         StopLabel = view.StopLabel;
         ShowMicrophone = view.ShowMicrophone;
+        HoldLabel = view.HoldLabel;
+        ShowHold = view.ShowHold;
+        if (!view.ShowHold)
+        {
+            // The button went while held: the microphone goes off with it.
+            Release();
+        }
         _writing = true;
         try
         {
@@ -113,6 +131,32 @@ public sealed partial class HqVoiceViewModel : ObservableObject
         if (!_writing)
         {
             _context?.Send(new UiEvent.Microphone(!value));
+        }
+    }
+
+    /// <summary>
+    /// Hold to talk pressed (the pointer, Space or Enter): the microphone on,
+    /// once per press, however often a held key repeats.
+    /// </summary>
+    internal void Hold()
+    {
+        if (ShowHold && !Held)
+        {
+            Held = true;
+            _context?.Send(new UiEvent.Microphone(true));
+        }
+    }
+
+    /// <summary>
+    /// Hold to talk let go, left by the keyboard or the pointer, or gone from
+    /// the screen: the microphone off, once.
+    /// </summary>
+    internal void Release()
+    {
+        if (Held)
+        {
+            Held = false;
+            _context?.Send(new UiEvent.Microphone(false));
         }
     }
 

@@ -288,6 +288,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::hq_ask_action(Locale::FrCa), "Demander");
     assert_eq!(s::hq_footnote(Locale::En), "Each question is answered by an AI model, which is billed. A change it proposes is made only when you confirm it.");
     assert_eq!(s::hq_footnote(Locale::FrCa), "Chaque question est traitée par un modèle d'IA, ce qui est facturé. Un changement qu'il propose n'est effectué que lorsque vous le confirmez.");
+    assert_eq!(s::hq_hold_to_talk(Locale::En), "Hold to talk");
+    assert_eq!(s::hq_hold_to_talk(Locale::FrCa), "Maintenir pour parler");
     assert_eq!(s::hq_prompt_placeholder(Locale::En), "Ask District HQ");
     assert_eq!(s::hq_prompt_placeholder(Locale::FrCa), "Poser une question à District HQ");
     assert_eq!(s::hq_retry_action(Locale::En), "Try again");
@@ -488,6 +490,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::nav_workspace_heading(Locale::FrCa), "Espace de travail");
     assert_eq!(s::numbers_campaign_type(Locale::En), "Campaign type");
     assert_eq!(s::numbers_campaign_type(Locale::FrCa), "Type de campagne");
+    assert_eq!(s::numbers_upload_for(Locale::En, "{requirement}"), "Upload {requirement}");
+    assert_eq!(s::numbers_upload_for(Locale::FrCa, "{requirement}"), "Téléverser\u{00A0}: {requirement}");
     assert_eq!(s::overview_failed_title(Locale::En), "Could not load the overview");
     assert_eq!(s::overview_failed_title(Locale::FrCa), "Impossible de charger la vue d'ensemble");
     assert_eq!(s::overview_metric_average_call(Locale::En), "Average call");

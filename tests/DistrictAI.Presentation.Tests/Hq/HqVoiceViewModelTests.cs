@@ -17,8 +17,9 @@ public sealed class HqVoiceViewModelTests
         bool muted = true,
         bool canDismiss = false,
         FailureView? notice = null,
-        HqVoiceCardView[]? cards = null) =>
-        new(stage, line, problem, busy, canStop, "Stop voice", showMicrophone, muted, canDismiss, notice, cards ?? []);
+        HqVoiceCardView[]? cards = null,
+        bool showHold = false) =>
+        new(stage, line, problem, busy, canStop, "Stop voice", showMicrophone, showHold, "Hold to talk", muted, canDismiss, notice, cards ?? []);
 
     internal static HqVoiceCardView Card(
         string id = "p-1",
@@ -161,6 +162,34 @@ public sealed class HqVoiceViewModelTests
         model.Muted = true;
         model.Muted = false;
         Assert.Equal(new UiEvent.Microphone(true), sink.Sent[^1]);
+    }
+
+    [Fact]
+    public void HoldToTalkTurnsTheMicrophoneOnWhileHeldAndOffOnce()
+    {
+        var model = new HqVoiceViewModel();
+        var (context, sink) = Pages.Context(callsAvailable: true);
+        model.Attach(context);
+        model.Show(Voice(HqVoiceStage.Live, showMicrophone: true, muted: false));
+        model.Hold();
+        Assert.Empty(sink.Sent);
+
+        model.Show(Voice(HqVoiceStage.Live, muted: true, showHold: true));
+        Assert.True(model.ShowHold && !model.ShowMicrophone);
+        Assert.Equal("Hold to talk", model.HoldLabel);
+        model.Hold();
+        model.Hold();
+        Assert.True(model.Held);
+        model.Release();
+        model.Release();
+        Assert.Equal([new UiEvent.Microphone(true), new UiEvent.Microphone(false)], sink.Sent);
+
+        // Held as the button goes: the microphone goes off with it.
+        model.Hold();
+        model.Show(Voice(HqVoiceStage.Ended));
+        Assert.False(model.Held);
+        Assert.Equal(new UiEvent.Microphone(false), sink.Sent[^1]);
+        Assert.Equal(4, sink.Sent.Count);
     }
 
     [Fact]

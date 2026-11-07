@@ -49,10 +49,12 @@
             "title": "Confirm this change"
           }
         ],
+        "hold_label": "Hold to talk",
         "line": "Listening. Speak to District HQ.",
         "line_is_problem": false,
         "muted": false,
         "notice": null,
+        "show_hold": false,
         "show_microphone": true,
         "stage": "Live",
         "stop_label": "Stop voice"

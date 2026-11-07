@@ -72,7 +72,8 @@ impl FileKind {
             Self::Jpeg => &[".jpg", ".jpeg"],
             Self::Gif => &[".gif"],
             Self::Webp => &[".webp"],
-            Self::Heic | Self::Heif | Self::Pdf | Self::Unknown => &[],
+            Self::Pdf => &[".pdf"],
+            Self::Heic | Self::Heif | Self::Unknown => &[],
         }
     }
 
@@ -112,7 +113,7 @@ pub fn file_kind(head: Vec<u8>) -> FileKind {
 }
 
 /// [`file_kind`], on a borrowed head.
-fn sniff(head: &[u8]) -> FileKind {
+pub(crate) fn sniff(head: &[u8]) -> FileKind {
     if head.starts_with(b"\x89PNG\r\n\x1a\n") {
         FileKind::Png
     } else if head.starts_with(&[0xff, 0xd8, 0xff]) {
@@ -379,14 +380,11 @@ mod tests {
             assert_ne!(FileKind::of_mime_type(mime_type), FileKind::Unknown);
         }
         assert_eq!(FileKind::of_mime_type("text/plain"), FileKind::Unknown);
-        for kind in [
-            FileKind::Heic,
-            FileKind::Heif,
-            FileKind::Pdf,
-            FileKind::Unknown,
-        ] {
+        for kind in [FileKind::Heic, FileKind::Heif, FileKind::Unknown] {
             assert!(kind.extensions().is_empty(), "{kind:?}");
         }
+        // A PDF is offered only where a regulation's document is picked.
+        assert_eq!(FileKind::Pdf.extensions(), [".pdf"]);
     }
 
     #[test]

@@ -10,8 +10,8 @@ using Windows.System;
 namespace DistrictAI.Views.Marketplace;
 
 /// <summary>
-/// The workspace's phone numbers, a search of the numbers for sale, and the
-/// carrier tab: reapplying a number's routing, releasing it, the paid lookup,
+/// The workspace's phone numbers, a search of the numbers for sale, the
+/// carrier tab and the Registrations tab (a number's regulatory filings): reapplying a number's routing, releasing it, the paid lookup,
 /// the SIP trunks, the passcode sender and the registrations, each write that
 /// costs money or cannot be undone asked about first by the core. Buying is on
 /// the web, for a role that could buy there.
@@ -29,6 +29,7 @@ public sealed partial class MarketplacePage : UserControl
         Status.Attach(ViewModel.Load);
         Refresh.Attach(ViewModel.Load);
         CarrierPanel.Attach(ViewModel.Admin);
+        RegistrationsPanel.Attach(ViewModel.Admin.Registrations);
         Loaded += (_, _) => SyncConfirmation();
         // A dialog never outlives its page; the core still asks, so it opens
         // again when the page is back.
@@ -38,12 +39,13 @@ public sealed partial class MarketplacePage : UserControl
     /// <summary>What the page shows, and its actions.</summary>
     public MarketplaceViewModel ViewModel { get; } = new();
 
-    /// <summary>The three tabs, in the order of <see cref="MarketplaceViewModel.TabIndex"/>: the numbers held, the search, the carrier.</summary>
-    public static TabLabel[] TabsOf(string carrier) =>
+    /// <summary>The four tabs, in the order of <see cref="MarketplaceViewModel.TabIndex"/>: the numbers held, the search, the carrier, the registrations.</summary>
+    public static TabLabel[] TabsOf(string carrier, string registrations) =>
     [
         new(S.NumbersYours, "NumbersYoursTab"),
         new(S.NumbersFind, "NumbersFindTab"),
         new(carrier, "NumbersCarrierTab"),
+        new(registrations, "NumbersRegistrationsTab"),
     ];
 
     internal void Attach(PageContext context)

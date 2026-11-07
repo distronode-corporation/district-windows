@@ -131,7 +131,7 @@
             Grid.Row="1"
             AutomationProperties.AutomationId="NumbersTabs"
             AutomationProperties.Name="{x:Bind l10n:S.NumbersShow}"
-            ItemsSource="{x:Bind marketplace:MarketplacePage.TabsOf(ViewModel.Admin.CarrierTab), Mode=OneWay}"
+            ItemsSource="{x:Bind marketplace:MarketplacePage.TabsOf(ViewModel.Admin.CarrierTab, ViewModel.Admin.RegistrationsTab), Mode=OneWay}"
             SelectedIndex="{x:Bind ViewModel.TabIndex, Mode=OneWay}" />
 
         <!-- The numbers the workspace holds. -->
@@ -194,6 +194,13 @@
             Grid.Row="2"
             Grid.RowSpan="2"
             Visibility="{x:Bind ViewModel.Admin.OnCarrier, Mode=OneWay}" />
+
+        <!-- The Registrations tab: read when it opens. -->
+        <marketplace:RegistrationsPanel
+            x:Name="RegistrationsPanel"
+            Grid.Row="2"
+            Grid.RowSpan="2"
+            Visibility="{x:Bind ViewModel.Admin.OnRegistrations, Mode=OneWay}" />
 
         <!-- The search of the numbers for sale. -->
         <Grid

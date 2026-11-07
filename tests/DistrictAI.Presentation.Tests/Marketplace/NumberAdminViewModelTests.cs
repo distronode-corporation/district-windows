@@ -84,7 +84,8 @@ internal static class N
         NumberConfirmationView? confirmation = null,
         CarrierTabView? carrier = null,
         string? notice = null,
-        string? unrepeatable = null) =>
+        string? unrepeatable = null,
+        RegistrationsTabView? registrations = null) =>
         new(
             CarrierTab: "Carrier",
             ConfigureAction: "Reapply call routing",
@@ -94,7 +95,9 @@ internal static class N
             NumberUnrepeatable: unrepeatable,
             Lookup: lookup ?? Lookup(),
             Confirmation: confirmation,
-            Carrier: carrier);
+            Carrier: carrier,
+            RegistrationsTab: "Registrations",
+            Registrations: registrations);
 
     public static NumberConfirmationView Release(bool canConfirm = true, bool running = false) =>
         new("Release this number?", "+14165550100 goes back to the carrier's pool.", running ? "Working…" : "Release it", "Cancel", true, canConfirm, running, null, null);

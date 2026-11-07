@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.Marketplace.RegistrationsPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:DistrictAI.L10n"
+    xmlns:views="using:DistrictAI.Views"
+    xmlns:vm="using:DistrictAI.ViewModels.Marketplace">
+    <!--
+        The Registrations tab: the form that asks what a country requires and
+        starts a draft, what the country asks for, and the workspace's filings.
+        A draft of the country checked offers its details, an upload per
+        document and File it (asked first by the core). Every word is the
+        core's. A viewer sees the heading alone; the reason is the page's note.
+    -->
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="720"
+            HorizontalAlignment="Left"
+            Spacing="12">
+            <TextBlock
+                AutomationProperties.AutomationId="RegistrationsNotice"
+                AutomationProperties.LiveSetting="Polite"
+                Text="{x:Bind Registrations.Notice, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind Registrations.HasNotice, Mode=OneWay}" />
+            <TextBlock
+                AutomationProperties.AutomationId="RegistrationsFailure"
+                AutomationProperties.LiveSetting="Assertive"
+                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                Text="{x:Bind Registrations.Notice, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind Registrations.HasFailure, Mode=OneWay}" />
+            <ProgressBar
+                AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+                IsIndeterminate="True"
+                Visibility="{x:Bind Registrations.Working, Mode=OneWay}" />
+
+            <!-- The form. -->
+            <StackPanel Spacing="12" Visibility="{x:Bind Registrations.Member, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind Registrations.StartTitle, Mode=OneWay}" />
+                <TextBox
+                    MaxWidth="320"
+                    HorizontalAlignment="Left"
+                    AutomationProperties.AutomationId="RegistrationCountry"
+                    AutomationProperties.Name="{x:Bind Registrations.CountryLabel, Mode=OneWay}"
+                    Header="{x:Bind Registrations.CountryLabel, Mode=OneWay}"
+                    KeyDown="OnCountryKeyDown"
+                    Text="{x:Bind Registrations.Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <ComboBox
+                    MinWidth="220"
+                    AutomationProperties.AutomationId="RegistrationNumberType"
+                    AutomationProperties.Name="{x:Bind l10n:S.NumbersNumberType}"
+                    Header="{x:Bind l10n:S.NumbersNumberType}"
+                    ItemsSource="{x:Bind Registrations.NumberTypes}"
+                    SelectedIndex="{x:Bind Registrations.NumberTypeIndex, Mode=TwoWay}" />
+                <!-- Business or individual: two words that say what they are. -->
+                <RadioButtons
+                    AutomationProperties.AutomationId="RegistrationEndUserType"
+                    ItemsSource="{x:Bind Registrations.EndUserTypes}"
+                    MaxColumns="2"
+                    SelectedIndex="{x:Bind Registrations.EndUserIndex, Mode=TwoWay}" />
+                <TextBox
+                    AutomationProperties.AutomationId="RegistrationName"
+                    AutomationProperties.Name="{x:Bind Registrations.NameLabel, Mode=OneWay}"
+                    Header="{x:Bind Registrations.NameLabel, Mode=OneWay}"
+                    Text="{x:Bind Registrations.FriendlyName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button
+                        AutomationProperties.AutomationId="RequirementsCheck"
+                        AutomationProperties.Name="{x:Bind Registrations.CheckAction, Mode=OneWay}"
+                        Command="{x:Bind Registrations.CheckRequirementsCommand}"
+                        Content="{x:Bind Registrations.CheckAction, Mode=OneWay}" />
+                    <Button
+                        AutomationProperties.AutomationId="RegistrationStart"
+                        AutomationProperties.Name="{x:Bind Registrations.StartAction, Mode=OneWay}"
+                        Command="{x:Bind Registrations.StartCommand}"
+                        Content="{x:Bind Registrations.StartAction, Mode=OneWay}"
+                        Style="{StaticResource AccentButtonStyle}" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- What the form's country asks for, once asked. -->
+            <StackPanel
+                AutomationProperties.AutomationId="Requirements"
+                Spacing="4"
+                Visibility="{x:Bind Registrations.ShowRequirements, Mode=OneWay}">
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind Registrations.RequirementsEyebrow, Mode=OneWay}" />
+                <ProgressRing
+                    HorizontalAlignment="Left"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonWorking}"
+                    IsActive="{x:Bind Registrations.RequirementsLoading, Mode=OneWay}"
+                    Visibility="{x:Bind Registrations.RequirementsLoading, Mode=OneWay}" />
+                <TextBlock
+                    IsTextSelectionEnabled="True"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{x:Bind Registrations.RequirementsHeading, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Registrations.HasRequirementsHeading, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource QuietTextStyle}"
+                    Text="{x:Bind Registrations.RequirementsBody, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Registrations.HasRequirementsBody, Mode=OneWay}" />
+                <TextBlock
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="{x:Bind Registrations.RequirementsNote, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Registrations.HasRequirementsNote, Mode=OneWay}" />
+                <TextBlock
+                    AutomationProperties.AutomationId="RequirementsFailure"
+                    AutomationProperties.LiveSetting="Assertive"
+                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                    Text="{x:Bind Registrations.RequirementsFailure, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind Registrations.HasRequirementsFailure, Mode=OneWay}" />
+                <Button
+                    AutomationProperties.AutomationId="RequirementsRetry"
+                    AutomationProperties.Name="{x:Bind l10n:S.CommonTryAgain}"
+                    Command="{x:Bind Registrations.RetryRequirementsCommand}"
+                    Content="{x:Bind l10n:S.CommonTryAgain}"
+                    Visibility="{x:Bind Registrations.CanRetryRequirements, Mode=OneWay}" />
+                <ItemsRepeater AutomationProperties.AutomationId="RequirementRows" ItemsSource="{x:Bind Registrations.Requirements}">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RequirementItem">
+                            <StackPanel
+                                Padding="0,4"
+                                AutomationProperties.Name="{x:Bind Name}"
+                                Spacing="2">
+                                <TextBlock Text="{x:Bind Name}" TextWrapping="Wrap" />
+                                <TextBlock
+                                    Style="{StaticResource QuietTextStyle}"
+                                    Text="{x:Bind Line}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </StackPanel>
+
+            <!-- The filings. -->
+            <TextBlock
+                AutomationProperties.AutomationId="RegistrationsHeading"
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeaderStyle}"
+                Text="{x:Bind Registrations.Eyebrow, Mode=OneWay}" />
+            <Grid MinHeight="48" Visibility="{x:Bind Registrations.Member, Mode=OneWay}">
+                <StackPanel Spacing="12" Visibility="{x:Bind Registrations.ListLoad.Ready, Mode=OneWay}">
+                    <ItemsRepeater ItemsSource="{x:Bind Registrations.Gates}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="vm:GateItem">
+                                <StackPanel Padding="0,2" Spacing="2">
+                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind Label}" />
+                                    <TextBlock Text="{x:Bind Countries}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                    <TextBlock
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind Registrations.StatusCaption, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind Registrations.HasFilings, Mode=OneWay}" />
+                    <StackPanel
+                        AutomationProperties.AutomationId="RegistrationsEmpty"
+                        Spacing="4"
+                        Visibility="{x:Bind Registrations.ListLoad.ShowEmpty, Mode=OneWay}">
+                        <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Registrations.ListLoad.EmptyTitle, Mode=OneWay}" />
+                        <TextBlock
+                            Style="{StaticResource QuietTextStyle}"
+                            Text="{x:Bind Registrations.ListLoad.EmptyBody, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                    <!--
+                        ItemsControl, not ItemsRepeater, wherever a template's
+                        button reads its item from its DataContext, as the voice
+                        cards do.
+                    -->
+                    <ItemsControl
+                        AutomationProperties.AutomationId="Filings"
+                        IsTabStop="False"
+                        ItemsSource="{x:Bind Registrations.Filings}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="12" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:FilingItem">
+                                <Border
+                                    AutomationProperties.AutomationId="Filing"
+                                    AutomationProperties.Name="{x:Bind Title}"
+                                    Style="{StaticResource CardStyle}">
+                                    <StackPanel Spacing="6">
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                AutomationProperties.HeadingLevel="Level3"
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                Text="{x:Bind Title}"
+                                                TextWrapping="Wrap" />
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                AutomationProperties.AutomationId="FilingStatus"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Text="{x:Bind Status}" />
+                                        </Grid>
+                                        <TextBlock
+                                            Style="{StaticResource QuietTextStyle}"
+                                            Text="{x:Bind FriendlyName}"
+                                            Visibility="{x:Bind HasFriendlyName}" />
+                                        <StackPanel Spacing="2" Visibility="{x:Bind HasReasons}">
+                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ReasonsEyebrow}" />
+                                            <TextBlock
+                                                AutomationProperties.AutomationId="FilingReasons"
+                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                IsTextSelectionEnabled="True"
+                                                Text="{x:Bind Reasons}"
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <StackPanel Spacing="2" Visibility="{x:Bind HasDocuments}">
+                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind DocumentsEyebrow}" />
+                                            <ItemsControl IsTabStop="False" ItemsSource="{x:Bind Documents}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:FilingDocumentItem">
+                                                        <Grid Padding="0,2" ColumnSpacing="8">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel Spacing="2">
+                                                                <TextBlock Text="{x:Bind Name}" TextWrapping="Wrap" />
+                                                                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind State}" />
+                                                            </StackPanel>
+                                                            <Button
+                                                                Grid.Column="1"
+                                                                VerticalAlignment="Center"
+                                                                AutomationProperties.AutomationId="FilingDocumentRemove"
+                                                                AutomationProperties.Name="{x:Bind RemoveAction}"
+                                                                Click="OnRemoveClick"
+                                                                Content="{x:Bind RemoveAction}"
+                                                                IsEnabled="{x:Bind Armed}"
+                                                                Visibility="{x:Bind Removable}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                        <ItemsControl
+                                            IsTabStop="False"
+                                            ItemsSource="{x:Bind Details}"
+                                            Visibility="{x:Bind HasDetails}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:DetailItem">
+                                                    <TextBox
+                                                        Margin="0,2"
+                                                        AutomationProperties.AutomationId="FilingDetail"
+                                                        AutomationProperties.Name="{x:Bind Field}"
+                                                        Header="{x:Bind Field}"
+                                                        Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <ItemsControl IsTabStop="False" ItemsSource="{x:Bind Uploads}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:UploadItem">
+                                                    <Button
+                                                        Margin="0,2"
+                                                        AutomationProperties.AutomationId="FilingUpload"
+                                                        AutomationProperties.Name="{x:Bind Label}"
+                                                        Click="OnUploadClick"
+                                                        Content="{x:Bind Label}"
+                                                        IsEnabled="{x:Bind Armed}" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Button
+                                            AutomationProperties.AutomationId="FilingFile"
+                                            AutomationProperties.Name="{x:Bind FileAction}"
+                                            Click="OnFileClick"
+                                            Content="{x:Bind FileAction}"
+                                            IsEnabled="{x:Bind CanFile}"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Visibility="{x:Bind Fileable}" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+                <views:StatusPanel x:Name="ListStatus" />
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

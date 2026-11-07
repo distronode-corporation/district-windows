@@ -47,6 +47,7 @@ mod contacts;
 mod inbox;
 mod numbers;
 mod overview;
+mod registrations;
 
 // The areas of 2.0, one module each (CONTRIBUTING.md, "Areas"). Public, so the
 // packet that builds one adds its types without editing this file.
@@ -125,6 +126,11 @@ pub use crate::numbers::{
 };
 pub use crate::overview::{FinishSetupView, OverviewView};
 pub use crate::push::{PushMessage, PushRegistration, decode_push};
+pub use crate::registrations::{
+    DetailFieldView, FilingDocumentView, FilingTone, FilingView, GateView, RegistrationFormInput,
+    RegistrationsTabView, RequirementRowView, RequirementsView, UploadView,
+    registration_document_pick,
+};
 pub use crate::screen::{ScreenView, SessionScreen, screen_view};
 pub use crate::shell::{
     LiveBannerView, SessionPhase, ShellView, TabView, WorkspaceEntryView, WorkspaceSwitcherView,

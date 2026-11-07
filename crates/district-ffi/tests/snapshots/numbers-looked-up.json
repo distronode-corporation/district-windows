@@ -25,6 +25,8 @@
           },
           "number_notice": null,
           "number_unrepeatable": null,
+          "registrations": null,
+          "registrations_tab": "Registrations",
           "release_action": "Release this number"
         },
         "form": {

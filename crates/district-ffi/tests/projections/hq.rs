@@ -72,6 +72,7 @@ pub(crate) fn cases() -> Vec<Case> {
             issued(accepted(with_calls()), Err(server_error())),
         ),
         ("hq-voice-without-calls", on_hq(signed_in())),
+        ("hq-voice-push-to-talk", push_to_talk(with_calls())),
         (
             "hq-voice-dock",
             proposed(listening(with_calls()), "p-1").ui(UiEvent::Navigate {
@@ -325,8 +326,14 @@ fn accepted(session: Session) -> Session {
     disclosing(session).ui(hq(HqAction::AcceptVoiceDisclosure))
 }
 
-/// The voice credential, as the service sends it, with the room's passphrase.
+/// The voice credential, as the service sends it, with the room's passphrase
+/// and an open microphone.
 fn credential() -> district_model::HqVoiceTokenResponse {
+    credential_held(district_model::HQ_VOICE_MIC_OPEN)
+}
+
+/// [`credential`], with the microphone held `mic_mode`.
+fn credential_held(mic_mode: &str) -> district_model::HqVoiceTokenResponse {
     contracts::decode(
         "hq voice credential",
         json!({
@@ -335,9 +342,25 @@ fn credential() -> district_model::HqVoiceTokenResponse {
             "url": "wss://media.example.com",
             "roomName": ROOM,
             "processingRegion": "us",
+            "micMode": mic_mode,
+            "sessionId": "contract-hq-voice-session",
             "e2ee": {"key": "YFT+/ceW4bhgizPFpeX9E5a3PVZ9T07aWRQq4uwQwW0="},
         }),
     )
+}
+
+/// A push-to-talk session joined, the agent listening, the microphone off.
+fn push_to_talk(session: Session) -> Session {
+    let session = issued(
+        accepted(session),
+        Ok(credential_held(district_model::HQ_VOICE_MIC_PUSH)),
+    );
+    let session = media(session, MediaEvent::Connected);
+    let session = media(
+        session,
+        MediaEvent::ParticipantJoined(Participant::new("agent-hq", None, true)),
+    );
+    media(session, MediaEvent::AgentState("listening".to_owned()))
 }
 
 /// The credential's answer.
@@ -639,6 +662,43 @@ fn the_microphone_mutes_and_unmutes() {
     ));
     let session = media(session, MediaEvent::Microphone(MicrophoneState::Off));
     assert!(voice_view(&session).muted);
+}
+
+/// A push-to-talk session joins with the microphone off and shows Hold to
+/// talk in place of the microphone button, on District HQ and in the dock;
+/// holding it is the microphone on, letting go off. An open one shows the
+/// microphone button and no Hold to talk.
+#[test]
+fn push_to_talk_holds_the_microphone() {
+    let session = push_to_talk(with_calls());
+    let joined_on = session.pending.iter().find_map(|effect| match effect {
+        Effect::ConnectMedia { microphone, .. } => Some(*microphone),
+        _ => None,
+    });
+    assert_eq!(joined_on, Some(false), "it joins with the microphone off");
+    let view = voice_view(&session);
+    assert!(view.show_hold && !view.show_microphone);
+    assert_eq!(view.hold_label, s::hq_hold_to_talk(l()));
+    assert!(view.muted);
+    let session = session.ui(UiEvent::Microphone { on: true });
+    assert!(matches!(
+        session.pending.last(),
+        Some(Effect::SetMicrophone { enabled: true, .. })
+    ));
+    let session = session.ui(UiEvent::Microphone { on: false });
+    assert!(matches!(
+        session.pending.last(),
+        Some(Effect::SetMicrophone { enabled: false, .. })
+    ));
+    let docked = session.ui(UiEvent::Navigate {
+        destination: NavDestination::Calls,
+    });
+    let dock = dock(&docked).expect("the dock holds the session");
+    assert!(dock.voice.show_hold && !dock.voice.show_microphone);
+
+    let open = listening(with_calls());
+    let view = voice_view(&open);
+    assert!(view.show_microphone && !view.show_hold);
 }
 
 /// Both sides' words join the conversation as they are spoken, the member's

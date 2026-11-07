@@ -24,10 +24,12 @@
           "can_dismiss": false,
           "can_stop": true,
           "cards": [],
+          "hold_label": "Hold to talk",
           "line": "Connecting to District HQ.",
           "line_is_problem": false,
           "muted": true,
           "notice": null,
+          "show_hold": false,
           "show_microphone": false,
           "stage": "Starting",
           "stop_label": "Stop voice"

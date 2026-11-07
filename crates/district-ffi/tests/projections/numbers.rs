@@ -7,7 +7,9 @@ use std::collections::BTreeMap;
 
 use district_core::{NumberAnswer, NumberCall};
 use district_ffi::marketplace::{MarketplaceAction, NumbersTab};
-use district_ffi::{A2pFormInput, NumberAdminAction, SipTrunkFormInput, TollFreeFormInput};
+use district_ffi::{
+    A2pFormInput, NumberAdminAction, RegistrationFormInput, SipTrunkFormInput, TollFreeFormInput,
+};
 use district_model::{
     A2pRegistrationResponse, NumberLookupInfo, NumberLookupResponse, NumberReleaseResponse,
     ProviderStatusEntry, ProviderStatusResponse, SipTrunk, SipTrunkCreateResponse,
@@ -34,6 +36,11 @@ pub(crate) fn cases() -> Vec<Case> {
         ("numbers-carrier-none", carrier_none()),
         ("numbers-a2p-asked", a2p_asked()),
         ("numbers-carrier-viewer", carrier_tab(held(viewer()))),
+        ("numbers-registrations", registrations_ready()),
+        (
+            "numbers-registrations-viewer",
+            registrations_tab(held(viewer())),
+        ),
     ]
 }
 
@@ -496,4 +503,271 @@ fn a_failed_lookup_is_not_repeated_blind() {
     assert!(lookup.notice.is_some());
     assert!(lookup.unrepeatable.is_some());
     assert!(!lookup.can_ask);
+}
+
+fn registrations_tab(session: Session) -> Session {
+    session.ui(action(MarketplaceAction::SelectTab {
+        tab: NumbersTab::Registrations,
+    }))
+}
+
+/// A filing as the service lists it.
+fn filing(id: &str, status: &str, documents: serde_json::Value) -> serde_json::Value {
+    serde_json::json!({
+        "id": id,
+        "isoCountry": "DE",
+        "numberType": "local",
+        "endUserType": "business",
+        "friendlyName": "Berlin office",
+        "status": status,
+        "rejectionReasons": if status == "twilio-rejected" {
+            serde_json::json!(["The proof of address is older than three months."])
+        } else {
+            serde_json::json!([])
+        },
+        "createdAt": "2026-11-07T09:00:00Z",
+        "documents": documents,
+    })
+}
+
+fn filings(registrations: serde_json::Value) -> Result<NumberAnswer, ApiError> {
+    Ok(NumberAnswer::Registrations(
+        serde_json::from_value(serde_json::json!({
+            "success": true,
+            "registrations": registrations,
+            "approvedCountries": ["DE"],
+            "platformCountries": ["US", "CA"],
+        }))
+        .expect("the service's shape"),
+    ))
+}
+
+fn german_requirements() -> Result<NumberAnswer, ApiError> {
+    Ok(NumberAnswer::Requirements(
+        serde_json::from_value(serde_json::json!({
+            "success": true,
+            "country": "DE",
+            "numberType": "local",
+            "purchasable": true,
+            "requirements": {
+                "isoCountry": "DE",
+                "numberType": "local",
+                "endUserType": "business",
+                "regulationSid": "RN-contract-de",
+                "friendlyName": "Germany: Local - Business",
+                "requirements": [
+                    {"kind": "end_user", "name": "Business", "requirementName": "business_info", "type": "end_user", "fields": ["business_name", "vat_number"]},
+                    {"kind": "supporting_document", "name": "Proof of address", "requirementName": "proof_of_address", "type": "document", "fields": ["address"]}
+                ]
+            }
+        }))
+        .expect("the service's shape"),
+    ))
+}
+
+fn form(country: &str) -> RegistrationFormInput {
+    RegistrationFormInput {
+        country: country.to_owned(),
+        number_type: "local".to_owned(),
+        end_user_type: "business".to_owned(),
+        friendly_name: "Berlin office".to_owned(),
+    }
+}
+
+/// Germany's requirements read, a draft for it listed with a document, a
+/// filing in review and one refused.
+fn registrations_ready() -> Session {
+    let session = registrations_tab(held(signed_in()));
+    let session = numbers(
+        session,
+        NumberAdminAction::EditRegistration { form: form("de") },
+    );
+    let session = numbers(session, NumberAdminAction::CheckRequirements);
+    let session = done(
+        session,
+        |call| matches!(call, NumberCall::Requirements { .. }),
+        german_requirements(),
+    );
+    done(
+        session,
+        |call| matches!(call, NumberCall::Registrations),
+        filings(serde_json::json!([
+            filing(
+                "BU-1",
+                "draft",
+                serde_json::json!([{
+                    "id": "RD-1", "requirementName": "proof_of_address", "mimeType": "application/pdf",
+                    "sizeBytes": 19, "stored": true, "submitted": false, "updatedAt": "2026-11-07T09:05:00Z"
+                }])
+            ),
+            filing("BU-2", "in-review", serde_json::json!([])),
+            filing("BU-3", "twilio-rejected", serde_json::json!([])),
+        ])),
+    )
+}
+
+/// The Registrations tab: read on opening, a draft offered its details,
+/// its upload, removal and filing; a filing elsewhere offered nothing; each
+/// action the core's event; a viewer read nothing and offered nothing.
+#[test]
+fn the_registrations_tab_reads_and_files() {
+    let opened = registrations_tab(held(signed_in()));
+    assert_eq!(
+        calls(&opened, |c| matches!(c, NumberCall::Registrations)),
+        1
+    );
+    let session = registrations_ready();
+    let tab = view(&session).admin.registrations.expect("the tab shows");
+    assert!(tab.member && tab.can_check && tab.can_start);
+    assert!(matches!(
+        tab.requirements,
+        district_ffi::RequirementsView::Ready { ref requirements, .. } if requirements.len() == 2
+    ));
+    assert_eq!(
+        tab.gates
+            .iter()
+            .map(|g| g.countries.as_str())
+            .collect::<Vec<_>>(),
+        ["DE"],
+        "the approvals, and nothing said of buying"
+    );
+    let draft = &tab.filings[0];
+    assert!(draft.draft && draft.armed && draft.can_file);
+    assert_eq!(
+        draft
+            .details
+            .iter()
+            .map(|d| d.field.as_str())
+            .collect::<Vec<_>>(),
+        ["business_name", "vat_number"]
+    );
+    assert_eq!(draft.uploads[0].label, "Upload Proof of address");
+    assert_eq!(draft.uploads[0].requirement_name, "proof_of_address");
+    assert!(draft.documents[0].remove_action.is_some());
+    let review = &tab.filings[1];
+    assert!(!review.draft && review.uploads.is_empty() && review.file_action.is_none());
+    let refused = &tab.filings[2];
+    assert_eq!(refused.tone, district_ffi::FilingTone::Danger);
+    assert_eq!(refused.reasons.len(), 1);
+
+    // The details go with the filing; the upload is typed by its bytes.
+    let typed = numbers(
+        session,
+        NumberAdminAction::EditRegistrationDetails {
+            bundle_id: "BU-1".to_owned(),
+            details: vec![district_ffi::DetailFieldView {
+                field: "business_name".to_owned(),
+                value: "Acme GmbH".to_owned(),
+            }],
+        },
+    );
+    let typed_view = view(&typed).admin.registrations.unwrap();
+    assert_eq!(typed_view.filings[0].details[0].value, "Acme GmbH");
+    let uploading = numbers(
+        typed,
+        NumberAdminAction::UploadRegistrationDocument {
+            bundle_id: "BU-1".to_owned(),
+            requirement_name: "proof_of_address".to_owned(),
+            file: district_ffi::desk::PickedFileView {
+                file_name: "lease.pdf".to_owned(),
+                size: 9,
+                bytes: b"%PDF-1.7\n".to_vec(),
+            },
+        },
+    );
+    let sent = uploading.pending.iter().find_map(|e| match e {
+        Effect::NumberAdmin {
+            call: NumberCall::UploadRegistrationDocument(upload),
+            ..
+        } => Some(upload.clone()),
+        _ => None,
+    });
+    let sent = sent.expect("the upload is sent");
+    assert_eq!(sent.mime_type, "application/pdf");
+    assert!(
+        !view(&uploading).admin.registrations.unwrap().filings[0].armed,
+        "one write at a time"
+    );
+    let uploaded = done(
+        uploading,
+        |c| matches!(c, NumberCall::UploadRegistrationDocument(_)),
+        Err(server_error()),
+    );
+    let removing = numbers(
+        done(
+            uploaded,
+            |c| matches!(c, NumberCall::Registrations),
+            filings(serde_json::json!([filing(
+                "BU-1",
+                "draft",
+                serde_json::json!([{
+                    "id": "RD-1", "requirementName": "proof_of_address", "mimeType": "application/pdf",
+                    "sizeBytes": 19, "stored": true, "submitted": false, "updatedAt": "2026-11-07T09:05:00Z"
+                }])
+            )])),
+        ),
+        NumberAdminAction::RemoveRegistrationDocument {
+            bundle_id: "BU-1".to_owned(),
+            document_id: "RD-1".to_owned(),
+        },
+    );
+    assert_eq!(
+        calls(&removing, |c| matches!(
+            c,
+            NumberCall::RemoveRegistrationDocument { .. }
+        )),
+        1
+    );
+    let removed = done(
+        done(
+            removing,
+            |c| matches!(c, NumberCall::RemoveRegistrationDocument { .. }),
+            Err(server_error()),
+        ),
+        |c| matches!(c, NumberCall::Registrations),
+        filings(serde_json::json!([filing(
+            "BU-1",
+            "draft",
+            serde_json::json!([])
+        )])),
+    );
+    let asked = numbers(
+        removed,
+        NumberAdminAction::AskSubmitRegistration {
+            bundle_id: "BU-1".to_owned(),
+        },
+    );
+    assert!(view(&asked).admin.confirmation.is_some(), "it asks first");
+    let filing_call = numbers(asked, NumberAdminAction::Confirm);
+    assert_eq!(
+        calls(&filing_call, |c| matches!(
+            c,
+            NumberCall::SubmitRegistration { .. }
+        )),
+        1
+    );
+
+    // Reloaded and started from the form.
+    let reload = numbers(
+        registrations_ready(),
+        NumberAdminAction::ReloadRegistrations,
+    );
+    assert_eq!(
+        calls(&reload, |c| matches!(c, NumberCall::Registrations)),
+        1
+    );
+    let started = numbers(registrations_ready(), NumberAdminAction::StartRegistration);
+    assert_eq!(
+        calls(&started, |c| matches!(c, NumberCall::CreateRegistration(_))),
+        1
+    );
+
+    // A viewer: the heading alone, nothing read.
+    let viewer_tab = registrations_tab(held(viewer()));
+    assert_eq!(
+        calls(&viewer_tab, |c| matches!(c, NumberCall::Registrations)),
+        0
+    );
+    let tab = view(&viewer_tab).admin.registrations.unwrap();
+    assert!(!tab.member && !tab.can_check && !tab.can_start && tab.filings.is_empty());
 }

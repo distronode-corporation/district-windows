@@ -36,7 +36,7 @@ public sealed partial class MarketplaceViewModel : ObservableObject
     /// <summary>Managing the held numbers and the carrier account.</summary>
     public NumberAdminViewModel Admin { get; } = new();
 
-    /// <summary>Which tab shows: 0 the held numbers, 1 the search, 2 the carrier.</summary>
+    /// <summary>Which tab shows: 0 the held numbers, 1 the search, 2 the carrier, 3 the registrations.</summary>
     [ObservableProperty]
     public partial int TabIndex { get; set; }
 
@@ -135,6 +135,7 @@ public sealed partial class MarketplaceViewModel : ObservableObject
             {
                 NumbersTab.Search => 1,
                 NumbersTab.Carrier => 2,
+                NumbersTab.Registrations => 3,
                 _ => 0,
             };
             ShowForm(view.Form);
@@ -188,12 +189,13 @@ public sealed partial class MarketplaceViewModel : ObservableObject
 
     partial void OnTabIndexChanged(int value)
     {
-        if (!_writing && value is >= 0 and <= 2)
+        if (!_writing && value is >= 0 and <= 3)
         {
             Send(new MarketplaceAction.SelectTab(value switch
             {
                 1 => NumbersTab.Search,
                 2 => NumbersTab.Carrier,
+                3 => NumbersTab.Registrations,
                 _ => NumbersTab.Owned,
             }));
         }

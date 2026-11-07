@@ -28,8 +28,8 @@ use std::sync::{Mutex, PoisonError};
 use district_api::{ApiError, ErrorDetail};
 use district_auth::AccessClaims;
 use district_core::{
-    Effect, Event, Locale, MediaEvent, MediaUpdate, MicrophoneState, Participant, Speaker,
-    SpeechSegment, Ticket,
+    Effect, Event, Locale, MediaEvent, MediaUpdate, MicrophoneState, NumberAnswer, NumberCall,
+    Participant, Speaker, SpeechSegment, Ticket,
 };
 use district_live::{LiveUpdate, WorkspaceUpdate};
 use serde::de::DeserializeOwned;
@@ -734,10 +734,77 @@ fn signed_in(effect: Effect) -> Option<Event> {
             transcript: Some(watch),
             ..
         } => transcript_snapshot(&watch.call_id)?,
+        // The Registrations tab's two reads, which the service records no
+        // fixture of: Germany's regulation, and a draft for it beside a
+        // filing the carrier refused. Its writes stay unanswered.
+        Effect::NumberAdmin {
+            ticket,
+            call: call @ (NumberCall::Registrations | NumberCall::Requirements { .. }),
+            ..
+        } => Event::NumberAdminDone {
+            ticket,
+            result: registrations_answer(&call),
+        },
         // Everything else: writes, the browser, live updates, presence, calls,
         // notifications and the settings sections the core has no fixture
         // for. Unanswered, as with no network.
         _ => return None,
+    })
+}
+
+/// The scene's answer to the Registrations tab's read `call`.
+fn registrations_answer(call: &NumberCall) -> Result<NumberAnswer, ApiError> {
+    let filing = |id: &str, status: &str, reasons: Value| {
+        json!({
+            "id": id,
+            "isoCountry": "DE",
+            "numberType": "local",
+            "endUserType": "business",
+            "friendlyName": "Berlin office",
+            "status": status,
+            "rejectionReasons": reasons,
+            "createdAt": "2026-11-07T09:00:00Z",
+            "documents": [{
+                "id": format!("{id}-proof"),
+                "requirementName": "proof_of_address",
+                "mimeType": "application/pdf",
+                "sizeBytes": 19,
+                "stored": true,
+                "submitted": status != "draft",
+                "updatedAt": "2026-11-07T09:05:00Z"
+            }],
+        })
+    };
+    fn answer<T: DeserializeOwned>(value: Value) -> Result<T, ApiError> {
+        serde_json::from_value(value).map_err(|_| broken())
+    }
+    Ok(match call {
+        NumberCall::Requirements { .. } => NumberAnswer::Requirements(answer(json!({
+            "success": true,
+            "country": "DE",
+            "numberType": "local",
+            "purchasable": true,
+            "requirements": {
+                "isoCountry": "DE",
+                "numberType": "local",
+                "endUserType": "business",
+                "regulationSid": "RN-scripted-de",
+                "friendlyName": "Germany: Local - Business",
+                "requirements": [
+                    {"kind": "end_user", "name": "Business", "requirementName": "business_info", "type": "end_user", "fields": ["business_name", "vat_number"]},
+                    {"kind": "supporting_document", "name": "Proof of address", "requirementName": "proof_of_address", "type": "document", "fields": ["address"]}
+                ]
+            }
+        }))?),
+        _ => NumberAnswer::Registrations(answer(json!({
+            "success": true,
+            "registrations": [
+                filing("BU-scripted-1", "draft", json!([])),
+                filing("BU-scripted-2", "twilio-rejected", json!(["The proof of address is older than three months."])),
+            ],
+            "approvedCountries": [],
+            "platformCountries": ["US", "CA"],
+        }))?),
     })
 }
 
@@ -967,6 +1034,8 @@ fn voice_credential() -> Result<district_model::HqVoiceTokenResponse, ApiError> 
         "url": VOICE_URL,
         "roomName": format!("{}{WORKSPACE_ID}_scripted", district_model::HQ_ROOM_PREFIX),
         "processingRegion": "us",
+        "micMode": district_model::HQ_VOICE_MIC_OPEN,
+        "sessionId": "scripted-voice-session",
         "e2ee": { "key": "scripted-voice-passphrase" },
     }))
     .map_err(|_| broken())
@@ -1088,6 +1157,33 @@ mod tests {
     use super::*;
     use crate::screen::{ScreenView, screen_view};
     use crate::shell::shell_view;
+
+    /// The Registrations tab's two reads decode as the core reads them: a
+    /// draft and a refused filing, and Germany's regulation.
+    #[test]
+    fn the_registrations_reads_are_answered() {
+        let Ok(NumberAnswer::Registrations(list)) =
+            registrations_answer(&NumberCall::Registrations)
+        else {
+            panic!("the filings");
+        };
+        assert_eq!(list.registrations.len(), 2);
+        assert!(list.registrations[0].is_draft());
+        let Ok(NumberAnswer::Requirements(requirements)) =
+            registrations_answer(&NumberCall::Requirements {
+                country: "DE".to_owned(),
+                number_type: None,
+                end_user_type: None,
+            })
+        else {
+            panic!("the regulation");
+        };
+        assert_eq!(
+            requirements.requirements.map(|r| r.requirements.len()),
+            Some(2)
+        );
+        assert!(voice_credential().is_ok(), "the voice credential decodes");
+    }
 
     #[test]
     fn the_scene_comes_from_the_command_line() {
