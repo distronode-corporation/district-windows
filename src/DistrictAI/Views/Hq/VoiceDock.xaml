@@ -78,6 +78,17 @@
                     Visibility="{x:Bind ViewModel.Voice.ShowMicrophone, Mode=OneWay}">
                     <SymbolIcon Symbol="Microphone" />
                 </ToggleButton>
+                <!-- A push-to-talk session: the microphone is on while this is held down (HoldToTalk). -->
+                <Button
+                    x:Name="DockHold"
+                    AutomationProperties.AutomationId="VoiceDockHoldToTalk"
+                    AutomationProperties.Name="{x:Bind ViewModel.Voice.HoldLabel, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.Voice.ShowHold, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Microphone" />
+                        <TextBlock Text="{x:Bind ViewModel.Voice.HoldLabel, Mode=OneWay}" />
+                    </StackPanel>
+                </Button>
                 <Button
                     x:Name="DockStop"
                     AutomationProperties.AutomationId="VoiceDockStop"

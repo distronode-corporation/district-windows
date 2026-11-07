@@ -58,10 +58,12 @@
           "can_dismiss": false,
           "can_stop": false,
           "cards": [],
+          "hold_label": "Hold to talk",
           "line": "Calls and meeting rooms are not available in this build of District AI.",
           "line_is_problem": false,
           "muted": true,
           "notice": null,
+          "show_hold": false,
           "show_microphone": false,
           "stage": "Off",
           "stop_label": "Stop voice"

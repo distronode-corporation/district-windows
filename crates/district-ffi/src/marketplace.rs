@@ -20,7 +20,7 @@ use serde::Serialize;
 
 use crate::l10n::{cs, l, s};
 use crate::numbers::{
-    NumberAdminAction, NumberAdminView, NumberManageView, admin_view, manage_view,
+    AdminTab, NumberAdminAction, NumberAdminView, NumberManageView, admin_view, manage_view,
 };
 use crate::screen::ScreenView;
 use crate::views::{EmptyView, FailureView, LoadStatus, humanize, wire};
@@ -78,12 +78,12 @@ impl Default for MarketplaceView {
             refreshing: false,
             form: NumberFormView::from(&NumberSearchForm::default()),
             search: NumberSearchView::Idle,
-            admin: admin_view(&NumberAdmin::default(), false, false),
+            admin: admin_view(&NumberAdmin::default(), false, AdminTab::Neither),
         }
     }
 }
 
-/// The screen's two tabs.
+/// The screen's tabs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, uniffi::Enum)]
 pub enum NumbersTab {
     /// The numbers the workspace holds.
@@ -93,6 +93,8 @@ pub enum NumbersTab {
     /// The carrier accounts, SIP trunks, one-time passcodes and messaging
     /// registrations.
     Carrier,
+    /// A number's regulatory registrations.
+    Registrations,
 }
 
 impl From<MarketplaceTab> for NumbersTab {
@@ -101,6 +103,7 @@ impl From<MarketplaceTab> for NumbersTab {
             MarketplaceTab::Owned => Self::Owned,
             MarketplaceTab::Search => Self::Search,
             MarketplaceTab::Carrier => Self::Carrier,
+            MarketplaceTab::Registrations => Self::Registrations,
         }
     }
 }
@@ -111,6 +114,7 @@ impl From<NumbersTab> for MarketplaceTab {
             NumbersTab::Owned => Self::Owned,
             NumbersTab::Search => Self::Search,
             NumbersTab::Carrier => Self::Carrier,
+            NumbersTab::Registrations => Self::Registrations,
         }
     }
 }
@@ -266,7 +270,11 @@ fn marketplace_view(screen: &MarketplaceScreen, capabilities: &Capabilities) -> 
         admin: admin_view(
             &screen.admin,
             capabilities.can_change,
-            screen.tab == MarketplaceTab::Carrier,
+            match screen.tab {
+                MarketplaceTab::Carrier => AdminTab::Carrier,
+                MarketplaceTab::Registrations => AdminTab::Registrations,
+                MarketplaceTab::Owned | MarketplaceTab::Search => AdminTab::Neither,
+            },
         ),
         ..MarketplaceView::default()
     };
@@ -470,7 +478,12 @@ mod tests {
             )
         );
         assert_eq!(both(1.0, Some("")).0, "$1.00 a month");
-        for tab in [NumbersTab::Owned, NumbersTab::Search, NumbersTab::Carrier] {
+        for tab in [
+            NumbersTab::Owned,
+            NumbersTab::Search,
+            NumbersTab::Carrier,
+            NumbersTab::Registrations,
+        ] {
             assert_eq!(NumbersTab::from(MarketplaceTab::from(tab)), tab);
         }
     }

@@ -38,10 +38,12 @@
               "title": "Confirm this change"
             }
           ],
+          "hold_label": "Hold to talk",
           "line": "Voice session ended because District HQ left the session.",
           "line_is_problem": true,
           "muted": true,
           "notice": null,
+          "show_hold": false,
           "show_microphone": false,
           "stage": "Ended",
           "stop_label": "Stop voice"

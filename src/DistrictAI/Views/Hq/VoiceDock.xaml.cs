@@ -34,6 +34,7 @@ public sealed partial class VoiceDock : UserControl
     {
         InitializeComponent();
         DockCards.Attach(ViewModel.Voice);
+        HoldToTalk.Attach(DockHold, () => ViewModel.Voice);
         ViewModel.Voice.PropertyChanged += OnVoiceChanged;
     }
 

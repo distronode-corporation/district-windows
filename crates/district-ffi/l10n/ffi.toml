@@ -1275,6 +1275,15 @@ tier = "T3"
 state = "reviewed"
 note = "The line under the prompt box: every question is a billed model run, and nothing changes until the member confirms it."
 
+[hq.hold_to_talk]
+en = "Hold to talk"
+fr = "Maintenir pour parler"
+ctx = "button"
+screen = "hq"
+tier = "T3"
+state = "reviewed"
+note = "District HQ and the voice dock, with a push-to-talk voice session: the microphone is on only while this button is held down (with the pointer, or Space or Enter on the keyboard). The web dashboard's HQ voice button (hqVoiceI18n holdToTalk), verbatim in both languages."
+
 [hq.prompt_placeholder]
 en = "Ask District HQ"
 fr = "Poser une question à District HQ"
@@ -2140,6 +2149,16 @@ screen = "marketplace"
 tier = "T1"
 state = "reviewed"
 note = "Label of the A2P 10DLC form's choice of campaign type (customer care, low volume, marketing, 2FA), which decides the brand and the price."
+
+[numbers.upload_for]
+en = "Upload {requirement}"
+fr = "Téléverser\u00A0: {requirement}"
+ctx = "button"
+screen = "marketplace"
+tier = "T1"
+args = { requirement = "str" }
+state = "reviewed"
+note = "Phone numbers, Registrations tab: on a draft filing, picks a PDF, PNG or JPEG file and puts it on the filing for the regulator's requirement named, replacing the one it had. requirement is the carrier's name for it (Proof of address). The web dashboard's registration upload button (marketplaceI18n uploadFor), verbatim in both languages."
 
 [overview.failed_title]
 en = "Could not load the overview"

@@ -20,6 +20,8 @@
           },
           "number_notice": "Released.",
           "number_unrepeatable": null,
+          "registrations": null,
+          "registrations_tab": "Registrations",
           "release_action": "Release this number"
         },
         "form": {

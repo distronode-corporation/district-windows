@@ -51,6 +51,7 @@ public sealed partial class HqPage : UserControl
         InitializeComponent();
         ViewModel.Messages.CollectionChanged += OnMessagesChanged;
         VoiceCardList.Attach(ViewModel.Voice);
+        HoldToTalk.Attach(VoiceHold, () => ViewModel.Voice);
         ViewModel.Voice.PropertyChanged += OnVoiceChanged;
     }
 

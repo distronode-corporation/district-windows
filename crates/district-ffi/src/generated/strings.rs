@@ -1259,6 +1259,15 @@ pub fn hq_footnote(l: Locale) -> &'static str {
     }
 }
 
+/// `hq.hold_to_talk`
+#[must_use]
+pub fn hq_hold_to_talk(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "Hold to talk",
+        Locale::FrCa => "Maintenir pour parler",
+    }
+}
+
 /// `hq.prompt_placeholder`
 #[must_use]
 pub fn hq_prompt_placeholder(l: Locale) -> &'static str {
@@ -2126,6 +2135,15 @@ pub fn numbers_campaign_type(l: Locale) -> &'static str {
     match l {
         Locale::En => "Campaign type",
         Locale::FrCa => "Type de campagne",
+    }
+}
+
+/// `numbers.upload_for`
+#[must_use]
+pub fn numbers_upload_for(l: Locale, requirement: &str) -> String {
+    match l {
+        Locale::En => format!("Upload {requirement}"),
+        Locale::FrCa => format!("Téléverser\u{00A0}: {requirement}"),
     }
 }
 

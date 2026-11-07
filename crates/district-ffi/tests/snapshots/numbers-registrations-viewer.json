@@ -1,0 +1,181 @@
+{
+  "screen": {
+    "Marketplace": {
+      "view": {
+        "admin": {
+          "carrier": null,
+          "carrier_tab": "Carrier",
+          "configure_action": "Reapply call routing",
+          "configure_caption": "Points this number's calls and messages back at this workspace, and re-pins an EU number to its European bridge.",
+          "confirmation": null,
+          "lookup": {
+            "action": "Look this number up",
+            "can_ask": false,
+            "eyebrow": "Number lookup",
+            "notice": null,
+            "number": "",
+            "number_label": "Phone number, in full",
+            "result": [],
+            "unrepeatable": null
+          },
+          "number_notice": null,
+          "number_unrepeatable": null,
+          "registrations": {
+            "can_check": false,
+            "can_start": false,
+            "check_action": "Check requirements",
+            "country_label": "Country (two letters)",
+            "empty": null,
+            "end_user_types": [
+              {
+                "label": "Business",
+                "value": "business"
+              },
+              {
+                "label": "Individual",
+                "value": "individual"
+              }
+            ],
+            "eyebrow": "Regulatory registrations",
+            "failed": false,
+            "filings": [],
+            "form": {
+              "country": "",
+              "end_user_type": "business",
+              "friendly_name": "",
+              "number_type": "local"
+            },
+            "gates": [],
+            "list_status": "Ready",
+            "member": false,
+            "name_label": "Name for your carrier console (optional)",
+            "notice": null,
+            "number_types": [
+              {
+                "label": "Local",
+                "value": "local"
+              },
+              {
+                "label": "Mobile",
+                "value": "mobile"
+              },
+              {
+                "label": "National",
+                "value": "national"
+              },
+              {
+                "label": "Toll-free",
+                "value": "toll free"
+              }
+            ],
+            "requirements": "Idle",
+            "start_action": "Start registration",
+            "start_title": "Start a registration",
+            "status_caption": null,
+            "unrepeatable": null,
+            "working": false
+          },
+          "registrations_tab": "Registrations",
+          "release_action": "Release this number"
+        },
+        "form": {
+          "area_code": "",
+          "country": "US",
+          "number_type": "local",
+          "number_types": [
+            {
+              "label": "Local",
+              "value": "local"
+            },
+            {
+              "label": "Toll-free",
+              "value": "tollFree"
+            },
+            {
+              "label": "Mobile",
+              "value": "mobile"
+            }
+          ]
+        },
+        "offers_web": false,
+        "owned": [
+          {
+            "line": "Main line · Local · Twilio · SMS, Voice",
+            "manage": null,
+            "monthly": "$1.15 a month",
+            "number": "+1 416 555 0100"
+          },
+          {
+            "line": "Local · Telnyx · Voice",
+            "manage": {
+              "busy": false,
+              "can_configure": false,
+              "can_release": false,
+              "note": "This line is held on Distronode's carrier account, so it is yours to use and not to release or reconfigure.",
+              "phone_number": "+14165550199"
+            },
+            "monthly": "$2.50 a month",
+            "number": "+1 416 555 0199"
+          },
+          {
+            "line": "Local · Telnyx",
+            "manage": {
+              "busy": false,
+              "can_configure": false,
+              "can_release": false,
+              "note": "This line is held on Distronode's carrier account, so it is yours to use and not to release or reconfigure.",
+              "phone_number": "+18005550188"
+            },
+            "monthly": null,
+            "number": "+1 800 555 0188"
+          }
+        ],
+        "owned_empty": null,
+        "owned_status": "Ready",
+        "partial_note": null,
+        "refreshing": false,
+        "scope_note": "Carrier setup and number changes need an agency or client role. Ask someone on this workspace who has one.",
+        "search": "Idle",
+        "tab": "Registrations",
+        "title": "Phone numbers",
+        "web_action": "Open the number marketplace on the web"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Marketplace",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-contract-viewer",
+      "can_switch": true,
+      "entries": [
+        {
+          "id": "ws-contract-active",
+          "name": "Zulu Agency",
+          "role_label": "Agency"
+        },
+        {
+          "id": "ws-contract-viewer",
+          "name": "Alpha Client",
+          "role_label": "Viewer"
+        },
+        {
+          "id": "ws-contract-client",
+          "name": "Bravo Client",
+          "role_label": "Client"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

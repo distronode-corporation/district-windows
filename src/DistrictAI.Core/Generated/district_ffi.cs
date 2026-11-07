@@ -935,6 +935,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1425,6 +1427,17 @@ static class _UniFFILib {
     public static extern
 #endif
      RustBuffer uniffi_district_ffi_fn_func_decode_push(RustBuffer @payload,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_district_ffi_fn_func_registration_document_pick(ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -2249,6 +2262,17 @@ static class _UniFFILib {
     [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_district_ffi_checksum_func_registration_document_pick(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("district_ffi")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("district_ffi", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_district_ffi_checksum_func_scheduling_image_pick(
     );
 
@@ -2642,6 +2666,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_decode_push();
             if (checksum != 29519) {
                 throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_decode_push` checksum `29519`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_district_ffi_checksum_func_registration_document_pick();
+            if (checksum != 50521) {
+                throw new UniffiContractChecksumException($"DistrictAI.Core.Ffi: uniffi bindings expected function `uniffi_district_ffi_checksum_func_registration_document_pick` checksum `50521`, library returned `{checksum}`");
             }
         }
         {
@@ -11634,6 +11664,51 @@ class FfiConverterTypeDeskView: FfiConverterRustBuffer<DeskView> {
 
 
 /// <summary>
+/// One end-user detail a draft's regulation asks for.
+/// </summary>
+/// <param name="Field">
+/// The field's name, as the regulation lists it: its label too.
+/// </param>
+/// <param name="Value">
+/// What was typed.
+/// </param>
+public record DetailFieldView (
+    /// <summary>
+    /// The field's name, as the regulation lists it: its label too.
+    /// </summary>
+    string Field, 
+    /// <summary>
+    /// What was typed.
+    /// </summary>
+    string Value
+) {
+}
+
+class FfiConverterTypeDetailFieldView: FfiConverterRustBuffer<DetailFieldView> {
+    public static FfiConverterTypeDetailFieldView INSTANCE = new FfiConverterTypeDetailFieldView();
+
+    public override DetailFieldView Read(BigEndianStream stream) {
+        return new DetailFieldView(
+            Field: FfiConverterString.INSTANCE.Read(stream),
+            Value: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DetailFieldView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Field)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Value);
+    }
+
+    public override void Write(DetailFieldView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Field, stream);
+            FfiConverterString.INSTANCE.Write(value.Value, stream);
+    }
+}
+
+
+
+/// <summary>
 /// One tab, as the tab bar lists it.
 /// </summary>
 /// <param name="Tab">
@@ -14169,6 +14244,254 @@ class FfiConverterTypeFilePickView: FfiConverterRustBuffer<FilePickView> {
 
 
 /// <summary>
+/// One document on a filing.
+/// </summary>
+/// <param name="Id">
+/// Its id, which a removal names.
+/// </param>
+/// <param name="Name">
+/// The requirement it meets.
+/// </param>
+/// <param name="State">
+/// Where it is: filed, stored, or recorded with no file yet.
+/// </param>
+/// <param name="RemoveAction">
+/// "Remove", on a draft's document.
+/// </param>
+public record FilingDocumentView (
+    /// <summary>
+    /// Its id, which a removal names.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// The requirement it meets.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Where it is: filed, stored, or recorded with no file yet.
+    /// </summary>
+    string State, 
+    /// <summary>
+    /// "Remove", on a draft's document.
+    /// </summary>
+    string? RemoveAction
+) {
+}
+
+class FfiConverterTypeFilingDocumentView: FfiConverterRustBuffer<FilingDocumentView> {
+    public static FfiConverterTypeFilingDocumentView INSTANCE = new FfiConverterTypeFilingDocumentView();
+
+    public override FilingDocumentView Read(BigEndianStream stream) {
+        return new FilingDocumentView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            State: FfiConverterString.INSTANCE.Read(stream),
+            RemoveAction: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(FilingDocumentView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.State)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RemoveAction);
+    }
+
+    public override void Write(FilingDocumentView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.State, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.RemoveAction, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One filing.
+/// </summary>
+/// <param name="Id">
+/// Its id, which every action on it names.
+/// </param>
+/// <param name="Title">
+/// "DE · Local".
+/// </param>
+/// <param name="FriendlyName">
+/// The name it was given, or `None`.
+/// </param>
+/// <param name="Status">
+/// Its status, through the wire vocabulary.
+/// </param>
+/// <param name="Tone">
+/// How the status reads.
+/// </param>
+/// <param name="ReasonsEyebrow">
+/// "What the carrier objected to", when it objected.
+/// </param>
+/// <param name="Reasons">
+/// The carrier's objections, as it wrote them.
+/// </param>
+/// <param name="DocumentsEyebrow">
+/// "Documents", when there are any.
+/// </param>
+/// <param name="Documents">
+/// Its documents.
+/// </param>
+/// <param name="Draft">
+/// Whether it is a draft: the only filing whose documents may change and
+/// that may be filed.
+/// </param>
+/// <param name="Details">
+/// On a draft of the country checked, a field for each end-user detail
+/// its regulation lists, with what was typed.
+/// </param>
+/// <param name="Uploads">
+/// On a draft of the country checked, an upload for each document its
+/// regulation asks for.
+/// </param>
+/// <param name="Armed">
+/// Whether Upload and Remove work now: a draft, and no write on its way.
+/// </param>
+/// <param name="FileAction">
+/// "File it", on a draft.
+/// </param>
+/// <param name="CanFile">
+/// Whether it works now: not for a draft whose filing may already have
+/// happened. It asks first.
+/// </param>
+public record FilingView (
+    /// <summary>
+    /// Its id, which every action on it names.
+    /// </summary>
+    string Id, 
+    /// <summary>
+    /// "DE · Local".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// The name it was given, or `None`.
+    /// </summary>
+    string? FriendlyName, 
+    /// <summary>
+    /// Its status, through the wire vocabulary.
+    /// </summary>
+    string Status, 
+    /// <summary>
+    /// How the status reads.
+    /// </summary>
+    FilingTone Tone, 
+    /// <summary>
+    /// "What the carrier objected to", when it objected.
+    /// </summary>
+    string? ReasonsEyebrow, 
+    /// <summary>
+    /// The carrier's objections, as it wrote them.
+    /// </summary>
+    string[] Reasons, 
+    /// <summary>
+    /// "Documents", when there are any.
+    /// </summary>
+    string? DocumentsEyebrow, 
+    /// <summary>
+    /// Its documents.
+    /// </summary>
+    FilingDocumentView[] Documents, 
+    /// <summary>
+    /// Whether it is a draft: the only filing whose documents may change and
+    /// that may be filed.
+    /// </summary>
+    bool Draft, 
+    /// <summary>
+    /// On a draft of the country checked, a field for each end-user detail
+    /// its regulation lists, with what was typed.
+    /// </summary>
+    DetailFieldView[] Details, 
+    /// <summary>
+    /// On a draft of the country checked, an upload for each document its
+    /// regulation asks for.
+    /// </summary>
+    UploadView[] Uploads, 
+    /// <summary>
+    /// Whether Upload and Remove work now: a draft, and no write on its way.
+    /// </summary>
+    bool Armed, 
+    /// <summary>
+    /// "File it", on a draft.
+    /// </summary>
+    string? FileAction, 
+    /// <summary>
+    /// Whether it works now: not for a draft whose filing may already have
+    /// happened. It asks first.
+    /// </summary>
+    bool CanFile
+) {
+}
+
+class FfiConverterTypeFilingView: FfiConverterRustBuffer<FilingView> {
+    public static FfiConverterTypeFilingView INSTANCE = new FfiConverterTypeFilingView();
+
+    public override FilingView Read(BigEndianStream stream) {
+        return new FilingView(
+            Id: FfiConverterString.INSTANCE.Read(stream),
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            FriendlyName: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Status: FfiConverterString.INSTANCE.Read(stream),
+            Tone: FfiConverterTypeFilingTone.INSTANCE.Read(stream),
+            ReasonsEyebrow: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Reasons: FfiConverterSequenceString.INSTANCE.Read(stream),
+            DocumentsEyebrow: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Documents: FfiConverterSequenceTypeFilingDocumentView.INSTANCE.Read(stream),
+            Draft: FfiConverterBoolean.INSTANCE.Read(stream),
+            Details: FfiConverterSequenceTypeDetailFieldView.INSTANCE.Read(stream),
+            Uploads: FfiConverterSequenceTypeUploadView.INSTANCE.Read(stream),
+            Armed: FfiConverterBoolean.INSTANCE.Read(stream),
+            FileAction: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CanFile: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(FilingView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.FriendlyName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Status)
+            + FfiConverterTypeFilingTone.INSTANCE.AllocationSize(value.Tone)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReasonsEyebrow)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Reasons)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.DocumentsEyebrow)
+            + FfiConverterSequenceTypeFilingDocumentView.INSTANCE.AllocationSize(value.Documents)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Draft)
+            + FfiConverterSequenceTypeDetailFieldView.INSTANCE.AllocationSize(value.Details)
+            + FfiConverterSequenceTypeUploadView.INSTANCE.AllocationSize(value.Uploads)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Armed)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.FileAction)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanFile);
+    }
+
+    public override void Write(FilingView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Id, stream);
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.FriendlyName, stream);
+            FfiConverterString.INSTANCE.Write(value.Status, stream);
+            FfiConverterTypeFilingTone.INSTANCE.Write(value.Tone, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ReasonsEyebrow, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.Reasons, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.DocumentsEyebrow, stream);
+            FfiConverterSequenceTypeFilingDocumentView.INSTANCE.Write(value.Documents, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Draft, stream);
+            FfiConverterSequenceTypeDetailFieldView.INSTANCE.Write(value.Details, stream);
+            FfiConverterSequenceTypeUploadView.INSTANCE.Write(value.Uploads, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Armed, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.FileAction, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanFile, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The card sending the owner to finish setting up on the web.
 /// </summary>
 /// <param name="Title">
@@ -14275,6 +14598,51 @@ class FfiConverterTypeFullTranscriptView: FfiConverterRustBuffer<FullTranscriptV
             FfiConverterBoolean.INSTANCE.Write(value.Loading, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Text, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Note, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The countries a list names, under their label.
+/// </summary>
+/// <param name="Label">
+/// "Your approvals".
+/// </param>
+/// <param name="Countries">
+/// The countries, comma-separated.
+/// </param>
+public record GateView (
+    /// <summary>
+    /// "Your approvals".
+    /// </summary>
+    string Label, 
+    /// <summary>
+    /// The countries, comma-separated.
+    /// </summary>
+    string Countries
+) {
+}
+
+class FfiConverterTypeGateView: FfiConverterRustBuffer<GateView> {
+    public static FfiConverterTypeGateView INSTANCE = new FfiConverterTypeGateView();
+
+    public override GateView Read(BigEndianStream stream) {
+        return new GateView(
+            Label: FfiConverterString.INSTANCE.Read(stream),
+            Countries: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(GateView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Countries);
+    }
+
+    public override void Write(GateView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+            FfiConverterString.INSTANCE.Write(value.Countries, stream);
     }
 }
 
@@ -15578,7 +15946,16 @@ class FfiConverterTypeHqVoiceDockView: FfiConverterRustBuffer<HqVoiceDockView> {
 /// </param>
 /// <param name="ShowMicrophone">
 /// Whether the microphone button is shown: while the session's room is
-/// live.
+/// live, with an open microphone.
+/// </param>
+/// <param name="ShowHold">
+/// Whether Hold to talk is shown in its place: a push-to-talk session's
+/// room is live. It sends `UiEvent::Microphone(true)` while held down
+/// (the pointer, Space or Enter) and `(false)` when let go, when the
+/// keyboard leaves it, or when it leaves the screen.
+/// </param>
+/// <param name="HoldLabel">
+/// Hold to talk's label, `hq.hold_to_talk`.
 /// </param>
 /// <param name="Muted">
 /// Whether the microphone is off (or could not be used): pressing the
@@ -15626,9 +16003,20 @@ public record HqVoiceView (
     string StopLabel, 
     /// <summary>
     /// Whether the microphone button is shown: while the session's room is
-    /// live.
+    /// live, with an open microphone.
     /// </summary>
     bool ShowMicrophone, 
+    /// <summary>
+    /// Whether Hold to talk is shown in its place: a push-to-talk session's
+    /// room is live. It sends `UiEvent::Microphone(true)` while held down
+    /// (the pointer, Space or Enter) and `(false)` when let go, when the
+    /// keyboard leaves it, or when it leaves the screen.
+    /// </summary>
+    bool ShowHold, 
+    /// <summary>
+    /// Hold to talk's label, `hq.hold_to_talk`.
+    /// </summary>
+    string HoldLabel, 
     /// <summary>
     /// Whether the microphone is off (or could not be used): pressing the
     /// button asks for it on (`UiEvent::Microphone`).
@@ -15663,6 +16051,8 @@ class FfiConverterTypeHqVoiceView: FfiConverterRustBuffer<HqVoiceView> {
             CanStop: FfiConverterBoolean.INSTANCE.Read(stream),
             StopLabel: FfiConverterString.INSTANCE.Read(stream),
             ShowMicrophone: FfiConverterBoolean.INSTANCE.Read(stream),
+            ShowHold: FfiConverterBoolean.INSTANCE.Read(stream),
+            HoldLabel: FfiConverterString.INSTANCE.Read(stream),
             Muted: FfiConverterBoolean.INSTANCE.Read(stream),
             CanDismiss: FfiConverterBoolean.INSTANCE.Read(stream),
             Notice: FfiConverterOptionalTypeFailureView.INSTANCE.Read(stream),
@@ -15679,6 +16069,8 @@ class FfiConverterTypeHqVoiceView: FfiConverterRustBuffer<HqVoiceView> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanStop)
             + FfiConverterString.INSTANCE.AllocationSize(value.StopLabel)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowMicrophone)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowHold)
+            + FfiConverterString.INSTANCE.AllocationSize(value.HoldLabel)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Muted)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanDismiss)
             + FfiConverterOptionalTypeFailureView.INSTANCE.AllocationSize(value.Notice)
@@ -15693,6 +16085,8 @@ class FfiConverterTypeHqVoiceView: FfiConverterRustBuffer<HqVoiceView> {
             FfiConverterBoolean.INSTANCE.Write(value.CanStop, stream);
             FfiConverterString.INSTANCE.Write(value.StopLabel, stream);
             FfiConverterBoolean.INSTANCE.Write(value.ShowMicrophone, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowHold, stream);
+            FfiConverterString.INSTANCE.Write(value.HoldLabel, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Muted, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanDismiss, stream);
             FfiConverterOptionalTypeFailureView.INSTANCE.Write(value.Notice, stream);
@@ -18927,6 +19321,12 @@ class FfiConverterTypeNotificationView: FfiConverterRustBuffer<NotificationView>
 /// <param name="Carrier">
 /// The carrier tab, while it shows: it is read when it opens.
 /// </param>
+/// <param name="RegistrationsTab">
+/// The Registrations tab's label.
+/// </param>
+/// <param name="Registrations">
+/// The Registrations tab, while it shows: it is read when it opens.
+/// </param>
 public record NumberAdminView (
     /// <summary>
     /// The carrier tab's label.
@@ -18963,7 +19363,15 @@ public record NumberAdminView (
     /// <summary>
     /// The carrier tab, while it shows: it is read when it opens.
     /// </summary>
-    CarrierTabView? Carrier
+    CarrierTabView? Carrier, 
+    /// <summary>
+    /// The Registrations tab's label.
+    /// </summary>
+    string RegistrationsTab, 
+    /// <summary>
+    /// The Registrations tab, while it shows: it is read when it opens.
+    /// </summary>
+    RegistrationsTabView? Registrations
 ) {
 }
 
@@ -18980,7 +19388,9 @@ class FfiConverterTypeNumberAdminView: FfiConverterRustBuffer<NumberAdminView> {
             NumberUnrepeatable: FfiConverterOptionalString.INSTANCE.Read(stream),
             Lookup: FfiConverterTypeLookupView.INSTANCE.Read(stream),
             Confirmation: FfiConverterOptionalTypeNumberConfirmationView.INSTANCE.Read(stream),
-            Carrier: FfiConverterOptionalTypeCarrierTabView.INSTANCE.Read(stream)
+            Carrier: FfiConverterOptionalTypeCarrierTabView.INSTANCE.Read(stream),
+            RegistrationsTab: FfiConverterString.INSTANCE.Read(stream),
+            Registrations: FfiConverterOptionalTypeRegistrationsTabView.INSTANCE.Read(stream)
         );
     }
 
@@ -18994,7 +19404,9 @@ class FfiConverterTypeNumberAdminView: FfiConverterRustBuffer<NumberAdminView> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.NumberUnrepeatable)
             + FfiConverterTypeLookupView.INSTANCE.AllocationSize(value.Lookup)
             + FfiConverterOptionalTypeNumberConfirmationView.INSTANCE.AllocationSize(value.Confirmation)
-            + FfiConverterOptionalTypeCarrierTabView.INSTANCE.AllocationSize(value.Carrier);
+            + FfiConverterOptionalTypeCarrierTabView.INSTANCE.AllocationSize(value.Carrier)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RegistrationsTab)
+            + FfiConverterOptionalTypeRegistrationsTabView.INSTANCE.AllocationSize(value.Registrations);
     }
 
     public override void Write(NumberAdminView value, BigEndianStream stream) {
@@ -19007,6 +19419,8 @@ class FfiConverterTypeNumberAdminView: FfiConverterRustBuffer<NumberAdminView> {
             FfiConverterTypeLookupView.INSTANCE.Write(value.Lookup, stream);
             FfiConverterOptionalTypeNumberConfirmationView.INSTANCE.Write(value.Confirmation, stream);
             FfiConverterOptionalTypeCarrierTabView.INSTANCE.Write(value.Carrier, stream);
+            FfiConverterString.INSTANCE.Write(value.RegistrationsTab, stream);
+            FfiConverterOptionalTypeRegistrationsTabView.INSTANCE.Write(value.Registrations, stream);
     }
 }
 
@@ -21295,6 +21709,322 @@ class FfiConverterTypeReassignDialogView: FfiConverterRustBuffer<ReassignDialogV
 
 
 /// <summary>
+/// The registration form, as typed.
+/// </summary>
+/// <param name="Country">
+/// The country, two letters, as typed.
+/// </param>
+/// <param name="NumberType">
+/// One of the number types' values.
+/// </param>
+/// <param name="EndUserType">
+/// One of the end-user types' values.
+/// </param>
+/// <param name="FriendlyName">
+/// The name the filing gets in the carrier's console. Optional.
+/// </param>
+public record RegistrationFormInput (
+    /// <summary>
+    /// The country, two letters, as typed.
+    /// </summary>
+    string Country, 
+    /// <summary>
+    /// One of the number types' values.
+    /// </summary>
+    string NumberType, 
+    /// <summary>
+    /// One of the end-user types' values.
+    /// </summary>
+    string EndUserType, 
+    /// <summary>
+    /// The name the filing gets in the carrier's console. Optional.
+    /// </summary>
+    string FriendlyName
+) {
+}
+
+class FfiConverterTypeRegistrationFormInput: FfiConverterRustBuffer<RegistrationFormInput> {
+    public static FfiConverterTypeRegistrationFormInput INSTANCE = new FfiConverterTypeRegistrationFormInput();
+
+    public override RegistrationFormInput Read(BigEndianStream stream) {
+        return new RegistrationFormInput(
+            Country: FfiConverterString.INSTANCE.Read(stream),
+            NumberType: FfiConverterString.INSTANCE.Read(stream),
+            EndUserType: FfiConverterString.INSTANCE.Read(stream),
+            FriendlyName: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RegistrationFormInput value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Country)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NumberType)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EndUserType)
+            + FfiConverterString.INSTANCE.AllocationSize(value.FriendlyName);
+    }
+
+    public override void Write(RegistrationFormInput value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Country, stream);
+            FfiConverterString.INSTANCE.Write(value.NumberType, stream);
+            FfiConverterString.INSTANCE.Write(value.EndUserType, stream);
+            FfiConverterString.INSTANCE.Write(value.FriendlyName, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The Registrations tab, while it shows.
+/// </summary>
+/// <param name="Member">
+/// Whether the member may file. A viewer is offered nothing, and only the
+/// tab's heading shows: the reason is the screen's scope note.
+/// </param>
+/// <param name="Eyebrow">
+/// The list's heading, "Regulatory registrations".
+/// </param>
+/// <param name="StartTitle">
+/// The form's heading, "Start a registration".
+/// </param>
+/// <param name="CountryLabel">
+/// The country field's label.
+/// </param>
+/// <param name="NameLabel">
+/// The name field's label.
+/// </param>
+/// <param name="Form">
+/// The form, as typed.
+/// </param>
+/// <param name="NumberTypes">
+/// The number types to choose from, in the core's order.
+/// </param>
+/// <param name="EndUserTypes">
+/// The end-user types to choose from, in the core's order.
+/// </param>
+/// <param name="CheckAction">
+/// "Check requirements".
+/// </param>
+/// <param name="CanCheck">
+/// Whether it works now: a country typed.
+/// </param>
+/// <param name="StartAction">
+/// "Start registration".
+/// </param>
+/// <param name="CanStart">
+/// Whether it works now: a country typed, and no write on its way.
+/// </param>
+/// <param name="Notice">
+/// What the last write said, or `None`.
+/// </param>
+/// <param name="Unrepeatable">
+/// Why that write is not offered again, or `None`.
+/// </param>
+/// <param name="Failed">
+/// Whether that write failed: show the notice as an error.
+/// </param>
+/// <param name="Working">
+/// Whether a write is on its way.
+/// </param>
+/// <param name="Requirements">
+/// What the form's country asks for.
+/// </param>
+/// <param name="ListStatus">
+/// Where the read of the filings stands.
+/// </param>
+/// <param name="StatusCaption">
+/// That a status is read only when the list is, once there are filings.
+/// </param>
+/// <param name="Empty">
+/// None filed yet.
+/// </param>
+/// <param name="Gates">
+/// The workspace's approvals, when there are any. The countries open to
+/// every workspace are left to the web, which says where numbers are
+/// bought.
+/// </param>
+/// <param name="Filings">
+/// The filings, newest first.
+/// </param>
+public record RegistrationsTabView (
+    /// <summary>
+    /// Whether the member may file. A viewer is offered nothing, and only the
+    /// tab's heading shows: the reason is the screen's scope note.
+    /// </summary>
+    bool Member, 
+    /// <summary>
+    /// The list's heading, "Regulatory registrations".
+    /// </summary>
+    string Eyebrow, 
+    /// <summary>
+    /// The form's heading, "Start a registration".
+    /// </summary>
+    string StartTitle, 
+    /// <summary>
+    /// The country field's label.
+    /// </summary>
+    string CountryLabel, 
+    /// <summary>
+    /// The name field's label.
+    /// </summary>
+    string NameLabel, 
+    /// <summary>
+    /// The form, as typed.
+    /// </summary>
+    RegistrationFormInput Form, 
+    /// <summary>
+    /// The number types to choose from, in the core's order.
+    /// </summary>
+    ChoiceView[] NumberTypes, 
+    /// <summary>
+    /// The end-user types to choose from, in the core's order.
+    /// </summary>
+    ChoiceView[] EndUserTypes, 
+    /// <summary>
+    /// "Check requirements".
+    /// </summary>
+    string CheckAction, 
+    /// <summary>
+    /// Whether it works now: a country typed.
+    /// </summary>
+    bool CanCheck, 
+    /// <summary>
+    /// "Start registration".
+    /// </summary>
+    string StartAction, 
+    /// <summary>
+    /// Whether it works now: a country typed, and no write on its way.
+    /// </summary>
+    bool CanStart, 
+    /// <summary>
+    /// What the last write said, or `None`.
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// Why that write is not offered again, or `None`.
+    /// </summary>
+    string? Unrepeatable, 
+    /// <summary>
+    /// Whether that write failed: show the notice as an error.
+    /// </summary>
+    bool Failed, 
+    /// <summary>
+    /// Whether a write is on its way.
+    /// </summary>
+    bool Working, 
+    /// <summary>
+    /// What the form's country asks for.
+    /// </summary>
+    RequirementsView Requirements, 
+    /// <summary>
+    /// Where the read of the filings stands.
+    /// </summary>
+    LoadStatus ListStatus, 
+    /// <summary>
+    /// That a status is read only when the list is, once there are filings.
+    /// </summary>
+    string? StatusCaption, 
+    /// <summary>
+    /// None filed yet.
+    /// </summary>
+    EmptyView? Empty, 
+    /// <summary>
+    /// The workspace's approvals, when there are any. The countries open to
+    /// every workspace are left to the web, which says where numbers are
+    /// bought.
+    /// </summary>
+    GateView[] Gates, 
+    /// <summary>
+    /// The filings, newest first.
+    /// </summary>
+    FilingView[] Filings
+) {
+}
+
+class FfiConverterTypeRegistrationsTabView: FfiConverterRustBuffer<RegistrationsTabView> {
+    public static FfiConverterTypeRegistrationsTabView INSTANCE = new FfiConverterTypeRegistrationsTabView();
+
+    public override RegistrationsTabView Read(BigEndianStream stream) {
+        return new RegistrationsTabView(
+            Member: FfiConverterBoolean.INSTANCE.Read(stream),
+            Eyebrow: FfiConverterString.INSTANCE.Read(stream),
+            StartTitle: FfiConverterString.INSTANCE.Read(stream),
+            CountryLabel: FfiConverterString.INSTANCE.Read(stream),
+            NameLabel: FfiConverterString.INSTANCE.Read(stream),
+            Form: FfiConverterTypeRegistrationFormInput.INSTANCE.Read(stream),
+            NumberTypes: FfiConverterSequenceTypeChoiceView.INSTANCE.Read(stream),
+            EndUserTypes: FfiConverterSequenceTypeChoiceView.INSTANCE.Read(stream),
+            CheckAction: FfiConverterString.INSTANCE.Read(stream),
+            CanCheck: FfiConverterBoolean.INSTANCE.Read(stream),
+            StartAction: FfiConverterString.INSTANCE.Read(stream),
+            CanStart: FfiConverterBoolean.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Unrepeatable: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failed: FfiConverterBoolean.INSTANCE.Read(stream),
+            Working: FfiConverterBoolean.INSTANCE.Read(stream),
+            Requirements: FfiConverterTypeRequirementsView.INSTANCE.Read(stream),
+            ListStatus: FfiConverterTypeLoadStatus.INSTANCE.Read(stream),
+            StatusCaption: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Empty: FfiConverterOptionalTypeEmptyView.INSTANCE.Read(stream),
+            Gates: FfiConverterSequenceTypeGateView.INSTANCE.Read(stream),
+            Filings: FfiConverterSequenceTypeFilingView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RegistrationsTabView value) {
+        return 0
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Member)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Eyebrow)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartTitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CountryLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.NameLabel)
+            + FfiConverterTypeRegistrationFormInput.INSTANCE.AllocationSize(value.Form)
+            + FfiConverterSequenceTypeChoiceView.INSTANCE.AllocationSize(value.NumberTypes)
+            + FfiConverterSequenceTypeChoiceView.INSTANCE.AllocationSize(value.EndUserTypes)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CheckAction)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanCheck)
+            + FfiConverterString.INSTANCE.AllocationSize(value.StartAction)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CanStart)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Unrepeatable)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Failed)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Working)
+            + FfiConverterTypeRequirementsView.INSTANCE.AllocationSize(value.Requirements)
+            + FfiConverterTypeLoadStatus.INSTANCE.AllocationSize(value.ListStatus)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.StatusCaption)
+            + FfiConverterOptionalTypeEmptyView.INSTANCE.AllocationSize(value.Empty)
+            + FfiConverterSequenceTypeGateView.INSTANCE.AllocationSize(value.Gates)
+            + FfiConverterSequenceTypeFilingView.INSTANCE.AllocationSize(value.Filings);
+    }
+
+    public override void Write(RegistrationsTabView value, BigEndianStream stream) {
+            FfiConverterBoolean.INSTANCE.Write(value.Member, stream);
+            FfiConverterString.INSTANCE.Write(value.Eyebrow, stream);
+            FfiConverterString.INSTANCE.Write(value.StartTitle, stream);
+            FfiConverterString.INSTANCE.Write(value.CountryLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.NameLabel, stream);
+            FfiConverterTypeRegistrationFormInput.INSTANCE.Write(value.Form, stream);
+            FfiConverterSequenceTypeChoiceView.INSTANCE.Write(value.NumberTypes, stream);
+            FfiConverterSequenceTypeChoiceView.INSTANCE.Write(value.EndUserTypes, stream);
+            FfiConverterString.INSTANCE.Write(value.CheckAction, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanCheck, stream);
+            FfiConverterString.INSTANCE.Write(value.StartAction, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CanStart, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Unrepeatable, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Failed, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Working, stream);
+            FfiConverterTypeRequirementsView.INSTANCE.Write(value.Requirements, stream);
+            FfiConverterTypeLoadStatus.INSTANCE.Write(value.ListStatus, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.StatusCaption, stream);
+            FfiConverterOptionalTypeEmptyView.INSTANCE.Write(value.Empty, stream);
+            FfiConverterSequenceTypeGateView.INSTANCE.Write(value.Gates, stream);
+            FfiConverterSequenceTypeFilingView.INSTANCE.Write(value.Filings, stream);
+    }
+}
+
+
+
+/// <summary>
 /// "Remove this member?"
 /// </summary>
 /// <param name="Email">
@@ -21795,6 +22525,51 @@ class FfiConverterTypeReportDialogView: FfiConverterRustBuffer<ReportDialogView>
             FfiConverterString.INSTANCE.Write(value.Send, stream);
             FfiConverterString.INSTANCE.Write(value.Cancel, stream);
             FfiConverterUInt32.INSTANCE.Write(value.NoteLimit, stream);
+    }
+}
+
+
+
+/// <summary>
+/// One thing a regulation asks for.
+/// </summary>
+/// <param name="Name">
+/// Its name, as the carrier writes it.
+/// </param>
+/// <param name="Line">
+/// Its kind and the fields it asks for: "Your details · business_name".
+/// </param>
+public record RequirementRowView (
+    /// <summary>
+    /// Its name, as the carrier writes it.
+    /// </summary>
+    string Name, 
+    /// <summary>
+    /// Its kind and the fields it asks for: "Your details · business_name".
+    /// </summary>
+    string Line
+) {
+}
+
+class FfiConverterTypeRequirementRowView: FfiConverterRustBuffer<RequirementRowView> {
+    public static FfiConverterTypeRequirementRowView INSTANCE = new FfiConverterTypeRequirementRowView();
+
+    public override RequirementRowView Read(BigEndianStream stream) {
+        return new RequirementRowView(
+            Name: FfiConverterString.INSTANCE.Read(stream),
+            Line: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RequirementRowView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Name)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Line);
+    }
+
+    public override void Write(RequirementRowView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Name, stream);
+            FfiConverterString.INSTANCE.Write(value.Line, stream);
     }
 }
 
@@ -32032,6 +32807,51 @@ class FfiConverterTypeUpcomingBookingView: FfiConverterRustBuffer<UpcomingBookin
 
 
 /// <summary>
+/// One document a draft's regulation asks for.
+/// </summary>
+/// <param name="RequirementName">
+/// The requirement the upload names.
+/// </param>
+/// <param name="Label">
+/// "Upload Proof of address".
+/// </param>
+public record UploadView (
+    /// <summary>
+    /// The requirement the upload names.
+    /// </summary>
+    string RequirementName, 
+    /// <summary>
+    /// "Upload Proof of address".
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeUploadView: FfiConverterRustBuffer<UploadView> {
+    public static FfiConverterTypeUploadView INSTANCE = new FfiConverterTypeUploadView();
+
+    public override UploadView Read(BigEndianStream stream) {
+        return new UploadView(
+            RequirementName: FfiConverterString.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(UploadView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.RequirementName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(UploadView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.RequirementName, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
 /// This month's metered usage.
 /// </summary>
 /// <param name="Title">
@@ -37514,6 +38334,63 @@ class FfiConverterTypeFileKind: FfiConverterRustBuffer<FileKind> {
 
 
 /// <summary>
+/// How a filing's status reads, the core's `Tone`.
+/// </summary>
+public enum FilingTone: int {
+    /// <summary>
+    /// Approved.
+    /// </summary>
+    Success,
+    /// <summary>
+    /// Not used by a filing today.
+    /// </summary>
+    Warning,
+    /// <summary>
+    /// Refused.
+    /// </summary>
+    Danger,
+    /// <summary>
+    /// A draft, under review, or a status this build does not know.
+    /// </summary>
+    Neutral
+}
+
+class FfiConverterTypeFilingTone: FfiConverterRustBuffer<FilingTone> {
+    public static FfiConverterTypeFilingTone INSTANCE = new FfiConverterTypeFilingTone();
+
+    public override FilingTone Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return FilingTone.Success;
+            case 2: return FilingTone.Warning;
+            case 3: return FilingTone.Danger;
+            case 4: return FilingTone.Neutral;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeFilingTone.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(FilingTone value) {
+        return 4;
+    }
+
+    public override void Write(FilingTone value, BigEndianStream stream) {
+        switch (value) {
+            case FilingTone.Success: stream.WriteInt(1); break;
+            case FilingTone.Warning: stream.WriteInt(2); break;
+            case FilingTone.Danger: stream.WriteInt(3); break;
+            case FilingTone.Neutral: stream.WriteInt(4); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeFilingTone.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the member did on the working hours.
 /// </summary>
 public record HoursAction {
@@ -40171,6 +41048,64 @@ public record NumberAdminAction {
     public record CancelConfirmation: NumberAdminAction {}
     
     
+    /// <summary>
+    /// Read the filings again: the Registrations tab's "Try again".
+    /// </summary>
+    public record ReloadRegistrations: NumberAdminAction {}
+    
+    
+    /// <summary>
+    /// The registration form changed.
+    /// </summary>
+    public record EditRegistration (
+        RegistrationFormInput Form
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// "Check requirements" for the form's country.
+    /// </summary>
+    public record CheckRequirements: NumberAdminAction {}
+    
+    
+    /// <summary>
+    /// "Start registration": a draft for the form's country.
+    /// </summary>
+    public record StartRegistration: NumberAdminAction {}
+    
+    
+    /// <summary>
+    /// The end-user details typed for a draft changed.
+    /// </summary>
+    public record EditRegistrationDetails (
+        string BundleId,
+        DetailFieldView[] Details
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// Put `file` on a draft for one of its regulation's documents,
+    /// replacing the one it had.
+    /// </summary>
+    public record UploadRegistrationDocument (
+        string BundleId,
+        string RequirementName,
+        PickedFileView File
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// Take a document off a draft.
+    /// </summary>
+    public record RemoveRegistrationDocument (
+        string BundleId,
+        string DocumentId
+    ) : NumberAdminAction {}
+    
+    /// <summary>
+    /// "File it": the core asks first.
+    /// </summary>
+    public record AskSubmitRegistration (
+        string BundleId
+    ) : NumberAdminAction {}
+    
 
     
 }
@@ -40227,6 +41162,39 @@ class FfiConverterTypeNumberAdminAction : FfiConverterRustBuffer<NumberAdminActi
             case 13:
                 return new NumberAdminAction.CancelConfirmation(
                 );
+            case 14:
+                return new NumberAdminAction.ReloadRegistrations(
+                );
+            case 15:
+                return new NumberAdminAction.EditRegistration(
+                    FfiConverterTypeRegistrationFormInput.INSTANCE.Read(stream)
+                );
+            case 16:
+                return new NumberAdminAction.CheckRequirements(
+                );
+            case 17:
+                return new NumberAdminAction.StartRegistration(
+                );
+            case 18:
+                return new NumberAdminAction.EditRegistrationDetails(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterSequenceTypeDetailFieldView.INSTANCE.Read(stream)
+                );
+            case 19:
+                return new NumberAdminAction.UploadRegistrationDocument(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterTypePickedFileView.INSTANCE.Read(stream)
+                );
+            case 20:
+                return new NumberAdminAction.RemoveRegistrationDocument(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 21:
+                return new NumberAdminAction.AskSubmitRegistration(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberAdminAction.Read()", value));
         }
@@ -40267,6 +41235,31 @@ class FfiConverterTypeNumberAdminAction : FfiConverterRustBuffer<NumberAdminActi
                 return 4;
             case NumberAdminAction.CancelConfirmation variant_value:
                 return 4;
+            case NumberAdminAction.ReloadRegistrations variant_value:
+                return 4;
+            case NumberAdminAction.EditRegistration variant_value:
+                return 4
+                    + FfiConverterTypeRegistrationFormInput.INSTANCE.AllocationSize(variant_value.Form);
+            case NumberAdminAction.CheckRequirements variant_value:
+                return 4;
+            case NumberAdminAction.StartRegistration variant_value:
+                return 4;
+            case NumberAdminAction.EditRegistrationDetails variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.BundleId)
+                    + FfiConverterSequenceTypeDetailFieldView.INSTANCE.AllocationSize(variant_value.Details);
+            case NumberAdminAction.UploadRegistrationDocument variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.BundleId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.RequirementName)
+                    + FfiConverterTypePickedFileView.INSTANCE.AllocationSize(variant_value.File);
+            case NumberAdminAction.RemoveRegistrationDocument variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.BundleId)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.DocumentId);
+            case NumberAdminAction.AskSubmitRegistration variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.BundleId);
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberAdminAction.AllocationSize()", value));
         }
@@ -40319,6 +41312,39 @@ class FfiConverterTypeNumberAdminAction : FfiConverterRustBuffer<NumberAdminActi
                 break;
             case NumberAdminAction.CancelConfirmation variant_value:
                 stream.WriteInt(13);
+                break;
+            case NumberAdminAction.ReloadRegistrations variant_value:
+                stream.WriteInt(14);
+                break;
+            case NumberAdminAction.EditRegistration variant_value:
+                stream.WriteInt(15);
+                FfiConverterTypeRegistrationFormInput.INSTANCE.Write(variant_value.Form, stream);
+                break;
+            case NumberAdminAction.CheckRequirements variant_value:
+                stream.WriteInt(16);
+                break;
+            case NumberAdminAction.StartRegistration variant_value:
+                stream.WriteInt(17);
+                break;
+            case NumberAdminAction.EditRegistrationDetails variant_value:
+                stream.WriteInt(18);
+                FfiConverterString.INSTANCE.Write(variant_value.BundleId, stream);
+                FfiConverterSequenceTypeDetailFieldView.INSTANCE.Write(variant_value.Details, stream);
+                break;
+            case NumberAdminAction.UploadRegistrationDocument variant_value:
+                stream.WriteInt(19);
+                FfiConverterString.INSTANCE.Write(variant_value.BundleId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.RequirementName, stream);
+                FfiConverterTypePickedFileView.INSTANCE.Write(variant_value.File, stream);
+                break;
+            case NumberAdminAction.RemoveRegistrationDocument variant_value:
+                stream.WriteInt(20);
+                FfiConverterString.INSTANCE.Write(variant_value.BundleId, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.DocumentId, stream);
+                break;
+            case NumberAdminAction.AskSubmitRegistration variant_value:
+                stream.WriteInt(21);
+                FfiConverterString.INSTANCE.Write(variant_value.BundleId, stream);
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumberAdminAction.Write()", value));
@@ -40490,7 +41516,7 @@ class FfiConverterTypeNumbersAction: FfiConverterRustBuffer<NumbersAction> {
 
 
 /// <summary>
-/// The screen's two tabs.
+/// The screen's tabs.
 /// </summary>
 public enum NumbersTab: int {
     /// <summary>
@@ -40505,7 +41531,11 @@ public enum NumbersTab: int {
     /// The carrier accounts, SIP trunks, one-time passcodes and messaging
     /// registrations.
     /// </summary>
-    Carrier
+    Carrier,
+    /// <summary>
+    /// A number's regulatory registrations.
+    /// </summary>
+    Registrations
 }
 
 class FfiConverterTypeNumbersTab: FfiConverterRustBuffer<NumbersTab> {
@@ -40517,6 +41547,7 @@ class FfiConverterTypeNumbersTab: FfiConverterRustBuffer<NumbersTab> {
             case 1: return NumbersTab.Owned;
             case 2: return NumbersTab.Search;
             case 3: return NumbersTab.Carrier;
+            case 4: return NumbersTab.Registrations;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumbersTab.Read()", value));
         }
     }
@@ -40530,6 +41561,7 @@ class FfiConverterTypeNumbersTab: FfiConverterRustBuffer<NumbersTab> {
             case NumbersTab.Owned: stream.WriteInt(1); break;
             case NumbersTab.Search: stream.WriteInt(2); break;
             case NumbersTab.Carrier: stream.WriteInt(3); break;
+            case NumbersTab.Registrations: stream.WriteInt(4); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNumbersTab.Write()", value));
         }
     }
@@ -41427,6 +42459,161 @@ class FfiConverterTypeReportTarget : FfiConverterRustBuffer<ReportTarget>{
                 break;
             default:
                 throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReportTarget.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// What a country's regulator asks for.
+/// </summary>
+public record RequirementsView {
+    
+    /// <summary>
+    /// Not asked.
+    /// </summary>
+    public record Idle: RequirementsView {}
+    
+    
+    /// <summary>
+    /// Being asked.
+    /// </summary>
+    public record Loading (
+        string Eyebrow
+    ) : RequirementsView {}
+    
+    /// <summary>
+    /// The lookup failed, which is not "nothing to file".
+    /// </summary>
+    public record Failed (
+        string Eyebrow,
+        FailureView Failure
+    ) : RequirementsView {}
+    
+    /// <summary>
+    /// Nothing to file.
+    /// </summary>
+    public record NoRegulation (
+        string Eyebrow,
+        string Heading,
+        string Body,
+        string? NotPurchasable
+    ) : RequirementsView {}
+    
+    /// <summary>
+    /// The regulation.
+    /// </summary>
+    public record Ready (
+        string Eyebrow,
+        string Name,
+        string? NotPurchasable,
+        RequirementRowView[] Requirements
+    ) : RequirementsView {}
+    
+
+    
+}
+
+class FfiConverterTypeRequirementsView : FfiConverterRustBuffer<RequirementsView>{
+    public static FfiConverterRustBuffer<RequirementsView> INSTANCE = new FfiConverterTypeRequirementsView();
+
+    public override RequirementsView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new RequirementsView.Idle(
+                );
+            case 2:
+                return new RequirementsView.Loading(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new RequirementsView.Failed(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterTypeFailureView.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new RequirementsView.NoRegulation(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new RequirementsView.Ready(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream),
+                    FfiConverterSequenceTypeRequirementRowView.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRequirementsView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(RequirementsView value) {
+        switch (value) {
+            case RequirementsView.Idle variant_value:
+                return 4;
+            case RequirementsView.Loading variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Eyebrow);
+            case RequirementsView.Failed variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Eyebrow)
+                    + FfiConverterTypeFailureView.INSTANCE.AllocationSize(variant_value.Failure);
+            case RequirementsView.NoRegulation variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Eyebrow)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Heading)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Body)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.NotPurchasable);
+            case RequirementsView.Ready variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Eyebrow)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.NotPurchasable)
+                    + FfiConverterSequenceTypeRequirementRowView.INSTANCE.AllocationSize(variant_value.Requirements);
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRequirementsView.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(RequirementsView value, BigEndianStream stream) {
+        switch (value) {
+            case RequirementsView.Idle variant_value:
+                stream.WriteInt(1);
+                break;
+            case RequirementsView.Loading variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Eyebrow, stream);
+                break;
+            case RequirementsView.Failed variant_value:
+                stream.WriteInt(3);
+                FfiConverterString.INSTANCE.Write(variant_value.Eyebrow, stream);
+                FfiConverterTypeFailureView.INSTANCE.Write(variant_value.Failure, stream);
+                break;
+            case RequirementsView.NoRegulation variant_value:
+                stream.WriteInt(4);
+                FfiConverterString.INSTANCE.Write(variant_value.Eyebrow, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Heading, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Body, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.NotPurchasable, stream);
+                break;
+            case RequirementsView.Ready variant_value:
+                stream.WriteInt(5);
+                FfiConverterString.INSTANCE.Write(variant_value.Eyebrow, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.NotPurchasable, stream);
+                FfiConverterSequenceTypeRequirementRowView.INSTANCE.Write(variant_value.Requirements, stream);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeRequirementsView.Write()", value));
         }
     }
 }
@@ -49742,6 +50929,37 @@ class FfiConverterOptionalTypeReassignDialogView: FfiConverterRustBuffer<Reassig
 
 
 
+class FfiConverterOptionalTypeRegistrationsTabView: FfiConverterRustBuffer<RegistrationsTabView?> {
+    public static FfiConverterOptionalTypeRegistrationsTabView INSTANCE = new FfiConverterOptionalTypeRegistrationsTabView();
+
+    public override RegistrationsTabView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeRegistrationsTabView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(RegistrationsTabView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeRegistrationsTabView.INSTANCE.AllocationSize((RegistrationsTabView)value);
+        }
+    }
+
+    public override void Write(RegistrationsTabView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeRegistrationsTabView.INSTANCE.Write((RegistrationsTabView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeRemoveQuestionView: FfiConverterRustBuffer<RemoveQuestionView?> {
     public static FfiConverterOptionalTypeRemoveQuestionView INSTANCE = new FfiConverterOptionalTypeRemoveQuestionView();
 
@@ -51914,6 +53132,52 @@ class FfiConverterSequenceTypeDeskStatusChoiceView: FfiConverterRustBuffer<DeskS
 
 
 
+class FfiConverterSequenceTypeDetailFieldView: FfiConverterRustBuffer<DetailFieldView[]> {
+    public static FfiConverterSequenceTypeDetailFieldView INSTANCE = new FfiConverterSequenceTypeDetailFieldView();
+
+    public override DetailFieldView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new DetailFieldView[length];
+        var readFn = FfiConverterTypeDetailFieldView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(DetailFieldView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeDetailFieldView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(DetailFieldView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeDetailFieldView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeDeveloperTabEntryView: FfiConverterRustBuffer<DeveloperTabEntryView[]> {
     public static FfiConverterSequenceTypeDeveloperTabEntryView INSTANCE = new FfiConverterSequenceTypeDeveloperTabEntryView();
 
@@ -52275,6 +53539,144 @@ class FfiConverterSequenceTypeFactView: FfiConverterRustBuffer<FactView[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeFactView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeFilingDocumentView: FfiConverterRustBuffer<FilingDocumentView[]> {
+    public static FfiConverterSequenceTypeFilingDocumentView INSTANCE = new FfiConverterSequenceTypeFilingDocumentView();
+
+    public override FilingDocumentView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new FilingDocumentView[length];
+        var readFn = FfiConverterTypeFilingDocumentView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(FilingDocumentView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeFilingDocumentView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(FilingDocumentView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeFilingDocumentView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeFilingView: FfiConverterRustBuffer<FilingView[]> {
+    public static FfiConverterSequenceTypeFilingView INSTANCE = new FfiConverterSequenceTypeFilingView();
+
+    public override FilingView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new FilingView[length];
+        var readFn = FfiConverterTypeFilingView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(FilingView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeFilingView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(FilingView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeFilingView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeGateView: FfiConverterRustBuffer<GateView[]> {
+    public static FfiConverterSequenceTypeGateView INSTANCE = new FfiConverterSequenceTypeGateView();
+
+    public override GateView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new GateView[length];
+        var readFn = FfiConverterTypeGateView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(GateView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeGateView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(GateView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeGateView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -53287,6 +54689,52 @@ class FfiConverterSequenceTypeReplyChannelView: FfiConverterRustBuffer<ReplyChan
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeReplyChannelView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeRequirementRowView: FfiConverterRustBuffer<RequirementRowView[]> {
+    public static FfiConverterSequenceTypeRequirementRowView INSTANCE = new FfiConverterSequenceTypeRequirementRowView();
+
+    public override RequirementRowView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new RequirementRowView[length];
+        var readFn = FfiConverterTypeRequirementRowView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(RequirementRowView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeRequirementRowView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(RequirementRowView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeRequirementRowView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -54904,6 +56352,52 @@ class FfiConverterSequenceTypeUpcomingBookingView: FfiConverterRustBuffer<Upcomi
 
 
 
+class FfiConverterSequenceTypeUploadView: FfiConverterRustBuffer<UploadView[]> {
+    public static FfiConverterSequenceTypeUploadView INSTANCE = new FfiConverterSequenceTypeUploadView();
+
+    public override UploadView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new UploadView[length];
+        var readFn = FfiConverterTypeUploadView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(UploadView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeUploadView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(UploadView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeUploadView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeWebhookRowView: FfiConverterRustBuffer<WebhookRowView[]> {
     public static FfiConverterSequenceTypeWebhookRowView INSTANCE = new FfiConverterSequenceTypeWebhookRowView();
 
@@ -55491,6 +56985,18 @@ public static class DistrictFfi {
         return FfiConverterOptionalTypePushMessage.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_district_ffi_fn_func_decode_push(FfiConverterString.INSTANCE.Lower(@payload), ref _status)
+));
+    }
+
+
+    /// <summary>
+    /// The pick for a filing's document: a PDF, PNG or JPEG, one at a time, read
+    /// to one byte past the largest the service takes, so its refusal says why.
+    /// </summary>
+    public static FilePickView RegistrationDocumentPick() {
+        return FfiConverterTypeFilePickView.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_district_ffi_fn_func_registration_document_pick( ref _status)
 ));
     }
 

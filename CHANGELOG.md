@@ -7,6 +7,30 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- The Registrations tab on the phone numbers screen, as on Android: a country's regulatory
+  registration for its numbers. Type the country, choose the number type and whether the
+  number is for a business or an individual, and Check requirements lists what the
+  country's regulator asks for (or says it asks for nothing). Start registration makes a
+  draft. A draft of the country checked shows a field for each detail the regulation asks
+  about the end user and an Upload button for each document it asks for (a PDF, PNG or
+  JPEG, at most 10 MB, its type read from the file itself), and its documents can be
+  removed. File it sends the draft to the carrier, after asking. Each filing shows its
+  status, what the carrier objected to, and where each document is. A filing whose
+  answer was lost is not offered again until the list shows where it stands. A viewer is
+  offered nothing, and the tab reads nothing for one.
+- Push to talk in District HQ voice. When your HQ voice settings use push to talk, the
+  session starts with the microphone off, and District HQ and the voice dock show Hold to
+  talk in place of the microphone button: the microphone is on while you hold it down
+  with the pointer, or with Space or Enter, and off when you let go, when the pointer or
+  the keyboard leaves it, or when the button goes from the screen.
+
+### Changed
+
+- district-core-rust 10.0.0. It reads the whole of the service's HQ voice credential (the
+  microphone mode and the session's id), which 9.0.0 refused.
+
 ## [3.3.0] - 2026-11-06
 
 District AI 3.3.0 brings the web Inbox's channels to Windows: Messenger and Instagram

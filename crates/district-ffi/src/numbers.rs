@@ -11,15 +11,20 @@
 
 use district_core::{
     A2pForm, CarrierStatus, Event, MarketplaceEvent, NumberAdmin, NumberAdminEvent,
-    NumberConfirmation, NumberWrite, SipTrunkForm, SipTrunks, TollFreeForm, VerifyService,
-    carrier_balance, carrier_number_count, carrier_state, number_actions_note, sip_trunk_meta,
-    verify_state,
+    NumberConfirmation, NumberWrite, RegistrationEvent, SipTrunkForm, SipTrunks, TollFreeForm,
+    VerifyService, carrier_balance, carrier_number_count, carrier_state, number_actions_note,
+    sip_trunk_meta, verify_state,
 };
 use district_l10n::numbers_strings as ns;
 use district_model::{OwnedNumber, ProviderStatusEntry, SipTrunk};
 use serde::Serialize;
 
+use crate::files::PickedFileView;
 use crate::l10n::{l, s};
+use crate::registrations::{
+    DetailFieldView, RegistrationFormInput, RegistrationsTabView, details, registrations_view,
+    upload,
+};
 use crate::settings::ChoiceView;
 use crate::views::{EmptyView, LoadStatus, humanize};
 
@@ -60,6 +65,10 @@ pub struct NumberAdminView {
     pub confirmation: Option<NumberConfirmationView>,
     /// The carrier tab, while it shows: it is read when it opens.
     pub carrier: Option<CarrierTabView>,
+    /// The Registrations tab's label.
+    pub registrations_tab: String,
+    /// The Registrations tab, while it shows: it is read when it opens.
+    pub registrations: Option<RegistrationsTabView>,
 }
 
 /// The billed lookup.
@@ -392,6 +401,46 @@ pub enum NumberAdminAction {
     Confirm,
     /// Close the confirmation. The core refuses while its write is on its way.
     CancelConfirmation,
+    /// Read the filings again: the Registrations tab's "Try again".
+    ReloadRegistrations,
+    /// The registration form changed.
+    EditRegistration {
+        /// The whole form.
+        form: RegistrationFormInput,
+    },
+    /// "Check requirements" for the form's country.
+    CheckRequirements,
+    /// "Start registration": a draft for the form's country.
+    StartRegistration,
+    /// The end-user details typed for a draft changed.
+    EditRegistrationDetails {
+        /// The draft.
+        bundle_id: String,
+        /// Every field of it, as typed.
+        details: Vec<DetailFieldView>,
+    },
+    /// Put `file` on a draft for one of its regulation's documents,
+    /// replacing the one it had.
+    UploadRegistrationDocument {
+        /// The draft.
+        bundle_id: String,
+        /// The requirement it meets.
+        requirement_name: String,
+        /// The file, as C# read it (`registration_document_pick`).
+        file: PickedFileView,
+    },
+    /// Take a document off a draft.
+    RemoveRegistrationDocument {
+        /// The draft.
+        bundle_id: String,
+        /// The document.
+        document_id: String,
+    },
+    /// "File it": the core asks first.
+    AskSubmitRegistration {
+        /// The draft.
+        bundle_id: String,
+    },
 }
 
 impl NumberAdminAction {
@@ -433,8 +482,43 @@ impl NumberAdminAction {
             Self::AskTollFree => NumberAdminEvent::AskTollFree,
             Self::Confirm => NumberAdminEvent::Confirm,
             Self::CancelConfirmation => NumberAdminEvent::CancelConfirmation,
+            Self::ReloadRegistrations => registration(RegistrationEvent::Reload),
+            Self::EditRegistration { form } => registration(RegistrationEvent::Edit(form.into())),
+            Self::CheckRequirements => registration(RegistrationEvent::CheckRequirements),
+            Self::StartRegistration => registration(RegistrationEvent::Start),
+            Self::EditRegistrationDetails {
+                bundle_id,
+                details: typed,
+            } => registration(RegistrationEvent::EditDetails {
+                bundle_id,
+                details: details(typed),
+            }),
+            Self::UploadRegistrationDocument {
+                bundle_id,
+                requirement_name,
+                file,
+            } => registration(RegistrationEvent::Upload(upload(
+                bundle_id,
+                requirement_name,
+                file,
+            ))),
+            Self::RemoveRegistrationDocument {
+                bundle_id,
+                document_id,
+            } => registration(RegistrationEvent::RemoveDocument {
+                bundle_id,
+                document_id,
+            }),
+            Self::AskSubmitRegistration { bundle_id } => {
+                registration(RegistrationEvent::AskSubmit { bundle_id })
+            }
         }))
     }
+}
+
+/// The Registrations tab's `event`.
+fn registration(event: RegistrationEvent) -> NumberAdminEvent {
+    NumberAdminEvent::Registration(event)
 }
 
 /// What can be done to `number`, held by the workspace, for a member who can
@@ -456,13 +540,20 @@ pub(crate) fn manage_view(
     }
 }
 
+/// Which of the managing tabs shows, if either.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum AdminTab {
+    /// Neither: the held numbers or the search.
+    Neither,
+    /// The carrier tab.
+    Carrier,
+    /// The Registrations tab.
+    Registrations,
+}
+
 /// The managing part of the screen, for a member who can change numbers when
-/// `can_change`, with the carrier tab when `on_carrier_tab`.
-pub(crate) fn admin_view(
-    admin: &NumberAdmin,
-    can_change: bool,
-    on_carrier_tab: bool,
-) -> NumberAdminView {
+/// `can_change`, with the tab that shows.
+pub(crate) fn admin_view(admin: &NumberAdmin, can_change: bool, tab: AdminTab) -> NumberAdminView {
     NumberAdminView {
         carrier_tab: ns::numbers_tab_carrier(l()).to_owned(),
         configure_action: ns::numbers_configure_action(l()).to_owned(),
@@ -475,7 +566,10 @@ pub(crate) fn admin_view(
             .confirmation
             .as_ref()
             .map(|asked| confirmation_view(admin, asked)),
-        carrier: on_carrier_tab.then(|| carrier_view(admin, can_change)),
+        carrier: (tab == AdminTab::Carrier).then(|| carrier_view(admin, can_change)),
+        registrations_tab: ns::numbers_tab_registrations(l()).to_owned(),
+        registrations: (tab == AdminTab::Registrations)
+            .then(|| registrations_view(admin, can_change)),
     }
 }
 

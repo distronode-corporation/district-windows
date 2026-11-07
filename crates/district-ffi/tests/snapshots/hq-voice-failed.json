@@ -24,10 +24,12 @@
           "can_dismiss": true,
           "can_stop": false,
           "cards": [],
+          "hold_label": "Hold to talk",
           "line": "Something went wrong on our side. Please try again shortly.",
           "line_is_problem": true,
           "muted": true,
           "notice": null,
+          "show_hold": false,
           "show_microphone": false,
           "stage": "Failed",
           "stop_label": "Stop voice"

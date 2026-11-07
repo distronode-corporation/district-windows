@@ -125,8 +125,15 @@ pub struct HqVoiceView {
     /// Stop voice's label, `hq.voice_stop`.
     pub stop_label: String,
     /// Whether the microphone button is shown: while the session's room is
-    /// live.
+    /// live, with an open microphone.
     pub show_microphone: bool,
+    /// Whether Hold to talk is shown in its place: a push-to-talk session's
+    /// room is live. It sends `UiEvent::Microphone(true)` while held down
+    /// (the pointer, Space or Enter) and `(false)` when let go, when the
+    /// keyboard leaves it, or when it leaves the screen.
+    pub show_hold: bool,
+    /// Hold to talk's label, `hq.hold_to_talk`.
+    pub hold_label: String,
     /// Whether the microphone is off (or could not be used): pressing the
     /// button asks for it on (`UiEvent::Microphone`).
     pub muted: bool,
@@ -436,7 +443,9 @@ fn voice_view(signed_in: &SignedIn, dock: bool) -> HqVoiceView {
         line_is_problem,
         can_stop: controls.can_stop,
         stop_label: cs::hq_voice_stop(l()).to_owned(),
-        show_microphone: live && session.is_some(),
+        show_microphone: live && session.is_some() && !state.push_to_talk,
+        show_hold: live && session.is_some() && state.push_to_talk,
+        hold_label: s::hq_hold_to_talk(l()).to_owned(),
         muted: session.is_none_or(|session| session.microphone != MicrophoneState::On),
         can_dismiss: ended || (dock && state.notice.is_some()),
         notice: state.notice.as_ref().map(FailureView::from),
@@ -710,6 +719,8 @@ impl HqView {
                 can_stop: true,
                 stop_label: cs::hq_voice_stop(l()).to_owned(),
                 show_microphone: true,
+                show_hold: false,
+                hold_label: s::hq_hold_to_talk(l()).to_owned(),
                 muted: false,
                 can_dismiss: false,
                 notice: Some(failure.clone()),

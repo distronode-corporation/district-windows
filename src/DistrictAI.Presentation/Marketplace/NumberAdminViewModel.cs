@@ -35,7 +35,7 @@ public sealed record SipTrunkItem(string Name, string Domain, string Meta, strin
 /// <summary>
 /// Managing the numbers held and the carrier account: the lookup, the
 /// confirmation the core asks before a release, a lookup or a registration,
-/// and the carrier tab. What is typed in a form goes to the core whole as it
+/// the carrier tab and the Registrations tab (<see cref="Registrations"/>). What is typed in a form goes to the core whole as it
 /// changes, and the core says when it can be sent. Every word is the core's.
 /// </summary>
 public sealed partial class NumberAdminViewModel : ObservableObject
@@ -49,6 +49,17 @@ public sealed partial class NumberAdminViewModel : ObservableObject
     /// <summary>The carrier tab's label.</summary>
     [ObservableProperty]
     public partial string CarrierTab { get; set; } = string.Empty;
+
+    /// <summary>The Registrations tab's label.</summary>
+    [ObservableProperty]
+    public partial string RegistrationsTab { get; set; } = string.Empty;
+
+    /// <summary>Whether the Registrations tab is read and shows.</summary>
+    [ObservableProperty]
+    public partial bool OnRegistrations { get; set; }
+
+    /// <summary>The Registrations tab.</summary>
+    public RegistrationsViewModel Registrations { get; } = new();
 
     /// <summary>What the last reapply or release said, or empty.</summary>
     [ObservableProperty]
@@ -198,11 +209,18 @@ public sealed partial class NumberAdminViewModel : ObservableObject
         AccountsLoad.Attach(context);
         SipLoad.Attach(context);
         VerifyLoad.Attach(context);
+        Registrations.Attach(context);
     }
 
     internal void Show(NumberAdminView view)
     {
         CarrierTab = view.CarrierTab;
+        RegistrationsTab = view.RegistrationsTab;
+        OnRegistrations = view.Registrations is not null;
+        if (view.Registrations is { } registrations)
+        {
+            Registrations.Show(registrations);
+        }
         NumberNotice = Join(view.NumberNotice, view.NumberUnrepeatable);
         HasNumberNotice = NumberNotice.Length > 0;
         var lookup = view.Lookup;

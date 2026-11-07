@@ -24,10 +24,12 @@
           "can_dismiss": false,
           "can_stop": false,
           "cards": [],
+          "hold_label": "Hold to talk",
           "line": null,
           "line_is_problem": false,
           "muted": true,
           "notice": null,
+          "show_hold": false,
           "show_microphone": false,
           "stage": "Disclosing",
           "stop_label": "Stop voice"
