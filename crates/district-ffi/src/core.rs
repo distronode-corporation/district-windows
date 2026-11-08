@@ -900,6 +900,10 @@ mod tests {
         save_takes: Duration,
         /// Whether the workspace list is answered, with one agency workspace.
         workspace: bool,
+        /// Whether an HQ voice credential is issued, and its room joined.
+        voice: bool,
+        /// How long telling the service an HQ voice session is over takes.
+        release_takes: Duration,
     }
 
     impl Effects for Arc<FakeEffects> {
@@ -994,6 +998,30 @@ mod tests {
                     ticket,
                     setting: Some(district_core::PurchaseSetting::SignInEveryTime),
                 }),
+                Effect::RequestHqVoice { ticket, .. } if self.voice => Some(Event::HqVoiceIssued {
+                    ticket,
+                    result: Ok(serde_json::from_value(serde_json::json!({
+                        "success": true,
+                        "token": "voice-token",
+                        "url": "wss://voice.example.com",
+                        "roomName": format!("{}ws-1_test", district_model::HQ_ROOM_PREFIX),
+                        "processingRegion": "us",
+                        "micMode": district_model::HQ_VOICE_MIC_OPEN,
+                        "sessionId": "voice-session",
+                        "e2ee": { "key": "voice-passphrase" },
+                    }))
+                    .expect("a voice credential")),
+                }),
+                Effect::ConnectMedia { session, .. } if self.voice => {
+                    Some(Event::Media(district_core::MediaUpdate {
+                        session,
+                        event: district_core::MediaEvent::Connected,
+                    }))
+                }
+                Effect::EndHqVoice { .. } | Effect::DiscardHqVoice { .. } => {
+                    tokio::time::sleep(self.release_takes).await;
+                    None
+                }
                 _ => None,
             }
         }
@@ -1271,6 +1299,57 @@ mod tests {
         core.shutdown().await;
         let waited = started.elapsed();
         assert!(effects.ran(|effect| matches!(effect, Effect::SaveSession)));
+        assert!(waited >= QUIT_BUDGET, "{waited:?}");
+        assert!(waited < QUIT_BUDGET + Duration::from_secs(1), "{waited:?}");
+    }
+
+    /// Quitting during an HQ voice session whose room was joined tells the
+    /// service it ended (district-core-rust 11.0.0), within [`QUIT_BUDGET`]:
+    /// the end is sent with the rest of the last effects, at once, and a
+    /// service that never answers holds the quit for the budget and no longer.
+    #[tokio::test]
+    async fn quitting_during_hq_voice_ends_it_within_the_budget() {
+        let core = Core::new();
+        let effects = Arc::new(FakeEffects {
+            stored: true,
+            workspace: true,
+            voice: true,
+            release_takes: Duration::from_secs(3600),
+            ..FakeEffects::default()
+        });
+        core.start_with(
+            calls_config(),
+            Arc::clone(&effects),
+            Arc::new(RecordingHost::default()),
+        );
+        eventually("a workspace open", || !core.shell().nav.groups.is_empty()).await;
+        core.send(UiEvent::Navigate {
+            destination: crate::nav::NavDestination::Hq,
+        });
+        core.send(UiEvent::Hq {
+            action: crate::hq::HqAction::StartVoice,
+        });
+        core.send(UiEvent::Hq {
+            action: crate::hq::HqAction::AcceptVoiceDisclosure,
+        });
+        eventually("the room joined", || {
+            effects.ran(|effect| matches!(effect, Effect::ConnectMedia { .. }))
+        })
+        .await;
+        // The engine's report of the join is the effect's own answer, so it
+        // has reached the model once the next message has.
+        core.send(UiEvent::Refresh);
+        tokio::time::sleep(Duration::from_millis(50)).await;
+
+        let started = std::time::Instant::now();
+        core.shutdown().await;
+        let waited = started.elapsed();
+        assert!(effects.ran(|effect| matches!(
+            effect,
+            Effect::EndHqVoice { workspace_id, .. } if workspace_id == "ws-1"
+        )));
+        assert!(!effects.ran(|effect| matches!(effect, Effect::DiscardHqVoice { .. })));
+        assert!(effects.ran(|effect| matches!(effect, Effect::DisconnectMedia { .. })));
         assert!(waited >= QUIT_BUDGET, "{waited:?}");
         assert!(waited < QUIT_BUDGET + Duration::from_secs(1), "{waited:?}");
     }
