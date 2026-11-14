@@ -44,8 +44,9 @@ jobs:
           publish_results: true
           # Branch-Protection reads the branch protection and ruleset settings, which
           # need Administration read access that the workflow's own token lacks.
-          # With the secret unset, the action falls back to that token as before.
-          repo_token: ${{ secrets.SCORECARD_TOKEN }}
+          # Falls back to the default token when the organization token is unset,
+          # so Scorecard keeps running as before.
+          repo_token: ${{ secrets.SCORECARD_TOKEN || github.token }}
 
       - uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
