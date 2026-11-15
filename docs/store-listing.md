@@ -72,7 +72,7 @@ Registrations tab first; "Built on district-core-rust 12.0.0" is left out, as it
 nothing on its own. The French names on screen (« Numéros de téléphone », « Inscriptions »,
 « Maintenir pour parler », « Boîte de réception », « pièces jointes », « images jointes »)
 are the app's and the core's reviewed strings; the rest of the French is new for 3.4.0 and
-is a draft until the maintainers approve it. Before pasting, check which version Partner
+was signed off by the maintainers on 2026-11-15 as written. Before pasting, check which version Partner
 Center last published: if it is not 3.3.0, the notes of each version in between go above
 these.
 
