@@ -5,8 +5,8 @@ namespace DistrictAI.UiTests;
 
 /// <summary>
 /// The live walk: the signed-in app against the QA workspace on production,
-/// on a throwaway Windows Server VM that the win-smoke harness (monorepo
-/// infra/windows-smoke) makes, signs in through, and deletes. It never runs
+/// on a throwaway Windows Server VM that a smoke harness makes, signs in
+/// through, and deletes. It never runs
 /// in CI: it skips unless DISTRICTAI_UI_LIVE is 1, which only the harness
 /// sets. Each check's result goes to live-results.json in
 /// DISTRICTAI_LIVE_DIR, under the 2.0 checklist's item ids; nothing is

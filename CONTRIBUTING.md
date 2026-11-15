@@ -326,7 +326,7 @@ the release and commit the catalogs were read at, and the SHA-256 of every catal
 `python3 scripts/check-fr-signoff.py` fails, naming each catalog, when one differs, is
 missing or is not listed. The release's first job runs it on a tag, and neither pull
 requests nor the dry run do, because catalogs change between releases. A release whose
-catalogs changed (French, or English the French follows) needs the manager's review of the
+catalogs changed (French, or English the French follows) needs a maintainer's review of the
 French and a new `signoff.json` before it is tagged. CI runs `tools/l10n/frcheck.py all`,
 the French rules, on every pull request; an error fails it, a warning does not.
 
@@ -388,7 +388,7 @@ walk"), which every pull request must pass, so building an area also means:
 
 These two are shared files an area's pull request does change.
 
-The shared files are the manager's, and an area's pull request leaves them alone (say in
+The shared files are the maintainers', and an area's pull request leaves them alone (say in
 the pull request if one has to change, and why): `screen.rs`, `events.rs`, `shell.rs`,
 `lib.rs`, `views.rs`, `core.rs` and `nav.rs` in `crates/district-ffi/src/`;
 `MainWindow.*`, `App.*` and `Program.cs` in `src/DistrictAI/`;

@@ -54,8 +54,7 @@ COM_CLASS = f"{COM}Class"
 COM_EXTENSION = f"{COM}Extension"
 EXE_SERVER = f"{COM}ExeServer"
 
-# The WNS Entra app's AppId: the push server's class (docs/district_windows.md,
-# Microsoft credentials, in the monorepo).
+# The WNS Entra app's AppId: the push server's class.
 PUSH_CLASS = "d64b8f8c-2c34-4ccc-b3c3-d876c0479021"
 PUSH_ARGUMENTS = "----WindowsAppRuntimePushServer:"
 

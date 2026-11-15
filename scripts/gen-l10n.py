@@ -7,7 +7,7 @@ is committed is what they produce now.
     python3 scripts/gen-l10n.py --self-test  # prove the XAML check catches a missing string
     python3 scripts/gen-l10n.py --require-french  # fail unless every catalog has reviewed French
 
-Each target is one or more catalogs (TOML, i18n/README.md in the monorepo) and
+Each target is one or more catalogs (TOML) and
 one backend of the vendored generator, tools/l10n/l10n.py. --check runs
 `l10n.py check` on each target's catalogs with the gen comparison (`--gen
 BACKEND:OUT`), which fails on an invalid or non-canonical catalog and on a

@@ -2639,7 +2639,7 @@ ctx = "label"
 screen = "routing"
 tier = "T3"
 state = "reviewed"
-note = "The caller detail `callerType` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
+note = "The caller detail `callerType` a routing rule compares, in the picker and in a rule's line. The web portal's label, in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
 
 [routing.field_estimated_value]
 en = "Estimated value"
@@ -2648,7 +2648,7 @@ ctx = "label"
 screen = "routing"
 tier = "T3"
 state = "reviewed"
-note = "The caller detail `estimatedValue` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French."
+note = "The caller detail `estimatedValue` a routing rule compares, in the picker and in a rule's line. The web portal's label, in sentence case, in English and French."
 
 [routing.field_industry]
 en = "Industry"
@@ -2658,7 +2658,7 @@ screen = "routing"
 tier = "T3"
 state = "reviewed"
 fr_variant = "The routing builder's caller detail as the web portal labels it, not the contact detail's label (contacts.fact_industry)."
-note = "The caller detail `industry` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French."
+note = "The caller detail `industry` a routing rule compares, in the picker and in a rule's line. The web portal's label, in sentence case, in English and French."
 
 [routing.field_is_decision_maker]
 en = "Decision maker (true/false)"
@@ -2667,7 +2667,7 @@ ctx = "label"
 screen = "routing"
 tier = "T3"
 state = "reviewed"
-note = "The caller detail `isDecisionMaker` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
+note = "The caller detail `isDecisionMaker` a routing rule compares, in the picker and in a rule's line. The web portal's label, in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
 
 [routing.field_line_type]
 en = "Line type (mobile/landline/voip)"
@@ -2676,7 +2676,7 @@ ctx = "label"
 screen = "routing"
 tier = "T3"
 state = "reviewed"
-note = "The caller detail `lineType` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
+note = "The caller detail `lineType` a routing rule compares, in the picker and in a rule's line. The web portal's label, in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
 
 [routing.field_seniority]
 en = "Seniority (e.g. vp, c-suite)"
@@ -2685,7 +2685,7 @@ ctx = "label"
 screen = "routing"
 tier = "T3"
 state = "reviewed"
-note = "The caller detail `seniority` a routing rule compares, in the picker and in a rule's line. The web portal's label (personaMediaI18n.ts routingFieldLabels on GitLab main), in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
+note = "The caller detail `seniority` a routing rule compares, in the picker and in a rule's line. The web portal's label, in sentence case, in English and French. The values in brackets are the CRM's own, what to type in the value box, and stay in English in both languages."
 
 [routing.intro]
 en = "Which callers get which voice and instruction. Rules are checked in this order, and saving replaces every rule stored."
@@ -2722,7 +2722,7 @@ ctx = "label"
 screen = "routing"
 tier = "T3"
 state = "reviewed"
-note = "The comparison `contains` in a routing rule's picker; a rule's line writes it in lower case. The web portal's label (personaMediaI18n.ts routingOperatorLabels on GitLab main), in English and French."
+note = "The comparison `contains` in a routing rule's picker; a rule's line writes it in lower case. The web portal's label, in English and French."
 
 [routing.operator_equals]
 en = "Equals"
@@ -2731,7 +2731,7 @@ ctx = "label"
 screen = "routing"
 tier = "T3"
 state = "reviewed"
-note = "The comparison `equals` in a routing rule's picker; a rule's line writes it in lower case. The web portal's label (personaMediaI18n.ts routingOperatorLabels on GitLab main), in English and French."
+note = "The comparison `equals` in a routing rule's picker; a rule's line writes it in lower case. The web portal's label, in English and French."
 
 [routing.picker_field]
 en = "Caller detail"
@@ -2957,7 +2957,7 @@ ctx = "body"
 screen = "supervise"
 tier = "T2"
 state = "reviewed"
-note = "The line under the Live calls list on the calls page. The web dashboard's Live calls subtitle (liveI18n.ts pageSubtitle), with its reviewed French."
+note = "The line under the Live calls list on the calls page. The web dashboard's Live calls subtitle, with its reviewed French."
 
 [supervise.live_calls_title]
 en = "Live calls"
@@ -2966,7 +2966,7 @@ ctx = "title"
 screen = "supervise"
 tier = "T2"
 state = "reviewed"
-note = "The heading of the list of calls under way, over the call log. The web dashboard's Live calls page title (liveI18n.ts pageTitle), with its reviewed French."
+note = "The heading of the list of calls under way, over the call log. The web dashboard's Live calls page title, with its reviewed French."
 
 [supervise.microphone_off]
 en = "Your microphone is off. The caller does not hear you."
@@ -2975,7 +2975,7 @@ ctx = "label"
 screen = "supervise"
 tier = "T2"
 state = "reviewed"
-note = "While the member has taken a live call over: the microphone, as the call engine reports it, is not sending (muted, or not published yet). Reviewed by Sean, 2026-11-06."
+note = "While the member has taken a live call over: the microphone, as the call engine reports it, is not sending (muted, or not published yet). Reviewed 2026-11-06."
 
 [supervise.microphone_on]
 en = "Your microphone is on. The caller hears you."
@@ -2984,7 +2984,7 @@ ctx = "label"
 screen = "supervise"
 tier = "T2"
 state = "reviewed"
-note = "While the member has taken a live call over: the microphone, as the call engine reports it, is sending. Reviewed by Sean, 2026-11-06."
+note = "While the member has taken a live call over: the microphone, as the call engine reports it, is sending. Reviewed 2026-11-06."
 
 [support.compose_needs]
 en = "A subject of {min} to {max} characters, and a message."

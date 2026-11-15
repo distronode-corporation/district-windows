@@ -1,11 +1,11 @@
 {
-  "signed_off_by": "Sean Dean, 2026-11-06",
-  "release": "v3.3.0",
-  "commit": "06b831ace0ce2e5d280760e077d20ebf19d56347",
+  "signed_off_by": "Sean Dean, by approving this file's pull request, 2026-11-15. The 4 French strings changed since v3.3.0 were reviewed by an AI agent and 0 were corrected.",
+  "release": "v3.4.0",
+  "commit": "025593f288af6e020acfabdcb2e34640f41e0e9e",
   "catalogs": [
     {
       "path": "crates/district-ffi/l10n/ffi.toml",
-      "sha256": "a5e72e2e046f480dce4915f3b8839af32fd950b855e002d48b3835471a33619e"
+      "sha256": "f6fa2a0130d1c44a75299e22978856409d32b69ac159d66b5e041c0f0fc048cd"
     },
     {
       "path": "src/DistrictAI/l10n/manifest.toml",

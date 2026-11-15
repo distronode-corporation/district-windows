@@ -286,7 +286,7 @@ def edit_submission(sub, args, notes, pkgs, fr_shots):
         # 3.0.1 and later: the published submission already carries the reviewed fr-ca
         # listing and its 7 screenshots. Only its "What's new" changes, taken from the
         # tagged docs/store-listing.md. Any fr-CA listing input here would replace live,
-        # reviewed text (S02 rows would even ship the 3.0.0 notes), so it is refused.
+        # reviewed text (the reviewed rows would even ship the 3.0.0 notes), so it is refused.
         given = [n for n in ("fr_ca_rows", "fr_ca_description", "fr_ca_features",
                              "fr_ca_short_description", "fr_ca_keywords", "fr_ca_screenshots")
                  if getattr(args, n)]
@@ -407,7 +407,7 @@ def main():
     ap.add_argument("--version", required=True, help="the release, X.Y.Z: the What's new section and the package version")
     ap.add_argument("--ref", required=True, help="the full commit the release was tagged on (docs/store-listing.md is read there)")
     ap.add_argument("--listing-md", help="read docs/store-listing.md from this file instead of GitHub")
-    ap.add_argument("--fr-ca-rows", help="reviewed jsonl with windows.store.* rows (S02 final.jsonl); `fr` verbatim, overrides the doc's fr-CA What's new")
+    ap.add_argument("--fr-ca-rows", help="reviewed jsonl with windows.store.* rows; `fr` verbatim, overrides the doc's fr-CA What's new")
     ap.add_argument("--fr-ca-description", help="UTF-8 file: the fr-CA description (required for a complete fr-CA listing)")
     ap.add_argument("--fr-ca-features", help="UTF-8 file, one product feature per line")
     ap.add_argument("--fr-ca-short-description", help="UTF-8 file: the fr-CA short description")

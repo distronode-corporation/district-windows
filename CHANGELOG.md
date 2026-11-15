@@ -7,6 +7,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+The detail of 3.4.0 for developers. The `[3.4.0]` section below is the release's notes
+(the tag's GitHub Release is made from it), so this detail moves under it once 3.4.0 is
+out.
+
 ### Added
 
 - The Registrations tab on the phone numbers screen, as on Android: a country's regulatory
@@ -41,6 +45,30 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   last part of its address, or as "attachment". A message with a file among its
   attachments is described as "2 attachments", no longer "2 images attached"; a message
   of images alone reads as before.
+
+## [3.4.0] - 2026-11-15
+
+District AI 3.4.0 brings number registrations to Windows and push to talk to District HQ
+by voice, and a file sent in a conversation now reads by its own name.
+
+### Added
+
+- Registrations, a new tab on the Phone numbers screen: see what a country's regulator
+  asks for before you use its numbers, start a registration, add the details and
+  documents it asks for (PDF, PNG or JPEG, up to 10 MB), and file it with the carrier.
+  Each filing shows its status and anything the carrier objected to.
+- Push to talk in District HQ by voice: when your HQ voice settings use push to talk,
+  hold the Hold to talk button (with the pointer, Space or Enter) while you speak, and
+  let go to stop.
+
+### Changed
+
+- A file sent in a conversation, such as a PDF, is shown by its name instead of as an
+  image, and a message with a file among its attachments counts them as attachments
+  ("2 attachments") instead of images ("2 images attached").
+- When a District HQ voice session ends, however it ends, only the minutes it used are
+  counted.
+- Built on district-core-rust 12.0.0 (from 9.0.0).
 
 ## [3.3.0] - 2026-11-06
 

@@ -18,11 +18,11 @@ What is true of the app, and what the text below says:
   the usage they meter. Nothing is sold as a one-off digital item, and nothing in the app
   is a game.
 - **Where it is managed.** A subscription is changed or cancelled with District AI (the
-  app's billing screen, once K1 lands, or the District AI website), never through
-  Microsoft.
+  app's billing screen, where the build has one, or the District AI website), never
+  through Microsoft.
 
-Before pasting, check each point against the build being submitted (the billing and
-checkout packets, K1 and K2) and against the current text of Microsoft Store Policy 10.8
+Before pasting, check each point against the build being submitted (its billing and
+checkout screens) and against the current text of Microsoft Store Policy 10.8
 (financial transactions) in Partner Center, which is the authority; this draft follows
 its requirement that an app using its own payment processing for digital items says so,
 identifies the processor at the transaction, and keeps purchases under the developer's
@@ -60,6 +60,42 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
+## What's new in this version: 3.4.0
+
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (835 characters) and, in the fr-CA listing, the French
+below (1085 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon, inside the guillemets and between 10 and Mo.
+
+The notes carry every user-visible entry of the CHANGELOG's 3.4.0 section, the
+Registrations tab first; "Built on district-core-rust 12.0.0" is left out, as it changes
+nothing on its own. The French names on screen (« Numéros de téléphone », « Inscriptions »,
+« Maintenir pour parler », « Boîte de réception », « pièces jointes », « images jointes »)
+are the app's and the core's reviewed strings; the rest of the French is new for 3.4.0 and
+was signed off by the maintainers on 2026-11-15 as written. Before pasting, check which version Partner
+Center last published: if it is not 3.3.0, the notes of each version in between go above
+these.
+
+en-US:
+
+```text
+District AI 3.4.0:
+- Phone numbers: a new Registrations tab. See what a country's regulator asks for before you use its numbers, start a registration, add the details and documents it asks for (PDF, PNG or JPEG, up to 10 MB), and file it with the carrier. Each filing shows its status and anything the carrier objected to.
+- District HQ by voice: push to talk. When your HQ voice settings use push to talk, hold the Hold to talk button (with the mouse, Space or Enter) while you speak, and let go to stop.
+- Inbox: a file sent in a conversation, such as a PDF, is shown by its name instead of as an image, and a message with a file among its attachments counts them as attachments ("2 attachments") instead of images ("2 images attached").
+- When a District HQ voice session ends, however it ends, only the minutes it used are counted.
+```
+
+fr-CA:
+
+```text
+District AI 3.4.0 :
+- Numéros de téléphone : un nouvel onglet « Inscriptions ». Voyez ce que l'organisme de réglementation d'un pays exige avant d'utiliser ses numéros, commencez une inscription, ajoutez les renseignements et les documents demandés (PDF, PNG ou JPEG, jusqu'à 10 Mo), puis déposez-la auprès du transporteur. Chaque dépôt affiche son état et les objections du transporteur, s'il y en a.
+- District HQ par la voix : le mode « appuyer pour parler ». Si vos paramètres vocaux de HQ utilisent ce mode, gardez le bouton « Maintenir pour parler » enfoncé (avec la souris, la barre d'espace ou Entrée) pendant que vous parlez, puis relâchez-le pour arrêter.
+- Boîte de réception : un fichier envoyé dans une conversation, comme un PDF, s'affiche sous son nom plutôt que comme une image, et un message dont les pièces jointes comprennent un fichier les compte comme des pièces jointes (« 2 pièces jointes ») plutôt que comme des images (« 2 images jointes »).
+- Quand une session vocale de District HQ se termine, peu importe comment, seules les minutes utilisées sont comptées.
+```
+
 ## What's new in this version: 3.3.0
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text
@@ -74,7 +110,7 @@ channel, which changes how the Store copy is sent, not the app. The French names
 screen (« Boîte de réception », « Envoyer », « Appeler », « Clavier ») are the app's and
 the core's reviewed strings, and « Appels en cours » and « souffler une consigne » are the
 reviewed French of the web dashboard's Live calls page; the rest of the French is new for
-3.3.0 and was signed off by Sean on 2026-11-06 as written. Before pasting, check
+3.3.0 and was signed off by the maintainers on 2026-11-06 as written. Before pasting, check
 which version Partner Center last published: if it is not 3.2.0, the notes of each version
 in between go above these.
 
@@ -117,7 +153,7 @@ The notes carry every user-visible entry of the CHANGELOG's 3.2.0 section, Distr
 voice first; "Built on district-core-rust 7.0.0" is left out, as it changes nothing on its
 own. The French names on screen (« Démarrer le mode vocal », « Arrêter le mode vocal »,
 « je confirme ») are the core's reviewed strings; the rest of the French is new for 3.2.0
-and was reviewed by the ThinkPad manager on 2026-10-27. 3.1.0 was the last published submission, so each text
+and was reviewed by the maintainers on 2026-10-27. 3.1.0 was the last published submission, so each text
 below goes in alone.
 
 en-US:
@@ -152,7 +188,7 @@ The notes carry every user-visible entry of the CHANGELOG's 3.1.0 section, crash
 first. The Security entry (webpki-root-certs 1.0.10) is left out: no build the app ships
 compiles that crate. The crash-report line is the copy reviewed 2026-10-25, with the
 default and what a report leaves out added from the same reviewed copy. The rest of the
-French is new for 3.1.0, reviewed by the manager 2026-10-25. 3.0.3 was the last published
+French is new for 3.1.0, reviewed by the maintainers 2026-10-25. 3.0.3 was the last published
 submission, so each text below goes in alone.
 
 en-US:
@@ -189,7 +225,7 @@ below (541 characters). Paste each block as it is: the French holds no-break spa
 (U+00A0) before each colon and inside the guillemets.
 
 The notes carry every user-visible entry of the CHANGELOG's 3.0.3 section, the security
-update first. The French is new for 3.0.3, reviewed by the manager 2026-10-23. 3.0.2 was
+update first. The French is new for 3.0.3, reviewed by the maintainers 2026-10-23. 3.0.2 was
 the last published submission, so each text below went in alone, as written here
 (submission 1152921505702209071).
 
@@ -216,7 +252,7 @@ per listing language: en-US below (1092 characters) and, in the fr-CA listing, t
 below (1412 characters). Paste each block as it is: the French holds no-break spaces
 (U+00A0) before each colon, inside the guillemets and inside the call length.
 
-The French is new for 3.0.2, reviewed by the manager 2026-10-16. The notes carry every
+The French is new for 3.0.2, reviewed by the maintainers 2026-10-16. The notes carry every
 user-visible entry of the CHANGELOG's 3.0.2 section. If 3.0.1 never reached the Store,
 the 3.0.1 text below followed by these lines without their first one would be 1835
 and 2351 characters, over the limit: that case needs a shorter text of its own.
@@ -258,7 +294,7 @@ per listing language: en-US below (761 characters) and, in the fr-CA listing, th
 below (958 characters). Paste each block as it is: the French holds no-break spaces
 (U+00A0) before each colon and inside the guillemets.
 
-The French is new for 3.0.1, reviewed by the manager 2026-10-15 and 2026-10-16. The sideload
+The French is new for 3.0.1, reviewed by the maintainers 2026-10-15 and 2026-10-16. The sideload
 dependencies fix (the x86 Windows App Runtime) is left out: it concerns the GitHub
 test build, not the Store copy. If 3.0.0 never reached the Store, the 3.0.0 text below
 followed by these lines without their first one would be 1516 and 1934 characters,
@@ -297,13 +333,12 @@ per listing language: en-US below (773 characters) and, in the fr-CA listing, th
 below (995 characters). Paste each block as it is: the French holds no-break spaces
 (U+00A0) before each colon and inside the guillemets.
 
-The French is the programme's reviewed translation (monorepo
-`i18n/fr-CA/work/S01/final.jsonl`, id `windows.msstore.whats_new_3_0_0`), with one line
+The French is the reviewed translation (id `windows.msstore.whats_new_3_0_0`), with one line
 left out in both languages: the draft said that calls ring and messages arrive while the
 app is closed. That is not confirmed (Microsoft's mapping of this package for Windows push
 is not confirmed, and the push credentials are not verified in production), so these
 notes do not claim it. The booking pages line was added after that review, for the
-scheduling administration that 3.0.0 makes native, and reviewed by the manager 2026-10-15.
+scheduling administration that 3.0.0 makes native, and reviewed by the maintainers 2026-10-15.
 
 en-US:
 
