@@ -37,10 +37,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   answer longer than it already waits for its other last work.
 - district-core-rust 12.0.0. A message's attachments say which are files, so a thread
   names each file (a PDF, say) by the name it was sent with, as the phone apps do, where
-  it read as the last part of its web address; a file sent without a name reads by its
-  address, or as "attachment". A message with a file among its attachments is described
-  as "2 attachments", no longer "2 images attached"; a message of images alone reads as
-  before.
+  it read as the last part of its web address; a file sent without a name reads by the
+  last part of its address, or as "attachment". A message with a file among its
+  attachments is described as "2 attachments", no longer "2 images attached"; a message
+  of images alone reads as before.
 
 ## [3.3.0] - 2026-11-06
 

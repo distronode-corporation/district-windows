@@ -166,7 +166,7 @@ pub enum TimelineKind {
         /// Its text.
         body: String,
         /// The attachments' names, in order: a file (a PDF, say) by the name
-        /// the service sent, an image by its address.
+        /// the service sent, an image by the last part of its address's path.
         attachments: Vec<String>,
         /// An email's subject.
         subject: Option<String>,
@@ -396,11 +396,11 @@ fn images_attached(count: usize) -> Option<String> {
 
 /// A message's attachments, named, and the line about them, as the phone apps
 /// tell them apart. A file the service says is not an image (a PDF, say) reads
-/// by the name it sent, else by its address, else as an attachment; an image,
-/// or a URL the service sent no type for, by its address as before. The line
-/// counts the images while they are all there is, and every attachment, in
-/// the phone apps' words, once a file is among them: a file is never called an
-/// image.
+/// by the name it sent, else by the last part of its address's path, else as
+/// an attachment; an image, or a URL the service sent no type for, by that last
+/// part as before. The line counts the images while they are all there is, and
+/// every attachment, in the phone apps' words, once a file is among them: a
+/// file is never called an image.
 fn attachments(event: &TimelineEvent) -> (Vec<String>, Option<String>) {
     let mut files = 0;
     let names = event
@@ -717,7 +717,7 @@ mod tests {
                 Some("1 image attached".to_owned())
             )
         );
-        // A file without a name reads by its address, or else as an
+        // A file without a name reads by its address's last part, or else as an
         // attachment, never as an image.
         let unnamed = with_attachments(&[
             ("https://cdn.example.com/f/notes.txt", "text/plain", " "),
