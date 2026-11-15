@@ -32,7 +32,7 @@ name: Store
 # They stay in the script's memory; nothing prints them, and the SAS upload URL
 # is redacted.
 #
-# `correlation` only names the run, so the release train can find the exact run it dispatched
+# `correlation` only names the run, so a release script can find the exact run it dispatched
 # (GitHub's dispatch API returns no run id). No step reads it. Empty, the run is named
 # "Store".
 run-name: ${{ inputs.correlation && format('{0} [{1}]', github.workflow, inputs.correlation) || github.workflow }}
@@ -57,7 +57,7 @@ on:
         type: string
         default: ""
       correlation:
-        description: Set by the release train to find this exact run (manifest, lane, step, time). Leave empty.
+        description: Set by a release script to find this exact run (manifest, lane, step, time). Leave empty.
         type: string
         default: ""
 

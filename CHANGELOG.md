@@ -58,13 +58,14 @@ by voice, and a file sent in a conversation now reads by its own name.
   documents it asks for (PDF, PNG or JPEG, up to 10 MB), and file it with the carrier.
   Each filing shows its status and anything the carrier objected to.
 - Push to talk in District HQ by voice: when your HQ voice settings use push to talk,
-  hold Hold to talk (with the pointer, Space or Enter) while you speak, and let go to
-  stop.
+  hold the Hold to talk button (with the pointer, Space or Enter) while you speak, and
+  let go to stop.
 
 ### Changed
 
-- A file sent in a conversation, such as a PDF, is shown by the name it was sent with,
-  and a message that carries one reads "2 attachments" instead of "2 images attached".
+- A file sent in a conversation, such as a PDF, is shown by its name instead of as an
+  image, and a message with a file among its attachments counts them as attachments
+  ("2 attachments") instead of images ("2 images attached").
 - When a District HQ voice session ends, however it ends, only the minutes it used are
   counted.
 - Built on district-core-rust 12.0.0 (from 9.0.0).

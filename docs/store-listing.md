@@ -63,8 +63,8 @@ bought in the app through District AI's checkout).
 ## What's new in this version: 3.4.0
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text
-per listing language: en-US below (769 characters) and, in the fr-CA listing, the French
-below (1008 characters). Paste each block as it is: the French holds no-break spaces
+per listing language: en-US below (835 characters) and, in the fr-CA listing, the French
+below (1085 characters). Paste each block as it is: the French holds no-break spaces
 (U+00A0) before each colon, inside the guillemets and between 10 and Mo.
 
 The notes carry every user-visible entry of the CHANGELOG's 3.4.0 section, the
@@ -81,8 +81,8 @@ en-US:
 ```text
 District AI 3.4.0:
 - Phone numbers: a new Registrations tab. See what a country's regulator asks for before you use its numbers, start a registration, add the details and documents it asks for (PDF, PNG or JPEG, up to 10 MB), and file it with the carrier. Each filing shows its status and anything the carrier objected to.
-- District HQ by voice: push to talk. When your HQ voice settings use push to talk, hold Hold to talk (with the mouse, Space or Enter) while you speak, and let go to stop.
-- Inbox: a file sent in a conversation, such as a PDF, is shown by the name it was sent with, and a message that carries one reads "2 attachments" instead of "2 images attached".
+- District HQ by voice: push to talk. When your HQ voice settings use push to talk, hold the Hold to talk button (with the mouse, Space or Enter) while you speak, and let go to stop.
+- Inbox: a file sent in a conversation, such as a PDF, is shown by its name instead of as an image, and a message with a file among its attachments counts them as attachments ("2 attachments") instead of images ("2 images attached").
 - When a District HQ voice session ends, however it ends, only the minutes it used are counted.
 ```
 
@@ -92,7 +92,7 @@ fr-CA:
 District AI 3.4.0 :
 - Numéros de téléphone : un nouvel onglet « Inscriptions ». Voyez ce que l'organisme de réglementation d'un pays exige avant d'utiliser ses numéros, commencez une inscription, ajoutez les renseignements et les documents demandés (PDF, PNG ou JPEG, jusqu'à 10 Mo), puis déposez-la auprès du transporteur. Chaque dépôt affiche son état et les objections du transporteur, s'il y en a.
 - District HQ par la voix : le mode « appuyer pour parler ». Si vos paramètres vocaux de HQ utilisent ce mode, gardez le bouton « Maintenir pour parler » enfoncé (avec la souris, la barre d'espace ou Entrée) pendant que vous parlez, puis relâchez-le pour arrêter.
-- Boîte de réception : un fichier envoyé dans une conversation, comme un PDF, s'affiche sous le nom avec lequel il a été envoyé, et un message qui en contient un indique « 2 pièces jointes » au lieu de « 2 images jointes ».
+- Boîte de réception : un fichier envoyé dans une conversation, comme un PDF, s'affiche sous son nom plutôt que comme une image, et un message dont les pièces jointes comprennent un fichier les compte comme des pièces jointes (« 2 pièces jointes ») plutôt que comme des images (« 2 images jointes »).
 - Quand une session vocale de District HQ se termine, peu importe comment, seules les minutes utilisées sont comptées.
 ```
 
