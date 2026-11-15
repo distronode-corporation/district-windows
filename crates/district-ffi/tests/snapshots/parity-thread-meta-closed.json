@@ -122,6 +122,26 @@
             "report": "Hidden"
           },
           {
+            "at": "2026-08-15T14:15:00.000Z",
+            "id": "msg_timeline_pdf_out",
+            "kind": {
+              "Message": {
+                "attachments": [
+                  "Roof quote.pdf"
+                ],
+                "attachments_label": "1 attachment",
+                "author": null,
+                "body": "Here is the quote for the roof.",
+                "channel_label": "Text message",
+                "delivery": "Delivered",
+                "delivery_failed": false,
+                "outbound": true,
+                "subject": null
+              }
+            },
+            "report": "Hidden"
+          },
+          {
             "at": "2026-08-15T14:20:00.000Z",
             "id": "msg_timeline_email",
             "kind": {
