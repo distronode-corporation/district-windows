@@ -36,9 +36,9 @@ Where the scan looks, and what counts as a user-facing string there:
     src/DistrictAI.Presentation/**/*.cs
                                     the same, in the view models
     **/*.resw                       every <value> of a resource file
-    crates/*/l10n/*.toml,           every string catalog (i18n/README.md in the
-    src/*/l10n/*.toml               monorepo): each entry's English and, once
-                                    written, its French, every plural form;
+    crates/*/l10n/*.toml,           every string catalog: each entry's English
+    src/*/l10n/*.toml               and, once written, its French, every
+                                    plural form;
                                     the entry's `screen` names the screen it
                                     is shown on (CATALOG_SCREENS)
     crates/district-ffi/src/**/*.rs Rust string literals, which become the

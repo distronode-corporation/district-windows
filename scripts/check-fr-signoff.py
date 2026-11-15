@@ -197,7 +197,7 @@ def main(argv: list[str]) -> int:
         if isinstance(data.get("release"), str) and isinstance(data.get("commit"), str):
             print(
                 f"\nThe French was signed off for {data['release']} at {data['commit'][:12]}."
-                " A release whose catalogs changed needs the manager's review of the French"
+                " A release whose catalogs changed needs a maintainer's review of the French"
                 f" and a new {SIGNOFF} recording the catalogs' new hashes (CONTRIBUTING.md).",
                 file=sys.stderr,
             )
