@@ -1313,6 +1313,27 @@ pub fn hq_viewer_note(l: Locale) -> &'static str {
     }
 }
 
+/// `inbox.attachments`
+#[must_use]
+pub fn inbox_attachments(l: Locale, count: i64) -> String {
+    match l {
+        Locale::En => {
+            if count == 1 {
+                format!("{} attachment", district_l10n::format::integer(l, count))
+            } else {
+                format!("{} attachments", district_l10n::format::integer(l, count))
+            }
+        }
+        Locale::FrCa => {
+            if count == 0 || count == 1 {
+                format!("{} pièce jointe", district_l10n::format::integer(l, count))
+            } else {
+                format!("{} pièces jointes", district_l10n::format::integer(l, count))
+            }
+        }
+    }
+}
+
 /// `inbox.call_incoming`
 #[must_use]
 pub fn inbox_call_incoming(l: Locale) -> &'static str {
@@ -1466,6 +1487,15 @@ pub fn inbox_thread_failed_title(l: Locale) -> &'static str {
     match l {
         Locale::En => "Could not load this conversation",
         Locale::FrCa => "Impossible de charger cette conversation",
+    }
+}
+
+/// `inbox.unnamed_file`
+#[must_use]
+pub fn inbox_unnamed_file(l: Locale) -> &'static str {
+    match l {
+        Locale::En => "attachment",
+        Locale::FrCa => "pièce jointe",
     }
 }
 

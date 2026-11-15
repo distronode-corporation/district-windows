@@ -1330,6 +1330,18 @@ tier = "T3"
 state = "reviewed"
 note = "The note under a proposed change for a member whose role cannot make it."
 
+[inbox.attachments]
+en.one = "{count} attachment"
+en.other = "{count} attachments"
+fr.one = "{count} pièce jointe"
+fr.other = "{count} pièces jointes"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+args = { count = "int" }
+state = "reviewed"
+note = "Under a message: how many attachments it carries, when a file (a PDF, say) is among them; a message of images alone says inbox.images_attached instead. The phone apps' badge, verbatim in both languages."
+
 [inbox.call_incoming]
 en = "Incoming call"
 fr = "Appel entrant"
@@ -1450,7 +1462,7 @@ screen = "inbox"
 tier = "T3"
 args = { count = "int" }
 state = "reviewed"
-note = "Under a message: how many images it carries."
+note = "Under a message whose attachments are all images: how many it carries. A message with a file among them says inbox.attachments instead."
 
 [inbox.not_delivered]
 en = "Not delivered"
@@ -1478,6 +1490,15 @@ screen = "inbox"
 tier = "T2"
 state = "reviewed"
 note = "The heading of a conversation that could not be read, as the Linux app words it."
+
+[inbox.unnamed_file]
+en = "attachment"
+fr = "pièce jointe"
+ctx = "label"
+screen = "inbox"
+tier = "T3"
+state = "reviewed"
+note = "The name of an attached file (a PDF, say) that came without a name and whose address names none either. Lower case, like inbox.unnamed_image."
 
 [inbox.unnamed_image]
 en = "image"

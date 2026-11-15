@@ -165,7 +165,8 @@ pub enum TimelineKind {
         author: Option<String>,
         /// Its text.
         body: String,
-        /// The attached files' names.
+        /// The attachments' names, in order: a file (a PDF, say) by the name
+        /// the service sent, an image by its address.
         attachments: Vec<String>,
         /// An email's subject.
         subject: Option<String>,
@@ -175,7 +176,8 @@ pub enum TimelineKind {
         delivery: Option<String>,
         /// Whether it was not delivered (show `delivery` as an error).
         delivery_failed: bool,
-        /// "1 image attached", when anything is.
+        /// "1 image attached" while every attachment is an image, "2
+        /// attachments" once a file is among them; `None` with none.
         attachments_label: Option<String>,
     },
     /// A call.
@@ -370,14 +372,16 @@ fn call_line(event: &TimelineEvent) -> String {
 
 /// The name of an attached file: the last part of its address's path.
 fn file_name(url: &str) -> String {
-    url::Url::parse(url)
-        .ok()
-        .and_then(|url| {
-            url.path_segments()?
-                .rfind(|part| !part.is_empty())
-                .map(str::to_owned)
-        })
-        .unwrap_or_else(|| s::inbox_unnamed_image(l()).to_owned())
+    path_name(url).unwrap_or_else(|| s::inbox_unnamed_image(l()).to_owned())
+}
+
+/// The last part of an address's path, when it has one.
+fn path_name(url: &str) -> Option<String> {
+    url::Url::parse(url).ok().and_then(|url| {
+        url.path_segments()?
+            .rfind(|part| !part.is_empty())
+            .map(str::to_owned)
+    })
 }
 
 fn images_attached(count: usize) -> Option<String> {
@@ -390,15 +394,50 @@ fn images_attached(count: usize) -> Option<String> {
     }
 }
 
+/// A message's attachments, named, and the line about them, as the phone apps
+/// tell them apart. A file the service says is not an image (a PDF, say) reads
+/// by the name it sent, else by its address, else as an attachment; an image,
+/// or a URL the service sent no type for, by its address as before. The line
+/// counts the images while they are all there is, and every attachment, in
+/// the phone apps' words, once a file is among them: a file is never called an
+/// image.
+fn attachments(event: &TimelineEvent) -> (Vec<String>, Option<String>) {
+    let mut files = 0;
+    let names = event
+        .media_urls
+        .iter()
+        .map(|url| match event.file_attachment_for(url) {
+            Some(file) => {
+                files += 1;
+                Some(file.file_name.trim())
+                    .filter(|name| !name.is_empty())
+                    .map(str::to_owned)
+                    .or_else(|| path_name(url))
+                    .unwrap_or_else(|| s::inbox_unnamed_file(l()).to_owned())
+            }
+            None => file_name(url),
+        })
+        .collect::<Vec<_>>();
+    let label = match files {
+        0 => images_attached(names.len()),
+        _ => Some(s::inbox_attachments(
+            l(),
+            i64::try_from(names.len()).unwrap_or(i64::MAX),
+        )),
+    };
+    (names, label)
+}
+
 fn timeline_item(event: &TimelineEvent, capabilities: &Capabilities) -> TimelineItemView {
     let mut report = ReportAvailability::Hidden;
     let kind = if event.is_message() {
         let delivery = delivery(event);
+        let (attachments, attachments_label) = attachments(event);
         TimelineKind::Message {
             outbound: event.direction == "outbound",
             author: None,
             body: event.body.clone(),
-            attachments: event.media_urls.iter().map(|url| file_name(url)).collect(),
+            attachments,
             subject: event
                 .subject
                 .clone()
@@ -406,7 +445,7 @@ fn timeline_item(event: &TimelineEvent, capabilities: &Capabilities) -> Timeline
             channel_label: channel(&event.event_type).to_owned(),
             delivery_failed: delivery.as_deref() == Some(s::inbox_not_delivered(l())),
             delivery,
-            attachments_label: images_attached(event.media_urls.len()),
+            attachments_label,
         }
     } else {
         let missed = event.is_missed_call();
@@ -598,5 +637,99 @@ mod tests {
         assert_eq!(images_attached(0), None);
         assert_eq!(images_attached(1).as_deref(), Some("1 image attached"));
         assert_eq!(images_attached(3).as_deref(), Some("3 images attached"));
+    }
+
+    /// A message's view: its attachments' names and the line about them, read
+    /// from the view as the snapshots hold it.
+    fn attached(event: &TimelineEvent) -> (Vec<String>, Option<String>) {
+        let kind =
+            serde_json::to_value(timeline_item(event, &Capabilities::default()).kind).unwrap();
+        let message = &kind["Message"];
+        serde_json::from_value(json!([
+            message["attachments"],
+            message["attachments_label"]
+        ]))
+        .unwrap()
+    }
+
+    fn with_attachments(media: &[(&str, &str, &str)]) -> TimelineEvent {
+        let mut message = event("sms", "outbound", "delivered", None);
+        message.media_urls = media.iter().map(|(url, ..)| (*url).to_owned()).collect();
+        message.attachments = serde_json::from_value(json!(
+            media
+                .iter()
+                .map(|(url, mime_type, file_name)| json!({
+                    "url": url,
+                    "mimeType": mime_type,
+                    "fileName": file_name
+                }))
+                .collect::<Vec<_>>()
+        ))
+        .unwrap();
+        message
+    }
+
+    #[test]
+    fn a_pdf_is_named_as_a_file_and_never_called_an_image() {
+        let quote = "https://cdn.example.com/api/media/0b5e7c1a?name=Roof%20quote.pdf";
+        let photo = "https://cdn.example.com/m/roof.jpg";
+        let pdf = with_attachments(&[(quote, "application/pdf", "Roof quote.pdf")]);
+        assert_eq!(
+            attached(&pdf),
+            (
+                vec!["Roof quote.pdf".to_owned()],
+                Some("1 attachment".to_owned())
+            )
+        );
+        // With a photo beside it, as the phone apps count them: every
+        // attachment, in the message's order, none of them called an image.
+        let mixed = with_attachments(&[
+            (photo, "image/jpeg", "Roof.jpg"),
+            (quote, "application/pdf", "Roof quote.pdf"),
+        ]);
+        assert_eq!(
+            attached(&mixed),
+            (
+                vec!["roof.jpg".to_owned(), "Roof quote.pdf".to_owned()],
+                Some("2 attachments".to_owned())
+            )
+        );
+        district_l10n::with_locale(Locale::FrCa, || {
+            assert_eq!(attached(&pdf).1.as_deref(), Some("1 pièce jointe"));
+            assert_eq!(attached(&mixed).1.as_deref(), Some("2 pièces jointes"));
+        });
+        // Images alone keep their line, typed or not, as do URLs the service
+        // sent no entry for.
+        let photos = with_attachments(&[(photo, "image/jpeg", "Roof.jpg"), (photo, "", "")]);
+        assert_eq!(
+            attached(&photos),
+            (
+                vec!["roof.jpg".to_owned(), "roof.jpg".to_owned()],
+                Some("2 images attached".to_owned())
+            )
+        );
+        let mut untyped = event("sms", "inbound", "received", None);
+        untyped.media_urls = vec![photo.to_owned()];
+        assert_eq!(
+            attached(&untyped),
+            (
+                vec!["roof.jpg".to_owned()],
+                Some("1 image attached".to_owned())
+            )
+        );
+        // A file without a name reads by its address, or else as an
+        // attachment, never as an image.
+        let unnamed = with_attachments(&[
+            ("https://cdn.example.com/f/notes.txt", "text/plain", " "),
+            ("https://cdn.example.com/", "application/pdf", ""),
+        ]);
+        assert_eq!(
+            attached(&unnamed).0,
+            vec!["notes.txt".to_owned(), "attachment".to_owned()]
+        );
+        assert_eq!(
+            attached(&event("sms", "inbound", "received", None)),
+            (Vec::new(), None)
+        );
     }
 }

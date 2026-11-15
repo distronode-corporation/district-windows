@@ -300,6 +300,14 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::hq_unknown_note(Locale::FrCa), "Le changement a peut-être été effectué avant la perte de la connexion. Vérifiez avant de confirmer de nouveau.");
     assert_eq!(s::hq_viewer_note(Locale::En), "Nothing has been changed. Only an agency or client member of this workspace can confirm a change.");
     assert_eq!(s::hq_viewer_note(Locale::FrCa), "Rien n'a été modifié. Seul un membre ayant le rôle Administrateur ou Membre dans cet espace de travail peut confirmer un changement.");
+    assert_eq!(s::inbox_attachments(Locale::En, 1), "1 attachment");
+    assert_eq!(s::inbox_attachments(Locale::FrCa, 1), "1 pièce jointe");
+    assert_eq!(s::inbox_attachments(Locale::En, 7), "7 attachments");
+    assert_eq!(s::inbox_attachments(Locale::FrCa, 7), "7 pièces jointes");
+    assert_eq!(s::inbox_attachments(Locale::En, 0), "0 attachments");
+    assert_eq!(s::inbox_attachments(Locale::FrCa, 0), "0 pièce jointe");
+    assert_eq!(s::inbox_attachments(Locale::En, 1000000), "1000000 attachments");
+    assert_eq!(s::inbox_attachments(Locale::FrCa, 1000000), "1\u{00A0}000\u{00A0}000 pièces jointes");
     assert_eq!(s::inbox_call_incoming(Locale::En), "Incoming call");
     assert_eq!(s::inbox_call_incoming(Locale::FrCa), "Appel entrant");
     assert_eq!(s::inbox_call_incoming_lasted(Locale::En, "{duration}"), "Incoming call, {duration}");
@@ -338,6 +346,8 @@ fn every_ffi_function_says_what_its_catalog_says() {
     assert_eq!(s::inbox_preview_ours(Locale::FrCa, "{text}"), "Vous\u{00A0}: {text}");
     assert_eq!(s::inbox_thread_failed_title(Locale::En), "Could not load this conversation");
     assert_eq!(s::inbox_thread_failed_title(Locale::FrCa), "Impossible de charger cette conversation");
+    assert_eq!(s::inbox_unnamed_file(Locale::En), "attachment");
+    assert_eq!(s::inbox_unnamed_file(Locale::FrCa), "pièce jointe");
     assert_eq!(s::inbox_unnamed_image(Locale::En), "image");
     assert_eq!(s::inbox_unnamed_image(Locale::FrCa), "image");
     assert_eq!(s::knowledge_add_action(Locale::En), "Add document");
