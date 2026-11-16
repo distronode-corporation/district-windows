@@ -321,6 +321,20 @@ public sealed partial class TwoStepViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Windows could not draw <paramref name="png"/>, the picture showing:
+    /// the page says to enter the key by hand instead. A picture that has
+    /// already gone is left alone.
+    /// </summary>
+    internal void QrUnreadableHere(byte[] png)
+    {
+        if (ReferenceEquals(png, QrPng))
+        {
+            HasQr = false;
+            ShowsQrUnreadable = true;
+        }
+    }
+
+    /// <summary>
     /// Turns it on with the typed <paramref name="code"/>. True when it went;
     /// the page then empties the box.
     /// </summary>

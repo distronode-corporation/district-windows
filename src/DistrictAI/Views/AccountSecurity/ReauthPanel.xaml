@@ -25,7 +25,10 @@
                 Style="{StaticResource QuietTextStyle}"
                 Text="{x:Bind ViewModel.Waiting, Mode=OneWay}"
                 Visibility="{x:Bind ViewModel.HasWaiting, Mode=OneWay}" />
-            <ItemsControl IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}" ItemsSource="{x:Bind ViewModel.Choices}">
+            <ItemsControl
+                IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}"
+                IsTabStop="False"
+                ItemsSource="{x:Bind ViewModel.Choices}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Spacing="8" />

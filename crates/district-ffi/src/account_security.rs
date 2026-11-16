@@ -34,6 +34,15 @@ fn redacted<S: Serializer, T>(_: &T, serializer: S) -> Result<S::Ok, S::Error> {
     serializer.serialize_str("<redacted>")
 }
 
+/// Writes an optional secret as `null` when there is none and `<redacted>`
+/// when there is one, so a snapshot still tells the two states apart.
+fn redacted_option<S: Serializer, T>(value: &Option<T>, serializer: S) -> Result<S::Ok, S::Error> {
+    match value {
+        Some(_) => serializer.serialize_str("<redacted>"),
+        None => serializer.serialize_none(),
+    }
+}
+
 /// The UTF-8 of `text`.
 fn bytes(text: &str) -> Vec<u8> {
     text.as_bytes().to_vec()
@@ -218,7 +227,7 @@ pub struct TwoStepScanView {
     pub intro: String,
     /// The QR code of the link, as PNG bytes, or `None` when the service's
     /// picture could not be read (say [`TwoStepScanView::qr_unreadable`]).
-    #[serde(serialize_with = "redacted")]
+    #[serde(serialize_with = "redacted_option")]
     pub qr_png: Option<Vec<u8>>,
     /// The picture's name, for screen readers.
     pub qr_label: String,
@@ -879,6 +888,12 @@ mod tests {
             back_label: String::new(),
         };
         assert_eq!(format!("{scan:?}"), "TwoStepScanView(<redacted>)");
+        let without = serde_json::to_value(TwoStepScanView {
+            qr_png: None,
+            ..scan.clone()
+        })
+        .unwrap();
+        assert_eq!(without["qr_png"], serde_json::Value::Null);
         let json = serde_json::to_string(&scan).unwrap();
         assert!(!json.contains("JBSWY3DPEHPK3PXP"), "{json}");
         assert!(json.contains(r#""key":"<redacted>""#), "{json}");

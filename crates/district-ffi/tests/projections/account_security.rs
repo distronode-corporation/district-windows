@@ -266,7 +266,7 @@ fn deleted() -> Session {
 fn two_step_view(session: &Session) -> TwoStepView {
     match screen_view(&session.model) {
         ScreenView::TwoStep { view } => view,
-        other => panic!("not the two-step screen: {other:?}"),
+        _ => panic!("not the two-step screen"),
     }
 }
 
@@ -385,6 +385,41 @@ fn the_password_then_the_code() {
     assert!(code.reauth.expect("the reauth").code_prompt.is_some());
 }
 
+/// Once asked for, the code goes with the password, and the proof it earns
+/// leads to the new secret.
+#[test]
+fn the_password_and_its_code_lead_to_the_secret() {
+    let sent = needs_code().ui(two(TwoStepAction::SubmitPassword {
+        password: typed("correct horse battery staple"),
+        code: Some(typed(" 123456 ")),
+    }));
+    let proof = sent
+        .pending
+        .iter()
+        .rev()
+        .find_map(|effect| match effect {
+            Effect::Reauthenticate { proof, .. } => Some(proof.clone()),
+            _ => None,
+        })
+        .expect("the password and the code go");
+    assert_eq!(
+        proof,
+        district_core::ReauthProof::Password {
+            password: district_model::Credential::new("correct horse battery staple"),
+            code: Some(district_model::Credential::new("123456")),
+        }
+    );
+    assert!(two_step_view(&sent).busy);
+    let scan = proof_accepted(sent).answer(
+        |e| matches!(e, Effect::StartTwoStep { .. }),
+        |ticket| Event::TwoStepStarted {
+            ticket,
+            result: Ok(contracts::read("district-mfa-enroll.json")),
+        },
+    );
+    assert_eq!(two_step_view(&scan).step, TwoStepStepView::Scan);
+}
+
 /// A provider sign-in opens the core's page in the browser and says it waits;
 /// the three providers are always offered, in order.
 #[test]
@@ -420,7 +455,7 @@ fn a_provider_sign_in_opens_the_browser() {
 fn the_deletion_walks_its_steps() {
     let deletion_view = |session: &Session| match screen_view(&session.model) {
         ScreenView::DeleteAccount { view } => view,
-        other => panic!("not the deletion screen: {other:?}"),
+        _ => panic!("not the deletion screen"),
     };
     let start = deletion_view(&delete_account(signed_in()));
     assert_eq!(start.step, DeleteAccountStepView::Explain);

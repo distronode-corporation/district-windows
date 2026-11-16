@@ -189,8 +189,9 @@ public sealed partial class ReauthViewModel : ObservableObject
             {
                 Array.Clear(typedCode);
             }
+            // The boxes empty even when the send failed.
+            Clear();
         }
-        Clear();
         return true;
     }
 

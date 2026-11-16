@@ -117,7 +117,7 @@
                         <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ViewModel.KeyLabel, Mode=OneWay}" />
                         <TextBlock
                             AutomationProperties.AutomationId="TwoStepKey"
-                            AutomationProperties.Name="{x:Bind ViewModel.KeyLabel, Mode=OneWay}"
+                            AutomationProperties.HelpText="{x:Bind ViewModel.KeyLabel, Mode=OneWay}"
                             FontFamily="Consolas"
                             IsTextSelectionEnabled="True"
                             Text="{x:Bind ViewModel.Key, Mode=OneWay}"
@@ -189,7 +189,7 @@
                     <Border HorizontalAlignment="Left" Style="{StaticResource CardStyle}">
                         <TextBlock
                             AutomationProperties.AutomationId="TwoStepCodes"
-                            AutomationProperties.Name="{x:Bind ViewModel.CodesTitle, Mode=OneWay}"
+                            AutomationProperties.HelpText="{x:Bind ViewModel.CodesTitle, Mode=OneWay}"
                             FontFamily="Consolas"
                             IsTextSelectionEnabled="True"
                             Text="{x:Bind ViewModel.Codes, Mode=OneWay}" />

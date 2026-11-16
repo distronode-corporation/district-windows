@@ -24,7 +24,7 @@
           "open_label": "Open in an authenticator app",
           "otpauth_uri": "<redacted>",
           "qr_label": "QR code for your authenticator app",
-          "qr_png": "<redacted>",
+          "qr_png": null,
           "qr_unreadable": "The QR code could not be shown. Enter the key by hand instead.",
           "title": "Add District AI to your authenticator app"
         },

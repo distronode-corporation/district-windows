@@ -1405,7 +1405,7 @@ mod tests {
         let view = |played: &Played| -> TwoStepView {
             match screen_view(&played.model) {
                 ScreenView::TwoStep { view } => view,
-                other => panic!("not the two-step screen: {other:?}"),
+                _ => panic!("not the two-step screen"),
             }
         };
         let password = |played: &mut Played| {
@@ -1457,7 +1457,7 @@ mod tests {
             played.ui(UiEvent::AccountDeletion { action });
             match screen_view(&played.model) {
                 ScreenView::DeleteAccount { view } => view,
-                other => panic!("not the deletion screen: {other:?}"),
+                _ => panic!("not the deletion screen"),
             }
         };
         assert_eq!(

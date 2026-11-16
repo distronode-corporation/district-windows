@@ -227,6 +227,7 @@ public sealed class ReauthViewModelTests
         Assert.True(screen.Reauth.IsChoosing);
         Assert.True(screen.Reauth.HasWaiting);
         Assert.Equal("Waiting for sign-in.", screen.Reauth.Waiting);
+        Assert.Equal(["ReauthGoogle", "ReauthMicrosoft", "ReauthApple"], screen.Reauth.Choices.Select(choice => choice.AutomationId));
     }
 
     [Fact]
@@ -299,7 +300,7 @@ public sealed class ReauthViewModelTests
     }
 
     [Fact]
-    public void WithNoPageNothingIsSentAndNothingBreaks()
+    public void WithNoPageNothingBreaks()
     {
         var reauth = new ReauthViewModel(
             p => new UiEvent.TwoStep(new TwoStepAction.UseProvider(p)),
@@ -421,6 +422,36 @@ public sealed class TwoStepViewModelTests
         screen.Show(A.TwoStep());
         Assert.Equal(string.Empty, screen.Key);
         Assert.Equal(2, cleared);
+    }
+
+    [Fact]
+    public void APictureWindowsCannotDrawSaysToEnterTheKey()
+    {
+        var (screen, _, _, _, _) = Make();
+        var png = new byte[] { 1, 2, 3 };
+        screen.Show(A.TwoStep(TwoStepStepView.Scan, scan: A.Scan(png)));
+        // Another picture's failure, arriving late, changes nothing.
+        screen.QrUnreadableHere([9]);
+        Assert.True(screen.HasQr);
+        screen.QrUnreadableHere(png);
+        Assert.False(screen.HasQr);
+        Assert.True(screen.ShowsQrUnreadable);
+    }
+
+    [Fact]
+    public void AFailedSendStillEmptiesTheBoxes()
+    {
+        var reauth = new ReauthViewModel(
+            p => new UiEvent.TwoStep(new TwoStepAction.UseProvider(p)),
+            () => new UiEvent.TwoStep(new TwoStepAction.UsePassword()),
+            (_, _) => throw new InvalidOperationException("the core is gone"),
+            () => new UiEvent.TwoStep(new TwoStepAction.Back()));
+        var cleared = 0;
+        reauth.FieldsCleared += (_, _) => cleared++;
+        reauth.Attach(Pages.Context().Context);
+        reauth.Show(A.Reauth(ReauthModeView.Password), busy: false);
+        Assert.Throws<InvalidOperationException>(() => reauth.Submit("pw", string.Empty));
+        Assert.Equal(1, cleared);
     }
 
     [Fact]
@@ -553,7 +584,7 @@ public sealed class TwoStepViewModelTests
     }
 
     [Fact]
-    public async Task WithNoPageNothingIsSent()
+    public async Task WithNoPageNothingBreaks()
     {
         var screen = new TwoStepViewModel(new SecretCopies(new FakeClipboard(), new ManualTime(DateTimeOffset.UnixEpoch)));
         screen.Show(A.TwoStep(TwoStepStepView.Scan, scan: A.Scan()));
@@ -697,7 +728,7 @@ public sealed class DeleteAccountViewModelTests
     }
 
     [Fact]
-    public void WithNoPageNothingIsSent()
+    public void WithNoPageNothingBreaks()
     {
         var screen = new DeleteAccountViewModel();
         screen.Show(A.Deletion(DeleteAccountStepView.Confirm));

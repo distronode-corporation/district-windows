@@ -78,7 +78,10 @@ public sealed partial class TwoStepPage : UserControl
         }
         catch (Exception error) when (error is ArgumentException or System.Runtime.InteropServices.COMException)
         {
-            // Not a picture Windows can read: the key still works.
+            // Not a picture Windows can read: no picture, and the page says
+            // to enter the key, which still works.
+            QrImage.Source = null;
+            ViewModel.QrUnreadableHere(png);
             return;
         }
         // Still the picture to show, once it is decoded.
