@@ -1,5 +1,6 @@
 using DistrictAI.Core.Ffi;
 using DistrictAI.Views;
+using DistrictAI.Views.AccountSecurity;
 using DistrictAI.Views.Analytics;
 using DistrictAI.Views.Billing;
 using DistrictAI.Views.Blocked;
@@ -43,6 +44,8 @@ public sealed partial class MainWindow
     private ContactDetailPage? _contactDetail;
     private AccountPage? _account;
     private DevicesPage? _devices;
+    private TwoStepPage? _twoStep;
+    private DeleteAccountPage? _deleteAccount;
     private DialerPage? _dialer;
     private UnavailablePage? _unavailable;
     private BlockedPage? _blocked;
@@ -119,6 +122,16 @@ public sealed partial class MainWindow
                 _devices ??= Made(new DevicesPage(), p => p.Attach(_context));
                 _devices.Show(devices.View);
                 page = _devices;
+                break;
+            case ScreenView.TwoStep twoStep:
+                _twoStep ??= Made(new TwoStepPage(), p => p.Attach(_context));
+                _twoStep.Show(twoStep.View);
+                page = _twoStep;
+                break;
+            case ScreenView.DeleteAccount deleteAccount:
+                _deleteAccount ??= Made(new DeleteAccountPage(), p => p.Attach(_context));
+                _deleteAccount.Show(deleteAccount.View);
+                page = _deleteAccount;
                 break;
             case ScreenView.Dialer dialer:
                 var arriving = _dialer is null || !ReferenceEquals(PageHost.Content, _dialer);
@@ -266,6 +279,16 @@ public sealed partial class MainWindow
         {
             _devices?.Leave();
         }
+        // What the account's security pages showed once, or what was typed in
+        // them, never stays on a page that is not showing.
+        if (!ReferenceEquals(page, _twoStep))
+        {
+            _twoStep?.Leave();
+        }
+        if (!ReferenceEquals(page, _deleteAccount))
+        {
+            _deleteAccount?.Leave();
+        }
         if (!ReferenceEquals(PageHost.Content, page))
         {
             PageHost.Content = page;
@@ -283,6 +306,8 @@ public sealed partial class MainWindow
         or ScreenView.CallDetail
         or ScreenView.ContactDetail
         or ScreenView.Devices
+        or ScreenView.TwoStep
+        or ScreenView.DeleteAccount
         or ScreenView.Unavailable
         or ScreenView.BlockedContacts
         or ScreenView.DeskTicket

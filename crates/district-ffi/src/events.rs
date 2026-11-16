@@ -11,8 +11,8 @@ use crate::nav::NavDestination;
 use crate::shell::TabView;
 use crate::views::ReportTarget;
 use crate::{
-    analytics, billing, blocked, composer, contacts, desk, hq, marketplace, rooms, scheduling,
-    scheduling_admin, settings, supervise, support, workflows,
+    account_security, analytics, billing, blocked, composer, contacts, desk, hq, marketplace,
+    rooms, scheduling, scheduling_admin, settings, supervise, support, workflows,
 };
 
 /// Something the user did in the window. Most are one core event
@@ -108,8 +108,18 @@ pub enum UiEvent {
     CancelDevices,
     /// Put away the devices screen's failure and notes.
     DismissDevicesNotices,
-    /// Open the account deletion page in the browser.
-    DeleteAccount,
+    /// Something done on the two-step verification screen, or opening it
+    /// from the account screen.
+    TwoStep {
+        /// What.
+        action: crate::account_security::TwoStepAction,
+    },
+    /// Something done on the account deletion screen, or opening it from the
+    /// account screen's "Delete account".
+    AccountDeletion {
+        /// What.
+        action: crate::account_security::DeleteAccountAction,
+    },
     /// Report AI-generated content: raises a support request without leaving
     /// the screen. Its progress is [`ShellView::report`](crate::ShellView::report).
     Report {
@@ -362,7 +372,10 @@ impl UiEvent {
             UiEvent::ConfirmDevices => Event::Devices(DevicesEvent::Confirm),
             UiEvent::CancelDevices => Event::Devices(DevicesEvent::Cancel),
             UiEvent::DismissDevicesNotices => Event::Devices(DevicesEvent::DismissNotices),
-            UiEvent::DeleteAccount => Event::DeleteAccount,
+            UiEvent::TwoStep { action } => return account_security::two_step_events(action),
+            UiEvent::AccountDeletion { action } => {
+                return account_security::delete_account_events(action);
+            }
             // The ticket's text is the core's, in English, and names this app.
             UiEvent::Report { target, note } => Event::Support(SupportEvent::Report {
                 platform: Platform::Windows,
@@ -511,7 +524,18 @@ mod tests {
                 UiEvent::DismissDevicesNotices,
                 Event::Devices(DevicesEvent::DismissNotices),
             ),
-            (UiEvent::DeleteAccount, Event::DeleteAccount),
+            (
+                UiEvent::TwoStep {
+                    action: crate::account_security::TwoStepAction::Open,
+                },
+                Event::Navigate(Route::TwoStep),
+            ),
+            (
+                UiEvent::AccountDeletion {
+                    action: crate::account_security::DeleteAccountAction::Open,
+                },
+                Event::Navigate(Route::DeleteAccount),
+            ),
             (UiEvent::Refresh, Event::Refresh),
             (UiEvent::DismissNotice, Event::DismissNotice),
             (

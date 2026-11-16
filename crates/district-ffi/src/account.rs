@@ -1,4 +1,6 @@
-//! The account screen and the devices signed in to the account.
+//! The account screen and the devices signed in to the account. Two-step
+//! verification and deleting the account, below it, are
+//! [`crate::account_security`]'s.
 
 use district_core::{
     AccountView as CoreAccount, Confirmation, DeviceRow, DevicesList, DevicesScreen,
@@ -29,6 +31,10 @@ pub struct AccountView {
     pub sign_out_caption: String,
     /// The devices row's caption.
     pub devices_caption: String,
+    /// The two-step verification row's heading, "Two-step verification".
+    pub two_step_title: String,
+    /// Its caption.
+    pub two_step_caption: String,
     /// The account deletion row's caption.
     pub delete_account_caption: String,
     /// The "Ring on this computer" setting, once the core has read it, in a
@@ -65,6 +71,8 @@ impl From<CoreAccount> for AccountView {
             name: None,
             sign_out_caption: cs::account_sign_out_caption(l()).to_owned(),
             devices_caption: cs::account_devices_caption(l()).to_owned(),
+            two_step_title: cs::two_step_title(l()).to_owned(),
+            two_step_caption: cs::account_two_step_caption(l()).to_owned(),
             delete_account_caption: cs::account_delete_account_caption(l()).to_owned(),
             ring_on_this_computer: None,
             ring_setting_label: cs::presence_setting_label(l()).to_owned(),

@@ -29,6 +29,24 @@ out.
   talk in place of the microphone button: the microphone is on while you hold it down
   with the pointer, or with Space or Enter, and off when you let go, when the pointer or
   the keyboard leaves it, or when the button goes from the screen.
+- Two-step verification for your account, on the account page, as on the iPhone. It
+  says whether it is on, since when and how many recovery codes are left. Turning it on
+  shows the new secret as a QR code and a key, with Copy key and Open in an authenticator
+  app, asks for the authenticator's first code, and shows the recovery codes once, with
+  Copy all. Turning it off needs only confirming it is you, so an account without a
+  password turns it off after a provider sign-in. At zero recovery codes the screen says
+  to turn it off and on again for new ones.
+- Delete your account in the app. The account page's Delete account opens a screen that
+  says what is deleted and what is kept; you confirm it is you, then type the account's
+  email address and choose Delete my account. A refusal says whether anything was
+  deleted. After the deletion this computer is signed out and the sign-in page says the
+  account was deleted.
+- Both start with confirming it is you: a fresh sign-in with Google, Microsoft or Apple in
+  your browser, or your password with, when two-step verification is on, its code. What
+  you type is read once, handed to the core and cleared from its box; the key, the QR
+  code and the recovery codes leave the screen whenever it is not showing, and a copy
+  leaves the clipboard after two minutes unless something else was copied since. Nothing
+  logs any of them.
 
 ### Changed
 
@@ -45,6 +63,9 @@ out.
   last part of its address, or as "attachment". A message with a file among its
   attachments is described as "2 attachments", no longer "2 images attached"; a message
   of images alone reads as before.
+- district-core-rust 13.0.0, pinned by its commit on the core's main until its v13.0.0
+  tag is cut: two-step verification and the account's deletion, and their words in
+  English and Canadian French.
 
 ## [3.4.0] - 2026-11-15
 

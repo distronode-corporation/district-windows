@@ -7,8 +7,8 @@ namespace DistrictAI.ViewModels;
 
 /// <summary>
 /// The account: who is signed in, this build and this computer, starting at
-/// sign-in, sending crash reports, the devices, signing out, and where
-/// deleting the account starts.
+/// sign-in, sending crash reports, the devices, two-step verification,
+/// signing out, and deleting the account (each of the last two its own screen).
 /// </summary>
 public sealed partial class AccountViewModel : ObservableObject
 {
@@ -73,6 +73,14 @@ public sealed partial class AccountViewModel : ObservableObject
     /// <summary>The Sign out row's caption.</summary>
     [ObservableProperty]
     public partial string SignOutCaption { get; set; } = string.Empty;
+
+    /// <summary>The two-step verification row's heading, "Two-step verification".</summary>
+    [ObservableProperty]
+    public partial string TwoStepTitle { get; set; } = string.Empty;
+
+    /// <summary>Its caption.</summary>
+    [ObservableProperty]
+    public partial string TwoStepCaption { get; set; } = string.Empty;
 
     /// <summary>The Delete account row's caption.</summary>
     [ObservableProperty]
@@ -182,6 +190,8 @@ public sealed partial class AccountViewModel : ObservableObject
         DeviceId = view.DeviceId;
         DevicesCaption = view.DevicesCaption;
         SignOutCaption = view.SignOutCaption;
+        TwoStepTitle = view.TwoStepTitle;
+        TwoStepCaption = view.TwoStepCaption;
         DeleteAccountCaption = view.DeleteAccountCaption;
         RingVisible = view.RingOnThisComputer is not null;
         _writingRing = true;
@@ -306,5 +316,8 @@ public sealed partial class AccountViewModel : ObservableObject
     private void SignOut() => _context?.Send(new UiEvent.SignOut());
 
     [RelayCommand]
-    private void DeleteAccount() => _context?.Send(new UiEvent.DeleteAccount());
+    private void OpenTwoStep() => _context?.Send(new UiEvent.TwoStep(new TwoStepAction.Open()));
+
+    [RelayCommand]
+    private void DeleteAccount() => _context?.Send(new UiEvent.AccountDeletion(new DeleteAccountAction.Open()));
 }

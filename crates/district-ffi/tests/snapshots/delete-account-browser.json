@@ -1,0 +1,72 @@
+{
+  "screen": {
+    "DeleteAccount": {
+      "view": {
+        "busy": false,
+        "confirm": null,
+        "explain": [
+          "Your user profile, your settings and all workspaces where you are the owner are deleted for good.",
+          "The subscriptions of the workspaces you own are cancelled at once.",
+          "Workspaces you belong to but do not own are kept. You are removed from them, and their owners keep their data.",
+          "This cannot be undone."
+        ],
+        "failure": null,
+        "failure_title": null,
+        "reauth": {
+          "back_label": "Back",
+          "choices": [
+            {
+              "label": "Continue with Google",
+              "provider": "Google"
+            },
+            {
+              "label": "Continue with Microsoft",
+              "provider": "Microsoft"
+            },
+            {
+              "label": "Continue with Apple",
+              "provider": "Apple"
+            }
+          ],
+          "code_label": "Authenticator code or recovery code",
+          "code_prompt": null,
+          "continue_label": "Continue",
+          "heading": "Confirm it is you",
+          "intro": "Sign in again the way you usually do. You then have a few minutes to delete the account.",
+          "mode": "Browser",
+          "password_label": "Your password",
+          "use_password_label": "Use my password",
+          "waiting": "Waiting for sign-in to finish in your browser."
+        },
+        "step": "Explain",
+        "title": "Delete your account"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": true,
+    "live": null,
+    "nav_selected": "Account",
+    "notice": null,
+    "phase": "SignedIn",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": "ws-1",
+      "can_switch": false,
+      "entries": [
+        {
+          "id": "ws-1",
+          "name": "Example Dental",
+          "role_label": "Agency"
+        }
+      ],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

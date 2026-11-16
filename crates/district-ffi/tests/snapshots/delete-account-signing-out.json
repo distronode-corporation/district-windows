@@ -1,0 +1,36 @@
+{
+  "screen": {
+    "Session": {
+      "view": {
+        "body": "Telling District AI, then removing your sign-in from this computer.",
+        "busy": true,
+        "cancel": false,
+        "error": null,
+        "retry": false,
+        "retry_sign_out": false,
+        "sign_in": false,
+        "title": "Signing out"
+      }
+    }
+  },
+  "shell": {
+    "call": null,
+    "calls_available": false,
+    "can_go_back": false,
+    "live": null,
+    "nav_selected": null,
+    "notice": null,
+    "phase": "SigningOut",
+    "report": null,
+    "ring": null,
+    "unread": 0,
+    "workspaces": {
+      "active_id": null,
+      "can_switch": false,
+      "entries": [],
+      "message": null,
+      "partial_warning": null,
+      "title": null
+    }
+  }
+}

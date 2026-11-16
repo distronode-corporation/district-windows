@@ -23,6 +23,7 @@
 
 use std::collections::HashMap;
 use std::future::Future;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, PoisonError};
 
 use district_api::{ApiError, ErrorDetail};
@@ -130,6 +131,9 @@ pub(crate) struct Scripted {
     /// Where the scripted voice room's reports go: the model's media updates,
     /// as the call engine's go in a build that ships.
     media: UnboundedSender<MediaUpdate>,
+    /// Whether the account has two-step verification: off as the scene
+    /// starts, on once a confirm lands, off again once it is turned off.
+    two_step_on: AtomicBool,
 }
 
 /// The scripted voice session.
@@ -149,6 +153,7 @@ impl Scripted {
             voice: Mutex::new(VoiceSession::default()),
             owners: Mutex::new(HashMap::new()),
             media,
+            two_step_on: AtomicBool::new(false),
         }
     }
 
@@ -225,6 +230,9 @@ impl Scripted {
     fn answer(&self, effect: Effect) -> Option<Event> {
         if let Some(answer) = self.voice_answer(&effect) {
             return answer;
+        }
+        if let Some(answer) = self.two_step_answer(&effect) {
+            return Some(answer);
         }
         if let (Scene::VoiceEnds, Effect::LoadWorkspaces { ticket }) = (self.scene, &effect) {
             return Some(Event::WorkspacesLoaded {
@@ -328,6 +336,38 @@ macro_rules! fixture {
     ($name:literal) => {
         include_str!(concat!(env!("OUT_DIR"), "/fixtures/", $name))
     };
+}
+
+impl Scripted {
+    /// The scene's answer to a two-step verification effect that depends on
+    /// what the walk did, or `None`: the status once it is on, and the
+    /// changes, which turn it on and off. The rest of the screen's answers
+    /// are [`signed_in`]'s.
+    fn two_step_answer(&self, effect: &Effect) -> Option<Event> {
+        Some(match effect {
+            Effect::LoadTwoStep { ticket } if self.two_step_on.load(Ordering::Relaxed) => {
+                Event::TwoStepLoaded {
+                    ticket: *ticket,
+                    result: decode(fixture!("district-mfa-status.json")),
+                }
+            }
+            Effect::ConfirmTwoStep { ticket, .. } => {
+                self.two_step_on.store(true, Ordering::Relaxed);
+                Event::TwoStepConfirmed {
+                    ticket: *ticket,
+                    result: decode(fixture!("district-mfa-confirm.json")),
+                }
+            }
+            Effect::TurnOffTwoStep { ticket } => {
+                self.two_step_on.store(false, Ordering::Relaxed);
+                Event::TwoStepTurnedOff {
+                    ticket: *ticket,
+                    result: Ok(()),
+                }
+            }
+            _ => return None,
+        })
+    }
 }
 
 /// The fixture `text`, with its `workspaceId` (where it has one) set to the
@@ -720,6 +760,32 @@ fn signed_in(effect: Effect) -> Option<Event> {
         Effect::ReadPurchaseSetting { ticket } => Event::PurchaseSettingRead {
             ticket,
             setting: None,
+        },
+        // Two-step verification, off as the scene starts (Scripted keeps it
+        // once the walk turns it on). Any re-authentication stands: the
+        // scene has no password to check. Turning it on starts with the
+        // core's fixture, the standard example key. A deletion is never
+        // answered: its screen stays on its way, and nothing is deleted.
+        Effect::LoadTwoStep { ticket } => Event::TwoStepLoaded {
+            ticket,
+            result: decode(
+                &json!({
+                    "enrolled": false,
+                    "enrolledAt": null,
+                    "backupCodesRemaining": 0,
+                    "canDisable": true,
+                })
+                .to_string(),
+            ),
+        },
+        Effect::Reauthenticate { ticket, action, .. } => Event::Reauthenticated {
+            ticket,
+            action,
+            result: Ok(300),
+        },
+        Effect::StartTwoStep { ticket } => Event::TwoStepStarted {
+            ticket,
+            result: decode(fixture!("district-mfa-enroll.json")),
         },
         // A call placed from the dialler is accepted by the service, so it
         // has an id and its live transcript is asked for. Its media is never
@@ -1322,6 +1388,101 @@ mod tests {
         }
     }
 
+    /// Two-step verification as the walk turns it on and off: off at first,
+    /// any password stands, the example key, the codes, then on; turning it
+    /// off needs only the re-authentication. The deletion screen reaches its
+    /// last step, and its button is never answered.
+    #[test]
+    fn two_step_verification_turns_on_and_off_and_nothing_is_deleted() {
+        use crate::account_security::{
+            DeleteAccountAction, DeleteAccountStepView, TwoStepAction as A, TwoStepChangeView,
+            TwoStepStepView, TwoStepView,
+        };
+        use crate::events::UiEvent;
+
+        let mut played = Played::new(Scene::SignedIn);
+        let two = |played: &mut Played, action: A| played.ui(UiEvent::TwoStep { action });
+        let view = |played: &Played| -> TwoStepView {
+            match screen_view(&played.model) {
+                ScreenView::TwoStep { view } => view,
+                other => panic!("not the two-step screen: {other:?}"),
+            }
+        };
+        let password = |played: &mut Played| {
+            two(played, A::UsePassword);
+            two(
+                played,
+                A::SubmitPassword {
+                    password: b"example".to_vec(),
+                    code: None,
+                },
+            );
+        };
+
+        two(&mut played, A::Open);
+        assert_eq!(view(&played).step, TwoStepStepView::Overview);
+        assert_eq!(view(&played).offered, Some(TwoStepChangeView::TurnOn));
+        two(
+            &mut played,
+            A::Begin {
+                change: TwoStepChangeView::TurnOn,
+            },
+        );
+        password(&mut played);
+        let scan = view(&played).scan.expect("the example key");
+        assert_eq!(scan.key, b"JBSWY3DPEHPK3PXP");
+        two(
+            &mut played,
+            A::Confirm {
+                code: b"123456".to_vec(),
+            },
+        );
+        assert_eq!(view(&played).step, TwoStepStepView::RecoveryCodes);
+        two(&mut played, A::FinishRecoveryCodes);
+        assert_eq!(view(&played).step, TwoStepStepView::Overview);
+        assert_eq!(view(&played).status_label.as_deref(), Some("On"));
+        assert_eq!(view(&played).offered, Some(TwoStepChangeView::TurnOff));
+
+        two(
+            &mut played,
+            A::Begin {
+                change: TwoStepChangeView::TurnOff,
+            },
+        );
+        password(&mut played);
+        assert_eq!(view(&played).status_label.as_deref(), Some("Off"));
+        assert!(view(&played).notice.is_some());
+
+        let deletion = |played: &mut Played, action: DeleteAccountAction| {
+            played.ui(UiEvent::AccountDeletion { action });
+            match screen_view(&played.model) {
+                ScreenView::DeleteAccount { view } => view,
+                other => panic!("not the deletion screen: {other:?}"),
+            }
+        };
+        assert_eq!(
+            deletion(&mut played, DeleteAccountAction::Open).step,
+            DeleteAccountStepView::Explain
+        );
+        deletion(&mut played, DeleteAccountAction::UsePassword);
+        let last = deletion(
+            &mut played,
+            DeleteAccountAction::SubmitPassword {
+                password: b"example".to_vec(),
+                code: None,
+            },
+        );
+        assert_eq!(last.step, DeleteAccountStepView::Confirm);
+        let sent = deletion(
+            &mut played,
+            DeleteAccountAction::Delete {
+                confirmation: "member@example.com".to_owned(),
+            },
+        );
+        assert!(sent.busy);
+        assert!(matches!(played.model.session(), SessionState::SignedIn(_)));
+    }
+
     fn spoken(view: &crate::hq::HqView) -> Vec<(String, bool, bool)> {
         view.messages
             .iter()
@@ -1764,6 +1925,8 @@ mod tests {
             Route::Contacts,
             Route::Account,
             Route::Devices,
+            Route::TwoStep,
+            Route::DeleteAccount,
             Route::BlockedContacts,
             Route::Hq,
             Route::Analytics,

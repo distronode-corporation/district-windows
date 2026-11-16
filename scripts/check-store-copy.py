@@ -189,8 +189,21 @@ def phrases_for_screen(screen: str | None) -> re.Pattern[str]:
     return NEVER if screen in ALLOWED_SCREENS else PHRASES
 
 # `path:line` (forward slashes, relative to the repository root) to the reason
-# the line is fine. None is expected for 1.0.
-ALLOW: dict[str, str] = {}
+# the line is fine.
+DELETION_NOTE = (
+    "The deletion screen says what deleting the account does: the subscriptions of the "
+    "workspaces it owns are cancelled (the core's delete_account.subscriptions_cancelled). "
+    "Nothing is offered or sold there."
+)
+ALLOW: dict[str, str] = {
+    "crates/district-ffi/tests/snapshots/delete-account.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-browser.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-password.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-confirm.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-deleting.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-email-refused.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-not-deleted.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+}
 
 # XAML attributes whose value reaches the screen or a screen reader. A binding
 # (`{x:Bind ...}`, `{Binding ...}`) is code, not copy: what it shows comes from a

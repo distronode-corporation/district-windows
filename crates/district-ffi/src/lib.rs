@@ -40,6 +40,9 @@ uniffi::setup_scaffolding!();
 
 // The areas of 1.0.
 mod account;
+// The account's own security (core 13.0.0): two-step verification and
+// deleting the account, below the account screen.
+pub mod account_security;
 mod calls;
 mod calls_live;
 mod compose;

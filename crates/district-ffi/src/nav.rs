@@ -199,7 +199,9 @@ pub(crate) fn built(route: &Route) -> bool {
         | Route::ContactDetail { .. }
         | Route::Dialer
         | Route::Account
-        | Route::Devices => true,
+        | Route::Devices
+        | Route::TwoStep
+        | Route::DeleteAccount => true,
         Route::BlockedContacts => blocked::BUILT,
         Route::Hq => hq::BUILT,
         Route::Analytics => analytics::BUILT,
@@ -317,6 +319,8 @@ mod tests {
             Route::Dialer,
             Route::Account,
             Route::Devices,
+            Route::TwoStep,
+            Route::DeleteAccount,
             Route::SchedulingAdmin(district_core::SchedulingSection::Overview),
         ];
         routes.extend(WorkspaceSection::ALL.map(Route::Workspace));
