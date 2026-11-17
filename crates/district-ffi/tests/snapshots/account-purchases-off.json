@@ -3,7 +3,7 @@
     "Account": {
       "view": {
         "app_version": "0.1.0",
-        "delete_account_caption": "Request deletion of your account and its data. Opens in your browser.",
+        "delete_account_caption": "Delete your account and its data for good. You confirm it is you first.",
         "device_id": "device-windows-1",
         "devices_caption": "See where you are signed in, and sign out a device you no longer have.",
         "email": null,
@@ -18,6 +18,8 @@
         "ring_setting_label": "Ring on this computer",
         "ring_setting_message": null,
         "sign_out_caption": "Sign out of District AI on this device.",
+        "two_step_caption": "Ask for a code from an authenticator app each time you sign in.",
+        "two_step_title": "Two-step verification",
         "user_id": "user-1"
       }
     }

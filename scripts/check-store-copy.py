@@ -189,8 +189,25 @@ def phrases_for_screen(screen: str | None) -> re.Pattern[str]:
     return NEVER if screen in ALLOWED_SCREENS else PHRASES
 
 # `path:line` (forward slashes, relative to the repository root) to the reason
-# the line is fine. None is expected for 1.0.
-ALLOW: dict[str, str] = {}
+# the line is fine. A snapshot entry may also name, in ALLOW_TEXT, the exact
+# text it excuses: a different text at that path is a finding again, so a
+# later core wording cannot pass under an old excuse.
+DELETION_TEXT = "The subscriptions of the workspaces you own are cancelled at once."
+DELETION_NOTE = (
+    "The deletion screen says what deleting the account does: the subscriptions of the "
+    "workspaces it owns are cancelled (the core's delete_account.subscriptions_cancelled). "
+    "Nothing is offered or sold there."
+)
+ALLOW: dict[str, str] = {
+    "crates/district-ffi/tests/snapshots/delete-account.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-browser.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-password.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-confirm.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-deleting.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-email-refused.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+    "crates/district-ffi/tests/snapshots/delete-account-not-deleted.json:$.screen.DeleteAccount.view.explain[1]": DELETION_NOTE,
+}
+ALLOW_TEXT: dict[str, str] = {key: DELETION_TEXT for key, note in ALLOW.items() if note == DELETION_NOTE}
 
 # XAML attributes whose value reaches the screen or a screen reader. A binding
 # (`{x:Bind ...}`, `{Binding ...}`) is code, not copy: what it shows comes from a
@@ -599,10 +616,20 @@ def scan_tree(root: Path) -> tuple[int, list[Finding]]:
     return scanned, found
 
 
-def verdict(found: list[Finding], allow: dict[str, str]) -> tuple[list[Finding], list[str]]:
-    """The findings ALLOW does not excuse, and the ALLOW keys that excuse nothing."""
+def verdict(
+    found: list[Finding], allow: dict[str, str], texts: dict[str, str] | None = None
+) -> tuple[list[Finding], list[str]]:
+    """The findings ALLOW does not excuse, and the ALLOW keys that excuse nothing.
+
+    A key in `texts` excuses only a finding whose text is exactly its text.
+    """
+    texts = texts or {}
+
+    def excused(f: Finding) -> bool:
+        return f.key in allow and (f.key not in texts or f.text == texts[f.key])
+
     keys = {f.key for f in found}
-    return [f for f in found if f.key not in allow], sorted(k for k in allow if k not in keys)
+    return [f for f in found if not excused(f)], sorted(k for k in allow if k not in keys)
 
 
 def self_test() -> int:
@@ -770,6 +797,14 @@ def self_test() -> int:
         if len(left) != 6 or stale != ["src/DistrictAI/A.cs:2"]:
             failed += 1
             print(f"self-test: ALLOW should excuse one finding and report one stale key, got {left} {stale}")
+        # With its text named, a snapshot entry excuses that text only.
+        snapshot_key = "crates/district-ffi/tests/snapshots/billing.json:$.screen.Billing.view.x"
+        for text, want in (("Buy", 6), ("Buy now", 7)):
+            left, _ = verdict(found, {snapshot_key: "test", "src/DistrictAI/A.cs:1": "test"}, {snapshot_key: text})
+            total += 1
+            if len(left) != want:
+                failed += 1
+                print(f"self-test: ALLOW_TEXT {text!r} should leave {want} findings, left {len(left)}")
 
     # Per screen: the allowed words pass on each allowed screen, in a snapshot
     # and in each kind of source file listed for it, and are refused elsewhere;
@@ -866,7 +901,7 @@ def main() -> int:
         print(__doc__)
         return 2
     scanned, found = scan_tree(ROOT)
-    left, stale = verdict(found, ALLOW)
+    left, stale = verdict(found, ALLOW, ALLOW_TEXT)
     for finding in left:
         print(finding)
     for key in stale:

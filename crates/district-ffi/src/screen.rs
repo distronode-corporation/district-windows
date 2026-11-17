@@ -18,8 +18,8 @@ use crate::inbox::{InboxView, ThreadView, inbox_view, thread_view};
 use crate::l10n::{l, s};
 use crate::overview::{OverviewView, overview_view};
 use crate::{
-    analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling, scheduling_admin,
-    settings, support, workflows,
+    account_security, analytics, billing, blocked, desk, hq, marketplace, rooms, scheduling,
+    scheduling_admin, settings, support, workflows,
 };
 
 /// What the screen inside the frame shows.
@@ -79,6 +79,16 @@ pub enum ScreenView {
     Devices {
         /// The page.
         view: DevicesView,
+    },
+    /// Two-step verification for the account.
+    TwoStep {
+        /// The page.
+        view: crate::account_security::TwoStepView,
+    },
+    /// Deleting the account.
+    DeleteAccount {
+        /// The page.
+        view: crate::account_security::DeleteAccountView,
     },
     /// The dialler, in a build that can carry calls.
     Dialer {
@@ -304,6 +314,8 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
         Route::Devices => ScreenView::Devices {
             view: devices_view(&signed_in.devices),
         },
+        Route::TwoStep => account_security::two_step_screen(signed_in),
+        Route::DeleteAccount => account_security::deletion_screen(signed_in),
         // A build without calls never shows the dialler: the core refuses it.
         Route::Dialer => calls_available
             .then(|| dialer_view(signed_in))
@@ -454,6 +466,9 @@ pub(crate) fn session_view(
             body: match signing_out.scope {
                 SignOutScope::ThisDevice => s::screen_signing_out_this_device(l()),
                 SignOutScope::Everywhere => s::screen_signing_out_everywhere(l()),
+                // The core signs this computer out as for a sign-out here: it
+                // tells the service, then forgets the session.
+                SignOutScope::AccountDeleted { .. } => s::screen_signing_out_this_device(l()),
             }
             .to_owned(),
             busy: true,

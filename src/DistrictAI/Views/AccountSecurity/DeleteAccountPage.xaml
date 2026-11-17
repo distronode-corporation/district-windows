@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.AccountSecurity.DeleteAccountPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:DistrictAI.Views">
+    <ScrollViewer>
+        <views:PageColumn>
+            <StackPanel
+                MaxWidth="{StaticResource ReadingWidth}"
+                Padding="{StaticResource PagePadding}"
+                Spacing="12">
+                <TextBlock
+                    AutomationProperties.AutomationId="DeleteAccountHeading"
+                    AutomationProperties.HeadingLevel="Level1"
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    Text="{x:Bind ViewModel.Title, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    AutomationProperties.AutomationId="DeleteAccountExplain"
+                    Text="{x:Bind ViewModel.Explain, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+
+                <InfoBar
+                    AutomationProperties.AutomationId="DeleteAccountProblem"
+                    AutomationProperties.Name="{x:Bind ViewModel.Failure, Mode=OneWay}"
+                    IsClosable="False"
+                    IsOpen="{x:Bind ViewModel.HasFailure, Mode=OneWay}"
+                    Message="{x:Bind ViewModel.Failure, Mode=OneWay}"
+                    Severity="Error"
+                    Title="{x:Bind ViewModel.FailureTitle, Mode=OneWay}" />
+                <ProgressBar
+                    AutomationProperties.AutomationId="DeleteAccountBusy"
+                    AutomationProperties.Name="{x:Bind ViewModel.Title, Mode=OneWay}"
+                    IsIndeterminate="True"
+                    Visibility="{x:Bind ViewModel.Busy, Mode=OneWay}" />
+
+                <!-- Confirming it is you. -->
+                <ContentControl
+                    x:Name="ReauthHost"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    IsTabStop="False" />
+
+                <!-- The last step. The address is never bound: read once by the button, emptied when the step goes. -->
+                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.IsConfirm, Mode=OneWay}">
+                    <TextBlock
+                        AutomationProperties.AutomationId="DeleteAccountLastStep"
+                        AutomationProperties.HeadingLevel="Level2"
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind ViewModel.ConfirmTitle, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.TypeEmail, Mode=OneWay}" TextWrapping="Wrap" />
+                    <TextBox
+                        x:Name="EmailInput"
+                        MaxWidth="440"
+                        HorizontalAlignment="Stretch"
+                        AutomationProperties.AutomationId="DeleteAccountEmail"
+                        AutomationProperties.Name="{x:Bind ViewModel.EmailLabel, Mode=OneWay}"
+                        Header="{x:Bind ViewModel.EmailLabel, Mode=OneWay}"
+                        InputScope="EmailNameOrAddress"
+                        IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}"
+                        IsSpellCheckEnabled="False"
+                        IsTextPredictionEnabled="False" />
+                    <!-- No Enter shortcut: nothing irreversible happens on Enter. -->
+                    <Button
+                        AutomationProperties.AutomationId="DeleteAccountSubmit"
+                        AutomationProperties.Name="{x:Bind ViewModel.SubmitLabel, Mode=OneWay}"
+                        Click="OnDeleteClick"
+                        Content="{x:Bind ViewModel.SubmitLabel, Mode=OneWay}"
+                        ContentTemplate="{StaticResource WrappingLabelTemplate}"
+                        IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+        </views:PageColumn>
+    </ScrollViewer>
+</UserControl>

@@ -23,6 +23,7 @@
 
 use std::collections::HashMap;
 use std::future::Future;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, PoisonError};
 
 use district_api::{ApiError, ErrorDetail};
@@ -66,6 +67,11 @@ pub(crate) const WORKSPACE_NAME: &str = "Example Dental";
 
 /// The scheduler sign-in a calendar connection starts with: never opened.
 const SIGN_IN_LINK: &str = "https://scheduler.example.com/v1/auth/sso?scripted";
+
+/// The one authenticator code the scene refuses, as the service refuses a
+/// wrong one (`mfa_code_invalid`), so the walk sees the scan step stay with
+/// its failure. Any other code turns two-step verification on.
+const REFUSED_TWO_STEP_CODE: &str = "000000";
 
 /// A scene the core can run.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -130,6 +136,9 @@ pub(crate) struct Scripted {
     /// Where the scripted voice room's reports go: the model's media updates,
     /// as the call engine's go in a build that ships.
     media: UnboundedSender<MediaUpdate>,
+    /// Whether the account has two-step verification: off as the scene
+    /// starts, on once a confirm lands, off again once it is turned off.
+    two_step_on: AtomicBool,
 }
 
 /// The scripted voice session.
@@ -149,6 +158,7 @@ impl Scripted {
             voice: Mutex::new(VoiceSession::default()),
             owners: Mutex::new(HashMap::new()),
             media,
+            two_step_on: AtomicBool::new(false),
         }
     }
 
@@ -225,6 +235,9 @@ impl Scripted {
     fn answer(&self, effect: Effect) -> Option<Event> {
         if let Some(answer) = self.voice_answer(&effect) {
             return answer;
+        }
+        if let Some(answer) = self.two_step_answer(&effect) {
+            return Some(answer);
         }
         if let (Scene::VoiceEnds, Effect::LoadWorkspaces { ticket }) = (self.scene, &effect) {
             return Some(Event::WorkspacesLoaded {
@@ -330,6 +343,44 @@ macro_rules! fixture {
     };
 }
 
+impl Scripted {
+    /// The scene's answer to a two-step verification effect that depends on
+    /// what the walk did, or `None`: the status once it is on, and the
+    /// changes, which turn it on (with any code but [`REFUSED_TWO_STEP_CODE`])
+    /// and off. The rest of the screen's answers are [`signed_in`]'s.
+    fn two_step_answer(&self, effect: &Effect) -> Option<Event> {
+        Some(match effect {
+            Effect::LoadTwoStep { ticket } if self.two_step_on.load(Ordering::Relaxed) => {
+                Event::TwoStepLoaded {
+                    ticket: *ticket,
+                    result: decode(fixture!("district-mfa-status.json")),
+                }
+            }
+            Effect::ConfirmTwoStep { ticket, code } if code.expose() == REFUSED_TWO_STEP_CODE => {
+                Event::TwoStepConfirmed {
+                    ticket: *ticket,
+                    result: Err(code_refused()),
+                }
+            }
+            Effect::ConfirmTwoStep { ticket, .. } => {
+                self.two_step_on.store(true, Ordering::Relaxed);
+                Event::TwoStepConfirmed {
+                    ticket: *ticket,
+                    result: decode(fixture!("district-mfa-confirm.json")),
+                }
+            }
+            Effect::TurnOffTwoStep { ticket } => {
+                self.two_step_on.store(false, Ordering::Relaxed);
+                Event::TwoStepTurnedOff {
+                    ticket: *ticket,
+                    result: Ok(()),
+                }
+            }
+            _ => return None,
+        })
+    }
+}
+
 /// The fixture `text`, with its `workspaceId` (where it has one) set to the
 /// scripted workspace's, decoded. A fixture that no longer decodes is a
 /// server error, so the walk sees a failed screen rather than a crash; the
@@ -357,6 +408,18 @@ fn broken() -> ApiError {
     ApiError::Server {
         status: 500,
         detail: ErrorDetail::default(),
+    }
+}
+
+/// The service's refusal of a wrong authenticator code.
+fn code_refused() -> ApiError {
+    ApiError::Envelope {
+        status: 400,
+        code: "mfa_code_invalid".to_owned(),
+        detail: ErrorDetail {
+            code: Some("mfa_code_invalid".to_owned()),
+            ..ErrorDetail::default()
+        },
     }
 }
 
@@ -720,6 +783,32 @@ fn signed_in(effect: Effect) -> Option<Event> {
         Effect::ReadPurchaseSetting { ticket } => Event::PurchaseSettingRead {
             ticket,
             setting: None,
+        },
+        // Two-step verification, off as the scene starts (Scripted keeps it
+        // once the walk turns it on). Any re-authentication stands: the
+        // scene has no password to check. Turning it on starts with the
+        // core's fixture, the standard example key. A deletion is never
+        // answered: its screen stays on its way, and nothing is deleted.
+        Effect::LoadTwoStep { ticket } => Event::TwoStepLoaded {
+            ticket,
+            result: decode(
+                &json!({
+                    "enrolled": false,
+                    "enrolledAt": null,
+                    "backupCodesRemaining": 0,
+                    "canDisable": true,
+                })
+                .to_string(),
+            ),
+        },
+        Effect::Reauthenticate { ticket, action, .. } => Event::Reauthenticated {
+            ticket,
+            action,
+            result: Ok(300),
+        },
+        Effect::StartTwoStep { ticket } => Event::TwoStepStarted {
+            ticket,
+            result: decode(fixture!("district-mfa-enroll.json")),
         },
         // A call placed from the dialler is accepted by the service, so it
         // has an id and its live transcript is asked for. Its media is never
@@ -1279,8 +1368,17 @@ mod tests {
             for _ in 0..1000 {
                 if let Some(effect) = pending.pop() {
                     if let Some(event) = self.scripted.answer(effect) {
+                        // The refused code is the scene's one refusal on
+                        // purpose; any other failure is a fixture that did
+                        // not decode.
+                        let refused = match &event {
+                            Event::TwoStepConfirmed {
+                                result: Err(error), ..
+                            } => *error == code_refused(),
+                            _ => false,
+                        };
                         assert!(
-                            !format!("{event:?}").contains("result: Err("),
+                            refused || !format!("{event:?}").contains("result: Err("),
                             "an answer did not decode: {event:?}"
                         );
                         pending.extend(self.model.update(event));
@@ -1320,6 +1418,113 @@ mod tests {
         fn dock(&self) -> crate::hq::HqVoiceDockView {
             shell_view(&self.model).voice_dock.expect("the voice dock")
         }
+    }
+
+    /// Two-step verification as the walk turns it on and off: off at first,
+    /// any password stands, the example key, a refused code, the codes, then
+    /// on; turning it off needs only the re-authentication. The deletion
+    /// screen reaches its last step, and its button is never answered.
+    #[test]
+    fn two_step_verification_turns_on_and_off_and_nothing_is_deleted() {
+        use crate::account_security::{
+            DeleteAccountAction, DeleteAccountStepView, TwoStepAction as A, TwoStepChangeView,
+            TwoStepStepView, TwoStepView,
+        };
+        use crate::events::UiEvent;
+
+        let mut played = Played::new(Scene::SignedIn);
+        let two = |played: &mut Played, action: A| played.ui(UiEvent::TwoStep { action });
+        let view = |played: &Played| -> TwoStepView {
+            match screen_view(&played.model) {
+                ScreenView::TwoStep { view } => view,
+                _ => panic!("not the two-step screen"),
+            }
+        };
+        let password = |played: &mut Played| {
+            two(played, A::UsePassword);
+            two(
+                played,
+                A::SubmitPassword {
+                    password: b"example".to_vec(),
+                    code: None,
+                },
+            );
+        };
+
+        two(&mut played, A::Open);
+        assert_eq!(view(&played).step, TwoStepStepView::Overview);
+        assert_eq!(view(&played).offered, Some(TwoStepChangeView::TurnOn));
+        two(
+            &mut played,
+            A::Begin {
+                change: TwoStepChangeView::TurnOn,
+            },
+        );
+        password(&mut played);
+        let scan = view(&played).scan.expect("the example key");
+        assert_eq!(scan.key, b"JBSWY3DPEHPK3PXP");
+        two(
+            &mut played,
+            A::Confirm {
+                code: REFUSED_TWO_STEP_CODE.as_bytes().to_vec(),
+            },
+        );
+        assert_eq!(view(&played).step, TwoStepStepView::Scan);
+        assert_eq!(
+            view(&played).failure.as_deref(),
+            Some("That code is not valid, or it has already been used.")
+        );
+        assert!(!view(&played).busy);
+        two(
+            &mut played,
+            A::Confirm {
+                code: b"123456".to_vec(),
+            },
+        );
+        assert_eq!(view(&played).step, TwoStepStepView::RecoveryCodes);
+        two(&mut played, A::FinishRecoveryCodes);
+        assert_eq!(view(&played).step, TwoStepStepView::Overview);
+        assert_eq!(view(&played).status_label.as_deref(), Some("On"));
+        assert_eq!(view(&played).offered, Some(TwoStepChangeView::TurnOff));
+
+        two(
+            &mut played,
+            A::Begin {
+                change: TwoStepChangeView::TurnOff,
+            },
+        );
+        password(&mut played);
+        assert_eq!(view(&played).status_label.as_deref(), Some("Off"));
+        assert!(view(&played).notice.is_some());
+
+        let deletion = |played: &mut Played, action: DeleteAccountAction| {
+            played.ui(UiEvent::AccountDeletion { action });
+            match screen_view(&played.model) {
+                ScreenView::DeleteAccount { view } => view,
+                _ => panic!("not the deletion screen"),
+            }
+        };
+        assert_eq!(
+            deletion(&mut played, DeleteAccountAction::Open).step,
+            DeleteAccountStepView::Explain
+        );
+        deletion(&mut played, DeleteAccountAction::UsePassword);
+        let last = deletion(
+            &mut played,
+            DeleteAccountAction::SubmitPassword {
+                password: b"example".to_vec(),
+                code: None,
+            },
+        );
+        assert_eq!(last.step, DeleteAccountStepView::Confirm);
+        let sent = deletion(
+            &mut played,
+            DeleteAccountAction::Delete {
+                confirmation: "member@example.com".to_owned(),
+            },
+        );
+        assert!(sent.busy);
+        assert!(matches!(played.model.session(), SessionState::SignedIn(_)));
     }
 
     fn spoken(view: &crate::hq::HqView) -> Vec<(String, bool, bool)> {
@@ -1764,6 +1969,8 @@ mod tests {
             Route::Contacts,
             Route::Account,
             Route::Devices,
+            Route::TwoStep,
+            Route::DeleteAccount,
             Route::BlockedContacts,
             Route::Hq,
             Route::Analytics,

@@ -101,6 +101,10 @@ public sealed partial class MainWindow : Window
             {
                 PageHost.Content = null;
                 _devices?.Leave();
+                // A deletion signs this computer out: what its pages showed
+                // once, or what was typed in them, goes with the page.
+                _twoStep?.Leave();
+                _deleteAccount?.Leave();
             }
         }
         finally

@@ -21,6 +21,8 @@ mod contracts;
 
 // The areas of 1.0.
 mod account;
+// The account's own security (core 13.0.0).
+mod account_security;
 mod calls;
 mod calls_live;
 mod compose;
@@ -148,6 +150,7 @@ fn cases() -> Vec<Case> {
         calls::cases(),
         contacts::cases(),
         account::cases(),
+        account_security::cases(),
         report::cases(),
         calls_live::cases(),
         hq::cases(),

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="DistrictAI.Views.AccountSecurity.ReauthPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:DistrictAI.ViewModels.AccountSecurity">
+    <!--
+        Confirming it is you. Every button's label wraps (WrappingLabelTemplate):
+        in French at 400 px, "Utiliser mon mot de passe" and the providers'
+        buttons are wider than one line.
+    -->
+    <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.IsShown, Mode=OneWay}">
+        <TextBlock
+            AutomationProperties.AutomationId="ReauthHeading"
+            AutomationProperties.HeadingLevel="Level2"
+            Style="{StaticResource SubtitleTextBlockStyle}"
+            Text="{x:Bind ViewModel.Heading, Mode=OneWay}"
+            TextWrapping="Wrap" />
+
+        <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.IsChoosing, Mode=OneWay}">
+            <TextBlock Text="{x:Bind ViewModel.Intro, Mode=OneWay}" TextWrapping="Wrap" />
+            <TextBlock
+                AutomationProperties.AutomationId="ReauthWaiting"
+                AutomationProperties.LiveSetting="Polite"
+                Style="{StaticResource QuietTextStyle}"
+                Text="{x:Bind ViewModel.Waiting, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.HasWaiting, Mode=OneWay}" />
+            <ItemsControl
+                IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}"
+                IsTabStop="False"
+                ItemsSource="{x:Bind ViewModel.Choices}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="8" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ReauthChoiceItem">
+                        <Button
+                            AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                            AutomationProperties.Name="{x:Bind Label}"
+                            Click="OnChoiceClick"
+                            Content="{x:Bind Label}"
+                            ContentTemplate="{StaticResource WrappingLabelTemplate}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button
+                AutomationProperties.AutomationId="ReauthUsePassword"
+                AutomationProperties.Name="{x:Bind ViewModel.UsePasswordLabel, Mode=OneWay}"
+                Command="{x:Bind ViewModel.UsePasswordCommand}"
+                Content="{x:Bind ViewModel.UsePasswordLabel, Mode=OneWay}"
+                ContentTemplate="{StaticResource WrappingLabelTemplate}"
+                IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}" />
+        </StackPanel>
+
+        <!-- The boxes are never bound: each is read once by Continue and emptied (ReauthViewModel). -->
+        <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.IsPassword, Mode=OneWay}">
+            <PasswordBox
+                x:Name="PasswordInput"
+                AutomationProperties.AutomationId="ReauthPassword"
+                AutomationProperties.Name="{x:Bind ViewModel.PasswordLabel, Mode=OneWay}"
+                Header="{x:Bind ViewModel.PasswordLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}"
+                KeyDown="OnEnterKeyDown" />
+            <TextBlock
+                AutomationProperties.AutomationId="ReauthCodePrompt"
+                Text="{x:Bind ViewModel.CodePrompt, Mode=OneWay}"
+                TextWrapping="Wrap"
+                Visibility="{x:Bind ViewModel.NeedsCode, Mode=OneWay}" />
+            <TextBox
+                x:Name="CodeInput"
+                AutomationProperties.AutomationId="ReauthCode"
+                AutomationProperties.Name="{x:Bind ViewModel.CodeLabel, Mode=OneWay}"
+                Header="{x:Bind ViewModel.CodeLabel, Mode=OneWay}"
+                IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}"
+                IsSpellCheckEnabled="False"
+                IsTextPredictionEnabled="False"
+                KeyDown="OnEnterKeyDown"
+                Visibility="{x:Bind ViewModel.NeedsCode, Mode=OneWay}" />
+            <Button
+                AutomationProperties.AutomationId="ReauthContinue"
+                AutomationProperties.Name="{x:Bind ViewModel.ContinueLabel, Mode=OneWay}"
+                Click="OnContinueClick"
+                Content="{x:Bind ViewModel.ContinueLabel, Mode=OneWay}"
+                ContentTemplate="{StaticResource WrappingLabelTemplate}"
+                IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}"
+                Style="{StaticResource AccentButtonStyle}" />
+        </StackPanel>
+
+        <Button
+            AutomationProperties.AutomationId="ReauthBack"
+            AutomationProperties.Name="{x:Bind ViewModel.BackLabel, Mode=OneWay}"
+            Command="{x:Bind ViewModel.BackCommand}"
+            Content="{x:Bind ViewModel.BackLabel, Mode=OneWay}"
+            ContentTemplate="{StaticResource WrappingLabelTemplate}"
+            IsEnabled="{x:Bind ViewModel.Enabled, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>

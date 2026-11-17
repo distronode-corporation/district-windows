@@ -4640,6 +4640,12 @@ class FfiConverterTypeAccountBillingView: FfiConverterRustBuffer<AccountBillingV
 /// <param name="DevicesCaption">
 /// The devices row's caption.
 /// </param>
+/// <param name="TwoStepTitle">
+/// The two-step verification row's heading, "Two-step verification".
+/// </param>
+/// <param name="TwoStepCaption">
+/// Its caption.
+/// </param>
 /// <param name="DeleteAccountCaption">
 /// The account deletion row's caption.
 /// </param>
@@ -4706,6 +4712,14 @@ public record AccountView (
     /// </summary>
     string DevicesCaption, 
     /// <summary>
+    /// The two-step verification row's heading, "Two-step verification".
+    /// </summary>
+    string TwoStepTitle, 
+    /// <summary>
+    /// Its caption.
+    /// </summary>
+    string TwoStepCaption, 
+    /// <summary>
     /// The account deletion row's caption.
     /// </summary>
     string DeleteAccountCaption, 
@@ -4764,6 +4778,8 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             Name: FfiConverterOptionalString.INSTANCE.Read(stream),
             SignOutCaption: FfiConverterString.INSTANCE.Read(stream),
             DevicesCaption: FfiConverterString.INSTANCE.Read(stream),
+            TwoStepTitle: FfiConverterString.INSTANCE.Read(stream),
+            TwoStepCaption: FfiConverterString.INSTANCE.Read(stream),
             DeleteAccountCaption: FfiConverterString.INSTANCE.Read(stream),
             RingOnThisComputer: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
             RingSettingLabel: FfiConverterString.INSTANCE.Read(stream),
@@ -4786,6 +4802,8 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Name)
             + FfiConverterString.INSTANCE.AllocationSize(value.SignOutCaption)
             + FfiConverterString.INSTANCE.AllocationSize(value.DevicesCaption)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TwoStepTitle)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TwoStepCaption)
             + FfiConverterString.INSTANCE.AllocationSize(value.DeleteAccountCaption)
             + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.RingOnThisComputer)
             + FfiConverterString.INSTANCE.AllocationSize(value.RingSettingLabel)
@@ -4806,6 +4824,8 @@ class FfiConverterTypeAccountView: FfiConverterRustBuffer<AccountView> {
             FfiConverterOptionalString.INSTANCE.Write(value.Name, stream);
             FfiConverterString.INSTANCE.Write(value.SignOutCaption, stream);
             FfiConverterString.INSTANCE.Write(value.DevicesCaption, stream);
+            FfiConverterString.INSTANCE.Write(value.TwoStepTitle, stream);
+            FfiConverterString.INSTANCE.Write(value.TwoStepCaption, stream);
             FfiConverterString.INSTANCE.Write(value.DeleteAccountCaption, stream);
             FfiConverterOptionalBoolean.INSTANCE.Write(value.RingOnThisComputer, stream);
             FfiConverterString.INSTANCE.Write(value.RingSettingLabel, stream);
@@ -10322,6 +10342,182 @@ class FfiConverterTypeCreatorCellView: FfiConverterRustBuffer<CreatorCellView> {
             FfiConverterString.INSTANCE.Write(value.Number, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CanSave, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Saving, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The account deletion screen.
+/// </summary>
+/// <param name="Title">
+/// The heading, "Delete your account".
+/// </param>
+/// <param name="Explain">
+/// What is deleted, what is cancelled, what is kept, and that it cannot
+/// be undone: one paragraph each.
+/// </param>
+/// <param name="Step">
+/// Where it is.
+/// </param>
+/// <param name="Busy">
+/// Whether a re-authentication or the deletion is on its way: every
+/// control is disabled.
+/// </param>
+/// <param name="FailureTitle">
+/// "Your account was not deleted.", over a refusal when that is certain.
+/// </param>
+/// <param name="Failure">
+/// What went wrong last, and what to do.
+/// </param>
+/// <param name="Reauth">
+/// Confirming it is you, on [`DeleteAccountStepView::Explain`].
+/// </param>
+/// <param name="Confirm">
+/// The last step, on [`DeleteAccountStepView::Confirm`].
+/// </param>
+public record DeleteAccountView (
+    /// <summary>
+    /// The heading, "Delete your account".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// What is deleted, what is cancelled, what is kept, and that it cannot
+    /// be undone: one paragraph each.
+    /// </summary>
+    string[] Explain, 
+    /// <summary>
+    /// Where it is.
+    /// </summary>
+    DeleteAccountStepView Step, 
+    /// <summary>
+    /// Whether a re-authentication or the deletion is on its way: every
+    /// control is disabled.
+    /// </summary>
+    bool Busy, 
+    /// <summary>
+    /// "Your account was not deleted.", over a refusal when that is certain.
+    /// </summary>
+    string? FailureTitle, 
+    /// <summary>
+    /// What went wrong last, and what to do.
+    /// </summary>
+    string? Failure, 
+    /// <summary>
+    /// Confirming it is you, on [`DeleteAccountStepView::Explain`].
+    /// </summary>
+    ReauthView? Reauth, 
+    /// <summary>
+    /// The last step, on [`DeleteAccountStepView::Confirm`].
+    /// </summary>
+    DeleteConfirmView? Confirm
+) {
+}
+
+class FfiConverterTypeDeleteAccountView: FfiConverterRustBuffer<DeleteAccountView> {
+    public static FfiConverterTypeDeleteAccountView INSTANCE = new FfiConverterTypeDeleteAccountView();
+
+    public override DeleteAccountView Read(BigEndianStream stream) {
+        return new DeleteAccountView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Explain: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Step: FfiConverterTypeDeleteAccountStepView.INSTANCE.Read(stream),
+            Busy: FfiConverterBoolean.INSTANCE.Read(stream),
+            FailureTitle: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Reauth: FfiConverterOptionalTypeReauthView.INSTANCE.Read(stream),
+            Confirm: FfiConverterOptionalTypeDeleteConfirmView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeleteAccountView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Explain)
+            + FfiConverterTypeDeleteAccountStepView.INSTANCE.AllocationSize(value.Step)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Busy)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.FailureTitle)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterOptionalTypeReauthView.INSTANCE.AllocationSize(value.Reauth)
+            + FfiConverterOptionalTypeDeleteConfirmView.INSTANCE.AllocationSize(value.Confirm);
+    }
+
+    public override void Write(DeleteAccountView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.Explain, stream);
+            FfiConverterTypeDeleteAccountStepView.INSTANCE.Write(value.Step, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Busy, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.FailureTitle, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Failure, stream);
+            FfiConverterOptionalTypeReauthView.INSTANCE.Write(value.Reauth, stream);
+            FfiConverterOptionalTypeDeleteConfirmView.INSTANCE.Write(value.Confirm, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The last step: the email address, typed, and Delete my account.
+/// </summary>
+/// <param name="Title">
+/// "Last step".
+/// </param>
+/// <param name="TypeEmail">
+/// "Type your account's email address to confirm. Nothing is deleted
+/// until you click Delete my account."
+/// </param>
+/// <param name="EmailLabel">
+/// "Your email address".
+/// </param>
+/// <param name="SubmitLabel">
+/// "Delete my account", or "Deleting…" while it is on its way.
+/// </param>
+public record DeleteConfirmView (
+    /// <summary>
+    /// "Last step".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// "Type your account's email address to confirm. Nothing is deleted
+    /// until you click Delete my account."
+    /// </summary>
+    string TypeEmail, 
+    /// <summary>
+    /// "Your email address".
+    /// </summary>
+    string EmailLabel, 
+    /// <summary>
+    /// "Delete my account", or "Deleting…" while it is on its way.
+    /// </summary>
+    string SubmitLabel
+) {
+}
+
+class FfiConverterTypeDeleteConfirmView: FfiConverterRustBuffer<DeleteConfirmView> {
+    public static FfiConverterTypeDeleteConfirmView INSTANCE = new FfiConverterTypeDeleteConfirmView();
+
+    public override DeleteConfirmView Read(BigEndianStream stream) {
+        return new DeleteConfirmView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            TypeEmail: FfiConverterString.INSTANCE.Read(stream),
+            EmailLabel: FfiConverterString.INSTANCE.Read(stream),
+            SubmitLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DeleteConfirmView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.TypeEmail)
+            + FfiConverterString.INSTANCE.AllocationSize(value.EmailLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.SubmitLabel);
+    }
+
+    public override void Write(DeleteConfirmView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.TypeEmail, stream);
+            FfiConverterString.INSTANCE.Write(value.EmailLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.SubmitLabel, stream);
     }
 }
 
@@ -21709,6 +21905,192 @@ class FfiConverterTypeReassignDialogView: FfiConverterRustBuffer<ReassignDialogV
 
 
 /// <summary>
+/// One way to confirm it is you at a provider: its button.
+/// </summary>
+/// <param name="Provider">
+/// Which provider.
+/// </param>
+/// <param name="Label">
+/// "Continue with Google".
+/// </param>
+public record ReauthChoiceView (
+    /// <summary>
+    /// Which provider.
+    /// </summary>
+    ReauthProviderView Provider, 
+    /// <summary>
+    /// "Continue with Google".
+    /// </summary>
+    string Label
+) {
+}
+
+class FfiConverterTypeReauthChoiceView: FfiConverterRustBuffer<ReauthChoiceView> {
+    public static FfiConverterTypeReauthChoiceView INSTANCE = new FfiConverterTypeReauthChoiceView();
+
+    public override ReauthChoiceView Read(BigEndianStream stream) {
+        return new ReauthChoiceView(
+            Provider: FfiConverterTypeReauthProviderView.INSTANCE.Read(stream),
+            Label: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ReauthChoiceView value) {
+        return 0
+            + FfiConverterTypeReauthProviderView.INSTANCE.AllocationSize(value.Provider)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Label);
+    }
+
+    public override void Write(ReauthChoiceView value, BigEndianStream stream) {
+            FfiConverterTypeReauthProviderView.INSTANCE.Write(value.Provider, stream);
+            FfiConverterString.INSTANCE.Write(value.Label, stream);
+    }
+}
+
+
+
+/// <summary>
+/// Confirming it is you, on either screen.
+/// </summary>
+/// <param name="Heading">
+/// "Confirm it is you".
+/// </param>
+/// <param name="Intro">
+/// What happens once it is confirmed, over the ways to confirm.
+/// </param>
+/// <param name="Mode">
+/// Where it is.
+/// </param>
+/// <param name="Waiting">
+/// "Waiting for sign-in to finish in your browser.", while the browser is
+/// open.
+/// </param>
+/// <param name="Choices">
+/// The providers, in the order the core offers them. Shown while
+/// choosing and while the browser is open.
+/// </param>
+/// <param name="UsePasswordLabel">
+/// "Use my password".
+/// </param>
+/// <param name="PasswordLabel">
+/// "Your password".
+/// </param>
+/// <param name="CodePrompt">
+/// Once the service has asked for it, why the code goes with the
+/// password; `None` while the password goes alone.
+/// </param>
+/// <param name="CodeLabel">
+/// "Authenticator code or recovery code".
+/// </param>
+/// <param name="ContinueLabel">
+/// "Continue", which sends the password.
+/// </param>
+/// <param name="BackLabel">
+/// "Back".
+/// </param>
+public record ReauthView (
+    /// <summary>
+    /// "Confirm it is you".
+    /// </summary>
+    string Heading, 
+    /// <summary>
+    /// What happens once it is confirmed, over the ways to confirm.
+    /// </summary>
+    string Intro, 
+    /// <summary>
+    /// Where it is.
+    /// </summary>
+    ReauthModeView Mode, 
+    /// <summary>
+    /// "Waiting for sign-in to finish in your browser.", while the browser is
+    /// open.
+    /// </summary>
+    string? Waiting, 
+    /// <summary>
+    /// The providers, in the order the core offers them. Shown while
+    /// choosing and while the browser is open.
+    /// </summary>
+    ReauthChoiceView[] Choices, 
+    /// <summary>
+    /// "Use my password".
+    /// </summary>
+    string UsePasswordLabel, 
+    /// <summary>
+    /// "Your password".
+    /// </summary>
+    string PasswordLabel, 
+    /// <summary>
+    /// Once the service has asked for it, why the code goes with the
+    /// password; `None` while the password goes alone.
+    /// </summary>
+    string? CodePrompt, 
+    /// <summary>
+    /// "Authenticator code or recovery code".
+    /// </summary>
+    string CodeLabel, 
+    /// <summary>
+    /// "Continue", which sends the password.
+    /// </summary>
+    string ContinueLabel, 
+    /// <summary>
+    /// "Back".
+    /// </summary>
+    string BackLabel
+) {
+}
+
+class FfiConverterTypeReauthView: FfiConverterRustBuffer<ReauthView> {
+    public static FfiConverterTypeReauthView INSTANCE = new FfiConverterTypeReauthView();
+
+    public override ReauthView Read(BigEndianStream stream) {
+        return new ReauthView(
+            Heading: FfiConverterString.INSTANCE.Read(stream),
+            Intro: FfiConverterString.INSTANCE.Read(stream),
+            Mode: FfiConverterTypeReauthModeView.INSTANCE.Read(stream),
+            Waiting: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Choices: FfiConverterSequenceTypeReauthChoiceView.INSTANCE.Read(stream),
+            UsePasswordLabel: FfiConverterString.INSTANCE.Read(stream),
+            PasswordLabel: FfiConverterString.INSTANCE.Read(stream),
+            CodePrompt: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CodeLabel: FfiConverterString.INSTANCE.Read(stream),
+            ContinueLabel: FfiConverterString.INSTANCE.Read(stream),
+            BackLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ReauthView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Heading)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Intro)
+            + FfiConverterTypeReauthModeView.INSTANCE.AllocationSize(value.Mode)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Waiting)
+            + FfiConverterSequenceTypeReauthChoiceView.INSTANCE.AllocationSize(value.Choices)
+            + FfiConverterString.INSTANCE.AllocationSize(value.UsePasswordLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.PasswordLabel)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.CodePrompt)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CodeLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ContinueLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BackLabel);
+    }
+
+    public override void Write(ReauthView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Heading, stream);
+            FfiConverterString.INSTANCE.Write(value.Intro, stream);
+            FfiConverterTypeReauthModeView.INSTANCE.Write(value.Mode, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Waiting, stream);
+            FfiConverterSequenceTypeReauthChoiceView.INSTANCE.Write(value.Choices, stream);
+            FfiConverterString.INSTANCE.Write(value.UsePasswordLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.PasswordLabel, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.CodePrompt, stream);
+            FfiConverterString.INSTANCE.Write(value.CodeLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ContinueLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BackLabel, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The registration form, as typed.
 /// </summary>
 /// <param name="Country">
@@ -32677,6 +33059,452 @@ class FfiConverterTypeTranscriptView: FfiConverterRustBuffer<TranscriptView> {
 
 
 /// <summary>
+/// The recovery codes, shown once. Its `Debug` output and its snapshot give
+/// their count only.
+/// </summary>
+/// <param name="Title">
+/// "Save your recovery codes".
+/// </param>
+/// <param name="Warning">
+/// That each signs in once, and they will not be shown again.
+/// </param>
+/// <param name="Codes">
+/// Every code, one per line (what "Copy all" copies), as UTF-8.
+/// </param>
+/// <param name="Count">
+/// How many there are.
+/// </param>
+/// <param name="CopyAllLabel">
+/// "Copy all".
+/// </param>
+/// <param name="CopiedLabel">
+/// "Copied".
+/// </param>
+/// <param name="DoneLabel">
+/// "I have saved them".
+/// </param>
+public record TwoStepCodesView (
+    /// <summary>
+    /// "Save your recovery codes".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// That each signs in once, and they will not be shown again.
+    /// </summary>
+    string Warning, 
+    /// <summary>
+    /// Every code, one per line (what "Copy all" copies), as UTF-8.
+    /// </summary>
+    byte[] Codes, 
+    /// <summary>
+    /// How many there are.
+    /// </summary>
+    uint Count, 
+    /// <summary>
+    /// "Copy all".
+    /// </summary>
+    string CopyAllLabel, 
+    /// <summary>
+    /// "Copied".
+    /// </summary>
+    string CopiedLabel, 
+    /// <summary>
+    /// "I have saved them".
+    /// </summary>
+    string DoneLabel
+) {
+}
+
+class FfiConverterTypeTwoStepCodesView: FfiConverterRustBuffer<TwoStepCodesView> {
+    public static FfiConverterTypeTwoStepCodesView INSTANCE = new FfiConverterTypeTwoStepCodesView();
+
+    public override TwoStepCodesView Read(BigEndianStream stream) {
+        return new TwoStepCodesView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Warning: FfiConverterString.INSTANCE.Read(stream),
+            Codes: FfiConverterByteArray.INSTANCE.Read(stream),
+            Count: FfiConverterUInt32.INSTANCE.Read(stream),
+            CopyAllLabel: FfiConverterString.INSTANCE.Read(stream),
+            CopiedLabel: FfiConverterString.INSTANCE.Read(stream),
+            DoneLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TwoStepCodesView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Warning)
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.Codes)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Count)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopyAllLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopiedLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.DoneLabel);
+    }
+
+    public override void Write(TwoStepCodesView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Warning, stream);
+            FfiConverterByteArray.INSTANCE.Write(value.Codes, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Count, stream);
+            FfiConverterString.INSTANCE.Write(value.CopyAllLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.CopiedLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.DoneLabel, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The new authenticator secret, and the field for its first code. The key,
+/// the link and the picture are the secret; its `Debug` output and its
+/// snapshot name none of them.
+/// </summary>
+/// <param name="Title">
+/// "Add District AI to your authenticator app".
+/// </param>
+/// <param name="Intro">
+/// "Scan this QR code with your authenticator app, or enter the key
+/// below by hand."
+/// </param>
+/// <param name="QrPng">
+/// The QR code of the link, as PNG bytes, or `None` when the service's
+/// picture could not be read (say [`TwoStepScanView::qr_unreadable`]).
+/// </param>
+/// <param name="QrLabel">
+/// The picture's name, for screen readers.
+/// </param>
+/// <param name="QrUnreadable">
+/// "The QR code could not be shown. Enter the key by hand instead."
+/// </param>
+/// <param name="KeyLabel">
+/// "Key".
+/// </param>
+/// <param name="Key">
+/// The base32 key, as UTF-8.
+/// </param>
+/// <param name="CopyKeyLabel">
+/// "Copy key".
+/// </param>
+/// <param name="CopiedLabel">
+/// "Copied", on a copy button once it has copied.
+/// </param>
+/// <param name="OtpauthUri">
+/// The `otpauth:` link an authenticator app opens, as UTF-8.
+/// </param>
+/// <param name="OpenLabel">
+/// "Open in an authenticator app".
+/// </param>
+/// <param name="OpenFailed">
+/// What to do when no app opened the link.
+/// </param>
+/// <param name="CodePrompt">
+/// "Then enter the 6-digit code your authenticator app shows for
+/// District AI."
+/// </param>
+/// <param name="CodeLabel">
+/// "6-digit code".
+/// </param>
+/// <param name="ConfirmLabel">
+/// "Turn on two-step verification", which sends the code.
+/// </param>
+/// <param name="BackLabel">
+/// "Back".
+/// </param>
+public record TwoStepScanView (
+    /// <summary>
+    /// "Add District AI to your authenticator app".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// "Scan this QR code with your authenticator app, or enter the key
+    /// below by hand."
+    /// </summary>
+    string Intro, 
+    /// <summary>
+    /// The QR code of the link, as PNG bytes, or `None` when the service's
+    /// picture could not be read (say [`TwoStepScanView::qr_unreadable`]).
+    /// </summary>
+    byte[]? QrPng, 
+    /// <summary>
+    /// The picture's name, for screen readers.
+    /// </summary>
+    string QrLabel, 
+    /// <summary>
+    /// "The QR code could not be shown. Enter the key by hand instead."
+    /// </summary>
+    string QrUnreadable, 
+    /// <summary>
+    /// "Key".
+    /// </summary>
+    string KeyLabel, 
+    /// <summary>
+    /// The base32 key, as UTF-8.
+    /// </summary>
+    byte[] Key, 
+    /// <summary>
+    /// "Copy key".
+    /// </summary>
+    string CopyKeyLabel, 
+    /// <summary>
+    /// "Copied", on a copy button once it has copied.
+    /// </summary>
+    string CopiedLabel, 
+    /// <summary>
+    /// The `otpauth:` link an authenticator app opens, as UTF-8.
+    /// </summary>
+    byte[] OtpauthUri, 
+    /// <summary>
+    /// "Open in an authenticator app".
+    /// </summary>
+    string OpenLabel, 
+    /// <summary>
+    /// What to do when no app opened the link.
+    /// </summary>
+    string OpenFailed, 
+    /// <summary>
+    /// "Then enter the 6-digit code your authenticator app shows for
+    /// District AI."
+    /// </summary>
+    string CodePrompt, 
+    /// <summary>
+    /// "6-digit code".
+    /// </summary>
+    string CodeLabel, 
+    /// <summary>
+    /// "Turn on two-step verification", which sends the code.
+    /// </summary>
+    string ConfirmLabel, 
+    /// <summary>
+    /// "Back".
+    /// </summary>
+    string BackLabel
+) {
+}
+
+class FfiConverterTypeTwoStepScanView: FfiConverterRustBuffer<TwoStepScanView> {
+    public static FfiConverterTypeTwoStepScanView INSTANCE = new FfiConverterTypeTwoStepScanView();
+
+    public override TwoStepScanView Read(BigEndianStream stream) {
+        return new TwoStepScanView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Intro: FfiConverterString.INSTANCE.Read(stream),
+            QrPng: FfiConverterOptionalByteArray.INSTANCE.Read(stream),
+            QrLabel: FfiConverterString.INSTANCE.Read(stream),
+            QrUnreadable: FfiConverterString.INSTANCE.Read(stream),
+            KeyLabel: FfiConverterString.INSTANCE.Read(stream),
+            Key: FfiConverterByteArray.INSTANCE.Read(stream),
+            CopyKeyLabel: FfiConverterString.INSTANCE.Read(stream),
+            CopiedLabel: FfiConverterString.INSTANCE.Read(stream),
+            OtpauthUri: FfiConverterByteArray.INSTANCE.Read(stream),
+            OpenLabel: FfiConverterString.INSTANCE.Read(stream),
+            OpenFailed: FfiConverterString.INSTANCE.Read(stream),
+            CodePrompt: FfiConverterString.INSTANCE.Read(stream),
+            CodeLabel: FfiConverterString.INSTANCE.Read(stream),
+            ConfirmLabel: FfiConverterString.INSTANCE.Read(stream),
+            BackLabel: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TwoStepScanView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Intro)
+            + FfiConverterOptionalByteArray.INSTANCE.AllocationSize(value.QrPng)
+            + FfiConverterString.INSTANCE.AllocationSize(value.QrLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.QrUnreadable)
+            + FfiConverterString.INSTANCE.AllocationSize(value.KeyLabel)
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.Key)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopyKeyLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CopiedLabel)
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.OtpauthUri)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OpenLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.OpenFailed)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CodePrompt)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CodeLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ConfirmLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.BackLabel);
+    }
+
+    public override void Write(TwoStepScanView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterString.INSTANCE.Write(value.Intro, stream);
+            FfiConverterOptionalByteArray.INSTANCE.Write(value.QrPng, stream);
+            FfiConverterString.INSTANCE.Write(value.QrLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.QrUnreadable, stream);
+            FfiConverterString.INSTANCE.Write(value.KeyLabel, stream);
+            FfiConverterByteArray.INSTANCE.Write(value.Key, stream);
+            FfiConverterString.INSTANCE.Write(value.CopyKeyLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.CopiedLabel, stream);
+            FfiConverterByteArray.INSTANCE.Write(value.OtpauthUri, stream);
+            FfiConverterString.INSTANCE.Write(value.OpenLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.OpenFailed, stream);
+            FfiConverterString.INSTANCE.Write(value.CodePrompt, stream);
+            FfiConverterString.INSTANCE.Write(value.CodeLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.ConfirmLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.BackLabel, stream);
+    }
+}
+
+
+
+/// <summary>
+/// The two-step verification screen.
+/// </summary>
+/// <param name="Title">
+/// The heading, "Two-step verification".
+/// </param>
+/// <param name="Step">
+/// Where it is; the step's own part is the field of the same name.
+/// </param>
+/// <param name="Busy">
+/// Whether a read or a change is on its way: every control is disabled.
+/// </param>
+/// <param name="Failure">
+/// What went wrong last, as a sentence that says what to do.
+/// </param>
+/// <param name="Notice">
+/// What the last finished change did: "Two-step verification is on."
+/// </param>
+/// <param name="StatusLabel">
+/// "On" or "Off", once the status is known.
+/// </param>
+/// <param name="StatusLines">
+/// Since when it is on and how many recovery codes are left, or what it
+/// does while it is off.
+/// </param>
+/// <param name="Offered">
+/// The change the overview offers, once the status is known.
+/// </param>
+/// <param name="OfferedLabel">
+/// Its button, "Turn on" or "Turn off".
+/// </param>
+/// <param name="RetryLabel">
+/// "Try again", after a first read that failed.
+/// </param>
+/// <param name="Reauth">
+/// Confirming it is you, on [`TwoStepStepView::Reauth`].
+/// </param>
+/// <param name="Scan">
+/// The new secret, on [`TwoStepStepView::Scan`].
+/// </param>
+/// <param name="Codes">
+/// The recovery codes, on [`TwoStepStepView::RecoveryCodes`].
+/// </param>
+public record TwoStepView (
+    /// <summary>
+    /// The heading, "Two-step verification".
+    /// </summary>
+    string Title, 
+    /// <summary>
+    /// Where it is; the step's own part is the field of the same name.
+    /// </summary>
+    TwoStepStepView Step, 
+    /// <summary>
+    /// Whether a read or a change is on its way: every control is disabled.
+    /// </summary>
+    bool Busy, 
+    /// <summary>
+    /// What went wrong last, as a sentence that says what to do.
+    /// </summary>
+    string? Failure, 
+    /// <summary>
+    /// What the last finished change did: "Two-step verification is on."
+    /// </summary>
+    string? Notice, 
+    /// <summary>
+    /// "On" or "Off", once the status is known.
+    /// </summary>
+    string? StatusLabel, 
+    /// <summary>
+    /// Since when it is on and how many recovery codes are left, or what it
+    /// does while it is off.
+    /// </summary>
+    string[] StatusLines, 
+    /// <summary>
+    /// The change the overview offers, once the status is known.
+    /// </summary>
+    TwoStepChangeView? Offered, 
+    /// <summary>
+    /// Its button, "Turn on" or "Turn off".
+    /// </summary>
+    string? OfferedLabel, 
+    /// <summary>
+    /// "Try again", after a first read that failed.
+    /// </summary>
+    string RetryLabel, 
+    /// <summary>
+    /// Confirming it is you, on [`TwoStepStepView::Reauth`].
+    /// </summary>
+    ReauthView? Reauth, 
+    /// <summary>
+    /// The new secret, on [`TwoStepStepView::Scan`].
+    /// </summary>
+    TwoStepScanView? Scan, 
+    /// <summary>
+    /// The recovery codes, on [`TwoStepStepView::RecoveryCodes`].
+    /// </summary>
+    TwoStepCodesView? Codes
+) {
+}
+
+class FfiConverterTypeTwoStepView: FfiConverterRustBuffer<TwoStepView> {
+    public static FfiConverterTypeTwoStepView INSTANCE = new FfiConverterTypeTwoStepView();
+
+    public override TwoStepView Read(BigEndianStream stream) {
+        return new TwoStepView(
+            Title: FfiConverterString.INSTANCE.Read(stream),
+            Step: FfiConverterTypeTwoStepStepView.INSTANCE.Read(stream),
+            Busy: FfiConverterBoolean.INSTANCE.Read(stream),
+            Failure: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Notice: FfiConverterOptionalString.INSTANCE.Read(stream),
+            StatusLabel: FfiConverterOptionalString.INSTANCE.Read(stream),
+            StatusLines: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Offered: FfiConverterOptionalTypeTwoStepChangeView.INSTANCE.Read(stream),
+            OfferedLabel: FfiConverterOptionalString.INSTANCE.Read(stream),
+            RetryLabel: FfiConverterString.INSTANCE.Read(stream),
+            Reauth: FfiConverterOptionalTypeReauthView.INSTANCE.Read(stream),
+            Scan: FfiConverterOptionalTypeTwoStepScanView.INSTANCE.Read(stream),
+            Codes: FfiConverterOptionalTypeTwoStepCodesView.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TwoStepView value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Title)
+            + FfiConverterTypeTwoStepStepView.INSTANCE.AllocationSize(value.Step)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Busy)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Failure)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Notice)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.StatusLabel)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.StatusLines)
+            + FfiConverterOptionalTypeTwoStepChangeView.INSTANCE.AllocationSize(value.Offered)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.OfferedLabel)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RetryLabel)
+            + FfiConverterOptionalTypeReauthView.INSTANCE.AllocationSize(value.Reauth)
+            + FfiConverterOptionalTypeTwoStepScanView.INSTANCE.AllocationSize(value.Scan)
+            + FfiConverterOptionalTypeTwoStepCodesView.INSTANCE.AllocationSize(value.Codes);
+    }
+
+    public override void Write(TwoStepView value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Title, stream);
+            FfiConverterTypeTwoStepStepView.INSTANCE.Write(value.Step, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Busy, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Failure, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Notice, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.StatusLabel, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.StatusLines, stream);
+            FfiConverterOptionalTypeTwoStepChangeView.INSTANCE.Write(value.Offered, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.OfferedLabel, stream);
+            FfiConverterString.INSTANCE.Write(value.RetryLabel, stream);
+            FfiConverterOptionalTypeReauthView.INSTANCE.Write(value.Reauth, stream);
+            FfiConverterOptionalTypeTwoStepScanView.INSTANCE.Write(value.Scan, stream);
+            FfiConverterOptionalTypeTwoStepCodesView.INSTANCE.Write(value.Codes, stream);
+    }
+}
+
+
+
+/// <summary>
 /// The question before an unblock.
 /// </summary>
 /// <param name="ContactId">
@@ -36311,6 +37139,195 @@ class FfiConverterTypeCrashStatus: FfiConverterRustBuffer<CrashStatus> {
             case CrashStatus.OffNoConsent: stream.WriteInt(2); break;
             case CrashStatus.OffNoDsn: stream.WriteInt(3); break;
             default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeCrashStatus.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Something done on the deletion screen. The password and the code are
+/// UTF-8 bytes (see the module documentation), left out of its `Debug`.
+/// </summary>
+public record DeleteAccountAction {
+    
+    /// <summary>
+    /// Open the screen, from the account screen's "Delete account".
+    /// </summary>
+    public record Open: DeleteAccountAction {}
+    
+    
+    /// <summary>
+    /// Confirm it is you at `provider`, in the browser.
+    /// </summary>
+    public record UseProvider (
+        ReauthProviderView Provider
+    ) : DeleteAccountAction {}
+    
+    /// <summary>
+    /// Confirm it is you with the password instead.
+    /// </summary>
+    public record UsePassword: DeleteAccountAction {}
+    
+    
+    /// <summary>
+    /// Send the password, and the code once the screen asks for it.
+    /// </summary>
+    public record SubmitPassword (
+        byte[] Password,
+        byte[]? Code
+    ) : DeleteAccountAction {}
+    
+    /// <summary>
+    /// Delete the account. `confirmation` is its email address, as typed.
+    /// </summary>
+    public record Delete (
+        string Confirmation
+    ) : DeleteAccountAction {}
+    
+    /// <summary>
+    /// Back to the ways to confirm it is you.
+    /// </summary>
+    public record Back: DeleteAccountAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeDeleteAccountAction : FfiConverterRustBuffer<DeleteAccountAction>{
+    public static FfiConverterRustBuffer<DeleteAccountAction> INSTANCE = new FfiConverterTypeDeleteAccountAction();
+
+    public override DeleteAccountAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new DeleteAccountAction.Open(
+                );
+            case 2:
+                return new DeleteAccountAction.UseProvider(
+                    FfiConverterTypeReauthProviderView.INSTANCE.Read(stream)
+                );
+            case 3:
+                return new DeleteAccountAction.UsePassword(
+                );
+            case 4:
+                return new DeleteAccountAction.SubmitPassword(
+                    FfiConverterByteArray.INSTANCE.Read(stream),
+                    FfiConverterOptionalByteArray.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new DeleteAccountAction.Delete(
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            case 6:
+                return new DeleteAccountAction.Back(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeleteAccountAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(DeleteAccountAction value) {
+        switch (value) {
+            case DeleteAccountAction.Open variant_value:
+                return 4;
+            case DeleteAccountAction.UseProvider variant_value:
+                return 4
+                    + FfiConverterTypeReauthProviderView.INSTANCE.AllocationSize(variant_value.Provider);
+            case DeleteAccountAction.UsePassword variant_value:
+                return 4;
+            case DeleteAccountAction.SubmitPassword variant_value:
+                return 4
+                    + FfiConverterByteArray.INSTANCE.AllocationSize(variant_value.Password)
+                    + FfiConverterOptionalByteArray.INSTANCE.AllocationSize(variant_value.Code);
+            case DeleteAccountAction.Delete variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Confirmation);
+            case DeleteAccountAction.Back variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeleteAccountAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(DeleteAccountAction value, BigEndianStream stream) {
+        switch (value) {
+            case DeleteAccountAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case DeleteAccountAction.UseProvider variant_value:
+                stream.WriteInt(2);
+                FfiConverterTypeReauthProviderView.INSTANCE.Write(variant_value.Provider, stream);
+                break;
+            case DeleteAccountAction.UsePassword variant_value:
+                stream.WriteInt(3);
+                break;
+            case DeleteAccountAction.SubmitPassword variant_value:
+                stream.WriteInt(4);
+                FfiConverterByteArray.INSTANCE.Write(variant_value.Password, stream);
+                FfiConverterOptionalByteArray.INSTANCE.Write(variant_value.Code, stream);
+                break;
+            case DeleteAccountAction.Delete variant_value:
+                stream.WriteInt(5);
+                FfiConverterString.INSTANCE.Write(variant_value.Confirmation, stream);
+                break;
+            case DeleteAccountAction.Back variant_value:
+                stream.WriteInt(6);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeleteAccountAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Where the deletion screen is.
+/// </summary>
+public enum DeleteAccountStepView: int {
+    /// <summary>
+    /// What is deleted and kept, and confirming it is you
+    /// ([`DeleteAccountView::reauth`]).
+    /// </summary>
+    Explain,
+    /// <summary>
+    /// The typed email address and the final button
+    /// ([`DeleteAccountView::confirm`]).
+    /// </summary>
+    Confirm
+}
+
+class FfiConverterTypeDeleteAccountStepView: FfiConverterRustBuffer<DeleteAccountStepView> {
+    public static FfiConverterTypeDeleteAccountStepView INSTANCE = new FfiConverterTypeDeleteAccountStepView();
+
+    public override DeleteAccountStepView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return DeleteAccountStepView.Explain;
+            case 2: return DeleteAccountStepView.Confirm;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeleteAccountStepView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(DeleteAccountStepView value) {
+        return 4;
+    }
+
+    public override void Write(DeleteAccountStepView value, BigEndianStream stream) {
+        switch (value) {
+            case DeleteAccountStepView.Explain: stream.WriteInt(1); break;
+            case DeleteAccountStepView.Confirm: stream.WriteInt(2); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDeleteAccountStepView.Write()", value));
         }
     }
 }
@@ -42153,6 +43170,109 @@ class FfiConverterTypePushRegistration : FfiConverterRustBuffer<PushRegistration
 
 
 /// <summary>
+/// How far confirming it is you has got.
+/// </summary>
+public enum ReauthModeView: int {
+    /// <summary>
+    /// Choosing a provider or the password.
+    /// </summary>
+    Choose,
+    /// <summary>
+    /// The browser is open at a provider's sign-in; the providers are still
+    /// offered, and choosing one again starts a new attempt.
+    /// </summary>
+    Browser,
+    /// <summary>
+    /// The password, and the code when [`ReauthView::code_prompt`] is set.
+    /// </summary>
+    Password
+}
+
+class FfiConverterTypeReauthModeView: FfiConverterRustBuffer<ReauthModeView> {
+    public static FfiConverterTypeReauthModeView INSTANCE = new FfiConverterTypeReauthModeView();
+
+    public override ReauthModeView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return ReauthModeView.Choose;
+            case 2: return ReauthModeView.Browser;
+            case 3: return ReauthModeView.Password;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReauthModeView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(ReauthModeView value) {
+        return 4;
+    }
+
+    public override void Write(ReauthModeView value, BigEndianStream stream) {
+        switch (value) {
+            case ReauthModeView.Choose: stream.WriteInt(1); break;
+            case ReauthModeView.Browser: stream.WriteInt(2); break;
+            case ReauthModeView.Password: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReauthModeView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// A provider to confirm it is you at.
+/// </summary>
+public enum ReauthProviderView: int {
+    /// <summary>
+    /// Google.
+    /// </summary>
+    Google,
+    /// <summary>
+    /// Microsoft.
+    /// </summary>
+    Microsoft,
+    /// <summary>
+    /// Apple.
+    /// </summary>
+    Apple
+}
+
+class FfiConverterTypeReauthProviderView: FfiConverterRustBuffer<ReauthProviderView> {
+    public static FfiConverterTypeReauthProviderView INSTANCE = new FfiConverterTypeReauthProviderView();
+
+    public override ReauthProviderView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return ReauthProviderView.Google;
+            case 2: return ReauthProviderView.Microsoft;
+            case 3: return ReauthProviderView.Apple;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReauthProviderView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(ReauthProviderView value) {
+        return 4;
+    }
+
+    public override void Write(ReauthProviderView value, BigEndianStream stream) {
+        switch (value) {
+            case ReauthProviderView.Google: stream.WriteInt(1); break;
+            case ReauthProviderView.Microsoft: stream.WriteInt(2); break;
+            case ReauthProviderView.Apple: stream.WriteInt(3); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeReauthProviderView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// How to offer the Report action beside AI-generated content.
 /// </summary>
 public enum ReportAvailability: int {
@@ -44412,6 +45532,20 @@ public record ScreenView {
     ) : ScreenView {}
     
     /// <summary>
+    /// Two-step verification for the account.
+    /// </summary>
+    public record TwoStep (
+        TwoStepView View
+    ) : ScreenView {}
+    
+    /// <summary>
+    /// Deleting the account.
+    /// </summary>
+    public record DeleteAccount (
+        DeleteAccountView View
+    ) : ScreenView {}
+    
+    /// <summary>
     /// The dialler, in a build that can carry calls.
     /// </summary>
     public record Dialer (
@@ -44648,106 +45782,114 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
                     FfiConverterTypeDevicesView.INSTANCE.Read(stream)
                 );
             case 11:
+                return new ScreenView.TwoStep(
+                    FfiConverterTypeTwoStepView.INSTANCE.Read(stream)
+                );
+            case 12:
+                return new ScreenView.DeleteAccount(
+                    FfiConverterTypeDeleteAccountView.INSTANCE.Read(stream)
+                );
+            case 13:
                 return new ScreenView.Dialer(
                     FfiConverterTypeDialerView.INSTANCE.Read(stream)
                 );
-            case 12:
+            case 14:
                 return new ScreenView.BlockedContacts(
                     FfiConverterTypeBlockedView.INSTANCE.Read(stream)
                 );
-            case 13:
+            case 15:
                 return new ScreenView.Hq(
                     FfiConverterTypeHqView.INSTANCE.Read(stream)
                 );
-            case 14:
+            case 16:
                 return new ScreenView.Analytics(
                     FfiConverterTypeAnalyticsView.INSTANCE.Read(stream)
                 );
-            case 15:
+            case 17:
                 return new ScreenView.Marketplace(
                     FfiConverterTypeMarketplaceView.INSTANCE.Read(stream)
                 );
-            case 16:
+            case 18:
                 return new ScreenView.Billing(
                     FfiConverterTypeBillingView.INSTANCE.Read(stream)
                 );
-            case 17:
+            case 19:
                 return new ScreenView.Workflows(
                     FfiConverterTypeWorkflowsView.INSTANCE.Read(stream)
                 );
-            case 18:
+            case 20:
                 return new ScreenView.Scheduling(
                     FfiConverterTypeSchedulingView.INSTANCE.Read(stream)
                 );
-            case 19:
+            case 21:
                 return new ScreenView.SchedulingAdmin(
                     FfiConverterTypeSchedulingAdminView.INSTANCE.Read(stream)
                 );
-            case 20:
+            case 22:
                 return new ScreenView.Desk(
                     FfiConverterTypeDeskView.INSTANCE.Read(stream)
                 );
-            case 21:
+            case 23:
                 return new ScreenView.DeskTicket(
                     FfiConverterTypeDeskTicketView.INSTANCE.Read(stream)
                 );
-            case 22:
+            case 24:
                 return new ScreenView.DeskSettings(
                     FfiConverterTypeDeskSettingsView.INSTANCE.Read(stream)
                 );
-            case 23:
+            case 25:
                 return new ScreenView.Support(
                     FfiConverterTypeSupportView.INSTANCE.Read(stream)
                 );
-            case 24:
+            case 26:
                 return new ScreenView.SupportRequest(
                     FfiConverterTypeSupportRequestView.INSTANCE.Read(stream)
                 );
-            case 25:
+            case 27:
                 return new ScreenView.Rooms(
                     FfiConverterTypeRoomsView.INSTANCE.Read(stream)
                 );
-            case 26:
+            case 28:
                 return new ScreenView.WorkspaceSettings(
                     FfiConverterTypeSettingsHubView.INSTANCE.Read(stream)
                 );
-            case 27:
+            case 29:
                 return new ScreenView.Persona(
                     FfiConverterTypePersonaView.INSTANCE.Read(stream)
                 );
-            case 28:
+            case 30:
                 return new ScreenView.VoiceStudio(
                     FfiConverterTypeVoiceStudioView.INSTANCE.Read(stream)
                 );
-            case 29:
+            case 31:
                 return new ScreenView.CallHandling(
                     FfiConverterTypeCallHandlingView.INSTANCE.Read(stream)
                 );
-            case 30:
+            case 32:
                 return new ScreenView.Routing(
                     FfiConverterTypeRoutingView.INSTANCE.Read(stream)
                 );
-            case 31:
+            case 33:
                 return new ScreenView.Directory(
                     FfiConverterTypeDirectoryView.INSTANCE.Read(stream)
                 );
-            case 32:
+            case 34:
                 return new ScreenView.Tools(
                     FfiConverterTypeToolsView.INSTANCE.Read(stream)
                 );
-            case 33:
+            case 35:
                 return new ScreenView.Knowledge(
                     FfiConverterTypeKnowledgeView.INSTANCE.Read(stream)
                 );
-            case 34:
+            case 36:
                 return new ScreenView.Messaging(
                     FfiConverterTypeMessagingView.INSTANCE.Read(stream)
                 );
-            case 35:
+            case 37:
                 return new ScreenView.Members(
                     FfiConverterTypeMembersView.INSTANCE.Read(stream)
                 );
-            case 36:
+            case 38:
                 return new ScreenView.Unavailable(
                     FfiConverterString.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
@@ -44789,6 +45931,12 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
             case ScreenView.Devices variant_value:
                 return 4
                     + FfiConverterTypeDevicesView.INSTANCE.AllocationSize(variant_value.View);
+            case ScreenView.TwoStep variant_value:
+                return 4
+                    + FfiConverterTypeTwoStepView.INSTANCE.AllocationSize(variant_value.View);
+            case ScreenView.DeleteAccount variant_value:
+                return 4
+                    + FfiConverterTypeDeleteAccountView.INSTANCE.AllocationSize(variant_value.View);
             case ScreenView.Dialer variant_value:
                 return 4
                     + FfiConverterTypeDialerView.INSTANCE.AllocationSize(variant_value.View);
@@ -44915,108 +46063,116 @@ class FfiConverterTypeScreenView : FfiConverterRustBuffer<ScreenView>{
                 stream.WriteInt(10);
                 FfiConverterTypeDevicesView.INSTANCE.Write(variant_value.View, stream);
                 break;
-            case ScreenView.Dialer variant_value:
+            case ScreenView.TwoStep variant_value:
                 stream.WriteInt(11);
+                FfiConverterTypeTwoStepView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case ScreenView.DeleteAccount variant_value:
+                stream.WriteInt(12);
+                FfiConverterTypeDeleteAccountView.INSTANCE.Write(variant_value.View, stream);
+                break;
+            case ScreenView.Dialer variant_value:
+                stream.WriteInt(13);
                 FfiConverterTypeDialerView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.BlockedContacts variant_value:
-                stream.WriteInt(12);
+                stream.WriteInt(14);
                 FfiConverterTypeBlockedView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Hq variant_value:
-                stream.WriteInt(13);
+                stream.WriteInt(15);
                 FfiConverterTypeHqView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Analytics variant_value:
-                stream.WriteInt(14);
+                stream.WriteInt(16);
                 FfiConverterTypeAnalyticsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Marketplace variant_value:
-                stream.WriteInt(15);
+                stream.WriteInt(17);
                 FfiConverterTypeMarketplaceView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Billing variant_value:
-                stream.WriteInt(16);
+                stream.WriteInt(18);
                 FfiConverterTypeBillingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Workflows variant_value:
-                stream.WriteInt(17);
+                stream.WriteInt(19);
                 FfiConverterTypeWorkflowsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Scheduling variant_value:
-                stream.WriteInt(18);
+                stream.WriteInt(20);
                 FfiConverterTypeSchedulingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.SchedulingAdmin variant_value:
-                stream.WriteInt(19);
+                stream.WriteInt(21);
                 FfiConverterTypeSchedulingAdminView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Desk variant_value:
-                stream.WriteInt(20);
+                stream.WriteInt(22);
                 FfiConverterTypeDeskView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.DeskTicket variant_value:
-                stream.WriteInt(21);
+                stream.WriteInt(23);
                 FfiConverterTypeDeskTicketView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.DeskSettings variant_value:
-                stream.WriteInt(22);
+                stream.WriteInt(24);
                 FfiConverterTypeDeskSettingsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Support variant_value:
-                stream.WriteInt(23);
+                stream.WriteInt(25);
                 FfiConverterTypeSupportView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.SupportRequest variant_value:
-                stream.WriteInt(24);
+                stream.WriteInt(26);
                 FfiConverterTypeSupportRequestView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Rooms variant_value:
-                stream.WriteInt(25);
+                stream.WriteInt(27);
                 FfiConverterTypeRoomsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.WorkspaceSettings variant_value:
-                stream.WriteInt(26);
+                stream.WriteInt(28);
                 FfiConverterTypeSettingsHubView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Persona variant_value:
-                stream.WriteInt(27);
+                stream.WriteInt(29);
                 FfiConverterTypePersonaView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.VoiceStudio variant_value:
-                stream.WriteInt(28);
+                stream.WriteInt(30);
                 FfiConverterTypeVoiceStudioView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.CallHandling variant_value:
-                stream.WriteInt(29);
+                stream.WriteInt(31);
                 FfiConverterTypeCallHandlingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Routing variant_value:
-                stream.WriteInt(30);
+                stream.WriteInt(32);
                 FfiConverterTypeRoutingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Directory variant_value:
-                stream.WriteInt(31);
+                stream.WriteInt(33);
                 FfiConverterTypeDirectoryView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Tools variant_value:
-                stream.WriteInt(32);
+                stream.WriteInt(34);
                 FfiConverterTypeToolsView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Knowledge variant_value:
-                stream.WriteInt(33);
+                stream.WriteInt(35);
                 FfiConverterTypeKnowledgeView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Messaging variant_value:
-                stream.WriteInt(34);
+                stream.WriteInt(36);
                 FfiConverterTypeMessagingView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Members variant_value:
-                stream.WriteInt(35);
+                stream.WriteInt(37);
                 FfiConverterTypeMembersView.INSTANCE.Write(variant_value.View, stream);
                 break;
             case ScreenView.Unavailable variant_value:
-                stream.WriteInt(36);
+                stream.WriteInt(38);
                 FfiConverterString.INSTANCE.Write(variant_value.Title, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.Body, stream);
                 break;
@@ -47221,6 +48377,324 @@ class FfiConverterTypeTranscriptState : FfiConverterRustBuffer<TranscriptState>{
 
 
 /// <summary>
+/// Something done on the two-step screen. The password and the codes are
+/// UTF-8 bytes (see the module documentation), left out of its `Debug`.
+/// </summary>
+public record TwoStepAction {
+    
+    /// <summary>
+    /// Open the screen, from the account screen.
+    /// </summary>
+    public record Open: TwoStepAction {}
+    
+    
+    /// <summary>
+    /// Read the status again after a first read that failed.
+    /// </summary>
+    public record Retry: TwoStepAction {}
+    
+    
+    /// <summary>
+    /// Start the change the overview offers.
+    /// </summary>
+    public record Begin (
+        TwoStepChangeView Change
+    ) : TwoStepAction {}
+    
+    /// <summary>
+    /// Confirm it is you at `provider`, in the browser.
+    /// </summary>
+    public record UseProvider (
+        ReauthProviderView Provider
+    ) : TwoStepAction {}
+    
+    /// <summary>
+    /// Confirm it is you with the password instead.
+    /// </summary>
+    public record UsePassword: TwoStepAction {}
+    
+    
+    /// <summary>
+    /// Send the password, and the code once the screen asks for it.
+    /// </summary>
+    public record SubmitPassword (
+        byte[] Password,
+        byte[]? Code
+    ) : TwoStepAction {}
+    
+    /// <summary>
+    /// Turn it on with the authenticator's first code.
+    /// </summary>
+    public record Confirm (
+        byte[] Code
+    ) : TwoStepAction {}
+    
+    /// <summary>
+    /// "I have saved them": the recovery codes go, and the status shows.
+    /// </summary>
+    public record FinishRecoveryCodes: TwoStepAction {}
+    
+    
+    /// <summary>
+    /// One step back inside the screen.
+    /// </summary>
+    public record Back: TwoStepAction {}
+    
+    
+    /// <summary>
+    /// Put away the notice and the failure.
+    /// </summary>
+    public record DismissNotices: TwoStepAction {}
+    
+    
+
+    
+}
+
+class FfiConverterTypeTwoStepAction : FfiConverterRustBuffer<TwoStepAction>{
+    public static FfiConverterRustBuffer<TwoStepAction> INSTANCE = new FfiConverterTypeTwoStepAction();
+
+    public override TwoStepAction Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new TwoStepAction.Open(
+                );
+            case 2:
+                return new TwoStepAction.Retry(
+                );
+            case 3:
+                return new TwoStepAction.Begin(
+                    FfiConverterTypeTwoStepChangeView.INSTANCE.Read(stream)
+                );
+            case 4:
+                return new TwoStepAction.UseProvider(
+                    FfiConverterTypeReauthProviderView.INSTANCE.Read(stream)
+                );
+            case 5:
+                return new TwoStepAction.UsePassword(
+                );
+            case 6:
+                return new TwoStepAction.SubmitPassword(
+                    FfiConverterByteArray.INSTANCE.Read(stream),
+                    FfiConverterOptionalByteArray.INSTANCE.Read(stream)
+                );
+            case 7:
+                return new TwoStepAction.Confirm(
+                    FfiConverterByteArray.INSTANCE.Read(stream)
+                );
+            case 8:
+                return new TwoStepAction.FinishRecoveryCodes(
+                );
+            case 9:
+                return new TwoStepAction.Back(
+                );
+            case 10:
+                return new TwoStepAction.DismissNotices(
+                );
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTwoStepAction.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(TwoStepAction value) {
+        switch (value) {
+            case TwoStepAction.Open variant_value:
+                return 4;
+            case TwoStepAction.Retry variant_value:
+                return 4;
+            case TwoStepAction.Begin variant_value:
+                return 4
+                    + FfiConverterTypeTwoStepChangeView.INSTANCE.AllocationSize(variant_value.Change);
+            case TwoStepAction.UseProvider variant_value:
+                return 4
+                    + FfiConverterTypeReauthProviderView.INSTANCE.AllocationSize(variant_value.Provider);
+            case TwoStepAction.UsePassword variant_value:
+                return 4;
+            case TwoStepAction.SubmitPassword variant_value:
+                return 4
+                    + FfiConverterByteArray.INSTANCE.AllocationSize(variant_value.Password)
+                    + FfiConverterOptionalByteArray.INSTANCE.AllocationSize(variant_value.Code);
+            case TwoStepAction.Confirm variant_value:
+                return 4
+                    + FfiConverterByteArray.INSTANCE.AllocationSize(variant_value.Code);
+            case TwoStepAction.FinishRecoveryCodes variant_value:
+                return 4;
+            case TwoStepAction.Back variant_value:
+                return 4;
+            case TwoStepAction.DismissNotices variant_value:
+                return 4;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTwoStepAction.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(TwoStepAction value, BigEndianStream stream) {
+        switch (value) {
+            case TwoStepAction.Open variant_value:
+                stream.WriteInt(1);
+                break;
+            case TwoStepAction.Retry variant_value:
+                stream.WriteInt(2);
+                break;
+            case TwoStepAction.Begin variant_value:
+                stream.WriteInt(3);
+                FfiConverterTypeTwoStepChangeView.INSTANCE.Write(variant_value.Change, stream);
+                break;
+            case TwoStepAction.UseProvider variant_value:
+                stream.WriteInt(4);
+                FfiConverterTypeReauthProviderView.INSTANCE.Write(variant_value.Provider, stream);
+                break;
+            case TwoStepAction.UsePassword variant_value:
+                stream.WriteInt(5);
+                break;
+            case TwoStepAction.SubmitPassword variant_value:
+                stream.WriteInt(6);
+                FfiConverterByteArray.INSTANCE.Write(variant_value.Password, stream);
+                FfiConverterOptionalByteArray.INSTANCE.Write(variant_value.Code, stream);
+                break;
+            case TwoStepAction.Confirm variant_value:
+                stream.WriteInt(7);
+                FfiConverterByteArray.INSTANCE.Write(variant_value.Code, stream);
+                break;
+            case TwoStepAction.FinishRecoveryCodes variant_value:
+                stream.WriteInt(8);
+                break;
+            case TwoStepAction.Back variant_value:
+                stream.WriteInt(9);
+                break;
+            case TwoStepAction.DismissNotices variant_value:
+                stream.WriteInt(10);
+                break;
+            default:
+                throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTwoStepAction.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Which change the two-step screen offers or is making.
+/// </summary>
+public enum TwoStepChangeView: int {
+    /// <summary>
+    /// Turning it on.
+    /// </summary>
+    TurnOn,
+    /// <summary>
+    /// Turning it off.
+    /// </summary>
+    TurnOff
+}
+
+class FfiConverterTypeTwoStepChangeView: FfiConverterRustBuffer<TwoStepChangeView> {
+    public static FfiConverterTypeTwoStepChangeView INSTANCE = new FfiConverterTypeTwoStepChangeView();
+
+    public override TwoStepChangeView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return TwoStepChangeView.TurnOn;
+            case 2: return TwoStepChangeView.TurnOff;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTwoStepChangeView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(TwoStepChangeView value) {
+        return 4;
+    }
+
+    public override void Write(TwoStepChangeView value, BigEndianStream stream) {
+        switch (value) {
+            case TwoStepChangeView.TurnOn: stream.WriteInt(1); break;
+            case TwoStepChangeView.TurnOff: stream.WriteInt(2); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTwoStepChangeView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
+/// Where the two-step screen is.
+/// </summary>
+public enum TwoStepStepView: int {
+    /// <summary>
+    /// The status is being read for the first time.
+    /// </summary>
+    Loading,
+    /// <summary>
+    /// The first read failed: [`TwoStepView::failure`] and Try again.
+    /// </summary>
+    LoadFailed,
+    /// <summary>
+    /// The status, and the change it offers.
+    /// </summary>
+    Overview,
+    /// <summary>
+    /// Confirming it is you before the change ([`TwoStepView::reauth`]).
+    /// </summary>
+    Reauth,
+    /// <summary>
+    /// The new secret and the field for its first code
+    /// ([`TwoStepView::scan`]).
+    /// </summary>
+    Scan,
+    /// <summary>
+    /// It is on: the recovery codes, shown this once
+    /// ([`TwoStepView::codes`]).
+    /// </summary>
+    RecoveryCodes
+}
+
+class FfiConverterTypeTwoStepStepView: FfiConverterRustBuffer<TwoStepStepView> {
+    public static FfiConverterTypeTwoStepStepView INSTANCE = new FfiConverterTypeTwoStepStepView();
+
+    public override TwoStepStepView Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1: return TwoStepStepView.Loading;
+            case 2: return TwoStepStepView.LoadFailed;
+            case 3: return TwoStepStepView.Overview;
+            case 4: return TwoStepStepView.Reauth;
+            case 5: return TwoStepStepView.Scan;
+            case 6: return TwoStepStepView.RecoveryCodes;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTwoStepStepView.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(TwoStepStepView value) {
+        return 4;
+    }
+
+    public override void Write(TwoStepStepView value, BigEndianStream stream) {
+        switch (value) {
+            case TwoStepStepView.Loading: stream.WriteInt(1); break;
+            case TwoStepStepView.LoadFailed: stream.WriteInt(2); break;
+            case TwoStepStepView.Overview: stream.WriteInt(3); break;
+            case TwoStepStepView.Reauth: stream.WriteInt(4); break;
+            case TwoStepStepView.Scan: stream.WriteInt(5); break;
+            case TwoStepStepView.RecoveryCodes: stream.WriteInt(6); break;
+            default: throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeTwoStepStepView.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+/// <summary>
 /// Something the user did in the window. Most are one core event
 /// ([`UiEvent::events`]); the core decides what each means in the
 /// state it is in. Each area of 2.0 has one variant carrying its own action,
@@ -47408,10 +48882,20 @@ public record UiEvent {
     
     
     /// <summary>
-    /// Open the account deletion page in the browser.
+    /// Something done on the two-step verification screen, or opening it
+    /// from the account screen.
     /// </summary>
-    public record DeleteAccount: UiEvent {}
+    public record TwoStep (
+        TwoStepAction Action
+    ) : UiEvent {}
     
+    /// <summary>
+    /// Something done on the account deletion screen, or opening it from the
+    /// account screen's "Delete account".
+    /// </summary>
+    public record AccountDeletion (
+        DeleteAccountAction Action
+    ) : UiEvent {}
     
     /// <summary>
     /// Report AI-generated content: raises a support request without leaving
@@ -47816,165 +49300,170 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                 return new UiEvent.DismissDevicesNotices(
                 );
             case 29:
-                return new UiEvent.DeleteAccount(
+                return new UiEvent.TwoStep(
+                    FfiConverterTypeTwoStepAction.INSTANCE.Read(stream)
                 );
             case 30:
+                return new UiEvent.AccountDeletion(
+                    FfiConverterTypeDeleteAccountAction.INSTANCE.Read(stream)
+                );
+            case 31:
                 return new UiEvent.Report(
                     FfiConverterTypeReportTarget.INSTANCE.Read(stream),
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 31:
+            case 32:
                 return new UiEvent.DismissReport(
                 );
-            case 32:
+            case 33:
                 return new UiEvent.DiscardChanges(
                 );
-            case 33:
+            case 34:
                 return new UiEvent.KeepEditing(
                 );
-            case 34:
+            case 35:
                 return new UiEvent.OpenDialer(
                 );
-            case 35:
+            case 36:
                 return new UiEvent.DialerEdit(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 36:
+            case 37:
                 return new UiEvent.DialerPickCountry(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 37:
+            case 38:
                 return new UiEvent.DialerCheckLength(
                 );
-            case 38:
+            case 39:
                 return new UiEvent.Dial(
                 );
-            case 39:
+            case 40:
                 return new UiEvent.CallNumber(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 40:
+            case 41:
                 return new UiEvent.HangUp(
                 );
-            case 41:
+            case 42:
                 return new UiEvent.DismissCall(
                 );
-            case 42:
+            case 43:
                 return new UiEvent.Answer(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 43:
+            case 44:
                 return new UiEvent.Decline(
                     FfiConverterString.INSTANCE.Read(stream)
                 );
-            case 44:
+            case 45:
                 return new UiEvent.DismissRing(
                 );
-            case 45:
+            case 46:
                 return new UiEvent.Microphone(
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
-            case 46:
+            case 47:
                 return new UiEvent.SetRingOnThisComputer(
                     FfiConverterBoolean.INSTANCE.Read(stream)
                 );
-            case 47:
+            case 48:
                 return new UiEvent.Contacts(
                     FfiConverterTypeContactsAction.INSTANCE.Read(stream)
                 );
-            case 48:
+            case 49:
                 return new UiEvent.Blocked(
                     FfiConverterTypeBlockedAction.INSTANCE.Read(stream)
                 );
-            case 49:
+            case 50:
                 return new UiEvent.Supervise(
                     FfiConverterTypeSuperviseAction.INSTANCE.Read(stream)
                 );
-            case 50:
+            case 51:
                 return new UiEvent.Hq(
                     FfiConverterTypeHqAction.INSTANCE.Read(stream)
                 );
-            case 51:
+            case 52:
                 return new UiEvent.Analytics(
                     FfiConverterTypeAnalyticsAction.INSTANCE.Read(stream)
                 );
-            case 52:
+            case 53:
                 return new UiEvent.Marketplace(
                     FfiConverterTypeMarketplaceAction.INSTANCE.Read(stream)
                 );
-            case 53:
+            case 54:
                 return new UiEvent.Billing(
                     FfiConverterTypeBillingAction.INSTANCE.Read(stream)
                 );
-            case 54:
+            case 55:
                 return new UiEvent.Workflows(
                     FfiConverterTypeWorkflowsAction.INSTANCE.Read(stream)
                 );
-            case 55:
+            case 56:
                 return new UiEvent.Scheduling(
                     FfiConverterTypeSchedulingAction.INSTANCE.Read(stream)
                 );
-            case 56:
+            case 57:
                 return new UiEvent.SchedulingAdmin(
                     FfiConverterTypeSchedulingAdminAction.INSTANCE.Read(stream)
                 );
-            case 57:
+            case 58:
                 return new UiEvent.Desk(
                     FfiConverterTypeDeskAction.INSTANCE.Read(stream)
                 );
-            case 58:
+            case 59:
                 return new UiEvent.Support(
                     FfiConverterTypeSupportAction.INSTANCE.Read(stream)
                 );
-            case 59:
+            case 60:
                 return new UiEvent.Rooms(
                     FfiConverterTypeRoomsAction.INSTANCE.Read(stream)
                 );
-            case 60:
+            case 61:
                 return new UiEvent.Composer(
                     FfiConverterTypeComposerAction.INSTANCE.Read(stream)
                 );
-            case 61:
+            case 62:
                 return new UiEvent.Settings(
                     FfiConverterTypeSettingsAction.INSTANCE.Read(stream)
                 );
-            case 62:
+            case 63:
                 return new UiEvent.Persona(
                     FfiConverterTypePersonaAction.INSTANCE.Read(stream)
                 );
-            case 63:
+            case 64:
                 return new UiEvent.VoiceStudio(
                     FfiConverterTypeVoiceStudioAction.INSTANCE.Read(stream)
                 );
-            case 64:
+            case 65:
                 return new UiEvent.CallHandling(
                     FfiConverterTypeCallHandlingAction.INSTANCE.Read(stream)
                 );
-            case 65:
+            case 66:
                 return new UiEvent.Routing(
                     FfiConverterTypeRoutingAction.INSTANCE.Read(stream)
                 );
-            case 66:
+            case 67:
                 return new UiEvent.Directory(
                     FfiConverterTypeDirectoryAction.INSTANCE.Read(stream)
                 );
-            case 67:
+            case 68:
                 return new UiEvent.Tools(
                     FfiConverterTypeToolsAction.INSTANCE.Read(stream)
                 );
-            case 68:
+            case 69:
                 return new UiEvent.Knowledge(
                     FfiConverterTypeKnowledgeAction.INSTANCE.Read(stream)
                 );
-            case 69:
+            case 70:
                 return new UiEvent.Messaging(
                     FfiConverterTypeMessagingAction.INSTANCE.Read(stream)
                 );
-            case 70:
+            case 71:
                 return new UiEvent.Members(
                     FfiConverterTypeMembersAction.INSTANCE.Read(stream)
                 );
-            case 71:
+            case 72:
                 return new UiEvent.Numbers(
                     FfiConverterTypeNumbersAction.INSTANCE.Read(stream)
                 );
@@ -48051,8 +49540,12 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
                 return 4;
             case UiEvent.DismissDevicesNotices variant_value:
                 return 4;
-            case UiEvent.DeleteAccount variant_value:
-                return 4;
+            case UiEvent.TwoStep variant_value:
+                return 4
+                    + FfiConverterTypeTwoStepAction.INSTANCE.AllocationSize(variant_value.Action);
+            case UiEvent.AccountDeletion variant_value:
+                return 4
+                    + FfiConverterTypeDeleteAccountAction.INSTANCE.AllocationSize(variant_value.Action);
             case UiEvent.Report variant_value:
                 return 4
                     + FfiConverterTypeReportTarget.INSTANCE.AllocationSize(variant_value.Target)
@@ -48272,167 +49765,172 @@ class FfiConverterTypeUiEvent : FfiConverterRustBuffer<UiEvent>{
             case UiEvent.DismissDevicesNotices variant_value:
                 stream.WriteInt(28);
                 break;
-            case UiEvent.DeleteAccount variant_value:
+            case UiEvent.TwoStep variant_value:
                 stream.WriteInt(29);
+                FfiConverterTypeTwoStepAction.INSTANCE.Write(variant_value.Action, stream);
+                break;
+            case UiEvent.AccountDeletion variant_value:
+                stream.WriteInt(30);
+                FfiConverterTypeDeleteAccountAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Report variant_value:
-                stream.WriteInt(30);
+                stream.WriteInt(31);
                 FfiConverterTypeReportTarget.INSTANCE.Write(variant_value.Target, stream);
                 FfiConverterString.INSTANCE.Write(variant_value.Note, stream);
                 break;
             case UiEvent.DismissReport variant_value:
-                stream.WriteInt(31);
-                break;
-            case UiEvent.DiscardChanges variant_value:
                 stream.WriteInt(32);
                 break;
-            case UiEvent.KeepEditing variant_value:
+            case UiEvent.DiscardChanges variant_value:
                 stream.WriteInt(33);
                 break;
-            case UiEvent.OpenDialer variant_value:
+            case UiEvent.KeepEditing variant_value:
                 stream.WriteInt(34);
                 break;
-            case UiEvent.DialerEdit variant_value:
+            case UiEvent.OpenDialer variant_value:
                 stream.WriteInt(35);
+                break;
+            case UiEvent.DialerEdit variant_value:
+                stream.WriteInt(36);
                 FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
                 break;
             case UiEvent.DialerPickCountry variant_value:
-                stream.WriteInt(36);
+                stream.WriteInt(37);
                 FfiConverterString.INSTANCE.Write(variant_value.Iso, stream);
                 break;
             case UiEvent.DialerCheckLength variant_value:
-                stream.WriteInt(37);
-                break;
-            case UiEvent.Dial variant_value:
                 stream.WriteInt(38);
                 break;
-            case UiEvent.CallNumber variant_value:
+            case UiEvent.Dial variant_value:
                 stream.WriteInt(39);
+                break;
+            case UiEvent.CallNumber variant_value:
+                stream.WriteInt(40);
                 FfiConverterString.INSTANCE.Write(variant_value.Number, stream);
                 break;
             case UiEvent.HangUp variant_value:
-                stream.WriteInt(40);
-                break;
-            case UiEvent.DismissCall variant_value:
                 stream.WriteInt(41);
                 break;
-            case UiEvent.Answer variant_value:
+            case UiEvent.DismissCall variant_value:
                 stream.WriteInt(42);
-                FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
-            case UiEvent.Decline variant_value:
+            case UiEvent.Answer variant_value:
                 stream.WriteInt(43);
                 FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
                 break;
-            case UiEvent.DismissRing variant_value:
+            case UiEvent.Decline variant_value:
                 stream.WriteInt(44);
+                FfiConverterString.INSTANCE.Write(variant_value.CallId, stream);
+                break;
+            case UiEvent.DismissRing variant_value:
+                stream.WriteInt(45);
                 break;
             case UiEvent.Microphone variant_value:
-                stream.WriteInt(45);
-                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
-                break;
-            case UiEvent.SetRingOnThisComputer variant_value:
                 stream.WriteInt(46);
                 FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
                 break;
-            case UiEvent.Contacts variant_value:
+            case UiEvent.SetRingOnThisComputer variant_value:
                 stream.WriteInt(47);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.On, stream);
+                break;
+            case UiEvent.Contacts variant_value:
+                stream.WriteInt(48);
                 FfiConverterTypeContactsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Blocked variant_value:
-                stream.WriteInt(48);
+                stream.WriteInt(49);
                 FfiConverterTypeBlockedAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Supervise variant_value:
-                stream.WriteInt(49);
+                stream.WriteInt(50);
                 FfiConverterTypeSuperviseAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Hq variant_value:
-                stream.WriteInt(50);
+                stream.WriteInt(51);
                 FfiConverterTypeHqAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Analytics variant_value:
-                stream.WriteInt(51);
+                stream.WriteInt(52);
                 FfiConverterTypeAnalyticsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Marketplace variant_value:
-                stream.WriteInt(52);
+                stream.WriteInt(53);
                 FfiConverterTypeMarketplaceAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Billing variant_value:
-                stream.WriteInt(53);
+                stream.WriteInt(54);
                 FfiConverterTypeBillingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Workflows variant_value:
-                stream.WriteInt(54);
+                stream.WriteInt(55);
                 FfiConverterTypeWorkflowsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Scheduling variant_value:
-                stream.WriteInt(55);
+                stream.WriteInt(56);
                 FfiConverterTypeSchedulingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.SchedulingAdmin variant_value:
-                stream.WriteInt(56);
+                stream.WriteInt(57);
                 FfiConverterTypeSchedulingAdminAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Desk variant_value:
-                stream.WriteInt(57);
+                stream.WriteInt(58);
                 FfiConverterTypeDeskAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Support variant_value:
-                stream.WriteInt(58);
+                stream.WriteInt(59);
                 FfiConverterTypeSupportAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Rooms variant_value:
-                stream.WriteInt(59);
+                stream.WriteInt(60);
                 FfiConverterTypeRoomsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Composer variant_value:
-                stream.WriteInt(60);
+                stream.WriteInt(61);
                 FfiConverterTypeComposerAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Settings variant_value:
-                stream.WriteInt(61);
+                stream.WriteInt(62);
                 FfiConverterTypeSettingsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Persona variant_value:
-                stream.WriteInt(62);
+                stream.WriteInt(63);
                 FfiConverterTypePersonaAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.VoiceStudio variant_value:
-                stream.WriteInt(63);
+                stream.WriteInt(64);
                 FfiConverterTypeVoiceStudioAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.CallHandling variant_value:
-                stream.WriteInt(64);
+                stream.WriteInt(65);
                 FfiConverterTypeCallHandlingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Routing variant_value:
-                stream.WriteInt(65);
+                stream.WriteInt(66);
                 FfiConverterTypeRoutingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Directory variant_value:
-                stream.WriteInt(66);
+                stream.WriteInt(67);
                 FfiConverterTypeDirectoryAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Tools variant_value:
-                stream.WriteInt(67);
+                stream.WriteInt(68);
                 FfiConverterTypeToolsAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Knowledge variant_value:
-                stream.WriteInt(68);
+                stream.WriteInt(69);
                 FfiConverterTypeKnowledgeAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Messaging variant_value:
-                stream.WriteInt(69);
+                stream.WriteInt(70);
                 FfiConverterTypeMessagingAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Members variant_value:
-                stream.WriteInt(70);
+                stream.WriteInt(71);
                 FfiConverterTypeMembersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             case UiEvent.Numbers variant_value:
-                stream.WriteInt(71);
+                stream.WriteInt(72);
                 FfiConverterTypeNumbersAction.INSTANCE.Write(variant_value.Action, stream);
                 break;
             default:
@@ -49000,6 +50498,37 @@ class FfiConverterOptionalString: FfiConverterRustBuffer<string?> {
         } else {
             stream.WriteByte(1);
             FfiConverterString.INSTANCE.Write((string)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalByteArray: FfiConverterRustBuffer<byte[]?> {
+    public static FfiConverterOptionalByteArray INSTANCE = new FfiConverterOptionalByteArray();
+
+    public override byte[]? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterByteArray.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(byte[]? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterByteArray.INSTANCE.AllocationSize((byte[])value);
+        }
+    }
+
+    public override void Write(byte[]? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterByteArray.INSTANCE.Write((byte[])value, stream);
         }
     }
 }
@@ -49651,6 +51180,37 @@ class FfiConverterOptionalTypeCreatorCellView: FfiConverterRustBuffer<CreatorCel
         } else {
             stream.WriteByte(1);
             FfiConverterTypeCreatorCellView.INSTANCE.Write((CreatorCellView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeDeleteConfirmView: FfiConverterRustBuffer<DeleteConfirmView?> {
+    public static FfiConverterOptionalTypeDeleteConfirmView INSTANCE = new FfiConverterOptionalTypeDeleteConfirmView();
+
+    public override DeleteConfirmView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeDeleteConfirmView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(DeleteConfirmView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeDeleteConfirmView.INSTANCE.AllocationSize((DeleteConfirmView)value);
+        }
+    }
+
+    public override void Write(DeleteConfirmView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeDeleteConfirmView.INSTANCE.Write((DeleteConfirmView)value, stream);
         }
     }
 }
@@ -50929,6 +52489,37 @@ class FfiConverterOptionalTypeReassignDialogView: FfiConverterRustBuffer<Reassig
 
 
 
+class FfiConverterOptionalTypeReauthView: FfiConverterRustBuffer<ReauthView?> {
+    public static FfiConverterOptionalTypeReauthView INSTANCE = new FfiConverterOptionalTypeReauthView();
+
+    public override ReauthView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeReauthView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(ReauthView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeReauthView.INSTANCE.AllocationSize((ReauthView)value);
+        }
+    }
+
+    public override void Write(ReauthView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeReauthView.INSTANCE.Write((ReauthView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeRegistrationsTabView: FfiConverterRustBuffer<RegistrationsTabView?> {
     public static FfiConverterOptionalTypeRegistrationsTabView INSTANCE = new FfiConverterOptionalTypeRegistrationsTabView();
 
@@ -51642,6 +53233,68 @@ class FfiConverterOptionalTypeTranscriptView: FfiConverterRustBuffer<TranscriptV
 
 
 
+class FfiConverterOptionalTypeTwoStepCodesView: FfiConverterRustBuffer<TwoStepCodesView?> {
+    public static FfiConverterOptionalTypeTwoStepCodesView INSTANCE = new FfiConverterOptionalTypeTwoStepCodesView();
+
+    public override TwoStepCodesView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTwoStepCodesView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TwoStepCodesView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTwoStepCodesView.INSTANCE.AllocationSize((TwoStepCodesView)value);
+        }
+    }
+
+    public override void Write(TwoStepCodesView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTwoStepCodesView.INSTANCE.Write((TwoStepCodesView)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeTwoStepScanView: FfiConverterRustBuffer<TwoStepScanView?> {
+    public static FfiConverterOptionalTypeTwoStepScanView INSTANCE = new FfiConverterOptionalTypeTwoStepScanView();
+
+    public override TwoStepScanView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTwoStepScanView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TwoStepScanView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTwoStepScanView.INSTANCE.AllocationSize((TwoStepScanView)value);
+        }
+    }
+
+    public override void Write(TwoStepScanView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTwoStepScanView.INSTANCE.Write((TwoStepScanView)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeUnblockQuestionView: FfiConverterRustBuffer<UnblockQuestionView?> {
     public static FfiConverterOptionalTypeUnblockQuestionView INSTANCE = new FfiConverterOptionalTypeUnblockQuestionView();
 
@@ -51883,6 +53536,37 @@ class FfiConverterOptionalTypeSchedulingState: FfiConverterRustBuffer<Scheduling
         } else {
             stream.WriteByte(1);
             FfiConverterTypeSchedulingState.INSTANCE.Write((SchedulingState)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeTwoStepChangeView: FfiConverterRustBuffer<TwoStepChangeView?> {
+    public static FfiConverterOptionalTypeTwoStepChangeView INSTANCE = new FfiConverterOptionalTypeTwoStepChangeView();
+
+    public override TwoStepChangeView? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTwoStepChangeView.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TwoStepChangeView? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTwoStepChangeView.INSTANCE.AllocationSize((TwoStepChangeView)value);
+        }
+    }
+
+    public override void Write(TwoStepChangeView? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTwoStepChangeView.INSTANCE.Write((TwoStepChangeView)value, stream);
         }
     }
 }
@@ -54643,6 +56327,52 @@ class FfiConverterSequenceTypePlanOptionView: FfiConverterRustBuffer<PlanOptionV
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypePlanOptionView.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeReauthChoiceView: FfiConverterRustBuffer<ReauthChoiceView[]> {
+    public static FfiConverterSequenceTypeReauthChoiceView INSTANCE = new FfiConverterSequenceTypeReauthChoiceView();
+
+    public override ReauthChoiceView[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        var result = new ReauthChoiceView[length];
+        var readFn = FfiConverterTypeReauthChoiceView.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ReauthChoiceView[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeReauthChoiceView.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ReauthChoiceView[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeReauthChoiceView.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

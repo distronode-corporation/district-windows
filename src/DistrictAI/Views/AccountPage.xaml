@@ -110,6 +110,18 @@
                 <TextBlock
                     AutomationProperties.HeadingLevel="Level2"
                     Style="{StaticResource SectionHeaderStyle}"
+                    Text="{x:Bind ViewModel.TwoStepTitle, Mode=OneWay}" />
+                <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.TwoStepCaption, Mode=OneWay}" />
+                <Button
+                    AutomationProperties.AutomationId="TwoStepButton"
+                    AutomationProperties.Name="{x:Bind ViewModel.TwoStepTitle, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.OpenTwoStepCommand}"
+                    Content="{x:Bind ViewModel.TwoStepTitle, Mode=OneWay}"
+                    ContentTemplate="{StaticResource WrappingLabelTemplate}" />
+
+                <TextBlock
+                    AutomationProperties.HeadingLevel="Level2"
+                    Style="{StaticResource SectionHeaderStyle}"
                     Text="{x:Bind l10n:S.AccountSignOutTitle}" />
                 <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.SignOutCaption, Mode=OneWay}" />
                 <Button
@@ -123,6 +135,7 @@
                     Text="{x:Bind l10n:S.AccountDeleteTitle}" />
                 <TextBlock Style="{StaticResource QuietTextStyle}" Text="{x:Bind ViewModel.DeleteAccountCaption, Mode=OneWay}" />
                 <Button
+                    AutomationProperties.AutomationId="DeleteAccountButton"
                     AutomationProperties.Name="{x:Bind l10n:S.AccountDelete}"
                     Command="{x:Bind ViewModel.DeleteAccountCommand}"
                     Content="{x:Bind l10n:S.AccountDelete}" />

@@ -882,7 +882,7 @@ public sealed class InboxViewModelTests
 public sealed class AccountViewModelTests
 {
     private static AccountView View(string? name = null, string? email = null, bool? ring = null, string? ringMessage = null, bool? purchases = null) =>
-        new("1.2.0", "dev-1", "user-1", email, name, "Sign out of this computer.", "Every signed-in device.", "On the web.", ring, "Ring on this computer", "Calls ring here.", ringMessage,
+        new("1.2.0", "dev-1", "user-1", email, name, "Sign out of this computer.", "Every signed-in device.", "Two-step verification", "Ask for a code.", "Delete it for good.", ring, "Ring on this computer", "Calls ring here.", ringMessage,
             purchases, "Purchases on this computer", "Signs you in afresh each time.", "Sign in every time", "Off");
 
     [Fact]
@@ -933,7 +933,9 @@ public sealed class AccountViewModelTests
         Assert.Equal("dev-1", account.DeviceId);
         Assert.Equal("Every signed-in device.", account.DevicesCaption);
         Assert.Equal("Sign out of this computer.", account.SignOutCaption);
-        Assert.Equal("On the web.", account.DeleteAccountCaption);
+        Assert.Equal("Two-step verification", account.TwoStepTitle);
+        Assert.Equal("Ask for a code.", account.TwoStepCaption);
+        Assert.Equal("Delete it for good.", account.DeleteAccountCaption);
         Assert.True(account.RingVisible);
         Assert.True(account.RingOn);
         Assert.Equal("Ring on this computer", account.RingLabel);
@@ -972,16 +974,25 @@ public sealed class AccountViewModelTests
     {
         var account = new AccountViewModel(new FakeStartupTask(), Crash.Reports());
         account.OpenDevicesCommand.Execute(null);
+        account.OpenTwoStepCommand.Execute(null);
         account.SignOutCommand.Execute(null);
         account.DeleteAccountCommand.Execute(null);
 
         var (context, sink) = Pages.Context();
         account.Attach(context);
         account.OpenDevicesCommand.Execute(null);
+        account.OpenTwoStepCommand.Execute(null);
         account.SignOutCommand.Execute(null);
         account.DeleteAccountCommand.Execute(null);
 
-        Assert.Equal([new UiEvent.OpenDevices(), new UiEvent.SignOut(), new UiEvent.DeleteAccount()], sink.Sent);
+        Assert.Equal(
+            [
+                new UiEvent.OpenDevices(),
+                new UiEvent.TwoStep(new TwoStepAction.Open()),
+                new UiEvent.SignOut(),
+                new UiEvent.AccountDeletion(new DeleteAccountAction.Open()),
+            ],
+            sink.Sent);
     }
 
     [Fact]
