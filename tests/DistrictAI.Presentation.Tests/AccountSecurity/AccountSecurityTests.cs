@@ -47,6 +47,12 @@ internal sealed class SecretReadingSink : ICoreSink
     }
 }
 
+/// <summary>A core that is gone: every send throws.</summary>
+internal sealed class ThrowingSink : ICoreSink
+{
+    public void Send(UiEvent uiEvent) => throw new InvalidOperationException("the core is gone");
+}
+
 /// <summary>A browser that opens everything, or nothing.</summary>
 internal sealed class AnsweringBrowser(bool opens) : IBrowser
 {
@@ -680,6 +686,8 @@ public sealed class DeleteAccountViewModelTests
     public void TheLastStepSendsTheTypedAddressOnce()
     {
         var (screen, sink) = Make();
+        var cleared = 0;
+        screen.EmailCleared += (_, _) => cleared++;
         screen.Show(A.Deletion(DeleteAccountStepView.Confirm));
         Assert.True(screen.IsConfirm);
         Assert.False(screen.Reauth.IsShown);
@@ -688,14 +696,30 @@ public sealed class DeleteAccountViewModelTests
         Assert.Equal("Your email address", screen.EmailLabel);
         Assert.Equal("Delete my account", screen.SubmitLabel);
         Assert.False(screen.Delete("  "));
+        Assert.Equal(0, cleared);
         Assert.True(screen.Delete("ada@example.com"));
+        // The box empties as the address goes.
+        Assert.Equal(1, cleared);
 
         screen.Show(A.Deletion(DeleteAccountStepView.Confirm, busy: true));
         Assert.Equal("Deleting…", screen.SubmitLabel);
         Assert.False(screen.Enabled);
         Assert.False(screen.Delete("ada@example.com"));
+        Assert.Equal(1, cleared);
         Assert.Equal([new UiEvent.AccountDeletion(new DeleteAccountAction.Delete("ada@example.com"))], sink.Sent);
         Assert.Throws<ArgumentNullException>(() => screen.Delete(null!));
+    }
+
+    [Fact]
+    public void AFailedSendStillEmptiesTheAddress()
+    {
+        var screen = new DeleteAccountViewModel();
+        screen.Attach(new PageContext(new ThrowingSink(), new AnsweringBrowser(true)));
+        var cleared = 0;
+        screen.EmailCleared += (_, _) => cleared++;
+        screen.Show(A.Deletion(DeleteAccountStepView.Confirm));
+        Assert.Throws<InvalidOperationException>(() => screen.Delete("ada@example.com"));
+        Assert.Equal(1, cleared);
     }
 
     [Fact]

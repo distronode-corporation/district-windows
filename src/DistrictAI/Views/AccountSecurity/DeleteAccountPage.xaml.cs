@@ -11,8 +11,8 @@ namespace DistrictAI.Views.AccountSecurity;
 /// kept, confirming it is you (<see cref="ReauthPanel"/>), then the account's
 /// email address, typed, and Delete my account. After the deletion the core
 /// signs this computer out and the sign-in page says the account was deleted.
-/// The typed password, code and address leave the page whenever it is not
-/// showing (<see cref="Leave"/>).
+/// The typed password, code and address leave their boxes as they are sent,
+/// and leave the page whenever it is not showing (<see cref="Leave"/>).
 /// </summary>
 public sealed partial class DeleteAccountPage : UserControl
 {

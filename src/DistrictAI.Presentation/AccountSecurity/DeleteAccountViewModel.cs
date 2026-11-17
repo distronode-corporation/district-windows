@@ -12,8 +12,8 @@ namespace DistrictAI.ViewModels.AccountSecurity;
 /// </summary>
 /// <remarks>
 /// The typed address is the box's own, read once by <see cref="Delete"/>.
-/// <see cref="EmailCleared"/> empties the box when the last step goes and
-/// when the page is left.
+/// <see cref="EmailCleared"/> empties the box once the address is sent, when
+/// the last step goes and when the page is left.
 /// </remarks>
 public sealed partial class DeleteAccountViewModel : ObservableObject
 {
@@ -127,8 +127,10 @@ public sealed partial class DeleteAccountViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Deletes the account, confirmed by the typed <paramref name="email"/>.
-    /// Nothing goes while something is on its way or the box is empty.
+    /// Deletes the account, confirmed by the typed <paramref name="email"/>,
+    /// and empties the box as the address goes (<see cref="EmailCleared"/>),
+    /// even when the send throws, as the password's box empties. Nothing goes
+    /// while something is on its way or the box is empty.
     /// </summary>
     internal bool Delete(string email)
     {
@@ -137,7 +139,14 @@ public sealed partial class DeleteAccountViewModel : ObservableObject
         {
             return false;
         }
-        _context?.Send(Event(new DeleteAccountAction.Delete(email)));
+        try
+        {
+            _context?.Send(Event(new DeleteAccountAction.Delete(email)));
+        }
+        finally
+        {
+            EmailCleared?.Invoke(this, EventArgs.Empty);
+        }
         return true;
     }
 

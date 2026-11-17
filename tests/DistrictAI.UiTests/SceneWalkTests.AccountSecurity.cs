@@ -1,5 +1,6 @@
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Input;
+using FlaUI.Core.Patterns;
 using Xunit;
 using static DistrictAI.UiTests.Walk;
 
@@ -133,7 +134,12 @@ public sealed partial class SceneWalkTests
         Thread.Sleep(500);
     }
 
-    /// <summary>Whether each element with one of <paramref name="ids"/> lies across the client area, its label wrapped rather than cut.</summary>
+    /// <summary>
+    /// Whether each element with one of <paramref name="ids"/> lies across
+    /// the client area, its label wrapped rather than cut. One below the fold
+    /// is scrolled to first, as a member scrolls to it: off screen, UI
+    /// Automation gives it no rectangle to measure.
+    /// </summary>
     private static void FitsAcross(InstalledApp app, nint handle, string[] ids, string where, List<string> problems)
     {
         _ = Native.GetClientRect(handle, out var client);
@@ -148,12 +154,46 @@ public sealed partial class SceneWalkTests
             }
             foreach (var element in found)
             {
+                // UI Automation's "no scroll" for the axis left alone.
+                const double NoScroll = -1;
+                var scroller = BringOnScreen(app, element);
                 var box = element.BoundingRectangle;
                 if (box.Width <= 0 || box.Left < origin.X || box.Right > origin.X + client.Width)
                 {
                     problems.Add(FormattableString.Invariant($"{where}: {id} \"{NameOf(element)}\" is {box.Left - origin.X}..{box.Right - origin.X} across a client area {client.Width} wide"));
                 }
+                scroller?.SetScrollPercent(NoScroll, 0);
             }
         }
+    }
+
+    /// <summary>
+    /// Scrolls the scroll viewer holding <paramref name="element"/>, from the
+    /// top down, until the element is on screen, and returns that scroll
+    /// viewer; null when the element is on screen already or no scroll viewer
+    /// holds it.
+    /// </summary>
+    private static IScrollPattern? BringOnScreen(InstalledApp app, AutomationElement element)
+    {
+        // UI Automation's "no scroll" for the axis left alone.
+        const double NoScroll = -1;
+        if (!element.Properties.IsOffscreen.ValueOrDefault)
+        {
+            return null;
+        }
+        var walker = app.Automation.TreeWalkerFactory.GetControlViewWalker();
+        for (var at = walker.GetParent(element); at is not null; at = walker.GetParent(at))
+        {
+            if (at.Patterns.Scroll.PatternOrDefault is { } scroll && scroll.VerticallyScrollable.ValueOrDefault)
+            {
+                for (var percent = 0; percent <= 100 && element.Properties.IsOffscreen.ValueOrDefault; percent += 10)
+                {
+                    scroll.SetScrollPercent(NoScroll, percent);
+                    Thread.Sleep(150);
+                }
+                return scroll;
+            }
+        }
+        return null;
     }
 }
