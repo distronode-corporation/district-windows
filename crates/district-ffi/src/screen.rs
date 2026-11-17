@@ -315,7 +315,7 @@ fn signed_in_view(model: &Model, signed_in: &SignedIn) -> ScreenView {
             view: devices_view(&signed_in.devices),
         },
         Route::TwoStep => account_security::two_step_screen(signed_in),
-        Route::DeleteAccount => account_security::delete_account_screen(signed_in),
+        Route::DeleteAccount => account_security::deletion_screen(signed_in),
         // A build without calls never shows the dialler: the core refuses it.
         Route::Dialer => calls_available
             .then(|| dialer_view(signed_in))

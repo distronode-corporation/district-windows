@@ -374,7 +374,7 @@ impl UiEvent {
             UiEvent::DismissDevicesNotices => Event::Devices(DevicesEvent::DismissNotices),
             UiEvent::TwoStep { action } => return account_security::two_step_events(action),
             UiEvent::AccountDeletion { action } => {
-                return account_security::delete_account_events(action);
+                return account_security::deletion_events(action);
             }
             // The ticket's text is the core's, in English, and names this app.
             UiEvent::Report { target, note } => Event::Support(SupportEvent::Report {

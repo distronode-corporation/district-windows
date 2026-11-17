@@ -68,6 +68,11 @@ pub(crate) const WORKSPACE_NAME: &str = "Example Dental";
 /// The scheduler sign-in a calendar connection starts with: never opened.
 const SIGN_IN_LINK: &str = "https://scheduler.example.com/v1/auth/sso?scripted";
 
+/// The one authenticator code the scene refuses, as the service refuses a
+/// wrong one (`mfa_code_invalid`), so the walk sees the scan step stay with
+/// its failure. Any other code turns two-step verification on.
+const REFUSED_TWO_STEP_CODE: &str = "000000";
+
 /// A scene the core can run.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Scene {
@@ -341,14 +346,20 @@ macro_rules! fixture {
 impl Scripted {
     /// The scene's answer to a two-step verification effect that depends on
     /// what the walk did, or `None`: the status once it is on, and the
-    /// changes, which turn it on and off. The rest of the screen's answers
-    /// are [`signed_in`]'s.
+    /// changes, which turn it on (with any code but [`REFUSED_TWO_STEP_CODE`])
+    /// and off. The rest of the screen's answers are [`signed_in`]'s.
     fn two_step_answer(&self, effect: &Effect) -> Option<Event> {
         Some(match effect {
             Effect::LoadTwoStep { ticket } if self.two_step_on.load(Ordering::Relaxed) => {
                 Event::TwoStepLoaded {
                     ticket: *ticket,
                     result: decode(fixture!("district-mfa-status.json")),
+                }
+            }
+            Effect::ConfirmTwoStep { ticket, code } if code.expose() == REFUSED_TWO_STEP_CODE => {
+                Event::TwoStepConfirmed {
+                    ticket: *ticket,
+                    result: Err(code_refused()),
                 }
             }
             Effect::ConfirmTwoStep { ticket, .. } => {
@@ -397,6 +408,18 @@ fn broken() -> ApiError {
     ApiError::Server {
         status: 500,
         detail: ErrorDetail::default(),
+    }
+}
+
+/// The service's refusal of a wrong authenticator code.
+fn code_refused() -> ApiError {
+    ApiError::Envelope {
+        status: 400,
+        code: "mfa_code_invalid".to_owned(),
+        detail: ErrorDetail {
+            code: Some("mfa_code_invalid".to_owned()),
+            ..ErrorDetail::default()
+        },
     }
 }
 
@@ -1345,8 +1368,17 @@ mod tests {
             for _ in 0..1000 {
                 if let Some(effect) = pending.pop() {
                     if let Some(event) = self.scripted.answer(effect) {
+                        // The refused code is the scene's one refusal on
+                        // purpose; any other failure is a fixture that did
+                        // not decode.
+                        let refused = match &event {
+                            Event::TwoStepConfirmed {
+                                result: Err(error), ..
+                            } => *error == code_refused(),
+                            _ => false,
+                        };
                         assert!(
-                            !format!("{event:?}").contains("result: Err("),
+                            refused || !format!("{event:?}").contains("result: Err("),
                             "an answer did not decode: {event:?}"
                         );
                         pending.extend(self.model.update(event));
@@ -1389,9 +1421,9 @@ mod tests {
     }
 
     /// Two-step verification as the walk turns it on and off: off at first,
-    /// any password stands, the example key, the codes, then on; turning it
-    /// off needs only the re-authentication. The deletion screen reaches its
-    /// last step, and its button is never answered.
+    /// any password stands, the example key, a refused code, the codes, then
+    /// on; turning it off needs only the re-authentication. The deletion
+    /// screen reaches its last step, and its button is never answered.
     #[test]
     fn two_step_verification_turns_on_and_off_and_nothing_is_deleted() {
         use crate::account_security::{
@@ -1431,6 +1463,18 @@ mod tests {
         password(&mut played);
         let scan = view(&played).scan.expect("the example key");
         assert_eq!(scan.key, b"JBSWY3DPEHPK3PXP");
+        two(
+            &mut played,
+            A::Confirm {
+                code: REFUSED_TWO_STEP_CODE.as_bytes().to_vec(),
+            },
+        );
+        assert_eq!(view(&played).step, TwoStepStepView::Scan);
+        assert_eq!(
+            view(&played).failure.as_deref(),
+            Some("That code is not valid, or it has already been used.")
+        );
+        assert!(!view(&played).busy);
         two(
             &mut played,
             A::Confirm {

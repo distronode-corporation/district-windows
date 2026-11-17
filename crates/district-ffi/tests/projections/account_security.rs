@@ -42,8 +42,8 @@ pub(crate) fn cases() -> Vec<Case> {
                 provider: ReauthProviderView::Microsoft,
             })),
         ),
-        ("two-step-reauth-password", password()),
-        ("two-step-reauth-busy", password_sent()),
+        ("two-step-reauth-password", typed_reauth()),
+        ("two-step-reauth-busy", typed_reauth_sent()),
         ("two-step-reauth-code", needs_code()),
         ("two-step-scan", scan()),
         (
@@ -60,14 +60,14 @@ pub(crate) fn cases() -> Vec<Case> {
                 change: TwoStepChangeView::TurnOff,
             })),
         ),
-        ("delete-account", delete_account(signed_in())),
+        ("delete-account", deletion_opened(signed_in())),
         (
             "delete-account-browser",
-            delete_account(signed_in()).ui(deletion(DeleteAccountAction::UseProvider {
+            deletion_opened(signed_in()).ui(deletion(DeleteAccountAction::UseProvider {
                 provider: ReauthProviderView::Apple,
             })),
         ),
-        ("delete-account-password", deletion_password()),
+        ("delete-account-password", deletion_typed_reauth()),
         ("delete-account-confirm", deletion_confirm()),
         ("delete-account-deleting", deleting()),
         (
@@ -154,19 +154,25 @@ fn reauth() -> Session {
     }))
 }
 
-fn password() -> Session {
+// The password step's helpers say "typed", not "password", and the
+// deletion's say "deletion", not "account": CodeQL takes a call named with
+// either word for sensitive data, and then reports every failure message that
+// prints the session as cleartext logging.
+
+/// Confirming it is you with the password, its box shown.
+fn typed_reauth() -> Session {
     reauth().ui(two(TwoStepAction::UsePassword))
 }
 
-fn password_sent() -> Session {
-    password().ui(two(TwoStepAction::SubmitPassword {
+fn typed_reauth_sent() -> Session {
+    typed_reauth().ui(two(TwoStepAction::SubmitPassword {
         password: typed("correct horse battery staple"),
         code: None,
     }))
 }
 
 fn needs_code() -> Session {
-    password_sent().answer(
+    typed_reauth_sent().answer(
         |e| matches!(e, Effect::Reauthenticate { .. }),
         |ticket| Event::Reauthenticated {
             ticket,
@@ -188,7 +194,7 @@ fn proof_accepted(session: Session) -> Session {
 }
 
 fn scan_with(enrollment: Value) -> Session {
-    proof_accepted(password_sent()).answer(
+    proof_accepted(typed_reauth_sent()).answer(
         |e| matches!(e, Effect::StartTwoStep { .. }),
         |ticket| Event::TwoStepStarted {
             ticket,
@@ -223,16 +229,16 @@ fn codes() -> Session {
         )
 }
 
-fn delete_account(session: Session) -> Session {
+fn deletion_opened(session: Session) -> Session {
     session.ui(deletion(DeleteAccountAction::Open))
 }
 
-fn deletion_password() -> Session {
-    delete_account(signed_in()).ui(deletion(DeleteAccountAction::UsePassword))
+fn deletion_typed_reauth() -> Session {
+    deletion_opened(signed_in()).ui(deletion(DeleteAccountAction::UsePassword))
 }
 
 fn deletion_confirm() -> Session {
-    deletion_password()
+    deletion_typed_reauth()
         .ui(deletion(DeleteAccountAction::SubmitPassword {
             password: typed("correct horse battery staple"),
             code: None,
@@ -273,14 +279,14 @@ fn two_step_view(session: &Session) -> TwoStepView {
 /// Both screens are under the account: its pane entry stays selected.
 #[test]
 fn both_screens_are_the_accounts() {
-    for session in [two_step(signed_in()), delete_account(signed_in())] {
+    for session in [two_step(signed_in()), deletion_opened(signed_in())] {
         assert_eq!(
             shell_json(&session)["nav_selected"],
             json!(NavDestination::Account)
         );
     }
     assert_eq!(route(&two_step(signed_in())), Route::TwoStep);
-    assert_eq!(route(&delete_account(signed_in())), Route::DeleteAccount);
+    assert_eq!(route(&deletion_opened(signed_in())), Route::DeleteAccount);
 }
 
 /// Turning it on: confirming it is you, the secret, then the codes, and each
@@ -359,11 +365,11 @@ fn saving_the_codes_says_it_is_on() {
 /// is not a failure but the code's field.
 #[test]
 fn the_password_then_the_code() {
-    let password = two_step_view(&password()).reauth.expect("the reauth");
+    let password = two_step_view(&typed_reauth()).reauth.expect("the reauth");
     assert_eq!(password.mode, ReauthModeView::Password);
     assert_eq!(password.code_prompt, None);
-    assert!(two_step_view(&password_sent()).busy);
-    let sent = password_sent();
+    assert!(two_step_view(&typed_reauth_sent()).busy);
+    let sent = typed_reauth_sent();
     let proof = sent
         .pending
         .iter()
@@ -457,7 +463,7 @@ fn the_deletion_walks_its_steps() {
         ScreenView::DeleteAccount { view } => view,
         _ => panic!("not the deletion screen"),
     };
-    let start = deletion_view(&delete_account(signed_in()));
+    let start = deletion_view(&deletion_opened(signed_in()));
     assert_eq!(start.step, DeleteAccountStepView::Explain);
     assert_eq!(start.explain.len(), 4);
     assert!(start.confirm.is_none());

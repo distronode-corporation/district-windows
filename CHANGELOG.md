@@ -63,9 +63,8 @@ out.
   last part of its address, or as "attachment". A message with a file among its
   attachments is described as "2 attachments", no longer "2 images attached"; a message
   of images alone reads as before.
-- district-core-rust 13.0.0, pinned by its commit on the core's main until its v13.0.0
-  tag is cut: two-step verification and the account's deletion, and their words in
-  English and Canadian French.
+- district-core-rust 13.0.0: two-step verification and the account's deletion, and their
+  words in English and Canadian French.
 
 ## [3.4.0] - 2026-11-15
 

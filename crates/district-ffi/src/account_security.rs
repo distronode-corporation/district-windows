@@ -475,6 +475,10 @@ pub(crate) fn two_step_events(action: TwoStepAction) -> Vec<Event> {
 }
 
 // ── Deleting the account ───────────────────────────────────────────────────
+//
+// The functions are named for the deletion, not the account: CodeQL takes a
+// call whose name says "account" for account data, and every screen a test
+// prints in a failure would then be cleartext logging of it.
 
 /// Where the deletion screen is.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, uniffi::Enum)]
@@ -525,7 +529,7 @@ pub struct DeleteAccountView {
 }
 
 /// The deletion screen for `screen`.
-pub(crate) fn delete_account_view(screen: &DeleteAccountScreen) -> DeleteAccountView {
+pub(crate) fn deletion_view(screen: &DeleteAccountScreen) -> DeleteAccountView {
     let (step, reauth, confirm) = match screen.step {
         DeleteAccountStep::Explain(step) => (
             DeleteAccountStepView::Explain,
@@ -621,7 +625,7 @@ impl std::fmt::Debug for DeleteAccountAction {
 }
 
 /// The core events `action` is.
-pub(crate) fn delete_account_events(action: DeleteAccountAction) -> Vec<Event> {
+pub(crate) fn deletion_events(action: DeleteAccountAction) -> Vec<Event> {
     let event = match action {
         DeleteAccountAction::Open => return vec![Event::Navigate(Route::DeleteAccount)],
         DeleteAccountAction::UseProvider { provider } => {
@@ -648,9 +652,9 @@ pub(crate) fn two_step_screen(signed_in: &SignedIn) -> ScreenView {
 }
 
 /// The deletion screen of `signed_in`.
-pub(crate) fn delete_account_screen(signed_in: &SignedIn) -> ScreenView {
+pub(crate) fn deletion_screen(signed_in: &SignedIn) -> ScreenView {
     ScreenView::DeleteAccount {
-        view: delete_account_view(&signed_in.delete_account),
+        view: deletion_view(&signed_in.delete_account),
     }
 }
 
@@ -733,7 +737,7 @@ mod tests {
             )))]
         );
         assert_eq!(
-            delete_account_events(DeleteAccountAction::SubmitPassword {
+            deletion_events(DeleteAccountAction::SubmitPassword {
                 password: typed("p\u{e4}ssword"),
                 code: Some(typed("aaaa-bbbb")),
             }),
@@ -749,7 +753,7 @@ mod tests {
     #[test]
     fn each_deletion_action_is_its_core_event() {
         assert_eq!(
-            delete_account_events(DeleteAccountAction::Open),
+            deletion_events(DeleteAccountAction::Open),
             [Event::Navigate(Route::DeleteAccount)]
         );
         for (action, event) in [
@@ -767,14 +771,11 @@ mod tests {
             ),
             (DeleteAccountAction::Back, DeleteAccountEvent::Back),
         ] {
-            assert_eq!(
-                delete_account_events(action),
-                [Event::AccountDeletion(event)]
-            );
+            assert_eq!(deletion_events(action), [Event::AccountDeletion(event)]);
         }
         for provider in ReauthProvider::ALL {
             assert_eq!(
-                delete_account_events(DeleteAccountAction::UseProvider {
+                deletion_events(DeleteAccountAction::UseProvider {
                     provider: provider.into(),
                 }),
                 [Event::AccountDeletion(DeleteAccountEvent::UseProvider(

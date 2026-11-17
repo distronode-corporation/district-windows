@@ -8,11 +8,12 @@ namespace DistrictAI.UiTests;
 /// <summary>
 /// Two-step verification and Delete account, below the account page, in the
 /// scripted scene (scripted.rs: off at first, any password stands, the
-/// core's example key and placeholder codes, a deletion never answered), in
-/// English and in Canadian French. Two-step verification is turned on through
-/// the password: confirming it is you, the QR code and the key, the first
-/// code, the recovery codes, then on. The deletion screen reaches its last
-/// step, and Delete my account is never pressed.
+/// core's example key and placeholder codes, one code refused, a deletion
+/// never answered), in English and in Canadian French. Two-step verification
+/// is turned on through the password: confirming it is you, the QR code and
+/// the key, a refused code, the first code, the recovery codes, then on. The
+/// deletion screen reaches its last step, and Delete my account is never
+/// pressed.
 /// </summary>
 /// <remarks>
 /// At each step, in a window <see cref="SecurityNarrowWidth"/> wide, every
@@ -27,6 +28,9 @@ public sealed partial class SceneWalkTests
     public const int SecurityNarrowWidth = 400;
 
     private const string ScenePassword = "example password";
+
+    /// <summary>The one authenticator code the scene refuses (scripted.rs, <c>REFUSED_TWO_STEP_CODE</c>).</summary>
+    private const string RefusedCode = "000000";
 
     [Theory]
     [InlineData("en")]
@@ -57,11 +61,16 @@ public sealed partial class SceneWalkTests
         _ = app.FindById("TwoStepQr", PageTimeout);
         ShootSecurity(app, handle, shots, "two-step-scan", language, problems, "TwoStepCopyKey", "TwoStepOpen", "TwoStepConfirm", "TwoStepBack");
 
+        // A code the scene refuses: the scan step stays with its failure, and
+        // the typed code left its box as it went, while the box still shows.
+        app.FindById("TwoStepCode", PageTimeout, onScreen: false).AsTextBox().Text = RefusedCode;
+        Press(app.FindById("TwoStepConfirm", PageTimeout, onScreen: false), allow: "the scene's own confirm of two-step verification, which refuses this code; nothing reaches the service");
+        Expect(app, () => app.TryFindById("TwoStepProblem", onScreen: false) is { } problem && NameOf(problem).Length > 0, "the refused code's failure");
+        Assert.Empty(app.FindById("TwoStepCode", PageTimeout, onScreen: false).AsTextBox().Text);
+
         app.FindById("TwoStepCode", PageTimeout, onScreen: false).AsTextBox().Text = "123456";
         Press(app.FindById("TwoStepConfirm", PageTimeout, onScreen: false), allow: "the scene's own confirm of two-step verification; nothing reaches the service");
         _ = app.FindById("TwoStepCodes", PageTimeout, onScreen: false);
-        // The typed code left its box as it went.
-        Assert.Empty(app.FindById("TwoStepCode", PageTimeout, onScreen: false).AsTextBox().Text);
         ShootSecurity(app, handle, shots, "two-step-recovery-codes", language, problems, "TwoStepCopyCodes", "TwoStepCodesDone");
 
         Press(app.FindById("TwoStepCodesDone", PageTimeout, onScreen: false));
