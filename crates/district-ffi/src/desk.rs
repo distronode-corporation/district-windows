@@ -1013,14 +1013,35 @@ mod tests {
             })
             .is_empty()
         );
-        let sent = events(DeskAction::UploadLogo {
-            file: file("C:\\logos\\logo.jpg", PNG),
-        });
-        let [Event::Desk(DeskEvent::UploadLogo(logo))] = sent.as_slice() else {
-            panic!("not an upload: {sent:?}");
-        };
-        assert_eq!(logo.mime_type, "image/png");
-        assert_eq!(logo.file_name, "logo.jpg");
+        assert_eq!(
+            events(DeskAction::UploadLogo {
+                file: file("C:\\logos\\logo.jpg", PNG),
+            }),
+            [Event::Desk(DeskEvent::UploadLogo(
+                district_core::PickedAttachment {
+                    file_name: "logo.jpg".to_owned(),
+                    mime_type: "image/png".to_owned(),
+                    bytes: PNG.to_vec(),
+                }
+            ))]
+        );
+    }
+
+    /// A ticket the core has not opened (or another one) shows as being read,
+    /// under the id asked for.
+    #[test]
+    fn a_ticket_not_opened_shows_as_being_read() {
+        let model = crate::calls_live::tests::signed_in_as("agency");
+        let signed_in = crate::calls_live::tests::signed_in(&model);
+        assert_eq!(
+            ticket_screen(&model, signed_in, "t-9"),
+            ScreenView::DeskTicket {
+                view: DeskTicketView {
+                    ticket_id: "t-9".to_owned(),
+                    ..DeskTicketView::default()
+                },
+            }
+        );
     }
 
     /// No screen state at all reads as being read, and the settings offer

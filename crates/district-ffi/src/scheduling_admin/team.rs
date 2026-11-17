@@ -612,3 +612,15 @@ fn archive_view(dialog: &ArchiveDialog) -> TeamArchiveView {
         }),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A person is called by their name, or by their address for a blank one.
+    #[test]
+    fn a_blank_name_is_the_address() {
+        assert_eq!(person("Robin", "robin@example.com"), "Robin");
+        assert_eq!(person("  ", "robin@example.com"), "robin@example.com");
+    }
+}

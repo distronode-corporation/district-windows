@@ -615,6 +615,10 @@ mod tests {
             call_line(&event("call", "missed", "no-answer", Some(0))),
             "Missed call"
         );
+        assert_eq!(
+            call_line(&event("call", "outbound", "completed", None)),
+            "Outgoing call"
+        );
     }
 
     #[test]
@@ -634,6 +638,8 @@ mod tests {
         );
         assert_eq!(file_name("https://cdn.example.com/"), "image");
         assert_eq!(file_name(""), "image");
+        // An address with no path to name (cannot be a base) is unnamed too.
+        assert_eq!(file_name("data:image/png;base64,AAAA"), "image");
         assert_eq!(images_attached(0), None);
         assert_eq!(images_attached(1).as_deref(), Some("1 image attached"));
         assert_eq!(images_attached(3).as_deref(), Some("3 images attached"));

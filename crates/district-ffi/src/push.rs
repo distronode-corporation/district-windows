@@ -350,6 +350,21 @@ mod tests {
 
     use super::*;
 
+    /// The event an update carries. One helper, so the one panic is one place, which
+    /// `an_update_that_is_not_an_event_is_refused` reaches.
+    fn event(update: LiveUpdate) -> TelemetryEnvelope {
+        match update {
+            LiveUpdate::Event(envelope) => envelope,
+            other => panic!("not an event: {other:?}"),
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "not an event")]
+    fn an_update_that_is_not_an_event_is_refused() {
+        event(LiveUpdate::Connected);
+    }
+
     #[test]
     fn a_rings_end_decodes_with_its_reason() {
         assert_eq!(
@@ -391,9 +406,7 @@ mod tests {
         assert!(!cancelled.needs_ring_setting());
         let update = cancelled.live_update("user-1");
         assert_eq!(update.workspace_id, "ws-1");
-        let LiveUpdate::Event(envelope) = update.update else {
-            panic!("not an event");
-        };
+        let envelope = event(update.update);
         assert_eq!(envelope.event_type, TelemetryEventType::CallRingCancelled);
         assert_eq!(envelope.call_id, "call-1");
         assert_eq!(envelope.workspace_id, "ws-1");
@@ -423,9 +436,7 @@ mod tests {
                 r#"{{"type":"call_ring_cancelled","callId":"call-1","workspaceId":"ws-1","reason":"{reason}"}}"#
             );
             let message = decode_push(&payload).expect("a ring's end");
-            let LiveUpdate::Event(envelope) = message.live_update("user-1").update else {
-                panic!("not an event");
-            };
+            let envelope = event(message.live_update("user-1").update);
             assert_eq!(envelope.ring_cancel_reason(), Some(read), "{reason}");
         }
     }
@@ -525,9 +536,7 @@ mod tests {
         assert_eq!(ring.shelf_life(), RING_DEADLINE);
         let update = ring.live_update("user-1");
         assert_eq!(update.workspace_id, "ws-1");
-        let LiveUpdate::Event(envelope) = update.update else {
-            panic!("not an event");
-        };
+        let envelope = event(update.update);
         assert_eq!(envelope.event_type, TelemetryEventType::CallRinging);
         assert_eq!(envelope.call_id, "call-1");
         assert_eq!(envelope.data["userIds"], json!(["user-1"]));
@@ -537,9 +546,7 @@ mod tests {
             workspace_id: "ws-2".to_owned(),
         };
         assert_eq!(message.shelf_life(), MESSAGE_SHELF_LIFE);
-        let LiveUpdate::Event(envelope) = message.live_update("user-1").update else {
-            panic!("not an event");
-        };
+        let envelope = event(message.live_update("user-1").update);
         assert_eq!(envelope.event_type, TelemetryEventType::MessageReceived);
         assert_eq!(envelope.call_id, "msg-1");
         assert_eq!(envelope.workspace_id, "ws-2");
@@ -620,9 +627,14 @@ mod tests {
             sent: Mutex::new(Vec::new()),
             refuse: true,
         };
-        assert!(matches!(
+        assert_eq!(
             register_channel(&refusing, "https://a.notify.windows.com/w/".to_owned()).await,
-            PushRegistration::Failed { .. }
-        ));
+            PushRegistration::Failed {
+                reason: ApiError::Unconfirmed {
+                    endpoint: Endpoint::PushRegister,
+                }
+                .to_string(),
+            }
+        );
     }
 }

@@ -468,7 +468,7 @@ pub(crate) fn iso_utc(time: SystemTime) -> String {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use district_api::{ApiError, RetryReason};
     use district_auth::AccessClaims;
     use district_core::{
@@ -490,7 +490,7 @@ mod tests {
 
     /// Signed in, with calls available, as `role` in "Example Dental" (open)
     /// and "Bravo Client".
-    fn signed_in_as(role: &str) -> Model {
+    pub(crate) fn signed_in_as(role: &str) -> Model {
         let (mut model, effects) = Model::new(CoreConfig {
             web_base_url: "https://www.distronode.com".to_owned(),
             app_version: "0.1.0".to_owned(),
@@ -529,7 +529,8 @@ mod tests {
         model
     }
 
-    fn signed_in(model: &Model) -> &SignedIn {
+    /// The session of a signed-in `model`; also the other areas' tests'.
+    pub(crate) fn signed_in(model: &Model) -> &SignedIn {
         let SessionState::SignedIn(signed_in) = model.session() else {
             panic!("not signed in")
         };

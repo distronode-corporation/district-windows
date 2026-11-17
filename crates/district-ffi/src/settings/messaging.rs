@@ -504,7 +504,7 @@ impl fmt::Debug for MessagingAction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::EditKey { field, .. } => f
-                .debug_struct("EditKey")
+                .debug_struct(action_name(self))
                 .field("field", field)
                 .field("value", &"<redacted>")
                 .finish(),
@@ -949,7 +949,7 @@ mod tests {
             }
         );
         assert!(!printed.contains("tok-very-secret"), "{printed}");
-        assert!(printed.contains("AuthToken"));
+        assert!(printed.starts_with("EditKey") && printed.contains("AuthToken"));
         for action in [
             MessagingAction::Open,
             MessagingAction::StartAdd,

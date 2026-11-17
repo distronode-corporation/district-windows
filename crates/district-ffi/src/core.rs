@@ -107,7 +107,9 @@ pub enum StartError {
     },
 }
 
-fn setup(what: &str) -> impl FnOnce(String) -> StartError + '_ {
+/// The error for `what` failing, for any error that prints. One generic closure
+/// rather than one per call site, so every site maps its error the same way.
+fn setup<E: std::fmt::Display>(what: &str) -> impl FnOnce(E) -> StartError + '_ {
     move |error| StartError::Setup {
         detail: format!("{what}: {error}"),
     }
@@ -191,7 +193,7 @@ impl SnapshotCell {
                 district_call::CALLS_AVAILABLE,
                 std::time::SystemTime::now(),
             ),
-            screen: session_view(&session, |_| ScreenView::unavailable()),
+            screen: session_view(&session, ScreenView::unavailable_for),
         }))
     }
 
@@ -272,7 +274,7 @@ impl Core {
             .enable_all()
             .thread_name("district-core")
             .build()
-            .map_err(|error| setup("the runtime could not start")(error.to_string()))?;
+            .map_err(setup("the runtime could not start"))?;
         // A scripted build runs the scene its command line names, if any.
         #[cfg(feature = "scripted")]
         if let Some(scene) =
@@ -379,12 +381,13 @@ impl Core {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .clone();
-        let handle = match &*self.lifecycle() {
-            Lifecycle::Running { runtime, .. } => runtime.handle().clone(),
-            Lifecycle::Idle | Lifecycle::Stopped => return PushRegistration::NotStarted,
-        };
-        let Some(registrar) = registrar else {
-            return PushRegistration::NotStarted;
+        // A running core has a registrar unless it plays a scripted scene, which
+        // has none; either way, without both there is nothing to register with.
+        let (handle, registrar) = match (&*self.lifecycle(), registrar) {
+            (Lifecycle::Running { runtime, .. }, Some(registrar)) => {
+                (runtime.handle().clone(), registrar)
+            }
+            _ => return PushRegistration::NotStarted,
         };
         // The client needs the runtime's reactor; the caller's executor is
         // not it.
@@ -519,20 +522,18 @@ fn start_real(
 ) -> Result<(UnboundedSender<Message>, Arc<dyn ChannelRegistrar>), StartError> {
     let data_dir = PathBuf::from(&config.data_dir);
     std::fs::create_dir_all(&data_dir)
-        .map_err(|error| setup("the data directory could not be made")(error.to_string()))?;
+        .map_err(setup("the data directory could not be made"))?;
     let device_id = DeviceIdentity::new(&data_dir)
         .load_or_create()
-        .map_err(|error| setup("this installation's id could not be kept")(error.to_string()))?;
+        .map_err(setup("this installation's id could not be kept"))?;
     let identity = client_identity(&config.app_version);
     let platform = identity.platform;
     let api_config = ApiConfig::new(identity);
     let settings = SettingsFile::load(&data_dir, platform);
-    let config_error =
-        |error: district_api::ConfigError| setup("the API client")(error.to_string());
 
     // The coordinator and the live hub take the runtime they are built in.
     let _entered = runtime.enter();
-    let sign_in = NativeAuthApi::new(&api_config).map_err(config_error)?;
+    let sign_in = NativeAuthApi::new(&api_config).map_err(setup("the API client"))?;
     // One coordinator: every client and the sign-in share its refresh lock,
     // which is what keeps a refresh token from being sent twice.
     let coordinator = TokenRefreshCoordinator::new(
@@ -540,19 +541,19 @@ fn start_real(
         sign_in.clone(),
     );
     let client = || ApiClient::new(api_config.clone(), coordinator.clone());
-    let api = client().map_err(config_error)?;
-    let registrar: Arc<dyn ChannelRegistrar> = Arc::new(client().map_err(config_error)?);
+    let api = client().map_err(setup("the API client"))?;
+    let registrar: Arc<dyn ChannelRegistrar> = Arc::new(client().map_err(setup("the API client"))?);
     let presence = DesktopPresence::new(
-        Arc::new(client().map_err(config_error)?),
+        Arc::new(client().map_err(setup("the API client"))?),
         platform,
         META_CHANNELS,
     );
     // The live updates' credential states its expiry by the service's clock.
     let live_config = LiveConfig {
         clock: Arc::new(coordinator.server_clock()),
-        ..LiveConfig::network().map_err(|error| setup("live updates")(error.to_string()))?
+        ..LiveConfig::network().map_err(setup("live updates"))?
     };
-    let (live, updates) = LiveHub::new(Arc::new(client().map_err(config_error)?), live_config);
+    let (live, updates) = LiveHub::new(Arc::new(client().map_err(setup("the API client"))?), live_config);
     let auth = NativeAuth::new(
         &api_config,
         sign_in.clone(),
@@ -1960,11 +1961,16 @@ mod tests {
         eventually("signed out", || phase(&core) == SessionPhase::SignedOut).await;
         assert!(data.join(district_host::DEVICE_ID_FILE).is_file());
         // Signed out, the service is not asked: there is no bearer to ask with.
-        assert!(matches!(
-            core.register_push_channel("https://a.notify.windows.com/w/".to_owned())
-                .await,
-            PushRegistration::Failed { .. }
-        ));
+        let registered = core
+            .register_push_channel("https://a.notify.windows.com/w/".to_owned())
+            .await;
+        assert_eq!(
+            std::mem::discriminant(&registered),
+            std::mem::discriminant(&PushRegistration::Failed {
+                reason: String::new()
+            }),
+            "{registered:?}"
+        );
         core.shutdown().await;
     }
 

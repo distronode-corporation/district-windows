@@ -620,30 +620,36 @@ mod tests {
                 ..
             }
         ));
-        let RequirementsView::NoRegulation {
-            heading,
-            not_purchasable,
-            ..
-        } = requirements_view(&RequirementsState::NoRegulation {
-            country: "US".to_owned(),
-            purchasable: false,
-        })
-        else {
-            panic!("no regulation");
-        };
-        assert_eq!(heading, "US \u{b7} No registration required");
-        assert!(not_purchasable.is_some());
-        assert!(matches!(
+        assert_eq!(
+            requirements_view(&RequirementsState::NoRegulation {
+                country: "US".to_owned(),
+                purchasable: false,
+            }),
+            RequirementsView::NoRegulation {
+                eyebrow: ns::numbers_requirements_eyebrow(l()).to_owned(),
+                heading: "US \u{b7} No registration required".to_owned(),
+                body: ns::numbers_requirements_none_body(l()).to_owned(),
+                not_purchasable: Some(ns::numbers_requirements_not_purchasable(l()).to_owned()),
+            }
+        );
+        assert_eq!(
             requirements_view(&RequirementsState::Loading),
-            RequirementsView::Loading { .. }
-        ));
+            RequirementsView::Loading {
+                eyebrow: ns::numbers_requirements_eyebrow(l()).to_owned(),
+            }
+        );
 
         let mut admin = NumberAdmin::default();
-        admin.registrations.list = RegistrationList::Failed(failure);
-        assert!(matches!(
+        // Not read yet, the list is loading.
+        assert_eq!(
             registrations_view(&admin, true).list_status,
-            LoadStatus::Failed { .. }
-        ));
+            LoadStatus::Loading
+        );
+        admin.registrations.list = RegistrationList::Failed(failure.clone());
+        assert_eq!(
+            registrations_view(&admin, true).list_status,
+            LoadStatus::failed(ns::numbers_registrations_failed(l()), &failure)
+        );
         admin.registrations.list =
             RegistrationList::Ready(district_model::NumberRegistrationsResponse {
                 success: true,

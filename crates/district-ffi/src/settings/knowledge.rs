@@ -622,10 +622,13 @@ mod tests {
             refused(s::knowledge_file_too_large(l()))
         );
         large.truncate(cap);
-        assert!(matches!(
+        assert_eq!(
             knowledge_file(file("large.txt", &large)),
-            KnowledgeFileRead::Text { .. }
-        ));
+            KnowledgeFileRead::Text {
+                title: "large".to_owned(),
+                content: "a".repeat(cap),
+            }
+        );
         // Windows says it is larger than what was read: still too large.
         let mut said = file("large.txt", b"short");
         said.size = MAX_FILE_BYTES + 10;

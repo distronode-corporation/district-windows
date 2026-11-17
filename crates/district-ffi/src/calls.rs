@@ -445,4 +445,27 @@ mod tests {
             None
         );
     }
+
+    /// A call whose summary is blank shows its AI summary instead.
+    #[test]
+    fn a_blank_summary_falls_back_to_the_ai_summary() {
+        let call: CallSummary = serde_json::from_value(serde_json::json!({
+            "id": "c1", "type": "inbound", "number": "+14165550142", "status": "completed",
+            "duration": "1m 5s", "time": "", "aiSummary": "Booked a cleaning.", "callerName": "",
+            "summary": "  ", "createdAt": "",
+        }))
+        .unwrap();
+        let screen = CallDetailScreen {
+            call_id: "c1".to_owned(),
+            call: CallView::Ready(Box::new(call)),
+            transcript: TranscriptView::Loading,
+            refresh_failure: None,
+            supervise: district_core::Supervision::default(),
+        };
+        let view = call_detail_view(&screen, &Capabilities::default(), None);
+        assert_eq!(
+            view.summary.map(|summary| summary.text),
+            Some("Booked a cleaning.".to_owned())
+        );
+    }
 }

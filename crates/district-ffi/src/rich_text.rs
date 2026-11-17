@@ -230,7 +230,7 @@ fn render<'a>(text: &'a str, links: bool, depth: usize, style: Style<'a>, runs: 
     let mut rest = text;
     while let Some(next) = rest.chars().next() {
         let found = if depth < MAX_DEPTH {
-            span(rest, before, links, depth, style, runs)
+            span(rest, next, before, links, depth, style, runs)
         } else {
             None
         };
@@ -245,10 +245,12 @@ fn render<'a>(text: &'a str, links: bool, depth: usize, style: Style<'a>, runs: 
 
 /// Writes the span at the start of `rest` and answers how many bytes of it the
 /// span takes, or writes nothing and answers `None` when nothing starts there.
-/// `before` is the character before it, which decides whether `_` and a bare
-/// link can start.
+/// `first` is the first character of `rest` (the caller has it, so `rest` is
+/// never empty here). `before` is the character before it, which decides
+/// whether `_` and a bare link can start.
 fn span<'a>(
     rest: &'a str,
+    first: char,
     before: Option<char>,
     links: bool,
     depth: usize,
@@ -256,7 +258,6 @@ fn span<'a>(
     runs: &mut Runs,
 ) -> Option<usize> {
     let word_start = before.is_none_or(|c| !c.is_alphanumeric());
-    let first = rest.chars().next()?;
     match first {
         '\\' => {
             let escaped = rest[1..]
@@ -492,6 +493,12 @@ mod tests {
         }
     }
 
+    #[test]
+    #[should_panic(expected = "is not one paragraph")]
+    fn runs_refuses_anything_but_one_paragraph() {
+        runs("# A heading");
+    }
+
     /// The text `text` shows, without its styles, one block to a line.
     fn shown(text: &str) -> String {
         let joined =
@@ -612,8 +619,8 @@ mod tests {
             }]
         );
         assert_eq!(
-            shown("Calls:\n- 12 answered\n1. **First**\n```\ncode\n```"),
-            "Calls:\n\u{2022} 12 answered\n1. First\ncode"
+            shown("## Calls\n- 12 answered\n1. **First**\n```\ncode\n```"),
+            "Calls\n\u{2022} 12 answered\n1. First\ncode"
         );
     }
 
@@ -774,13 +781,9 @@ mod tests {
             "[a](https://x.example) [b](ftp://x.example) <https://y.example> http://z.example",
             "[a](http://) [b](https:///x) [c](https://x .example)",
         ] {
-            for block in parse(text).blocks {
-                if let RichBlock::Paragraph { runs } = block {
-                    for run in runs {
-                        if let Some(url) = run.link {
-                            assert!(is_web_link(&url), "{url}");
-                        }
-                    }
+            for run in runs(text) {
+                if let Some(url) = run.link {
+                    assert!(is_web_link(&url), "{url}");
                 }
             }
         }

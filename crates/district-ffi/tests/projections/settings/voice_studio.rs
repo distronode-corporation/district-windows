@@ -496,6 +496,29 @@ fn a_held_voice_the_list_lacks_shows_the_placeholder() {
     );
 }
 
+/// A held model the list lacks is named as stored, and a leg the service
+/// sent no block for is titled by the read's generic label.
+#[test]
+fn a_held_model_the_list_lacks_is_named_as_stored() {
+    let mut value = json(FIXTURE);
+    value["current"]["chain"]["engineMix"]["llm"]["model"] = json!("gemini-nobody");
+    let blocks = value["current"]["chain"]["blocks"].as_array_mut().unwrap();
+    blocks.retain(|block| block["leg"] != "llm");
+    let edit_leg = value["labels"]["editLeg"].clone();
+    let session = opened()
+        .answer(is_read, |ticket| read_as(ticket, value))
+        .ui(leg("llm"));
+    let editor = form(&session).editor;
+    assert_eq!(json!(editor.title), edit_leg);
+    let model = editor
+        .pickers
+        .iter()
+        .find(|picker| picker.picker == StudioPicker::Model)
+        .unwrap();
+    assert_eq!(model.choices.selected, "gemini-nobody");
+    assert_eq!(model.choices.selected_label, "gemini-nobody");
+}
+
 /// "Discard your changes?" on this form: nothing is asked while it holds no
 /// edit; with one, every move away is held, Keep editing keeps it, and
 /// Discard leaves with the edits gone.

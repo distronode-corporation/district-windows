@@ -761,6 +761,12 @@ fn the_microphone_shown_is_the_one_the_engine_reports() {
     assert!(!view.can_mute);
     assert_eq!(view.media_notice, None);
     assert_eq!(view.microphone_line, None);
+    // Listening, a room that is reconnecting says so too.
+    let view = shown(&media(
+        listening(on_live_call(agency())),
+        MediaEvent::Reconnecting,
+    ));
+    assert_eq!(view.state, SuperviseState::Reconnecting);
     // Reconnecting, nothing can be muted, and the status says why.
     let view = shown(&media(
         on_call(listening(on_live_call(agency()))),

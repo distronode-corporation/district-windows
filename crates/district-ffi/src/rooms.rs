@@ -624,7 +624,7 @@ pub(crate) fn sample() -> RoomsView {
 #[cfg(test)]
 mod tests {
     use district_auth::AccessClaims;
-    use district_core::{Effect, SessionState};
+    use district_core::Effect;
     use serde_json::json;
 
     use super::*;
@@ -654,9 +654,7 @@ mod tests {
                 expires_at_secs: 4_000_000_000,
             }),
         });
-        let SessionState::SignedIn(signed_in) = model.session() else {
-            panic!("not signed in");
-        };
+        let signed_in = crate::calls_live::tests::signed_in(&model);
         let view = rooms_view(signed_in, &config);
         assert_eq!(view.meetings_status, LoadStatus::Loading);
         let running: MeetingSummary = serde_json::from_value(json!({

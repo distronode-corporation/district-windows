@@ -9,7 +9,7 @@ use district_ffi::settings::messaging::{
     SenderChannel,
 };
 use district_ffi::{ScreenView, UiEvent, screen_view};
-use serde_json::Value;
+use serde_json::{Value, json};
 
 use super::super::{Case, Session, contracts, route, server_error, signed_in, viewer};
 
@@ -314,6 +314,34 @@ fn the_check_says_what_the_carrier_said() {
     assert_eq!(refused.outcome, KeyCheckOutcome::Refused);
     let unreachable = check(tested(checking(signed_in()), Err(()))).unwrap();
     assert_eq!(unreachable.outcome, KeyCheckOutcome::Unreachable);
+}
+
+/// A managed account with no carrier is Distronode's, and a channel whose
+/// stored sender is no listed account says so; keys the carrier accepted
+/// with no account name read as accepted.
+#[test]
+fn an_unnamed_carrier_an_unlisted_sender_and_an_unnamed_account() {
+    let mut value = contracts::json("district-messaging.json");
+    value["managedAccount"]["provider"] = Value::Null;
+    value["channelDefaults"]["sms"] = json!("acct-gone");
+    let shown = view(&loaded(open(signed_in()), Ok(value)));
+    assert_eq!(shown.managed.unwrap().carrier, "Distronode");
+    let sms = shown
+        .channels
+        .iter()
+        .find(|channel| channel.channel == SenderChannel::Sms)
+        .unwrap();
+    assert_eq!(sms.picker.selected_label, "An account that is not listed");
+
+    let passed = view(&tested(
+        checking(signed_in()),
+        Ok(json!({"success": true, "details": {"status": "active"}})),
+    ))
+    .form
+    .and_then(|form| form.test)
+    .unwrap();
+    assert_eq!(passed.outcome, KeyCheckOutcome::Passed);
+    assert_eq!(passed.message, "The carrier accepted these keys.");
 }
 
 /// A viewer reads the accounts, is told why nothing changes, and the core

@@ -282,10 +282,12 @@ pub(crate) fn screen(_model: &Model, signed_in: &SignedIn) -> ScreenView {
 /// The hub for a member with `capabilities`.
 fn hub_view(capabilities: &Capabilities) -> SettingsHubView {
     let mut groups: Vec<(SettingsGroup, SettingsGroupView)> = Vec::new();
-    for row in settings_rows(capabilities) {
-        let Some(section) = SettingsSection::of(row.section) else {
-            continue;
-        };
+    // The core lists no row for the hub itself, the one section `of` refuses;
+    // `filter_map` keeps that rule without a branch no row reaches.
+    let rows = settings_rows(capabilities)
+        .into_iter()
+        .filter_map(|row| SettingsSection::of(row.section).map(|section| (row, section)));
+    for (row, section) in rows {
         let view = SettingsRowView {
             section,
             title: row.title.to_owned(),

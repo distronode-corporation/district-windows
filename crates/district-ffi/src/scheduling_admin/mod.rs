@@ -605,13 +605,17 @@ mod tests {
             LoadStatus::Loading
         );
         assert_eq!(load_status(&SectionLoad::Ready(())), LoadStatus::Ready);
-        let failed = load_status(&SectionLoad::<()>::Failed(sample_failure("Offline.", true)));
-        let LoadStatus::Failed { failure, title } = failed else {
-            panic!("not failed");
-        };
-        assert_eq!(failure.message, "Offline.");
-        assert!(failure.retryable);
-        assert_eq!(title, s::scheduling_failed_title(l()));
+        assert_eq!(
+            load_status(&SectionLoad::<()>::Failed(sample_failure("Offline.", true))),
+            LoadStatus::Failed {
+                failure: FailureView {
+                    message: "Offline.".to_owned(),
+                    regions_line: None,
+                    retryable: true,
+                },
+                title: s::scheduling_failed_title(l()).to_owned(),
+            }
+        );
         assert_eq!(times_in("America/Toronto"), "Times in America/Toronto");
         assert_eq!(failure_view(&sample_failure("x", false)).message, "x");
     }

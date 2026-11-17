@@ -208,3 +208,25 @@ pub(crate) fn devices_view(screen: &DevicesScreen) -> DevicesView {
     }
     view
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A sign-out that ended nothing (the device was already gone) shows the
+    /// core's neutral notice beside the list.
+    #[test]
+    fn a_sign_out_that_ended_nothing_says_so() {
+        let screen = DevicesScreen {
+            list: DevicesList::Ready(Vec::new()),
+            nothing_revoked: true,
+            ..DevicesScreen::default()
+        };
+        let view = devices_view(&screen);
+        assert!(view.nothing_revoked);
+        assert_eq!(
+            view.nothing_revoked_note.as_deref(),
+            Some(cs::devices_nothing_revoked(l()))
+        );
+    }
+}

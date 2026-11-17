@@ -221,10 +221,11 @@ mod tests {
 
     #[test]
     fn before_its_reads_every_row_is_loading() {
-        let page = page(&SchedulingAdmin::default(), now());
-        let SchedulingAdminPage::Overview { view } = page else {
-            panic!("not the overview");
-        };
+        let view = overview_view(&OverviewSection::default(), now());
+        assert_eq!(
+            page(&SchedulingAdmin::default(), now()),
+            SchedulingAdminPage::Overview { view: view.clone() }
+        );
         assert!(
             view.desk
                 .iter()

@@ -234,6 +234,14 @@ impl ScreenView {
             body: s::screen_unavailable_body(l()).to_owned(),
         }
     }
+
+    /// [`unavailable`](Self::unavailable) for any signed-in session: the page
+    /// [`session_view`] is given where no signed-in session is expected (a
+    /// function rather than a closure, so it is one function that one test
+    /// runs, not a closure per caller that never runs).
+    pub(crate) fn unavailable_for(_signed_in: &SignedIn) -> Self {
+        Self::unavailable()
+    }
 }
 
 /// The sign-in page, for every session state but signed in. The same fields,
@@ -505,12 +513,22 @@ mod tests {
         );
     }
 
+    #[test]
+    fn a_signed_in_session_given_no_page_is_unavailable() {
+        let model = crate::calls_live::tests::signed_in_as("agency");
+        let signed_in = crate::calls_live::tests::signed_in(&model);
+        assert_eq!(
+            ScreenView::unavailable_for(signed_in),
+            ScreenView::unavailable()
+        );
+    }
+
     fn signed_out(outcome: SignOutOutcome) -> SessionScreen {
         let session = SessionState::SignedOut(SignedOut {
             why: SignedOutWhy::SignedOut(outcome),
             sign_in_error: None,
         });
-        session_screen(session_view(&session, |_| unreachable!()))
+        session_screen(session_view(&session, ScreenView::unavailable_for))
             .expect("signed out is a session screen")
     }
 
@@ -539,7 +557,7 @@ mod tests {
         let session = SessionState::SigningOut(SigningOut {
             scope: SignOutScope::Everywhere,
         });
-        let view = session_screen(session_view(&session, |_| unreachable!()))
+        let view = session_screen(session_view(&session, ScreenView::unavailable_for))
             .expect("signing out is a session screen");
         assert!(view.body.starts_with("Every device is signed out."));
         assert!(view.busy);

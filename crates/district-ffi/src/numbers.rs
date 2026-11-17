@@ -603,10 +603,8 @@ fn confirmation_view(admin: &NumberAdmin, asked: &NumberConfirmation) -> NumberC
     NumberConfirmationView {
         title: asked.title().to_owned(),
         body: asked.body(),
-        confirm: admin
-            .confirm_label()
-            .unwrap_or_else(|| asked.action())
-            .to_owned(),
+        // `None` only with no confirmation open, and this is the open one.
+        confirm: admin.confirm_label().unwrap_or_default().to_owned(),
         close: write.close_label().to_owned(),
         destructive: asked.is_destructive(),
         can_confirm: write.is_armed(),
@@ -857,11 +855,9 @@ fn toll_free_view(admin: &NumberAdmin, can_change: bool) -> TollFreeView {
 mod tests {
     use super::*;
 
-    fn admin_event(action: NumberAdminAction) -> NumberAdminEvent {
-        match action.event() {
-            Event::Marketplace(MarketplaceEvent::Numbers(event)) => event,
-            other => panic!("not a numbers event: {other:?}"),
-        }
+    /// The core event for a numbers `event`, as an action should send it.
+    fn numbers(event: NumberAdminEvent) -> Event {
+        Event::Marketplace(MarketplaceEvent::Numbers(event))
     }
 
     #[test]
@@ -907,20 +903,26 @@ mod tests {
             ),
         ];
         for (action, event) in pairs {
-            assert_eq!(admin_event(action), event);
+            assert_eq!(action.event(), numbers(event));
         }
-        let NumberAdminEvent::EditSipTrunk(sip) = admin_event(NumberAdminAction::EditSipTrunk {
-            form: SipTrunkFormInput {
+        assert_eq!(
+            NumberAdminAction::EditSipTrunk {
+                form: SipTrunkFormInput {
+                    name: "a".to_owned(),
+                    domain: "b".to_owned(),
+                    ip_addresses: "c".to_owned(),
+                },
+            }
+            .event(),
+            numbers(NumberAdminEvent::EditSipTrunk(SipTrunkForm {
                 name: "a".to_owned(),
                 domain: "b".to_owned(),
                 ip_addresses: "c".to_owned(),
-            },
-        }) else {
-            panic!("not the SIP form");
-        };
-        assert_eq!((sip.name.as_str(), sip.domain.as_str()), ("a", "b"));
-        let NumberAdminEvent::EditTollFree(toll_free) =
-            admin_event(NumberAdminAction::EditTollFree {
+            }))
+        );
+        // The fields this app leaves to the service stay blank.
+        assert_eq!(
+            NumberAdminAction::EditTollFree {
                 form: TollFreeFormInput {
                     phone_number: "+18005550188".to_owned(),
                     business_name: "Acme".to_owned(),
@@ -928,13 +930,35 @@ mod tests {
                     message_content: String::new(),
                     use_case: "Marketing".to_owned(),
                 },
-            })
-        else {
-            panic!("not the toll-free form");
+            }
+            .event(),
+            numbers(NumberAdminEvent::EditTollFree(TollFreeForm {
+                phone_number: "+18005550188".to_owned(),
+                business_name: "Acme".to_owned(),
+                website: String::new(),
+                use_case: "Marketing".to_owned(),
+                message_content: String::new(),
+                opt_in_flow: String::new(),
+                opt_in_image_url: "https://example.com/a.png".to_owned(),
+            }))
+        );
+    }
+
+    #[test]
+    fn no_trunks_is_an_empty_list_that_says_so() {
+        let admin = NumberAdmin {
+            sip: SipTrunks::Ready(Vec::new()),
+            ..NumberAdmin::default()
         };
-        // The fields this app leaves to the service stay blank.
-        assert!(toll_free.website.is_empty() && toll_free.opt_in_flow.is_empty());
-        assert_eq!(toll_free.use_case, "Marketing");
+        let view = sip_view(&admin, true);
+        assert_eq!(view.status, LoadStatus::Ready);
+        assert_eq!(
+            view.empty,
+            Some(EmptyView::new(
+                ns::numbers_sip_empty_title(l()),
+                ns::numbers_sip_empty_body(l()),
+            ))
+        );
     }
 
     #[test]

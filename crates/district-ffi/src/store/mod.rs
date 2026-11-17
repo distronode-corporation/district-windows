@@ -398,6 +398,46 @@ mod tests {
         assert_eq!(error.kind, StoreErrorKind::Corrupt);
     }
 
+    /// A vault that refuses everything, as Credential Manager does when the
+    /// user's vault is locked or access is denied.
+    struct LockedVault;
+
+    impl Vault for LockedVault {
+        fn read(&self, _name: &str) -> Result<Option<Vec<u8>>, StoreError> {
+            Err(StoreError::new(StoreErrorKind::Locked, "locked"))
+        }
+
+        fn write(&self, _name: &str, _secret: &[u8]) -> Result<(), StoreError> {
+            Err(StoreError::new(StoreErrorKind::Locked, "locked"))
+        }
+
+        fn delete(&self, _name: &str) -> Result<(), StoreError> {
+            Err(StoreError::new(StoreErrorKind::Locked, "locked"))
+        }
+    }
+
+    /// Every vault refusal reaches the core as itself, and nothing after it
+    /// runs.
+    #[tokio::test]
+    async fn a_locked_vault_refuses_every_step() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = CredentialStore::new(LockedVault, RefreshMarkerFile::new(dir.path()));
+        let token = RefreshToken::new("rt-l");
+        let locked = |result: Result<(), StoreError>| result.unwrap_err().kind;
+        assert_eq!(
+            store.load_session().await.unwrap_err().kind,
+            StoreErrorKind::Locked
+        );
+        assert_eq!(locked(store.save_session(&session("rt-l")).await), StoreErrorKind::Locked);
+        assert_eq!(locked(store.clear_session().await), StoreErrorKind::Locked);
+        assert_eq!(locked(store.push_revoke(&token).await), StoreErrorKind::Locked);
+        assert_eq!(locked(store.remove_revoke(&token).await), StoreErrorKind::Locked);
+        assert_eq!(
+            store.revoke_outbox().await.unwrap_err().kind,
+            StoreErrorKind::Locked
+        );
+    }
+
     #[tokio::test]
     async fn a_marker_that_is_not_a_fingerprint_is_corrupt() {
         let (store, _vault, dir) = store();

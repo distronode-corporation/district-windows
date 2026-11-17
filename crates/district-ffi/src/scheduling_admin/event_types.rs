@@ -1160,3 +1160,27 @@ fn questions_view(questions: &QuestionsDialog) -> EventTypeQuestionsView {
             }),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A value this build does not know is shown as it came.
+    #[test]
+    fn an_unknown_value_is_shown_as_it_came() {
+        let known = [("fixed", "Fixed")];
+        assert_eq!(label_of(&known, "fixed"), "Fixed");
+        assert_eq!(label_of(&known, "lottery"), "lottery");
+    }
+
+    /// A host with a blank name is named by their address.
+    #[test]
+    fn a_host_with_no_name_is_named_by_address() {
+        let host = SchedulingHost {
+            email: "sam@example.com".to_owned(),
+            role: "rotation".to_owned(),
+            ..SchedulingHost::default()
+        };
+        assert_eq!(host_fact(&host).label, "sam@example.com");
+    }
+}

@@ -994,3 +994,47 @@ fn assistant_view(editor: &AssistantEditor) -> SettingsAssistantView {
         notice: landed(&editor.write),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Each tab chosen is the core's tab of the same name.
+    #[test]
+    fn each_tab_is_the_cores() {
+        for tab in [
+            SchedulingSettingsTab::BookingPage,
+            SchedulingSettingsTab::Assistant,
+            SchedulingSettingsTab::Profile,
+            SchedulingSettingsTab::Notifications,
+        ] {
+            assert_eq!(SchedulingSettingsTab::of(tab.core()), tab);
+            assert_eq!(
+                events(SchedulingSettingsAction::SelectTab { tab }),
+                [Event::SchedulingAdmin(SchedulingAdminEvent::Settings(
+                    SettingsEvent::SelectTab(tab.core())
+                ))]
+            );
+        }
+    }
+
+    /// A tab not asked for yet is on its way, with nothing to show.
+    #[test]
+    fn a_tab_not_asked_for_is_loading() {
+        assert_eq!(
+            read::<SchedulingLlmSettings>(None, assistant_groups),
+            (LoadStatus::Loading, Vec::new())
+        );
+    }
+
+    /// The assistant with no extra instructions shows only whether it is on.
+    #[test]
+    fn an_assistant_with_no_instructions_has_one_row() {
+        let groups = assistant_groups(&SchedulingLlmSettings {
+            enabled: true,
+            extra_instructions: "  ".to_owned(),
+        });
+        assert_eq!(groups.len(), 1);
+        assert_eq!(groups[0].rows.len(), 1);
+    }
+}

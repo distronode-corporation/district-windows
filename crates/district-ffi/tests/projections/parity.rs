@@ -484,6 +484,48 @@ fn an_unowned_thread_reads_unassigned_and_attachments_wait_for_sms() {
     assert_eq!(composer.attachments_note, None);
 }
 
+/// An image uploaded on a text message, then the reply moved to email: the
+/// box says the attachment waits for a text message.
+#[test]
+fn an_attachment_kept_off_text_message_says_it_waits_for_one() {
+    let sms = act(
+        with_members(),
+        ComposerAction::ChooseChannel {
+            channel: "sms".to_owned(),
+        },
+    );
+    let uploaded = act(
+        sms,
+        ComposerAction::Attach {
+            file: district_ffi::composer::PickedFileView {
+                file_name: "roof.png".to_owned(),
+                size: 16,
+                bytes: b"\x89PNG\r\n\x1a\n\0\0\0\rIHDR".to_vec(),
+            },
+        },
+    )
+    .answer(
+        |e| matches!(e, Effect::UploadMedia { .. }),
+        |ticket| Event::MediaUploaded {
+            ticket,
+            result: Ok(contracts::decode(
+                "media upload",
+                contracts::json("district-media-upload.json"),
+            )),
+        },
+    );
+    let (on_sms, _) = thread(&uploaded);
+    assert_eq!(on_sms.attachments_note, None);
+    let email = act(
+        uploaded,
+        ComposerAction::ChooseChannel {
+            channel: "email".to_owned(),
+        },
+    );
+    let (composer, _) = thread(&email);
+    assert!(composer.attachments_note.is_some_and(|note| !note.is_empty()));
+}
+
 #[test]
 fn the_human_agent_window_shows_its_badge_and_only_a_person_replies() {
     let (composer, meta) = meta(&meta_window(

@@ -498,6 +498,23 @@ fn message(message: &SupportMessage) -> SupportMessageView {
 mod tests {
     use super::*;
 
+    /// A request the core has not opened (or another one) shows as being read,
+    /// under the key asked for.
+    #[test]
+    fn a_request_not_opened_shows_as_being_read() {
+        let model = crate::calls_live::tests::signed_in_as("agency");
+        let signed_in = crate::calls_live::tests::signed_in(&model);
+        assert_eq!(
+            request_screen(&model, signed_in, "problem:r-9"),
+            ScreenView::SupportRequest {
+                view: SupportRequestView {
+                    key: "problem:r-9".to_owned(),
+                    ..SupportRequestView::default()
+                },
+            }
+        );
+    }
+
     #[test]
     fn each_kind_crosses_both_ways() {
         for kind in [

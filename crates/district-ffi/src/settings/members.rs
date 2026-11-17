@@ -373,6 +373,20 @@ impl MembersView {
 mod tests {
     use super::*;
 
+    /// Before the workspace list is read, the page names no workspace.
+    #[test]
+    fn no_workspace_read_names_none() {
+        let model = crate::calls_live::tests::signed_in_as("agency");
+        let mut signed_in = crate::calls_live::tests::signed_in(&model).clone();
+        signed_in.workspaces = WorkspacesState::Loading;
+        assert_eq!(
+            screen(&model, &signed_in),
+            ScreenView::Members {
+                view: members_view(signed_in.members.as_ref(), &signed_in.capabilities(), ""),
+            }
+        );
+    }
+
     #[test]
     fn a_role_is_named_or_said_to_be_unknown() {
         assert!(role_line("AGENCY ").starts_with("Agency \u{b7} Full access"));

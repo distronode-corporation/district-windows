@@ -468,11 +468,8 @@ mod tests {
                 "Sentiment de friction"
             ]
         );
-        assert!(
-            chart.bands[0].legend.ends_with("21 (44\u{a0}%)"),
-            "{}",
-            chart.bands[0].legend
-        );
+        let legend = &chart.bands[0].legend;
+        assert!(legend.ends_with("21 (44\u{a0}%)"), "{legend}");
         assert_eq!(
             district_l10n::with_locale(Locale::FrCa, || percent(1.0)),
             "100\u{a0}%"

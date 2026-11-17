@@ -131,4 +131,17 @@ mod tests {
         held.keep();
         assert_eq!(held.question(), None);
     }
+
+    /// Choosing another workspace leaves the screen; the open one, or any
+    /// before the list is read, does not.
+    #[test]
+    fn only_another_read_workspace_leaves() {
+        let model = crate::calls_live::tests::signed_in_as("agency");
+        let mut signed_in = crate::calls_live::tests::signed_in(&model).clone();
+        let select = |id: &str| Event::SelectWorkspace(id.to_owned());
+        assert!(leaves(&signed_in, &select("ws-2")));
+        assert!(!leaves(&signed_in, &select("ws-1")));
+        signed_in.workspaces = WorkspacesState::Loading;
+        assert!(!leaves(&signed_in, &select("ws-2")));
+    }
 }

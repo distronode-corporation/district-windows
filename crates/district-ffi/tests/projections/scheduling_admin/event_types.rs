@@ -230,6 +230,40 @@ fn hosting(session: Session) -> Session {
     )
 }
 
+/// A user who could be added is listed by name when they have one.
+#[test]
+fn a_named_candidate_is_listed_by_name() {
+    let mut users = contracts::json("district-scheduling-users.json");
+    users["data"].as_array_mut().unwrap().push(json!({
+        "id": "sched-user-3",
+        "email": "robin@example.com",
+        "name": "Robin Example",
+        "is_admin": false,
+        "is_owner": false,
+        "role": "member",
+        "archived": false
+    }));
+    let session = answer_admin(
+        event_type(signed_in()).ui(detail(EventTypeAction::OpenHosts)),
+        |r| matches!(r, SchedulingAdminRequest::Hosts { .. }),
+        Ok(contracts::json("district-scheduling-hosts.json")),
+    );
+    let session = answer_admin(
+        session,
+        |r| matches!(r, SchedulingAdminRequest::Users { .. }),
+        Ok(users),
+    );
+    let dialog = event_type_view(&session).hosts_dialog.expect("open");
+    assert!(
+        dialog
+            .candidates
+            .iter()
+            .any(|c| c.value == "sched-user-3" && c.label == "Robin Example"),
+        "{:?}",
+        dialog.candidates
+    );
+}
+
 /// The questions dialog, its questions read.
 fn asking(session: Session) -> Session {
     answer_admin(

@@ -485,7 +485,9 @@ mod tests {
             let in_pane = offered
                 .iter()
                 .any(|destination| destination.route() == route);
-            assert!(built(&route) || !(of_1_0 || in_pane), "{route:?}");
+            // `|`, not `||`: every route is built today, so a short circuit
+            // would leave the right-hand side unevaluated.
+            assert!(built(&route) | !(of_1_0 | in_pane), "{route:?}");
         }
     }
 

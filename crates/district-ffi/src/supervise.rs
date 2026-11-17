@@ -464,3 +464,31 @@ pub(crate) fn live_calls_view(log: &CallLog) -> Option<LiveCallsView> {
         rows,
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Each action is its core event of the same name.
+    #[test]
+    fn each_action_is_its_core_event() {
+        for (action, event) in [
+            (SuperviseAction::StopListening, SuperviseEvent::StopListening),
+            (SuperviseAction::CancelTakeOver, SuperviseEvent::CancelTakeOver),
+        ] {
+            assert_eq!(events(action), [Event::Supervise(event)]);
+        }
+    }
+
+    /// No call open is no card, and a call log not read yet lists no live
+    /// calls.
+    #[test]
+    fn nothing_open_or_read_shows_nothing() {
+        let model = crate::calls_live::tests::signed_in_as("agency");
+        assert_eq!(
+            supervise_view(crate::calls_live::tests::signed_in(&model)),
+            None
+        );
+        assert_eq!(live_calls_view(&CallLog::Loading), None);
+    }
+}

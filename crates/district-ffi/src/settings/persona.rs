@@ -355,6 +355,11 @@ mod tests {
             Some(s::persona_options_loading(l()))
         );
         assert_eq!(view.audition, None);
+        // The page, before the core holds the section, is that view.
+        let model = crate::calls_live::tests::signed_in_as("agency");
+        let mut signed_in = crate::calls_live::tests::signed_in(&model).clone();
+        signed_in.persona = None;
+        assert_eq!(screen(&model, &signed_in), ScreenView::Persona { view });
     }
 
     #[test]

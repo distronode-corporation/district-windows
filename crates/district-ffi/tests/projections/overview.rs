@@ -3,7 +3,7 @@
 use district_core::{BillingDestination, PurchaseState, WorkspacesState};
 use district_ffi::billing::{BillingAction, PlanTierView};
 use district_ffi::{LoadStatus, OverviewView};
-use district_live::{LiveError, LiveUpdate, WorkspaceUpdate};
+use district_live::{Disconnect, LiveError, LiveUpdate, WorkspaceUpdate};
 
 use super::billing::{action, buying, choose, not_buying};
 use super::*;
@@ -360,4 +360,54 @@ fn no_workspace_after_the_waits_offers_the_plans_again() {
         fresh["workspaces"]["message"],
         WorkspacesState::CHOOSE_PLAN_MESSAGE
     );
+}
+
+/// A socket that dropped and is being opened again says so in the banner, with
+/// nothing to refresh (it reconnects by itself); a link the browser would not
+/// open is the shell's notice.
+#[test]
+fn a_reconnecting_socket_is_a_banner_without_refresh_and_a_failed_open_a_notice() {
+    let session = overview_loaded(signed_in())
+        .send(Event::Live(WorkspaceUpdate {
+            workspace_id: "ws-1".to_owned(),
+            update: LiveUpdate::Reconnecting {
+                delay: std::time::Duration::from_secs(1),
+                cause: Disconnect::Silent,
+            },
+        }))
+        .send(Event::UrlOpenFailed);
+    let shell = shell_view(&session.model);
+    let live = shell.live.expect("the banner");
+    assert!(!live.can_refresh);
+    assert!(!live.message.is_empty());
+    assert!(shell.notice.is_some_and(|notice| !notice.is_empty()));
+}
+
+/// The average call is the service's English label in English and the core's
+/// own form in French; an overview with no recent calls says so.
+#[test]
+fn the_average_call_reads_in_french_and_no_recent_calls_say_so() {
+    let session = overview_loaded(signed_in());
+    let english = overview_of(&session);
+    let french = district_l10n::with_locale(district_l10n::Locale::FrCa, || overview_of(&session));
+    assert_eq!(english.metrics.len(), 4);
+    assert_ne!(english.metrics[3].value, french.metrics[3].value);
+    assert_eq!(english.recent_calls_empty, None);
+
+    let mut quiet = with(
+        contracts::json("district-overview.json"),
+        "workspaceId",
+        "ws-1",
+    );
+    quiet["recentCalls"] = json!([]);
+    let session = signed_in().answer(
+        |e| matches!(e, Effect::LoadOverview { .. }),
+        |ticket| Event::OverviewLoaded {
+            ticket,
+            result: Ok(contracts::decode("district-overview.json", quiet)),
+        },
+    );
+    let view = overview_of(&session);
+    assert!(view.recent_calls.is_empty());
+    assert!(view.recent_calls_empty.is_some_and(|line| !line.is_empty()));
 }

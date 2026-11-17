@@ -550,6 +550,7 @@ mod tests {
     fn no_thread_has_no_box_and_no_note() {
         let member = Capabilities::default();
         assert_eq!(composer(None, &member), None);
+        assert_eq!(assignment(None, &member), None);
         assert_eq!(read_only_note(None, &member), "");
     }
 }
