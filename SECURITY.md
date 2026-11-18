@@ -22,7 +22,8 @@ backported.
 
 ## The security model, in short
 
-These are the rules the app is built to.
+These are the rules the app is built to. [SECURITY-MODEL.md](SECURITY-MODEL.md) is the full
+model: the threats, the trust boundaries, and the tests that pin each control.
 
 - **Sign-in** happens in your browser, with OAuth 2.0 and PKCE. The app never sees your
   password. The verifier lives only in the memory of the running app, and a second copy of
