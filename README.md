@@ -126,12 +126,12 @@ Trusted People (`certlm.msc`).
 sha256sum -c SHA256SUMS
 ```
 
-Each file also has a signed provenance attestation, which shows it was built by this
+Each file (but the provenance bundle, which holds the attestations) also has a signed
+provenance attestation, which shows it was built by this
 repository's release workflow. With the [GitHub CLI](https://cli.github.com):
 
 ```
-gh attestation verify <file> --repo distronode-corporation/district-windows \
-  --signer-workflow distronode-corporation/district-windows/.github/workflows/release.yml
+gh attestation verify <file> --repo distronode-corporation/district-windows --signer-workflow distronode-corporation/district-windows/.github/workflows/release.yml
 ```
 
 The attestation is also attached to the release as `district-ai-windows_<version>.intoto.jsonl`,

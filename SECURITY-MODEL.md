@@ -87,7 +87,9 @@ with "core:".
 ## Releases
 
 Each release is built by `.github/workflows/release.yml` from a tagged commit, and every file it
-carries has a signed provenance attestation made through Sigstore by that workflow; the README's
+carries, apart from the provenance bundle itself (`district-ai-windows_<version>.intoto.jsonl`,
+which holds the attestations), has a signed provenance attestation made through Sigstore by that
+workflow; the README's
 [Verifying a download](README.md#verifying-a-download) shows how to check one. The Store package
 is signed by the Microsoft Store; the sideload test build is signed with a throwaway certificate
 made for that release, and is for testing only.
