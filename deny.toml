@@ -15,13 +15,14 @@ all-features = true
 unmaintained = "all"
 unsound = "all"
 ignore = [
-  # chrono 0.4.45: unmaintained notice (RUSTSEC-2026-0543, 2026-11-18), all versions, no
+  # chrono 0.4.45: unmaintained notice (RUSTSEC-2026-0543, dated 2026-09-14), all versions, no
   # fixed release; not a vulnerability. No crate here depends on it: it arrives only with
   # calls, through district-core-rust's district-call 13.0.0 (feature `livekit`, a
   # cfg(windows) dependency of district-ffi, so in every shipped build) -> livekit 0.10.1
   # directly, and through livekit-data-stream 0.2.0 and livekit-protocol 0.8.2 ->
-  # pbjson-types 0.9.0. It goes when livekit and pbjson-types drop chrono, the core takes
-  # that release and this repository the core tag (issue #147). Review by 2027-02-18.
+  # pbjson-types 0.9.0. It goes when livekit, livekit-data-stream and pbjson-types drop
+  # chrono, the core takes those releases and this repository the core tag (issue #147).
+  # Review by 2027-02-18.
   { id = "RUSTSEC-2026-0543", reason = "chrono unmaintained, all versions, no fixed release; not a vulnerability; via district-call (district-core-rust) -> livekit 0.10.1, livekit-data-stream, pbjson-types, the Windows call engine; migration tracked in #147; review by 2027-02-18" },
 ]
 
