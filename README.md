@@ -72,7 +72,7 @@ built by `.github/workflows/release.yml` from a tagged commit on `main`, and car
 | File | What it is for |
 |---|---|
 | `DistrictAI_<version>_x64.msixupload` | The Store package, unsigned, as it goes to Partner Center. The Store signs what it ships; you cannot install this file yourself |
-| `DistrictAI_<version>_x64_sideload-test.msix` | A test build for sideloading, signed with a throwaway certificate made for that release |
+| `DistrictAI_<version>_x64_sideload-test.msix` | A test build for sideloading, signed with a throwaway certificate made for that release. From 3.5.0 the certificate is valid for two years and the signature is timestamped, so the build keeps installing after the certificate expires. The test builds of 3.4.0 and earlier had a certificate valid for one day and no timestamp, and no longer install (0x800B0101) |
 | `DistrictAI_<version>_sideload-test.cer` | The public half of that certificate, which Windows must trust before it installs the test build |
 | `DistrictAI_<version>_x64_sideload-dependencies.zip` | The framework packages the test build needs (the Windows App Runtime, x64 and x86), which a fresh Windows does not have. Releases from 3.0.1 carry both architectures |
 | `DistrictAI_<version>_x64_github-unsigned.msix` | The GitHub flavour of the app, unsigned, for the SignPath Foundation code-signing application. An unsigned package does not install normally, so it is not for testers. Releases after 1.0.0 carry it |

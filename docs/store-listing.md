@@ -60,6 +60,41 @@ bought in the app through District AI's checkout).
 > Subscriptions to District AI plans, sold by District AI through its own checkout
 > (payments by Stripe).
 
+## What's new in this version: 3.5.0
+
+Partner Center, Store listings, "What's new in this version" (1500 characters), one text
+per listing language: en-US below (683 characters) and, in the fr-CA listing, the French
+below (870 characters). Paste each block as it is: the French holds no-break spaces
+(U+00A0) before each colon and inside the guillemets.
+
+The notes carry every user-visible entry of the CHANGELOG's 3.5.0 section, two-step
+verification first. Two entries are left out: "Built on district-core-rust 13.0.0", which
+changes nothing on its own, and the sideload test package's certificate, which concerns
+the test build on GitHub Releases, not the Store copy. The French names on screen
+(« Copier la clé », « Ouvrir dans une application d'authentification », « Supprimer le
+compte », « Vérification en deux étapes ») are the app's and the core's reviewed strings;
+the rest of the French is new for 3.5.0 and is signed off by the maintainers' approval of
+this file's pull request. Before pasting, check which version Partner Center last
+published: if it is not 3.4.0, the notes of each version in between go above these.
+
+en-US:
+
+```text
+District AI 3.5.0:
+- Account: two-step verification. Turn it on with an authenticator app (the key is shown as a QR code and as text, with Copy key and Open in an authenticator app), keep the recovery codes it shows once, and see how many are left. You can turn it off after confirming it is you.
+- Account: delete your account in the app. Delete account says what is deleted and what is kept. Once you confirm it is you and type the account's email address, the account is deleted and this computer is signed out.
+- Both start by confirming it is you: a fresh sign-in with Google, Microsoft or Apple in your browser, or your password and, when two-step verification is on, its code.
+```
+
+fr-CA:
+
+```text
+District AI 3.5.0 :
+- Compte : la vérification en deux étapes. Activez-la avec une application d'authentification (la clé s'affiche en code QR et en texte, avec « Copier la clé » et « Ouvrir dans une application d'authentification »), conservez les codes de récupération affichés une seule fois et voyez combien il en reste. Vous pouvez la désactiver après avoir confirmé votre identité.
+- Compte : supprimez votre compte dans l'application. « Supprimer le compte » indique ce qui est supprimé et ce qui est conservé. Une fois votre identité confirmée et l'adresse courriel du compte saisie, le compte est supprimé et cet ordinateur est déconnecté.
+- Dans les deux cas, vous confirmez d'abord votre identité : une nouvelle connexion avec Google, Microsoft ou Apple dans votre navigateur, ou votre mot de passe et, si la vérification en deux étapes est activée, son code.
+```
+
 ## What's new in this version: 3.4.0
 
 Partner Center, Store listings, "What's new in this version" (1500 characters), one text
