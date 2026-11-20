@@ -7,9 +7,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-The detail of 3.4.0 for developers. The `[3.4.0]` section below is the release's notes
-(the tag's GitHub Release is made from it), so this detail moves under it once 3.4.0 is
-out.
+The detail of 3.4.0 and 3.5.0 for developers. The `[3.5.0]` and `[3.4.0]` sections below
+are the releases' notes (each tag's GitHub Release is made from its section), so this
+detail moves under them once 3.5.0 is out.
 
 ### Added
 
@@ -66,7 +66,27 @@ out.
 - district-core-rust 13.0.0: two-step verification and the account's deletion, and their
   words in English and Canadian French.
 
-## [3.4.1] - 2026-11-20
+## [3.5.0] - 2026-11-20
+
+District AI 3.5.0 brings two-step verification and deleting your account to Windows,
+and fixes the test build on GitHub Releases, which stopped installing a day after each
+release.
+
+### Added
+
+- Two-step verification, on the account page: turn it on with an authenticator app
+  (the key shown as a QR code and as text, with Copy key and Open in an authenticator
+  app), keep the recovery codes it shows once, and see how many are left. Turn it off
+  after confirming it is you.
+- Delete your account in the app: the account page's Delete account says what is
+  deleted and what is kept, then, once you confirm it is you and type the account's
+  email address, deletes it and signs this computer out.
+- Both start by confirming it is you: a fresh sign-in with Google, Microsoft or Apple in
+  your browser, or your password with, when two-step verification is on, its code.
+
+### Changed
+
+- Built on district-core-rust 13.0.0 (from 12.0.0).
 
 ### Fixed
 
