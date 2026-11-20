@@ -243,6 +243,9 @@ jobs:
       - name: The scripted-build check still catches what it claims to
         run: python3 scripts/check-scripted.py --self-test
 
+      - name: The MSIX signature check still catches what it claims to
+        run: python3 scripts/check-msix-signature.py --self-test
+
       - name: The unsafe check still catches what it claims to
         run: python3 scripts/check-unsafe.py --self-test
 
@@ -414,8 +417,11 @@ jobs:
       # package has no use for symbols.
       #
       # A certificate made here, for this run's package only: its subject is the
-      # manifest's Publisher (read from the manifest, so the two cannot drift), it expires tomorrow, and it is
-      # removed from the store when the package is signed. The package is
+      # manifest's Publisher (read from the manifest, so the two cannot drift), it is valid for 30 days
+      # (longer than the artifact's 7-day retention, so a build installs for as
+      # long as it can be downloaded; it was one day, and a build older than
+      # that failed to install with 0x800B0101), and it is removed from the
+      # store when the package is signed. The package is
       # signed by thumbprint, so no private key is ever written to a file. Only
       # the public half is kept, with the package, so a tester can trust it.
       - name: Build the app (warnings are errors) and package a test MSIX
@@ -426,7 +432,7 @@ jobs:
           if (-not $publisher) { throw 'no Identity/@Publisher in the manifest' }
           $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher `
             -KeyUsage DigitalSignature -FriendlyName 'District AI CI test package' `
-            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1) `
+            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(30) `
             -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
           $out = Join-Path $env:RUNNER_TEMP 'AppPackages'
           try {
@@ -595,7 +601,7 @@ jobs:
           if (-not $publisher) { throw 'no Identity/@Publisher in the GitHub manifest' }
           $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher `
             -KeyUsage DigitalSignature -FriendlyName 'District AI CI GitHub-flavour test package' `
-            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1) `
+            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(30) `
             -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
           $out = Join-Path $env:RUNNER_TEMP 'GitHubTestPackage'
           try {
@@ -685,7 +691,7 @@ jobs:
           $publisher = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity.Publisher
           $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher `
             -KeyUsage DigitalSignature -FriendlyName 'District AI CI scripted test package' `
-            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(1) `
+            -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(30) `
             -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
           $out = Join-Path $env:RUNNER_TEMP 'ScriptedPackages'
           try {

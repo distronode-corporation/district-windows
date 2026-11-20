@@ -66,6 +66,19 @@ out.
 - district-core-rust 13.0.0: two-step verification and the account's deletion, and their
   words in English and Canadian French.
 
+## [3.4.1] - 2026-11-20
+
+### Fixed
+
+- Fix: sideload test package certificate expired after one day. The test build on
+  GitHub Releases (`DistrictAI_<version>_x64_sideload-test.msix`) was signed with a
+  certificate valid for one day and no timestamp, so from the day after each release
+  Windows refused to install it (0x800B0101, a certificate not within its validity
+  period). Its certificate is now valid for two years and the signature carries an
+  RFC 3161 timestamp, so it keeps installing after the certificate expires, and a
+  release whose test package would not is refused. The Microsoft Store copy was never
+  affected: the Store signs what it ships.
+
 ## [3.4.0] - 2026-11-15
 
 District AI 3.4.0 brings number registrations to Windows and push to talk to District HQ
