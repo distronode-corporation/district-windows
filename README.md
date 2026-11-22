@@ -6,30 +6,39 @@
 
 # District AI for Windows
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/distronode-corporation/district-windows/badge)](https://scorecard.dev/viewer/?uri=github.com/distronode-corporation/district-windows)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15875/badge)](https://www.bestpractices.dev/projects/15875)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/distronode-corporation/district-windows/badge)](https://scorecard.dev/viewer/?uri=github.com/distronode-corporation/district-windows)
 [![Latest release](https://img.shields.io/github/v/release/distronode-corporation/district-windows?label=release)](https://github.com/distronode-corporation/district-windows/releases/latest)
+[![License: Apache-2.0](https://img.shields.io/github/license/distronode-corporation/district-windows)](LICENSE)
+[![CI](https://github.com/distronode-corporation/district-windows/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/distronode-corporation/district-windows/actions/workflows/ci.yml)
+
+The native Windows app for [District AI](https://www.distronode.com/district-ai), the AI voice
+receptionist from [Distronode](https://distronode.com) that answers a business's phone calls.
+
+![The District AI window on Windows, showing the Overview of a fictional dental practice](docs/images/window.png)
+
+**Quick start:** install it from the Microsoft Store, open **District AI** from the Start menu,
+and sign in in your browser, or create an account in the app:
+
+```
+winget install --id 9P9F0NNFJ3CP --source msstore
+```
 
 <a href="https://apps.microsoft.com/detail/9P9F0NNFJ3CP"><img alt="Get it from Microsoft" src="https://get.microsoft.com/images/en-us%20dark.svg" height="48"></a>
 
-The native Windows client for [District AI](https://www.distronode.com/district-ai), the AI voice
-receptionist from Distronode. It is a WinUI 3 app written in C#, and everything it decides
-(signing in, what each screen shows, live updates, calls) comes from the same Rust core as
-[District AI for Linux](https://github.com/distronode-corporation/district-linux).
+It is a WinUI 3 app written in C#, and everything it decides (signing in, what each screen
+shows, live updates, calls) comes from the same Rust core as
+[District AI for Linux](https://github.com/distronode-corporation/district-linux). Each
+release on [GitHub Releases](https://github.com/distronode-corporation/district-windows/releases)
+also carries the Store package and a test build for sideloading, for testing (see
+[Releases](#releases)).
 
-> **Status: District AI is on the
-> [Microsoft Store](https://apps.microsoft.com/detail/9P9F0NNFJ3CP).** Install it from
-> there, or with `winget install --id 9P9F0NNFJ3CP --source msstore`. Each release on
-> [GitHub Releases](https://github.com/distronode-corporation/district-windows/releases)
-> also carries the Store package and a test build for sideloading, for testing (see
-> [Releases](#releases)).
-
-**Links:** [project page](https://www.distronode.com/open-source/district-windows),
-[GitLab mirror](https://gitlab.com/distronode-corporation/district-windows)
-(read-only mirror; issues and pull requests live on GitHub),
-[CHANGELOG](CHANGELOG.md).
-
-![The District AI window on Windows, showing the Overview of a fictional dental practice](docs/images/window.png)
+**Links:** [Distronode](https://distronode.com) ·
+[project page](https://www.distronode.com/open-source/district-windows) ·
+[Distronode on GitHub](https://github.com/distronode-corporation) ·
+[CHANGELOG](CHANGELOG.md) · [ROADMAP](ROADMAP.md) ·
+[GitLab mirror](https://gitlab.com/distronode-corporation/district-windows) (read only; issues
+and pull requests live on GitHub)
 
 <p>
   <img alt="District HQ by voice, with two proposed changes waiting for Confirm or Cancel" src="docs/images/district-hq-voice.png" width="49%">
@@ -37,6 +46,14 @@ receptionist from Distronode. It is a WinUI 3 app written in C#, and everything 
 </p>
 
 *The real app, from the scripted scenes CI photographs: every name and number is a fixture.*
+
+<p>
+  <img alt="The calls list in version 1.1.0" src="docs/images/calls-1.1.0.png" width="49%">
+  <img alt="The Account screen in version 1.1.0, with Ring on this computer turned on" src="docs/images/account-1.1.0.png" width="49%">
+</p>
+
+*Two of the 1.1.0 Microsoft Store screenshots, from the same scripted scenes. The app has
+grown since: the navigation pane now holds the whole workspace, as in the window above.*
 
 ## What it is for
 
@@ -109,12 +126,31 @@ Trusted People (`certlm.msc`).
 sha256sum -c SHA256SUMS
 ```
 
-Each file also has a signed provenance attestation, which shows it was built by this
+Each file (but the provenance bundle, which holds the attestations) also has a signed
+provenance attestation, which shows it was built by this
 repository's release workflow. With the [GitHub CLI](https://cli.github.com):
 
 ```
-gh attestation verify <file> --repo distronode-corporation/district-windows
+gh attestation verify <file> --repo distronode-corporation/district-windows --signer-workflow distronode-corporation/district-windows/.github/workflows/release.yml
 ```
+
+The attestation is also attached to the release as `district-ai-windows_<version>.intoto.jsonl`,
+so you can check a download against that file rather than GitHub's attestation store by
+adding `--bundle district-ai-windows_<version>.intoto.jsonl`.
+
+## Uninstall
+
+Sign out first (on the Account screen), so the service revokes this computer's session and
+the app removes its sign-in from Windows Credential Manager. Then uninstall it from Settings,
+Apps, Installed apps, or with:
+
+```
+winget uninstall --id 9P9F0NNFJ3CP --source msstore
+```
+
+Windows removes the app's package data with it. If you installed the sideload test build,
+also delete its certificate from Local Machine, Trusted People (`certlm.msc`), as in
+[Installing the sideload test build](#installing-the-sideload-test-build).
 
 ## How it is built
 

@@ -355,10 +355,45 @@ Add-AppxPackage .\DistrictAI_<v>_x64_sideload-test.msix
 The test build has the Store flavour's identity. The GitHub flavour is a separate package;
 once it is signed and installable, install one copy, not both.
 
+## Style
+
+The rules CI enforces, so a pull request that breaks one fails:
+
+- **Rust**: `rustfmt` (`cargo fmt --all --check`, settings in `rustfmt.toml`) and Clippy with
+  every warning an error (`cargo clippy --workspace --all-targets --locked -- -D warnings`).
+  The workspace forbids `unsafe` code and warns on missing docs, `dbg!`, `todo!` and
+  `unimplemented!` (`[workspace.lints]` in `Cargo.toml`), and `scripts/check-unsafe.py`
+  fails on the word `unsafe` in hand-written sources.
+- **C#**: `dotnet format --verify-no-changes` on the core and view-model projects and their
+  tests. Every project builds with nullable reference types on, the latest recommended
+  analyzers, and warnings as errors (`Directory.Build.props`).
+- **Every file**: `.editorconfig` (UTF-8, LF line endings, a final newline, spaces).
+- **Dependencies**: `cargo deny check` (licences, advisories, sources; `deny.toml`), and
+  locked NuGet restores (above).
+
+## Tests
+
+- New functionality comes with tests in the same pull request: Rust tests next to the code
+  in `crates/`, view-model tests in `tests/DistrictAI.Presentation.Tests`, binding tests in
+  `tests/DistrictAI.Core.Tests`, and a built area in the scripted walk (see "Areas").
+- A bug fix comes with a test that fails without the fix.
+- Line coverage floors, per crate, are in `coverage-floors.toml`, and CI fails a crate under
+  its floor. Floors only go up: a change that raises a crate's coverage raises its floor in
+  the same change.
+- CI runs the Rust tests on Linux and Windows, the .NET tests, and the UI smoke tests and
+  scripted walk against the MSIX it has just built, on every push and pull request.
+
 ## Commits and pull requests
 
 Say why in the commit message, not only what. Keep a pull request to one concern. Every
 pull request runs CI, and `main` accepts only pull requests whose checks pass.
+
+Unless you say otherwise, a contribution you submit is licensed under the Apache License
+2.0, as section 5 of the [LICENSE](LICENSE) says.
+
+How the project is run (who decides, the roles, and how it continues if a maintainer is
+unavailable) is in the organization's
+[GOVERNANCE.md](https://github.com/distronode-corporation/.github/blob/main/GOVERNANCE.md).
 
 ## Areas
 
