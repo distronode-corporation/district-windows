@@ -308,14 +308,14 @@ Before tagging:
 Then run the tag workflow from main:
 
 ```
-git fetch origin
 gh workflow run tag.yml --ref main -f version=X.Y.Z -f summary="the release in a few words" \
-  -f commit="$(git rev-parse origin/main)"
+  -f commit=<the full 40-character commit you reviewed>
 ```
 
-`commit` is the full 40-character commit you reviewed, and it must still be main's head:
-the workflow refuses before signing anything if main has moved, and tags exactly that
-commit.
+`commit` is the commit you reviewed, typed in full, not looked up at run time (for the
+release pull request's merge commit, `gh pr view <n> --json mergeCommit`). It must still
+be main's head: the workflow refuses before signing anything if main has moved, and tags
+exactly that commit.
 
 It checks the three points above, creates the annotated tag on that commit, signs it with
 gitsign (keyless, under the workflow's own GitHub OIDC identity), verifies the signature,
