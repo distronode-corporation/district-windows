@@ -121,6 +121,23 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # The run was dispatched for one commit, GITHUB_SHA, and everything below
+      # reads the tree this run checked out: the two must be the same commit
+      # before anything else is trusted. `${GITHUB_SHA}^{commit}` names that
+      # commit whatever the dispatch recorded, a commit itself or a tag object
+      # peeled to the commit it names. A pull request's dry run is not a
+      # dispatch: its merge commit is rebuilt as the pull request or main
+      # moves, so the check runs on a dispatch only.
+      - name: The checkout is the commit the run was dispatched for
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          dispatched="$(git rev-parse "${GITHUB_SHA}^{commit}")"
+          if [ "$(git rev-parse HEAD)" != "$dispatched" ]; then
+            echo "::error::this run checked out $(git rev-parse HEAD), not $dispatched, the commit it was dispatched for"
+            exit 1
+          fi
+
       - name: Install gitsign
         if: github.event_name == 'workflow_dispatch'
         run: |
