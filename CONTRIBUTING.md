@@ -295,17 +295,32 @@ The rest is the app's:
 
 ## Releasing
 
-A release is a `vX.Y.Z` tag on a commit already on `main`, and
-`.github/workflows/release.yml` does the rest. `main` accepts only pull requests whose
-checks pass, so tag a commit whose CI on `main` is green. Before tagging:
+A release is a signed `vX.Y.Z` tag on a commit already on `main`, made by
+`.github/workflows/tag.yml`, and `.github/workflows/release.yml` does the rest. `main`
+accepts only pull requests whose checks pass, so tag when CI on `main`'s head is green.
+Before tagging:
 
 - `Version` in `src/DistrictAI/Package.appxmanifest` (and so in
   `Package.GitHub.appxmanifest`, which `check-flavours.py` holds to it) is `X.Y.Z.0`;
 - `CHANGELOG.md` has a `## [X.Y.Z]` section, which becomes the release notes;
 - `i18n/fr-CA/signoff.json` records every string catalog's SHA-256 (below).
 
-The workflow's first job refuses the tag when the tagged commit is not on `main` (CI never
-tested it), when a catalog is not the signed-off one, when the manifest's `Version` does
+Then run the tag workflow from main:
+
+```
+gh workflow run tag.yml --ref main -f version=X.Y.Z -f summary="the release in a few words"
+```
+
+It checks the three points above, creates the annotated tag on main's head, signs it with
+gitsign (keyless, under the workflow's own GitHub OIDC identity), verifies the signature,
+pushes the tag and starts `release.yml` on it. Do not push a `v` tag by hand: release tags
+can never be moved or deleted, and the release refuses any tag tag.yml did not sign
+(README.md, "Verifying a download", has the check). To re-run a release, re-run its run,
+or `gh workflow run release.yml --ref vX.Y.Z`. The Microsoft Store submission is still
+its own step, `store.yml`, once the release is public.
+
+The workflow's first job refuses the tag when tag.yml did not sign it, when the tagged
+commit is not on `main` (CI never tested it), when a catalog is not the signed-off one, when the manifest's `Version` does
 not match the tag, or when `CHANGELOG.md` has no section for it. It then builds, with no caches, the Store package (an unsigned
 `.msixupload`; the Store signs what it ships), a sideload test MSIX signed with a throwaway
 certificate, and the GitHub flavour as an unsigned MSIX, checks each package's identity,
