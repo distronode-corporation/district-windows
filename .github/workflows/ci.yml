@@ -12,6 +12,7 @@ name: CI
 #   line coverage to coverage-floors-dotnet.toml, and checks the C#
 #   formatting;
 # - `repo` runs the repository checks under scripts/;
+# - `deterministic` builds the OS-neutral assemblies twice and compares them;
 # - `cargo-deny`, `dependency-review` (pull requests only) and `zizmor` are the
 #   supply chain.
 #
@@ -314,6 +315,27 @@ jobs:
         run: |
           python3 scripts/check-store-copy.py --self-test
           python3 scripts/check-store-copy.py
+
+  # DistrictAI.Core and DistrictAI.Presentation built twice from clean, in
+  # Release with CI=true (Deterministic and ContinuousIntegrationBuild on, from
+  # Directory.Build.props), and every output assembly and PDB compared byte for
+  # byte. No native library is needed to build them.
+  deterministic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: Build twice and compare the assemblies
+        run: scripts/check-deterministic-build.sh
 
   # RustSec advisories, the licence allow-list, banned crates and allowed sources,
   # read from deny.toml, for both targets it names (windows-msvc and linux-gnu).
