@@ -162,6 +162,15 @@ jobs:
         run: |
           set -euo pipefail
           auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          # main read again from the server, as late as it can be: if a commit
+          # landed during the checks and signing, the signed tag is not pushed.
+          # The gap left is this one request.
+          now="$(git -c http.extraheader="AUTHORIZATION: basic $auth" \
+            ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$now" != "$COMMIT" ]; then
+            echo "::error::main moved to ${now:-nothing} while this run checked and signed $COMMIT; nothing was pushed. Run it again for main's new head."
+            exit 1
+          fi
           git -c http.extraheader="AUTHORIZATION: basic $auth" \
             push origin "refs/tags/v$VERSION"
 

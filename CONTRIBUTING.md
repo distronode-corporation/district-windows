@@ -314,7 +314,8 @@ gh workflow run tag.yml --ref main -f version=X.Y.Z -f summary="the release in a
 
 `commit` is the commit you reviewed, typed in full, not looked up at run time (for the
 release pull request's merge commit, `gh pr view <n> --json mergeCommit`). It must still
-be main's head: the workflow refuses before signing anything if main has moved, and tags
+be main's head: the workflow refuses before signing anything if main has moved, reads main
+again just before pushing and pushes nothing if it moved during the run, and tags
 exactly that commit.
 
 It checks the three points above, creates the annotated tag on that commit, signs it with
