@@ -8,9 +8,11 @@ name: CI
 # - `msrv` compiles it at the declared minimum Rust version;
 # - `bindings` regenerates the C# bindings and fails if the committed ones differ;
 # - `dotnet` tests DistrictAI.Core against the Linux build of district-ffi,
-#   tests the view models in DistrictAI.Presentation, and checks the C#
+#   tests the view models in DistrictAI.Presentation, holds both assemblies'
+#   line coverage to coverage-floors-dotnet.toml, and checks the C#
 #   formatting;
 # - `repo` runs the repository checks under scripts/;
+# - `deterministic` builds the OS-neutral assemblies twice and compares them;
 # - `cargo-deny`, `dependency-review` (pull requests only) and `zizmor` are the
 #   supply chain.
 #
@@ -208,12 +210,23 @@ jobs:
           cache: true
           cache-dependency-path: "**/packages.lock.json"
 
+      # Both test runs measure line coverage with coverlet (coverage.runsettings)
+      # into one directory; the step after them holds it to the floors.
       - name: dotnet test
-        run: dotnet test tests/DistrictAI.Core.Tests --nologo
+        run: >-
+          dotnet test tests/DistrictAI.Core.Tests --nologo
+          --settings coverage.runsettings --collect:"XPlat Code Coverage"
+          --results-directory "$RUNNER_TEMP/coverage-dotnet"
 
       # The view models, OS-neutral, against the core's generated records.
       - name: dotnet test, the view models
-        run: dotnet test tests/DistrictAI.Presentation.Tests --nologo
+        run: >-
+          dotnet test tests/DistrictAI.Presentation.Tests --nologo
+          --settings coverage.runsettings --collect:"XPlat Code Coverage"
+          --results-directory "$RUNNER_TEMP/coverage-dotnet"
+
+      - name: C# line coverage meets every floor
+        run: python3 scripts/check-dotnet-coverage.py "$RUNNER_TEMP/coverage-dotnet"
 
       - name: dotnet format
         run: |
@@ -239,6 +252,9 @@ jobs:
 
       - name: The coverage check still catches what it claims to
         run: python3 scripts/check-coverage.py --self-test
+
+      - name: The C# coverage check still catches what it claims to
+        run: python3 scripts/check-dotnet-coverage.py --self-test
 
       - name: The scripted-build check still catches what it claims to
         run: python3 scripts/check-scripted.py --self-test
@@ -299,6 +315,27 @@ jobs:
         run: |
           python3 scripts/check-store-copy.py --self-test
           python3 scripts/check-store-copy.py
+
+  # DistrictAI.Core and DistrictAI.Presentation built twice from clean, in
+  # Release with CI=true (Deterministic and ContinuousIntegrationBuild on, from
+  # Directory.Build.props), and every output assembly and PDB compared byte for
+  # byte. No native library is needed to build them.
+  deterministic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: Build twice and compare the assemblies
+        run: scripts/check-deterministic-build.sh
 
   # RustSec advisories, the licence allow-list, banned crates and allowed sources,
   # read from deny.toml, for both targets it names (windows-msvc and linux-gnu).
