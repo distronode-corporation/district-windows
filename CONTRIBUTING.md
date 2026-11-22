@@ -308,10 +308,16 @@ Before tagging:
 Then run the tag workflow from main:
 
 ```
-gh workflow run tag.yml --ref main -f version=X.Y.Z -f summary="the release in a few words"
+git fetch origin
+gh workflow run tag.yml --ref main -f version=X.Y.Z -f summary="the release in a few words" \
+  -f commit="$(git rev-parse origin/main)"
 ```
 
-It checks the three points above, creates the annotated tag on main's head, signs it with
+`commit` is the full 40-character commit you reviewed, and it must still be main's head:
+the workflow refuses before signing anything if main has moved, and tags exactly that
+commit.
+
+It checks the three points above, creates the annotated tag on that commit, signs it with
 gitsign (keyless, under the workflow's own GitHub OIDC identity), verifies the signature,
 pushes the tag and starts `release.yml` on it. Do not push a `v` tag by hand: release tags
 can never be moved or deleted, and the release refuses any tag tag.yml did not sign

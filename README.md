@@ -140,8 +140,8 @@ adding `--bundle district-ai-windows_<version>.intoto.jsonl`.
 
 From the next release on, the release tag is an annotated tag signed with
 [gitsign](https://github.com/sigstore/gitsign): keyless Sigstore signing by this
-repository's tag workflow, under its GitHub OIDC identity, with the signature recorded in
-Sigstore's public transparency log. There is no long-lived signing key. Tags up to and
+repository's tag workflow on the main commit a maintainer names, under its GitHub OIDC
+identity, with the signature recorded in Sigstore's public transparency log. There is no long-lived signing key. Tags up to and
 including v3.5.0 were made before this and are not signed. With gitsign installed, in a
 clone with the tags fetched:
 

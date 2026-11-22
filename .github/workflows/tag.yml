@@ -27,6 +27,10 @@ on:
         description: One line for the tag message, after the version (the release in a few words)
         required: true
         type: string
+      commit:
+        description: The full 40-character commit to tag, which must be main's head (git rev-parse origin/main)
+        required: true
+        type: string
 
 # Nothing at the top level; each job asks for what it needs.
 permissions: {}
@@ -45,6 +49,7 @@ jobs:
     env:
       VERSION: ${{ inputs.version }}
       SUMMARY: ${{ inputs.summary }}
+      COMMIT: ${{ inputs.commit }}
       # The upstream release, checked against a pinned SHA-256. Move both
       # together, and with the copy in release.yml's guard.
       GITSIGN_VERSION: 0.18.0
@@ -63,6 +68,23 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
+      # The maintainer names the commit they reviewed, and the run tags exactly
+      # that one: if main moved after they read it, or between the dispatch and
+      # this checkout, nothing is signed.
+      - name: The commit is main's head
+        run: |
+          set -euo pipefail
+          if ! [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::commit must be a full 40-character lowercase commit, got '$COMMIT'"
+            exit 1
+          fi
+          head="$(git rev-parse refs/remotes/origin/main)"
+          if [ "$COMMIT" != "$GITHUB_SHA" ] || [ "$COMMIT" != "$head" ]; then
+            echo "::error::commit $COMMIT is not main's head (this run is on $GITHUB_SHA, origin/main is $head)"
+            exit 1
+          fi
+          echo "$COMMIT is main's head"
 
       - name: The version is X.Y.Z and has no tag yet
         run: |
@@ -114,8 +136,8 @@ jobs:
           install -m 0755 "$RUNNER_TEMP/gitsign" /usr/local/bin/gitsign
           gitsign --version
 
-      # Signs the commit this run checked out (main's head when it was
-      # dispatched), then verifies the new tag against the identity users are
+      # Signs the commit the maintainer named (checked above to be main's head
+      # and the commit this run checked out), then verifies the new tag against the identity users are
       # told to expect before anything is pushed.
       - name: Create the signed tag
         env:
@@ -129,7 +151,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config gpg.format x509
           git config gpg.x509.program gitsign
-          git tag -s -m "$VERSION: $SUMMARY" "v$VERSION" "$GITHUB_SHA"
+          git tag -s -m "$VERSION: $SUMMARY" "v$VERSION" "$COMMIT"
           gitsign verify-tag "v$VERSION" \
             --certificate-identity "https://github.com/${GITHUB_REPOSITORY}/.github/workflows/tag.yml@refs/heads/main" \
             --certificate-oidc-issuer https://token.actions.githubusercontent.com
