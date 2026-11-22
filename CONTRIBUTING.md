@@ -333,7 +333,14 @@ the French rules, on every pull request; an error fails it, a warning does not.
 ### Testing the sideload package
 
 The test MSIX is signed with a throwaway certificate and depends on the Windows App
-Runtime, which a fresh Windows does not have. From a release, download
+Runtime, which a fresh Windows does not have. The certificate is valid for two years and
+the signature carries an RFC 3161 timestamp, so the package keeps installing after the
+certificate expires. `release.yml` refuses a release whose test package loses either
+(`scripts/check-msix-signature.py`, which needs at least 365 days of validity left and an
+RFC 3161 timestamp made while the certificate was valid, and which also checks the `.cer`
+is the one that signed it). Through 3.4.0 the certificate was valid for one day and the
+signature was not timestamped, so each of those test packages stopped installing a day
+after its release, with 0x800B0101. From a release, download
 `DistrictAI_<v>_x64_sideload-test.msix`, `DistrictAI_<v>_sideload-test.cer` and
 `DistrictAI_<v>_x64_sideload-dependencies.zip` into one folder, then run PowerShell as
 administrator in that folder:

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  coverlet.collector settings for CI's line coverage of the C# assemblies
+  (scripts/check-dotnet-coverage.py holds them to coverage-floors-dotnet.toml).
+  Measured: DistrictAI.Core and DistrictAI.Presentation only, never the tests.
+  Left out: generated code, which no test is written for. That is the UniFFI
+  bindings (Generated/district_ffi.cs, regenerated and compared by the
+  `bindings` job), the string tables gen-l10n.py writes (*.g.cs) and what
+  source generators write under obj/.
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Include>[DistrictAI.Core]*,[DistrictAI.Presentation]*</Include>
+          <ExcludeByFile>**/Generated/*.cs,**/obj/**/*.cs,**/*.g.cs</ExcludeByFile>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
