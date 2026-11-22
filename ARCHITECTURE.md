@@ -8,11 +8,11 @@ the Cargo workspace has one crate.
 
 ```
 DistrictAI                 WinUI 3 app (net10.0-windows10.0.26100.0, WinExe)
-  |  references
-  v
-DistrictAI.Presentation    view models (net10.0, OS-neutral)
-  |  references
-  v
+  |  references                          |
+  v                                      |  references (App builds CoreHost)
+DistrictAI.Presentation    view models   |  (net10.0, OS-neutral)
+  |  references                          |
+  v                                      v
 DistrictAI.Core            C# host over the FFI (net10.0, OS-neutral)
   |  P/Invoke (UniFFI bindings)
   v
@@ -22,7 +22,7 @@ crates/district-ffi        Rust cdylib: district_ffi.dll / libdistrict_ffi.so
 district-core-rust         shared Rust core (district-core, -api, -auth, ...)
 ```
 
-Each layer only calls the one below it. Only the top layer is Windows-specific.
+Each layer calls only the layers below it: the app references both Presentation and Core (`App` constructs `CoreHost` and wires it to the view models), and Presentation references Core. Only the top layer is Windows-specific.
 
 ## Projects
 
