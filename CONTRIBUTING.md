@@ -321,21 +321,24 @@ exactly that commit.
 It checks the three points above, creates the annotated tag on that commit, signs it with
 gitsign (keyless, under the workflow's own GitHub OIDC identity), verifies the signature,
 pushes the tag and starts `release.yml` on it. Do not push a `v` tag by hand: release tags
-can never be moved or deleted, and the release refuses any tag tag.yml did not sign
-(README.md, "Verifying a download", has the check). To re-run a release, re-run its run,
-or `gh workflow run release.yml --ref vX.Y.Z`. The Microsoft Store submission is still
-its own step, `store.yml`, once the release is public.
+can never be moved or deleted outside admin bypass, and release.yml's guard refuses any
+tag tag.yml did not sign (README.md, "Verifying a download", has the check). Its `publish`
+job then waits for the maintainer's approval of the pending deployment in the release
+environment. To re-run a release, re-run its run, or `gh workflow run release.yml --ref
+vX.Y.Z`. The Microsoft Store submission is still its own step, `store.yml`, once the
+release is public.
 
-The workflow's first job refuses the tag when tag.yml did not sign it, when the tagged
+release.yml's first job refuses the tag when tag.yml did not sign it, when the tagged
 commit is not on `main` (CI never tested it), when a catalog is not the signed-off one, when the manifest's `Version` does
 not match the tag, or when `CHANGELOG.md` has no section for it. It then builds, with no caches, the Store package (an unsigned
 `.msixupload`; the Store signs what it ships), a sideload test MSIX signed with a throwaway
 certificate, and the GitHub flavour as an unsigned MSIX, checks each package's identity,
 version and ReadyToRun code, and runs the Windows App Certification Kit on the test MSIX.
 The next job checks the files are exactly the names a release carries and writes
-`SHA256SUMS`. Only the last job can write: it attests every file's provenance, verifies the
-attestations, creates a draft release, checks GitHub holds exactly the expected files, and
-only then publishes it. The `.msixupload` is what goes to Partner Center; the README's
+`SHA256SUMS`. Only the last job can write: it waits for the maintainer's approval of the
+pending deployment in the release environment, then attests every file's provenance,
+verifies the attestations, creates a draft release, checks GitHub holds exactly the
+expected files, and only then publishes it. The `.msixupload` is what goes to Partner Center; the README's
 [Releases](README.md#releases) says what each file is for.
 
 Pull requests that change the workflow or the packaging run the same build and

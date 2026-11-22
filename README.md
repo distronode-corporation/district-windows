@@ -152,8 +152,9 @@ gitsign verify-tag vX.Y.Z \
 ```
 
 It succeeds only when the signature is valid, is in the transparency log, and was made by
-that workflow file running on main of this repository. The release workflow runs the same
-check and builds nothing from a tag that fails it.
+that workflow file running on main of this repository. release.yml runs the same check and
+builds nothing from a tag that fails it, and its publish waits for the maintainer's approval
+in the release environment.
 
 ## Uninstall
 
