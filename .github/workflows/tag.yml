@@ -10,12 +10,13 @@ name: Tag a release
 #
 # A tag pushed with the workflow's own token starts no other workflow, so the
 # last job starts release.yml on the new tag itself (a dispatch is the one
-# event that token may start). release.yml's guard refuses any tag this
-# workflow did not sign, so a tag made any other way is never built.
+# event that token may start). release.yml's publish waits for the
+# maintainer's approval in the release environment, and the guard refuses any
+# tag this workflow did not sign.
 #
-# A release tag can never be moved or deleted, so the checks release.yml's
-# guard runs on the tree are run here as well, before the tag exists: a tag
-# the guard would refuse would cost its version number.
+# A release tag can never be moved or deleted outside admin bypass, so the
+# checks release.yml's guard runs on the tree are run here as well, before
+# the tag exists: a tag the guard would refuse would cost its version number.
 on:
   workflow_dispatch:
     inputs:
@@ -40,7 +41,55 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The tree checks release.yml's guard runs, before the tag exists, in a job
+  # that holds no permissions at all: they only read the tree, and no
+  # tree-check script runs in the job that holds `id-token: write`.
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions: {}
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # What release.yml's guard checks on a tag: Package.appxmanifest's
+      # Identity/@Version is X.Y.Z.0 and CHANGELOG.md has a section for X.Y.Z
+      # to make the notes from.
+      - name: Package.appxmanifest and CHANGELOG.md name the version
+        run: |
+          set -euo pipefail
+          python3 - <<'EOF'
+          import os, xml.etree.ElementTree as ET
+          version = os.environ["VERSION"]
+          ns = {"m": "http://schemas.microsoft.com/appx/manifest/foundation/windows10"}
+          identity = ET.parse("src/DistrictAI/Package.appxmanifest").getroot().find("m:Identity", ns)
+          manifest = identity.get("Version", "") if identity is not None else ""
+          if manifest != f"{version}.0":
+              raise SystemExit(f"::error::Package.appxmanifest Identity/@Version is {manifest!r}; v{version} needs {version}.0")
+          print(f"Package.appxmanifest Version {manifest}")
+          EOF
+          awk -v tag="## [${VERSION}]" '
+            index($0, tag)==1 {cap=1; next}
+            index($0, "## [")==1 && cap==1 {cap=0}
+            substr($0,1,1)=="[" && cap==1 {exit}
+            cap {print}
+          ' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/release-notes.md"; then
+            echo "::error::CHANGELOG.md has no section for $VERSION (## [$VERSION]) to make the release notes from"
+            exit 1
+          fi
+
+      - name: The catalogs are the signed-off French
+        run: python3 scripts/check-fr-signoff.py
+
+  # Needs the checks: by the time this job holds `id-token: write` for the
+  # signing, the tree has passed the checks release.yml's guard runs on it.
   tag:
+    needs: checks
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -96,36 +145,6 @@ jobs:
             echo "::error::v$VERSION already exists; a tag never moves"
             exit 1
           fi
-
-      # What release.yml's guard checks on a tag: Package.appxmanifest's
-      # Identity/@Version is X.Y.Z.0 and CHANGELOG.md has a section for X.Y.Z
-      # to make the notes from.
-      - name: Package.appxmanifest and CHANGELOG.md name the version
-        run: |
-          set -euo pipefail
-          python3 - <<'EOF'
-          import os, xml.etree.ElementTree as ET
-          version = os.environ["VERSION"]
-          ns = {"m": "http://schemas.microsoft.com/appx/manifest/foundation/windows10"}
-          identity = ET.parse("src/DistrictAI/Package.appxmanifest").getroot().find("m:Identity", ns)
-          manifest = identity.get("Version", "") if identity is not None else ""
-          if manifest != f"{version}.0":
-              raise SystemExit(f"::error::Package.appxmanifest Identity/@Version is {manifest!r}; v{version} needs {version}.0")
-          print(f"Package.appxmanifest Version {manifest}")
-          EOF
-          awk -v tag="## [${VERSION}]" '
-            index($0, tag)==1 {cap=1; next}
-            index($0, "## [")==1 && cap==1 {cap=0}
-            substr($0,1,1)=="[" && cap==1 {exit}
-            cap {print}
-          ' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
-          if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/release-notes.md"; then
-            echo "::error::CHANGELOG.md has no section for $VERSION (## [$VERSION]) to make the release notes from"
-            exit 1
-          fi
-
-      - name: The catalogs are the signed-off French
-        run: python3 scripts/check-fr-signoff.py
 
       - name: Install gitsign
         run: |
