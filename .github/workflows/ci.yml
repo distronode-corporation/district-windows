@@ -8,7 +8,8 @@ name: CI
 # - `msrv` compiles it at the declared minimum Rust version;
 # - `bindings` regenerates the C# bindings and fails if the committed ones differ;
 # - `dotnet` tests DistrictAI.Core against the Linux build of district-ffi,
-#   tests the view models in DistrictAI.Presentation, and checks the C#
+#   tests the view models in DistrictAI.Presentation, holds both assemblies'
+#   line coverage to coverage-floors-dotnet.toml, and checks the C#
 #   formatting;
 # - `repo` runs the repository checks under scripts/;
 # - `cargo-deny`, `dependency-review` (pull requests only) and `zizmor` are the
@@ -208,12 +209,23 @@ jobs:
           cache: true
           cache-dependency-path: "**/packages.lock.json"
 
+      # Both test runs measure line coverage with coverlet (coverage.runsettings)
+      # into one directory; the step after them holds it to the floors.
       - name: dotnet test
-        run: dotnet test tests/DistrictAI.Core.Tests --nologo
+        run: >-
+          dotnet test tests/DistrictAI.Core.Tests --nologo
+          --settings coverage.runsettings --collect:"XPlat Code Coverage"
+          --results-directory "$RUNNER_TEMP/coverage-dotnet"
 
       # The view models, OS-neutral, against the core's generated records.
       - name: dotnet test, the view models
-        run: dotnet test tests/DistrictAI.Presentation.Tests --nologo
+        run: >-
+          dotnet test tests/DistrictAI.Presentation.Tests --nologo
+          --settings coverage.runsettings --collect:"XPlat Code Coverage"
+          --results-directory "$RUNNER_TEMP/coverage-dotnet"
+
+      - name: C# line coverage meets every floor
+        run: python3 scripts/check-dotnet-coverage.py "$RUNNER_TEMP/coverage-dotnet"
 
       - name: dotnet format
         run: |
@@ -239,6 +251,9 @@ jobs:
 
       - name: The coverage check still catches what it claims to
         run: python3 scripts/check-coverage.py --self-test
+
+      - name: The C# coverage check still catches what it claims to
+        run: python3 scripts/check-dotnet-coverage.py --self-test
 
       - name: The scripted-build check still catches what it claims to
         run: python3 scripts/check-scripted.py --self-test

@@ -1,0 +1,21 @@
+# Line coverage floors for the C# assemblies, one entry per assembly.
+#
+# CI's `dotnet` job runs DistrictAI.Core.Tests and DistrictAI.Presentation.Tests
+# with coverlet (coverage.runsettings), and scripts/check-dotnet-coverage.py
+# fails the job when an assembly is under its floor or missing from the
+# reports. A line counts as covered if either test project runs it. Generated
+# code is left out (see coverage.runsettings).
+#
+#   floor   The whole-number percentage of the assembly's lines the tests must
+#           execute.
+#   reason  One line saying why the floor is where it is.
+#
+# Floors only ratchet up, as in coverage-floors.toml.
+
+[assemblies."DistrictAI.Core"]
+floor = 95
+reason = "Measured 95.93% (283 of 295 lines) on Linux on 2026-11-22, rounded down."
+
+[assemblies."DistrictAI.Presentation"]
+floor = 99
+reason = "Measured 99.50% (8155 of 8196 lines) on Linux on 2026-11-22, rounded down."
