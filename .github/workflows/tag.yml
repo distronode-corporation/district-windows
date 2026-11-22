@@ -118,6 +118,11 @@ jobs:
       # dispatched), then verifies the new tag against the identity users are
       # told to expect before anything is pushed.
       - name: Create the signed tag
+        env:
+          # Embeds the transparency log entry in the signature, so verify-tag
+          # checks it there instead of searching the log, which can miss an
+          # entry made seconds earlier. Verification is no less strict.
+          GITSIGN_REKOR_MODE: offline
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
