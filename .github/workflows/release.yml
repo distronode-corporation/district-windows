@@ -1,6 +1,6 @@
 name: Release
 
-# Fires on a `vX.Y.Z` tag and publishes District AI for Windows: the Store
+# Runs on a `vX.Y.Z` tag and publishes District AI for Windows: the Store
 # package Partner Center takes (an unsigned .msixupload; the Store signs what it
 # ships), a sideload test MSIX signed with a throwaway certificate and that
 # certificate's public half, a zip of the framework packages the test MSIX
@@ -10,9 +10,15 @@ name: Release
 # source zip, SHA256SUMS over all of them, and the signed provenance
 # attestation over them (`district-ai-windows_<version>.intoto.jsonl`).
 #
+# tag.yml creates the tag, signed with gitsign, and then starts this workflow
+# on it (a tag pushed with a workflow's token starts no workflow by itself).
+# To re-run a release, re-run this run, or dispatch this workflow again on the
+# same tag: `gh workflow run release.yml --ref vX.Y.Z`.
+#
 # Five stages, and only the last two can write anything:
 #
-# - `guard` refuses a tag that should not be built: one on a commit that is not
+# - `guard` refuses a tag that should not be built: one tag.yml did not sign
+#   (README.md, "Verifying a download"), one on a commit that is not
 #   on main (CI never tested it), one that Package.appxmanifest's Version does
 #   not name (tag vX.Y.Z needs Version X.Y.Z.0), one without a CHANGELOG.md
 #   section to make the notes from, or one whose catalogs are not the ones
@@ -38,9 +44,9 @@ name: Release
 #
 # Crash reports are off in every build until its user says yes. The packages
 # carry the DSN reports go to, the WINDOWS_SENTRY_DSN repository secret, which
-# `build` bakes into the app only for a tag push (a pull request's dry run
-# builds without it), with DISTRICT_AI_BUILD, the commit's first twelve
-# characters (src/DistrictAI/Platform/CrashReporter.cs). `sentry` needs
+# `build` bakes into the app only for a release run on a tag (a pull
+# request's dry run builds without it), with DISTRICT_AI_BUILD, the commit's
+# first twelve characters (src/DistrictAI/Platform/CrashReporter.cs). `sentry` needs
 # SENTRY_AUTH_TOKEN, a secret of the `release` environment.
 #
 # Pull requests that touch this workflow or the packaging run the first three
@@ -49,9 +55,10 @@ name: Release
 #
 # Artifact attestations need the repository to be public (or GitHub Enterprise
 # Cloud); in a private repository `publish` fails at the attestation.
+# A release is dispatched on its tag, by tag.yml or by hand; `guard` refuses a
+# dispatch on anything but a vX.Y.Z tag.
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
   pull_request:
     paths:
       - .github/workflows/release.yml
@@ -83,8 +90,9 @@ concurrency:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "1"
-  # True for a tag push, the only event that can publish.
-  RELEASING: ${{ github.event_name == 'push' }}
+  # True for a dispatch, the only event that can publish (`guard` refuses one
+  # that is not on a vX.Y.Z tag).
+  RELEASING: ${{ github.event_name == 'workflow_dispatch' }}
 
 jobs:
   guard:
@@ -93,29 +101,94 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       body: ${{ steps.notes.outputs.body }}
+    env:
+      # The same pin as tag.yml's. Move both together.
+      GITSIGN_VERSION: 0.18.0
+      GITSIGN_SHA256: 2bc625472a08fea3bb6a57982c7d8b4978d1032251d305ceef3bf2ded0ca4483
     steps:
+      # A dispatch can name any branch or tag; only a release tag is built.
+      - name: The run is on a vX.Y.Z tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "$GITHUB_REF_TYPE" != "tag" ] || ! [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Run this workflow on a vX.Y.Z tag, not $GITHUB_REF. tag.yml makes the tag and starts it."
+            exit 1
+          fi
+
       # The whole history and every branch, for the ancestry check below.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
 
+      # The run was dispatched for one commit, GITHUB_SHA, and everything below
+      # reads the tree this run checked out: the two must be the same commit
+      # before anything else is trusted. `${GITHUB_SHA}^{commit}` names that
+      # commit whatever the dispatch recorded, a commit itself or a tag object
+      # peeled to the commit it names, and `dispatched` carries it to the
+      # steps below. A pull request's dry run is not a
+      # dispatch: its merge commit is rebuilt as the pull request or main
+      # moves, so the check runs on a dispatch only.
+      - name: The checkout is the commit the run was dispatched for
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          dispatched="$(git rev-parse "${GITHUB_SHA}^{commit}")"
+          if [ "$(git rev-parse HEAD)" != "$dispatched" ]; then
+            echo "::error::this run checked out $(git rev-parse HEAD), not $dispatched, the commit it was dispatched for"
+            exit 1
+          fi
+          echo "dispatched=$dispatched" >> "$GITHUB_ENV"
+
+      - name: Install gitsign
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$RUNNER_TEMP/gitsign" \
+            "https://github.com/sigstore/gitsign/releases/download/v${GITSIGN_VERSION}/gitsign_${GITSIGN_VERSION}_linux_amd64"
+          echo "${GITSIGN_SHA256}  $RUNNER_TEMP/gitsign" | sha256sum -c -
+          install -m 0755 "$RUNNER_TEMP/gitsign" /usr/local/bin/gitsign
+          gitsign --version
+
+      # Only a tag tag.yml signed is built. The tag object is fetched again as
+      # the server holds it, so the check reads the annotated, signed tag and
+      # not a local copy. It must name the commit this run checked out and
+      # carry a valid gitsign signature, in the transparency log, made by
+      # tag.yml on main of this repository: the identity README.md
+      # ("Verifying a download") tells users to expect.
+      - name: The tag is signed by tag.yml on main
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "+refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          if [ "$(git cat-file -t "refs/tags/${GITHUB_REF_NAME}")" != "tag" ]; then
+            echo "::error::$GITHUB_REF_NAME is a lightweight tag; a release tag is annotated and signed by tag.yml"
+            exit 1
+          fi
+          if [ "$(git rev-parse "refs/tags/${GITHUB_REF_NAME}^{commit}")" != "$dispatched" ]; then
+            echo "::error::$GITHUB_REF_NAME does not name $dispatched, the commit this run checked out"
+            exit 1
+          fi
+          gitsign verify-tag "$GITHUB_REF_NAME" \
+            --certificate-identity "https://github.com/${GITHUB_REPOSITORY}/.github/workflows/tag.yml@refs/heads/main" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com
+
       # A tag is not a branch, and CI does not run on one: a tag on a commit
       # that never reached main would be built and released untested.
       - name: The tagged commit is on main
-        if: github.event_name == 'push'
+        if: github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
           if ! git rev-parse --verify --quiet refs/remotes/origin/main > /dev/null; then
             echo "::error::the checkout has no origin/main to compare the tag with"
             exit 1
           fi
-          if ! git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/main; then
-            echo "::error::$GITHUB_REF_NAME points at $GITHUB_SHA, which is not on main."
+          if ! git merge-base --is-ancestor "$dispatched" refs/remotes/origin/main; then
+            echo "::error::$GITHUB_REF_NAME points at $dispatched, which is not on main."
             echo "CI never ran on this commit. Merge it to main first, then move the tag."
             exit 1
           fi
-          echo "$GITHUB_SHA is on main"
+          echo "$dispatched is on main"
 
       # The French is signed off per release: every catalog must be the one
       # i18n/fr-CA/signoff.json records, and scripts/check-fr-signoff.py names
@@ -123,7 +196,7 @@ jobs:
       # release, and catalogs change between releases (CONTRIBUTING.md,
       # "Releasing").
       - name: The catalogs are the signed-off French
-        if: github.event_name == 'push'
+        if: github.event_name == 'workflow_dispatch'
         run: python3 scripts/check-fr-signoff.py
 
       # Tag vX.Y.Z needs Identity/@Version X.Y.Z.0 (the Store requires the
@@ -144,7 +217,7 @@ jobs:
           if not m:
               raise SystemExit(f"::error::Package.appxmanifest Identity/@Version is {manifest!r}, not X.Y.Z.0")
           version = ".".join(m.groups())
-          if os.environ["EVENT"] == "push":
+          if os.environ["EVENT"] == "workflow_dispatch":
               tag = os.environ["GITHUB_REF_NAME"]
               if not re.fullmatch(r"v\d+\.\d+\.\d+", tag):
                   raise SystemExit(f"::error::{tag} is not a vX.Y.Z tag")
@@ -270,15 +343,15 @@ jobs:
       # What the three package builds below stamp on the app
       # (DistrictAI.csproj) for its crash reports: the commit's first twelve
       # characters, as the Sentry release names it, here; and, in each of the
-      # three steps' own environment and only for a tag push, the DSN. The DSN
-      # is a repository secret because this job runs in no environment; it is
-      # no secret from anyone holding the package, which carries it. No token
-      # reaches this job. A tag without the DSN is refused rather than released
-      # without crash reports.
+      # three steps' own environment and only for a release run on a tag, the
+      # DSN. The DSN is a repository secret because this job runs in no
+      # environment; it is no secret from anyone holding the package, which
+      # carries it. No token reaches this job. A tag without the DSN is refused
+      # rather than released without crash reports.
       - name: Name the build for crash reports
         shell: pwsh
         env:
-          DSN: ${{ github.event_name == 'push' && secrets.WINDOWS_SENTRY_DSN || '' }}
+          DSN: ${{ github.event_name == 'workflow_dispatch' && secrets.WINDOWS_SENTRY_DSN || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:RELEASING -eq 'true' -and -not $env:DSN) { throw 'the WINDOWS_SENTRY_DSN secret is not set: this release would carry no crash reports' }
@@ -294,7 +367,7 @@ jobs:
       - name: Build the Store package (.msixupload)
         shell: pwsh
         env:
-          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'push' && secrets.WINDOWS_SENTRY_DSN || '' }}
+          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'workflow_dispatch' && secrets.WINDOWS_SENTRY_DSN || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
           $out = Join-Path $env:RUNNER_TEMP 'StorePackage'
@@ -324,7 +397,7 @@ jobs:
       - name: Build the sideload test MSIX, signed with a throwaway certificate
         shell: pwsh
         env:
-          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'push' && secrets.WINDOWS_SENTRY_DSN || '' }}
+          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'workflow_dispatch' && secrets.WINDOWS_SENTRY_DSN || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
           $publisher = ([xml](Get-Content src/DistrictAI/Package.appxmanifest)).Package.Identity.Publisher
@@ -379,7 +452,7 @@ jobs:
       - name: Build the GitHub flavour MSIX, unsigned
         shell: pwsh
         env:
-          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'push' && secrets.WINDOWS_SENTRY_DSN || '' }}
+          WINDOWS_SENTRY_DSN: ${{ github.event_name == 'workflow_dispatch' && secrets.WINDOWS_SENTRY_DSN || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
           $out = Join-Path $env:RUNNER_TEMP 'GitHubPackage'
@@ -714,7 +787,7 @@ jobs:
   # The only job that can write to the repository, and only for a tag.
   publish:
     needs: [guard, assemble]
-    if: github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch'
     # The `release` environment admits only `v*` tags (and main), so this job,
     # the one that can write, cannot run for anything else.
     environment: release

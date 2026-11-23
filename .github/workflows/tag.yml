@@ -1,0 +1,216 @@
+name: Tag a release
+
+# Creates a release tag, `vX.Y.Z`, annotated and signed with gitsign: keyless
+# Sigstore signing under this workflow's GitHub OIDC identity, so no long-lived
+# key exists anywhere. The certificate names this file on refs/heads/main and
+# the issuer https://token.actions.githubusercontent.com, and the signature is
+# recorded in Sigstore's public transparency log. README.md ("Verifying a
+# download") has the command that checks both. Run by hand from main once the
+# release's changes are merged (CONTRIBUTING.md, "Releasing").
+#
+# A tag pushed with the workflow's own token starts no other workflow, so the
+# last job starts release.yml on the new tag itself (a dispatch is the one
+# event that token may start). release.yml's publish waits for the
+# maintainer's approval in the release environment, and the guard refuses any
+# tag this workflow did not sign.
+#
+# A release tag can never be moved or deleted outside admin bypass, so the
+# checks release.yml's guard runs on the tree are run here as well, before
+# the tag exists: a tag the guard would refuse would cost its version number.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to tag, as in Package.appxmanifest without its .0 (3.6.0, no v)
+        required: true
+        type: string
+      summary:
+        description: One line for the tag message, after the version (the release in a few words)
+        required: true
+        type: string
+      commit:
+        description: The full 40-character commit to tag, which must be main's head (git rev-parse origin/main)
+        required: true
+        type: string
+
+# Nothing at the top level; each job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: tag-release
+  cancel-in-progress: false
+
+jobs:
+  # The tree checks release.yml's guard runs, before the tag exists, in a job
+  # that holds no permissions at all: they only read the tree, and no
+  # tree-check script runs in the job that holds `id-token: write`.
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions: {}
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # What release.yml's guard checks on a tag: Package.appxmanifest's
+      # Identity/@Version is X.Y.Z.0 and CHANGELOG.md has a section for X.Y.Z
+      # to make the notes from.
+      - name: Package.appxmanifest and CHANGELOG.md name the version
+        run: |
+          set -euo pipefail
+          python3 - <<'EOF'
+          import os, xml.etree.ElementTree as ET
+          version = os.environ["VERSION"]
+          ns = {"m": "http://schemas.microsoft.com/appx/manifest/foundation/windows10"}
+          identity = ET.parse("src/DistrictAI/Package.appxmanifest").getroot().find("m:Identity", ns)
+          manifest = identity.get("Version", "") if identity is not None else ""
+          if manifest != f"{version}.0":
+              raise SystemExit(f"::error::Package.appxmanifest Identity/@Version is {manifest!r}; v{version} needs {version}.0")
+          print(f"Package.appxmanifest Version {manifest}")
+          EOF
+          awk -v tag="## [${VERSION}]" '
+            index($0, tag)==1 {cap=1; next}
+            index($0, "## [")==1 && cap==1 {cap=0}
+            substr($0,1,1)=="[" && cap==1 {exit}
+            cap {print}
+          ' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/release-notes.md"; then
+            echo "::error::CHANGELOG.md has no section for $VERSION (## [$VERSION]) to make the release notes from"
+            exit 1
+          fi
+
+      - name: The catalogs are the signed-off French
+        run: python3 scripts/check-fr-signoff.py
+
+  # Needs the checks: by the time this job holds `id-token: write` for the
+  # signing, the tree has passed the checks release.yml's guard runs on it.
+  tag:
+    needs: checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write # push the tag
+      id-token: write # the OIDC token gitsign exchanges for its signing certificate
+    env:
+      VERSION: ${{ inputs.version }}
+      SUMMARY: ${{ inputs.summary }}
+      COMMIT: ${{ inputs.commit }}
+      # The upstream release, checked against a pinned SHA-256. Move both
+      # together, and with the copy in release.yml's guard.
+      GITSIGN_VERSION: 0.18.0
+      GITSIGN_SHA256: 2bc625472a08fea3bb6a57982c7d8b4978d1032251d305ceef3bf2ded0ca4483
+    steps:
+      # The certificate identity README.md tells users to expect, and the one
+      # release.yml's guard requires, is this file on main. A run from any
+      # other ref would sign under another identity.
+      - name: Only from main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Run this workflow from main, not $GITHUB_REF."
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # The maintainer names the commit they reviewed, and the run tags exactly
+      # that one: if main moved after they read it, or between the dispatch and
+      # this checkout, nothing is signed. main is read from the server, because
+      # actions/checkout pins the checkout's refs/remotes/origin/main to the
+      # dispatched commit and the local ref could not see a move.
+      - name: The commit is main's head
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::commit must be a full 40-character lowercase commit, got '$COMMIT'"
+            exit 1
+          fi
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          head="$(git -c http.extraheader="AUTHORIZATION: basic $auth" ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$COMMIT" != "$GITHUB_SHA" ] || [ "$COMMIT" != "$head" ]; then
+            echo "::error::commit $COMMIT is not main's head (this run is on $GITHUB_SHA, main on the server is $head)"
+            exit 1
+          fi
+          echo "$COMMIT is main's head"
+
+      - name: The version is X.Y.Z and has no tag yet
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::version must be X.Y.Z, got '$VERSION'"
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/v$VERSION" > /dev/null; then
+            echo "::error::v$VERSION already exists; a tag never moves"
+            exit 1
+          fi
+
+      - name: Install gitsign
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$RUNNER_TEMP/gitsign" \
+            "https://github.com/sigstore/gitsign/releases/download/v${GITSIGN_VERSION}/gitsign_${GITSIGN_VERSION}_linux_amd64"
+          echo "${GITSIGN_SHA256}  $RUNNER_TEMP/gitsign" | sha256sum -c -
+          install -m 0755 "$RUNNER_TEMP/gitsign" /usr/local/bin/gitsign
+          gitsign --version
+
+      # Signs the commit the maintainer named (checked above to be main's head
+      # and the commit this run checked out), then verifies the new tag against the identity users are
+      # told to expect before anything is pushed.
+      - name: Create the signed tag
+        env:
+          # Embeds the transparency log entry in the signature, so verify-tag
+          # checks it there instead of searching the log, which can miss an
+          # entry made seconds earlier. Verification is no less strict.
+          GITSIGN_REKOR_MODE: offline
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config gpg.format x509
+          git config gpg.x509.program gitsign
+          git tag -s -m "$VERSION: $SUMMARY" "v$VERSION" "$COMMIT"
+          gitsign verify-tag "v$VERSION" \
+            --certificate-identity "https://github.com/${GITHUB_REPOSITORY}/.github/workflows/tag.yml@refs/heads/main" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com
+
+      - name: Push the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          # main read again from the server, as late as it can be: if a commit
+          # landed during the checks and signing, the signed tag is not pushed.
+          # The gap left is this one request.
+          now="$(git -c http.extraheader="AUTHORIZATION: basic $auth" \
+            ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$now" != "$COMMIT" ]; then
+            echo "::error::main moved to ${now:-nothing} while this run checked and signed $COMMIT; nothing was pushed. Run it again for main's new head."
+            exit 1
+          fi
+          git -c http.extraheader="AUTHORIZATION: basic $auth" \
+            push origin "refs/tags/v$VERSION"
+
+  # Its own job, so the token that can start workflows never sits beside the
+  # one that can push. release.yml runs on the tag, as a tag push used to start
+  # it, so its `release` environment and its crash-report DSN see the same ref
+  # they always did. The Store submission stays its own step (store.yml).
+  release:
+    needs: tag
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write # start release.yml on the new tag
+    env:
+      VERSION: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Start release.yml on the tag
+        run: gh workflow run release.yml --repo "$GITHUB_REPOSITORY" --ref "v$VERSION"
