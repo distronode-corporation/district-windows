@@ -120,17 +120,22 @@ jobs:
 
       # The maintainer names the commit they reviewed, and the run tags exactly
       # that one: if main moved after they read it, or between the dispatch and
-      # this checkout, nothing is signed.
+      # this checkout, nothing is signed. main is read from the server, because
+      # actions/checkout pins the checkout's refs/remotes/origin/main to the
+      # dispatched commit and the local ref could not see a move.
       - name: The commit is main's head
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if ! [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
             echo "::error::commit must be a full 40-character lowercase commit, got '$COMMIT'"
             exit 1
           fi
-          head="$(git rev-parse refs/remotes/origin/main)"
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          head="$(git -c http.extraheader="AUTHORIZATION: basic $auth" ls-remote origin refs/heads/main | cut -f1)"
           if [ "$COMMIT" != "$GITHUB_SHA" ] || [ "$COMMIT" != "$head" ]; then
-            echo "::error::commit $COMMIT is not main's head (this run is on $GITHUB_SHA, origin/main is $head)"
+            echo "::error::commit $COMMIT is not main's head (this run is on $GITHUB_SHA, main on the server is $head)"
             exit 1
           fi
           echo "$COMMIT is main's head"
