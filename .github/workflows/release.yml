@@ -183,12 +183,12 @@ jobs:
             echo "::error::the checkout has no origin/main to compare the tag with"
             exit 1
           fi
-          if ! git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/main; then
-            echo "::error::$GITHUB_REF_NAME points at $GITHUB_SHA, which is not on main."
+          if ! git merge-base --is-ancestor "$dispatched" refs/remotes/origin/main; then
+            echo "::error::$GITHUB_REF_NAME points at $dispatched, which is not on main."
             echo "CI never ran on this commit. Merge it to main first, then move the tag."
             exit 1
           fi
-          echo "$GITHUB_SHA is on main"
+          echo "$dispatched is on main"
 
       # The French is signed off per release: every catalog must be the one
       # i18n/fr-CA/signoff.json records, and scripts/check-fr-signoff.py names
