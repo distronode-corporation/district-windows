@@ -151,14 +151,16 @@ jobs:
           cargo "+$NIGHTLY" llvm-cov --branch --workspace --locked --no-report
           cargo "+$NIGHTLY" llvm-cov report --branch --show-missing-lines
           cargo "+$NIGHTLY" llvm-cov report --branch --json --summary-only --output-path "$RUNNER_TEMP/branches.json"
-          cargo "+$NIGHTLY" llvm-cov report --branch --lcov --output-path "$RUNNER_TEMP/branches.lcov"
+          cargo "+$NIGHTLY" llvm-cov report --branch --json --output-path "$RUNNER_TEMP/branches-full.json"
 
-      # The lcov file names each branch and whether it ran (its BRDA records), which
-      # the summary above does not: the list of what is left to test.
+      # The full JSON export names each branch, per function copy, with the times
+      # each side ran, which the summary above does not: the list of what is left
+      # to test. Not lcov: this nightly's `llvm-cov export -format=lcov` crashes
+      # (SIGSEGV) on this crate's profile.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: branches-lcov
-          path: ${{ runner.temp }}/branches.lcov
+          name: branches-json
+          path: ${{ runner.temp }}/branches-full.json
           if-no-files-found: error
           retention-days: 7
 
