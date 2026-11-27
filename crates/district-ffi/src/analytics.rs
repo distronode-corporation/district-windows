@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Call analytics and metered usage, as District AI for Linux's analytics page
 //! shows them (`pages/analytics.rs`, `ui/analytics-page.ui`): the period
 //! chooser, the call figures over the period with their charts, this month's

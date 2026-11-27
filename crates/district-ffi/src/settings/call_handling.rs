@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Who answers an inbound call, and whether this member is rung (District
 //! Studio's Call handling), as District AI for Linux's call handling page
 //! shows it (`district-app/src/pages/call_handling.rs`).

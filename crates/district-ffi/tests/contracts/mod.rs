@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Where the recorded server responses the projection tests answer with are:
 //! the contract fixtures of District AI core for Rust, in the checkout of it
 //! that Cargo.lock pins, beside its crates. The tests read the same bytes the

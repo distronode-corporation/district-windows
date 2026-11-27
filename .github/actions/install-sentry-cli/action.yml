@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Install sentry-cli
 description: >-
   The upstream release of sentry-cli, the Linux x86_64 binary, checked against a

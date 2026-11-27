@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Store
 
 # Sends a published release to the Microsoft Store (Store ID 9P9F0NNFJ3CP)

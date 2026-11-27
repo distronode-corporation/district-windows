@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The inbox, its search, and one conversation: what the Linux inbox page and
 //! thread view show. The inbox's "New message" form is crate::compose's, and
 //! the reply box under a conversation crate::composer's.

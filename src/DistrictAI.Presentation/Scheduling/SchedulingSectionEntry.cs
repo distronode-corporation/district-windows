@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using DistrictAI.Core.Ffi;
 
 namespace DistrictAI.ViewModels.Scheduling;

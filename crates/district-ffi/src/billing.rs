@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Billing: the workspace's plan and the account's subscriptions and invoices,
 //! read only as District AI for Linux shows them, and, in this app, choosing a
 //! plan and managing billing on the service's own checkout and billing pages,

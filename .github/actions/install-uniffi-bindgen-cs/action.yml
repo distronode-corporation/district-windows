@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Install uniffi-bindgen-cs
 description: >-
   NordSecurity's uniffi-bindgen-cs at the pinned commit of its

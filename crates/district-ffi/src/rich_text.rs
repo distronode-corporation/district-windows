@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Rich text: the safe subset of Markdown District HQ answers in, as blocks of
 //! styled runs that C# draws as it reads them.
 //!

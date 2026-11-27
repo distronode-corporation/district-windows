@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Prepare the Microsoft Store submission of District AI for Windows (Store ID 9P9F0NNFJ3CP).
 
 Path: the Microsoft Store submission API (manage.devcenter.microsoft.com v1.0), the same

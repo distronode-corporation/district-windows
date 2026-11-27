@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! App parity: reply channels, Messenger and Instagram, the conversation's
 //! owner, the WhatsApp templates a closed window offers and the Messenger and
 //! Instagram reply window (src/composer.rs, src/inbox.rs).

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The team (src/scheduling_admin/team.rs): the members beside the
 //! scheduler's users, who left while still a host, the teams, a team's name,
 //! its hosts, and an account's archive.

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The help desk: the queue of tickets the workspace's own customers raised,
 //! raising one for a customer, one ticket with its conversation, its status
 //! and the reply, and the desk's settings with its logo.

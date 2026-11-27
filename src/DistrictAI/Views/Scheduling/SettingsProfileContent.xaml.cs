@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using DistrictAI.ViewModels.Scheduling;
 using Microsoft.UI.Xaml.Controls;
 

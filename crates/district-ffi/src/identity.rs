@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! How this app names itself to the service.
 
 use district_model::{ClientIdentity, Platform};

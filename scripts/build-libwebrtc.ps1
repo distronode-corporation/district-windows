@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Builds the audio-only libwebrtc a Windows build with calls links: LiveKit's own
 # build of libwebrtc for its Rust SDK (webrtc-sys/libwebrtc/build_windows.cmd),
 # from the same pinned sources and patches, with the H.264 and H.265 codecs and

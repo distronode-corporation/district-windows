@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Support requests from the workspace to Distronode: the list, one request
 //! and its conversation, and the form that raises a request.
 //!

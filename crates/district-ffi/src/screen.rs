@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The screen inside the window's frame.
 //!
 //! Outside a session this is the whole of the sign-in page. While signed in it

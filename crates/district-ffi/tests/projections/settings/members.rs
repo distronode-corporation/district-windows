@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The Members section (src/settings/members.rs).
 
 use district_api::{ApiError, ErrorDetail};

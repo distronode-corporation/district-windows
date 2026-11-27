@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Supervising a live call (src/supervise.rs): the Live calls list, the card
 //! on the call's page in each of its states, and what happens to every
 //! request the card sends when the state it started from ends before the

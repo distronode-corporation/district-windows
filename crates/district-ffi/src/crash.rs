@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Crash reports from the Rust side of the app, off until the user says yes.
 //!
 //! The mechanism is the core's `district_crash`: nothing is set up, no panic

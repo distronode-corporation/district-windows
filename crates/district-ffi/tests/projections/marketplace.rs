@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Phone numbers (src/marketplace.rs).
 
 use district_core::{MarketplaceEvent, MarketplaceTab, NumberSearchForm};

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # cargo-deny policy, run by the `cargo-deny` job in .github/workflows/ci.yml
 # (`cargo deny --locked check`). Four checks: RustSec advisories, licences,
 # banned crates, allowed sources.

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Booking pages (src/scheduling.rs).
 
 use district_api::ErrorDetail;

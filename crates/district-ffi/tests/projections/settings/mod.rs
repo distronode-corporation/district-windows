@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The workspace settings hub (src/settings/mod.rs), and one file per section beside this one.
 
 mod call_handling;

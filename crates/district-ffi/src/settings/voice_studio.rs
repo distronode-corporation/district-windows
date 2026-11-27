@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Voice Studio, District Studio's Voice: the voice engine the receptionist
 //! speaks through, as the Linux app's Voice Studio page shows it.
 //!

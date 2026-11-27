@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Workflows, their runs and the outbound campaign's switch, as the Linux
 //! workflows page shows them.
 //!

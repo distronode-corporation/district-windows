@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Meeting rooms, audio only, as District AI for Linux's rooms lobby shows
 //! them (`pages/rooms.rs`, `pages/meeting_record.rs`): starting or joining a
 //! room by its name, the room joined (who is there, mute, the guest link,

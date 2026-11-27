@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The welcome screen's way to a new account (packet K4).
 //!
 //! Creating an account happens in the browser, on the same sign-in the app

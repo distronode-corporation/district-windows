@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Starting a conversation from the inbox: the core's new message form
 //! (`ComposeScreen`), as District AI for iOS offers it. A recipient is one of
 //! the most recent contacts or a number or address typed in; a text message

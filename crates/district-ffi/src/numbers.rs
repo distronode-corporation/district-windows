@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Managing the numbers a workspace holds, on the core's `NumberAdmin`, as
 //! District AI for iOS does (`NumberActionsSheet`, `CarrierSection`,
 //! `ComplianceSection`): reapplying a held number's routing, releasing it

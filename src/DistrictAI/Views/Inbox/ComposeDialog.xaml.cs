@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using System.ComponentModel;
 using DistrictAI.ViewModels;
 using DistrictAI.ViewModels.Inbox;

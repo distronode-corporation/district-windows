@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 version: 2
 
 # Every `uses:` in the workflows is pinned to a commit with a `# vX.Y.Z` comment, which

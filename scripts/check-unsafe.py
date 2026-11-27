@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Fail on the word `unsafe` in any hand-written Rust source under crates/*/src.
 
     python3 scripts/check-unsafe.py              # scan the crates

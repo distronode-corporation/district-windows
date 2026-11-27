@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The calendars (src/scheduling_admin/calendar.rs): the connected accounts,
 //! the connect card and its hand-off to the browser, an account's calendars,
 //! the CalDAV form and the disconnect.
