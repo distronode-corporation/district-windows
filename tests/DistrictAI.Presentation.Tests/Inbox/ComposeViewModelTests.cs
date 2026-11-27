@@ -122,4 +122,17 @@ public sealed class ComposeViewModelTests
         Assert.True(form.Editable);
         Assert.Equal("Hello.", form.Body);
     }
+
+    [Fact]
+    public void WhatTheCoreWritesIntoTheFormIsShownWhenNothingWasTyped()
+    {
+        var (context, sink) = Pages.Context();
+        var form = new ComposeViewModel();
+        form.Attach(context);
+        form.Show(Form(query: "ada", requiresSubject: true, subject: "Your visit", body: "See you Thursday."));
+        Assert.Equal("ada", form.Query);
+        Assert.Equal("Your visit", form.Subject);
+        Assert.Equal("See you Thursday.", form.Body);
+        Assert.Empty(sink.Sent);
+    }
 }
