@@ -153,4 +153,17 @@ public sealed class MarketplaceViewModelTests
         model.Attach(context);
         Assert.Empty(sink.Sent);
     }
+
+    [Fact]
+    public void EachTabTheCoreChoosesIsTheOneShown()
+    {
+        var (model, sink) = Attached();
+        model.Show(View(NumbersTab.Carrier));
+        Assert.Equal(2, model.TabIndex);
+        model.Show(View(NumbersTab.Registrations));
+        Assert.Equal(3, model.TabIndex);
+        model.Show(View(NumbersTab.Owned));
+        Assert.Equal(0, model.TabIndex);
+        Assert.Empty(sink.Sent);
+    }
 }

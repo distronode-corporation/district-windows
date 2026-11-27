@@ -4,6 +4,12 @@
 
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels;
+using DistrictAI.ViewModels.Billing;
+using DistrictAI.ViewModels.Composer;
+using DistrictAI.ViewModels.Hq;
+using DistrictAI.ViewModels.Settings.Messaging;
+using DistrictAI.ViewModels.Settings.Persona;
+using DistrictAI.ViewModels.Settings.VoiceStudio;
 using Xunit;
 
 namespace DistrictAI.Presentation.Tests;
@@ -226,5 +232,46 @@ public sealed class ItemsTests
     {
         Assert.Equal("Bravo, Client", WorkspaceItem.From(new WorkspaceEntryView("w-1", "Bravo", "Client")).ToString());
         Assert.Equal("Bravo", WorkspaceItem.From(new WorkspaceEntryView("w-1", "Bravo", string.Empty)).ToString());
+    }
+
+    [Fact]
+    public void APickersChoiceReadsAsItsLabel()
+    {
+        Assert.Equal("Unassigned", new AssigneeChoice(null, "Unassigned").ToString());
+        Assert.Equal("Text message", new ChannelChoice("sms", "Text message", "+14165550142").ToString());
+        Assert.Equal("appointment_reminder (en_US)", new TemplateChoice("t-1", "appointment_reminder (en_US)").ToString());
+    }
+
+    [Fact]
+    public void OnlyTheFirstVoiceCardsConfirmIsSuggested()
+    {
+        Assert.False(new HqVoiceCardItem { IsSuggested = true }.IsConfirmPlain);
+        Assert.True(new HqVoiceCardItem { IsSuggested = false }.IsConfirmPlain);
+    }
+
+    [Fact]
+    public void APlanThatEndsSaysWhen()
+    {
+        var line = BillingViewModel.PlanLine(new SubscriptionRowView("sub_1", "District AI Voice Pro", "canceled", null, null, 1_756_909_800, null));
+        Assert.Equal("District AI Voice Pro", line.Name);
+        Assert.StartsWith("canceled", line.Detail, StringComparison.Ordinal);
+        Assert.True(line.Detail.Length > "canceled".Length, line.Detail);
+    }
+
+    [Fact]
+    public void ASenderItemIsEqualByWhatItShows()
+    {
+        ChannelSenderItem Item(string selected) => new(SenderChannel.Sms, "Text messages", ["a", "b"], ["A", "B"], selected, selected.ToUpperInvariant());
+        Assert.Equal(Item("a"), Item("a"));
+        Assert.Equal(Item("a").GetHashCode(), Item("a").GetHashCode());
+        Assert.NotEqual(Item("a"), Item("b"));
+    }
+
+    [Fact]
+    public void AValueNoOptionHoldsHasNoIndex()
+    {
+        ChoiceItem[] options = [new("a", "A"), new("b", "B")];
+        Assert.Equal(1, StudioPickerItem.IndexOf(options, "b"));
+        Assert.Equal(-1, StudioPickerItem.IndexOf(options, "c"));
     }
 }
