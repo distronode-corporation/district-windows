@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The workspace's messaging accounts (carrier accounts), as District AI for
 //! Linux shows them (`pages/messaging.rs`, `pages/messaging_form.rs`): the
 //! accounts and the default sender, each channel's sender, the numbers held by

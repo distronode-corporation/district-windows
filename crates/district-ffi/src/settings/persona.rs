@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! What the receptionist says, and the language it speaks (District Studio's
 //! Persona), as District AI for Linux shows it (`pages/persona.rs`,
 //! `pages/audition.rs`).

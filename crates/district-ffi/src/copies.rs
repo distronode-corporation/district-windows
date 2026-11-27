@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The two copies of the app: the Microsoft Store's and the GitHub one.
 //!
 //! They are separate packages with separate identities, and both register the

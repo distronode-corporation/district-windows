@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Windows push (WNS): ringing and messages when the app is closed.
 //!
 //! The app asks the Windows App SDK for a channel

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The VoiceStudio section (src/settings/voice_studio.rs).
 
 use district_core::studio::PickerKind;

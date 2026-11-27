@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 namespace DistrictAI.ViewModels.Billing;
 
 /// <summary>What the checkout window does with a page it is asked to show.</summary>

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Developer: the API keys that let the workspace's own tools reach its
 //! bookings, the apps connected with OAuth beside the address an AI
 //! assistant reaches the bookings at (MCP), and the webhooks with their

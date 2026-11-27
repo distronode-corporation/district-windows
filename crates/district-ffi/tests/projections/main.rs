@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The JSON of every projection, pinned, and each area's own checks.
 //!
 //! Each case drives the real core model through the events that reach a state,

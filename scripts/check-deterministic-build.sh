@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 #
 # Build the OS-neutral assemblies twice from clean and fail unless every output
 # assembly and PDB is byte for byte the same.

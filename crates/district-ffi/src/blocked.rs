@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The callers the workspace has blocked, below contacts: the list, and
 //! unblocking a caller after the core's question, one request per caller at a
 //! time. What the Linux blocked view shows.

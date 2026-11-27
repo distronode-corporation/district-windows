@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! What C# shows of calls: the dialler, the call under way and the call
 //! ringing here, projected from the core's `SignedIn::{dialer, active_call,
 //! ring, media}`.

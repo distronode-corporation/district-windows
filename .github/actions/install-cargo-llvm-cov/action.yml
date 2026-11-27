@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Install cargo-llvm-cov
 description: >-
   The upstream release of cargo-llvm-cov, checked against a pinned SHA-256,

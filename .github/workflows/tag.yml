@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Tag a release
 
 # Creates a release tag, `vX.Y.Z`, annotated and signed with gitsign: keyless

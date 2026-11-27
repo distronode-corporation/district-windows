@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The bookings: every booking a page at a time, by view (upcoming, past,
 //! cancelled, all), and one booking's answers; cancelling a booking, moving
 //! it to another free time, and handing it to another host, as District AI

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The Numbers section (src/settings/numbers.rs).
 
 use district_core::{Event, Route, WorkspaceSection};

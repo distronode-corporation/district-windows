@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """The two flavours' manifests are the same app under two identities.
 
     python3 scripts/check-flavours.py              # check the manifests

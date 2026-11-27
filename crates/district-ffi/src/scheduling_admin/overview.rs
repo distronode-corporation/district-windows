@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The overview: the booking desk at a glance (the booking page's links, the
 //! calendars, the working hours, the event types, the next booking) and what
 //! is coming up, as District AI for iPhone's `SchedulingOverviewView`.

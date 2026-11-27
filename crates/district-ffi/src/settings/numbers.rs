@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The workspace's phone numbers, in its settings.
 //!
 //! The core shows the phone numbers screen (`Route::Marketplace`) for this

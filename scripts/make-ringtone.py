@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Write the app's ringtone, src/DistrictAI/Assets/Sounds/ringtone.wav.
 
     python3 scripts/make-ringtone.py           # rewrite the file

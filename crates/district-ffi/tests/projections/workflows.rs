@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Workflows, their runs and the outbound campaign's switch (src/workflows.rs).
 
 use district_core::WorkflowsEvent;

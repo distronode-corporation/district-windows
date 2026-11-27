@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The help desk (src/desk.rs): the queue behind the desk's switch, raising a
 //! ticket, one ticket with its reply and status, and the settings with the
 //! logo, for a member and for a viewer, to whom the whole desk is closed.

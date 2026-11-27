@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Supervising a live call from its call page: listening in, a private note
 //! to the receptionist (a whisper), and taking the call over by voice, as the
 //! core's `district_core::supervise` runs them (core 8.0.0).

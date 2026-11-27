@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Read a Windows App Certification Kit report and fail when the package failed.
 
     python scripts/check-wack-report.py <report.xml>   # judge a report

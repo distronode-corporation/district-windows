@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The contacts and one contact (src/contacts.rs): the list, the form adding
 //! a contact, one contact, and its changes.
 

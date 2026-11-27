@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Only for the `scripted` feature: copies the core's contract fixtures into
 //! `OUT_DIR`, where `src/scripted.rs` embeds the ones it answers with. A build
 //! without the feature does nothing here, so the Store build embeds none.

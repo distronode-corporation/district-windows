@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Which calls go where: the routing rules, as District AI for Linux's routing
 //! page shows them (`district-app/src/pages/routing.rs`).
 //!

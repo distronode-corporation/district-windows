@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The Routing section (src/settings/routing.rs).
 
 use district_core::{Effect, Event, Route, RoutingRulesEvent, SessionState, WorkspaceSection};

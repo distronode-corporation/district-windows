@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The team: who left the workspace while still holding bookings, named at
 //! the top; the members (the workspace's members beside the scheduler's own
 //! users, each with their address, their workspace role and where they stand

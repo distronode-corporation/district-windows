@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # The MSVC C runtime, linked statically on Windows.
 #
 # libwebrtc is built the way Chromium builds a release: with the static CRT

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The account screen and the devices signed in to the account. Two-step
 //! verification and deleting the account, below it, are
 //! [`crate::account_security`]'s.

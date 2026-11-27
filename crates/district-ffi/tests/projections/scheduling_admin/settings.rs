@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The settings (src/scheduling_admin/settings.rs): the four tabs and what
 //! each read, and the booking page's, the assistant's, the profile's and the
 //! notifications' dialogs, with the images that save at once.

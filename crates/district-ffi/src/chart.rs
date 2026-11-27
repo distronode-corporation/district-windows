@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The analytics charts: the series and fractions the core prepares
 //! ([`ChartBar`], [`SentimentShare`], [`HistoryRow`]), as C# draws them.
 //!

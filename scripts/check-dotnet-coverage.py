@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Hold the C# assemblies' line coverage to coverage-floors-dotnet.toml.
 
     python3 scripts/check-dotnet-coverage.py DIR [DIR ...]  # check the reports

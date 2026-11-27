@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The knowledge base the receptionist answers from (District Studio's
 //! Knowledge), as District AI for Linux shows it (`pages/knowledge.rs`).
 //!
