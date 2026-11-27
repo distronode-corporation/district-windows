@@ -225,9 +225,10 @@ jobs:
           --settings coverage.runsettings --collect:"XPlat Code Coverage"
           --results-directory "$RUNNER_TEMP/coverage-dotnet"
 
-      # The Cobertura reports name every line and branch and whether it ran, which
-      # the check's totals do not: the list of what is left to test. Uploaded
-      # before the check, so a run under a floor still has it.
+      # The Cobertura reports, one per test run: each line's hit count, and its
+      # branch count as a percentage, which the check's totals do not show. A line
+      # counts as run when either report ran it, as the check reads them. Uploaded
+      # before the check, so a run under a floor still has them.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-dotnet
