@@ -1,0 +1,26 @@
+# REUSE metadata (https://reuse.software) for files that cannot carry a comment header:
+# JSON, Markdown, images, the icon and ringtone, text files, Cargo.lock and NOTICE; tools/l10n/ (pinned by its SHA256SUMS); the l10n catalogs, which l10n.py requires in canonical form; and the files scripts/gen-l10n.py and scripts/generate-bindings.sh generate (their --check compares them byte for byte). Every other file carries its own SPDX header,
+# and `reuse lint` in CI fails when one is missing.
+version = 1
+
+[[annotations]]
+path = [
+  "**/*.json",
+  "**/*.md",
+  "**/*.png",
+  "**/*.ico",
+  "**/*.wav",
+  "**/*.txt",
+  "Cargo.lock",
+  "NOTICE",
+  "tools/l10n/**",
+  "crates/district-ffi/l10n/**",
+  "src/DistrictAI/l10n/**",
+  "crates/district-ffi/src/generated/**",
+  "src/DistrictAI.Core/Generated/**",
+  "**/*.g.cs",
+  "**/*.resw",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Distronode Corporation"
+SPDX-License-Identifier = "Apache-2.0"

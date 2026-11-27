@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using System.Diagnostics;
 using FlaUI.Core.Definitions;
 using Microsoft.Win32;
