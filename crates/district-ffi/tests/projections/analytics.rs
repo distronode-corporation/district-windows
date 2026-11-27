@@ -345,3 +345,20 @@ fn each_action_is_its_core_event() {
     }
     assert_eq!(events(AnalyticsAction::Retry), [Event::Refresh]);
 }
+
+/// Opening the screen again reads all three cards, and the page is
+/// refreshing until the last of them lands, whichever it is.
+#[test]
+fn the_page_refreshes_until_every_card_lands() {
+    let report_back = report(opened(loaded(signed_in())), "district-analytics.json");
+    let shown = page(&report_back);
+    assert!(!shown.report.refreshing);
+    assert!(shown.usage.refreshing);
+    assert!(shown.refreshing);
+    let usage_back = usage(report_back, "district-usage.json");
+    let shown = page(&usage_back);
+    assert!(!shown.usage.refreshing);
+    assert!(shown.history.refreshing);
+    assert!(shown.refreshing);
+    assert!(!page(&full_history(usage_back)).refreshing);
+}

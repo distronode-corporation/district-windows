@@ -658,8 +658,9 @@ mod tests {
                 expires_at_secs: 4_000_000_000,
             }),
         });
-        let SessionState::SignedIn(signed_in) = model.session() else {
-            panic!("not signed in");
+        let signed_in = match model.session() {
+            SessionState::SignedIn(signed_in) => signed_in,
+            _ => panic!("not signed in"),
         };
         let view = rooms_view(signed_in, &config);
         assert_eq!(view.meetings_status, LoadStatus::Loading);

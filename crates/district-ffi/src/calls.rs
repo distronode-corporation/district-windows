@@ -157,7 +157,7 @@ pub(crate) fn calls_view(log: &CallLog) -> CallsView {
                 .is_empty()
                 .then(|| EmptyView::new(cs::calls_empty_title(l()), cs::calls_empty_body(l()))),
             paging: (&rows.paging).into(),
-            live: live_calls_view(log),
+            live: live_calls_view(rows),
         },
     }
 }
@@ -418,6 +418,11 @@ mod tests {
         assert_eq!(dial(" +1 (416) 555-0142 ").as_deref(), Some("+14165550142"));
         assert_eq!(dial("14165550142").as_deref(), Some("+14165550142"));
         assert_eq!(dial("4165550142"), None, "ten digits, no country");
+        assert_eq!(
+            dial("44207946095"),
+            None,
+            "eleven digits, not North America's"
+        );
         assert_eq!(dial("+"), None);
         assert_eq!(dial("+1+416"), None);
         assert_eq!(dial("Direct Dial"), None);

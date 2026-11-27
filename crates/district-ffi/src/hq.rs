@@ -484,8 +484,10 @@ fn voice_line(
 ) -> Option<(String, bool)> {
     let news = |text: &str| Some((text.to_owned(), false));
     match phase {
-        HqVoicePhase::Off | HqVoicePhase::Disclosing if !calls => news(cs::media_unavailable(l())),
-        HqVoicePhase::Off | HqVoicePhase::Disclosing => None,
+        // No guard: an or-pattern's guard is checked per alternative.
+        HqVoicePhase::Off | HqVoicePhase::Disclosing => {
+            (!calls).then(|| (cs::media_unavailable(l()).to_owned(), false))
+        }
         HqVoicePhase::Minting => news(cs::hq_voice_connecting(l())),
         HqVoicePhase::Live { agent } => {
             if let Some(notice) = session.and_then(MediaSession::notice) {
@@ -837,7 +839,9 @@ mod tests {
             false,
         );
         assert_eq!(shown.note.as_deref(), Some(s::hq_viewer_note(l())));
-        assert!(shown.can_cancel && !shown.can_confirm && !shown.suggested);
+        assert!(shown.can_cancel);
+        assert!(!shown.can_confirm);
+        assert!(!shown.suggested);
         // With no sentence from the service, the core's own.
         let shown = voice_card_view(&voice_card(" ", HqCardState::Open), &viewer, true);
         assert_eq!(shown.summary, cs::hq_voice_fallback_summary(l()));

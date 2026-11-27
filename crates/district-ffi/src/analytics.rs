@@ -419,12 +419,14 @@ mod tests {
             }
         );
         let history = history_card(&HistoryCard::Failed(failed("History is down.")));
-        assert!(
-            matches!(&history.status, LoadStatus::Failed { title, .. } if title == HistoryCard::FAILED_TITLE)
+        assert_eq!(
+            history.status,
+            LoadStatus::failed(HistoryCard::FAILED_TITLE, &failed("History is down."))
         );
         let report = report_card(&AnalyticsCard::Failed(failed("Calls are down.")));
-        assert!(
-            matches!(&report.status, LoadStatus::Failed { title, .. } if title == AnalyticsCard::FAILED_TITLE)
+        assert_eq!(
+            report.status,
+            LoadStatus::failed(AnalyticsCard::FAILED_TITLE, &failed("Calls are down."))
         );
         assert_eq!(report.title, s::analytics_calls_title(l()));
     }

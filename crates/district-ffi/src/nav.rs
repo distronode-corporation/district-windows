@@ -422,7 +422,7 @@ mod tests {
                 .map(|row| row.destination)
                 .filter(|destination| {
                     let route = destination.route();
-                    ready && built(&route) && capabilities.allows(&route)
+                    ready & built(&route) & capabilities.allows(&route)
                 })
                 .collect();
             assert_eq!(workspace, expected, "{capabilities:?}, ready: {ready}");
@@ -489,7 +489,7 @@ mod tests {
             let in_pane = offered
                 .iter()
                 .any(|destination| destination.route() == route);
-            assert!(built(&route) || !(of_1_0 || in_pane), "{route:?}");
+            assert!(built(&route) | !(of_1_0 | in_pane), "{route:?}");
         }
     }
 
