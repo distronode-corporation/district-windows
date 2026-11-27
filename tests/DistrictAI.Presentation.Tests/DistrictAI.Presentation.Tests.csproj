@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Distronode Corporation
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     The view models in DistrictAI.Presentation, fed the core's generated view

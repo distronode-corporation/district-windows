@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using System.Runtime.InteropServices;
 using DistrictAI.ViewModels.AccountSecurity;
 using Windows.ApplicationModel.DataTransfer;
