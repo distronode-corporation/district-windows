@@ -226,8 +226,9 @@ mod tests {
     #[test]
     fn before_its_reads_every_row_is_loading() {
         let page = page(&SchedulingAdmin::default(), now());
-        let SchedulingAdminPage::Overview { view } = page else {
-            panic!("not the overview");
+        let view = match page {
+            SchedulingAdminPage::Overview { view } => view,
+            _ => panic!("not the overview"),
         };
         assert!(
             view.desk

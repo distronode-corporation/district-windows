@@ -275,8 +275,12 @@ fn span<'a>(
             runs.push(code, style, true);
             Some(used)
         }
-        '*' | '_' if first == '*' || word_start => emphasis(rest, first, links, depth, style, runs),
-        '[' if links => link(rest, depth, style, runs),
+        // Two arms, not `'*' | '_' if first == '*' || word_start`: a guard is
+        // checked per alternative, and for `*` its first half is always true.
+        '*' => emphasis(rest, first, links, depth, style, runs),
+        '_' if word_start => emphasis(rest, first, links, depth, style, runs),
+        // No `if links`: a link's words never hold a `[` (link refuses them).
+        '[' => link(rest, depth, style, runs),
         '<' if links => {
             let end = rest.find('>')?;
             let url = &rest[1..end];
@@ -666,6 +670,37 @@ mod tests {
         );
     }
 
+    /// A link's words are never a link: an angle link and a bare address
+    /// inside them stay its words, and emphasis still applies there. Words
+    /// holding a bracket are no link at all.
+    #[test]
+    fn inside_a_link_nothing_else_links() {
+        let e = "https://e.example";
+        assert_eq!(
+            runs("[a <https://b.example> https://c.example *d*](https://e.example)"),
+            [
+                l("a <https://b.example> https://c.example ", e),
+                RichRun {
+                    italic: true,
+                    ..l("d", e)
+                },
+            ]
+        );
+        assert_eq!(runs("[a [b](https://e.example)"), [t("[a "), l("b", e)]);
+        assert_eq!(runs("[Hi](https://e.example)"), [l("Hi", e)]);
+        assert_eq!(runs("aHttps://e.example"), [t("aHttps://e.example")]);
+    }
+
+    /// Emphasis needs flanking text, and a strong opener's closer is the next
+    /// pair after it, not a marker right at its start.
+    #[test]
+    fn emphasis_needs_flanking_text_and_a_later_closer() {
+        assert_eq!(runs("*a *b"), [t("*a *b")], "a closer after a space");
+        assert_eq!(runs("x * a*"), [t("x * a*")], "an opener before a space");
+        assert_eq!(runs("***x**"), [b("*x")], "a pair just inside");
+        assert_eq!(runs("a_b_ _c_"), [t("a_b_ "), i("c")]);
+    }
+
     #[test]
     fn code_is_shown_as_it_is() {
         assert_eq!(runs("Run `a & b`."), [t("Run "), c("a & b"), t(".")]);
@@ -779,11 +814,13 @@ mod tests {
             "[a](http://) [b](https:///x) [c](https://x .example)",
         ] {
             for block in parse(text).blocks {
-                if let RichBlock::Paragraph { runs } = block {
-                    for run in runs {
-                        if let Some(url) = run.link {
-                            assert!(is_web_link(&url), "{url}");
-                        }
+                let runs = match block {
+                    RichBlock::Paragraph { runs } => runs,
+                    _ => panic!("not a paragraph"),
+                };
+                for run in runs {
+                    if let Some(url) = run.link {
+                        assert!(is_web_link(&url), "{url}");
                     }
                 }
             }

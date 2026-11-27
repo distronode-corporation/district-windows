@@ -810,3 +810,41 @@ fn a_language_no_longer_offered_is_kept() {
         ]
     );
 }
+
+/// A booking page with no fallback language chooses none, and adds no
+/// language of its own.
+#[test]
+fn no_fallback_language_chooses_none() {
+    let mut branding = contracts::json("district-scheduling-branding.json");
+    branding["data"]["fallback_locale"] = json!("");
+    let session = branding_read(
+        open(signed_in(), SchedulingAdminSection::Settings),
+        Ok(branding),
+    )
+    .ui(event(SchedulingSettingsAction::OpenEditor {
+        tab: SchedulingSettingsTab::BookingPage,
+    }));
+    let locales = settings_view(&session).branding.expect("open").locales;
+    let chosen: Vec<(&str, bool)> = locales
+        .iter()
+        .map(|c| (c.value.as_str(), c.selected))
+        .collect();
+    assert_eq!(chosen, [("en", false), ("fr", false)]);
+}
+
+/// An assistant with no extra instructions shows no row for them.
+#[test]
+fn an_assistant_with_no_instructions_shows_no_row_for_them() {
+    let mut llm = contracts::json("district-scheduling-llm.json");
+    llm["data"]["extra_instructions"] = json!("  ");
+    let session = answer_admin(
+        booking_page(signed_in()).ui(event(SchedulingSettingsAction::SelectTab {
+            tab: SchedulingSettingsTab::Assistant,
+        })),
+        |r| matches!(r, SchedulingAdminRequest::Llm),
+        Ok(llm),
+    );
+    let groups = settings_view(&session).groups;
+    let rows: Vec<&str> = groups[0].rows.iter().map(|r| r.label.as_str()).collect();
+    assert_eq!(rows.len(), 1, "{rows:?}");
+}

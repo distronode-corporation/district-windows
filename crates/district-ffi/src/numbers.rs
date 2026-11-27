@@ -913,31 +913,32 @@ mod tests {
         for (action, event) in pairs {
             assert_eq!(admin_event(action), event);
         }
-        let NumberAdminEvent::EditSipTrunk(sip) = admin_event(NumberAdminAction::EditSipTrunk {
+        let sip = match admin_event(NumberAdminAction::EditSipTrunk {
             form: SipTrunkFormInput {
                 name: "a".to_owned(),
                 domain: "b".to_owned(),
                 ip_addresses: "c".to_owned(),
             },
-        }) else {
-            panic!("not the SIP form");
+        }) {
+            NumberAdminEvent::EditSipTrunk(sip) => sip,
+            _ => panic!("not the SIP form"),
         };
         assert_eq!((sip.name.as_str(), sip.domain.as_str()), ("a", "b"));
-        let NumberAdminEvent::EditTollFree(toll_free) =
-            admin_event(NumberAdminAction::EditTollFree {
-                form: TollFreeFormInput {
-                    phone_number: "+18005550188".to_owned(),
-                    business_name: "Acme".to_owned(),
-                    opt_in_image_url: "https://example.com/a.png".to_owned(),
-                    message_content: String::new(),
-                    use_case: "Marketing".to_owned(),
-                },
-            })
-        else {
-            panic!("not the toll-free form");
+        let toll_free = match admin_event(NumberAdminAction::EditTollFree {
+            form: TollFreeFormInput {
+                phone_number: "+18005550188".to_owned(),
+                business_name: "Acme".to_owned(),
+                opt_in_image_url: "https://example.com/a.png".to_owned(),
+                message_content: String::new(),
+                use_case: "Marketing".to_owned(),
+            },
+        }) {
+            NumberAdminEvent::EditTollFree(toll_free) => toll_free,
+            _ => panic!("not the toll-free form"),
         };
         // The fields this app leaves to the service stay blank.
-        assert!(toll_free.website.is_empty() && toll_free.opt_in_flow.is_empty());
+        assert!(toll_free.website.is_empty());
+        assert!(toll_free.opt_in_flow.is_empty());
         assert_eq!(toll_free.use_case, "Marketing");
     }
 

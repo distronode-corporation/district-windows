@@ -775,3 +775,43 @@ fn the_registrations_tab_reads_and_files() {
     let tab = view(&viewer_tab).admin.registrations.unwrap();
     assert!(!tab.member && !tab.can_check && !tab.can_start && tab.filings.is_empty());
 }
+
+/// A workspace with no filings is told so on the registrations tab.
+#[test]
+fn no_filings_say_so() {
+    let session = done(
+        registrations_tab(held(signed_in())),
+        |call| matches!(call, NumberCall::Registrations),
+        filings(serde_json::json!([])),
+    );
+    let tab = view(&session).admin.registrations.unwrap();
+    assert!(tab.filings.is_empty());
+    assert!(tab.empty.is_some());
+}
+
+/// A trunk the carrier holds no domain and no access list for is said to be
+/// unprovisioned; one with either is not.
+#[test]
+fn a_trunk_with_neither_side_set_up_is_unprovisioned() {
+    let session = done(
+        carrier_tab(held(signed_in())),
+        |call| matches!(call, NumberCall::SipTrunks),
+        Ok(NumberAnswer::SipTrunks(SipTrunksResponse {
+            success: true,
+            trunks: vec![
+                SipTrunk {
+                    domain_sid: None,
+                    ip_acl_sid: None,
+                    ..trunk()
+                },
+                SipTrunk {
+                    domain_sid: None,
+                    ..trunk()
+                },
+            ],
+        })),
+    );
+    let trunks = view(&session).admin.carrier.unwrap().sip.trunks;
+    assert!(trunks[0].unprovisioned.is_some());
+    assert!(trunks[1].unprovisioned.is_none());
+}

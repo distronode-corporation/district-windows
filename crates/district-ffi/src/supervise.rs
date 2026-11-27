@@ -37,7 +37,7 @@
 //! core event ends the session in the state it is in.
 
 use district_core::{
-    CallLog, Event, MediaConnection, MediaSession, MicrophoneState, Model, Route, SessionState,
+    CallRows, Event, MediaConnection, MediaSession, MicrophoneState, Model, Route, SessionState,
     SignedIn, SuperviseControls, SuperviseEvent, SupervisePhase, Supervision,
 };
 use serde::Serialize;
@@ -450,12 +450,10 @@ fn microphone(supervision: &Supervision, session: Option<&MediaSession>) -> Micr
     }
 }
 
-/// The Live calls list: the call log's calls in progress, newest first, or
-/// `None` when the log is not read or has none.
-pub(crate) fn live_calls_view(log: &CallLog) -> Option<LiveCallsView> {
-    let CallLog::Ready(page) = log else {
-        return None;
-    };
+/// The Live calls list: the read call log's calls in progress, newest first,
+/// or `None` when it has none. Only a read log has a list, so it takes the
+/// rows rather than the log.
+pub(crate) fn live_calls_view(page: &CallRows) -> Option<LiveCallsView> {
     let rows: Vec<CallRowView> = page
         .calls
         .iter()

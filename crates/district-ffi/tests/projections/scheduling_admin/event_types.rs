@@ -893,3 +893,44 @@ fn the_hosts_dialog_reads_again_what_failed() {
         .expect("open");
     assert_eq!(read.candidates_status, district_ffi::LoadStatus::Ready);
 }
+
+/// A host with a blank name is shown by their address, a user who could be
+/// added by their name when they have one, and no question can be added
+/// before the questions are read.
+#[test]
+fn names_stand_in_for_addresses_and_questions_wait_for_their_read() {
+    let mut hosts = contracts::json("district-scheduling-hosts.json");
+    hosts["data"]["items"][0]["name"] = json!("");
+    let view = event_type_view(&event_type_with(signed_in(), Ok(hosts)));
+    assert_eq!(view.hosts[0].label, "contract@example.com");
+
+    let mut users = contracts::json("district-scheduling-users.json");
+    users["data"].as_array_mut().unwrap().push(json!({
+        "id": "sched-user-3",
+        "email": "riley@example.com",
+        "name": "Riley Host",
+        "is_admin": false,
+        "is_owner": false,
+        "role": "member",
+        "archived": false
+    }));
+    let session = answer_admin(
+        event_type(signed_in()).ui(detail(EventTypeAction::OpenHosts)),
+        |r| matches!(r, SchedulingAdminRequest::Hosts { .. }),
+        Ok(contracts::json("district-scheduling-hosts.json")),
+    );
+    let session = answer_admin(
+        session,
+        |r| matches!(r, SchedulingAdminRequest::Users { .. }),
+        Ok(users),
+    );
+    let dialog = event_type_view(&session).hosts_dialog.expect("open");
+    let labels: Vec<&str> = dialog.candidates.iter().map(|c| c.label.as_str()).collect();
+    assert_eq!(labels, ["Riley Host"]);
+
+    let unread =
+        event_type_view(&event_type(signed_in()).ui(detail(EventTypeAction::OpenQuestions)))
+            .questions_dialog
+            .expect("open");
+    assert!(!unread.can_add);
+}
