@@ -788,19 +788,20 @@ impl<X: Effects> Actor<X> {
                     self.pushed = PushMessage::waiting(self.pushed.take(), push, Instant::now());
                 }
             }
-            self.deliver_push();
+            self.deliver_push(Instant::now());
         }
     }
 
     /// Hands the model the push waiting, once someone is signed in, the live
     /// updates have started and (for a ring) the ring setting is read, as the
     /// socket's own event; drops it once it
-    /// is too old to mean anything.
-    fn deliver_push(&mut self) {
+    /// is too old to mean anything at `now` (the actor passes the clock's
+    /// time; a test passes a later one).
+    fn deliver_push(&mut self, now: Instant) {
         let Some((push, arrived)) = self.pushed.take() else {
             return;
         };
-        if arrived.elapsed() > push.shelf_life() {
+        if now.saturating_duration_since(arrived) > push.shelf_life() {
             return;
         }
         // A ring also waits for "ring on this computer" to have been read:
@@ -1871,6 +1872,34 @@ mod tests {
         eventually("the link is asked for", || !minted().is_empty()).await;
         assert_eq!(minted(), vec![nonce]);
         core.shutdown().await;
+    }
+
+    /// A push still waiting once it is older than its shelf life is dropped,
+    /// and one inside it is kept waiting for the session.
+    #[test]
+    fn a_push_past_its_shelf_life_is_dropped() {
+        let (sender, _inbox) = unbounded_channel();
+        let (model, _) = Model::new(config());
+        let mut actor = Actor {
+            model,
+            effects: Arc::new(Arc::new(FakeEffects::default())),
+            host: Arc::new(RecordingHost::default()),
+            snapshot: Arc::new(SnapshotCell::new()),
+            sender,
+            held: Held::default(),
+            pushed: None,
+        };
+        let push = crate::push::decode_push(
+            r#"{"type":"incoming_call","callId":"call-9","workspaceId":"ws-1"}"#,
+        )
+        .expect("a ring");
+        let arrived = Instant::now();
+        let shelf = push.shelf_life();
+        actor.pushed = Some((push.clone(), arrived));
+        actor.deliver_push(arrived + shelf);
+        assert!(actor.pushed.is_some(), "inside its shelf life, it waits");
+        actor.deliver_push(arrived + shelf + Duration::from_secs(1));
+        assert!(actor.pushed.is_none(), "past it, it is dropped");
     }
 
     /// A channel cannot be registered before the core runs, nor by a core

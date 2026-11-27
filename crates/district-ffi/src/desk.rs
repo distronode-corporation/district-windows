@@ -955,6 +955,33 @@ mod tests {
         }
     }
 
+    /// The desk's screens are closed to a role without the desk, but drawn
+    /// for one anyway (hostile input: past the navigation that closes them),
+    /// they offer nothing to do.
+    #[test]
+    fn drawn_for_a_viewer_the_desk_offers_nothing() {
+        let viewer = Capabilities::for_role(Some("viewer"));
+        let member = Capabilities::for_role(Some("agency"));
+        assert!(!viewer.can_use_desk);
+        let off = DeskScreen {
+            queue: DeskQueue::Off,
+            ..DeskScreen::default()
+        };
+        let can_turn_on = |caps: &Capabilities| desk_view(&off, caps).off.unwrap().can_turn_on;
+        assert!(!can_turn_on(&viewer));
+        assert!(can_turn_on(&member));
+        let ready = DeskScreen {
+            queue: DeskQueue::Ready(DeskTickets {
+                tickets: Vec::new(),
+                refreshing: false,
+            }),
+            ..DeskScreen::default()
+        };
+        assert!(!desk_view(&ready, &viewer).can_start);
+        assert!(!desk_view(&ready, &viewer).can_open_settings);
+        assert!(desk_view(&ready, &member).can_start);
+    }
+
     #[test]
     fn each_status_crosses_both_ways() {
         for status in STATUSES {
