@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using System.Collections.ObjectModel;
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;

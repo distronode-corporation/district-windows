@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+SPDX-FileCopyrightText: Distronode Corporation
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <UserControl
     x:Class="DistrictAI.Views.Marketplace.MarketplacePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
