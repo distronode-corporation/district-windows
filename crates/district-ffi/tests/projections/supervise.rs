@@ -876,3 +876,13 @@ fn the_card_speaks_french() {
     .expect("the live list");
     assert_eq!(list.title, "Appels en cours");
 }
+
+/// A room dropping while listening says it is reconnecting, as it does on
+/// the call.
+#[test]
+fn a_dropped_room_is_reconnecting_while_listening_too() {
+    let session = media(listening(on_live_call(agency())), MediaEvent::Reconnecting);
+    assert_eq!(shown(&session).state, SuperviseState::Reconnecting);
+    let session = media(on_call(on_live_call(agency())), MediaEvent::Reconnecting);
+    assert_eq!(shown(&session).state, SuperviseState::Reconnecting);
+}

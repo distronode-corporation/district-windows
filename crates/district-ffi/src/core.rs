@@ -1016,12 +1016,13 @@ mod tests {
                     }))
                     .expect("a voice credential")),
                 }),
-                Effect::ConnectMedia { session, .. } => self.voice.then(|| {
-                    Event::Media(district_core::MediaUpdate {
-                        session,
-                        event: district_core::MediaEvent::Connected,
-                    })
-                }),
+                Effect::ConnectMedia { session, .. } => {
+                    self.voice
+                        .then_some(Event::Media(district_core::MediaUpdate {
+                            session,
+                            event: district_core::MediaEvent::Connected,
+                        }))
+                }
                 Effect::EndHqVoice { .. } | Effect::DiscardHqVoice { .. } => {
                     tokio::time::sleep(self.release_takes).await;
                     None
@@ -1198,6 +1199,26 @@ mod tests {
             core.open_link("https://example.com".to_owned()),
             LinkKind::Unknown
         );
+        // A link the address parser reads past leading space is still the
+        // sign-in's kind, but the core takes only one that starts with the
+        // scheme, so nothing more is exchanged.
+        let exchanges = || {
+            effects
+                .ran
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|effect| matches!(effect, Effect::CompleteSignIn { .. }))
+                .count()
+        };
+        let before = exchanges();
+        assert_eq!(
+            core.open_link(" districtai://auth?code=d&state=s".to_owned()),
+            LinkKind::Auth
+        );
+        core.send(UiEvent::Refresh);
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        assert_eq!(exchanges(), before);
 
         // An event that changes nothing on screen is not a new revision.
         let before = core.revision();
@@ -1852,7 +1873,9 @@ mod tests {
         core.shutdown().await;
     }
 
-    /// A channel cannot be registered before the core runs.
+    /// A channel cannot be registered before the core runs, nor by a core
+    /// started without the service's client (as the tests and a scripted
+    /// scene start it).
     #[tokio::test]
     async fn a_channel_needs_a_running_core() {
         let core = Core::new();
@@ -1861,6 +1884,17 @@ mod tests {
                 .await,
             PushRegistration::NotStarted
         );
+        core.start_with(
+            config(),
+            Arc::new(FakeEffects::default()),
+            Arc::new(RecordingHost::default()),
+        );
+        assert_eq!(
+            core.register_push_channel("https://a.notify.windows.com/w/".to_owned())
+                .await,
+            PushRegistration::NotStarted
+        );
+        core.shutdown().await;
     }
 
     #[tokio::test]

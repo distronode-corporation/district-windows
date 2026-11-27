@@ -484,8 +484,10 @@ fn voice_line(
 ) -> Option<(String, bool)> {
     let news = |text: &str| Some((text.to_owned(), false));
     match phase {
-        HqVoicePhase::Off | HqVoicePhase::Disclosing if !calls => news(cs::media_unavailable(l())),
-        HqVoicePhase::Off | HqVoicePhase::Disclosing => None,
+        // No guard: an or-pattern's guard is checked per alternative.
+        HqVoicePhase::Off | HqVoicePhase::Disclosing => {
+            (!calls).then(|| (cs::media_unavailable(l()).to_owned(), false))
+        }
         HqVoicePhase::Minting => news(cs::hq_voice_connecting(l())),
         HqVoicePhase::Live { agent } => {
             if let Some(notice) = session.and_then(MediaSession::notice) {

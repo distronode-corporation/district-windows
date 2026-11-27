@@ -157,7 +157,7 @@ pub(crate) fn calls_view(log: &CallLog) -> CallsView {
                 .is_empty()
                 .then(|| EmptyView::new(cs::calls_empty_title(l()), cs::calls_empty_body(l()))),
             paging: (&rows.paging).into(),
-            live: live_calls_view(log),
+            live: live_calls_view(rows),
         },
     }
 }

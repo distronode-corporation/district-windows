@@ -690,6 +690,10 @@ mod tests {
             (none.country, none.country_button.as_str()),
             (None, "Country")
         );
+        // A `+` that names no country yet keeps it on screen, with the cursor
+        // where it was typed.
+        let plus = dial_entry_format(String::new(), "+".to_owned(), 1, false, None);
+        assert_eq!((plus.shown.as_str(), plus.caret), ("+", 1));
     }
 
     #[test]

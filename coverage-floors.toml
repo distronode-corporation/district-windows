@@ -20,5 +20,5 @@
 
 [crates.district-ffi]
 floor = 99
-branch_floor = 84
-reason = "Measured on Linux, where the Credential Manager vault (cfg(windows), tested on the Windows job) is not compiled; left out are the API client's configuration error, which a constant base URL never produces, and UniFFI's generated foreign-trait glue. Branches: 943 of 1114 measured (84.65), the first measure; tests to raise it follow."
+branch_floor = 96
+reason = "Measured on Linux, where the Credential Manager vault (cfg(windows), tested on the Windows job) is not compiled; left out are the API client's configuration error, which a constant base URL never produces, and UniFFI's generated foreign-trait glue. Branches: 860 of 888 measured (96.85); every reachable one is tested but those listed in PR #165 as under review."
