@@ -5,6 +5,8 @@ name: CI
 # - `rust` formats, lints and tests crates/district-ffi (the projection snapshot
 #   tests included) and holds its line coverage to coverage-floors.toml, then
 #   lints and tests it with the `scripted` feature (the scenes' own tests);
+# - `branches` measures district-ffi's branch coverage on a pinned nightly and
+#   holds it to coverage-floors.toml;
 # - `msrv` compiles it at the declared minimum Rust version;
 # - `bindings` regenerates the C# bindings and fails if the committed ones differ;
 # - `dotnet` tests DistrictAI.Core against the Linux build of district-ffi,
@@ -114,6 +116,54 @@ jobs:
         run: |
           cargo clippy -p district-ffi --all-targets --locked --features scripted -- -D warnings
           cargo test -p district-ffi --locked --features scripted --lib scripted
+
+  # Branch coverage, which only nightly Rust can measure (`-Z coverage-options=branch`,
+  # through `cargo llvm-cov --branch`). A pinned nightly, used for this measurement
+  # and nothing else: every build, test and release stays on stable. Linux, like the
+  # line coverage in `rust`. The branch floor is in coverage-floors.toml. Doctests
+  # are left out (on nightly they need --doctests, which instruments them too); the
+  # `rust` job still runs them.
+  branches:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NIGHTLY: nightly-2026-11-01
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the pinned nightly toolchain
+        run: |
+          rustup toolchain install "$NIGHTLY" --profile minimal -c llvm-tools-preview
+          rustc "+$NIGHTLY" --version
+
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: branches
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - uses: $/.github/actions/install-cargo-llvm-cov
+
+      - name: cargo test, measuring branch coverage
+        run: |
+          set -euo pipefail
+          cargo "+$NIGHTLY" llvm-cov --branch --workspace --locked --no-report
+          cargo "+$NIGHTLY" llvm-cov report --branch --show-missing-lines
+          cargo "+$NIGHTLY" llvm-cov report --branch --json --summary-only --output-path "$RUNNER_TEMP/branches.json"
+          cargo "+$NIGHTLY" llvm-cov report --branch --lcov --output-path "$RUNNER_TEMP/branches.lcov"
+
+      # The lcov file names each branch and whether it ran (its BRDA records), which
+      # the summary above does not: the list of what is left to test.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: branches-lcov
+          path: ${{ runner.temp }}/branches.lcov
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Branch coverage meets every floor
+        run: python3 scripts/check-coverage.py --branches "$RUNNER_TEMP/branches.json"
 
   # The declared Rust floor, compiled at the floor.
   msrv:
