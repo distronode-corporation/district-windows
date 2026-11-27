@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The [`Core`] object: the model's actor, its snapshot, and the runner built
 //! over the core's own adapters.
 

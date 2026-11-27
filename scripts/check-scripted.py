@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Say whether a district_ffi.dll was built with the `scripted` feature.
 
     python3 scripts/check-scripted.py --absent  PATH...   # fail if any is scripted

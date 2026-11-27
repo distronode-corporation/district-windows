@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Fail on content that must not appear in this public repository.
 
     python3 scripts/check-public-hygiene.py              # scan the tree

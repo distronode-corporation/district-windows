@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The working hours (src/scheduling_admin/hours.rs): the week and the date
 //! overrides, and their two editors.
 //!

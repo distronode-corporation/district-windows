@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The event types (src/scheduling_admin/event_types.rs): the list and its
 //! create form, and one event type with its editor, state actions, hosts and
 //! booking questions.

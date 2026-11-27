@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The live transcript of the call on this desktop, as the call strip shows
 //! it: the lines said so far with who said them, the line still being heard
 //! marked as provisional, where the transcript stands, and once the call is

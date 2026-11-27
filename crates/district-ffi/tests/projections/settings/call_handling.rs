@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The CallHandling section (src/settings/call_handling.rs).
 //!
 //! The core has no contract fixture for call handling or availability, so the

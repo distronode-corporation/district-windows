@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The conversation's reply box (src/composer.rs).
 
 use district_core::{MAX_ATTACHMENT_BYTES, ThreadEvent, ThreadScreen};

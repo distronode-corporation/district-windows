@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The workspace settings hub, and below it one module per section.
 //!
 //! The hub lists the core's rows ([`settings_rows`]) for the member's role,

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The members and their roles, and the workspace's name, as District AI for
 //! Linux shows them (`pages/members.rs`).
 //!

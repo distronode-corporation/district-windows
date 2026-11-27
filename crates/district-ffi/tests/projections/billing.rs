@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Billing (src/billing.rs): the plan and the account read only, and choosing
 //! a plan and managing billing in the app, with the step naming Stripe, the
 //! browser fallback, and the purchases setting that hides them.

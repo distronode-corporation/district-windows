@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The phone numbers screen's Registrations tab, on the core's
 //! `NumberRegistrations`, as District AI for Android (`RegistrationsTab`) and
 //! for Linux (`pages/registrations.rs`) show it: what a country's regulator

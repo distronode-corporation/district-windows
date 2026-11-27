@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The dialler, a placed call and ringing here (src/calls_live.rs).
 
 use district_live::{LiveUpdate, WorkspaceUpdate};

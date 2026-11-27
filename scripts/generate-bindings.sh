@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Writes the C# bindings for crates/district-ffi into src/DistrictAI.Core/Generated.
 #
 #   scripts/generate-bindings.sh            # write them

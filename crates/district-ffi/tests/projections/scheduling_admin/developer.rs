@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Developer (src/scheduling_admin/developer.rs): the API keys, the connected
 //! apps and the MCP address, the webhooks and their deliveries, making a key
 //! and adding or changing a webhook, and every removal, asked once more.

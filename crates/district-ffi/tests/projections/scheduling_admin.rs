@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The booking scheduler's administration (src/scheduling_admin/): the
 //! overview, the bookings and one booking; each later section's cases are in
 //! its own file under scheduling_admin/.

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 namespace DistrictAI.ViewModels;
 
 /// <summary>Whether District AI starts when the user signs in to Windows, and whether they may change it here.</summary>

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # uniffi-bindgen-cs settings for the C# bindings in src/DistrictAI.Core/Generated.
 # scripts/generate-bindings.sh passes this file; CI regenerates and diffs.
 [bindings.csharp]

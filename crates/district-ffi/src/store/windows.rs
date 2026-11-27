@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Credential Manager, through `keyring`'s `windows-native` store.
 
 use district_auth::{StoreError, StoreErrorKind};

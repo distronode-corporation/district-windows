@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 <#
 .SYNOPSIS
 Runs the Windows App Certification Kit against an MSIX and fails when the package fails.

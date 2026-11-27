@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Distronode Corporation
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     The OS-neutral half of the app: the C# bindings uniffi-bindgen-cs writes

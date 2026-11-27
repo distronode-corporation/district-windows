@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The window's frame: which part of the session the app is in, and while
 //! signed in, the navigation pane (nav.rs), the workspace switcher, the inbox's
 //! unread count, the live updates' state, a report under way, the call

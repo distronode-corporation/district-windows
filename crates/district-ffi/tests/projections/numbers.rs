@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Managing the numbers held and the carrier account (src/numbers.rs).
 //!
 //! No contract fixture records these ten routes yet (the core's 4.0.0-beta.2

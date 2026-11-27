@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Line coverage floors, one entry per workspace crate.
 #
 # CI's `rust` job measures line coverage while it runs the tests on Linux, and

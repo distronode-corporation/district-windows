@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! What the core asks of the C# side, and the runner's traits built on it.
 
 use std::collections::VecDeque;

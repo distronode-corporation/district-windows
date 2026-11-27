@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Each package declares French exactly when the build switched French on.
 
     python3 scripts/check-languages.py --french false PACKAGE...   # no package may declare fr-CA

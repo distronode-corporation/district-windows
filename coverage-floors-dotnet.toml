@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Line coverage floors for the C# assemblies, one entry per assembly.
 #
 # CI's `dotnet` job runs DistrictAI.Core.Tests and DistrictAI.Presentation.Tests

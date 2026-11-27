@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The account's own security, below the account screen: two-step
 //! verification (whether it is on, since when, how many recovery codes are
 //! left, and turning it on or off) and deleting the account, each after a

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Bug report
 description: Report a reproducible bug in District AI for Windows (not a question or a feature request).
 labels: ["bug"]

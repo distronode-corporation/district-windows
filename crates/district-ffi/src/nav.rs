@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The navigation pane: its groups and entries, in District AI for Linux's
 //! sidebar order and wording, and which one is selected.
 //!

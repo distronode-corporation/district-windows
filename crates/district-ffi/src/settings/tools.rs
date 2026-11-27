@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! What the receptionist may do on a call, and outside research on contacts
 //! (District Studio's Skills), as District AI for Linux shows it
 //! (`pages/tools.rs`).

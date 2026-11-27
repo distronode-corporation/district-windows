@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The event types: the list, with the create form, and one event type, with
 //! its details, its hosts and its booking questions, each read on its own and
 //! failing alone, and its four writes (the editor, the state actions, the

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Support requests, one request, and the form raising one (src/support.rs).
 
 use district_core::{SupportEvent, SupportForm};

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The scheduler's settings: four tabs, the booking page (its name, images,
 //! links and language), the booking assistant, the member's own scheduler
 //! profile and picture, and their email notifications, as District AI for

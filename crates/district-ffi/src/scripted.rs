@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Scripted scenes: the core against made-up data, for the UI walk and the
 //! Store screenshots. Only in a build with the `scripted` feature, which the
 //! Store and sideload builds never have (CI and the release check the DLL for

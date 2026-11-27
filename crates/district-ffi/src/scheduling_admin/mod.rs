@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The booking scheduler's administration, natively: one section at a time
 //! under the booking pages screen, each the core's
 //! `Route::SchedulingAdmin(SchedulingSection)` and its state in

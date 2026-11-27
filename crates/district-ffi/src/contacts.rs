@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Contacts and one contact: what the Linux contacts page, contact view and
 //! contact form show, and the changes a member makes there (adding, editing,
 //! deleting, running and clearing research, blocking and unblocking), each as

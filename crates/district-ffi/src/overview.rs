@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The overview of the open workspace, as the Linux overview page shows it.
 
 use district_core::{OverviewScreen, SignedIn, WorkspacesState, format_duration};

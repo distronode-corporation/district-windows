@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The working hours: the week, every day Monday first and an empty one too
 //! (a day that is not bookable is never mistaken for a day that did not
 //! load), with the summary the overview shows and the zone the times are in;

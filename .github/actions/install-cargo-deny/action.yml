@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Install cargo-deny
 description: >-
   The upstream release of cargo-deny, checked against a pinned SHA-256, into

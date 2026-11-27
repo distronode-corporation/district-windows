@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Analytics (src/analytics.rs, src/chart.rs).
 
 use district_core::{AnalyticsEvent, Capabilities};
