@@ -1020,8 +1020,9 @@ mod tests {
         let sent = events(DeskAction::UploadLogo {
             file: file("C:\\logos\\logo.jpg", PNG),
         });
-        let [Event::Desk(DeskEvent::UploadLogo(logo))] = sent.as_slice() else {
-            panic!("not an upload: {sent:?}");
+        let logo = match sent.as_slice() {
+            [Event::Desk(DeskEvent::UploadLogo(logo))] => logo,
+            _ => panic!("not an upload: {sent:?}"),
         };
         assert_eq!(logo.mime_type, "image/png");
         assert_eq!(logo.file_name, "logo.jpg");
@@ -1034,10 +1035,12 @@ mod tests {
         let agency = Capabilities::for_role(Some("agency"));
         let settings = settings_view(None, &agency);
         assert_eq!(settings, DeskSettingsView::default());
-        assert!(!settings.can_edit && !settings.can_choose_logo);
+        assert!(!settings.can_edit);
+        assert!(!settings.can_choose_logo);
         let queue = desk_view(&DeskScreen::default(), &agency);
         assert_eq!(queue.status, LoadStatus::Loading);
-        assert!(!queue.can_start && queue.can_open_settings);
+        assert!(!queue.can_start);
+        assert!(queue.can_open_settings);
         assert_eq!(
             queue
                 .filters

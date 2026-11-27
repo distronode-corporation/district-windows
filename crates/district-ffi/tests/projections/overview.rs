@@ -365,3 +365,17 @@ fn no_workspace_after_the_waits_offers_the_plans_again() {
         WorkspacesState::CHOOSE_PLAN_MESSAGE
     );
 }
+
+/// A workspace list the service refuses for good offers no retry; one it
+/// could not read now does.
+#[test]
+fn only_a_list_that_may_read_next_time_offers_a_retry() {
+    let retryable = |list: Result<_, _>| {
+        let LoadStatus::Failed { failure, .. } = overview_of(&signed_in_to(list)).status else {
+            panic!("not failed");
+        };
+        failure.retryable
+    };
+    assert!(!retryable(Err(ApiError::Forbidden(ErrorDetail::default()))));
+    assert!(retryable(Err(server_error())));
+}

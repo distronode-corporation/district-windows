@@ -690,7 +690,9 @@ mod tests {
     fn runs_not_yet_read_read_as_a_workflow_that_never_ran() {
         let view = runs_view(None);
         assert_eq!(view.note.as_deref(), Some(RunHistory::EMPTY));
-        assert!(!view.can_retry && !view.can_load_more && !view.loading);
+        assert!(!view.can_retry);
+        assert!(!view.can_load_more);
+        assert!(!view.loading);
     }
 
     #[test]

@@ -619,6 +619,19 @@ mod tests {
             call_line(&event("call", "missed", "no-answer", Some(0))),
             "Missed call"
         );
+        assert_eq!(
+            call_line(&event("call", "inbound", "completed", Some(65))),
+            "Incoming call, 01:05"
+        );
+        // A taken call of no length, either way, says no length.
+        assert_eq!(
+            call_line(&event("call", "outbound", "completed", Some(0))),
+            "Outgoing call"
+        );
+        assert_eq!(
+            call_line(&event("call", "outbound", "completed", None)),
+            "Outgoing call"
+        );
     }
 
     #[test]

@@ -193,7 +193,9 @@ mod tests {
         let view = tools_view(None);
         assert_eq!(view.status, SectionStatus::Loading);
         assert!(view.tools.is_empty());
-        assert!(!view.editable && !view.can_save_tools && !view.can_save_research);
+        assert!(!view.editable);
+        assert!(!view.can_save_tools);
+        assert!(!view.can_save_research);
         assert_eq!(view.tools_notice, None);
     }
 
@@ -206,7 +208,8 @@ mod tests {
             note: Some(ToolsSection::UNKNOWN_TOOL),
         });
         assert_eq!(row.label, "transfer_to_creator");
-        assert!(!row.known && row.enabled);
+        assert!(!row.known);
+        assert!(row.enabled);
         assert_eq!(row.note.as_deref(), Some(ToolsSection::UNKNOWN_TOOL));
     }
 }

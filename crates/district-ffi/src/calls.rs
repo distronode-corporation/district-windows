@@ -418,6 +418,11 @@ mod tests {
         assert_eq!(dial(" +1 (416) 555-0142 ").as_deref(), Some("+14165550142"));
         assert_eq!(dial("14165550142").as_deref(), Some("+14165550142"));
         assert_eq!(dial("4165550142"), None, "ten digits, no country");
+        assert_eq!(
+            dial("44207946095"),
+            None,
+            "eleven digits, not North America's"
+        );
         assert_eq!(dial("+"), None);
         assert_eq!(dial("+1+416"), None);
         assert_eq!(dial("Direct Dial"), None);
