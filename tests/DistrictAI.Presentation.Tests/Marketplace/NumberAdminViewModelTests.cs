@@ -238,4 +238,15 @@ public sealed class NumberAdminViewModelTests
             ],
             sink.Sent.Skip(before));
     }
+
+    [Fact]
+    public void AFormTheCoreFilledIsWrittenIntoTheBoxesAndNotSentBack()
+    {
+        var (model, sink) = Attached();
+        model.Show(N.Admin(carrier: N.Carrier(sip: new SipTrunkFormInput("Office PBX", "office", "203.0.113.10"))));
+        Assert.Equal("Office PBX", model.SipName);
+        Assert.Equal("office", model.SipDomain);
+        Assert.Equal("203.0.113.10", model.SipAddresses);
+        Assert.Empty(sink.Sent);
+    }
 }

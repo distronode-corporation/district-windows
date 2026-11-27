@@ -308,4 +308,13 @@ public sealed class MessagingViewModelTests
         model.Attach(context);
         Assert.Empty(sink.Sent);
     }
+
+    [Fact]
+    public void APlainKeyTheCoreHoldsIsShownWithoutBeingSentBack()
+    {
+        var (model, sink) = Attached();
+        model.Show(View(form: Form(MessagingCarrier.Sinch, [Key(KeyField.ProjectId, "Project ID", secret: false, filled: true, value: "proj-9")])));
+        Assert.Equal("proj-9", model.Keys[0].PlainValue);
+        Assert.Empty(sink.Sent);
+    }
 }
