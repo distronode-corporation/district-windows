@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Reporting AI-generated content, the core's (district-core `report.rs`).
 
 use district_core::SupportForm;

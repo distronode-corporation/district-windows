@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels.Calls;
 using Xunit;
@@ -189,6 +193,30 @@ public sealed class DialerViewModelTests
         dialer.Attach(context);
         dialer.DialCommand.Execute(null);
         Assert.Equal([new UiEvent.Dial()], sink.Sent);
+    }
+}
+
+/// <summary>The dialler on the core's own rules, through district-ffi's native library.</summary>
+public sealed class FfiDialRulesTests
+{
+    [Fact]
+    public void TheCoresRulesFormatPickAndListCountries()
+    {
+        var rules = new FfiDialRules();
+        var typed = rules.Format(string.Empty, "4165550199", 10, false, "CA");
+        Assert.Equal("4165550199", typed.Cleaned);
+        Assert.Equal("CA", typed.Country);
+        Assert.Equal("4165 550199", rules.Pick("4165550199", null, "GB").Shown);
+        var list = rules.Countries("canada", null, null);
+        Assert.Contains(list.Countries, row => row.Iso == "CA");
+    }
+
+    [Fact]
+    public void TheDiallersOwnConstructorUsesTheCoresRules()
+    {
+        var dialer = new DialerViewModel();
+        dialer.SearchCountries("canada");
+        Assert.Contains(dialer.Countries, row => row.Iso == "CA");
     }
 }
 

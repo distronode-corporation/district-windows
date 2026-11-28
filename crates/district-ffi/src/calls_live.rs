@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! What C# shows of calls: the dialler, the call under way and the call
 //! ringing here, projected from the core's `SignedIn::{dialer, active_call,
 //! ring, media}`.
@@ -620,7 +624,8 @@ mod tests {
         // the member stops.
         model.update(Event::Dialer(DialerEvent::Edit("(212) 555".to_owned())));
         let view = dialer_view(signed_in(&model));
-        assert!(!view.can_dial && view.problem.is_none());
+        assert!(!view.can_dial);
+        assert!(view.problem.is_none());
         model.update(Event::Dialer(DialerEvent::CheckLength));
         assert!(
             dialer_view(signed_in(&model))
@@ -685,6 +690,10 @@ mod tests {
             (none.country, none.country_button.as_str()),
             (None, "Country")
         );
+        // A `+` that names no country yet keeps it on screen, with the cursor
+        // where it was typed.
+        let plus = dial_entry_format(String::new(), "+".to_owned(), 1, false, None);
+        assert_eq!((plus.shown.as_str(), plus.caret), ("+", 1));
     }
 
     #[test]
@@ -744,7 +753,8 @@ mod tests {
 
         let ticket = dial(&mut model);
         let dialer = dialer_view(signed_in(&model));
-        assert!(dialer.dialing && !dialer.can_dial);
+        assert!(dialer.dialing);
+        assert!(!dialer.can_dial);
         assert_eq!(dialer.note.as_deref(), Some(DialerScreen::BUSY_NOTE));
         let view = active_call_view(signed_in(&model), now()).unwrap();
         assert_eq!(
@@ -782,7 +792,8 @@ mod tests {
         );
         let view = active_call_view(signed_in(&model), now()).unwrap();
         assert_eq!(view.state_label, ActiveCall::RINGING);
-        assert!(view.can_mute && !view.muted);
+        assert!(view.can_mute);
+        assert!(!view.muted);
 
         // The far end picks up: a person joins the room.
         media(
@@ -813,7 +824,8 @@ mod tests {
             MediaEvent::Microphone(MicrophoneState::Unavailable),
         );
         let view = active_call_view(signed_in(&model), now()).unwrap();
-        assert!(view.microphone_denied && view.muted);
+        assert!(view.microphone_denied);
+        assert!(view.muted);
         assert_eq!(
             view.media_notice.as_deref(),
             Some(MediaSession::MICROPHONE_UNAVAILABLE)
@@ -824,11 +836,13 @@ mod tests {
             MediaEvent::Microphone(MicrophoneState::Off),
         );
         let view = active_call_view(signed_in(&model), now()).unwrap();
-        assert!(view.muted && !view.microphone_denied);
+        assert!(view.muted);
+        assert!(!view.microphone_denied);
 
         model.update(Event::Call(CallEvent::HangUp));
         let view = active_call_view(signed_in(&model), now()).unwrap();
-        assert!(!view.can_hang_up && !view.can_mute);
+        assert!(!view.can_hang_up);
+        assert!(!view.can_mute);
         assert_eq!(view.connected_at, None);
         assert_eq!(view.ended.as_deref(), Some("Call ended. It lasted 00:00."));
         assert_eq!(view.ended_note.as_deref(), Some(ActiveCall::ENDED_NOTE));
@@ -966,11 +980,17 @@ mod tests {
             incoming_ring_view(&with_ring(&model, ring("ws-1", RingPhase::Waiting))).unwrap();
         assert_eq!(view.caller, Notification::WAITING_TITLE);
         assert_eq!(view.detail.as_deref(), Some(IncomingRing::WAITING_BODY));
-        assert!(!view.show_answer && !view.can_answer && view.can_decline && !view.sounding);
+        assert!(!view.show_answer);
+        assert!(!view.can_answer);
+        assert!(view.can_decline);
+        assert!(!view.sounding);
 
         let view =
             incoming_ring_view(&with_ring(&model, ring("ws-1", RingPhase::Answering))).unwrap();
-        assert!(view.show_answer && !view.can_answer && !view.can_decline && view.answering);
+        assert!(view.show_answer);
+        assert!(!view.can_answer);
+        assert!(!view.can_decline);
+        assert!(view.answering);
         assert_eq!(view.note, None);
 
         let view = incoming_ring_view(&with_ring(
@@ -980,7 +1000,9 @@ mod tests {
         .unwrap();
         assert_eq!(view.caller, Notification::MISSED_TITLE);
         assert_eq!(view.detail.as_deref(), Some(IncomingRing::MISSED));
-        assert!(!view.live && !view.show_answer && !view.can_decline);
+        assert!(!view.live);
+        assert!(!view.show_answer);
+        assert!(!view.can_decline);
 
         let view = incoming_ring_view(&with_ring(
             &model,
@@ -1001,8 +1023,12 @@ mod tests {
             view.detail.as_deref(),
             Some(IncomingRing::ANSWERED_ELSEWHERE)
         );
-        assert!(!view.live && !view.show_answer && !view.can_answer && !view.can_decline);
-        assert!(!view.sounding && view.note.is_none());
+        assert!(!view.live);
+        assert!(!view.show_answer);
+        assert!(!view.can_answer);
+        assert!(!view.can_decline);
+        assert!(!view.sounding);
+        assert!(view.note.is_none());
 
         let failure = FailureText {
             message: "That call could not be answered.".to_owned(),

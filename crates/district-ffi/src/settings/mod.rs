@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The workspace settings hub, and below it one module per section.
 //!
 //! The hub lists the core's rows ([`settings_rows`]) for the member's role,
@@ -283,9 +287,7 @@ pub(crate) fn screen(_model: &Model, signed_in: &SignedIn) -> ScreenView {
 fn hub_view(capabilities: &Capabilities) -> SettingsHubView {
     let mut groups: Vec<(SettingsGroup, SettingsGroupView)> = Vec::new();
     for row in settings_rows(capabilities) {
-        let Some(section) = SettingsSection::of(row.section) else {
-            continue;
-        };
+        let section = SettingsSection::of(row.section).expect("settings_rows never lists Hub");
         let view = SettingsRowView {
             section,
             title: row.title.to_owned(),

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The overview: the booking desk at a glance (the booking page's links, the
 //! calendars, the working hours, the event types, the next booking) and what
 //! is coming up, as District AI for iPhone's `SchedulingOverviewView`.
@@ -222,8 +226,9 @@ mod tests {
     #[test]
     fn before_its_reads_every_row_is_loading() {
         let page = page(&SchedulingAdmin::default(), now());
-        let SchedulingAdminPage::Overview { view } = page else {
-            panic!("not the overview");
+        let view = match page {
+            SchedulingAdminPage::Overview { view } => view,
+            _ => panic!("not the overview"),
         };
         assert!(
             view.desk

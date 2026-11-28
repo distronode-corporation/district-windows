@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! What the receptionist says, and the language it speaks (District Studio's
 //! Persona), as District AI for Linux shows it (`pages/persona.rs`,
 //! `pages/audition.rs`).
@@ -349,7 +353,9 @@ mod tests {
     fn a_section_not_read_yet_is_loading() {
         let view = persona_view(None, None);
         assert_eq!(view.status, SectionStatus::Loading);
-        assert!(!view.text_editable && !view.can_save && !view.can_preview);
+        assert!(!view.text_editable);
+        assert!(!view.can_save);
+        assert!(!view.can_preview);
         assert_eq!(
             view.engine_note.as_deref(),
             Some(s::persona_options_loading(l()))

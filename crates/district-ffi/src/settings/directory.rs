@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The staff the receptionist can transfer a call to: the transfer directory,
 //! as District AI for Linux's directory page shows it
 //! (`district-app/src/pages/directory.rs`).

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels.Marketplace;
 using Xunit;
@@ -147,6 +151,19 @@ public sealed class MarketplaceViewModelTests
         model.Send(new MarketplaceAction.Open());
         var (context, sink) = Pages.Context();
         model.Attach(context);
+        Assert.Empty(sink.Sent);
+    }
+
+    [Fact]
+    public void EachTabTheCoreChoosesIsTheOneShown()
+    {
+        var (model, sink) = Attached();
+        model.Show(View(NumbersTab.Carrier));
+        Assert.Equal(2, model.TabIndex);
+        model.Show(View(NumbersTab.Registrations));
+        Assert.Equal(3, model.TabIndex);
+        model.Show(View(NumbersTab.Owned));
+        Assert.Equal(0, model.TabIndex);
         Assert.Empty(sink.Sent);
     }
 }

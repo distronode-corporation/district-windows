@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Booking pages: where the workspace's booking pages stand, turning them on
 //! where the service says the member may, and the sections of their
 //! administration once they are live, each native, in

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The Skills section (src/settings/tools.rs).
 
 use district_core::{Effect, Event, Route, ToolsEvent, WorkspaceSection};

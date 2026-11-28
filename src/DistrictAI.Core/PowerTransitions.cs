@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 namespace DistrictAI.Core;
 
 /// <summary>What the app does about one of Windows' power events.</summary>

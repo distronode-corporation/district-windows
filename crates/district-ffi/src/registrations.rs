@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The phone numbers screen's Registrations tab, on the core's
 //! `NumberRegistrations`, as District AI for Android (`RegistrationsTab`) and
 //! for Linux (`pages/registrations.rs`) show it: what a country's regulator
@@ -596,6 +600,11 @@ mod tests {
         assert!(regulation_for(&ready, &filed("de", "local")).is_some());
         assert!(regulation_for(&ready, &filed("FR", "local")).is_none());
         assert!(regulation_for(&ready, &filed("DE", "mobile")).is_none());
+        let individual = NumberRegistration {
+            end_user_type: "individual".to_owned(),
+            ..filed("DE", "local")
+        };
+        assert!(regulation_for(&ready, &individual).is_none());
         assert!(regulation_for(&RequirementsState::Idle, &filed("DE", "local")).is_none());
     }
 
@@ -620,16 +629,16 @@ mod tests {
                 ..
             }
         ));
-        let RequirementsView::NoRegulation {
-            heading,
-            not_purchasable,
-            ..
-        } = requirements_view(&RequirementsState::NoRegulation {
+        let (heading, not_purchasable) = match requirements_view(&RequirementsState::NoRegulation {
             country: "US".to_owned(),
             purchasable: false,
-        })
-        else {
-            panic!("no regulation");
+        }) {
+            RequirementsView::NoRegulation {
+                heading,
+                not_purchasable,
+                ..
+            } => (heading, not_purchasable),
+            _ => panic!("no regulation"),
         };
         assert_eq!(heading, "US \u{b7} No registration required");
         assert!(not_purchasable.is_some());
@@ -652,7 +661,8 @@ mod tests {
                 platform_countries: Vec::new(),
             });
         let view = registrations_view(&admin, true);
-        assert!(view.empty.is_some() && view.status_caption.is_none());
+        assert!(view.empty.is_some());
+        assert!(view.status_caption.is_none());
         assert_eq!(view.gates.len(), 1, "only the lists that name a country");
     }
 

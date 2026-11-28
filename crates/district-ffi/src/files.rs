@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Files: picking, reading and attaching them (a reply's attachments, the help
 //! desk's logo).
 //!

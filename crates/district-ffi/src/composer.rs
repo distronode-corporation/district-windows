@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The open conversation's reply box: what is typed, what is attached, sending
 //! it, and a reply written by AI. Not a screen of its own:
 //! [`ThreadView::composer`] carries it.

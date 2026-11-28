@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The booking scheduler's administration (src/scheduling_admin/): the
 //! overview, the bookings and one booking; each later section's cases are in
 //! its own file under scheduling_admin/.
@@ -674,4 +678,21 @@ fn each_action_is_its_core_event() {
     ] {
         assert_eq!(detail(sent).events(), [event]);
     }
+}
+
+/// A booking the list says is cancelled offers no cancel, even to a member
+/// who may change things.
+#[test]
+fn a_cancelled_booking_offers_no_cancel() {
+    let session = page(
+        context(signed_in()),
+        Ok(contracts::json("district-scheduling-bookings.json")),
+    )
+    .ui(action(SchedulingAdminAction::OpenBooking {
+        booking_id: "bk-contract-2".to_owned(),
+    }));
+    let view = booking_view(&session);
+    assert!(!view.summary.expect("the list's row").can_cancel);
+    assert!(!view.offers_cancel);
+    assert!(booking_view(&booking(signed_in())).offers_cancel);
 }

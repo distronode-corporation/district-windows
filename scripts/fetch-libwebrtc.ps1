@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Downloads the libwebrtc that a Windows build with calls links, checks it
 # against a pinned SHA-256, and unpacks it for LK_CUSTOM_WEBRTC.
 #

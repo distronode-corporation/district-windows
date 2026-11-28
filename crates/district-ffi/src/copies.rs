@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The two copies of the app: the Microsoft Store's and the GitHub one.
 //!
 //! They are separate packages with separate identities, and both register the
@@ -146,7 +150,8 @@ mod tests {
         ] {
             let view = copies_view(STORE.to_owned(), handlers);
             assert_eq!(view.this_copy, CopyFlavour::Store);
-            assert!(!view.both_installed && !view.sign_in_held);
+            assert!(!view.both_installed);
+            assert!(!view.sign_in_held);
             assert_eq!(view.title, None);
             assert_eq!(view.message, None);
             assert_eq!(view.this_copy_line, None);
@@ -157,7 +162,8 @@ mod tests {
     #[test]
     fn with_both_installed_sign_in_is_held_and_the_copy_named() {
         let store = copies_view(STORE.to_owned(), vec![STORE.to_owned(), GITHUB.to_owned()]);
-        assert!(store.both_installed && store.sign_in_held);
+        assert!(store.both_installed);
+        assert!(store.sign_in_held);
         assert_eq!(store.title.as_deref(), Some("Install one, not both"));
         let message = store.message.unwrap();
         assert!(

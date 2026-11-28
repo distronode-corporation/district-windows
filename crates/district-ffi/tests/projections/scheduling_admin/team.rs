@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The team (src/scheduling_admin/team.rs): the members beside the
 //! scheduler's users, who left while still a host, the teams, a team's name,
 //! its hosts, and an account's archive.
@@ -1175,4 +1179,21 @@ fn each_action_is_its_core_event() {
     ] {
         assert_eq!(event(sent).events(), [to_core(event_sent)]);
     }
+}
+
+/// A user with a blank name is offered to a team by their address.
+#[test]
+fn a_user_with_no_name_is_offered_by_their_address() {
+    let mut users = contracts::json("district-scheduling-users.json");
+    users["data"][0]["name"] = json!("");
+    let open = team_view(&dialog_users(
+        team(signed_in()).ui(event(TeamAction::OpenMembers {
+            team_id: SUPPORT.to_owned(),
+        })),
+        Ok(users),
+    ))
+    .hosts
+    .expect("open");
+    let labels: Vec<&str> = open.candidates.iter().map(|c| c.label.as_str()).collect();
+    assert_eq!(labels, ["contract@example.com"]);
 }

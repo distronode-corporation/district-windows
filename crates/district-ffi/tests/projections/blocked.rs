@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The blocked callers (src/blocked.rs): the list, and unblocking a caller
 //! after the core's question.
 
@@ -253,4 +257,24 @@ fn the_screen_before_a_read_is_the_default() {
             ..BlockedView::default()
         }
     );
+}
+
+/// A caller whose number came back blank shows their name and no number.
+#[test]
+fn a_blank_number_is_not_shown() {
+    let shown = view(&read(
+        open(signed_in()),
+        json!([{
+            "contactId": "contact_contract_4",
+            "name": "Blank Number",
+            "phoneNumber": " ",
+            "blockedAt": "2026-08-20T16:30:00.000Z"
+        }]),
+    ));
+    let rows: Vec<(&str, Option<&str>)> = shown
+        .rows
+        .iter()
+        .map(|row| (row.name.as_str(), row.phone_number.as_deref()))
+        .collect();
+    assert_eq!(rows, [("Blank Number", None)]);
 }

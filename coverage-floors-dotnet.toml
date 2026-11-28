@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Line coverage floors for the C# assemblies, one entry per assembly.
 #
 # CI's `dotnet` job runs DistrictAI.Core.Tests and DistrictAI.Presentation.Tests
@@ -14,8 +18,8 @@
 
 [assemblies."DistrictAI.Core"]
 floor = 95
-reason = "Measured 95.93% (283 of 295 lines) on Linux on 2026-11-22, rounded down."
+reason = "Measured 95.93% (283 of 295 lines) on Linux on 2026-11-27, rounded down. The 12 lines left are CoreHost's ObjectDisposedException catches, reached only when DisposeAsync wins a race against a call already past its disposed check; no test can order that deterministically."
 
 [assemblies."DistrictAI.Presentation"]
 floor = 99
-reason = "Measured 99.50% (8155 of 8196 lines) on Linux on 2026-11-22, rounded down."
+reason = "Measured 99.90% (8188 of 8196 lines) on Linux on 2026-11-27, rounded down. The 8 lines left: FfiDialRules and the dialler's default constructor, which call district-ffi's native library that these OS-neutral tests do not load (DistrictAI.Core.Tests do), and two default arms for a block or line a later core adds, which the switch needs but today's records never reach."

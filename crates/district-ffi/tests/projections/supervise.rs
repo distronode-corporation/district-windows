@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Supervising a live call (src/supervise.rs): the Live calls list, the card
 //! on the call's page in each of its states, and what happens to every
 //! request the card sends when the state it started from ends before the
@@ -871,4 +875,14 @@ fn the_card_speaks_french() {
     .live
     .expect("the live list");
     assert_eq!(list.title, "Appels en cours");
+}
+
+/// A room dropping while listening says it is reconnecting, as it does on
+/// the call.
+#[test]
+fn a_dropped_room_is_reconnecting_while_listening_too() {
+    let session = media(listening(on_live_call(agency())), MediaEvent::Reconnecting);
+    assert_eq!(shown(&session).state, SuperviseState::Reconnecting);
+    let session = media(on_call(on_live_call(agency())), MediaEvent::Reconnecting);
+    assert_eq!(shown(&session).state, SuperviseState::Reconnecting);
 }

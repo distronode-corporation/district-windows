@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Minimal Partner Center (devcenter v1.0) client for District AI for Windows.
 
 Credentials come from Secret Manager straight into memory: the project and the

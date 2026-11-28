@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The booking scheduler's administration, natively: one section at a time
 //! under the booking pages screen, each the core's
 //! `Route::SchedulingAdmin(SchedulingSection)` and its state in
@@ -606,8 +610,9 @@ mod tests {
         );
         assert_eq!(load_status(&SectionLoad::Ready(())), LoadStatus::Ready);
         let failed = load_status(&SectionLoad::<()>::Failed(sample_failure("Offline.", true)));
-        let LoadStatus::Failed { failure, title } = failed else {
-            panic!("not failed");
+        let (failure, title) = match failed {
+            LoadStatus::Failed { failure, title } => (failure, title),
+            _ => panic!("not failed"),
         };
         assert_eq!(failure.message, "Offline.");
         assert!(failure.retryable);

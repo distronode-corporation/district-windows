@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! What several screens share: a failure, where a read stands, an empty list,
 //! a list read a page at a time, a labelled value, AI-generated text, and the
 //! Report action that goes with it.

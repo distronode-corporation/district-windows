@@ -1,9 +1,17 @@
+<!--
+SPDX-FileCopyrightText: Distronode Corporation
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     The view models in DistrictAI.Presentation, fed the core's generated view
-    records directly and sending to a recorder instead of the core. No native
-    library is loaded: constructing a record or an event calls nothing in
-    district-ffi.
+    records directly and sending to a recorder instead of the core.
+    Constructing a record or an event calls nothing in district-ffi; only the
+    dialler's own rules (FfiDialRules) call its native library, which
+    DistrictAI.Core copies here: build the crate first (`cargo build -p
+    district-ffi`), as for DistrictAI.Core.Tests.
   -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -22,4 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="../../src/DistrictAI.Presentation/DistrictAI.Presentation.csproj" />
   </ItemGroup>
+  <Target Name="RequireDistrictFfi" BeforeTargets="Build">
+    <Error Condition="!Exists('$(DistrictFfiDir)libdistrict_ffi.so') And !Exists('$(DistrictFfiDir)district_ffi.dll')" Text="district-ffi is not built in $(DistrictFfiDir). Run `cargo build -p district-ffi` first." />
+  </Target>
 </Project>

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The members and their roles, and the workspace's name, as District AI for
 //! Linux shows them (`pages/members.rs`).
 //!
@@ -390,7 +394,9 @@ mod tests {
     fn a_section_not_read_yet_is_loading() {
         let view = MembersView::sample();
         assert_eq!(view.status, SectionStatus::Loading);
-        assert!(view.members.is_empty() && view.add.is_none() && view.rename.is_none());
+        assert!(view.members.is_empty());
+        assert!(view.add.is_none());
+        assert!(view.rename.is_none());
         assert_eq!(view.read_only_note, None);
     }
 }

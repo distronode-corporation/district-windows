@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Where the session survives between runs: Credential Manager on Windows.
 //!
 //! [`CredentialStore`] implements the core's `SessionStore` over a [`Vault`], a

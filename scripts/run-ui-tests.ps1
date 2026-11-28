@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 <#
 .SYNOPSIS
 Installs a test MSIX, runs the UI smoke tests (tests/DistrictAI.UiTests) against

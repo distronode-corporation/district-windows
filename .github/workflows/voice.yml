@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: Voice
 
 # The LiveKit call engine on Windows: district-call's `livekit` feature, which

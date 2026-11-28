@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using DistrictAI.Core;
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels.Marketplace;
@@ -238,5 +242,37 @@ public sealed class RegistrationsViewModelTests
         Assert.False(model.Registrations.Member);
         model.Show(N.Admin());
         Assert.False(model.OnRegistrations);
+    }
+
+    [Fact]
+    public void AFormTheCoreFilledIsShownAndAFilingIsTheSameWhileItReadsTheSame()
+    {
+        var (model, sink) = Attached();
+        model.Show(Tab(form: Form(country: "DE", name: "Berlin office")));
+        Assert.Equal("DE", model.Country);
+        Assert.Equal("Berlin office", model.FriendlyName);
+        Assert.Empty(sink.Sent);
+
+        var approved = Draft(id: "BU-9") with { Status = "Approved", Tone = FilingTone.Success, Draft = false };
+        model.Show(Tab(filings: [approved, Refused()]));
+        var item = model.Filings[0];
+        Assert.True(item.Approved);
+        Assert.False(model.Filings[1].Approved);
+        Assert.True(item.Equals((object)item));
+        Assert.False(item.Equals((object)model.Filings[1]));
+        Assert.False(item.Equals((object)"BU-9"));
+        Assert.Equal(item.GetHashCode(), item.GetHashCode());
+    }
+
+    [Fact]
+    public void ADetailTypedIntoAFilingNoLongerListedSendsNothing()
+    {
+        var (model, sink) = Attached();
+        model.Show(Tab(filings: [Draft()]));
+        var detail = model.Filings[0].Details[0];
+        model.Show(Tab(filings: [Refused()]));
+        var before = sink.Sent.Count;
+        detail.Value = "Acme GmbH";
+        Assert.Equal(before, sink.Sent.Count);
     }
 }

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The brand's accent and semantic colours, light and dark, as the core
 //! defines them (district-core's `palette`, `LIGHT` and `DARK`), for the app's
 //! accent resources.

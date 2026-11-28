@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The knowledge base the receptionist answers from (District Studio's
 //! Knowledge), as District AI for Linux shows it (`pages/knowledge.rs`).
 //!
@@ -535,9 +539,13 @@ mod tests {
     #[test]
     fn a_section_not_read_yet_is_loading() {
         let view = knowledge_view(None, true);
-        assert!(view.mode_loading && view.documents_loading);
-        assert!(view.modes.is_empty() && view.documents.is_empty());
-        assert!(!view.add_enabled && !view.can_delete && !view.can_change_mode);
+        assert!(view.mode_loading);
+        assert!(view.documents_loading);
+        assert!(view.modes.is_empty());
+        assert!(view.documents.is_empty());
+        assert!(!view.add_enabled);
+        assert!(!view.can_delete);
+        assert!(!view.can_change_mode);
         assert_eq!(view.viewer_note, None);
         assert!(knowledge_view(None, false).viewer_note.is_some());
     }
@@ -619,6 +627,13 @@ mod tests {
         let mut large = vec![b'a'; cap + 1];
         assert_eq!(
             knowledge_file(file("large.txt", &large)),
+            refused(s::knowledge_file_too_large(l()))
+        );
+        // Windows says it is smaller than what was read: the bytes decide.
+        let mut small = file("large.txt", &large);
+        small.size = 5;
+        assert_eq!(
+            knowledge_file(small),
             refused(s::knowledge_file_too_large(l()))
         );
         large.truncate(cap);

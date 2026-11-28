@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The screen inside the window's frame.
 //!
 //! Outside a session this is the whole of the sign-in page. While signed in it
@@ -414,7 +418,9 @@ pub(crate) fn session_view(
         SessionState::SignedIn(state) => return signed_in(state),
         SessionState::Restoring(restoring) => {
             let mut body = restoring.message();
-            if restoring.retry_in.is_some() && !restoring.checking {
+            // No `&& !checking`: a retry is scheduled only while not checking
+            // (the core's restore_later), and a check clears it (check_again).
+            if restoring.retry_in.is_some() {
                 body = format!("{body} {}", s::screen_retrying(l()));
             }
             SessionScreen {

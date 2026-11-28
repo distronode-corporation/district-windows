@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Phone numbers, as District AI for Linux shows them (`pages/marketplace.rs`,
 //! `ui/marketplace-page.ui`): the numbers the workspace holds, a search of the
 //! numbers for sale, and the carrier tab. Managing a held number and the

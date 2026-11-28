@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Hold every workspace crate's line coverage to the floor coverage-floors.toml
 sets for it.
 
     python3 scripts/check-coverage.py target/coverage.json  # check a report
     python3 scripts/check-coverage.py --feature district-call/livekit report.json
+    python3 scripts/check-coverage.py --branches target/branches.json  # branch floors
     python3 scripts/check-coverage.py --self-test           # prove each rule works
 
 The report is the JSON that `cargo llvm-cov --json` writes, with or without
@@ -56,6 +62,19 @@ A crate above its floor by a whole point or more gets a note saying what the
 floor can be raised to. That is advice, not a failure: raising the floor is part
 of the change that raised the coverage, and a reviewer asks for it.
 
+`--branches` checks a report made with `cargo llvm-cov --branch` (CI's
+`branches` job, on a pinned nightly: stable Rust cannot measure branches)
+against each crate's `branch_floor`, read from each file's branch summary. The
+same rules apply, with two differences: a crate entry without a `branch_floor`
+fails as `unlisted`, and a crate whose files hold no branches at all passes,
+since there is no branch to miss (the line check, not this one, catches a crate
+the run left out of the report's lines).
+
+    [crates.district-model]
+    floor = 100
+    branch_floor = 100
+    reason = "One line saying why the floors are where they are."
+
 `--self-test` runs each rule against planted reports and floors files, together
 with look-alikes that must pass, and fails unless every case answers as
 expected. It also builds a throwaway workspace on disk to prove the files are
@@ -75,7 +94,9 @@ from pathlib import Path, PurePosixPath
 ROOT = Path(__file__).resolve().parent.parent
 FLOORS_FILE = "coverage-floors.toml"
 EXPORT_TYPE = "llvm.coverage.json.export"
-ENTRY_KEYS = {"floor", "reason"}
+ENTRY_KEYS = {"floor", "branch_floor", "reason"}
+# Per metric: the floors-file key it is held to, and the report summary it reads.
+METRICS = {"lines": "floor", "branches": "branch_floor"}
 
 
 class ReportError(Exception):
@@ -88,6 +109,9 @@ class Floor:
     # so a bad value is reported once, as itself, and not again as "unlisted".
     floor: int | None
     reason: str
+    # None when absent or invalid; `has_branch_floor` tells the two apart.
+    branch_floor: int | None = None
+    has_branch_floor: bool = False
 
 
 @dataclass
@@ -165,20 +189,30 @@ def read_floors(data: dict) -> tuple[dict[str, Floor], list[Finding]]:
             floors[name] = Floor(None, "")
             continue
         for key in sorted(set(entry) - ENTRY_KEYS):
-            findings.append(Finding("key", f"{name}: unknown key {key!r} (the keys are `floor` and `reason`)"))
+            findings.append(
+                Finding("key", f"{name}: unknown key {key!r} (the keys are `floor`, `branch_floor` and `reason`)")
+            )
 
-        floor = entry.get("floor")
-        # bool is a subclass of int in Python, and `floor = true` is not a number.
-        if isinstance(floor, bool) or not isinstance(floor, int) or not 0 <= floor <= 100:
-            findings.append(Finding("floor", f"{name}: the floor must be a whole number from 0 to 100, not {floor!r}"))
-            floor = None
+        def whole(key: str) -> int | None:
+            value = entry.get(key)
+            # bool is a subclass of int in Python, and `floor = true` is not a number.
+            if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= 100:
+                findings.append(
+                    Finding("floor", f"{name}: the {key} must be a whole number from 0 to 100, not {value!r}")
+                )
+                return None
+            return value
+
+        floor = whole("floor")
+        has_branch_floor = "branch_floor" in entry
+        branch_floor = whole("branch_floor") if has_branch_floor else None
 
         reason = entry.get("reason")
         if not isinstance(reason, str) or not reason.strip():
             findings.append(Finding("reason", f"{name}: the floor has no reason; say in one line why it is where it is"))
             reason = ""
 
-        floors[name] = Floor(floor, reason.strip())
+        floors[name] = Floor(floor, reason.strip(), branch_floor, has_branch_floor)
     return floors, findings
 
 
@@ -198,9 +232,11 @@ def relative_path(filename: str, roots: list[PurePosixPath]) -> PurePosixPath | 
     return None
 
 
-def measure(report: object, root: Path, members: dict[str, str]) -> tuple[dict[str, Tally], int]:
-    """Line totals per crate, and the number of files the report holds that
-    belong to no crate's `src/`."""
+def measure(
+    report: object, root: Path, members: dict[str, str], metric: str = "lines"
+) -> tuple[dict[str, Tally], int]:
+    """Totals of `metric` (lines or branches) per crate, and the number of files
+    the report holds that belong to no crate's `src/`."""
     if not isinstance(report, dict) or report.get("type") != EXPORT_TYPE or not isinstance(report.get("data"), list):
         raise ReportError(f"not a `cargo llvm-cov --json` export (expected \"type\": \"{EXPORT_TYPE}\" and a data list)")
 
@@ -214,10 +250,10 @@ def measure(report: object, root: Path, members: dict[str, str]) -> tuple[dict[s
     try:
         for export in report["data"]:
             for entry in export["files"]:
-                lines = entry["summary"]["lines"]
-                count, covered = lines["count"], lines["covered"]
+                summary = entry["summary"][metric]
+                count, covered = summary["count"], summary["covered"]
                 if not (isinstance(count, int) and isinstance(covered, int) and 0 <= covered <= count):
-                    raise ReportError(f"{entry['filename']}: line counts {covered!r} of {count!r} make no sense")
+                    raise ReportError(f"{entry['filename']}: {metric} counts {covered!r} of {count!r} make no sense")
                 path = relative_path(entry["filename"], roots)
                 crate = None
                 if path is not None:
@@ -230,7 +266,7 @@ def measure(report: object, root: Path, members: dict[str, str]) -> tuple[dict[s
                 tally.lines += count
                 tally.covered += covered
     except (KeyError, TypeError) as error:
-        raise ReportError(f"a file entry is missing its line summary ({error!r})") from error
+        raise ReportError(f"a file entry is missing its {metric} summary ({error!r})") from error
     return tallies, elsewhere
 
 
@@ -238,8 +274,9 @@ def check(
     members: dict[str, str],
     floors: dict[str, Floor],
     tallies: dict[str, Tally],
+    metric: str = "lines",
 ) -> tuple[list[Row], list[Finding], list[str]]:
-    """Apply the rules. Returns the table rows, the failures, and the notes."""
+    """Apply the rules to `metric`. Returns the table rows, the failures, and the notes."""
     rows: list[Row] = []
     findings: list[Finding] = []
     notes: list[str] = []
@@ -247,11 +284,15 @@ def check(
     for name in members.values():
         tally = tallies.get(name, Tally())
         entry = floors.get(name)
-        floor = entry.floor if entry else None
+        branches = metric == "branches"
+        floor = (entry.branch_floor if branches else entry.floor) if entry else None
 
         if entry is None:
             result = "NO FLOOR"
             findings.append(Finding("unlisted", f"{name}: a workspace member with no entry in {FLOORS_FILE}"))
+        elif branches and not entry.has_branch_floor:
+            result = "NO FLOOR"
+            findings.append(Finding("unlisted", f"{name}: no branch_floor in its {FLOORS_FILE} entry"))
         elif tally.files == 0:
             result = "MISSING"
             findings.append(
@@ -263,6 +304,8 @@ def check(
             )
         elif floor is None:
             result = "BAD ENTRY"
+        elif branches and tally.lines == 0:
+            result = "ok"
         elif tally.lines == 0 and floor > 0:
             result = "EMPTY"
             findings.append(
@@ -273,8 +316,8 @@ def check(
             findings.append(
                 Finding(
                     "below",
-                    f"{name}: {percent(tally)} of lines ({tally.covered} of {tally.lines}) is under its floor of "
-                    f"{floor}%; {uncovered_to_floor(tally, floor)} more line(s) must be covered",
+                    f"{name}: {percent(tally)} of {metric} ({tally.covered} of {tally.lines}) is under its floor of "
+                    f"{floor}%; {uncovered_to_floor(tally, floor)} more {metric} must be covered",
                 )
             )
         else:
@@ -327,8 +370,8 @@ def uncovered_to_floor(tally: Tally, floor: int) -> int:
     return -(-(floor * tally.lines - tally.covered * 100) // 100)
 
 
-def table(rows: list[Row]) -> str:
-    header = ("crate", "files", "lines", "covered", "coverage", "floor", "result")
+def table(rows: list[Row], metric: str = "lines") -> str:
+    header = ("crate", "files", metric, "covered", "coverage", "floor", "result")
     body = [
         (
             row.crate,
@@ -351,9 +394,10 @@ def table(rows: list[Row]) -> str:
     return "\n".join(render(line) for line in [header, *body])
 
 
-def run(report_path: Path, root: Path, feature: str | None = None) -> int:
+def run(report_path: Path, root: Path, feature: str | None = None, metric: str = "lines") -> int:
     """The whole check against one report, printing as it goes. 0 passes.
-    With `feature`, only that crate's build with that feature is checked."""
+    With `feature`, only that crate's build with that feature is checked; with
+    metric "branches", each crate's branch_floor."""
     members = workspace_members(root)
     floors_path = root / FLOORS_FILE
     try:
@@ -363,13 +407,13 @@ def run(report_path: Path, root: Path, feature: str | None = None) -> int:
         return 1
     try:
         with report_path.open(encoding="utf-8") as fh:
-            tallies, elsewhere = measure(json.load(fh), root, members)
+            tallies, elsewhere = measure(json.load(fh), root, members, metric)
     except (OSError, ValueError, ReportError) as error:
         print(f"ERROR: cannot read the report {report_path}: {error}", file=sys.stderr)
         return 1
 
     if feature is None:
-        rows, failures, notes = check(members, floors, tallies)
+        rows, failures, notes = check(members, floors, tallies, metric)
     else:
         # The rest of the file is still well formed or not, whichever build
         # the report is of.
@@ -377,7 +421,7 @@ def run(report_path: Path, root: Path, feature: str | None = None) -> int:
         rows, failures, notes = check_feature(members, floors, tallies, feature)
     findings.extend(failures)
 
-    print(table(rows))
+    print(table(rows, metric))
     print(f"\n  {elsewhere} file(s) in the report belong to no crate's src/ and are not counted")
     for note in notes:
         print(f"  note: {note}")
@@ -392,7 +436,8 @@ def run(report_path: Path, root: Path, feature: str | None = None) -> int:
         print(f"\ncoverage check FAILED: {len(findings)} problem(s)", file=sys.stderr)
         return 1
     if feature is None:
-        print(f"\nline coverage meets every floor in {FLOORS_FILE} ({len(rows)} crates)")
+        what = "line coverage meets every floor" if metric == "lines" else "branch coverage meets every branch_floor"
+        print(f"\n{what} in {FLOORS_FILE} ({len(rows)} crates)")
     else:
         print(f'\nline coverage meets the floor of [features."{feature}"] in {FLOORS_FILE}')
     return 0
@@ -592,6 +637,65 @@ def self_test() -> int:
     ]
 
     failures = 0
+    def branch_report(*files: tuple[str, int, int]) -> dict:
+        """A `--branch` report: (path, branches, covered) per file, every line covered."""
+        return {
+            "type": EXPORT_TYPE,
+            "data": [
+                {
+                    "files": [
+                        {
+                            "filename": f,
+                            "summary": {"lines": {"count": 1, "covered": 1}, "branches": {"count": n, "covered": c}},
+                        }
+                        for f, n, c in files
+                    ]
+                }
+            ],
+        }
+
+    branch_full = {"floor": 100, "branch_floor": 100, "reason": "r"}
+    branch_floors = floors(alpha=branch_full, beta={**measured, "branch_floor": 50}, gamma={**zero, "branch_floor": 0})
+    branch_files = [
+        ("/work/tree/crates/alpha/src/lib.rs", 8, 8),
+        ("/work/tree/crates/beta/src/lib.rs", 4, 2),
+        ("/work/tree/crates/gamma/src/main.rs", 6, 0),
+    ]
+    # (name, floors file contents, report, the rules expected to fail), checked with --branches.
+    branch_cases: list[tuple[str, dict, object, set[str]]] = [
+        ("every crate at or above its branch_floor", branch_floors, branch_report(*branch_files), set()),
+        (
+            "one branch missed under a branch_floor of 100",
+            branch_floors,
+            branch_report(("/work/tree/crates/alpha/src/lib.rs", 8, 7), *branch_files[1:]),
+            {"below"},
+        ),
+        (
+            "a crate with no branches at all passes a branch_floor of 100",
+            branch_floors,
+            branch_report(("/work/tree/crates/alpha/src/lib.rs", 0, 0), *branch_files[1:]),
+            set(),
+        ),
+        (
+            "an entry without a branch_floor",
+            floors(alpha=full, beta={**measured, "branch_floor": 50}, gamma={**zero, "branch_floor": 0}),
+            branch_report(*branch_files),
+            {"unlisted"},
+        ),
+        (
+            "a branch_floor written as a string",
+            floors(
+                alpha={**branch_full, "branch_floor": "100"},
+                beta={**measured, "branch_floor": 50},
+                gamma={**zero, "branch_floor": 0},
+            ),
+            branch_report(*branch_files),
+            {"floor"},
+        ),
+        ("a member missing from a branch report", branch_floors, branch_report(*branch_files[:2]), {"missing"}),
+        ("a report without branch summaries", branch_floors, report(*good_files), {"report"}),
+    ]
+
     for name, floors_data, report_data, expected in cases:
         parsed, found = read_floors(floors_data)
         try:
@@ -604,6 +708,18 @@ def self_test() -> int:
         ok = got == expected
         failures += not ok
         print(f"  {'pass' if ok else 'FAIL'}  {name}: expected {sorted(expected)}, got {sorted(got)}")
+    for name, floors_data, report_data, expected in branch_cases:
+        parsed, found = read_floors(floors_data)
+        try:
+            tallies, _ = measure(report_data, root, members, "branches")
+        except ReportError:
+            found.append(Finding("report", ""))
+        else:
+            found.extend(check(members, parsed, tallies, "branches")[1])
+        got = {f.rule for f in found}
+        ok = got == expected
+        failures += not ok
+        print(f"  {'pass' if ok else 'FAIL'}  {name} (--branches): expected {sorted(expected)}, got {sorted(got)}")
     for name, floors_data, report_data, feature, expected in feature_cases:
         parsed, found = read_floors(floors_data)
         tallies, _ = measure(report_data, root, members)
@@ -660,7 +776,7 @@ def self_test() -> int:
             failures += not ok
             print(f"  {'pass' if ok else 'FAIL'}  {name}: expected {expected_status}, got {status}")
 
-    total = len(cases) + len(feature_cases) + len(checks)
+    total = len(cases) + len(branch_cases) + len(feature_cases) + len(checks)
     if failures:
         print(f"\nself-test FAILED: {failures} of {total} case(s) did not answer as expected", file=sys.stderr)
         return 1
@@ -673,6 +789,8 @@ def main(argv: list[str]) -> int:
         return self_test()
     if len(argv) == 4 and argv[1] == "--feature" and not argv[3].startswith("-"):
         return run(Path(argv[3]), ROOT, argv[2])
+    if len(argv) == 3 and argv[1] == "--branches" and not argv[2].startswith("-"):
+        return run(Path(argv[2]), ROOT, metric="branches")
     if len(argv) != 2 or argv[1].startswith("-"):
         print(__doc__, file=sys.stderr)
         return 2

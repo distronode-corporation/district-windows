@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The member's own calendars: a card per connected account (its provider,
 //! its address, which of its calendars are checked for conflicts and which
 //! receives new bookings) with Choose calendars and Disconnect, asked once

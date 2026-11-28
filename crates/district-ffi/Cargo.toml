@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 [package]
 name = "district-ffi"
 description = "The boundary District AI for Windows calls: one Core object over the shared Rust core, a view of each screen, and the Windows session store."

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 using DistrictAI.Core.Ffi;
 using DistrictAI.ViewModels.Settings.Messaging;
 using Xunit;
@@ -302,6 +306,15 @@ public sealed class MessagingViewModelTests
         model.Send(new MessagingAction.Open());
         var (context, sink) = Pages.Context();
         model.Attach(context);
+        Assert.Empty(sink.Sent);
+    }
+
+    [Fact]
+    public void APlainKeyTheCoreHoldsIsShownWithoutBeingSentBack()
+    {
+        var (model, sink) = Attached();
+        model.Show(View(form: Form(MessagingCarrier.Sinch, [Key(KeyField.ProjectId, "Project ID", secret: false, filled: true, value: "proj-9")])));
+        Assert.Equal("proj-9", model.Keys[0].PlainValue);
         Assert.Empty(sink.Sent);
     }
 }

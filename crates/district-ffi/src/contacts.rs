@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Contacts and one contact: what the Linux contacts page, contact view and
 //! contact form show, and the changes a member makes there (adding, editing,
 //! deleting, running and clearing research, blocking and unblocking), each as
@@ -560,6 +564,32 @@ mod tests {
         assert_eq!(status(Some("failed")).as_deref(), Some("Did not finish"));
         assert_eq!(status(Some("on_hold")).as_deref(), Some("On hold"));
         assert_eq!(count(12), "12 contacts");
+    }
+
+    /// A row's detail is the number and the address, less what is blank and
+    /// what already names the contact.
+    #[test]
+    fn a_rows_detail_skips_the_blank_and_the_name() {
+        let row = |name: &str, phone: Option<&str>, email: Option<&str>| {
+            let contact: Contact = serde_json::from_value(json!({
+                "id": "c-1", "workspaceId": "ws-1", "name": name, "phoneNumber": phone,
+                "email": email, "socialHandles": null, "company": null, "intelligence": null,
+                "visualMemory": null, "latestContextSummary": null, "dgiStatus": null,
+                "dgiError": null, "budget": null, "timeline": null, "website": null,
+                "lastUpdated": null, "createdAt": ""
+            }))
+            .unwrap();
+            let row = contact_row(&contact);
+            (row.name, row.detail)
+        };
+        let (name, detail) = row("Ana", Some("+14165550142"), Some("ana@example.com"));
+        assert_eq!(name, "Ana");
+        assert!(detail.ends_with("ana@example.com"), "{detail}");
+        assert!(detail.contains(DOT), "{detail}");
+        let (name, detail) = row("", None, Some("ana@example.com"));
+        assert_eq!((name.as_str(), detail.as_str()), ("ana@example.com", ""));
+        let (_, detail) = row("Ana", None, Some(" "));
+        assert_eq!(detail, "");
     }
 
     #[test]

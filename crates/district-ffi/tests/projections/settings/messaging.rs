@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The Messaging accounts section (src/settings/messaging.rs).
 
 use district_core::{
@@ -457,4 +461,19 @@ fn each_action_is_its_core_event() {
         one(MessagingAction::DismissNotice),
         messaging(MessagingEvent::DismissNotice)
     );
+}
+
+/// An account on a carrier this app does not know, or with no numbers, is
+/// still listed: it says it has no numbers, and offers no edit.
+#[test]
+fn an_unknown_account_is_listed_but_not_edited() {
+    let mut answer = contracts::json("district-messaging.json");
+    answer["accounts"][0]["provider"] = serde_json::json!("acme");
+    answer["accounts"][0]["phoneNumbers"] = serde_json::json!([]);
+    answer["accounts"][1]["credentialSource"] = serde_json::json!("borrowed");
+    let accounts = view(&loaded(open(signed_in()), Ok(answer))).accounts;
+    assert!(accounts[0].line.ends_with("No numbers"));
+    assert!(!accounts[0].offers_edit);
+    assert!(!accounts[1].offers_edit);
+    assert!(accounts[0].offers_remove);
 }

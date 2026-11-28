@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Windows push (WNS): ringing and messages when the app is closed.
 //!
 //! The app asks the Windows App SDK for a channel
@@ -391,8 +395,9 @@ mod tests {
         assert!(!cancelled.needs_ring_setting());
         let update = cancelled.live_update("user-1");
         assert_eq!(update.workspace_id, "ws-1");
-        let LiveUpdate::Event(envelope) = update.update else {
-            panic!("not an event");
+        let envelope = match update.update {
+            LiveUpdate::Event(envelope) => envelope,
+            _ => panic!("not an event"),
         };
         assert_eq!(envelope.event_type, TelemetryEventType::CallRingCancelled);
         assert_eq!(envelope.call_id, "call-1");
@@ -423,8 +428,9 @@ mod tests {
                 r#"{{"type":"call_ring_cancelled","callId":"call-1","workspaceId":"ws-1","reason":"{reason}"}}"#
             );
             let message = decode_push(&payload).expect("a ring's end");
-            let LiveUpdate::Event(envelope) = message.live_update("user-1").update else {
-                panic!("not an event");
+            let envelope = match message.live_update("user-1").update {
+                LiveUpdate::Event(envelope) => envelope,
+                _ => panic!("not an event"),
             };
             assert_eq!(envelope.ring_cancel_reason(), Some(read), "{reason}");
         }
@@ -447,7 +453,8 @@ mod tests {
         };
         let then = Instant::now();
         let now = then + Duration::from_secs(1);
-        assert!(ring("call-1").needs_ring_setting() && !message.needs_ring_setting());
+        assert!(ring("call-1").needs_ring_setting());
+        assert!(!message.needs_ring_setting());
 
         // The ring it ends goes with it.
         assert_eq!(
@@ -525,8 +532,9 @@ mod tests {
         assert_eq!(ring.shelf_life(), RING_DEADLINE);
         let update = ring.live_update("user-1");
         assert_eq!(update.workspace_id, "ws-1");
-        let LiveUpdate::Event(envelope) = update.update else {
-            panic!("not an event");
+        let envelope = match update.update {
+            LiveUpdate::Event(envelope) => envelope,
+            _ => panic!("not an event"),
         };
         assert_eq!(envelope.event_type, TelemetryEventType::CallRinging);
         assert_eq!(envelope.call_id, "call-1");
@@ -537,8 +545,9 @@ mod tests {
             workspace_id: "ws-2".to_owned(),
         };
         assert_eq!(message.shelf_life(), MESSAGE_SHELF_LIFE);
-        let LiveUpdate::Event(envelope) = message.live_update("user-1").update else {
-            panic!("not an event");
+        let envelope = match message.live_update("user-1").update {
+            LiveUpdate::Event(envelope) => envelope,
+            _ => panic!("not an event"),
         };
         assert_eq!(envelope.event_type, TelemetryEventType::MessageReceived);
         assert_eq!(envelope.call_id, "msg-1");

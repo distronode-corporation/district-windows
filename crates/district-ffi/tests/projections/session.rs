@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Outside a session: the sign-in page in each phase (src/screen.rs).
 
 use district_api::{ReauthReason, RetryReason, TokenError};

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The Knowledge section (src/settings/knowledge.rs).
 
 use district_core::{Effect, Event, KnowledgeEvent, Route, WorkspaceSection};

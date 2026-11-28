@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Starting a conversation from the inbox (src/compose.rs).
 
 use district_ffi::{ComposeAction, ComposeView, InboxView};

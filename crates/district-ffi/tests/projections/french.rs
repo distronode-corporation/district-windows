@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The values the core writes the French way since district-core-rust 4.0.0
 //! (a call's length, a price in its currency, a chart's days), as they reach
 //! the screens. The snapshots pin the English, which these leave unchanged.

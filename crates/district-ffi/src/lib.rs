@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The boundary District AI for Windows calls: one [`Core`] object over the
 //! shared Rust core (district-core-rust), exported to C# through UniFFI.
 //!

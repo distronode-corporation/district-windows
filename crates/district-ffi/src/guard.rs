@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The question before leaving a settings section with changes that are not
 //! saved: "Discard your changes?", as District AI for Linux asks it
 //! (`district-app/src/guard.rs`).

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! The [`Core`] object: the model's actor, its snapshot, and the runner built
 //! over the core's own adapters.
 
@@ -784,19 +788,20 @@ impl<X: Effects> Actor<X> {
                     self.pushed = PushMessage::waiting(self.pushed.take(), push, Instant::now());
                 }
             }
-            self.deliver_push();
+            self.deliver_push(Instant::now());
         }
     }
 
     /// Hands the model the push waiting, once someone is signed in, the live
     /// updates have started and (for a ring) the ring setting is read, as the
     /// socket's own event; drops it once it
-    /// is too old to mean anything.
-    fn deliver_push(&mut self) {
+    /// is too old to mean anything at `now` (the actor passes the clock's
+    /// time; a test passes a later one).
+    fn deliver_push(&mut self, now: Instant) {
         let Some((push, arrived)) = self.pushed.take() else {
             return;
         };
-        if arrived.elapsed() > push.shelf_life() {
+        if now.saturating_duration_since(arrived) > push.shelf_life() {
             return;
         }
         // A ring also waits for "ring on this computer" to have been read:
@@ -998,7 +1003,7 @@ mod tests {
                     ticket,
                     setting: Some(district_core::PurchaseSetting::SignInEveryTime),
                 }),
-                Effect::RequestHqVoice { ticket, .. } if self.voice => Some(Event::HqVoiceIssued {
+                Effect::RequestHqVoice { ticket, .. } => self.voice.then(|| Event::HqVoiceIssued {
                     ticket,
                     result: Ok(serde_json::from_value(serde_json::json!({
                         "success": true,
@@ -1012,11 +1017,12 @@ mod tests {
                     }))
                     .expect("a voice credential")),
                 }),
-                Effect::ConnectMedia { session, .. } if self.voice => {
-                    Some(Event::Media(district_core::MediaUpdate {
-                        session,
-                        event: district_core::MediaEvent::Connected,
-                    }))
+                Effect::ConnectMedia { session, .. } => {
+                    self.voice
+                        .then_some(Event::Media(district_core::MediaUpdate {
+                            session,
+                            event: district_core::MediaEvent::Connected,
+                        }))
                 }
                 Effect::EndHqVoice { .. } | Effect::DiscardHqVoice { .. } => {
                     tokio::time::sleep(self.release_takes).await;
@@ -1180,8 +1186,9 @@ mod tests {
         let answer = "districtai://auth?code=c&state=s".to_owned();
         assert_eq!(core.open_link(answer.clone()), LinkKind::Auth);
         eventually("the exchange", || {
-            effects.ran(|effect| {
-                matches!(effect, Effect::CompleteSignIn { callback, .. } if *callback == answer)
+            effects.ran(|effect| match effect {
+                Effect::CompleteSignIn { callback, .. } => *callback == answer,
+                _ => false,
             })
         })
         .await;
@@ -1193,6 +1200,26 @@ mod tests {
             core.open_link("https://example.com".to_owned()),
             LinkKind::Unknown
         );
+        // A link the address parser reads past leading space is still the
+        // sign-in's kind, but the core takes only one that starts with the
+        // scheme, so nothing more is exchanged.
+        let exchanges = || {
+            effects
+                .ran
+                .lock()
+                .unwrap()
+                .iter()
+                .filter(|effect| matches!(effect, Effect::CompleteSignIn { .. }))
+                .count()
+        };
+        let before = exchanges();
+        assert_eq!(
+            core.open_link(" districtai://auth?code=d&state=s".to_owned()),
+            LinkKind::Auth
+        );
+        core.send(UiEvent::Refresh);
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        assert_eq!(exchanges(), before);
 
         // An event that changes nothing on screen is not a new revision.
         let before = core.revision();
@@ -1344,10 +1371,10 @@ mod tests {
         let started = std::time::Instant::now();
         core.shutdown().await;
         let waited = started.elapsed();
-        assert!(effects.ran(|effect| matches!(
-            effect,
-            Effect::EndHqVoice { workspace_id, .. } if workspace_id == "ws-1"
-        )));
+        assert!(effects.ran(|effect| match effect {
+            Effect::EndHqVoice { workspace_id, .. } => workspace_id == "ws-1",
+            _ => false,
+        }));
         assert!(!effects.ran(|effect| matches!(effect, Effect::DiscardHqVoice { .. })));
         assert!(effects.ran(|effect| matches!(effect, Effect::DisconnectMedia { .. })));
         assert!(waited >= QUIT_BUDGET, "{waited:?}");
@@ -1395,11 +1422,12 @@ mod tests {
 
     /// Whether the persona section's form is read and its name reads `name`.
     fn persona_ready(core: &Core, name: &str) -> bool {
-        matches!(
-            core.screen(),
-            ScreenView::Persona { view }
-                if view.status == crate::settings::SectionStatus::Ready && view.name == name
-        )
+        match core.screen() {
+            ScreenView::Persona { view } => {
+                (view.status == crate::settings::SectionStatus::Ready) & (view.name == name)
+            }
+            _ => false,
+        }
     }
 
     /// The actor holds a move away from a section with unsaved changes and
@@ -1568,17 +1596,19 @@ mod tests {
             ring.detail.as_deref(),
             Some(IncomingRing::ANSWERED_ELSEWHERE)
         );
-        assert!(!ring.show_answer && !ring.can_answer && !ring.sounding);
+        assert!(!ring.show_answer);
+        assert!(!ring.can_answer);
+        assert!(!ring.sounding);
         let stopped = |effect: &Effect| {
+            // `|`, not `||`: both sides are read, so neither is a branch of the test.
             matches!(effect, Effect::StopRingtone)
-                || matches!(effect, Effect::WithdrawNotification { id } if id == "call:call-9")
+                | (*effect
+                    == Effect::WithdrawNotification {
+                        id: "call:call-9".to_owned(),
+                    })
         };
         eventually("the ringtone stopped and the toast withdrawn", || {
-            let ran = effects.ran.lock().unwrap();
-            ran.iter().any(|effect| matches!(effect, Effect::StopRingtone))
-                && ran.iter().any(|effect| {
-                    matches!(effect, Effect::WithdrawNotification { id } if id == "call:call-9")
-                })
+            silenced(&effects)
         })
         .await;
         let before = effects.ran.lock().unwrap().len();
@@ -1592,7 +1622,7 @@ mod tests {
         eventually("the next call rings", || {
             core.shell()
                 .ring
-                .is_some_and(|ring| ring.call_id == "call-10" && ring.sounding)
+                .is_some_and(|ring| (ring.call_id == "call-10") & ring.sounding)
         })
         .await;
         let ran = effects.ran.lock().unwrap()[before..].to_vec();
@@ -1656,9 +1686,14 @@ mod tests {
     /// toast taken away.
     fn silenced(effects: &FakeEffects) -> bool {
         let ran = effects.ran.lock().unwrap();
-        ran.iter().any(|effect| matches!(effect, Effect::StopRingtone))
-            && ran.iter().any(|effect| {
-                matches!(effect, Effect::WithdrawNotification { id } if id == "call:call-9")
+        // `&`, not `&&`: both are read, so the test adds no branch of its own.
+        ran.iter()
+            .any(|effect| matches!(effect, Effect::StopRingtone))
+            & ran.iter().any(|effect| {
+                *effect
+                    == Effect::WithdrawNotification {
+                        id: "call:call-9".to_owned(),
+                    }
             })
     }
 
@@ -1673,11 +1708,11 @@ mod tests {
         });
         eventually("the decline sent", || {
             effects.ran(|effect| {
-                matches!(
-                    effect,
-                    Effect::DeclineCall { workspace_id, call_id }
-                        if workspace_id == "ws-1" && call_id == "call-9"
-                )
+                *effect
+                    == Effect::DeclineCall {
+                        workspace_id: "ws-1".to_owned(),
+                        call_id: "call-9".to_owned(),
+                    }
             })
         })
         .await;
@@ -1695,7 +1730,7 @@ mod tests {
         eventually("the next call rings", || {
             core.shell()
                 .ring
-                .is_some_and(|ring| ring.call_id == "call-10" && ring.sounding)
+                .is_some_and(|ring| (ring.call_id == "call-10") & ring.sounding)
         })
         .await;
         core.shutdown().await;
@@ -1839,7 +1874,37 @@ mod tests {
         core.shutdown().await;
     }
 
-    /// A channel cannot be registered before the core runs.
+    /// A push still waiting once it is older than its shelf life is dropped,
+    /// and one inside it is kept waiting for the session.
+    #[test]
+    fn a_push_past_its_shelf_life_is_dropped() {
+        let (sender, _inbox) = unbounded_channel();
+        let (model, _) = Model::new(config());
+        let mut actor = Actor {
+            model,
+            effects: Arc::new(Arc::new(FakeEffects::default())),
+            host: Arc::new(RecordingHost::default()),
+            snapshot: Arc::new(SnapshotCell::new()),
+            sender,
+            held: Held::default(),
+            pushed: None,
+        };
+        let push = crate::push::decode_push(
+            r#"{"type":"incoming_call","callId":"call-9","workspaceId":"ws-1"}"#,
+        )
+        .expect("a ring");
+        let arrived = Instant::now();
+        let shelf = push.shelf_life();
+        actor.pushed = Some((push.clone(), arrived));
+        actor.deliver_push(arrived + shelf);
+        assert!(actor.pushed.is_some(), "inside its shelf life, it waits");
+        actor.deliver_push(arrived + shelf + Duration::from_secs(1));
+        assert!(actor.pushed.is_none(), "past it, it is dropped");
+    }
+
+    /// A channel cannot be registered before the core runs, nor by a core
+    /// started without the service's client (as the tests and a scripted
+    /// scene start it).
     #[tokio::test]
     async fn a_channel_needs_a_running_core() {
         let core = Core::new();
@@ -1848,6 +1913,17 @@ mod tests {
                 .await,
             PushRegistration::NotStarted
         );
+        core.start_with(
+            config(),
+            Arc::new(FakeEffects::default()),
+            Arc::new(RecordingHost::default()),
+        );
+        assert_eq!(
+            core.register_push_channel("https://a.notify.windows.com/w/".to_owned())
+                .await,
+            PushRegistration::NotStarted
+        );
+        core.shutdown().await;
     }
 
     #[tokio::test]
@@ -1862,9 +1938,11 @@ mod tests {
         forward(&runtime, from, to, Event::WindowVisible);
         source.send(false).unwrap();
         let first = inbox.recv().await;
-        assert!(
-            matches!(&first, Some(Message::Event(event)) if **event == Event::WindowVisible(false))
-        );
+        let event = match first {
+            Some(Message::Event(event)) => event,
+            _ => panic!("not an event"),
+        };
+        assert_eq!(*event, Event::WindowVisible(false));
         drop(inbox);
         source.send(true).unwrap();
         eventually("the forwarder to stop", || source.is_closed()).await;
@@ -1985,9 +2063,10 @@ mod tests {
                 Arc::new(RecordingHost::default()),
             )
             .unwrap_err();
-        assert!(
-            matches!(&error, StartError::Setup { detail } if detail.starts_with("the data directory")),
-            "{error:?}"
-        );
+        let detail = match &error {
+            StartError::Setup { detail } => detail,
+            _ => panic!("{error:?}"),
+        };
+        assert!(detail.starts_with("the data directory"), "{error:?}");
     }
 }

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Distronode Corporation
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! Meeting rooms, audio only, as District AI for Linux's rooms lobby shows
 //! them (`pages/rooms.rs`, `pages/meeting_record.rs`): starting or joining a
 //! room by its name, the room joined (who is there, mute, the guest link,
@@ -654,8 +658,9 @@ mod tests {
                 expires_at_secs: 4_000_000_000,
             }),
         });
-        let SessionState::SignedIn(signed_in) = model.session() else {
-            panic!("not signed in");
+        let signed_in = match model.session() {
+            SessionState::SignedIn(signed_in) => signed_in,
+            _ => panic!("not signed in"),
         };
         let view = rooms_view(signed_in, &config);
         assert_eq!(view.meetings_status, LoadStatus::Loading);

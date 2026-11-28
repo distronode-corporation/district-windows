@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: Distronode Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Fail on sign-up and purchase wording in the app's user-facing strings.
 
     python3 scripts/check-store-copy.py              # scan the app
