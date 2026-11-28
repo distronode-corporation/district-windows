@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Distronode Corporation
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     UI smoke tests of the INSTALLED app, driven through UI Automation with

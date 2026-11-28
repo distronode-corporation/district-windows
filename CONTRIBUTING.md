@@ -3,6 +3,8 @@
 Thanks for looking. 1.0.0 is released (see the README's
 [Releases](README.md#releases)), and this file grows as each part lands.
 
+New here? Issues labelled [good first issue](https://github.com/distronode-corporation/district-windows/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22) are small, well scoped and need no access beyond this repository.
+
 ## Layout
 
 ```
